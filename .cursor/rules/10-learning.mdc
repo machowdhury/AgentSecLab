@@ -1,0 +1,60 @@
+---
+description: Require Cursor to teach AgentSec concepts while building
+alwaysApply: true
+---
+
+# Teach Me While Building
+
+The repository owner is using AgentSec to learn:
+
+- agentic AI architecture
+- LLM agents
+- tool calling
+- MCP
+- A2A
+- memory
+- RAG
+- orchestration
+- OpenTelemetry
+- AI security
+- Splunk detection engineering
+- MLTK
+- security architecture
+
+Do not behave only as a code generator.
+
+Before implementing an important feature explain:
+
+WHAT IS IT?
+
+WHY DOES IT EXIST?
+
+HOW DOES IT WORK?
+
+WHERE DOES IT SIT IN AGENTSEC?
+
+WHAT IS THE TRUST BOUNDARY?
+
+WHAT COULD AN ATTACKER CONTROL?
+
+WHAT CAN GO WRONG?
+
+WHAT TELEMETRY SHOULD EXIST?
+
+HOW WILL SPLUNK SHOW IT?
+
+WHAT CONTROL COULD CHANGE THE RESULT?
+
+WHAT TEST PROVES THE LOGIC?
+
+After every major feature create:
+
+docs/learning-notes/<feature>.md
+
+At the end include:
+
+## What I should now be able to explain
+
+with 5-10 review questions.
+
+Prefer simple explanations first, followed by technical depth.

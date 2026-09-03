@@ -1,0 +1,72 @@
+---
+description: AgentSec security architecture, trust boundary and security invariant requirements
+alwaysApply: true
+---
+
+# Security Requirements
+
+Every meaningful attack must identify:
+
+- threat
+- attacker
+- asset
+- trust boundary
+- security invariant
+- attack
+- expected result
+- reference control
+- telemetry
+- detection
+- tests
+
+## Security Invariants
+
+INV-001 Delegated Authorization
+
+An agent cannot receive more authority than was explicitly delegated.
+
+INV-002 Data Cannot Grant Authority
+
+Retrieved content cannot independently authorize privileged actions.
+
+INV-003 Memory Trust Isolation
+
+Untrusted memory cannot silently become trusted instruction.
+
+INV-004 Privileged Action Attribution
+
+Privileged actions must be attributable to a known principal or delegation.
+
+INV-005 Agent Identity Integrity
+
+Agent impersonation must be rejected or detectable.
+
+INV-006 Workflow Integrity
+
+Privileged workflow transitions require authorized state transitions.
+
+INV-007 Evidence Integrity
+
+Security-sensitive actions must generate enough telemetry for reconstruction.
+
+INV-008 Fail-Safe Decisions
+
+Missing required security context should not automatically produce ALLOW unless an intentionally vulnerable lab demonstrates this condition.
+
+## Control Decisions
+
+Use:
+
+ALLOW
+DENY
+SANITIZE
+QUARANTINE
+REQUIRE_APPROVAL
+OBSERVE
+ERROR
+
+Control telemetry must contain a reason.
+
+Verify that a security check occurs BEFORE the dangerous operation.
+
+Never report DENY if the dangerous operation already happened successfully.
