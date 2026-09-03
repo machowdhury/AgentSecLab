@@ -1,0 +1,125 @@
+---
+description: Professional Splunk Dashboard Studio design requirements for AgentSec
+globs: "splunk_app/**"
+alwaysApply: false
+---
+
+# Dashboard Studio Requirements
+
+All new AgentSec dashboards must use Splunk Dashboard Studio unless a documented technical limitation requires otherwise.
+
+Use GRID layout by default for:
+
+- workshops
+- investigations
+- detection labs
+- MLTK labs
+- MCP
+- A2A
+- memory
+- RAG
+- control validation
+- compliance
+
+Use absolute layout only when specifically justified.
+
+## Design System
+
+Background: #F6F8FB
+Primary text: #17202A
+Secondary text: #5B6573
+Primary navy: #0B1F33
+Accent teal: #007F86
+Success: #2E7D32
+Warning: #B7791F
+Critical: #C62828
+Information: #3568A8
+Advanced/ML: #6B46C1
+Borders: #D9E0E7
+
+Use a calm professional appearance.
+
+Avoid:
+- neon colors
+- unnecessary gradients
+- excessive charts
+- crowded pages
+- tiny text
+- inconsistent panel sizes
+
+Do not communicate severity using color alone.
+
+Use text labels/icons with color.
+
+## Standard Workshop Flow
+
+HEADER
+
+WHAT YOU WILL LEARN
+
+ARCHITECTURE / TRUST BOUNDARY
+
+BASELINE
+
+QUERY + EXPLANATION
+
+EXECUTE ATTACK
+
+WHAT HAPPENED
+
+HUNT
+
+QUERY + EXPLANATION
+
+BUILD DETECTION
+
+QUERY + EXPLANATION
+
+ENABLE CONTROL
+
+RETEST
+
+WHAT CHANGED
+
+BEFORE / AFTER
+
+EVIDENCE
+
+FRAMEWORK MAPPING
+
+KNOWLEDGE CHECK
+
+## Action Result
+
+After an action, display:
+
+ACTION
+RUN ID
+STATUS
+WHAT HAPPENED
+AGENTS INVOLVED
+CONTROL DECISION
+IMPORTANT TELEMETRY
+WHY IT MATTERS
+NEXT STEP
+
+"What happened?" must be derived from actual telemetry.
+
+Never fabricate explanatory prose.
+
+## Dashboard Validation
+
+Before completion verify:
+
+1. JSON parses.
+2. dataSources exist.
+3. visualization references exist.
+4. tokens exist.
+5. searches are validated.
+6. dashboard loads.
+7. layout is readable.
+8. long text does not overflow.
+9. empty states make sense.
+10. attack mode works.
+11. defended mode works.
+12. screenshot is visually reviewed.

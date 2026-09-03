@@ -1,0 +1,48 @@
+---
+description: AgentSec documentation and security framework standards
+globs: "docs/**,README.md,SECURITY.md,CONTRIBUTING.md,CHANGELOG.md"
+alwaysApply: false
+---
+
+# Documentation
+
+Documentation must match actual implementation.
+
+Label capabilities as:
+
+IMPLEMENTED
+EXPERIMENTAL
+PLANNED
+SIMULATED
+
+Do not describe planned functionality as implemented.
+
+## Security Frameworks
+
+Use only verified mappings.
+
+Potential frameworks:
+
+NIST AI RMF
+NIST SP 800-171 Rev. 3
+NIST SP 800-171A Rev. 3
+NIST SP 800-53 where relevant
+MITRE ATLAS
+OWASP LLM Top 10
+OWASP Agentic Security guidance
+CSA MAESTRO
+
+Do not use NIST SP 800-17 for AgentSec security mapping.
+
+For every mapping document:
+
+framework
+requirement/control identifier
+official title
+why it applies
+AgentSec invariant
+AgentSec test
+evidence
+reference
+
+Framework mapping does not mean certification or compliance.
