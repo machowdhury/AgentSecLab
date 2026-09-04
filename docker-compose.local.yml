@@ -1,0 +1,11 @@
+# Local Splunk overlay: collector waits for HEC bootstrap.
+# docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local up --build -d
+
+services:
+  otel_collector:
+    depends_on:
+      splunk:
+        condition: service_healthy
+      splunk_hec_init:
+        condition: service_completed_successfully
+        required: false

@@ -1,0 +1,228 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentsec.local/schemas/security_event.schema.json",
+  "title": "AgentSec Security Event",
+  "description": "Closed JSON body for AgentSec OTLP/HEC logs. OpenTelemetry GenAI and resource/user attributes keep standard names. AgentSec extensions use the agentsec.* prefix.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event.name",
+    "timestamp",
+    "service.name",
+    "service.version",
+    "user.id",
+    "trace_id",
+    "span_id",
+    "gen_ai.agent.id",
+    "gen_ai.agent.name",
+    "gen_ai.operation.name",
+    "gen_ai.provider.name",
+    "agentsec.run.id",
+    "agentsec.lab.id",
+    "agentsec.security.profile",
+    "agentsec.testbed.mode",
+    "agentsec.principal.id",
+    "agentsec.principal.type",
+    "agentsec.trust_boundary",
+    "agentsec.invariant.id",
+    "agentsec.control.id",
+    "agentsec.control.decision",
+    "agentsec.control.reason",
+    "agentsec.operation.executed"
+  ],
+  "properties": {
+    "event.name": {
+      "type": "string",
+      "enum": [
+        "agentsec.normal_request",
+        "agentsec.agent_handoff",
+        "agentsec.prompt_attack",
+        "agentsec.tool_request",
+        "agentsec.tool_denied",
+        "agentsec.a2a_delegation",
+        "agentsec.memory_write",
+        "agentsec.memory_read",
+        "agentsec.rag_retrieval",
+        "agentsec.control_decision",
+        "agentsec.attack_chain_step"
+      ]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC RFC3339. HEC/Splunk time. Complements the OTLP log timestamp."
+    },
+    "service.name": {"type": "string", "minLength": 1},
+    "service.version": {"type": "string", "minLength": 1},
+    "deployment.environment": {"type": "string"},
+    "user.id": {"type": "string", "minLength": 1},
+    "trace_id": {"type": "string", "pattern": "^[0-9a-f]{32}$"},
+    "span_id": {"type": "string", "pattern": "^[0-9a-f]{16}$"},
+    "parent_span_id": {"type": "string", "pattern": "^[0-9a-f]{16}$"},
+    "error.type": {"type": "string"},
+    "gen_ai.provider.name": {"type": "string", "minLength": 1},
+    "gen_ai.request.model": {"type": "string"},
+    "gen_ai.response.model": {"type": "string"},
+    "gen_ai.operation.name": {
+      "type": "string",
+      "enum": [
+        "chat",
+        "invoke_agent",
+        "execute_tool",
+        "create_memory",
+        "search_memory",
+        "retrieve"
+      ]
+    },
+    "gen_ai.agent.id": {"type": "string", "minLength": 1},
+    "gen_ai.agent.name": {"type": "string", "minLength": 1},
+    "gen_ai.agent.description": {"type": "string"},
+    "gen_ai.agent.version": {"type": "string"},
+    "gen_ai.conversation.id": {"type": "string"},
+    "gen_ai.workflow.name": {"type": "string"},
+    "gen_ai.usage.input_tokens": {"type": "integer", "minimum": 0},
+    "gen_ai.usage.output_tokens": {"type": "integer", "minimum": 0},
+    "gen_ai.tool.name": {"type": "string"},
+    "gen_ai.tool.call.id": {"type": "string"},
+    "gen_ai.tool.type": {"type": "string", "enum": ["function", "extension", "datastore"]},
+    "gen_ai.tool.description": {"type": "string"},
+    "gen_ai.data_source.id": {"type": "string"},
+    "gen_ai.retrieval.query.text": {"type": "string"},
+    "gen_ai.retrieval.top_k": {"type": "integer", "minimum": 1},
+    "gen_ai.retrieval.document.id": {"type": "string"},
+    "gen_ai.memory.store.id": {"type": "string"},
+    "gen_ai.memory.record.id": {"type": "string"},
+    "gen_ai.memory.record.count": {"type": "integer", "minimum": 0},
+    "agentsec.run.id": {"type": "string", "format": "uuid"},
+    "agentsec.lab.id": {"type": "string", "minLength": 1},
+    "agentsec.incident.id": {"type": "string", "minLength": 1},
+    "agentsec.chain.id": {"type": "string", "minLength": 1},
+    "agentsec.chain.stage_num": {"type": "integer", "minimum": 1},
+    "agentsec.chain.stage_name": {"type": "string"},
+    "agentsec.security.profile": {"type": "string", "enum": ["defended", "vulnerable"]},
+    "agentsec.testbed.mode": {"type": "string", "enum": ["BASELINE", "LIVE", "HYBRID", "SIMULATED"]},
+    "agentsec.principal.id": {"type": "string", "minLength": 1},
+    "agentsec.principal.type": {"type": "string", "enum": ["user", "agent", "system"]},
+    "agentsec.delegator.agent.id": {"type": "string"},
+    "agentsec.trust_boundary": {"type": "string", "minLength": 1},
+    "agentsec.invariant.id": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": ["INV-001", "INV-002", "INV-003", "INV-004", "INV-005", "INV-006", "INV-007", "INV-008"]
+      }
+    },
+    "agentsec.control.id": {"type": "string", "minLength": 1},
+    "agentsec.control.decision": {
+      "type": "string",
+      "enum": ["ALLOW", "DENY", "SANITIZE", "QUARANTINE", "REQUIRE_APPROVAL", "OBSERVE", "ERROR"]
+    },
+    "agentsec.control.reason": {"type": "string", "minLength": 1},
+    "agentsec.operation.executed": {"type": "boolean"},
+    "agentsec.scope.requested": {"type": "string"},
+    "agentsec.scope.allowed": {"type": "string"},
+    "agentsec.technique.id": {"type": "string"},
+    "agentsec.content.influence.kind": {
+      "type": "string",
+      "enum": ["user_message", "prior_agent_output", "memory", "retrieval", "system_prompt", "tool_result", "a2a_message"]
+    },
+    "agentsec.content.origin.type": {
+      "type": "string",
+      "enum": ["user", "agent", "memory", "retrieval", "system", "tool"]
+    },
+    "agentsec.content.origin.id": {"type": "string"},
+    "agentsec.content.preview": {"type": "string", "maxLength": 200},
+    "agentsec.content.hash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "agentsec.memory.trust_level": {
+      "type": "string",
+      "enum": ["untrusted", "trusted", "quarantined"]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"agentsec.control.decision": {"const": "DENY"}}
+      },
+      "then": {
+        "properties": {"agentsec.operation.executed": {"const": false}}
+      }
+    },
+    {
+      "if": {
+        "properties": {"event.name": {"const": "agentsec.tool_request"}}
+      },
+      "then": {
+        "required": ["gen_ai.tool.name", "gen_ai.tool.call.id", "agentsec.scope.requested", "agentsec.scope.allowed"]
+      }
+    },
+    {
+      "if": {
+        "properties": {"event.name": {"const": "agentsec.tool_denied"}}
+      },
+      "then": {
+        "required": ["gen_ai.tool.name", "gen_ai.tool.call.id", "agentsec.scope.requested", "agentsec.scope.allowed"],
+        "properties": {
+          "agentsec.control.decision": {"const": "DENY"},
+          "agentsec.operation.executed": {"const": false}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"event.name": {"const": "agentsec.prompt_attack"}}
+      },
+      "then": {
+        "required": ["agentsec.technique.id", "agentsec.content.influence.kind", "agentsec.content.origin.type"]
+      }
+    },
+    {
+      "if": {
+        "properties": {"event.name": {"const": "agentsec.a2a_delegation"}}
+      },
+      "then": {
+        "required": ["agentsec.delegator.agent.id", "agentsec.scope.requested", "agentsec.scope.allowed"]
+      }
+    },
+    {
+      "if": {
+        "properties": {"event.name": {"const": "agentsec.agent_handoff"}}
+      },
+      "then": {
+        "required": ["parent_span_id", "agentsec.content.origin.type", "agentsec.content.origin.id"]
+      }
+    },
+    {
+      "if": {
+        "properties": {"event.name": {"const": "agentsec.memory_write"}}
+      },
+      "then": {
+        "required": ["gen_ai.memory.store.id", "gen_ai.memory.record.id", "agentsec.memory.trust_level"]
+      }
+    },
+    {
+      "if": {
+        "properties": {"event.name": {"const": "agentsec.memory_read"}}
+      },
+      "then": {
+        "required": ["gen_ai.memory.store.id", "gen_ai.memory.record.id", "agentsec.memory.trust_level"]
+      }
+    },
+    {
+      "if": {
+        "properties": {"event.name": {"const": "agentsec.rag_retrieval"}}
+      },
+      "then": {
+        "required": ["gen_ai.data_source.id", "gen_ai.retrieval.document.id", "agentsec.content.origin.type"]
+      }
+    },
+    {
+      "if": {
+        "properties": {"event.name": {"const": "agentsec.attack_chain_step"}}
+      },
+      "then": {
+        "required": ["agentsec.incident.id", "agentsec.chain.id", "agentsec.chain.stage_num", "agentsec.technique.id"]
+      }
+    }
+  ]
+}

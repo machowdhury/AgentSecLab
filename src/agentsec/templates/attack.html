@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Attack Service — AgentSec</title>
+  <style>
+    body { font-family: Georgia, serif; background: #F6F8FB; color: #17202A; margin: 0; }
+    header { background: #0B1F33; color: #fff; padding: 1rem 1.5rem; }
+    main { max-width: 760px; margin: 1.5rem auto; padding: 0 1rem; }
+    .card { background: #fff; border: 1px solid #D9E0E7; padding: 1rem 1.25rem; }
+    button { background: #C62828; color: #fff; border: 0; padding: .5rem 1rem; cursor: pointer; }
+    pre { white-space: pre-wrap; background: #F6F8FB; padding: .75rem; }
+    .meta { color: #5B6573; font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Attack Service</h1>
+    <p class="meta">AgentSec {{ version }} · untrusted client · ATK-002 only</p>
+  </header>
+  <main>
+    <div class="card">
+      <p><strong>{{ attack.attack_id }}</strong> — {{ attack.name }}</p>
+      <p>Technique {{ attack.technique_id }}. Expected in defended: {{ attack.expected_defended }}</p>
+      <p>This service only HTTP-POSTs to AcmeBank. It does not call Ollama.</p>
+      <p><button id="fire">Fire ATK-002</button></p>
+      <pre id="result">No attack fired yet.</pre>
+    </div>
+  </main>
+  <script>
+    document.getElementById("fire").addEventListener("click", async () => {
+      const response = await fetch("/api/attacks/ATK-002", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({})
+      });
+      const data = await response.json();
+      document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+    });
+  </script>
+</body>
+</html>

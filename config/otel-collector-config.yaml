@@ -1,0 +1,81 @@
+# AgentSec collector: OTLP → Splunk HEC + file archive. Apps do not use a Splunk SDK.
+
+extensions:
+  health_check:
+    endpoint: "0.0.0.0:13133"
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:4317"
+      http:
+        endpoint: "0.0.0.0:4318"
+
+processors:
+  batch:
+    send_batch_size: 64
+    timeout: 2s
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 256
+    spike_limit_mib: 64
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: "lab"
+        action: upsert
+      - key: service.namespace
+        value: "agentsec"
+        action: upsert
+  attributes:
+    actions:
+      - key: meta.sourcetype
+        value: "otel:agentic:json"
+        action: insert
+
+exporters:
+  splunk_hec:
+    endpoint: "${SPLUNK_HEC_ENDPOINT}"
+    token: "${SPLUNK_HEC_TOKEN}"
+    index: "${SPLUNK_HEC_INDEX}"
+    sourcetype: "${SPLUNK_HEC_SOURCETYPE}"
+    source: "${SPLUNK_HEC_SOURCE}"
+    tls:
+      insecure_skip_verify: ${SPLUNK_HEC_TLS_SKIP_VERIFY}
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+      max_elapsed_time: 300s
+    sending_queue:
+      enabled: true
+      queue_size: 500
+    timeout: 15s
+  debug:
+    verbosity: basic
+  file:
+    path: /var/log/agentsec/otel-raw.jsonl
+    rotation:
+      max_megabytes: 100
+      max_days: 7
+      max_backups: 3
+
+service:
+  extensions: [health_check]
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, attributes, batch]
+      exporters: [splunk_hec, debug, file]
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [debug]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [debug]
+  telemetry:
+    logs:
+      level: "info"
