@@ -1,0 +1,24 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY src/ ./src/
+COPY schemas/ ./schemas/
+
+ENV PYTHONPATH=/app/src
+ENV AGENTSEC_SCHEMA_PATH=/app/schemas/security_event.schema.json
+
+RUN useradd -m -u 1000 appuser \
+    && mkdir -p /app/artifacts \
+    && chown -R appuser:appuser /app
+
+USER appuser
+
+EXPOSE 5000
+CMD ["python", "-m", "agentsec.bank_app"]

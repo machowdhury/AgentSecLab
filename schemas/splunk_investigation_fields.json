@@ -1,0 +1,36 @@
+{
+  "WHO initiated the activity?": ["user.id"],
+  "WHICH principal?": ["agentsec.principal.id", "agentsec.principal.type"],
+  "WHICH agent?": ["gen_ai.agent.id", "gen_ai.agent.name"],
+  "WHICH agent delegated authority?": ["agentsec.delegator.agent.id"],
+  "WHICH model?": ["gen_ai.request.model", "gen_ai.response.model", "gen_ai.provider.name"],
+  "WHAT content influenced the action?": [
+    "agentsec.content.influence.kind",
+    "agentsec.content.preview",
+    "agentsec.content.hash"
+  ],
+  "WHERE did that content originate?": [
+    "agentsec.content.origin.type",
+    "agentsec.content.origin.id",
+    "gen_ai.data_source.id"
+  ],
+  "WHAT tool?": ["gen_ai.tool.name", "gen_ai.tool.call.id", "gen_ai.tool.type"],
+  "WHAT operation?": ["gen_ai.operation.name", "event.name"],
+  "WHAT requested scope?": ["agentsec.scope.requested"],
+  "WHAT allowed scope?": ["agentsec.scope.allowed"],
+  "WHICH control?": ["agentsec.control.id"],
+  "WHAT decision?": ["agentsec.control.decision"],
+  "WHY?": ["agentsec.control.reason"],
+  "WHICH attack technique?": ["agentsec.technique.id"],
+  "WHICH trust boundary?": ["agentsec.trust_boundary"],
+  "WHICH invariant?": ["agentsec.invariant.id"],
+  "WHICH trace, run, incident and chain?": [
+    "trace_id",
+    "span_id",
+    "parent_span_id",
+    "agentsec.run.id",
+    "agentsec.incident.id",
+    "agentsec.chain.id",
+    "agentsec.chain.stage_num"
+  ]
+}

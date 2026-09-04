@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# AgentSec experiment evidence (generated per run.id)
+artifacts/*
+!artifacts/.gitkeep

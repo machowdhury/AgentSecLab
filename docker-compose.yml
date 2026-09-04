@@ -1,0 +1,164 @@
+# AgentSec Phase 2 — localhost-published compose mesh.
+# Copy .env.example to .env before starting. Do not commit .env.
+
+networks:
+  agentsec_mesh:
+    driver: bridge
+
+volumes:
+  shared_telemetry:
+  ollama_models:
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: agentsec_ollama
+    networks: [agentsec_mesh]
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+      - ./scripts/ollama_init.sh:/ollama_init.sh:ro
+    entrypoint: ["/bin/bash", "/ollama_init.sh"]
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2:1b}
+      - OLLAMA_STARTUP_WAIT_SEC=${OLLAMA_STARTUP_WAIT_SEC:-300}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || curl -sf http://127.0.0.1:11434/api/tags >/dev/null 2>&1"]
+      interval: 30s
+      timeout: 15s
+      retries: 15
+      start_period: 300s
+
+  acmebank:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.acmebank
+    container_name: agentsec_acmebank
+    ports:
+      - "127.0.0.1:5000:5000"
+    networks: [agentsec_mesh]
+    volumes:
+      - shared_telemetry:/var/log/agentsec
+      - ./artifacts:/app/artifacts
+    environment:
+      - AGENTSEC_BIND_HOST=0.0.0.0
+      - ACMEBANK_PORT=5000
+      - AGENTSEC_SECURITY_PROFILE=${AGENTSEC_SECURITY_PROFILE:-defended}
+      - AGENTSEC_LAB_ID=${AGENTSEC_LAB_ID:-agentsec-local}
+      - AGENTSEC_ARTIFACTS_DIR=/app/artifacts
+      - AGENTSEC_OTEL_ENABLED=true
+      - BASELINE_TRAFFIC_ENABLED=${BASELINE_TRAFFIC_ENABLED:-true}
+      - BASELINE_INTERVAL_MIN_SEC=${BASELINE_INTERVAL_MIN_SEC:-90}
+      - BASELINE_INTERVAL_MAX_SEC=${BASELINE_INTERVAL_MAX_SEC:-240}
+      - BASELINE_STARTUP_DELAY_SEC=${BASELINE_STARTUP_DELAY_SEC:-20}
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2:1b}
+      - OTEL_COLLECTOR_HTTP=http://otel_collector:4318
+      - OTEL_SERVICE_NAME=acmebank
+      - DEPLOYMENT_ENVIRONMENT=lab
+    depends_on:
+      ollama:
+        condition: service_healthy
+      otel_collector:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  attack_service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.attack
+    container_name: agentsec_attack_service
+    ports:
+      - "127.0.0.1:5001:5001"
+    networks: [agentsec_mesh]
+    environment:
+      - AGENTSEC_BIND_HOST=0.0.0.0
+      - ATTACK_SERVICE_PORT=5001
+      - ACMEBANK_URL=http://acmebank:5000
+    depends_on:
+      acmebank:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:5001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  otel_collector:
+    image: otel/opentelemetry-collector-contrib:0.96.0
+    container_name: agentsec_otel_collector
+    networks: [agentsec_mesh]
+    volumes:
+      - ./config/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml:ro
+      - shared_telemetry:/var/log/agentsec
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    environment:
+      - SPLUNK_HEC_ENDPOINT=${SPLUNK_HEC_ENDPOINT:-http://splunk:8088/services/collector/event}
+      - SPLUNK_HEC_TOKEN=${SPLUNK_HEC_TOKEN}
+      - SPLUNK_HEC_INDEX=${SPLUNK_HEC_INDEX:-agentsec_telemetry}
+      - SPLUNK_HEC_SOURCETYPE=${SPLUNK_HEC_SOURCETYPE:-otel:agentic:json}
+      - SPLUNK_HEC_SOURCE=${SPLUNK_HEC_SOURCE:-agentsec-otel-collector}
+      - SPLUNK_HEC_TLS_SKIP_VERIFY=${SPLUNK_HEC_TLS_SKIP_VERIFY:-true}
+    ports:
+      - "127.0.0.1:4317:4317"
+      - "127.0.0.1:4318:4318"
+    restart: unless-stopped
+
+  splunk_hec_init:
+    image: curlimages/curl:8.5.0
+    container_name: agentsec_splunk_hec_init
+    profiles: [local]
+    networks: [agentsec_mesh]
+    depends_on:
+      splunk:
+        condition: service_healthy
+    environment:
+      - SPLUNK_HOST=splunk
+      - SPLUNK_PASSWORD=${SPLUNK_PASSWORD}
+      - SPLUNK_HEC_TOKEN=${SPLUNK_HEC_TOKEN}
+      - SPLUNK_HEC_INDEX=${SPLUNK_HEC_INDEX:-agentsec_telemetry}
+      - SPLUNK_HEC_SOURCETYPE=${SPLUNK_HEC_SOURCETYPE:-otel:agentic:json}
+      - SPLUNK_HEC_INPUT_NAME=${SPLUNK_HEC_INPUT_NAME:-agentsec-otel}
+    volumes:
+      - ./scripts/splunk_hec_init.sh:/splunk_hec_init.sh:ro
+    entrypoint: ["/bin/sh", "/splunk_hec_init.sh"]
+    restart: on-failure:3
+
+  splunk:
+    image: ${SPLUNK_IMAGE:-splunk/splunk:10.2}
+    container_name: agentsec_splunk
+    profiles: [local]
+    ulimits:
+      nofile:
+        soft: 64000
+        hard: 64000
+    ports:
+      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:8088:8088"
+    networks: [agentsec_mesh]
+    volumes:
+      - shared_telemetry:/var/log/agentsec
+      - ./splunk_app/agentsec:/opt/splunk/etc/apps/agentsec:ro
+    environment:
+      - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_GENERAL_TERMS=--accept-sgt-current-at-splunk-com
+      - SPLUNK_PASSWORD=${SPLUNK_PASSWORD}
+      - SPLUNK_HEC_TOKEN=${SPLUNK_HEC_TOKEN}
+      - SPLUNK_HEC_SSL=0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/en-US/account/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
