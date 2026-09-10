@@ -14,6 +14,7 @@ COMPLIANCE_ID = "acme-agent-compliance-004"
 class AgentSpec:
     agent_id: str
     name: str
+    role: str
     description: str
     trust_boundary: str
     scope: str
@@ -25,6 +26,7 @@ class AgentSpec:
 INTAKE = AgentSpec(
     agent_id=INTAKE_ID,
     name="Intake Agent",
+    role="intake",
     description="Accepts a loan application and extracts intent",
     trust_boundary="acmebank.http_api",
     scope="loan.intake",
@@ -42,6 +44,7 @@ INTAKE = AgentSpec(
 CREDIT = AgentSpec(
     agent_id=CREDIT_ID,
     name="Credit Agent",
+    role="credit",
     description="Turns intake notes into a financial profile",
     trust_boundary="acmebank.agent_handoff",
     scope="loan.credit",
@@ -59,6 +62,7 @@ CREDIT = AgentSpec(
 RISK = AgentSpec(
     agent_id=RISK_ID,
     name="Risk Agent",
+    role="risk",
     description="Scores credit risk from the financial profile",
     trust_boundary="acmebank.agent_handoff",
     scope="loan.risk",
@@ -77,6 +81,7 @@ RISK = AgentSpec(
 COMPLIANCE = AgentSpec(
     agent_id=COMPLIANCE_ID,
     name="Compliance Agent",
+    role="compliance",
     description="Checks the risk recommendation against lab policy",
     trust_boundary="acmebank.agent_handoff",
     scope="loan.compliance",

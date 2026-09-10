@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import logging
 import time
 from typing import Protocol
@@ -11,6 +10,40 @@ from agentsec.schema import validate_event
 from agentsec.settings import Settings, get_settings
 
 logger = logging.getLogger("agentsec.telemetry")
+
+_OTLP_ATTR_KEYS = (
+    "event.name",
+    "timestamp",
+    "user.id",
+    "trace_id",
+    "gen_ai.agent.id",
+    "gen_ai.agent.name",
+    "agentsec.agent.role",
+    "agentsec.principal.id",
+    "agentsec.principal.type",
+    "gen_ai.request.model",
+    "agentsec.technique.id",
+    "agentsec.control.id",
+    "agentsec.control.decision",
+    "agentsec.control.reason",
+    "agentsec.run.id",
+    "agentsec.incident.id",
+    "agentsec.testbed.mode",
+    "agentsec.content.origin.type",
+    "agentsec.content.origin.id",
+    "agentsec.content.influence.kind",
+)
+
+
+def _otlp_attributes(event: dict) -> dict:
+    attrs: dict = {"sourcetype": "otel:agentic:json"}
+    for key in _OTLP_ATTR_KEYS:
+        value = event.get(key)
+        if value is None or value == "":
+            continue
+        if isinstance(value, (str, bool, int, float)):
+            attrs[key] = value
+    return attrs
 
 
 class EventSink(Protocol):
@@ -92,15 +125,8 @@ class OtlpSink:
                 span_id=int(event["span_id"], 16),
                 severity_number=severity,
                 severity_text=severity.name,
-                body=json.dumps(event, separators=(",", ":")),
-                attributes={
-                    "sourcetype": "otel:agentic:json",
-                    "event.name": event["event.name"],
-                    "agentsec.run.id": event["agentsec.run.id"],
-                    "agentsec.control.decision": event["agentsec.control.decision"],
-                    "agentsec.testbed.mode": event["agentsec.testbed.mode"],
-                    "gen_ai.agent.id": event["gen_ai.agent.id"],
-                },
+                body=dict(event),
+                attributes=_otlp_attributes(event),
                 resource=self._resource,
             )
             self._logger.emit(record)

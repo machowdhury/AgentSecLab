@@ -94,6 +94,7 @@ class EventBuilder:
         reason: str,
         operation_executed: bool,
         span_id: str,
+        agent_role: str | None = None,
         parent_span_id: str | None = None,
         scope_requested: str | None = None,
         scope_allowed: str | None = None,
@@ -137,6 +138,8 @@ class EventBuilder:
             "agentsec.control.reason": reason,
             "agentsec.operation.executed": operation_executed,
         }
+        if agent_role:
+            event["agentsec.agent.role"] = agent_role
         if parent_span_id:
             event["parent_span_id"] = parent_span_id
         if self.ctx.incident_id:

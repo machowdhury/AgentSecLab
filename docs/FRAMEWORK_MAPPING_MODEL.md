@@ -3,7 +3,7 @@
 **Status:** PLANNED  
 **Rule:** Verified mappings only. Mapping is not certification or compliance.
 
-Do **not** use NIST SP 800-17. It is the wrong publication for this lab.
+Do **not** use NIST SP 800-17. It is an obsolete publication related to cryptographic modes validation and is not applicable to agentic AI security.
 
 ---
 
@@ -12,8 +12,8 @@ Do **not** use NIST SP 800-17. It is the wrong publication for this lab.
 | Framework | Use in AgentSec |
 |-----------|-----------------|
 | NIST AI RMF | Functions (GOVERN, MAP, MEASURE, MANAGE) as educational tags |
-| NIST SP 800-171 Rev. 3 | CUI-style requirement ids where a lab control truly maps |
-| NIST SP 800-171A Rev. 3 | Assessment objectives for the same, when used |
+| NIST SP 800-171 Rev. 3 | CUI-style requirement ids **only when the requirement genuinely applies** |
+| NIST SP 800-171A Rev. 3 | Assessment procedures for the same requirement, **only when that procedure genuinely applies** |
 | NIST SP 800-53 | Only where relevant and verified |
 | MITRE ATLAS | Technique ids for attacks |
 | OWASP LLM Top 10 | LLM risk categories |
@@ -79,7 +79,7 @@ These four numbers must not be collapsed into one “compliance %.”
 
 **ALTERNATIVES:** Map to every NIST SP that sounds security-related.
 
-**WHY CHOSEN:** Project documentation rule. 800-17 is not an AI/CUI control catalog for this range.
+**WHY CHOSEN:** NIST SP 800-17 is obsolete cryptographic-modes validation guidance, not an agentic-AI or CUI control catalog. 800-171 / 800-171A Rev. 3 are used only when the requirement and assessment procedure actually apply.
 
 **SECURITY CONSEQUENCE:** Stops bogus audit language.
 

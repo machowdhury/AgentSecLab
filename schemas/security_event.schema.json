@@ -77,6 +77,11 @@
     "gen_ai.agent.id": {"type": "string", "minLength": 1},
     "gen_ai.agent.name": {"type": "string", "minLength": 1},
     "gen_ai.agent.description": {"type": "string"},
+    "agentsec.agent.role": {
+      "type": "string",
+      "enum": ["intake", "credit", "risk", "compliance"],
+      "description": "Coded pipeline role. Not OTel GenAI; not inferred from the model."
+    },
     "gen_ai.agent.version": {"type": "string"},
     "gen_ai.conversation.id": {"type": "string"},
     "gen_ai.workflow.name": {"type": "string"},

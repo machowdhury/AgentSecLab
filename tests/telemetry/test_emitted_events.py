@@ -62,3 +62,58 @@ def test_four_agent_run_shares_ids_and_handoff_parent(settings, stub_llm, memory
     assert activities[2]["parent_span_id"] == activities[1]["span_id"]
     assert activities[3]["parent_span_id"] == activities[2]["span_id"]
     assert activities[1]["agentsec.delegator.agent.id"] == activities[0]["gen_ai.agent.id"]
+    roles = {event["agentsec.agent.role"] for event in result.events}
+    assert roles == {"intake", "credit", "risk", "compliance"}
+
+
+HUNT_FIELDS = {
+    "timestamp": "timestamp",
+    "run.id": "agentsec.run.id",
+    "trace.id": "trace_id",
+    "agent.id": "gen_ai.agent.id",
+    "agent.role": "agentsec.agent.role",
+    "principal": "agentsec.principal.id",
+    "model": "gen_ai.request.model",
+    "control": "agentsec.control.id",
+    "decision": "agentsec.control.decision",
+    "reason": "agentsec.control.reason",
+    "provenance": "agentsec.content.origin.type",
+}
+
+
+def test_hunt_fields_present_on_every_pipeline_event(settings, stub_llm, memory):
+    benign = run_loan_pipeline(
+        BENIGN_LOAN,
+        llm=stub_llm,
+        sink=memory,
+        memory=memory,
+        settings=settings,
+        testbed_mode="LIVE",
+        attack_id="ATK-001",
+    )
+    missing = []
+    for event in benign.events:
+        for label, field in HUNT_FIELDS.items():
+            if not event.get(field):
+                missing.append(f"{event['event.name']} {label}->{field}")
+    assert missing == []
+
+
+def test_attack_emits_incident_and_technique(settings):
+    memory = MemorySink()
+    attack = run_loan_pipeline(
+        ATK_002_PAYLOAD,
+        llm=StubLLM(),
+        sink=memory,
+        memory=memory,
+        settings=settings,
+        user_id="attacker-lab",
+        testbed_mode="LIVE",
+        technique_id="AML.T0054",
+        attack_id="ATK-002",
+    )
+    for event in attack.events:
+        assert event.get("agentsec.incident.id")
+        assert event.get("agentsec.technique.id") == "AML.T0054"
+        assert event["agentsec.agent.role"] == "intake"
+

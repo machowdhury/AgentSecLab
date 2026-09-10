@@ -111,6 +111,7 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
                     {
                         "agent_id": agent.agent_id,
                         "name": agent.name,
+                        "role": agent.role,
                         "description": agent.description,
                         "trust_boundary": agent.trust_boundary,
                     }
