@@ -34,6 +34,10 @@ CSA MAESTRO
 
 Do not use NIST SP 800-17 for AgentSec security mapping.
 
+NIST SP 800-17 is an obsolete publication related to cryptographic modes validation and is not applicable to agentic AI security.
+
+For AgentSec, use NIST SP 800-171 Rev. 3 and NIST SP 800-171A Rev. 3 only when the requirement and assessment procedure genuinely apply.
+
 For every mapping document:
 
 framework
