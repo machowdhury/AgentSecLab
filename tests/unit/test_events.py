@@ -9,6 +9,7 @@ def test_builder_emits_schema_valid_normal_request(settings):
         agent_id="acme-agent-intake-001",
         agent_name="Intake Agent",
         agent_description="Accepts a loan application",
+        agent_role="intake",
         operation_name="chat",
         trust_boundary="acmebank.http_api",
         invariant_ids=["INV-004", "INV-007"],
@@ -30,6 +31,7 @@ def test_builder_emits_schema_valid_normal_request(settings):
     validate_event(event)
     assert event["agentsec.run.id"] == str(ctx.run_id)
     assert event["agentsec.content.hash"] == content_hash("Small business loan")
+    assert event["agentsec.agent.role"] == "intake"
 
 
 def test_builder_forces_executed_false_on_deny(settings):

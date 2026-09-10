@@ -218,7 +218,7 @@ Store under `artifacts/<run-id>/`:
 **What:** Verified educational mappings. Not certification.
 
 Allowed: NIST AI RMF, NIST SP 800-171 Rev. 3, 800-171A Rev. 3, 800-53 where relevant, MITRE ATLAS, OWASP LLM Top 10, OWASP Agentic, CSA MAESTRO.  
-**Do not use NIST SP 800-17.**
+**Do not use NIST SP 800-17** (obsolete cryptographic-modes validation; not agentic AI security). Use 800-171 Rev. 3 and 800-171A Rev. 3 only when the requirement and assessment procedure genuinely apply.
 
 Technique Coverage and Control Attestation are **measurement UIs** over live and explicitly SIMULATED events. They must filter or label SIMULATED so coverage % cannot be gamed by OTel injection.
 

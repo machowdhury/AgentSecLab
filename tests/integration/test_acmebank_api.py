@@ -12,6 +12,8 @@ def test_health_and_agent_list(acme_client):
     agents = acme_client.get("/api/v1/agents")
     ids = [row["agent_id"] for row in agents.get_json()["agents"]]
     assert ids == [agent.agent_id for agent in PIPELINE_ORDER]
+    roles = [row["role"] for row in agents.get_json()["agents"]]
+    assert roles == ["intake", "credit", "risk", "compliance"]
 
 
 def test_process_benign_loan_returns_run_id(acme_client, stub_llm):

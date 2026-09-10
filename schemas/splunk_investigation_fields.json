@@ -1,7 +1,7 @@
 {
   "WHO initiated the activity?": ["user.id"],
   "WHICH principal?": ["agentsec.principal.id", "agentsec.principal.type"],
-  "WHICH agent?": ["gen_ai.agent.id", "gen_ai.agent.name"],
+  "WHICH agent?": ["gen_ai.agent.id", "gen_ai.agent.name", "agentsec.agent.role"],
   "WHICH agent delegated authority?": ["agentsec.delegator.agent.id"],
   "WHICH model?": ["gen_ai.request.model", "gen_ai.response.model", "gen_ai.provider.name"],
   "WHAT content influenced the action?": [
