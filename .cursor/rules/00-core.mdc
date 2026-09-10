@@ -38,6 +38,10 @@ AgentSec is a learning and SOC experimentation range.
 
 It is NOT a replacement for production AI-security products.
 
+Splunk is the primary telemetry, investigation, detection, learning, MLTK, and evidence workbench for AgentSec.
+
+Splunk does not make authorization decisions for the agent runtime unless a specific lab intentionally demonstrates such an integration.
+
 Reference controls exist to teach security principles.
 
 Do not add features simply because they appear impressive.
