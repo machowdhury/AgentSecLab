@@ -1,4 +1,7 @@
-"""CTRL-INPUT-001: inspect untrusted text before the LLM call (INV-008)."""
+"""CTRL-INPUT-001: lightweight REFERENCE input inspection before the LLM call (INV-008).
+
+This is a lab teaching control. It is not production prompt-injection protection.
+"""
 
 from __future__ import annotations
 
@@ -6,8 +9,9 @@ import re
 from dataclasses import dataclass
 
 CONTROL_ID = "CTRL-INPUT-001"
+CONTROL_TYPE = "input_inspection"
 
-# Lab-owned injection signatures. These are teaching strings, not a product IPS.
+# Lab-owned injection signatures. Teaching strings, not a product IPS.
 _RULES: tuple[tuple[re.Pattern[str], str], ...] = (
     (
         re.compile(r"ignore\s+(all\s+)?(previous|prior|above)\s+instructions", re.IGNORECASE),
@@ -35,10 +39,12 @@ _RULES: tuple[tuple[re.Pattern[str], str], ...] = (
 @dataclass(frozen=True)
 class ControlResult:
     control_id: str
+    control_type: str
     decision: str
     reason: str
     matched_rule: str | None
     profile: str
+    error_stage: str | None = None
 
     @property
     def blocks_llm(self) -> bool:
@@ -53,32 +59,35 @@ def match_injection_rule(text: str) -> str | None:
 
 
 def inspect_input(text: str, profile: str) -> ControlResult:
-    """Run before Ollama. Missing/empty input is ERROR in defended (fail closed)."""
+    """Run before Ollama. Empty/malformed is ERROR in both profiles (not a labeled fail-open)."""
     if not isinstance(text, str):
         return ControlResult(
             control_id=CONTROL_ID,
+            control_type=CONTROL_TYPE,
             decision="ERROR",
             reason="malformed_input",
             matched_rule=None,
             profile=profile,
+            error_stage="schema_validation",
         )
 
     stripped = text.strip()
     if not stripped:
-        decision = "ERROR" if profile == "defended" else "ALLOW"
-        reason = "empty_input" if profile == "defended" else "vulnerable_profile_fail_open:empty_input"
         return ControlResult(
             control_id=CONTROL_ID,
-            decision=decision,
-            reason=reason,
+            control_type=CONTROL_TYPE,
+            decision="ERROR",
+            reason="empty_input",
             matched_rule=None,
             profile=profile,
+            error_stage="schema_validation",
         )
 
     rule = match_injection_rule(stripped)
     if rule is None:
         return ControlResult(
             control_id=CONTROL_ID,
+            control_type=CONTROL_TYPE,
             decision="ALLOW",
             reason="benign_loan_request",
             matched_rule=None,
@@ -88,16 +97,38 @@ def inspect_input(text: str, profile: str) -> ControlResult:
     if profile == "vulnerable":
         return ControlResult(
             control_id=CONTROL_ID,
+            control_type=CONTROL_TYPE,
             decision="ALLOW",
-            reason=f"vulnerable_profile_fail_open:{rule}",
+            reason=(
+                "vulnerable_profile_fail_open:"
+                "CTRL-INPUT-001 is a lightweight lab reference control and "
+                f"intentionally returns ALLOW (fail-open) for matched rule {rule}"
+            ),
             matched_rule=rule,
             profile=profile,
         )
 
     return ControlResult(
         control_id=CONTROL_ID,
+        control_type=CONTROL_TYPE,
         decision="DENY",
         reason="input_pattern_matched",
         matched_rule=rule,
         profile=profile,
     )
+
+
+def evaluate_input_control(text: str, profile: str, inspect_fn=inspect_input) -> ControlResult:
+    """Fail closed if control evaluation itself raises."""
+    try:
+        return inspect_fn(text, profile)
+    except Exception as exc:
+        return ControlResult(
+            control_id=CONTROL_ID,
+            control_type=CONTROL_TYPE,
+            decision="ERROR",
+            reason=f"control_evaluation_failure:{type(exc).__name__}",
+            matched_rule=None,
+            profile=profile,
+            error_stage="control_evaluation",
+        )

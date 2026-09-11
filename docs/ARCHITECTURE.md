@@ -1,17 +1,17 @@
 # AgentSec Architecture
 
-**Status:** PLANNED (Phase 1A contract)  
-**This document is the architecture source of truth for the first implementation.**  
+**Status:** Phase 1A contract. Phase 2A runtime implements the first `/process` slice; see `docs/IMPLEMENTATION_STATUS.md` and `docs/PHASE2A_RUNTIME_VALIDATION.md`.  
+**This document remains the architecture source of truth.**  
 **Event, operation, testbed, and evidence-field semantics:** `docs/SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative.  
 **Predecessor:** AgentWatch Range (READ-ONLY). Borrow shapes. Do not copy blindly.
 
-Nothing in this file is a claim that live Ollama, live Splunk, or production controls work.
+Nothing in this file is a claim that live Ollama success, live Splunk ingest, or production controls work. Phase 2A stub/security tests are documented in `PHASE2A_RUNTIME_VALIDATION.md`.
 
 | Label | Meaning in this file |
 |-------|----------------------|
 | **PLANNED** | Architecture decision. Not proven by a live stack in this phase. |
-| **EXPERIMENTAL** | Existing `src/agentsec/` already follows many of these decisions. Phase 1A does not modify that code and does not treat it as the contract. |
-| **IMPLEMENTED** | Process only: Cursor rules, skills, Phase 0 inventory. |
+| **EXPERIMENTAL** | Historical label for pre-2A `src/agentsec/` alignment. |
+| **IMPLEMENTED** | Phase 2A first runtime slice where tests in `PHASE2A_RUNTIME_VALIDATION.md` passed. Live Ollama success and Splunk remain unclaimed. |
 | **SIMULATED** | Not used in the first runtime path. Forbidden as live control proof. |
 
 Companion specs: `TRUST_BOUNDARIES.md`, `THREAT_MODEL.md`, `SECURITY_INVARIANTS.md`, `LAB_SPECIFICATION.md`, `ATTACK_CONTROL_MODEL.md`. Event field design is in `SECURITY_EVENT_MODEL.md` (Phase 1B). Where this file disagrees with that contract on telemetry, operation flags, or experiment dimensions, **Phase 1B wins**.

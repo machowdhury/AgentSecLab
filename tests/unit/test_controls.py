@@ -17,24 +17,29 @@ def test_atk002_is_deny_in_defended():
     assert result.blocks_llm is True
 
 
-def test_atk002_fail_open_in_vulnerable_is_labeled():
+def test_atk002_fail_open_in_vulnerable_is_labeled_reference_behavior():
     result = inspect_input(ATK_002_PAYLOAD, "vulnerable")
     assert result.decision == "ALLOW"
-    assert result.reason.startswith("vulnerable_profile_fail_open:")
+    assert "vulnerable_profile_fail_open:" in result.reason
+    assert "reference control" in result.reason
+    assert "intentionally returns ALLOW" in result.reason
     assert result.matched_rule == "ignore_previous_instructions"
     assert result.blocks_llm is False
 
 
-def test_empty_input_is_error_in_defended():
-    result = inspect_input("   ", "defended")
-    assert result.decision == "ERROR"
-    assert result.blocks_llm is True
+def test_empty_input_is_error_in_both_profiles():
+    for profile in ("defended", "vulnerable"):
+        result = inspect_input("   ", profile)
+        assert result.decision == "ERROR"
+        assert result.reason == "empty_input"
+        assert result.blocks_llm is True
 
 
-def test_malformed_input_is_error():
-    result = inspect_input(None, "defended")  # type: ignore[arg-type]
-    assert result.decision == "ERROR"
-    assert result.reason == "malformed_input"
+def test_malformed_input_is_error_in_both_profiles():
+    for profile in ("defended", "vulnerable"):
+        result = inspect_input(None, profile)  # type: ignore[arg-type]
+        assert result.decision == "ERROR"
+        assert result.reason == "malformed_input"
 
 
 def test_override_credit_rule_matches():

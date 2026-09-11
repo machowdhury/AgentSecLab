@@ -29,9 +29,9 @@ AgentWatch Range is READ-ONLY. Phase 2 borrowed shapes, not a fork.
 ## ORIGINAL FILE
 `/Users/mahamudc/Documents/AgenticProject/apps/app_runtime.py`
 
-**WHAT WAS REUSED:** Flask `/health`, `/api/v1/process`, `/api/v1/agents`, in-memory recent-run lookup, localhost lab service on port 5000.
+**WHAT WAS REUSED:** Flask `/health`, `POST /process`, `/api/v1/agents`, in-memory recent-run lookup, localhost lab service on port 5000.
 
-**WHAT CHANGED:** No Cisco/MAESTRO/export/campaign routes. HTTP cannot set profile, `run.id`, `testbed.mode`, or skip controls. First-lab baseline is an explicit benign request (`testbed.mode=BASELINE`).
+**WHAT CHANGED:** HTTP surface is `POST /process` (not `/api/v1/process`). No Cisco/MAESTRO/export/campaign routes. Unknown JSON fields ERROR. HTTP cannot set profile, `run.id`, `testbed.mode`, or skip controls. First-lab baseline is an explicit benign request (`testbed.mode=BASELINE`). Background ticker removed.
 
 **WHY:** Attack Service must remain an untrusted client. AgentWatch `/api/v1/config` advertised unwired guard flags.
 

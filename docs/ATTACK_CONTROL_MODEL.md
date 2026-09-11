@@ -1,6 +1,6 @@
 # Attack and Control Model
 
-**Status:** PLANNED (Phase 1A contract)  
+**Status:** Phase 1A contract. Phase 2A implements CTRL-INPUT-001 and the first-lab operation semantics. Splunk detections are later.  
 **Related:** `THREAT_MODEL.md`, `SECURITY_INVARIANTS.md`, `ARCHITECTURE.md`  
 **Event/operation/dimension semantics:** `SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative.
 

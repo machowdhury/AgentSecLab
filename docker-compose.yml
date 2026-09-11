@@ -49,11 +49,7 @@ services:
       - AGENTSEC_SECURITY_PROFILE=${AGENTSEC_SECURITY_PROFILE:-defended}
       - AGENTSEC_LAB_ID=${AGENTSEC_LAB_ID:-agentsec-local}
       - AGENTSEC_ARTIFACTS_DIR=/app/artifacts
-      - AGENTSEC_OTEL_ENABLED=true
-      - BASELINE_TRAFFIC_ENABLED=${BASELINE_TRAFFIC_ENABLED:-true}
-      - BASELINE_INTERVAL_MIN_SEC=${BASELINE_INTERVAL_MIN_SEC:-90}
-      - BASELINE_INTERVAL_MAX_SEC=${BASELINE_INTERVAL_MAX_SEC:-240}
-      - BASELINE_STARTUP_DELAY_SEC=${BASELINE_STARTUP_DELAY_SEC:-20}
+      - AGENTSEC_OTEL_ENABLED=${AGENTSEC_OTEL_ENABLED:-true}
       - OLLAMA_BASE_URL=http://ollama:11434
       - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2:1b}
       - OTEL_COLLECTOR_HTTP=http://otel_collector:4318
@@ -136,6 +132,7 @@ services:
 
   splunk:
     image: ${SPLUNK_IMAGE:-splunk/splunk:10.2}
+    platform: ${SPLUNK_PLATFORM:-linux/amd64}
     container_name: agentsec_splunk
     profiles: [local]
     ulimits:
@@ -148,7 +145,8 @@ services:
     networks: [agentsec_mesh]
     volumes:
       - shared_telemetry:/var/log/agentsec
-      - ./splunk_app/agentsec:/opt/splunk/etc/apps/agentsec:ro
+      # Must stay outside /opt/splunk: ansible chowns that tree and :ro bind mounts fail (EROFS).
+      - ./splunk_app/agentsec:/tmp/agentsec-app:ro
     environment:
       - SPLUNK_START_ARGS=--accept-license
       - SPLUNK_GENERAL_TERMS=--accept-sgt-current-at-splunk-com
@@ -160,5 +158,5 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:8000/en-US/account/login"]
       interval: 30s
       timeout: 10s
-      retries: 10
-      start_period: 120s
+      retries: 20
+      start_period: 600s

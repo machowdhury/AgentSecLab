@@ -18,6 +18,7 @@ class LLMResult:
     model: str
     latency_ms: float
     error_type: str | None = None
+    error_message: str | None = None
 
     @property
     def ok(self) -> bool:
@@ -62,7 +63,7 @@ class OllamaClient:
         temperature: float,
         max_tokens: int,
     ) -> LLMResult:
-        del agent_id  # used by stubs/tests; live client keys on the prompt only
+        del agent_id
         prompt = f"[SYSTEM]\n{system_prompt}\n\n[USER]\n{user_message}\n\n[ASSISTANT]"
         try:
             response = requests.post(
@@ -81,7 +82,7 @@ class OllamaClient:
             )
             response.raise_for_status()
             payload = response.json()
-        except requests.Timeout:
+        except requests.Timeout as exc:
             return LLMResult(
                 text="",
                 input_tokens=0,
@@ -89,8 +90,9 @@ class OllamaClient:
                 model=self.settings.ollama_model,
                 latency_ms=120000,
                 error_type="timeout",
+                error_message=str(exc)[:500],
             )
-        except requests.RequestException:
+        except requests.RequestException as exc:
             return LLMResult(
                 text="",
                 input_tokens=0,
@@ -98,6 +100,7 @@ class OllamaClient:
                 model=self.settings.ollama_model,
                 latency_ms=0,
                 error_type="connection_error",
+                error_message=str(exc)[:500],
             )
 
         text = str(payload.get("response", "")).strip()
@@ -117,13 +120,18 @@ class OllamaClient:
 
 @dataclass
 class StubLLM:
-    """Deterministic stand-in. Tests prove DENY-before-call with this, not Ollama."""
+    """Deterministic stand-in. Security proofs use this spy, not live Ollama."""
 
     calls: list[dict] = field(default_factory=list)
     responses: dict[str, str] = field(default_factory=dict)
     default_text: str = '{"ok": true, "summary": "standard applicant"}'
     healthy: bool = True
     error_type: str | None = None
+    error_message: str | None = None
+
+    @property
+    def call_count(self) -> int:
+        return len(self.calls)
 
     def health(self) -> bool:
         return self.healthy
@@ -154,6 +162,7 @@ class StubLLM:
                 model="stub-model",
                 latency_ms=0,
                 error_type=self.error_type,
+                error_message=self.error_message or self.error_type,
             )
         text = self.responses.get(agent_id, self.default_text)
         return LLMResult(
@@ -162,4 +171,45 @@ class StubLLM:
             output_tokens=8,
             model="stub-model",
             latency_ms=1,
+        )
+
+
+@dataclass
+class CountingLLM:
+    """Spying boundary: proves whether the inner LLM client was called."""
+
+    inner: LLMClient
+    calls: list[dict] = field(default_factory=list)
+
+    @property
+    def call_count(self) -> int:
+        return len(self.calls)
+
+    def health(self) -> bool:
+        return self.inner.health()
+
+    def generate(
+        self,
+        *,
+        agent_id: str,
+        system_prompt: str,
+        user_message: str,
+        temperature: float,
+        max_tokens: int,
+    ) -> LLMResult:
+        self.calls.append(
+            {
+                "agent_id": agent_id,
+                "system_prompt": system_prompt,
+                "user_message": user_message,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+            }
+        )
+        return self.inner.generate(
+            agent_id=agent_id,
+            system_prompt=system_prompt,
+            user_message=user_message,
+            temperature=temperature,
+            max_tokens=max_tokens,
         )

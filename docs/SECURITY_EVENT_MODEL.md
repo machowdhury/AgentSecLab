@@ -1,17 +1,17 @@
 # Security Event Model
 
-**Status:** PLANNED (Phase 1B design contract, schema **1.0.0**)  
+**Status:** Phase 1B contract (schema **1.0.0**). Phase 2A AcmeBank emitters implement this contract. Splunk SPL is not validated.  
 **Schema:** `schemas/security_event.schema.json`  
 **Investigation map:** `schemas/splunk_investigation_fields.json`  
 **Evidence:** `docs/EVIDENCE_MODEL.md`
 
-This file is the telemetry contract for the **first lab**. It is not live AcmeBank output. Runtime emitters are **not** updated in this phase.
+This file is the telemetry contract for the **first lab**. Phase 2A runtime emits these events on `POST /process`. Live Splunk representation is not claimed.
 
 | Label | Meaning |
 |-------|---------|
-| **PLANNED** | Contract for the next implementation phase |
-| **EXPERIMENTAL** | Existing `src/agentsec/` events do **not** yet match this contract |
-| **IMPLEMENTED** | This document and schema files only |
+| **PLANNED** | Splunk hunts, completeness corroboration |
+| **EXPERIMENTAL** | Unused |
+| **IMPLEMENTED** | Schema 1.0.0 and Phase 2A emitters (see `PHASE2A_RUNTIME_VALIDATION.md`) |
 
 Every event MUST set:
 

@@ -6,7 +6,7 @@ import logging
 from pathlib import Path
 
 import requests
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template
 
 from agentsec.attacks import ATK_002
 from agentsec.settings import get_settings
@@ -23,10 +23,10 @@ class AcmeBankClient:
 
     def process(self, payload: dict) -> tuple[int, dict]:
         if self._post_fn is not None:
-            return self._post_fn("/api/v1/process", payload)
+            return self._post_fn("/process", payload)
         try:
             response = requests.post(
-                f"{self.base_url}/api/v1/process",
+                f"{self.base_url}/process",
                 json=payload,
                 timeout=180,
             )
@@ -79,16 +79,9 @@ def create_app(client: AcmeBankClient | None = None) -> Flask:
 
     @app.post("/api/attacks/ATK-002")
     def fire_atk_002():
-        body = request.get_json(silent=True) or {}
-        # Attackers may try to skip controls; AcmeBank ignores these fields.
         payload = {
             "input": ATK_002.payload,
             "user_id": "attacker-lab",
-            "attack_id": ATK_002.attack_id,
-            "technique_id": ATK_002.technique_id,
-            "skip_control": bool(body.get("skip_control", False)),
-            "security_profile": body.get("security_profile"),
-            "testbed_mode": body.get("testbed_mode", "LIVE"),
         }
         status, data = client.process(payload)
         return jsonify(data), status
