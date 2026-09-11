@@ -1,6 +1,6 @@
 # Lab Specification
 
-**Status:** PLANNED (Phase 1A architecture). Existing `src/agentsec/` is an **EXPERIMENTAL** thin runtime that already resembles this spec. Phase 1A does not modify it and does not claim live Ollama or live Splunk.
+**Status:** PLANNED (Phase 1A architecture). Existing `src/agentsec/` is an **EXPERIMENTAL** thin runtime that already resembles this spec. Phase 1A does not modify it and does not claim live Ollama or live Splunk. Event/operation/dimension semantics: `SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative.
 
 AgentSec is a range. This file defines how the first implementation is supposed to behave.
 
@@ -14,7 +14,7 @@ Give learners a small, honest place to:
 2. Fire one direct prompt-injection attack.
 3. See a reference control decide **before** the model.
 4. Reconstruct the run in telemetry and artifacts.
-5. Hunt the same `run.id` in Splunk when ingest works.
+5. Hunt the same `run.id` in Splunk when ingest works (corroboration only; runtime + local evidence prove invocation).
 
 Do not claim to be a production AI-security product.
 
@@ -75,7 +75,7 @@ A learner can:
 3. See `run.id` in the UI and in local artifacts.
 4. Explain whether the control ran before Ollama.
 5. Switch `vulnerable` → `defended` (or the reverse) and RETEST the same payload.
-6. When Splunk ingest exists, hunt that `run.id` (validated SPL is a later gate).
+6. When Splunk ingest exists, hunt that `run.id` (validated SPL is a later gate; Splunk is not invocation proof).
 
 Engineering gate (when implementation work is allowed in a later phase):
 
@@ -106,14 +106,15 @@ No extra databases, Kubernetes, Kafka, or enterprise IAM.
 
 ## Curriculum slice
 
-Two runs, not fifty-one techniques:
+Two runs (plus a defensive replay), not fifty-one techniques:
 
-| Run | Mode | Teaches |
-|-----|------|---------|
-| Benign loan | BASELINE or LIVE benign | Defend path, telemetry, `run.id` |
-| Direct prompt injection | LIVE | DENY before LLM in `defended`; labeled ALLOW in `vulnerable` |
+| Run | testbed.mode | execution.mode | telemetry.fidelity | Teaches |
+|-----|--------------|----------------|--------------------|---------|
+| Benign loan | BASELINE | LIVE | OBSERVED | Defend path, telemetry, `run.id` = `incident.id` |
+| Direct prompt injection | ATTACK | LIVE | OBSERVED | DENY before LLM in `defended`; labeled ALLOW in `vulnerable` |
+| Same payload after profile change | RETEST | LIVE | OBSERVED | DEFEND then RETEST |
 
-Optional: in-process baseline ticker generating BASELINE events. Not required to understand the architecture.
+The first baseline is an **explicit benign request**, not a background ticker.
 
 ---
 

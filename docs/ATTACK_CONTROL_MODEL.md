@@ -1,7 +1,8 @@
 # Attack and Control Model
 
 **Status:** PLANNED (Phase 1A contract)  
-**Related:** `THREAT_MODEL.md`, `SECURITY_INVARIANTS.md`, `ARCHITECTURE.md`
+**Related:** `THREAT_MODEL.md`, `SECURITY_INVARIANTS.md`, `ARCHITECTURE.md`  
+**Event/operation/dimension semantics:** `SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative.
 
 Reference controls exist to teach. They are not a vendor product. They are not Cisco CodeGuard, DefenseClaw, or a real MCP gateway.
 
@@ -30,18 +31,23 @@ Not in the first implementation: output inspection, tool allowlist, HITL, quaran
 
 ## What DENY means
 
-**DENY** means the dangerous operation **did not run**.
+**DENY** means the dangerous operation **was not invoked**.
 
-| Situation | Legal decision | `operation.executed` |
-|-----------|----------------|----------------------|
-| Injection matched, Ollama not called | DENY | false |
-| Empty/malformed input in `defended` | ERROR | false |
-| Ollama HTTP completed | Must not be DENY for that call | true |
-| Output looks bad after a successful call | Later: SANITIZE or OBSERVE | true |
+| Situation | Legal decision | attempted | executed | outcome |
+|-----------|----------------|-----------|----------|---------|
+| Injection matched, Ollama not called | DENY | false | false | prevented |
+| Empty/malformed input (both profiles) | ERROR | false | false | prevented |
+| ALLOW at decision time (LLM not started yet) | ALLOW | false | false | omit |
+| LLM invocation started | — | true | true | omit until terminal |
+| Ollama HTTP completed successfully | Must not be DENY for that call | true | true | success |
+| LLM invocation started, then failed | ERROR (not DENY) | true | true | error |
+| Output looks bad after a successful call | Later: SANITIZE or OBSERVE | true | true | success |
+
+`operation.executed=true` means the governed call **began**. It does not mean success. Dependency failure is not non-execution and is not DENY.
 
 A control must not report DENY as prevention if the dangerous operation already occurred.
 
-ERROR is for schema, missing context, unknown agent, or dependency failure — not a synonym for DENY.
+ERROR before invocation (schema, missing context, unknown agent) is not a synonym for DENY, but it shares `attempted=false`, `executed=false`, `outcome=prevented`. Dependency failure **after** invocation started is `outcome=error`, not `prevented`.
 
 ---
 
@@ -50,18 +56,19 @@ ERROR is for schema, missing context, unknown agent, or dependency failure — n
 | Profile | Injection match | Empty input |
 |---------|-----------------|-------------|
 | `defended` | DENY | ERROR |
-| `vulnerable` | ALLOW + `vulnerable_profile_fail_open:<rule>` | Documented labeled fail-open or ERROR — must not be silent |
+| `vulnerable` | ALLOW + `vulnerable_profile_fail_open:<rule>` | ERROR (same as `defended`; empty input is not a labeled fail-open) |
 
 ---
 
-## Modes
+## Experiment dimensions
 
-| Mode | Meaning in this slice |
-|------|------------------------|
-| LIVE | Real AcmeBank path, including attacks |
-| BASELINE | Real AcmeBank path, benign ticker or benign UI submit |
-| SIMULATED | **Not used** in the first implementation |
-| HYBRID | **Not used** |
+Do **not** use `LIVE` as `testbed.mode`. First lab emits:
+
+| Dimension | Values | First-lab emission |
+|-----------|--------|--------------------|
+| `testbed.mode` | `BASELINE` \| `ATTACK` \| `RETEST` | all three as below |
+| `execution.mode` | `LIVE` \| `SIMULATED` \| `HYBRID` \| `REPLAYED` | **LIVE only** (others reserved) |
+| `telemetry.fidelity` | `OBSERVED` \| `SYNTHETIC` \| `MIXED` | **OBSERVED only** (others reserved) |
 
 Attack Service **must not** implement a second LLM client and **must not** skip controls in `defended`.
 
@@ -69,10 +76,12 @@ Attack Service **must not** implement a second LLM client and **must not** skip 
 
 ## First-implementation attacks
 
-| ID | Name | Mode | Invariant | Expected `defended` result |
-|----|------|------|-----------|----------------------------|
-| ATK-001 | Benign loan | BASELINE or LIVE | INV-007 | ALLOW; LLM runs; events share `run.id` |
-| ATK-002 | Direct prompt injection | LIVE | INV-008 | DENY; `operation.executed=false`; zero LLM calls |
+| ID | Name | testbed.mode | execution.mode | telemetry.fidelity | Invariant | Expected `defended` result |
+|----|------|--------------|----------------|--------------------|-----------|----------------------------|
+| ATK-001 | Benign loan | BASELINE | LIVE | OBSERVED | INV-007 | ALLOW; LLM runs (`executed=true`, `outcome=success`); events share `run.id` = `incident.id` |
+| ATK-002 | Direct prompt injection | ATTACK | LIVE | OBSERVED | INV-008 | DENY; attempted=false, executed=false, outcome=prevented; zero LLM calls |
+
+Defensive replay of the same ATK-002 payload after a profile/control change uses `testbed.mode=RETEST` (still `execution.mode=LIVE`, `telemetry.fidelity=OBSERVED`).
 
 Payloads are lab-owned strings with tests. Do not import AgentWatch’s 51 generic replay templates.
 

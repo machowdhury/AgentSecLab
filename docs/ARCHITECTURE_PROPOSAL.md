@@ -1,7 +1,6 @@
 # AgentSec Architecture Proposal
 
-**Status:** PLANNED  
-**Phase:** Architecture review only. No application code.  
+**Status:** HISTORICAL. Superseded by `docs/ARCHITECTURE.md` (Phase 1A) and `docs/SECURITY_EVENT_MODEL.md` (Phase 1B). Do not copy `testbed_mode=LIVE` or treat Ollama failure as `operation.executed=false` from this file.  
 **Inputs:** AgentSec rules, `docs/MIGRATION_INVENTORY.md`, `docs/MIGRATION_PRIORITY.md`  
 **Predecessor:** AgentWatch Range (READ-ONLY)
 

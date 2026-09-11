@@ -2,6 +2,7 @@
 
 **Status:** PLANNED (Phase 1A contract)  
 **This document is the architecture source of truth for the first implementation.**  
+**Event, operation, testbed, and evidence-field semantics:** `docs/SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative.  
 **Predecessor:** AgentWatch Range (READ-ONLY). Borrow shapes. Do not copy blindly.
 
 Nothing in this file is a claim that live Ollama, live Splunk, or production controls work.
@@ -13,9 +14,9 @@ Nothing in this file is a claim that live Ollama, live Splunk, or production con
 | **IMPLEMENTED** | Process only: Cursor rules, skills, Phase 0 inventory. |
 | **SIMULATED** | Not used in the first runtime path. Forbidden as live control proof. |
 
-Companion specs: `TRUST_BOUNDARIES.md`, `THREAT_MODEL.md`, `SECURITY_INVARIANTS.md`, `LAB_SPECIFICATION.md`, `ATTACK_CONTROL_MODEL.md`. Event field design is **out of scope** for Phase 1A (`SECURITY_EVENT_MODEL.md` is the next gate).
+Companion specs: `TRUST_BOUNDARIES.md`, `THREAT_MODEL.md`, `SECURITY_INVARIANTS.md`, `LAB_SPECIFICATION.md`, `ATTACK_CONTROL_MODEL.md`. Event field design is in `SECURITY_EVENT_MODEL.md` (Phase 1B). Where this file disagrees with that contract on telemetry, operation flags, or experiment dimensions, **Phase 1B wins**.
 
-`docs/ARCHITECTURE_PROPOSAL.md` is historical. Where it disagrees with this file, **this file wins**.
+`docs/ARCHITECTURE_PROPOSAL.md` is historical. Where it disagrees with this file or Phase 1B, **those later contracts win**.
 
 ---
 
@@ -88,6 +89,8 @@ EVIDENCE
 
 Telemetry describes **what actually happened**. It must not manufacture the story.
 
+For whether the governed LLM was invoked, proof order is: **runtime → local run evidence → exported telemetry → Splunk**. Splunk is corroborating unless completeness for that `run.id` is established. Absence of `llm.*` in Splunk is not prevention by itself.
+
 ---
 
 ## 1. System components
@@ -127,11 +130,12 @@ Learner
 
 ## 3. Data flow
 
-### Benign (BASELINE or LIVE benign)
+### Benign (BASELINE)
 
 ```text
-Learner or baseline ticker
-  → AcmeBank mints run.id (and trace_id)
+Explicit benign POST /process
+  → AcmeBank mints run.id = incident.id (and trace_id)
+  → testbed.mode=BASELINE, execution.mode=LIVE, telemetry.fidelity=OBSERVED
   → for each agent in order:
         input control (profile-aware)
         if DENY or ERROR: emit telemetry, stop, do not call Ollama
@@ -140,15 +144,19 @@ Learner or baseline ticker
   → artifacts/<run-id>/
 ```
 
-### Attack (LIVE)
+### Attack (ATTACK)
 
 ```text
-Attack Service POST → same AcmeBank pipeline
-  → testbed_mode=LIVE
+Attack Service POST /process → same AcmeBank pipeline
+  → testbed.mode=ATTACK, execution.mode=LIVE, telemetry.fidelity=OBSERVED
   → same control and LLM path
 ```
 
-There is **no** second LLM client on the Attack Service. There is **no** SIMULATED emit path in the first implementation.
+### Defensive replay (RETEST)
+
+Same payload as the attack, after a profile or control change: `testbed.mode=RETEST`, `execution.mode=LIVE`, `telemetry.fidelity=OBSERVED`.
+
+`LIVE` is an **execution** mode, not a `testbed.mode`. There is **no** second LLM client on the Attack Service. There is **no** SIMULATED emit path in the first implementation.
 
 ---
 
@@ -171,7 +179,7 @@ Authorization happens only on the AcmeBank side of `acmebank.http_api`, **before
 
 **Can control:** loan message text; which public AcmeBank route they hit; optional labels such as `user.id` / `technique_id` if the API accepts them as **labels**, not as policy.
 
-**Cannot control in `defended`:** `run.id`, `security.profile`, model name, control allowlists, `testbed_mode=BASELINE`, HEC token, Splunk admin, control decision fields.
+**Cannot control in `defended`:** `run.id`, `incident.id`, `security.profile`, model name, control allowlists, `testbed.mode`, `execution.mode`, `telemetry.fidelity`, schema name/version, operation attempted/executed/outcome, HEC token, Splunk admin, control decision fields.
 
 Unknown JSON fields are rejected (ERROR), not merged into policy.
 
@@ -196,7 +204,7 @@ Agent identity is an allow-list in AcmeBank code. The model cannot add an agent.
 
 | Concept | Meaning in the first implementation |
 |---------|-------------------------------------|
-| Initiator | The HTTP client (`user.id`), e.g. applicant UI, Attack Service, or baseline ticker |
+| Initiator | The HTTP client (`user.id`), e.g. applicant UI, Attack Service, or an explicit benign request |
 | Principal | The lab user / applicant on whose behalf the loan is processed. In this slice the principal is the initiator. Agents are not independent legal principals. |
 | Agent | Which coded role is executing (`gen_ai.agent.id`) |
 
@@ -215,7 +223,7 @@ A prompt cannot:
 - expand scope
 - mint ALLOW after DENY
 
-Handoff is string concatenation. That is a residual injection risk (`acmebank.agent_handoff`), not a cryptographic delegation object. Explicit A2A delegation is a **future extension**.
+Handoff is string concatenation. That is a residual injection risk (`acmebank.agent_handoff`), not a cryptographic delegation object. Hops after intake record `agentsec.delegator.agent.id` (prior coded agent). That is in-process attribution, **not** A2A. Explicit A2A delegation is a **future extension**.
 
 ---
 
@@ -238,7 +246,8 @@ The dangerous operation in this slice is **LLM inference** (Ollama generate).
 | If this happened | Telemetry must not say |
 |------------------|------------------------|
 | Ollama returned a completion | `DENY` of that call |
-| Control blocked before HTTP to Ollama | `operation.executed=true` |
+| Control blocked before HTTP to Ollama | `operation.executed=true` (must be attempted=false, executed=false, outcome=prevented) |
+| LLM invocation started, then failed | `operation.executed=false` or `outcome=prevented` (must be attempted=true, executed=true, outcome=error) |
 
 There are no tools, no money movement, no memory writes, and no RAG retrievals in this slice.
 
@@ -248,7 +257,7 @@ There are no tools, no money movement, no memory writes, and no RAG retrievals i
 
 | Profile | Source | Behavior |
 |---------|--------|----------|
-| `defended` | Lab configuration only | Missing/malformed/empty required context → ERROR or DENY. Injection match → DENY. No LLM call. |
+| `defended` | Lab configuration only | Empty/malformed → ERROR. Injection match → DENY. No LLM call. |
 | `vulnerable` | Lab configuration only | May ALLOW on the same injection match. Telemetry **must** record the profile and a fail-open reason. |
 
 The attacker cannot set the profile in `defended`. Switching profiles is the DEFEND / RETEST lesson.
@@ -277,10 +286,10 @@ Every recorded decision has a reason. Decisions are computed in AcmeBank, never 
 
 | Failure | `defended` | `vulnerable` |
 |---------|------------|--------------|
-| Empty / malformed body | ERROR, no LLM | ERROR or labeled ALLOW only if the lab explicitly documents that case |
+| Empty / malformed body | ERROR, no LLM | ERROR, no LLM (same as `defended`) |
 | Unknown agent id | ERROR, no LLM | ERROR |
 | Injection rule match | DENY, no LLM | ALLOW + fail-open reason |
-| Ollama down / timeout | ERROR, `operation.executed=false` | Same — infra failure is not a silent ALLOW |
+| Ollama down / timeout after invocation started | ERROR, `attempted=true`, `executed=true`, `outcome=error` | Same — infra failure is not DENY and not non-execution |
 | Collector / Splunk down | Pipeline still decides; evidence pack still written; Splunk incomplete | Same |
 
 Incomplete export is incomplete evidence. It is not a fabricated ALLOW in Splunk.
@@ -302,7 +311,7 @@ Never hide fail-open behind unused env flags (AgentWatch lesson).
 
 | Runtime truth | Telemetry truth |
 |---------------|-----------------|
-| Whether Ollama was invoked | `operation.executed` |
+| Whether Ollama was invoked | Runtime is authoritative. Telemetry: `operation.attempted` / `operation.executed` / `operation.outcome`. `executed=true` means the call **started**, not that it succeeded. |
 | Whether the pipeline stopped | hop list + blocked flag |
 | Control outcome | `control.decision` + `control.reason` |
 | Profile in force | `security.profile` from lab config |
@@ -321,7 +330,7 @@ Forbidden:
 | Id | Granularity | First implementation rule |
 |----|-------------|---------------------------|
 | `run.id` (`agentsec.run.id`) | One AcmeBank pipeline request (one learner/baseline/attack action) | **Required.** Server-minted UUID. Shared by every hop. Never attacker-set. |
-| `incident.id` (`agentsec.incident.id`) | Investigation grouping | First slice: **same value as `run.id`** on LIVE runs so hunts have one key. Baseline may omit incident or set it equal to `run.id`. Do not mint a new incident per agent. |
+| `incident.id` (`agentsec.incident.id`) | Investigation grouping | **Always the same value as `run.id`** on every event (BASELINE, ATTACK, and RETEST). Do not mint a new incident per agent. Do not omit it on baseline. |
 | `trace_id` | One pipeline execution | Same UUID/hex for all hops of that run |
 | `span_id` | One hop (control and/or model call) | Unique per hop; handoff spans parent to the previous hop |
 
@@ -342,9 +351,9 @@ Decision + outcome
   → PROVE using artifacts + (if MEASURED) Splunk export
 ```
 
-Each pack records: lab id, version, model, profile, attack id, expected vs actual behavior, control result, limitations, evidence class (OBSERVED / MEASURED / …).
+Each pack records: lab id, schema name/version `1.0.0`, model, profile, `testbed.mode`, `execution.mode`, `telemetry.fidelity`, attack id, expected vs actual behavior, control result, limitations, evidence class (OBSERVED / MEASURED / …). Default content is a sanitized preview plus hash, not complete prompts.
 
-Splunk results are MEASURED only when a query actually ran. Local event files are not “Splunk validated.”
+Splunk results are MEASURED only when a query actually ran. Local event files are not “Splunk validated.” Missing `llm.*` in Splunk is not DENY proof unless completeness for that run is established.
 
 ---
 
@@ -369,7 +378,7 @@ Required when the first implementation is built or changed:
 |-------|--------|
 | `tests/unit/` | Control function, pipeline stop, id minting |
 | `tests/security/` | DENY before stub LLM; attacker JSON cannot set decision/profile |
-| `tests/telemetry/` | DENY ⇒ executed false; shared `run.id` |
+| `tests/telemetry/` | DENY ⇒ attempted=false, executed=false, outcome=prevented; `llm.failed` ⇒ executed=true, outcome=error; shared `run.id` = `incident.id` |
 | `tests/integration/` | HTTP API contract with stub LLM |
 
 Not required to finish architecture: live Ollama, live Splunk, dashboard tests.
@@ -440,3 +449,4 @@ May appear later as labeled labs. Must not leak into the first slice as fake pro
 
 - Phase 0: `docs/MIGRATION_INVENTORY.md`, `docs/MIGRATION_PRIORITY.md`, `docs/learning-notes/how-agentwatch-works.md`
 - Teaching: `docs/learning-notes/agentic-architecture-101.md`
+- Events: `docs/SECURITY_EVENT_MODEL.md`, `docs/EVIDENCE_MODEL.md`

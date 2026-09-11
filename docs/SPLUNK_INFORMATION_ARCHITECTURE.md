@@ -1,8 +1,7 @@
 # Splunk Information Architecture
 
-**Status:** PLANNED. No Dashboard Studio JSON in this phase.  
-**Roles used:** Splunk architect, SOC analyst, security product designer, technical instructor.  
-**Related:** `SPLUNK_ARCHITECTURE.md`, `SPLUNK_DESIGN_SYSTEM.md`, `SECURITY_EVENT_MODEL.md`, `ATTACK_CONTROL_MODEL.md`
+**Status:** PLANNED. No Dashboard Studio JSON in this phase. Not Phase 1C work.  
+**Field semantics:** `SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative. `testbed.mode` is `BASELINE` \| `ATTACK` \| `RETEST` (`LIVE` is `execution.mode`). `operation.executed=true` means the governed call started, not that it succeeded. Splunk is corroborating evidence only.
 
 This is the **target** AgentSec app navigation (`agentsec`). Pages light up only after their SPL is validated. Empty Studio shells are forbidden.
 
@@ -191,20 +190,20 @@ Always available outside this list: Splunk **Search** (not a custom view). Instr
 
 **WHO USES IT?** Control owner, security architect, learner proving INV placement.
 
-**WHAT QUESTION DOES IT ANSWER?** Which control, which decision, **why**, and did `agentsec.operation.executed` match the decision (DENY ⇒ false)?
+**WHAT QUESTION DOES IT ANSWER?** Which control, which decision, **why**, and did attempted/executed/outcome match the decision (DENY before invoke ⇒ attempted=false, executed=false, outcome=prevented; `llm.failed` ⇒ executed=true, outcome=error)?
 
 **WHAT ACTION SHOULD THE USER TAKE?** Pick a run or technique. Compare expected vs actual control result. Fail the page if DENY is shown after a successful LLM/tool call.
 
 **WHAT MUST BE VISIBLE?**
 
-- `agentsec.control.id`, `decision`, `reason`, `operation.executed`.
+- `agentsec.control.id`, `decision`, `reason`, `operation.attempted`, `operation.executed`, `operation.outcome`.
 - Trust boundary and invariant ids.
 - Profile `vulnerable` vs `defended` labeled.
 - Before/after when a workshop retest exists.
 
 **WHAT SHOULD NOT BE ON THIS PAGE?**
 
-- Framework “certified” banners, MLTK, executive portfolio, SIMULATED counts in the same KPI as LIVE DENY.
+- Framework “certified” banners, MLTK, executive portfolio, SYNTHETIC/SIMULATED counts in the same KPI as ATTACK DENY.
 
 **WHAT IS THE NEXT LOGICAL PAGE?** ATTACK CHAINS (multi-step) or COMPLIANCE (educational mapping of this evidence).
 
@@ -358,7 +357,7 @@ Reading order is **top to bottom, left to right**. Background `#F6F8FB`. Navy he
 | WHAT YOU WILL LEARN                   | ARCHITECTURE / TRUST BOUNDARY         |
 | • Untrusted HTTP hits AcmeBank        | Attacker → Attack Service → AcmeBank  |
 | • Input control runs BEFORE Ollama    | API → CTRL-INPUT-001 → Ollama         |
-| • DENY means operation.executed=false | Splunk observes; it does not ALLOW    |
+| • DENY before invoke: attempted=false, executed=false, outcome=prevented | Splunk observes; it does not ALLOW |
 | Knowledge: predict DENY or INJECT     | No A2A. One sequential intake agent   |
 +---------------------------------------+---------------------------------------+
 ```
@@ -368,7 +367,7 @@ Reading order is **top to bottom, left to right**. Background `#F6F8FB`. Navy he
 ```text
 +----------------------------------------------------------------------------------------+
 | BASELINE                                                                               |
-| Action: Submit a normal loan on AcmeBank (or wait for baseline tick).                  |
+| Action: Submit an explicit benign loan on AcmeBank.                                    |
 | Empty state: “No BASELINE events in window — start AcmeBank traffic.”                  |
 | Do not show 0 as healthy.                                                              |
 +----------------------------------------------------------------------------------------+
@@ -407,7 +406,7 @@ Reading order is **top to bottom, left to right**. Background `#F6F8FB`. Navy he
 | AGENTS: gen_ai.agent.id                                                                |
 | CONTROL: agentsec.control.id / decision / reason                                       |
 | operation.executed: true|false                                                         |
-| WHY IT MATTERS: DENY+executed=true is a product bug, not a win.                        |
+| WHY IT MATTERS: DENY+executed=true is a product bug. llm.failed after start is executed=true, outcome=error, not prevention. |
 | NEXT STEP: Hunt the same run id.                                                       |
 +----------------------------------------------------------------------------------------+
 ```
@@ -421,7 +420,7 @@ Reading order is **top to bottom, left to right**. Background `#F6F8FB`. Navy he
 | agentsec.run.id=$run_id$              | before the LLM?                       |
 | | table timestamp event.name          | Commands: filter run, table           |
 |   user.id gen_ai.agent.id             | reconstruction fields.                |
-|   agentsec.control.decision           | SHOULD SEE: DENY, executed=false,     |
+|   agentsec.control.decision           | SHOULD SEE: DENY, attempted=false, executed=false,     |
 |   agentsec.operation.executed         | technique AML.T0054.                  |
 |   agentsec.technique.id               |                                       |
 +---------------------------------------+---------------------------------------+
@@ -432,9 +431,9 @@ Reading order is **top to bottom, left to right**. Background `#F6F8FB`. Navy he
 ```text
 +---------------------------------------+---------------------------------------+
 | BUILD DETECTION                       | EXPLANATION                           |
-| Question: LIVE input DENY with        | Detection ≠ control.                  |
-| operation.executed=false              | Same fields as CONTROL VALIDATION.    |
-| (placeholder SPL only)                | After class: DETECTION LAB.           |
+| Question: ATTACK/RETEST input DENY with | Detection ≠ control.                  |
+| attempted=false, executed=false,        | Same fields as CONTROL VALIDATION.    |
+| outcome=prevented (placeholder SPL)     | Splunk is corroboration, not proof.   |
 +---------------------------------------+---------------------------------------+
 ```
 
@@ -454,7 +453,7 @@ Reading order is **top to bottom, left to right**. Background `#F6F8FB`. Navy he
 ```text
 +---------------------------------------+---------------------------------------+
 | BEFORE (vulnerable or miss)           | AFTER (defended DENY)                 |
-| Label both. No color-only.            | decision=DENY executed=false          |
+| Label both. No color-only.            | DENY before invoke: executed=false    |
 +---------------------------------------+---------------------------------------+
 ```
 
@@ -477,7 +476,7 @@ Reading order is **top to bottom, left to right**. Background `#F6F8FB`. Navy he
 | KNOWLEDGE CHECK                                                                        |
 | 1. Where is the trust boundary?                                                        |
 | 2. Can Splunk DENY the LLM call?                                                       |
-| 3. If decision is DENY, what must operation.executed be?                               |
+| 3. If decision is DENY before invoke, what must attempted/executed/outcome be?          |
 | Next page: INVESTIGATION (same run) or PROGRESS (mark workshop complete).              |
 +----------------------------------------------------------------------------------------+
 ```

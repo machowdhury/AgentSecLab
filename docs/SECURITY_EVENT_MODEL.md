@@ -1,178 +1,334 @@
 # Security Event Model
 
-**Status:** PLANNED schema (fixtures are SIMULATED representatives). Not live AcmeBank telemetry.  
+**Status:** PLANNED (Phase 1B design contract, schema **1.0.0**)  
 **Schema:** `schemas/security_event.schema.json`  
-**Fixtures:** `telemetry/events/`  
-**Tests:** `tests/telemetry/test_security_event_schema.py`
+**Investigation map:** `schemas/splunk_investigation_fields.json`  
+**Evidence:** `docs/EVIDENCE_MODEL.md`
 
-Do not invent Splunk fields. Hunt only names listed here. OpenTelemetry GenAI conventions are **Development** stability; AgentSec pins the names below.
+This file is the telemetry contract for the **first lab**. It is not live AcmeBank output. Runtime emitters are **not** updated in this phase.
 
----
+| Label | Meaning |
+|-------|---------|
+| **PLANNED** | Contract for the next implementation phase |
+| **EXPERIMENTAL** | Existing `src/agentsec/` events do **not** yet match this contract |
+| **IMPLEMENTED** | This document and schema files only |
 
-## How Splunk answers the investigation questions
+Every event MUST set:
 
-| Question | Fields (OTel first, then AgentSec) |
-|----------|-------------------------------------|
-| WHO initiated the activity? | `user.id` |
-| WHICH principal? | `agentsec.principal.id`, `agentsec.principal.type` |
-| WHICH agent? | `gen_ai.agent.id`, `gen_ai.agent.name` |
-| WHICH agent delegated authority? | `agentsec.delegator.agent.id` |
-| WHICH model? | `gen_ai.request.model`, `gen_ai.response.model`, `gen_ai.provider.name` |
-| WHAT content influenced the action? | `agentsec.content.influence.kind`, `agentsec.content.preview`, `agentsec.content.hash` |
-| WHERE did that content originate? | `agentsec.content.origin.type`, `agentsec.content.origin.id`, `gen_ai.data_source.id` |
-| WHAT tool? | `gen_ai.tool.name`, `gen_ai.tool.call.id`, `gen_ai.tool.type` |
-| WHAT operation? | `gen_ai.operation.name`, `event.name` |
-| WHAT requested scope? | `agentsec.scope.requested` |
-| WHAT allowed scope? | `agentsec.scope.allowed` |
-| WHICH control? | `agentsec.control.id` |
-| WHAT decision? | `agentsec.control.decision` |
-| WHY? | `agentsec.control.reason` |
-| WHICH attack technique? | `agentsec.technique.id` |
-| WHICH trust boundary? | `agentsec.trust_boundary` |
-| WHICH invariant? | `agentsec.invariant.id` |
-| WHICH trace, run, incident and chain? | `trace_id`, `span_id`, `parent_span_id`, `agentsec.run.id`, `agentsec.incident.id`, `agentsec.chain.id`, `agentsec.chain.stage_num` |
+- `agentsec.schema.name` = `agentsec.security_event`
+- `agentsec.schema.version` = `1.0.0`
 
-Not every event populates every field. The **schema** allows the answers. Tool questions are empty on a normal chat event; that is correct.
+Phase 1A architecture is the parent contract. Phase 1B **freezes**:
 
-Research packs still record `run.id` as equal to `agentsec.run.id` (same UUID).
+1. HTTP surface is **`POST /process` only**.
+2. First baseline is an **explicit benign request**, not a background ticker.
+3. Empty/malformed input → **ERROR in both profiles** (LLM never attempted).
+4. **`agentsec.incident.id` = `agentsec.run.id` on every event.**
+5. **Control decision events and LLM activity events are separate.**
+6. **Control evaluation and LLM invocation are separate operations/spans.**
 
 ---
 
-## OTel names used (no AgentSec synonym)
+## Evidence hierarchy (DENY proof)
 
-| Attribute | Role |
-|-----------|------|
-| `event.name` | Log event type |
-| `user.id` | Human or lab client that started the HTTP activity |
-| `service.name` / `service.version` | AcmeBank identity / AgentSec version |
-| `deployment.environment` | `lab` |
-| `trace_id` / `span_id` / `parent_span_id` | Trace correlation |
-| `error.type` | Dependency/schema failures |
-| `gen_ai.provider.name` | `ollama` |
-| `gen_ai.request.model` / `gen_ai.response.model` | Model |
-| `gen_ai.operation.name` | `chat`, `invoke_agent`, `execute_tool`, `create_memory`, `search_memory`, `retrieve` |
-| `gen_ai.agent.*` | Which agent |
-| `gen_ai.conversation.id` | Session/conversation when the app already has one (not a new UUID invented as a fallback) |
-| `gen_ai.workflow.name` | `loan_pipeline` |
-| `gen_ai.usage.input_tokens` / `output_tokens` | Usage; zero when DENY before call |
-| `gen_ai.tool.*` | Tool identity |
-| `gen_ai.memory.*` | Memory store/record |
-| `gen_ai.data_source.id` / `gen_ai.retrieval.*` | RAG origin |
+```text
+AUTHORITATIVE RUNTIME STATE
+  → LOCAL RUN EVIDENCE          artifacts/<run-id>/
+  → EXPORTED TELEMETRY          OTLP / HEC (may be incomplete)
+  → SPLUNK REPRESENTATION       corroborating only
+```
 
-Full prompts, `gen_ai.input.messages`, and tool arguments are **not** in the default event body (sensitive). Influence is preview + hash only.
+| Layer | What it can prove |
+|-------|-------------------|
+| **Runtime** | Whether AcmeBank invoked Ollama (call counter / client). **Authoritative** for prevention vs invocation. |
+| **Local evidence** | Schema-valid `events.jsonl` + `result.json` for that `run.id`. Authoritative **for this lab** if the bundle is complete for the run. |
+| **Exported telemetry** | What left the process. May drop events. |
+| **Splunk** | What was indexed. A search with **no** `llm.*` rows is **corroborating**, not proof of prevention, unless completeness of that run in the index is established (export ok + expected event set present). |
 
----
+**Do not claim** that “Splunk shows no LLM event” alone proves DENY prevented inference.
 
-## AgentSec extensions (`agentsec.*`)
+Prevention (DENY before invocation) is proven when **all** of these hold:
 
-Added only because OTel GenAI has no equivalent for lab security reconstruction:
+1. Runtime: governed LLM was **not invoked** (attempted=false, executed=false).
+2. Local evidence: `control.decision=DENY`, `operation.outcome=prevented`, **and** no `llm.*` events for that hop in a **complete** `events.jsonl`.
+3. Splunk (optional): same pattern **and** `export.json` shows successful export / completeness for that `run.id`.
 
-| Field | Why OTel is not enough |
-|-------|------------------------|
-| `agentsec.run.id` | Experiment/pipeline id required by AgentSec research rules |
-| `agentsec.lab.id` | Lab instance (`agentsec-local`) |
-| `agentsec.incident.id` | Investigation id that may span several runs |
-| `agentsec.chain.id` / `stage_num` / `stage_name` | Kill-chain teaching |
-| `agentsec.security.profile` | `defended` \| `vulnerable` |
-| `agentsec.testbed.mode` | `BASELINE` \| `LIVE` \| `HYBRID` \| `SIMULATED` |
-| `agentsec.principal.*` | Authority holder (user vs agent vs system) |
-| `agentsec.delegator.agent.id` | Which agent delegated |
-| `agentsec.trust_boundary` | Named boundary from `TRUST_BOUNDARIES.md` |
-| `agentsec.invariant.id` | INV-001–008 |
-| `agentsec.control.id` / `decision` / `reason` | Reference control outcome |
-| `agentsec.operation.executed` | Honest DENY (must be false when decision is DENY) |
-| `agentsec.scope.requested` / `allowed` | INV-001 |
-| `agentsec.technique.id` | ATLAS id; not authorization |
-| `agentsec.content.influence.*` / `origin.*` | Content provenance without full prompt dump |
-| `agentsec.memory.trust_level` | INV-003 (`untrusted` \| `trusted` \| `quarantined`) |
-
-Do **not** emit attacker-supplied `agentsec.control.decision`. Closed schema: `additionalProperties: false`.
+ALLOW on a control event does **not** prove the LLM ran.
 
 ---
 
-## event.name vocabulary
+## Operation semantics
 
-| event.name | Representative file |
-|------------|---------------------|
-| `agentsec.normal_request` | `telemetry/events/normal_request.json` |
-| `agentsec.agent_handoff` | `agent_handoff.json` |
-| `agentsec.prompt_attack` | `prompt_attack.json` |
-| `agentsec.tool_request` | `tool_request.json` |
-| `agentsec.tool_denied` | `tool_denied.json` |
-| `agentsec.a2a_delegation` | `a2a_delegation.json` |
-| `agentsec.memory_write` | `memory_write.json` |
-| `agentsec.memory_read` | `memory_read.json` |
-| `agentsec.rag_retrieval` | `rag_retrieval.json` |
-| `agentsec.control_decision` | `control_decision.json` |
-| `agentsec.attack_chain_step` | `attack_chain_step.json` |
+Governed dangerous operation in this lab: **LLM inference** (Ollama generate).
 
-Tool, A2A, memory, RAG, and chain fixtures are **schema examples** for later surfaces. They are not IMPLEMENTED runtime until AcmeBank emits them.
+Three fields (smallest coherent set):
 
----
+| Field | Meaning |
+|-------|---------|
+| `agentsec.operation.attempted` | The runtime **intended to invoke** the governed operation. |
+| `agentsec.operation.executed` | The runtime **actually invoked/started** the governed operation (the call began). **Not** “completed successfully.” |
+| `agentsec.operation.outcome` | Terminal result of that operation: `prevented` \| `success` \| `error`. Omit until terminal when still in progress. |
 
-## Control decisions
+| Situation | attempted | executed | outcome |
+|-----------|-----------|----------|---------|
+| Control **DENY** before invocation | `false` | `false` | `prevented` |
+| Control **ERROR** before invocation | `false` | `false` | `prevented` |
+| Control **ALLOW** (decision time; LLM not started yet) | `false` | `false` | omit |
+| `llm.started` (invocation began) | `true` | `true` | omit |
+| `llm.completed` (generate succeeded) | `true` | `true` | `success` |
+| `llm.failed` (invocation started, then dependency/error) | `true` | `true` | `error` |
 
-ALLOW, DENY, SANITIZE, QUARANTINE, REQUIRE_APPROVAL, OBSERVE, ERROR.
-
-**DENY ⇒ `agentsec.operation.executed` = false** (enforced in schema).
+**`operation.executed=true` means the dangerous call was started**, including calls that later fail. Dependency failure is **not** equivalent to non-execution or to DENY.
 
 ---
 
-## Correlation rules
+## Experiment dimensions (separate)
 
-| Id | Granularity |
-|----|-------------|
-| `agentsec.run.id` | One HTTP/pipeline request; all hops share it |
-| `trace_id` | Same as that run in Phase 1; child `span_id` per hop |
-| `agentsec.incident.id` | Optional; shared across chain stages or related attacks |
-| `agentsec.chain.id` | Kill chain (later) |
+Do **not** use `LIVE` as a `testbed.mode`. Do **not** collapse baseline into attack.
 
-Normal request and agent handoff fixtures share one `run.id` and `trace_id`; handoff `parent_span_id` is the intake `span_id`.
+| Dimension | Values | First-lab emission |
+|-----------|--------|--------------------|
+| `agentsec.testbed.mode` | `BASELINE` \| `ATTACK` \| `RETEST` | all three used as below |
+| `agentsec.execution.mode` | `LIVE` \| `SIMULATED` \| `HYBRID` \| `REPLAYED` | **LIVE only** (others reserved) |
+| `agentsec.telemetry.fidelity` | `OBSERVED` \| `SYNTHETIC` \| `MIXED` | **OBSERVED only** (others reserved) |
 
----
+First implementation:
 
-## Major decisions
+| Experiment | testbed.mode | execution.mode | telemetry.fidelity |
+|------------|--------------|----------------|-------------------|
+| Benign baseline | `BASELINE` | `LIVE` | `OBSERVED` |
+| ATK-002 | `ATTACK` | `LIVE` | `OBSERVED` |
+| Defensive replay (same payload, profile change) | `RETEST` | `LIVE` | `OBSERVED` |
 
-### Decision: Standard GenAI names; `agentsec.*` only for security reconstruction
-
-**DECISION:** As tabulated above.
-
-**ALTERNATIVES:** Reuse AgentWatch `acme_*` / `incident_id` per hop; invent `who`/`why` fields; dump full prompts.
-
-**WHY CHOSEN:** Splunk can join on names other OTel-aware tools already use. Security questions OTel does not cover stay in one prefix.
-
-**SECURITY CONSEQUENCE:** Attackers cannot add `control.decision`. Full prompts stay out of default logs. DENY cannot claim the LLM/tool ran.
-
-**LEARNING VALUE:** One mapping table from SOC question → field.
-
-### Decision: Principal is not the same as initiator or agent
-
-**DECISION:** `user.id` = who started the activity. `agentsec.principal.*` = whose authority is being used. `gen_ai.agent.id` = which agent code path.
-
-**ALTERNATIVES:** One `actor` field.
-
-**WHY CHOSEN:** A2A and tool calls confuse “who clicked” vs “which agent is acting.”
-
-**SECURITY CONSEQUENCE:** INV-004 attribution stays explicit.
-
-**LEARNING VALUE:** Delegation is visible (`agentsec.delegator.agent.id`).
-
-### Decision: Content is origin + kind + preview + hash
-
-**DECISION:** No default `gen_ai.input.messages`.
-
-**ALTERNATIVES:** Always capture full chat history (OTel opt-in).
-
-**WHY CHOSEN:** PII/prompt leakage into Splunk. Hash supports integrity without storing the attack string in full.
-
-**SECURITY CONSEQUENCE:** INV-007 without turning the SIEM into a prompt archive.
-
-**LEARNING VALUE:** Learners still see what *kind* of content mattered.
+`SYNTHETIC` / `SIMULATED` / `HYBRID` / `REPLAYED` / `MIXED` may appear in the schema enum. They MUST NOT be emitted by the first lab and MUST NOT be presented as OBSERVED live proof.
 
 ---
 
-## Tests
+## Truth sequence
 
-Run: `pytest tests/telemetry/test_security_event_schema.py`
+```text
+ATTEMPT
+  → CONTROL EVALUATION
+  → CONTROL DECISION
+  → OPERATION ATTEMPT      (LLM only if ALLOW)
+  → OPERATION EXECUTION    (invocation started)
+  → ACTUAL OUTCOME         (success | error | prevented)
+  → TELEMETRY
+  → EVIDENCE
+```
 
-Do not claim pass unless executed.
+---
+
+## Trace / span model
+
+One `trace_id` per `/process` run.
+
+```text
+run.id = incident.id
+trace_id
+  pipeline span
+    hop span (index 0 intake)          no delegator
+      control-evaluation span
+      llm-inference span               ONLY if ALLOW
+    hop span (index 1..3)              delegator.agent.id REQUIRED
+      ...
+```
+
+Do **not** create an LLM child span after DENY or ERROR that blocks invocation.
+
+| Span kind | Parent | Events |
+|-----------|--------|--------|
+| `pipeline` | none | `run.started`, `run.completed`, `run.failed`, `pipeline.stopped` |
+| `hop` | pipeline | `hop.started`, `hop.completed` |
+| `control_evaluation` | hop | `control.decision` |
+| `llm_inference` | hop | `llm.started`, `llm.completed`, `llm.failed` |
+
+Control-to-LLM link: `run.id` + `hop.index` + hop `span_id` as `parent_span_id`. Do not invent an LLM span id on DENY.
+
+Hops after intake **require** `agentsec.delegator.agent.id` (prior coded agent). This is in-process attribution, **not** A2A.
+
+---
+
+## Event taxonomy (first lab)
+
+“Control evaluated” and “control decision” remain **one event**: `agentsec.control.decision`.
+
+Producer: **AcmeBank** only.
+
+### `agentsec.run.started`
+
+Attempt: `/process` accepted, ids minted. No control decision. No LLM.  
+Next: `hop.started` (0) or `run.failed` if malformed before hops.  
+Required: schema name/version; experiment dimensions; `workflow.entry=/process`.
+
+### `agentsec.run.completed`
+
+Designed finish, including DENY stop (`completed_denied`) or full ALLOW (`completed_allowed`). Not used for LLM dependency failure (`run.failed`).
+
+### `agentsec.run.failed`
+
+Schema failure, control-evaluation failure, or LLM invocation that started and then failed. Not a DENY.
+
+### `agentsec.hop.started` / `hop.completed`
+
+Hop 0: **must not** include `delegator.agent.id`.  
+Hop 1–3: **must** include `delegator.agent.id`.  
+Hop outcomes: `hop_allowed` \| `hop_denied` \| `hop_error`.
+
+### `agentsec.control.decision`
+
+CTRL-INPUT-001 (or schema) finished. Before any LLM span.
+
+| Decision | attempted | executed | outcome | Next |
+|----------|-----------|----------|---------|------|
+| DENY | false | false | prevented | `pipeline.stopped`, no `llm.*` |
+| ERROR (before invoke) | false | false | prevented | `pipeline.stopped`, no `llm.*` |
+| ALLOW | false | false | omit | `llm.started` |
+
+Empty/malformed: ERROR, both profiles.
+
+### `agentsec.llm.started`
+
+Invocation **began**. `attempted=true`, `executed=true`, outcome omitted. Only after ALLOW.
+
+### `agentsec.llm.completed`
+
+`attempted=true`, `executed=true`, `outcome=success`.
+
+### `agentsec.llm.failed`
+
+Invocation started, then failed. `attempted=true`, `executed=true`, `outcome=error`. **Not** DENY. **Not** non-execution.
+
+### `agentsec.pipeline.stopped`
+
+Remaining hops will not run. `stop.reason` = `denied` \| `error`.
+
+---
+
+## Field families (delta from 1.0.0)
+
+**Schema identity:** `agentsec.schema.name`, `agentsec.schema.version` (required).
+
+**Execution (governed LLM only, on `control.decision` and `llm.*`):** `operation.attempted`, `operation.executed` (invocation started, not success), `operation.outcome` (`prevented` \| `success` \| `error`). Distinct from hop/run `agentsec.outcome`.
+
+**Experiment:** `testbed.mode`, `execution.mode`, `telemetry.fidelity` as in the table above.
+
+**Content:** preview ≤200 + `content.hash` only. Full prompts are **not** default telemetry or default evidence.
+
+**Handoff:** `agentsec.delegator.agent.id` required when `hop.index` ≥ 1.
+
+OTel vs `agentsec.*` otherwise unchanged: no `session.id` / `session_id`; `gen_ai.operation.name=chat` on LLM events only.
+
+---
+
+## Closed / attacker-controlled fields
+
+**Server-only:** `run.id`, `incident.id`, `security.profile`, `control.*`, operation attempted/executed/outcome, `telemetry.fidelity`, `testbed.mode` (client cannot set BASELINE/RETEST/SYNTHETIC), `execution.mode`, schema version, `trace_id`, `span_id`.
+
+**Attacker-influenced:** payload → preview/hash only.
+
+**Forbidden keys:** `session.id`, `session_id`, unprefixed `control.decision`, client `run.id`.
+
+---
+
+## Validation invariants
+
+| ID | Rule |
+|----|------|
+| V-SCHEMA | Every event has `schema.name=agentsec.security_event` and `schema.version=1.0.0` |
+| V-RUN | Every event has `run.id` |
+| V-INC | `incident.id` == `run.id` |
+| V-DIM-FIRST | First-lab emissions: `execution.mode=LIVE` and `telemetry.fidelity=OBSERVED`; `testbed.mode` in {BASELINE, ATTACK, RETEST} |
+| V-NO-FAKE-OBS | `execution.mode=SIMULATED` or `fidelity=SYNTHETIC` must never be presented as OBSERVED live proof |
+| V-DENY | DENY ⇒ attempted=false, executed=false, outcome=prevented |
+| V-DENY-NO-LLM | After DENY on hop `i`, no `llm.*` for hop `i` in **complete local** evidence |
+| V-DENY-SPLUNK | Splunk missing `llm.*` is corroboration only unless run completeness is established |
+| V-ERROR-PRE | ERROR before invoke ⇒ attempted=false, executed=false, outcome=prevented, no `llm.*` |
+| V-ALLOW-CTRL | ALLOW on control.decision ⇒ attempted=false, executed=false, no outcome |
+| V-LLM-START | `llm.started` ⇒ attempted=true, executed=true; only after ALLOW |
+| V-LLM-OK | `llm.completed` ⇒ attempted=true, executed=true, outcome=success |
+| V-LLM-FAIL | `llm.failed` ⇒ attempted=true, executed=true, outcome=error (not DENY, not prevented) |
+| V-NO-POST-DENY | No DENY after `llm.started`/`completed`/`failed` on that hop |
+| V-DEL-0 | hop.index=0 ⇒ no `delegator.agent.id` |
+| V-DEL-N | hop.index≥1 ⇒ `delegator.agent.id` required |
+| V-SEQ | `sequence` unique and increasing |
+| V-ENTRY | `workflow.entry=/process` |
+| V-SPAN-LLM | No `llm_inference` span when hop decision is DENY or pre-invoke ERROR |
+| V-RUNTIME | Runtime invocation flag is authoritative over Splunk absence |
+| V-CONTENT | Default events and evidence store preview (≤200) + content hash only; full prompts are not required |
+| V-OP-SCOPE | `operation.attempted` / `executed` / `outcome` appear on `control.decision` and `llm.*` only (governed LLM operation) |
+
+---
+
+## Example sequences
+
+### A. BENIGN + DEFENDED (explicit baseline)
+
+Dimensions: `testbed.mode=BASELINE`, `execution.mode=LIVE`, `fidelity=OBSERVED`, `attack.id=ATK-001`, `profile=defended`.
+
+MUST: `run.started` → four× (`hop.started` → ALLOW control → `llm.started` executed=true → `llm.completed` outcome=success → `hop.completed` hop_allowed) → `run.completed` completed_allowed. Hop 1–3 include delegator.
+
+MUST NOT: `pipeline.stopped`, `run.failed`, DENY, `testbed.mode=ATTACK` or `RETEST`, SYNTHETIC fidelity.
+
+### B. ATK-002 + VULNERABLE
+
+Dimensions: `testbed.mode=ATTACK`, `LIVE`, `OBSERVED`. **Same payload as C.**
+
+MUST: four hops ALLOW with fail-open reason; `llm.started`/`completed` unless sequence D. Delegator on hops 1–3.
+
+MUST NOT: DENY; unlabeled fail-open; `testbed.mode=BASELINE` or `RETEST`.
+
+### C. DEFENSIVE REPLAY (ATK-002 + DEFENDED)
+
+Same payload as B. `profile=defended`. Dimensions: `testbed.mode=RETEST`, `LIVE`, `OBSERVED`.
+
+MUST: hop 0 `control.decision` DENY, attempted=false, executed=false, outcome=prevented → `pipeline.stopped` denied → `hop.completed` hop_denied → `run.completed` completed_denied. Runtime: LLM not invoked. Proof order: runtime → complete local bundle → export → Splunk corroboration.
+
+MUST NOT: any `llm.*`; hops 1–3; treating Splunk-only absence as the proof; `run.failed`; `testbed.mode=LIVE`; `operation.executed=true`.
+
+### D. OLLAMA FAILURE
+
+ALLOW path; generate **starts** then fails.
+
+MUST: ALLOW (attempted=false at control) → `llm.started` (attempted=true, **executed=true**) → `llm.failed` (attempted=true, **executed=true**, outcome=**error**) → `hop.completed` hop_error → `pipeline.stopped` error → `run.failed`.
+
+MUST NOT: `outcome=prevented`; `executed=false` on `llm.failed`; DENY; `llm.completed`; remaining hops.
+
+### E. CONTROL EVALUATION FAILURE
+
+MUST: `control.decision` ERROR, attempted=false, executed=false, outcome=prevented, `error.stage=control_evaluation` → stopped → `run.failed`.
+
+MUST NOT: `llm.*`; DENY; ALLOW.
+
+### F. TELEMETRY EXPORT FAILURE
+
+Local sequence A or C complete in `events.jsonl`. `export.json` failed.
+
+MUST: local bundle; runtime still authoritative.
+
+MUST NOT: Splunk absence as proof of DENY; fabricated HEC success; claiming MEASURED Splunk.
+
+---
+
+## Splunk investigation questions
+
+See `schemas/splunk_investigation_fields.json`. SPL not validated.
+
+Baseline vs attack vs retest uses `testbed.mode`, **not** `execution.mode`.
+
+“Was inference prevented?” uses runtime + complete local evidence first; Splunk second.
+
+---
+
+## Fields / modes omitted from first-lab **emission**
+
+- `session.id` / `session_id` / `gen_ai.conversation.id`
+- Tools, memory, RAG, A2A, chains
+- Full prompts by default
+- Emitting SIMULATED / HYBRID / REPLAYED / SYNTHETIC / MIXED (reserved in schema only)
+
+---
+
+## Related
+
+`ARCHITECTURE.md`, `ATTACK_CONTROL_MODEL.md`, `EVIDENCE_MODEL.md`, `learning-notes/security-telemetry-101.md`

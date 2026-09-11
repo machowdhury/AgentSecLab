@@ -1,5 +1,7 @@
 # Reference input control (CTRL-INPUT-001)
 
+**Event/operation/dimension semantics:** `SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative. Existing `src/agentsec/` emitters are EXPERIMENTAL and may still use withdrawn event names.
+
 ## WHAT IS IT?
 
 A small, lab-owned pattern check on untrusted text **before** the LLM is called. It is a teaching control, not a product IPS.
@@ -30,11 +32,11 @@ Regex gaps (a novel jailbreak may ALLOW — that is a real limitation). Vulnerab
 
 ## WHAT TELEMETRY SHOULD EXIST?
 
-`agentsec.control.id=CTRL-INPUT-001`, `decision`, `reason`, `operation.executed`, `technique.id=AML.T0054` on ATK-002, `event.name=agentsec.prompt_attack` when a rule matched.
+`agentsec.control.id=CTRL-INPUT-001`, `decision`, `reason`, `operation.attempted` / `executed` / `outcome`, `technique.id=AML.T0054` on ATK-002, `event.name=agentsec.control.decision`. Do not emit withdrawn names such as `agentsec.prompt_attack`.
 
 ## HOW WILL SPLUNK SHOW IT?
 
-Hunt LIVE DENY with executed=false. Do not call that hunt validated until it is run in Splunk.
+Hunt `testbed.mode=ATTACK` DENY with attempted=false, executed=false, outcome=prevented. Splunk absence of `llm.*` is corroboration only. Do not call that hunt validated until it is run in Splunk.
 
 ## WHAT CONTROL COULD CHANGE THE RESULT?
 
@@ -47,7 +49,7 @@ Unit: `tests/unit/test_controls.py`. Security: `tests/security/test_input_contro
 ## What I should now be able to explain
 
 1. Why the check is before Ollama, not after.
-2. Why DENY requires `operation.executed=false`.
+2. Why DENY before invoke requires attempted=false, executed=false, outcome=prevented — and why a started LLM failure is executed=true, outcome=error.
 3. Why a stub LLM is the right proof, not a live 1B model.
 4. What `input_pattern_matched` means.
 5. How fail-open is labeled in telemetry.
