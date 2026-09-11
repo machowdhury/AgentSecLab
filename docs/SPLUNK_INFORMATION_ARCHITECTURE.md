@@ -1,322 +1,118 @@
 # Splunk Information Architecture
 
-**Status:** PLANNED. No Dashboard Studio JSON in this phase. Not Phase 1C work.  
-**Field semantics:** `SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative. `testbed.mode` is `BASELINE` \| `ATTACK` \| `RETEST` (`LIVE` is `execution.mode`). `operation.executed=true` means the governed call started, not that it succeeded. Splunk is corroborating evidence only.
+**Status:** PLANNED (Phase 1C UX contract)  
+**App id:** `agentsec`  
+**Index:** `agentsec_telemetry`  
+**Sourcetype:** `otel:agentic:json`  
+**Authoritative fields:** `docs/SECURITY_EVENT_MODEL.md` (schema **1.0.0**)  
+**Evidence:** `docs/EVIDENCE_MODEL.md`  
+**Visual system:** `docs/SPLUNK_DESIGN_SYSTEM.md`  
+**Workshop grid:** `docs/SPLUNK_WORKSHOP_STANDARD.md`  
+**Search questions:** `docs/SPLUNK_SEARCH_CONTRACT.md`
 
-This is the **target** AgentSec app navigation (`agentsec`). Pages light up only after their SPL is validated. Empty Studio shells are forbidden.
+This file is information architecture. It is not Dashboard Studio JSON, not validated SPL, and not an implementation claim.
 
-Phase 1 may ship Search plus HOME copy only. The rest stays PLANNED until events exist.
+Splunk is the telemetry, investigation, detection, learning, later MLTK, and evidence **workbench**. Splunk does **not** authorize Ollama, mint `run.id`, set `security.profile`, or invent outcomes.
+
+Proof order (Phase 1B):
+
+```text
+AUTHORITATIVE RUNTIME STATE
+  → LOCAL RUN EVIDENCE
+  → EXPORTED TELEMETRY
+  → SPLUNK REPRESENTATION   (corroborating only)
+```
+
+A missing Splunk `llm.*` event does **not** prove non-execution unless completeness for that `run.id` is established.
+
+Predecessor lessons (do not copy): AgentWatch mixed Classic/Studio, `session.id` vs `session_id`, coverage matrices as home, SIMULATED as live proof, and 15 dashboards before a working hunt. AgentSec ships **few pages**, `run.id` as the hunt key, and Studio GRID when dashboards exist.
 
 ---
 
-## Product intent (four hats)
+## Capability labels
 
-| Role | What this IA must do |
-|------|----------------------|
-| Splunk architect | One app, GRID, macros (`agentsec_index`), tokens (`agentsec.run.id`, `agentsec.testbed.mode`, `agentsec.security.profile`). No `join`-heavy landing pages. |
-| SOC analyst | Every page answers one investigation or detection question. “What happened?” comes from fields, not prose. |
-| Security product designer | Severity is a **label** (ALLOW / DENY / …) plus color. SIMULATED never looks like a live block. |
-| Technical instructor | Nav order is the lifecycle. Next page is obvious. Knowledge check before governance scores. |
+| Label | Meaning |
+|-------|---------|
+| **PLANNED** | This IA. No Studio JSON in this phase. |
+| **FIRST LAB** | Required to teach ATK-002. |
+| **LATER** | Real destination after the first lab. |
+| **PLACEHOLDER ONLY** | Visible in nav as disabled / “not in this lab.” No empty dashboard. |
+| **NOT NEEDED** | Omit from first-lab chrome. |
+
+Empty Studio shells are forbidden. Pages light up only after their searches are validated against real events.
 
 ---
 
-## Global navigation (locked order)
+## Navigation (long-term order)
 
 ```text
 HOME
 LEARN
 ATTACK LAB
+OBSERVE
 INVESTIGATION
 DETECTION LAB
-MLTK LAB
 CONTROL VALIDATION
 ATTACK CHAINS
+MLTK LAB
 ADVANCED TOOLS
 COMPLIANCE
 EXECUTIVE GOVERNANCE
 PROGRESS
 ```
 
-Always available outside this list: Splunk **Search** (not a custom view). Instructors send analysts to Search when a dashboard would invent SPL.
+Always available outside this list: native Splunk **Search**. Instructors send analysts to Search when a view would invent SPL.
 
-**Global tokens (when a view has data):** time picker, `agentsec.run.id`, `agentsec.security.profile`, `agentsec.testbed.mode` (attack KPIs default `NOT BASELINE`; SIMULATED is a visible badge, not mixed into “blocked” counts).
+| Destination | Classification | First lab? |
+|-------------|----------------|------------|
+| HOME | FIRST LAB | Yes |
+| LEARN | FIRST LAB | Yes (WS-001 only) |
+| ATTACK LAB | FIRST LAB | Yes (ATK-002 orientation; fire is Attack Service) |
+| OBSERVE | FIRST LAB | Yes |
+| INVESTIGATION | FIRST LAB | Yes |
+| DETECTION LAB | FIRST LAB | Yes (workflow; no SPL in this phase) |
+| CONTROL VALIDATION | FIRST LAB | Yes (prove prevention) |
+| ATTACK CHAINS | PLACEHOLDER ONLY | No |
+| MLTK LAB | PLACEHOLDER ONLY | No (Level 5) |
+| ADVANCED TOOLS | PLACEHOLDER ONLY | No (MCP/A2A/RAG/memory/Cisco) |
+| COMPLIANCE | LATER | No (invariant row lives on the workshop) |
+| EXECUTIVE GOVERNANCE | NOT NEEDED | No |
+| PROGRESS | FIRST LAB | Yes (minimal checklist) |
 
 **DECISION:** Lifecycle nav, not “all dashboards equal.”  
-**ALTERNATIVES:** AgentWatch-style many peer tabs; Coverage as home.  
-**WHY CHOSEN:** Learners skipped baseline; SIMULATED filled matrices.  
-**SECURITY CONSEQUENCE:** Live proof and simulated emits stay separable.  
-**LEARNING VALUE:** HOME → LEARN → ATTACK → INVESTIGATE → DETECT → … → PROGRESS.
+**ALTERNATIVES:** AgentWatch peer tabs; Coverage as home.  
+**WHY:** Learners skipped baseline; SIMULATED filled matrices.  
+**SECURITY:** Live proof and placeholders stay separable.  
+**LEARNING:** HOME → LEARN → ATTACK → OBSERVE → HUNT → DETECT → DEFEND → RETEST → INVESTIGATE → PROVE.
 
 ---
 
-## HOME
+## Global tokens (when a view has data)
 
-**WHO USES IT?** First-time learner, returning student, instructor opening a class, CISO on a tour who should not start in MLTK.
+| Token | Purpose |
+|-------|---------|
+| Time picker | Window; default last 60 minutes in the lab |
+| `agentsec.run.id` | Primary hunt key. Equals `incident.id`. |
+| `agentsec.compare.run.id` | RETEST / before-after pair |
+| `agentsec.security.profile` | `defended` \| `vulnerable` |
+| `agentsec.testbed.mode` | `BASELINE` \| `ATTACK` \| `RETEST` |
+| `agentsec.hop.index` | Optional hop drill (0–3) |
 
-**WHAT QUESTION DOES IT ANSWER?** Where am I, is the lab healthy, and what is the one next action?
-
-**WHAT ACTION SHOULD THE USER TAKE?** Confirm telemetry is arriving (or see an honest empty state). Click **Start LEARN** (first workshop) or **Resume** if PROGRESS has a checkpoint.
-
-**WHAT MUST BE VISIBLE?**
-
-- AgentSec is a learning range, not a product ATO.
-- Lab health: last event time, `agentsec.lab.id`, profile (`defended` / `vulnerable`) as a **label**.
-- Three doors: LEARN (guided), ATTACK LAB (offense), INVESTIGATION (hunt).
-- Link to AcmeBank `:5000` and Attack Service `:5001` as **external lab**, not Splunk panels pretending to be those apps.
-
-**WHAT SHOULD NOT BE ON THIS PAGE?**
-
-- Technique coverage heatmaps, 51-count KPIs, MLTK forecasts, framework “pass %”, executive risk matrices, unvalidated SPL, fake zeros that look like all-clear.
-
-**WHAT IS THE NEXT LOGICAL PAGE?** LEARN.
+Do **not** token `LIVE` as a testbed mode. First lab: `execution.mode=LIVE`, `telemetry.fidelity=OBSERVED` as **labels**, not filters that invent other modes.
 
 ---
 
-## LEARN
-
-**WHO USES IT?** Novice to practitioner following a workshop. Instructor projecting a lesson.
-
-**WHAT QUESTION DOES IT ANSWER?** What should I understand before I attack, and how do I prove it in Splunk?
-
-**WHAT ACTION SHOULD THE USER TAKE?** Pick one workshop. Complete baseline → attack → hunt → knowledge check. Do not skip to COMPLIANCE.
-
-**WHAT MUST BE VISIBLE?**
-
-- Workshop catalog (title, difficulty GUIDED / PRACTITIONER / CHALLENGE, invariants).
-- For the selected workshop: the standard flow from `SPLUNK_DESIGN_SYSTEM.md` (see wireframe below).
-- Action result block after each learner action: ACTION, RUN ID, STATUS, WHAT HAPPENED (from telemetry), AGENTS, CONTROL DECISION, TELEMETRY, WHY IT MATTERS, NEXT STEP.
-- SPL explanation: what we are asking, how the search works, what you should see.
-
-**WHAT SHOULD NOT BE ON THIS PAGE?**
-
-- Fire-all-techniques buttons, Cisco/MLTK chrome, executive scores, attack-chain timelines for other campaigns, raw Attack Service iframe.
-
-**WHAT IS THE NEXT LOGICAL PAGE?** ATTACK LAB (to run the live action named in the workshop), then back to LEARN for “what happened,” or INVESTIGATION to hunt the same `agentsec.run.id`.
-
----
-
-## ATTACK LAB
-
-**WHO USES IT?** Learner in the offense step, red-team style operator, instructor triggering a demo.
-
-**WHAT QUESTION DOES IT ANSWER?** Which live (or labeled SIMULATED) action do I run, against which agent, under which profile?
-
-**WHAT ACTION SHOULD THE USER TAKE?** Choose ATK-00x (or later catalog). Confirm `defended` vs `vulnerable`. Run. Copy `agentsec.run.id` into LEARN / INVESTIGATION.
-
-**WHAT MUST BE VISIBLE?**
-
-- Mode badges: LIVE / HYBRID / SIMULATED / BASELINE.
-- Target agent, technique id (if any), expected control decision (prediction **before** reveal).
-- Honest copy: SIMULATED does not prove a control.
-- Link out to Attack Service for the actual HTTP fire (Splunk does not bypass AcmeBank).
-
-**WHAT SHOULD NOT BE ON THIS PAGE?**
-
-- Full SOC hunt tables, detection rule editors, compliance mappings, MLTK, “Run all 51” as a default primary button.
-
-**WHAT IS THE NEXT LOGICAL PAGE?** LEARN (guided “what happened”) or INVESTIGATION (analyst path).
-
----
-
-## INVESTIGATION
-
-**WHO USES IT?** SOC analyst, learner after first attack, instructor showing reconstruction.
-
-**WHAT QUESTION DOES IT ANSWER?** For this `agentsec.run.id` (or time window), what happened, who/what/why, did the dangerous operation run?
-
-**WHAT ACTION SHOULD THE USER TAKE?** Paste run id. Reconstruct using event-model fields. Decide: control held, missed, or SIMULATED-only.
-
-**WHAT MUST BE VISIBLE?**
-
-- Timeline of `event.name` for one run / one trace.
-- Table columns aligned to `SECURITY_EVENT_MODEL.md`: initiator, principal, agent, model, tool, operation, scopes, control, decision, reason, `operation.executed`, technique, boundary, invariant, incident/chain if present.
-- Filter: testbed mode, profile, DENY vs ALLOW vs OBSERVE vs SANITIZE.
-- Empty state: “No events — check HEC / baseline,” never a green zero.
-
-**WHAT SHOULD NOT BE ON THIS PAGE?**
-
-- Workshop lesson prose, knowledge-check quizzes, executive KPIs, MLTK `fit`, framework certification language, coverage matrices.
-
-**WHAT IS THE NEXT LOGICAL PAGE?** DETECTION LAB (turn this hunt into a saved question) or CONTROL VALIDATION (if the question is “did the control fire before the tool/LLM”).
-
----
-
-## DETECTION LAB
-
-**WHO USES IT?** Detection engineer, advanced learner, instructor teaching SPL hygiene.
-
-**WHAT QUESTION DOES IT ANSWER?** What is the security question, which fields prove it, and does this search hold up (FP/FN notes)?
-
-**WHAT ACTION SHOULD THE USER TAKE?** Write or inspect a hunt. Require QUERY ID, required fields, expected vs actual (once validated). Disable-by-default saved searches.
-
-**WHAT MUST BE VISIBLE?**
-
-- One detection at a time: question, SPL, field list from the event model, explanation of each major command.
-- LIVE vs SIMULATED split.
-- Link: “Not yet validated” if the search was not run on representative data.
-
-**WHAT SHOULD NOT BE ON THIS PAGE?**
-
-- Workshop storytelling, CISO tiles, MLTK purple charts as the main view, attack firing UI, 51-row unfiltered matrices.
-
-**WHAT IS THE NEXT LOGICAL PAGE?** CONTROL VALIDATION (control vs detection) or MLTK LAB (only if the question is behavioral/anomaly, not regex/control).
-
----
-
-## MLTK LAB
-
-**WHO USES IT?** Optional advanced track: detection engineers comparing reference controls vs statistical/ML signals.
-
-**WHAT QUESTION DOES IT ANSWER?** Does token/time-series behavior look anomalous **after** we already know the control decision?
-
-**WHAT ACTION SHOULD THE USER TAKE?** Run a labeled MLTK experiment. Record evidence class (MEASURED only if MLTK actually ran).
-
-**WHAT MUST BE VISIBLE?**
-
-- Purple track cue (`#6B46C1`) plus text “MLTK optional.”
-- Dependency: MLTK (and CTSM if used) installed or an honest “app missing” state.
-- Same `agentsec.run.id` as the control path for comparison.
-- No fake `mltk.detected` from Python.
-
-**WHAT SHOULD NOT BE ON THIS PAGE?**
-
-- First-win workshop, compliance %, Attack Service, treating MLTK as the authorization control.
-
-**WHAT IS THE NEXT LOGICAL PAGE?** DETECTION LAB or CONTROL VALIDATION. Not HOME skip-ahead.
-
----
-
-## CONTROL VALIDATION
-
-**WHO USES IT?** Control owner, security architect, learner proving INV placement.
-
-**WHAT QUESTION DOES IT ANSWER?** Which control, which decision, **why**, and did attempted/executed/outcome match the decision (DENY before invoke ⇒ attempted=false, executed=false, outcome=prevented; `llm.failed` ⇒ executed=true, outcome=error)?
-
-**WHAT ACTION SHOULD THE USER TAKE?** Pick a run or technique. Compare expected vs actual control result. Fail the page if DENY is shown after a successful LLM/tool call.
-
-**WHAT MUST BE VISIBLE?**
-
-- `agentsec.control.id`, `decision`, `reason`, `operation.attempted`, `operation.executed`, `operation.outcome`.
-- Trust boundary and invariant ids.
-- Profile `vulnerable` vs `defended` labeled.
-- Before/after when a workshop retest exists.
-
-**WHAT SHOULD NOT BE ON THIS PAGE?**
-
-- Framework “certified” banners, MLTK, executive portfolio, SYNTHETIC/SIMULATED counts in the same KPI as ATTACK DENY.
-
-**WHAT IS THE NEXT LOGICAL PAGE?** ATTACK CHAINS (multi-step) or COMPLIANCE (educational mapping of this evidence).
-
----
-
-## ATTACK CHAINS
-
-**WHO USES IT?** Investigator, Tier-3 learner, instructor telling a multi-stage story.
-
-**WHAT QUESTION DOES IT ANSWER?** How do stages of `agentsec.chain.id` share `agentsec.incident.id`, and which stages were LIVE vs SIMULATED?
-
-**WHAT ACTION SHOULD THE USER TAKE?** Select a chain. Walk stage_num. Hunt one incident. Do not treat HYBRID OTel-only legs as live control proof.
-
-**WHAT MUST BE VISIBLE?**
-
-- Stage list, technique per stage, decision per stage, mode badge.
-- Shared incident id; per-stage `agentsec.run.id` if runs differ.
-- Actor/agent sequence (`gen_ai.agent.id`).
-
-**WHAT SHOULD NOT BE ON THIS PAGE?**
-
-- Single-technique workshop chrome, MLTK, executive readiness %, “all 51 complete.”
-
-**WHAT IS THE NEXT LOGICAL PAGE?** INVESTIGATION (deep dive one run) or CONTROL VALIDATION (per-stage placement).
-
----
-
-## ADVANCED TOOLS
-
-**WHO USES IT?** Optional Cisco / adapter / MAESTRO track. Architects comparing reference controls vs vendor-shaped signals.
-
-**WHAT QUESTION DOES IT ANSWER?** What extra tooling is **on**, is it teach-mode or enforce (only if tested), and how do fields map to `norm_*` later?
-
-**WHAT ACTION SHOULD THE USER TAKE?** Enable overlay outside Splunk. In Splunk, compare labeled Cisco/adapter events to AcmeBank OTel. Never use this page to ALLOW a loan.
-
-**WHAT MUST BE VISIBLE?**
-
-- Track status: absent / teach / (enforce only if implemented and tested).
-- Honest “scanner not installed.”
-- Link to INVESTIGATION with `service.name` / sourcetype filters.
-
-**WHAT SHOULD NOT BE ON THIS PAGE?**
-
-- Core first workshop, fake enforce DENY, claiming DefenseClaw is in-process.
-
-**WHAT IS THE NEXT LOGICAL PAGE?** MLTK LAB or DETECTION LAB. Core learners skip this page (HOME should not push it).
-
----
-
-## COMPLIANCE
-
-**WHO USES IT?** GRC-curious learner, auditor **in a teaching role**, mapping workshop.
-
-**WHAT QUESTION DOES IT ANSWER?** How does this **verified** mapping connect a technique/control/invariant to an allowed framework id — not “are we certified?”
-
-**WHAT ACTION SHOULD THE USER TAKE?** Open one mapping row: official title, why it applies, invariant, test, evidence class. Read the disclaimer.
-
-**WHAT MUST BE VISIBLE?**
-
-- Allow-listed frameworks only (no NIST SP 800-17).
-- Evidence class: OBSERVED / MEASURED / SIMULATED / …
-- “Educational mapping. Not certification or compliance.”
-
-**WHAT SHOULD NOT BE ON THIS PAGE?**
-
-- A single “compliance %” that mixes SIMULATED coverage, MLTK, and LIVE DENY.
-- Attack firing, live shell, executive traffic-light without definitions.
-
-**WHAT IS THE NEXT LOGICAL PAGE?** EXECUTIVE GOVERNANCE (same evidence, less technical) or PROGRESS (what you personally mapped).
-
----
-
-## EXECUTIVE GOVERNANCE
-
-**WHO USES IT?** CISO-style visitor, manager, instructor’s last five minutes.
-
-**WHAT QUESTION DOES IT ANSWER?** In plain language: are we learning the loop, where are LIVE gaps, what is labeled SIMULATED, what is not attested?
-
-**WHAT ACTION SHOULD THE USER TAKE?** Read four tiles max. Drill to CONTROL VALIDATION or INVESTIGATION. Do not “sign off” the lab as an ATO.
-
-**WHAT MUST BE VISIBLE?**
-
-- Readiness as **coverage of taught LIVE paths**, excluding BASELINE noise and unlabeled SIMULATED.
-- HITL / profile / registry language only when those events exist.
-- Links down to evidence, not the other way around.
-
-**WHAT SHOULD NOT BE ON THIS PAGE?**
-
-- Raw SPL, MLTK math, 51-row matrices, Attack Service, workshop quizzes.
-
-**WHAT IS THE NEXT LOGICAL PAGE?** PROGRESS (class) or HOME (tour over).
-
----
-
-## PROGRESS
-
-**WHO USES IT?** Learner, instructor checking a cohort, the student themselves.
-
-**WHAT QUESTION DOES IT ANSWER?** Which workshops/detections/controls have **I** completed with evidence (`agentsec.run.id` / artifacts), vs skipped?
-
-**WHAT ACTION SHOULD THE USER TAKE?** Resume the next incomplete LEARN item. Export nothing that looks like a certificate of NIST compliance.
-
-**WHAT MUST BE VISIBLE?**
-
-- Checklist: LEARN workshops, one hunt, one control validation, optional MLTK/advanced.
-- Stored run ids (not raw session secrets).
-- Mode labels on completed items (LIVE vs SIMULATED).
-
-**WHAT SHOULD NOT BE ON THIS PAGE?**
-
-- Live attack console, executive risk heatmaps as personal scores, other users’ PII.
-
-**WHAT IS THE NEXT LOGICAL PAGE?** LEARN (next workshop) or HOME.
+## Learning levels (planning labels)
+
+| Level | Name | First lab |
+|-------|------|-----------|
+| 0 | Orientation | Required (HOME + architecture panel) |
+| 1 | Prompt and Input Security | Required (WS-001 / ATK-002) |
+| 2 | Tool / MCP Security | Later |
+| 3 | Agent / Delegation Security | Later |
+| 4 | Memory / RAG Security | Later |
+| 5 | Detection / MLTK | Later |
+| 6 | Governance / Advanced Validation | Later |
 
 ---
 
@@ -324,169 +120,223 @@ Always available outside this list: Splunk **Search** (not a custom view). Instr
 
 | Journey | Path |
 |---------|------|
-| First 30 minutes | HOME → LEARN (workshop) → ATTACK LAB → LEARN (what happened) → INVESTIGATION → PROGRESS |
-| Analyst | HOME → INVESTIGATION → DETECTION LAB → CONTROL VALIDATION |
-| Optional vendor/ML | DETECTION LAB → MLTK LAB → ADVANCED TOOLS |
-| Teaching GRC | CONTROL VALIDATION → COMPLIANCE → EXECUTIVE GOVERNANCE |
+| First lab | HOME → LEARN (WS-001) → ATTACK LAB → OBSERVE → INVESTIGATION → DETECTION LAB → CONTROL VALIDATION → PROGRESS |
+| Analyst after a run id | HOME → INVESTIGATION → OBSERVE → CONTROL VALIDATION |
+| Instructor demo | HOME → LEARN (project workshop) → OBSERVE |
+
+Splunk never POSTs to `/process`. AcmeBank (`:5000`) and Attack Service (`:5001`) are **external lab** links.
 
 ---
 
-# Workshop wireframe (Markdown GRID)
+# FIRST LAB pages
 
-**Workshop:** Input control before the LLM (ATK-002 / INV-008)  
-**Nav owner:** LEARN  
-**Layout:** Dashboard Studio **GRID** (12 columns). Not absolute. **No JSON.**  
-**SPL:** Placeholders only. Do not treat as validated. Actual searches wait for live fields.
+Each page answers **one** primary question. Learner chrome always makes these five things findable: what this is, why it matters, what happened, what evidence supports it, what to do next.
 
-Reading order is **top to bottom, left to right**. Background `#F6F8FB`. Navy header. Decision labels always include the word ALLOW/DENY/… not color alone.
+---
 
-### Row 1 — Header (columns 1–12)
+## HOME
 
-```text
-+----------------------------------------------------------------------------------------+
-|  LEARN  ·  Workshop 01  ·  Input control before the LLM                                |
-|  Profile: defended   Mode: LIVE   Invariant: INV-008   Control: CTRL-INPUT-001         |
-|  [Time]  [Run ID token]  [Profile]  [testbed.mode]                                     |
-+----------------------------------------------------------------------------------------+
-```
+**PAGE NAME:** Home  
+**PRIMARY USER:** First-time learner, returning student, instructor opening a class  
+**PRIMARY QUESTION:** Where am I, is the lab honest about its status, and what is the one next action?  
+**WHY IT EXISTS:** Orient. Do not become a wall of charts.  
+**ENTRY POINT:** App default.  
+**INPUTS / TOKENS:** None required. Optional last `run.id` from PROGRESS.  
+**DATA REQUIRED:** Optional: last event timestamp for `agentsec.lab.id`. Honesty if none.  
+**MAIN PANELS:** Purpose (range, not product ATO); current level (0–1); current lab (WS-001); lifecycle strip LEARN→…→PROVE; recent runs (run.id, testbed.mode, profile, evidence state); next recommended activity.  
+**EXPECTED USER ACTION:** Start LEARN (WS-001) or resume PROGRESS.  
+**WHAT HAPPENED SECTION:** None on HOME. Point to recent-run row → OBSERVE.  
+**EVIDENCE SECTION:** One line: Splunk is corroborating; runtime is authoritative. Recent-run evidence chip (NOT VERIFIED / PARTIAL / …).  
+**NEXT STEP:** LEARN.  
+**EMPTY / NO-DATA STATE:** “No events in this window. Start AcmeBank, submit a benign loan, then return. A zero count is not all-clear.”  
+**FAILURE STATE:** HEC/index unknown — “Ingest not verified. Do not hunt.”  
+**WHAT MUST NOT BE SHOWN:** Coverage heatmaps, 51-count KPIs, MLTK, framework pass %, executive matrices, fake zeros, MCP/A2A tiles as live.  
+**RELATED PAGES:** LEARN, ATTACK LAB, INVESTIGATION, PROGRESS.
 
-### Row 2 — What you will learn | Architecture (6 + 6)
+---
 
-```text
-+---------------------------------------+---------------------------------------+
-| WHAT YOU WILL LEARN                   | ARCHITECTURE / TRUST BOUNDARY         |
-| • Untrusted HTTP hits AcmeBank        | Attacker → Attack Service → AcmeBank  |
-| • Input control runs BEFORE Ollama    | API → CTRL-INPUT-001 → Ollama         |
-| • DENY before invoke: attempted=false, executed=false, outcome=prevented | Splunk observes; it does not ALLOW |
-| Knowledge: predict DENY or INJECT     | No A2A. One sequential intake agent   |
-+---------------------------------------+---------------------------------------+
-```
+## LEARN
 
-### Row 3 — Baseline (columns 1–12)
+**PAGE NAME:** Learn  
+**PRIMARY USER:** Novice to practitioner; instructor projecting  
+**PRIMARY QUESTION:** What should I understand before I attack, and how do I prove it?  
+**WHY IT EXISTS:** Catalog + one workshop (WS-001).  
+**ENTRY POINT:** HOME “Start LEARN”; PROGRESS resume.  
+**INPUTS / TOKENS:** Workshop id (WS-001). On the workshop: run.id, profile, testbed.mode, compare.run.id.  
+**DATA REQUIRED:** For workshop steps, events for the selected run.id. Catalog itself needs no events.  
+**MAIN PANELS:** Catalog row (WS-001 only in first lab; later workshops listed as LATER). Selected workshop uses `SPLUNK_WORKSHOP_STANDARD.md` (12-row GRID).  
+**EXPECTED USER ACTION:** Complete WS-001 top to bottom. Do not skip to COMPLIANCE.  
+**WHAT HAPPENED SECTION:** Rows 5 and 10 of the workshop; field-driven; see UX design.  
+**EVIDENCE SECTION:** Workshop row 11 (PROVE).  
+**NEXT STEP:** ATTACK LAB when the workshop says fire; OBSERVE after a run.id exists.  
+**EMPTY / NO-DATA STATE:** Baseline/attack steps explain “no BASELINE/ATTACK events — submit on AcmeBank / Attack Service.”  
+**FAILURE STATE:** Events exist but schema.version missing or ≠ 1.0.0 — “Contract mismatch. Do not treat as first-lab proof.”  
+**WHAT MUST NOT BE SHOWN:** Fire-all-techniques, Cisco/MLTK chrome, executive scores, chain timelines, Attack Service iframe, validated-SPL claims.  
+**RELATED PAGES:** ATTACK LAB, OBSERVE, INVESTIGATION, CONTROL VALIDATION, PROGRESS.
 
-```text
-+----------------------------------------------------------------------------------------+
-| BASELINE                                                                               |
-| Action: Submit an explicit benign loan on AcmeBank.                                    |
-| Empty state: “No BASELINE events in window — start AcmeBank traffic.”                  |
-| Do not show 0 as healthy.                                                              |
-+----------------------------------------------------------------------------------------+
-```
+---
 
-### Row 4 — Baseline query | Explanation (6 + 6)
+## ATTACK LAB
 
-```text
-+---------------------------------------+---------------------------------------+
-| QUERY (not validated)                 | EXPLANATION                           |
-| `agentsec_index`                      | WHAT ARE WE ASKING? Did a benign      |
-| agentsec.testbed.mode=BASELINE        | intake run exist?                     |
-| | stats count by gen_ai.agent.id      | HOW: filter mode, count agents.       |
-|   agentsec.control.decision           | SHOULD SEE: count>0, ALLOW.           |
-|                                       | NEXT: fire ATK-002.                   |
-+---------------------------------------+---------------------------------------+
-```
+**PAGE NAME:** Attack Lab  
+**PRIMARY USER:** Learner in the offense step; instructor demo  
+**PRIMARY QUESTION:** Which first-lab action do I run, under which profile, and where is the run.id afterward?  
+**WHY IT EXISTS:** Offense door. Splunk does not send the payload.  
+**ENTRY POINT:** LEARN step 2; HOME.  
+**INPUTS / TOKENS:** profile, testbed.mode (ATTACK vs RETEST).  
+**DATA REQUIRED:** None to choose the action. After fire: run.id from AcmeBank response / evidence pack (pasted).  
+**MAIN PANELS:** ATK-002 card (direct prompt injection); profile selector copy (`vulnerable` vs `defended` is lab config, not Splunk); expected prediction **before** reveal; link to Attack Service `:5001`; reminder first baseline is an explicit benign AcmeBank submit (`testbed.mode=BASELINE`). Labels: `execution.mode=LIVE`, `telemetry.fidelity=OBSERVED`.  
+**EXPECTED USER ACTION:** Predict ALLOW vs DENY. Fire ATK-002 outside Splunk. Paste `run.id` into OBSERVE / LEARN.  
+**WHAT HAPPENED SECTION:** Not here (no invented narrative). After paste, “Open OBSERVE.”  
+**EVIDENCE SECTION:** “Proof is not this page. Next: OBSERVE then CONTROL VALIDATION.”  
+**NEXT STEP:** OBSERVE.  
+**EMPTY / NO-DATA STATE:** Normal before a fire.  
+**FAILURE STATE:** User expects Splunk to POST — copy: “Splunk cannot call Ollama or AcmeBank.”  
+**WHAT MUST NOT BE SHOWN:** SIMULATED fire as live proof; Run all 51; second LLM client; `testbed.mode=LIVE`; hunt tables; detection editors.  
+**RELATED PAGES:** LEARN, OBSERVE, INVESTIGATION.
 
-### Row 5 — Execute attack (columns 1–12)
+---
 
-```text
-+----------------------------------------------------------------------------------------+
-| EXECUTE ATTACK                                                                         |
-| Predict first: [ ] DENY before LLM   [ ] Model ran anyway                              |
-| Then: ATTACK LAB → ATK-002 (prompt injection catalog) → copy agentsec.run.id           |
-| Splunk does not send the payload. Attack Service does.                                 |
-+----------------------------------------------------------------------------------------+
-```
+## OBSERVE
 
-### Row 6 — What happened (action result) (columns 1–12)
+**PAGE NAME:** Observe  
+**PRIMARY USER:** Learner after a run exists  
+**PRIMARY QUESTION:** For this run.id, what did each hop do — control, then LLM or not?  
+**WHY IT EXISTS:** Make pipeline → hop → control → LLM understandable without OTel internals.  
+**ENTRY POINT:** After ATTACK LAB paste; LEARN row 5; INVESTIGATION drill.  
+**INPUTS / TOKENS:** `agentsec.run.id` (required), hop.index (optional).  
+**DATA REQUIRED:** Events for that run: `run.*`, `hop.*`, `control.decision`, `llm.*` if any, `pipeline.stopped` if any.  
+**MAIN PANELS:** Run header (run.id, incident.id same value, profile, testbed.mode, attack.id, schema 1.0.0); four hop cards (intake 0 … compliance 3); each card: agent id, delegator (hops 1–3 only), control decision+reason, attempted/executed/outcome, llm.started/completed/failed or “no LLM event”; pipeline stop reason if present.  
+**EXPECTED USER ACTION:** Read hops in order. Note hop 0 DENY means hops 1–3 must not appear.  
+**WHAT HAPPENED SECTION:** Per-hop field summary; six-way outcome legend (see UX design).  
+**EVIDENCE SECTION:** Chip: Splunk indexed vs NOT VERIFIED completeness.  
+**NEXT STEP:** INVESTIGATION (same run.id) or CONTROL VALIDATION.  
+**EMPTY / NO-DATA STATE:** “No events for this run.id. Confirm AcmeBank ran and ingest is up. Absence is not DENY.”  
+**FAILURE STATE:** ALLOW on a hop with neither llm.* nor export warning — “Incomplete or still in flight. Do not call this prevention.”  
+**WHAT MUST NOT BE SHOWN:** Raw span dumps as the primary view; tools/MCP; full prompts; LLM-written story; A2A language for delegator.  
+**RELATED PAGES:** LEARN, INVESTIGATION, CONTROL VALIDATION.
 
-```text
-+----------------------------------------------------------------------------------------+
-| WHAT HAPPENED  (from telemetry only — if no events, say so)                            |
-| ACTION: ATK-002     RUN ID: ________      STATUS: (from latest event)                  |
-| AGENTS: gen_ai.agent.id                                                                |
-| CONTROL: agentsec.control.id / decision / reason                                       |
-| operation.executed: true|false                                                         |
-| WHY IT MATTERS: DENY+executed=true is a product bug. llm.failed after start is executed=true, outcome=error, not prevention. |
-| NEXT STEP: Hunt the same run id.                                                       |
-+----------------------------------------------------------------------------------------+
-```
+---
 
-### Row 7 — Hunt query | Explanation (6 + 6)
+## INVESTIGATION
 
-```text
-+---------------------------------------+---------------------------------------+
-| HUNT QUERY (not validated)            | EXPLANATION                           |
-| `agentsec_index`                      | Asking: for this run, was DENY        |
-| agentsec.run.id=$run_id$              | before the LLM?                       |
-| | table timestamp event.name          | Commands: filter run, table           |
-|   user.id gen_ai.agent.id             | reconstruction fields.                |
-|   agentsec.control.decision           | SHOULD SEE: DENY, attempted=false, executed=false,     |
-|   agentsec.operation.executed         | technique AML.T0054.                  |
-|   agentsec.technique.id               |                                       |
-+---------------------------------------+---------------------------------------+
-```
+**PAGE NAME:** Investigation  
+**PRIMARY USER:** SOC-style learner; instructor reconstructing  
+**PRIMARY QUESTION:** For this run.id, who started it, what was the experiment, what did controls decide, did the LLM execute, where did it stop, and is telemetry complete?  
+**WHY IT EXISTS:** Run-centric hunt. Not an enterprise SOC console.  
+**ENTRY POINT:** OBSERVE “Hunt”; LEARN row 6; HOME recent run.  
+**INPUTS / TOKENS:** run.id (required), time, testbed.mode, profile.  
+**DATA REQUIRED:** All first-lab event types for that run.id.  
+**MAIN PANELS:** Identity (user.id, principal); experiment (testbed.mode, attack.id, profile, execution.mode, fidelity); timeline of `event.name` + sequence; hop table; control table; LLM activity table; stop/outcome; completeness panel (four-layer status).  
+**EXPECTED USER ACTION:** Reconstruct. Distinguish DENY-prevented vs llm.failed vs missing export.  
+**WHAT HAPPENED SECTION:** Data-driven block from fields only (UX design).  
+**EVIDENCE SECTION:** Four-layer status; never a single “PROVEN” from index hit count.  
+**NEXT STEP:** DETECTION LAB or CONTROL VALIDATION.  
+**EMPTY / NO-DATA STATE:** “No events — check HEC / whether the run occurred.” Never a green zero.  
+**FAILURE STATE:** Mixed schema versions; incident.id ≠ run.id — show as contract break.  
+**WHAT MUST NOT BE SHOWN:** Workshop quiz, executive KPIs, MLTK fit, coverage matrix, chain.id, session.id, tool columns.  
+**RELATED PAGES:** OBSERVE, DETECTION LAB, CONTROL VALIDATION.
 
-### Row 8 — Build detection (6 + 6)
+---
 
-```text
-+---------------------------------------+---------------------------------------+
-| BUILD DETECTION                       | EXPLANATION                           |
-| Question: ATTACK/RETEST input DENY with | Detection ≠ control.                  |
-| attempted=false, executed=false,        | Same fields as CONTROL VALIDATION.    |
-| outcome=prevented (placeholder SPL)     | Splunk is corroboration, not proof.   |
-+---------------------------------------+---------------------------------------+
-```
+## DETECTION LAB
 
-### Row 9 — Enable control | Retest (6 + 6)
+**PAGE NAME:** Detection Lab  
+**PRIMARY USER:** Learner turning a hunt into a repeatable question  
+**PRIMARY QUESTION:** What security question are we asking, which fields answer it, and what would a true positive vs negative look like?  
+**WHY IT EXISTS:** Teach detection as a question, not a dashboard sparkline. No SPL in this phase.  
+**ENTRY POINT:** INVESTIGATION “Build detection”; LEARN row 7.  
+**INPUTS / TOKENS:** run.id (example), testbed.mode.  
+**DATA REQUIRED:** Same fields as the search contract. Searches stay unvalidated until a later phase runs them.  
+**MAIN PANELS:** One detection at a time (DET-001 first lab). Workflow: question → required fields → baseline behavior → attack behavior → logic (plain language) → expected TP → expected negative → FP discussion → tuning → investigation next step. Badge: “SPL not written / not validated.”  
+**EXPECTED USER ACTION:** Explain DET-001 in words. Do not enable a saved search.  
+**WHAT HAPPENED SECTION:** Optional example run.id illustrating TP/negative.  
+**EVIDENCE SECTION:** “A detection firing is not a control. A hunt is not proof of DENY.”  
+**NEXT STEP:** CONTROL VALIDATION.  
+**EMPTY / NO-DATA STATE:** “No example run. Complete WS-001 ATTACK first.”  
+**FAILURE STATE:** Treating missing llm.* as the detection’s only TP without completeness.  
+**WHAT MUST NOT BE SHOWN:** MLTK purple as default; 51-row matrices; attack firing UI; “validated” unless a search was actually run.  
+**RELATED PAGES:** INVESTIGATION, CONTROL VALIDATION.
 
-```text
-+---------------------------------------+---------------------------------------+
-| ENABLE CONTROL                        | RETEST / WHAT CHANGED                 |
-| This workshop: defended profile       | Repeat ATK-002. Compare run ids.      |
-| already on. Vulnerable lab is a       | BEFORE/AFTER: executed flag.          |
-| different LEARN item.                 |                                       |
-+---------------------------------------+---------------------------------------+
-```
+---
 
-### Row 10 — Before / after (6 + 6)
+## CONTROL VALIDATION
 
-```text
-+---------------------------------------+---------------------------------------+
-| BEFORE (vulnerable or miss)           | AFTER (defended DENY)                 |
-| Label both. No color-only.            | DENY before invoke: executed=false    |
-+---------------------------------------+---------------------------------------+
-```
+**PAGE NAME:** Control Validation  
+**PRIMARY USER:** Learner proving INV-008 placement  
+**PRIMARY QUESTION:** Did CTRL-INPUT-001 decide before Ollama, and do attempted/executed/outcome match that decision?  
+**WHY IT EXISTS:** Check-before-use. Fail the page if DENY is shown after a successful LLM call.  
+**ENTRY POINT:** LEARN rows 8–11; INVESTIGATION.  
+**INPUTS / TOKENS:** run.id, compare.run.id (vulnerable ATTACK vs defended RETEST).  
+**DATA REQUIRED:** `control.decision` events; llm.* presence/absence; hop outcomes; for PROVE, learner confirmation of local `export.json` / `result.json` (Splunk cannot read the disk).  
+**MAIN PANELS:** Control id/type/decision/reason; attempted/executed/outcome; boundary `acmebank.http_api` / `acmebank.llm_call`; invariant INV-008; before/after two run.ids; four-layer evidence; expected vs actual from fields.  
+**EXPECTED USER ACTION:** Compare vulnerable ATTACK vs defended RETEST same payload. Confirm runtime/local evidence outside Splunk.  
+**WHAT HAPPENED SECTION:** Pair table: profile, testbed.mode, decision, executed, outcome, llm.* count.  
+**EVIDENCE SECTION:** Required. States COMPLETE / PARTIAL / FAILED / NOT VERIFIED per layer.  
+**NEXT STEP:** PROGRESS (mark WS-001) or INVESTIGATION.  
+**EMPTY / NO-DATA STATE:** Need two run.ids for before/after; one run still useful for a single decision.  
+**FAILURE STATE:** DENY + llm.completed on same hop = product bug banner. llm.failed labeled “executed, error — not prevention.”  
+**WHAT MUST NOT BE SHOWN:** Certification banners; mixing SYNTHETIC with ATTACK DENY KPIs; Splunk-only “PROVEN.”  
+**RELATED PAGES:** OBSERVE, INVESTIGATION, LEARN, PROGRESS.
 
-### Row 11 — Evidence | Framework mapping (6 + 6)
+---
 
-```text
-+---------------------------------------+---------------------------------------+
-| EVIDENCE                              | FRAMEWORK MAPPING (educational)       |
-| artifacts/<run-id>/                   | Not certification.                    |
-| evidence.class = MEASURED only        | Invariant INV-008                     |
-| if this run was live.                 | ATLAS id only if verified.            |
-|                                       | Next: COMPLIANCE page, not a cert.    |
-+---------------------------------------+---------------------------------------+
-```
+## PROGRESS
 
-### Row 12 — Knowledge check (columns 1–12)
+**PAGE NAME:** Progress  
+**PRIMARY USER:** Learner; instructor checking a single student  
+**PRIMARY QUESTION:** Which first-lab steps have I completed with a run.id, versus skipped?  
+**WHY IT EXISTS:** Resume. Not a certificate.  
+**ENTRY POINT:** HOME; end of CONTROL VALIDATION.  
+**INPUTS / TOKENS:** Stored run.ids (lab-local; not secrets).  
+**DATA REQUIRED:** Checklist state; optional event confirmation those ids exist.  
+**MAIN PANELS:** WS-001 steps (baseline, vulnerable attack, hunt, defended retest, prove); stored run.ids labeled BASELINE / ATTACK / RETEST; evidence chips.  
+**EXPECTED USER ACTION:** Resume next incomplete step.  
+**WHAT HAPPENED SECTION:** None.  
+**EVIDENCE SECTION:** List artifacts path pattern `artifacts/<run-id>/`.  
+**NEXT STEP:** LEARN or HOME.  
+**EMPTY / NO-DATA STATE:** “No completed steps. Start LEARN.”  
+**FAILURE STATE:** Do not show NIST/compliance completion.  
+**WHAT MUST NOT BE SHOWN:** Other users’ PII; executive heatmaps as personal scores; live attack console.  
+**RELATED PAGES:** HOME, LEARN.
 
-```text
-+----------------------------------------------------------------------------------------+
-| KNOWLEDGE CHECK                                                                        |
-| 1. Where is the trust boundary?                                                        |
-| 2. Can Splunk DENY the LLM call?                                                       |
-| 3. If decision is DENY before invoke, what must attempted/executed/outcome be?          |
-| Next page: INVESTIGATION (same run) or PROGRESS (mark workshop complete).              |
-+----------------------------------------------------------------------------------------+
-```
+---
 
-**Not on this workshop page:** MLTK charts, chain timelines, executive %, Run All 51, Cisco enforce, absolute-layout ornaments.
+# PLACEHOLDER / LATER / NOT NEEDED
+
+These destinations may appear in nav as **disabled** with one sentence. No Studio JSON. No fake data.
+
+### ATTACK CHAINS — PLACEHOLDER ONLY
+
+Multi-stage `chain.id` is not in the first lab. First lab: `incident.id` = `run.id`. Do not reuse AgentWatch kill-chain dashboards.
+
+### MLTK LAB — PLACEHOLDER ONLY
+
+Level 5. Purple track cue only when that lab exists. MLTK is not a control.
+
+### ADVANCED TOOLS — PLACEHOLDER ONLY
+
+MCP, A2A, RAG, memory, Cisco overlays. Absent from first lab. Do not regex-simulate them in chrome.
+
+### COMPLIANCE — LATER
+
+Educational mapping only after verified rows exist. Workshop row 12 carries INV-008 for WS-001. No “compliance %.” Never NIST SP 800-17.
+
+### EXECUTIVE GOVERNANCE — NOT NEEDED (first lab)
+
+CISO tour uses HOME + CONTROL VALIDATION. No ATO page.
+
+---
+
+## Native Search
+
+Not a custom view. Use when a dashboard would guess fields. Questions live in `SPLUNK_SEARCH_CONTRACT.md`. SPL is written only in a later validation phase.
 
 ---
 
 ## What this file is not
 
 - Not Dashboard Studio JSON  
-- Not validated SPL  
+- Not validated SPL, macros, or saved searches  
+- Not runtime or schema changes  
 - Not an implementation of the `agentsec` app
