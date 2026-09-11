@@ -1,14 +1,22 @@
 # Lab Specification
 
-**Status:** Phase 2 runtime implemented in `src/agentsec/`. Architecture decisions in this file still apply.
+**Status:** PLANNED (Phase 1A architecture). Existing `src/agentsec/` is an **EXPERIMENTAL** thin runtime that already resembles this spec. Phase 1A does not modify it and does not claim live Ollama or live Splunk.
 
-AgentSec is a range. This file defines how the range is supposed to behave, not code that already exists.
+AgentSec is a range. This file defines how the first implementation is supposed to behave.
 
 ---
 
 ## Mission
 
-Give learners a small, honest place to attack an agentic loan pipeline, see reference controls, and prove outcomes in Splunk — without claiming to be a production AI-security product.
+Give learners a small, honest place to:
+
+1. Run a normal AcmeBank loan (baseline).
+2. Fire one direct prompt-injection attack.
+3. See a reference control decide **before** the model.
+4. Reconstruct the run in telemetry and artifacts.
+5. Hunt the same `run.id` in Splunk when ingest works.
+
+Do not claim to be a production AI-security product.
 
 ---
 
@@ -22,6 +30,7 @@ Give learners a small, honest place to attack an agentic loan pipeline, see refe
 | Primary sourcetype | `otel:agentic:json` |
 | Splunk app id | `agentsec` |
 | Lab id (local) | `agentsec-local` |
+| Agents | intake, credit, risk, compliance |
 
 ---
 
@@ -38,45 +47,46 @@ Profile comes from **lab configuration**, not from attacker JSON in `defended`.
 
 ## Capability labels
 
-Use IMPLEMENTED / EXPERIMENTAL / PLANNED / SIMULATED. Never describe planned as implemented.
-
-| Area | Phase 2 runtime (this repo) | Notes |
-|------|-----------------------------|-------|
-| AcmeBank 4-agent API | IMPLEMENTED | Intake, Credit, Risk, Compliance; tests with stub LLM |
-| Attack Service thin LIVE | IMPLEMENTED | ATK-002 only; tests do not call Ollama |
-| Input control | IMPLEMENTED | CTRL-INPUT-001 before LLM |
-| Output inspect honesty | PLANNED | Not in Phase 2 |
-| OTel + `run.id` | IMPLEMENTED in code | Export path unproven until collector/Splunk run |
-| Baseline ticker | IMPLEMENTED | In-process BASELINE mode |
-| Artifacts pack | IMPLEMENTED | `artifacts/<run-id>/` |
-| Two Splunk searches | PLANNED / unvalidated | Disabled savedsearches; local Python hunts exist |
-| Workshop one-path | EXPERIMENTAL | Wireframe only; no Studio JSON |
-| MCP/A2A/RAG/memory | Absent | Phase 2 forbid list |
-| MLTK / Cisco / adapters | Absent | Phase 2 forbid list |
+| Area | Phase 1A architecture | Notes |
+|------|----------------------|-------|
+| Four-agent sequential loan | PLANNED contract; EXPERIMENTAL code exists | intake → credit → risk → compliance |
+| One benign workflow | PLANNED / EXPERIMENTAL | ATK-001 |
+| One prompt-injection attack | PLANNED / EXPERIMENTAL | ATK-002 |
+| Input reference control | PLANNED / EXPERIMENTAL | CTRL-INPUT-001 before LLM |
+| Vulnerable / defended | PLANNED / EXPERIMENTAL | Config, not attacker |
+| `run.id` correlation | PLANNED / EXPERIMENTAL | Must be one id for the pipeline |
+| OTel export path | PLANNED | Live collector/HEC unproven until run |
+| Splunk ingest | PLANNED | Searches unvalidated until event model + live events |
+| Output inspection | Absent | Later, SANITIZE/OBSERVE only |
+| MCP / A2A / RAG / memory | Absent | Extension points only |
+| Attack chains / MLTK / Cisco / compliance UIs | Absent | — |
 | 51-technique catalog | Absent | — |
+
+Never describe planned or experimental as production-IMPLEMENTED.
 
 ---
 
-## Phase 1 definition of done
+## First-implementation definition of done (architecture)
 
 A learner can:
 
 1. Submit a normal loan on AcmeBank.
 2. Fire one live attack from Attack Service.
-3. See `run.id` in the UI and in Splunk.
+3. See `run.id` in the UI and in local artifacts.
 4. Explain whether the control ran before Ollama.
-5. Open `artifacts/<run-id>/` and read expected vs actual.
+5. Switch `vulnerable` → `defended` (or the reverse) and RETEST the same payload.
+6. When Splunk ingest exists, hunt that `run.id` (validated SPL is a later gate).
 
-Engineering gate:
+Engineering gate (when implementation work is allowed in a later phase):
 
-- Unit/security/telemetry tests exist and have been **run**.
+- Unit / security / telemetry tests exist and have been **run**.
 - Stubbed LLM: input DENY ⇒ zero model calls.
 - No dashboard required.
-- No Cisco, MLTK, or community adapters required.
+- No Cisco, MLTK, MCP, A2A, RAG, or memory required.
 
 ---
 
-## Runtime (Phase 1)
+## Runtime shape
 
 | Process | Port | Bind |
 |---------|------|------|
@@ -84,60 +94,45 @@ Engineering gate:
 | Attack Service | 5001 | localhost |
 | Ollama | 11434 | internal / localhost |
 | OTel Collector | 4317/4318 | internal |
-| Splunk (local profile) | 8000 / 8088 HEC | localhost; HEC not on internet |
+| Splunk (local profile) | 8000 / 8088 HEC | localhost; HEC not on the internet |
 
-Default model: small local Ollama model (exact tag chosen at implementation). One model for all agents.
+Default model: small local Ollama model (tag chosen at implementation; `llama3.2:1b` is an acceptable default). One model for all agents.
 
-Secrets: lab defaults only in `.env.example`. Not production credentials. Rotate before any non-localhost bind.
+Secrets: from the environment. Lab examples only in `.env.example`. Never hardcode production credentials. Rotate before any non-localhost bind. Flask signing keys must not be committed as shared production secrets (**hardcoded-credentials rule**).
+
+No extra databases, Kubernetes, Kafka, or enterprise IAM.
 
 ---
 
-## Curriculum slice (Phase 1)
+## Curriculum slice
 
-Not 51 techniques. Two runs:
+Two runs, not fifty-one techniques:
 
 | Run | Mode | Teaches |
 |-----|------|---------|
-| Benign loan | BASELINE or LIVE benign | Defend path, telemetry |
-| Input-injection catalog attack | LIVE | DENY before LLM |
-| (optional second) output-pattern attack | LIVE | SANITIZE/OBSERVE after LLM |
+| Benign loan | BASELINE or LIVE benign | Defend path, telemetry, `run.id` |
+| Direct prompt injection | LIVE | DENY before LLM in `defended`; labeled ALLOW in `vulnerable` |
+
+Optional: in-process baseline ticker generating BASELINE events. Not required to understand the architecture.
 
 ---
 
 ## Major decisions
 
-### Decision: Phase 1 is the proven loop, not the AgentWatch surface catalog
+### Decision: The lab is the proven loop, not the AgentWatch surface catalog
 
-**DECISION:** DoD above. Coverage matrix, attestation, executive governance, MLTK, Cisco are later.
-
-**ALTERNATIVES:** Port 14 dashboards first; port 51 techniques first.
-
-**WHY CHOSEN:** Migration priority P0. AgentWatch completeness was partly SIMULATED.
-
-**SECURITY CONSEQUENCE:** Claimed controls will have tests.
-
-**LEARNING VALUE:** One path you can explain completely.
+**WHY:** Phase 0 completeness was partly SIMULATED.  
+**SECURITY:** Claimed controls will have tests.  
+**LEARNING:** One path you can explain completely.
 
 ### Decision: Localhost-only default exposure
 
-**DECISION:** Compose publishes to localhost. Cloud/VM patterns later with rotated secrets.
-
-**ALTERNATIVES:** `0.0.0.0` for classroom convenience.
-
-**WHY CHOSEN:** Attack Service is unauthenticated in Phase 1.
-
-**SECURITY CONSEQUENCE:** Reachability equals attacker capability.
-
-**LEARNING VALUE:** Lab threat model includes your own bind address.
+**WHY:** Attack Service is unauthenticated.  
+**SECURITY:** Reachability equals attacker capability.  
+**LEARNING:** Bind address is in the threat model.
 
 ### Decision: Tests before features
 
-**DECISION:** No important Phase 1 feature is done without tests in `tests/unit`, `tests/security`, `tests/telemetry`.
-
-**ALTERNATIVES:** Manual workshop only (AgentWatch).
-
-**WHY CHOSEN:** AgentSec testing rule. AgentWatch had zero tests.
-
-**SECURITY CONSEQUENCE:** Regressions in DENY-before-call are catchable.
-
-**LEARNING VALUE:** Security logic is deterministic even when LLMs are not.
+**WHY:** AgentWatch had zero tests.  
+**SECURITY:** DENY-before-call regressions are catchable.  
+**LEARNING:** Security logic is deterministic even when LLMs are not.
