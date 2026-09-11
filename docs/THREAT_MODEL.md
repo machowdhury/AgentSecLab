@@ -1,7 +1,8 @@
 # Threat Model
 
 **Status:** PLANNED (Phase 1A contract)  
-**Method:** threat, attacker, asset, boundary, invariant, attack, expected result, reference control, telemetry, detection, tests.
+**Method:** threat, attacker, asset, boundary, invariant, attack, expected result, reference control, telemetry, detection, tests.  
+**Event/operation/dimension semantics:** `SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative.
 
 This is an architecture threat model, not a measured experiment. Existing tests in the repo are EXPERIMENTAL alignment; they are not live Ollama/Splunk proof.
 
@@ -45,12 +46,12 @@ Assume the Attack Service operator is a **lab red teamer**, not a bank insider w
 | Boundary | `acmebank.http_api` then `acmebank.llm_call` |
 | Invariant | INV-008 (check before LLM); INV-002 (model/text is not policy) |
 | Attack | ATK-002 catalog strings in the loan message |
-| Expected (`defended`) | Input control DENY **before** Ollama; `operation.executed=false`; zero LLM calls |
+| Expected (`defended`) | Input control DENY **before** Ollama; attempted=false, executed=false, outcome=prevented; zero LLM calls |
 | Expected (`vulnerable`) | May reach LLM; `security.profile=vulnerable` and fail-open reason |
 | Reference control | CTRL-INPUT-001 (lightweight input inspection) |
-| Telemetry | `run.id`, control decision + reason, `testbed_mode=LIVE` |
-| Detection (later, validated SPL) | LIVE DENY with `operation.executed=false` |
-| Tests | Stubbed LLM: zero calls on DENY |
+| Telemetry | `run.id` = `incident.id`, control decision + reason, `testbed.mode=ATTACK`, `execution.mode=LIVE`, `telemetry.fidelity=OBSERVED` |
+| Detection (later, validated SPL) | ATTACK DENY with attempted=false, executed=false, outcome=prevented. Splunk absence of `llm.*` is corroborating only unless run completeness is established. |
+| Tests | Stubbed LLM: zero calls on DENY. Runtime is authoritative for invocation. |
 
 ### T2 — Injection via agent handoff
 
@@ -76,15 +77,15 @@ Assume the Attack Service operator is a **lab red teamer**, not a bank insider w
 | Asset | Splunk investigations |
 | Boundary | `observability.export` |
 | Invariant | INV-007 |
-| Expected | `testbed_mode=BASELINE` vs `LIVE`; attacker cannot force BASELINE |
+| Expected | `testbed.mode=BASELINE` vs `ATTACK` vs `RETEST`; attacker cannot set `testbed.mode`, `execution.mode`, or `telemetry.fidelity` |
 | Reference control | None (observability) |
-| Tests | Baseline tick cannot be set from Attack Service JSON in `defended` |
+| Tests | Attacker JSON cannot set `testbed.mode` (including BASELINE) |
 
 ### T4 — Evidence spoofing / decision injection
 
 | Field | Content |
 |-------|---------|
-| Threat | Attacker JSON sets `control.decision`, `run.id`, or profile |
+| Threat | Attacker JSON sets `control.decision`, `run.id`, `incident.id`, `security.profile`, schema version, or operation flags |
 | Attacker | HTTP client |
 | Asset | Evidence (INV-007), fail-safe (INV-008) |
 | Boundary | `acmebank.http_api` |

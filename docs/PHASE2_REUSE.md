@@ -2,6 +2,8 @@
 
 AgentWatch Range is READ-ONLY. Phase 2 borrowed shapes, not a fork.
 
+**Event/operation/dimension contract:** `SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative. This ledger records what was reused from AgentWatch; it is not the telemetry contract. `testbed.mode=LIVE` is not valid. `LIVE` is `execution.mode`.
+
 ## ORIGINAL FILE
 `/Users/mahamudc/Documents/AgenticProject/apps/agents/agent_router.py`
 
@@ -29,7 +31,7 @@ AgentWatch Range is READ-ONLY. Phase 2 borrowed shapes, not a fork.
 
 **WHAT WAS REUSED:** Flask `/health`, `/api/v1/process`, `/api/v1/agents`, in-memory recent-run lookup, localhost lab service on port 5000.
 
-**WHAT CHANGED:** No Cisco/MAESTRO/export/campaign routes. HTTP cannot set profile, `run.id`, `testbed_mode=BASELINE`, or skip controls. Baseline ticker is in-process.
+**WHAT CHANGED:** No Cisco/MAESTRO/export/campaign routes. HTTP cannot set profile, `run.id`, `testbed.mode`, or skip controls. First-lab baseline is an explicit benign request (`testbed.mode=BASELINE`).
 
 **WHY:** Attack Service must remain an untrusted client. AgentWatch `/api/v1/config` advertised unwired guard flags.
 
@@ -49,9 +51,9 @@ AgentWatch Range is READ-ONLY. Phase 2 borrowed shapes, not a fork.
 ## ORIGINAL FILE
 `/Users/mahamudc/Documents/AgenticProject/apps/framework/traffic_simulator.py`
 
-**WHAT WAS REUSED:** Benign Canadian-loan style strings, interval ticker, BASELINE mode distinct from live attacks.
+**WHAT WAS REUSED:** Benign Canadian-loan style strings. BASELINE as a testbed intent distinct from ATTACK.
 
-**WHAT CHANGED:** Always full four-agent pipeline. Mode is a function argument, not an HTTP field. No HEC-only simulated baseline emitter.
+**WHAT CHANGED:** Always full four-agent pipeline. Mode is a function argument, not an HTTP field. No HEC-only simulated baseline emitter. First-lab baseline is an explicit benign request (`testbed.mode=BASELINE`, `execution.mode=LIVE`, `telemetry.fidelity=OBSERVED`).
 
 **WHY:** Baseline must be real AcmeBank traffic. HTTP BASELINE would let an attacker hide in the baseline KPI.
 

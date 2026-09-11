@@ -1,7 +1,8 @@
 # Trust Boundaries
 
 **Status:** PLANNED (Phase 1A contract)  
-**Applies to:** `ARCHITECTURE.md`
+**Applies to:** `ARCHITECTURE.md`  
+**Event/operation/dimension semantics:** `SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative.
 
 A trust boundary is where data or identity from a less-trusted side is used by a more-trusted side. Security checks belong **on the trusted side, before** the dangerous operation.
 
@@ -64,7 +65,7 @@ MCP servers, A2A peers, RAG corpora, and memory stores **do not exist** in the f
 
 **Can (untrusted):** payload text; which published AcmeBank route they call; extra JSON (must be rejected, not honored).
 
-**Cannot (`defended`):** `run.id`, `security.profile`, model name, control decisions, HEC token, forcing `testbed_mode=BASELINE`.
+**Cannot (`defended`):** `run.id`, `incident.id`, `security.profile`, model name, control decisions, schema name/version, operation attempted/executed/outcome, `testbed.mode`, `execution.mode`, `telemetry.fidelity`, HEC token.
 
 **Vulnerable profile:** may omit the injection DENY; every fail-open must be labeled in telemetry (`security.profile=vulnerable`, reason set).
 

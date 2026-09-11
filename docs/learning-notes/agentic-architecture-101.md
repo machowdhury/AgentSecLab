@@ -1,6 +1,6 @@
 # Agentic Architecture 101
 
-**Status:** PLANNED (Phase 1A architecture). There is EXPERIMENTAL runtime code under `src/agentsec/`; this note teaches the **design contract**, not a production product. Live Ollama and live Splunk are not claimed here.
+**Status:** PLANNED (Phase 1A architecture). There is EXPERIMENTAL runtime code under `src/agentsec/`; this note teaches the **design contract**, not a production product. Live Ollama and live Splunk are not claimed here. Event/operation/dimension semantics: `SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative.
 
 ---
 
@@ -33,9 +33,11 @@ Each step:
 
 **inspect input → maybe call Ollama → record the actual outcome with the same `run.id`.**
 
-If the input control DENYs, Ollama is **not** called.
+If the input control DENYs, Ollama is **not** called (`attempted=false`, `executed=false`, `outcome=prevented`). If Ollama is invoked and then fails, that is `executed=true`, `outcome=error` — not prevention.
 
 The Attack Service only HTTP-calls AcmeBank. Splunk only reads events. Neither is a secret backdoor.
+
+Proof of invocation uses **runtime first**, then local evidence, then export, then Splunk. Splunk missing `llm.*` is not DENY proof by itself.
 
 Truth flow:
 
@@ -53,7 +55,7 @@ Handoff between agents is still untrusted **data** inside one process.
 
 ## WHAT COULD AN ATTACKER CONTROL?
 
-The message. In the defended lab they cannot choose `run.id`, turn controls off, or write `control.decision` into the event.
+The message. In the defended lab they cannot choose `run.id`, `incident.id`, `security.profile`, `testbed.mode`, `execution.mode`, schema version, operation flags, turn controls off, or write `control.decision` into the event.
 
 ## WHAT CAN GO WRONG?
 
@@ -61,18 +63,18 @@ The message. In the defended lab they cannot choose `run.id`, turn controls off,
 - Calling post-LLM cleanup “DENY” after the model already ran.  
 - Mixing SIMULATED OTel with live proof.  
 - Four “trust zones” on a slide when it is still one process pasting text between prompts.  
-- `run.id` missing or a new incident id per agent (AgentWatch live pipeline).  
+- `run.id` missing or a new incident id per agent (AgentWatch live pipeline). `incident.id` must equal `run.id` on every event.  
 - Fail-open with no label.
 
 ## WHAT TELEMETRY SHOULD EXIST?
 
-Enough to reconstruct: `run.id`, profile, `testbed_mode`, control decision, control reason, whether the LLM actually ran, which agent hopped.
+Enough to reconstruct: `run.id` = `incident.id`, schema version, profile, `testbed.mode` (`BASELINE` \| `ATTACK` \| `RETEST`), `execution.mode`, `telemetry.fidelity`, control decision, control reason, `operation.attempted` / `executed` / `outcome`, which agent hopped, `delegator.agent.id` after intake.
 
-Exact field names are the **event model** phase, not this note. Architecture rule: telemetry matches runtime truth.
+Field names live in `docs/SECURITY_EVENT_MODEL.md`. Architecture rule: telemetry matches runtime truth. Default content is preview + hash, not complete prompts.
 
 ## HOW WILL SPLUNK SHOW IT?
 
-Search by `run.id` on index `agentsec_telemetry`. Splunk explains; it does not enforce.
+Search by `run.id` on index `agentsec_telemetry`. Filter experiments with `testbed.mode`, not by calling a mode `LIVE`. Splunk explains; it does not enforce and does not outrank the runtime.
 
 Validated SPL comes after real events exist. Do not assume queries work.
 
@@ -108,7 +110,7 @@ A stubbed LLM: malicious input → DENY → **zero** stub calls. Live model word
 4. Where the trust boundary is, and what the attacker controls.  
 5. Why Ollama output cannot grant authority.  
 6. Why Splunk is not a control.  
-7. What DENY means, and why it cannot apply after a successful LLM call.  
-8. What `run.id` is for, and why per-hop incident ids are a problem.  
+7. What DENY means (never invoked), and why a started-then-failed LLM call is `executed=true`, `outcome=error`.  
+8. What `run.id` is for, why it equals `incident.id`, and why per-hop incident ids are a problem.  
 9. Why SIMULATED events cannot prove a live control.  
 10. What the first implementation includes (one baseline, one attack, one input control, two profiles) — and what it explicitly is not (MCP, A2A, RAG, memory, chains, MLTK, Cisco, 51 techniques).

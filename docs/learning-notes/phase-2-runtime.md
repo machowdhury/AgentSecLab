@@ -1,5 +1,7 @@
 # Phase 2 runtime
 
+**Status:** EXPERIMENTAL code under `src/agentsec/`. The **event contract** is Phase 1B (`SECURITY_EVENT_MODEL.md`). This note describes the existing thin runtime, which may still emit withdrawn event names. Do not treat this file as the telemetry contract.
+
 **Status after this implementation:** core loop IMPLEMENTED in code and tests. Live Ollama / live Splunk HEC are **not claimed** unless you start Compose and check them.
 
 ## WHAT IS IT?
@@ -12,10 +14,10 @@ Architecture docs cannot prove INV-008. You need a path where malicious text is 
 
 ## HOW DOES IT WORK?
 
-1. Browser or baseline ticker sends a loan request to AcmeBank.
+1. Browser or explicit benign `POST /process` sends a loan request to AcmeBank (`testbed.mode=BASELINE`, `execution.mode=LIVE`, `telemetry.fidelity=OBSERVED`).
 2. `CTRL-INPUT-001` inspects the text.
-3. DENY/ERROR → no Ollama call, `operation.executed=false`.
-4. ALLOW → Intake → Credit → Risk → Compliance, each with the same `agentsec.run.id`.
+3. DENY/ERROR **before invoke** → no Ollama call, attempted=false, executed=false, outcome=prevented. If an LLM call **starts** and then fails → attempted=true, executed=true, outcome=error.
+4. ALLOW → Intake → Credit → Risk → Compliance, each with the same `agentsec.run.id` = `agentsec.incident.id`.
 5. Events go to an in-memory sink, a local evidence pack, and (if enabled) OTLP → collector → Splunk HEC.
 
 Attack Service only POSTs ATK-002 to `/api/v1/process`. It cannot call Ollama.
@@ -30,7 +32,7 @@ The AcmeBank HTTP API. Attack Service is untrusted. Ollama output is untrusted d
 
 ## WHAT COULD AN ATTACKER CONTROL?
 
-The `input` string, optional `user_id` / `technique_id` labels. Not profile, `run.id`, control decision, or `testbed_mode=BASELINE`.
+The `input` string, optional `user_id` / `technique_id` labels. Not profile, `run.id`, `incident.id`, control decision, schema version, operation flags, or `testbed.mode` / `execution.mode` / `telemetry.fidelity`.
 
 ## WHAT CAN GO WRONG?
 
@@ -40,7 +42,7 @@ The `input` string, optional `user_id` / `technique_id` labels. Not profile, `ru
 
 ## WHAT TELEMETRY SHOULD EXIST?
 
-Closed fields in `schemas/security_event.schema.json`. Every hop emits `agentsec.control_decision` plus `normal_request`, `agent_handoff`, or `prompt_attack`.
+Closed fields in `schemas/security_event.schema.json` (schema **1.0.0**). Contract event names are `run.*`, `hop.*`, `control.decision`, `llm.*`, `pipeline.stopped`. Withdrawn names (`normal_request`, `prompt_attack`, `agent_handoff` as event.name) are not the contract.
 
 ## HOW WILL SPLUNK SHOW IT?
 
@@ -61,7 +63,7 @@ After a live lab start, Search with macro `` `agentsec_index` ``. Saved searches
 3. What happens if DENY is recorded after Ollama already ran.
 4. Why Attack Service must not import the LLM client.
 5. What `agentsec.run.id` is for.
-6. Why HTTP cannot set `testbed_mode=BASELINE`.
+6. Why HTTP cannot set `testbed.mode`, `execution.mode`, or `telemetry.fidelity`.
 7. What evidence class “MEASURED against local events, not Splunk” means.
 8. How `vulnerable` is still a teaching profile, not a silent bypass.
 9. Which two hunt questions Phase 2 cares about.

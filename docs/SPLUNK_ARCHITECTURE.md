@@ -1,7 +1,6 @@
 # Splunk Architecture
 
-**Status:** PLANNED  
-**Related:** `SECURITY_EVENT_MODEL.md`, `SPLUNK_DESIGN_SYSTEM.md`, `SPLUNK_INFORMATION_ARCHITECTURE.md`
+**Status:** PLANNED (not started as Phase 1C). Field, operation, and experiment-dimension semantics: `SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative. `testbed.mode` is `BASELINE` \| `ATTACK` \| `RETEST`. `LIVE` is `execution.mode`. Do not implement dashboards or validated SPL from this file in this phase.
 
 Splunk is the SOC side of AgentSec. It does not run agents and does not authorize loans.
 
@@ -37,7 +36,7 @@ Later sourcetypes (adapters) union through `norm_*` fields. Phase 1 has one sour
 | QUERY ID | Security question |
 |----------|-------------------|
 | Q-RUN | Did this `run.id` produce events? |
-| Q-DENY | Which LIVE events have `control.decision=DENY` and `operation.executed=false`? |
+| Q-DENY | Was inference prevented before invocation for this `run.id`? Runtime + complete local evidence are authoritative. Splunk DENY with attempted=false, executed=false, outcome=prevented is corroborating only. Filter `testbed.mode=ATTACK` or `RETEST`, not `LIVE`. |
 
 4. Saved searches disabled by default.  
 5. No Technique Coverage / Attestation / Governance dashboards in Phase 1.
@@ -57,7 +56,7 @@ Reuse AgentWatch **patterns**, rebranded:
 | Dashboard Studio generators + validate script | When first dashboard is justified |
 | Exercise Runner / workshop views | Workshop Engine |
 | Technique Coverage | After many **LIVE** techniques |
-| Control Attestation | Measurement of control tags, split by `testbed_mode` |
+| Control Attestation | Measurement of control tags, split by `testbed.mode` |
 | Cross-app normalization | Community adapters |
 | Executive governance | After coverage exists |
 | MLTK anomaly hunting | Optional track |
