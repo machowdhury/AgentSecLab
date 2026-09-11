@@ -1,12 +1,12 @@
 # Evidence Model
 
-**Status:** PLANNED (Phase 1B design contract, event schema **1.0.0**)  
+**Status:** Phase 1B contract. Phase 2A writes `artifacts/<run-id>/` for every completed/failed `/process` run. Splunk export is **not attempted / NOT VERIFIED**.  
 **Path:** `artifacts/<run-id>/`  
 **Parent:** `docs/SECURITY_EVENT_MODEL.md`
 
 Evidence reconstructs **one** `/process` experiment. It is not a control. Splunk is not authoritative for whether the LLM was invoked.
 
-Existing `src/agentsec/evidence.py` is EXPERIMENTAL. This phase does not modify runtime.
+`src/agentsec/evidence.py` implements this contract for Phase 2A.
 
 ---
 
@@ -102,7 +102,20 @@ Local events are MEASURED **against the local file**, not Splunk.
 
 ## `export.json`
 
-Records whether export was attempted and succeeded. Sequence F is proven here. Splunk searches are invalid as prevention proof when `otlp.ok` or `hec.ok` is false.
+Layered export status. Each layer is independent. Sequence F (export failed) is proven when `otlp.ok` is false **or** when a later independent observation shows collector/HEC/Splunk failure.
+
+Runtime fields:
+
+| Field | Set by runtime? | Meaning |
+|-------|-----------------|---------|
+| `otlp.attempted` | yes | At least one event was handed to the OTLP logger |
+| `otlp.flush_ok` | yes | `LoggerProvider.force_flush` returned true |
+| `otlp.ok` | yes | SDK emit + flush succeeded. **Not** collector/HEC/Splunk |
+| `collector.observed` | no (always false) | Requires collector file or metrics |
+| `hec.ok` | no (always false) | Requires independent HEC observation |
+| `splunk.verified` | no (always false) | Requires an independent Splunk search |
+
+`otlp.ok` MUST NOT be recorded as collector received, HEC accepted, Splunk indexed, or Splunk verified. Splunk searches are invalid as prevention proof when export failed or completeness for that `run.id` is not established.
 
 ---
 

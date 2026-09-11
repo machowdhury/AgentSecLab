@@ -1,6 +1,6 @@
 # Reference input control (CTRL-INPUT-001)
 
-**Event/operation/dimension semantics:** `SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative. Existing `src/agentsec/` emitters are EXPERIMENTAL and may still use withdrawn event names.
+**Event/operation/dimension semantics:** `SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative. Phase 2A emitters use `agentsec.control.decision` and schema 1.0.0 operation flags.
 
 ## WHAT IS IT?
 
@@ -12,7 +12,7 @@ INV-008: missing or hostile input must not fail-open in `defended`. Prompt injec
 
 ## HOW DOES IT WORK?
 
-`inspect_input()` in `src/agentsec/controls.py` runs first in `run_loan_pipeline()`. Matches include “ignore previous instructions”, persona override, and “override the credit decision”. Decisions: ALLOW, DENY, ERROR. DENY never calls `llm.generate()`.
+`inspect_input()` in `src/agentsec/controls.py` runs first in `run_loan_pipeline()`. Matches include “ignore previous instructions”, persona override, and “override the credit decision”. Decisions: ALLOW, DENY, ERROR. DENY never calls `llm.generate()`. Empty/malformed input is ERROR in both profiles. `vulnerable` fail-open is labeled and names this as a lab reference control.
 
 ## WHERE DOES IT SIT IN AGENTSEC?
 
@@ -44,7 +44,7 @@ Switching `AGENTSEC_SECURITY_PROFILE` to `vulnerable` (labeled ALLOW). Output in
 
 ## WHAT TEST PROVES THE LOGIC?
 
-Unit: `tests/unit/test_controls.py`. Security: `tests/security/test_input_control_before_llm.py` and `test_untrusted_json_cannot_bypass.py`.
+Unit: `tests/unit/test_controls.py`. Security: `tests/security/test_input_control_before_llm.py` (includes the CountingLLM spy negative test) and `test_untrusted_json_cannot_bypass.py`.
 
 ## What I should now be able to explain
 

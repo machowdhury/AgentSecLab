@@ -55,7 +55,7 @@ exporters:
   debug:
     verbosity: basic
   file:
-    path: /var/log/agentsec/otel-raw.jsonl
+    path: /tmp/agentsec-otel-raw.jsonl
     rotation:
       max_megabytes: 100
       max_days: 7
@@ -67,7 +67,7 @@ service:
     logs:
       receivers: [otlp]
       processors: [memory_limiter, resource, attributes, batch]
-      exporters: [splunk_hec, debug, file]
+      exporters: [splunk_hec, debug]
     traces:
       receivers: [otlp]
       processors: [memory_limiter, resource, batch]

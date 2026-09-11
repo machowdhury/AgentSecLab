@@ -1,6 +1,6 @@
 # Lab Specification
 
-**Status:** PLANNED (Phase 1A architecture). Existing `src/agentsec/` is an **EXPERIMENTAL** thin runtime that already resembles this spec. Phase 1A does not modify it and does not claim live Ollama or live Splunk. Event/operation/dimension semantics: `SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative.
+**Status:** Phase 1A architecture contract. Phase 2A implements the first runtime slice (`POST /process`, CTRL-INPUT-001, schema 1.0.0 events, local evidence). Live Ollama success and Splunk ingest are **not claimed**. See `docs/IMPLEMENTATION_STATUS.md`.
 
 AgentSec is a range. This file defines how the first implementation is supposed to behave.
 
@@ -47,16 +47,17 @@ Profile comes from **lab configuration**, not from attacker JSON in `defended`.
 
 ## Capability labels
 
-| Area | Phase 1A architecture | Notes |
-|------|----------------------|-------|
-| Four-agent sequential loan | PLANNED contract; EXPERIMENTAL code exists | intake → credit → risk → compliance |
-| One benign workflow | PLANNED / EXPERIMENTAL | ATK-001 |
-| One prompt-injection attack | PLANNED / EXPERIMENTAL | ATK-002 |
-| Input reference control | PLANNED / EXPERIMENTAL | CTRL-INPUT-001 before LLM |
-| Vulnerable / defended | PLANNED / EXPERIMENTAL | Config, not attacker |
-| `run.id` correlation | PLANNED / EXPERIMENTAL | Must be one id for the pipeline |
-| OTel export path | PLANNED | Live collector/HEC unproven until run |
-| Splunk ingest | PLANNED | Searches unvalidated until event model + live events |
+| Area | Phase 2A | Notes |
+|------|----------|-------|
+| Four-agent sequential loan | IMPLEMENTED (stub-proven) | intake → credit → risk → compliance |
+| One benign workflow | IMPLEMENTED (stub-proven) | ATK-001 via explicit `POST /process` |
+| One prompt-injection attack | IMPLEMENTED (stub-proven) | ATK-002 |
+| Input reference control | IMPLEMENTED (stub-proven) | CTRL-INPUT-001 before LLM; not production IPS |
+| Vulnerable / defended | IMPLEMENTED (stub-proven) | Config, not attacker |
+| `run.id` correlation | IMPLEMENTED (stub-proven) | `incident.id` = `run.id` |
+| OTel export path | PLANNED | Default off in Phase 2A; not Splunk-validated |
+| Splunk ingest | PLANNED | Not attempted / NOT VERIFIED |
+| Background ticker | Absent | Removed; first baseline is an explicit request |
 | Output inspection | Absent | Later, SANITIZE/OBSERVE only |
 | MCP / A2A / RAG / memory | Absent | Extension points only |
 | Attack chains / MLTK / Cisco / compliance UIs | Absent | — |

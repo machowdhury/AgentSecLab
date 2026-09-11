@@ -1,4 +1,4 @@
-"""Lab configuration. Profile and secrets come from the environment, not attacker JSON."""
+"""Lab configuration. Profile, experiment labels, and secrets come from the environment, not attacker JSON."""
 
 from __future__ import annotations
 
@@ -11,6 +11,9 @@ from pathlib import Path
 from agentsec import __version__
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+VALID_PROFILES = ("defended", "vulnerable")
+VALID_TESTBED_MODES = ("BASELINE", "ATTACK", "RETEST")
 
 
 def _env(name: str, default: str) -> str:
@@ -40,6 +43,7 @@ class Settings:
     lab_id: str
     service_name: str
     security_profile: str
+    testbed_mode_override: str | None
     ollama_base_url: str
     ollama_model: str
     otel_collector_http: str
@@ -51,18 +55,17 @@ class Settings:
     attack_port: int
     acmebank_url: str
     flask_secret_key: str
-    baseline_enabled: bool
-    baseline_interval_min_sec: int
-    baseline_interval_max_sec: int
-    baseline_startup_delay_sec: int
     deployment_environment: str
 
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     profile = _env("AGENTSEC_SECURITY_PROFILE", "defended").lower()
-    if profile not in ("defended", "vulnerable"):
+    if profile not in VALID_PROFILES:
         profile = "defended"
+
+    mode_raw = _env("AGENTSEC_TESTBED_MODE", "auto").upper()
+    override = mode_raw if mode_raw in VALID_TESTBED_MODES else None
 
     artifacts = Path(_env("AGENTSEC_ARTIFACTS_DIR", str(REPO_ROOT / "artifacts")))
     schema = Path(_env("AGENTSEC_SCHEMA_PATH", str(REPO_ROOT / "schemas" / "security_event.schema.json")))
@@ -76,10 +79,11 @@ def get_settings() -> Settings:
         lab_id=_env("AGENTSEC_LAB_ID", "agentsec-local"),
         service_name=_env("OTEL_SERVICE_NAME", "acmebank"),
         security_profile=profile,
+        testbed_mode_override=override,
         ollama_base_url=_env("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/"),
         ollama_model=_env("OLLAMA_MODEL", "llama3.2:1b"),
         otel_collector_http=_env("OTEL_COLLECTOR_HTTP", "http://127.0.0.1:4318").rstrip("/"),
-        otel_enabled=_env_bool("AGENTSEC_OTEL_ENABLED", True),
+        otel_enabled=_env_bool("AGENTSEC_OTEL_ENABLED", False),
         artifacts_dir=artifacts,
         schema_path=schema,
         bind_host=_env("AGENTSEC_BIND_HOST", "127.0.0.1"),
@@ -87,10 +91,6 @@ def get_settings() -> Settings:
         attack_port=_env_int("ATTACK_SERVICE_PORT", 5001),
         acmebank_url=_env("ACMEBANK_URL", "http://127.0.0.1:5000").rstrip("/"),
         flask_secret_key=secret,
-        baseline_enabled=_env_bool("BASELINE_TRAFFIC_ENABLED", True),
-        baseline_interval_min_sec=_env_int("BASELINE_INTERVAL_MIN_SEC", 90, 5),
-        baseline_interval_max_sec=_env_int("BASELINE_INTERVAL_MAX_SEC", 240, 5),
-        baseline_startup_delay_sec=_env_int("BASELINE_STARTUP_DELAY_SEC", 15, 0),
         deployment_environment=_env("DEPLOYMENT_ENVIRONMENT", "lab"),
     )
 

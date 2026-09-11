@@ -1,7 +1,7 @@
 from agentsec.attack_app import AcmeBankClient, create_app
 
 
-def test_attack_service_posts_atk002_into_acmebank(acme_client, stub_llm):
+def test_attack_service_posts_atk002_into_acmebank(acme_client, counting_llm):
     def post_fn(path, payload):
         response = acme_client.post(path, json=payload)
         return response.status_code, response.get_json()
@@ -21,6 +21,9 @@ def test_attack_service_posts_atk002_into_acmebank(acme_client, stub_llm):
     assert body["blocked"] is True
     assert body["block_reason"] == "input_pattern_matched"
     assert body["llm_call_count"] == 0
-    assert stub_llm.calls == []
-    assert body["hops"][0]["decision"] == "DENY"
-    assert body["hops"][0]["operation_executed"] is False
+    assert counting_llm.calls == []
+    assert body["hops"][0]["control.decision"] == "DENY"
+    assert body["hops"][0]["operation.attempted"] is False
+    assert body["hops"][0]["operation.executed"] is False
+    assert body["hops"][0]["operation.outcome"] == "prevented"
+    assert body["testbed_mode"] == "ATTACK"

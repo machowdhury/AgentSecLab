@@ -42,10 +42,10 @@
     document.getElementById("loan-form").addEventListener("submit", async (event) => {
       event.preventDefault();
       const input = document.getElementById("input").value;
-      const response = await fetch("/api/v1/process", {
+      const response = await fetch("/process", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({input, attack_id: "ATK-001"})
+        body: JSON.stringify({input})
       });
       const data = await response.json();
       document.getElementById("result").textContent = JSON.stringify(data, null, 2);

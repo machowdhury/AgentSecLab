@@ -6,13 +6,16 @@ import json
 from pathlib import Path
 from typing import Any, Iterable
 
-from agentsec.detections import local_q_deny_live, local_q_run
+from agentsec.events import content_hash, content_preview
+from agentsec.experiment import EXECUTION_MODE, SCHEMA_NAME, SCHEMA_VERSION, TELEMETRY_FIDELITY
 from agentsec.settings import Settings
+from agentsec.telemetry import ExportReport
 
 
 def write_evidence_bundle(
     *,
     run_id: str,
+    incident_id: str,
     settings: Settings,
     events: list[dict],
     user_input: str,
@@ -23,76 +26,110 @@ def write_evidence_bundle(
     actual_behavior: str,
     llm_call_count: int,
     blocked: bool,
+    terminal: str,
+    export_report: ExportReport | None = None,
 ) -> Path:
     root = settings.artifacts_dir / run_id
     root.mkdir(parents=True, exist_ok=True)
 
     hop_rows = []
     for hop in hops:
-        hop_rows.append(
-            {
-                "agent_id": hop.agent_id,
-                "decision": hop.decision,
-                "reason": hop.reason,
-                "operation_executed": hop.operation_executed,
-                "llm_error": hop.llm_error,
-            }
-        )
+        row = {
+            "hop.index": hop.index,
+            "gen_ai.agent.id": hop.agent_id,
+            "control.decision": hop.control_decision,
+            "control.reason": hop.control_reason,
+            "operation.attempted": hop.operation_attempted,
+            "operation.executed": hop.operation_executed,
+            "operation.outcome": hop.operation_outcome,
+            "llm.started": hop.llm_started,
+            "llm.completed": hop.llm_completed,
+            "llm.failed": hop.llm_failed,
+        }
+        if hop.index >= 1:
+            row["delegator.agent.id"] = hop.delegator_agent_id
+        hop_rows.append(row)
 
     events_path = root / "events.jsonl"
     with events_path.open("w", encoding="utf-8") as handle:
         for event in events:
             handle.write(json.dumps(event, separators=(",", ":")) + "\n")
 
-    control_result = hop_rows[-1] if hop_rows else {"decision": "ERROR", "reason": "no_hops"}
-    q_run = local_q_run(events, run_id)
-    q_deny = local_q_deny_live(events)
+    control_result = None
+    if hop_rows:
+        control_result = {
+            "decision": hop_rows[-1]["control.decision"],
+            "reason": hop_rows[-1]["control.reason"],
+        }
+    elif events:
+        control_result = {"decision": "ERROR", "reason": "schema_validation"}
 
-    detection = {
-        "class": "MEASURED",
-        "scope": "local_event_list_not_splunk",
-        "Q-RUN": q_run,
-        "Q-DENY": q_deny,
-        "splunk_validated": False,
-        "note": "Python reconstruction of the two Phase 2 hunt questions. Not a Splunk search result.",
-    }
-
-    limitations = [
-        "LLM text is nondeterministic when Ollama is used; stub tests are the deterministic gate.",
-        "OTLP export can fail independently of the control decision.",
-        "No MCP, A2A, memory, RAG, MLTK, or Cisco overlay in Phase 2.",
-    ]
-    if testbed_mode == "BASELINE":
-        limitations.append("BASELINE traffic is benign lab load, not an attack proof.")
+    llm_completed_count = sum(1 for event in events if event.get("event.name") == "agentsec.llm.completed")
+    llm_invoked_count = sum(1 for hop in hop_rows if hop["operation.executed"] is True)
 
     manifest = {
+        "schema.name": SCHEMA_NAME,
+        "schema.version": SCHEMA_VERSION,
         "run.id": run_id,
+        "incident.id": incident_id,
         "lab.id": settings.lab_id,
-        "AgentSec version": settings.version,
+        "agentsec.version": settings.version,
         "model": settings.ollama_model,
-        "security profile": settings.security_profile,
-        "attack": attack_id or "ATK-001",
-        "expected behavior": expected_behavior,
-        "actual behavior": actual_behavior,
-        "telemetry": str(events_path),
-        "control result": control_result,
-        "detection result": detection,
-        "limitations": limitations,
-        "evidence.class": "MEASURED" if events else "INFERRED",
+        "security.profile": settings.security_profile,
         "testbed.mode": testbed_mode,
-        "llm_call_count": llm_call_count,
+        "execution.mode": EXECUTION_MODE,
+        "telemetry.fidelity": TELEMETRY_FIDELITY,
+        "attack.id": attack_id or "ATK-001",
+        "expected.behavior": expected_behavior,
+        "actual.behavior": actual_behavior,
+        "control.result": control_result,
+        "llm.invoked.count": llm_invoked_count,
+        "llm.completed.count": llm_completed_count,
         "blocked": blocked,
-        "user.input.preview": user_input[:200],
+        "terminal": terminal,
+        "evidence.class": "OBSERVED",
+        "evidence.class.scope": "local_runtime_and_events_jsonl; Splunk not verified by runtime",
+        "splunk.validated": False,
+        "workflow.entry": "/process",
+        "runtime.authoritative": True,
     }
     (root / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    (root / "request.json").write_text(
-        json.dumps({"input_preview": user_input[:200], "input_length": len(user_input)}, indent=2)
-        + "\n",
-        encoding="utf-8",
-    )
+
+    request_doc = {
+        "input.length": len(user_input),
+        "input.hash": content_hash(user_input) if user_input else content_hash(""),
+        "input.preview": content_preview(user_input),
+    }
+    (root / "request.json").write_text(json.dumps(request_doc, indent=2) + "\n", encoding="utf-8")
+
     (root / "result.json").write_text(
-        json.dumps({"hops": hop_rows, "blocked": blocked, "llm_call_count": llm_call_count}, indent=2)
+        json.dumps(
+            {
+                "run.id": run_id,
+                "incident.id": incident_id,
+                "blocked": blocked,
+                "terminal": terminal,
+                "hops": hop_rows,
+            },
+            indent=2,
+        )
         + "\n",
         encoding="utf-8",
     )
+
+    report = export_report or ExportReport.not_attempted()
+    export_doc = report.to_export_doc()
+    (root / "export.json").write_text(json.dumps(export_doc, indent=2) + "\n", encoding="utf-8")
+
+    limitations = {
+        "items": [
+            "CTRL-INPUT-001 is a lightweight lab reference control, not production prompt-injection protection.",
+            "Stub-LLM tests prove deterministic control placement. Live Ollama wording is nondeterministic.",
+            "Runtime never sets collector.observed, hec.ok, or splunk.verified. otlp.ok is SDK flush only.",
+            "Default evidence stores sanitized preview (<=200) plus SHA-256 hash, not complete prompts.",
+            "operation.executed=true means the governed LLM call began, not that it succeeded.",
+            "No MCP, A2A, memory, RAG, MLTK, Cisco overlay, or attack chains in this slice.",
+        ]
+    }
+    (root / "limitations.json").write_text(json.dumps(limitations, indent=2) + "\n", encoding="utf-8")
     return root

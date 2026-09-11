@@ -1,11 +1,11 @@
-"""Shared Phase 2 test runtime: stub LLM, no OTLP, temp artifacts."""
+"""Shared Phase 2A test runtime: stub LLM spy, no OTLP, temp artifacts."""
 
 from __future__ import annotations
 
 import pytest
 
 from agentsec.bank_app import LabRuntime, create_app
-from agentsec.llm import StubLLM
+from agentsec.llm import CountingLLM, StubLLM
 from agentsec.settings import reset_settings_cache
 from agentsec.telemetry import FanoutSink, MemorySink
 
@@ -13,10 +13,10 @@ from agentsec.telemetry import FanoutSink, MemorySink
 @pytest.fixture
 def settings(tmp_path, monkeypatch):
     monkeypatch.setenv("AGENTSEC_OTEL_ENABLED", "false")
-    monkeypatch.setenv("BASELINE_TRAFFIC_ENABLED", "false")
     monkeypatch.setenv("AGENTSEC_SECURITY_PROFILE", "defended")
     monkeypatch.setenv("AGENTSEC_ARTIFACTS_DIR", str(tmp_path / "artifacts"))
     monkeypatch.setenv("AGENTSEC_LAB_ID", "agentsec-local")
+    monkeypatch.delenv("AGENTSEC_TESTBED_MODE", raising=False)
     reset_settings_cache()
     from agentsec.settings import get_settings
 
@@ -30,18 +30,22 @@ def stub_llm():
 
 
 @pytest.fixture
+def counting_llm(stub_llm):
+    return CountingLLM(stub_llm)
+
+
+@pytest.fixture
 def memory():
     return MemorySink()
 
 
 @pytest.fixture
-def runtime(settings, stub_llm, memory):
+def runtime(settings, counting_llm, memory):
     return LabRuntime(
         settings=settings,
-        llm=stub_llm,
+        llm=counting_llm,
         memory=memory,
         sink=FanoutSink([memory]),
-        baseline=None,
     )
 
 
