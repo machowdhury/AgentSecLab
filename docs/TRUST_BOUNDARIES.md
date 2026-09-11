@@ -1,43 +1,82 @@
 # Trust Boundaries
 
-**Status:** PLANNED  
-**Applies to:** AgentSec architecture (`ARCHITECTURE.md`)
+**Status:** PLANNED (Phase 1A contract)  
+**Applies to:** `ARCHITECTURE.md`
 
 A trust boundary is where data or identity from a less-trusted side is used by a more-trusted side. Security checks belong **on the trusted side, before** the dangerous operation.
+
+Existing `src/agentsec/` uses some of these names (EXPERIMENTAL). This file is the contract. It does not claim a production-trusted system.
 
 ---
 
 ## Picture
 
 ```text
-UNTRUSTED                          BOUNDARY              LAB-TRUSTED (not production)
-─────────                          ────────              ───────────────────────────
+UNTRUSTED                         BOUNDARY                 LAB-TRUSTED (not production)
+─────────                         ────────                 ───────────────────────────
 Learner browser
-Attack Service payloads  ──HTTP──► AcmeBank API ──► reference controls
-Unknown JSON fields                  │                      │
-                                     │                      ├── DENY/ERROR: stop
-                                     │                      └── ALLOW: Ollama (UNTRUSTED MODEL)
-Retrieved docs (later)               │                              │
-SIMULATED content (later)            │                              ▼
-                                     │                      model output is DATA, not authority
-                                     ▼
-                              OTel Collector / Splunk     OBSERVE ONLY
-                              (cannot grant ALLOW)
+Attack Service payloads ──HTTP──► AcmeBank API ──► input reference control
+Unknown JSON fields               acmebank.http_api              │
+                                  │                              ├── DENY/ERROR: stop (no LLM)
+                                  │                              └── ALLOW
+                                  │                                    │
+                                  │                    acmebank.llm_call
+                                  │                                    ▼
+                                  │                              Ollama (UNTRUSTED MODEL)
+                                  │                                    │
+                                  │                    acmebank.agent_handoff
+                                  │                    (prior text is DATA)
+                                  ▼
+                           observability.export
+                           OTel / Splunk / artifacts     OBSERVE ONLY
+                           (cannot grant ALLOW)
 ```
+
+---
+
+## Named boundaries
+
+| Id | Untrusted side | Trusted side | Dangerous operation on the trusted side |
+|----|----------------|--------------|-------------------------------------------|
+| `acmebank.http_api` | Browser, Attack Service, any HTTP client | AcmeBank request handling | Accepting a loan pipeline request |
+| `acmebank.llm_call` | Policy-approved prompt text | Ollama HTTP generate | LLM inference |
+| `acmebank.agent_handoff` | Previous model output | Next agent’s user message | Next LLM inference (still requires input control) |
+| `observability.export` | AcmeBank event payload | Collector, Splunk, disk | None (no authorization) |
+
+“Lab-trusted” means AgentSec operators wrote the control code. It does **not** mean production-grade assurance.
 
 ---
 
 ## Zones
 
-| Zone | Members | May authorize a loan/tool/LLM call? |
-|------|---------|-------------------------------------|
-| Untrusted client | Browser, Attack Service, any HTTP client | No |
+| Zone | Members | May authorize an LLM call? |
+|------|---------|----------------------------|
+| Untrusted client | Browser, Attack Service | No |
 | Enforcement | AcmeBank reference controls | Yes (lab policy only) |
 | Untrusted model | Ollama | No |
 | Observability | OTel Collector, Splunk, `artifacts/` | No |
-| Optional overlay | Cisco scanners (later) | Only if a tested caller runs **before** the dangerous op |
 
-“Lab-trusted” means AgentSec operators wrote the control code. It does **not** mean production-grade assurance.
+MCP servers, A2A peers, RAG corpora, and memory stores **do not exist** in the first implementation. Do not draw them as zones yet.
+
+---
+
+## What an attacker can and cannot control
+
+**Can (untrusted):** payload text; which published AcmeBank route they call; extra JSON (must be rejected, not honored).
+
+**Cannot (`defended`):** `run.id`, `security.profile`, model name, control decisions, HEC token, forcing `testbed_mode=BASELINE`.
+
+**Vulnerable profile:** may omit the injection DENY; every fail-open must be labeled in telemetry (`security.profile=vulnerable`, reason set).
+
+---
+
+## Agent-to-agent handoff (residual, not a new enclave)
+
+Handoff is string concatenation of the previous agent’s output into the next prompt. It stays inside AcmeBank. It is **not** cryptographic identity (INV-005 later). Prior output is untrusted **data** (INV-002).
+
+The input control still runs **before** each subsequent LLM call, because handoff text can carry injection into credit, risk, or compliance.
+
+Until A2A exists, do not draw four network enclaves on a slide.
 
 ---
 
@@ -45,78 +84,62 @@ SIMULATED content (later)            │                              ▼
 
 ### Decision: The authorization boundary is the AcmeBank HTTP API
 
-**DECISION:** Every legitimate request and every attack enters AcmeBank the same way. Controls run inside AcmeBank.
+**ALTERNATIVES:** Controls in Attack Service; controls in Splunk; system-prompt-only safety.
 
-**ALTERNATIVES:** Controls in Attack Service; controls in Splunk; controls in Ollama system prompt only.
+**WHY CHOSEN:** Same door for baseline and attack. Splunk and prompts are not enforcement. AgentWatch skip flags taught the wrong lesson.
 
-**WHY CHOSEN:** If Attack Service “helps” by skipping controls, learners never see a real boundary. Splunk and prompts are not enforcement.
-
-**SECURITY CONSEQUENCE:** There is no second, privileged attack path. Bypass attempts must hit the same checks.
-
-**LEARNING VALUE:** Same door, different intent — baseline vs attack.
-
-### Decision: Attack Service is untrusted relative to AcmeBank
-
-**DECISION:** Separate process. No shared in-memory bypass. No “god mode” header that disables controls unless the lab profile is `vulnerable` and that fact is in telemetry.
-
-**ALTERNATIVES:** One process; shared Python import of `call_ollama` from the Attack Service.
-
-**WHY CHOSEN:** A shared import makes the boundary fictional.
-
-**SECURITY CONSEQUENCE:** INV-001/INV-006 cannot be silently skipped by the red-team UI.
+**SECURITY CONSEQUENCE:** No privileged exploit hook. Bypass attempts hit the same checks.
 
 **LEARNING VALUE:** Red team tooling is just another client.
 
+### Decision: Attack Service is untrusted relative to AcmeBank
+
+**ALTERNATIVES:** One process; Attack Service imports the LLM client.
+
+**WHY CHOSEN:** A shared import makes the boundary fictional.
+
+**SECURITY CONSEQUENCE:** The red-team UI cannot skip INV-008.
+
+**LEARNING VALUE:** Two doors, one pipeline.
+
 ### Decision: Ollama output cannot grant authority
 
-**DECISION:** Model text is untrusted data (INV-002). It cannot flip a prior DENY, mint a `run.id`, or approve a tool.
+**ALTERNATIVES:** “The model refused, so we are safe”; parse model JSON as policy.
 
-**ALTERNATIVES:** “The model refused, so we are safe”; parse model JSON as a policy decision.
+**WHY CHOSEN:** Small live models are inconsistent. Policy is code (INV-002).
 
-**WHY CHOSEN:** Small live models are inconsistent. Policy must be code.
-
-**SECURITY CONSEQUENCE:** Jailbreak success is INJECTED/ALLOW/OBSERVE with telemetry, not a secret second policy engine.
+**SECURITY CONSEQUENCE:** Jailbreak success is ALLOW with telemetry, not a second policy engine.
 
 **LEARNING VALUE:** LLMs are not security oracles.
 
 ### Decision: Splunk and OTel are outside the authorization boundary
 
-**DECISION:** Telemetry may record ALLOW/DENY. It may not create them.
+**ALTERNATIVES:** Saved searches that write back ALLOW/DENY; AgentWatch SOAR-as-control.
 
-**ALTERNATIVES:** Saved searches that “quarantine” by writing back to the app; SOAR-as-control (dropped from AgentWatch).
+**WHY CHOSEN:** Observation vs enforcement is the SOC lesson.
 
-**WHY CHOSEN:** Observation vs enforcement is the point of the SOC track.
+**SECURITY CONSEQUENCE:** A detection firing is not a blocked call.
 
-**SECURITY CONSEQUENCE:** A detection firing is not a blocked call. Attestation UIs must not imply otherwise.
+**LEARNING VALUE:** DETECT is after OBSERVE. DEFEND is a profile or control change, then RETEST.
 
-**LEARNING VALUE:** Detect, then defend, then retest.
+### Decision: Phase 1A bind is localhost; Attack Service has no auth
 
-### Decision: Phase 1 bind is localhost; no Attack Service auth
+**ALTERNATIVES:** API keys now; OAuth; publish `0.0.0.0/0`.
 
-**DECISION:** Publish lab ports on localhost. Authentication for shared/cloud classrooms is PLANNED, not Phase 1.
+**WHY CHOSEN:** Smallest useful scope. Anyone who can reach the port is an attacker. That is acceptable only on localhost.
 
-**ALTERNATIVES:** API keys now; OAuth; expose `0.0.0.0/0`.
+**SECURITY CONSEQUENCE:** Shared/cloud classrooms need auth later (PLANNED).
 
-**WHY CHOSEN:** Smallest useful scope. AgentWatch cloud docs already showed public expose is dangerous.
-
-**SECURITY CONSEQUENCE:** Anyone who can reach the port is an attacker. That is acceptable only on localhost.
-
-**LEARNING VALUE:** Lab != production exposure model.
+**LEARNING VALUE:** Lab exposure is part of the threat model.
 
 ---
 
-## What an attacker can and cannot control
+## Future boundaries (not drawn as live)
 
-**Can (untrusted):** payload text, target agent vs full pipeline, optional `technique_id` (allow-listed or ignored), extra JSON (rejected).
-
-**Cannot (defended profile):** `run.id`, `security.profile`, model name, control allowlists, HEC token, Splunk admin.
-
-**Vulnerable profile:** may omit checks; every fail-open must be labeled in telemetry (`security.profile=vulnerable`, reason set).
-
----
-
-## Agent-to-agent handoff (Phase 1 residual)
-
-Handoff is string concatenation of the previous agent’s output into the next prompt. That is **not** a new trust zone with cryptographic identity. It is still inside AcmeBank, still untrusted model text feeding the next LLM call.
-
-Later A2A (PLANNED) would add an identity check at a new boundary. Until then, do not draw four network enclaves on a slide.
+| Later surface | New boundary | Check before |
+|---------------|--------------|--------------|
+| Tools / MCP | Agent → tool runtime | Tool invocation |
+| A2A | Agent → other agent identity | Accepting a delegated message |
+| RAG | Retriever → prompt | Using retrieved text as instruction |
+| Memory | Store → prompt | Promoting a memory record to trusted instruction |
+| HITL | Agent → human | Privileged workflow transition |

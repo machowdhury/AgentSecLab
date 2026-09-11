@@ -1,9 +1,26 @@
 # Security Invariants
 
-**Status:** PLANNED  
-**Source:** AgentSec rule INV-001–INV-008, mapped to this architecture.
+**Status:** PLANNED (Phase 1A contract)  
+**Source:** AgentSec rule INV-001–INV-008, mapped to the first implementation.
 
 An invariant is a property that must remain true even when the attacker controls the payload. Labs may **violate** an invariant only in the `vulnerable` profile, and only when telemetry says so.
+
+---
+
+## Applicability to the minimum first implementation
+
+| Invariant | First slice | Role |
+|-----------|-------------|------|
+| **INV-001** Delegated authorization | **Applies (narrow)** | Agents have no tools. Authority is “may call Ollama with this system prompt.” A prompt cannot add agents or tools. Full MCP delegation is future. |
+| **INV-002** Data cannot grant authority | **Applies** | No RAG. Model output and handoff text cannot mint ALLOW after DENY. Model JSON is not policy. |
+| **INV-003** Memory trust isolation | **Future-facing** | No durable memory. If a session ring exists for the UI, it is display-only and not trusted instruction. |
+| **INV-004** Privileged action attribution | **Applies** | Every LLM call and control decision carries `run.id`, agent id, profile. `run.id` is server-minted. |
+| **INV-005** Agent identity integrity | **Applies (narrow)** | No A2A network. Agent id is an allow-list. Unknown ids → ERROR. Cryptographic passports are future. |
+| **INV-006** Workflow integrity | **Applies (narrow)** | Only transition is coded: intake → credit → risk → compliance. The model cannot reorder agents. State machines are future. |
+| **INV-007** Evidence integrity | **Applies** | Shared `run.id`; decision + reason + `operation.executed`; `testbed_mode`; artifacts pack. |
+| **INV-008** Fail-safe decisions | **Applies (primary teaching invariant)** | `defended`: missing context → ERROR or DENY. `vulnerable`: labeled fail-open only. |
+
+“Applies (narrow)” means the invariant is true for this slice’s actual surfaces, not that MCP/A2A/memory labs are done.
 
 ---
 
@@ -11,11 +28,11 @@ An invariant is a property that must remain true even when the attacker controls
 
 An agent cannot receive more authority than was explicitly delegated.
 
-**Phase 1:** Agents have no tools. Authority is “may call Ollama with this system prompt.” Pipeline order is code. A prompt cannot add a new agent or tool.
+**First implementation:** Coded scopes per role (`loan.intake`, `loan.credit`, `loan.risk`, `loan.compliance`). No tools.
 
-**Later:** Tool/MCP allowlist checked **before** invocation. Delegation object, not retrieved text.
+**Later:** Tool/MCP allowlist **before** invocation. Delegation object, not retrieved text.
 
-**Vulnerable exception:** none required in Phase 1.
+**Vulnerable exception:** none required (no tools to over-grant).
 
 ---
 
@@ -23,7 +40,7 @@ An agent cannot receive more authority than was explicitly delegated.
 
 Retrieved content cannot independently authorize privileged actions.
 
-**Phase 1:** No RAG. Model output cannot mint ALLOW after DENY. Model JSON is not policy.
+**First implementation:** No RAG. Handoff text and model JSON cannot override DENY or reorder the pipeline.
 
 **Later:** RAG hits are data. They cannot expand tools or skip HITL.
 
@@ -33,9 +50,9 @@ Retrieved content cannot independently authorize privileged actions.
 
 Untrusted memory cannot silently become trusted instruction.
 
-**Phase 1:** No durable memory. Session ring is display-only.
+**First implementation:** Not in play. Do not implement a memory control that is only a regex on `WRITE_MEMORY`.
 
-**Later:** Memory records carry trust labels. Untrusted facts cannot become system prompt without a control decision.
+**Later:** Trust-tagged records. Untrusted facts cannot become system prompt without a control decision.
 
 ---
 
@@ -43,7 +60,7 @@ Untrusted memory cannot silently become trusted instruction.
 
 Privileged actions must be attributable to a known principal or delegation.
 
-**Phase 1:** Every LLM call and control decision carries `run.id`, `gen_ai.agent.id`, `security.profile`. `run.id` is server-minted.
+**First implementation:** Initiator (`user.id`) + agent id + `run.id` + profile on every security-sensitive event.
 
 **Later:** Delegation id on tool calls.
 
@@ -53,9 +70,9 @@ Privileged actions must be attributable to a known principal or delegation.
 
 Agent impersonation must be rejected or detectable.
 
-**Phase 1:** No A2A network. Agent id is selected from an allow-list on the API (`/agent/<id>` or full pipeline). Unknown ids → ERROR.
+**First implementation:** Allow-listed agent ids. No DID/passport theater.
 
-**Later:** Cryptographic or explicit passport check; fail closed in `defended`. SIMULATED impersonation hunts must be labeled.
+**Later:** Explicit identity check; fail closed in `defended`. SIMULATED impersonation hunts must be labeled.
 
 ---
 
@@ -63,9 +80,9 @@ Agent impersonation must be rejected or detectable.
 
 Privileged workflow transitions require authorized state transitions.
 
-**Phase 1:** The only transition is the coded sequence intake → doc → risk → compliance. The model cannot reorder agents.
+**First implementation:** Fixed sequence in code. Client cannot pick hop 4 first as a way to skip intake **inside** `/process`. If a single-agent route exists later, it is a separate, documented lab — not a silent skip of the loan workflow.
 
-**Later:** State machine; forged “orchestrator_override” cannot skip steps in `defended`.
+**Later:** State machine; forged orchestrator strings cannot skip steps in `defended`.
 
 ---
 
@@ -73,9 +90,9 @@ Privileged workflow transitions require authorized state transitions.
 
 Security-sensitive actions must generate enough telemetry for reconstruction.
 
-**Phase 1:** `run.id` on all hops; control decision + reason + `operation_executed`; `testbed_mode`; artifacts pack.
+**First implementation:** `run.id` on all hops; control decision + reason + `operation.executed`; `testbed_mode`; artifacts.
 
-**Failure:** Collector down → incomplete evidence, not fabricated Splunk proof.
+**Failure:** Collector down → incomplete Splunk, not fabricated proof. Local artifacts remain.
 
 ---
 
@@ -83,9 +100,11 @@ Security-sensitive actions must generate enough telemetry for reconstruction.
 
 Missing required security context should not automatically produce ALLOW unless an intentionally vulnerable lab demonstrates this condition.
 
-**Phase 1 `defended`:** Missing profile, malformed body, unknown agent → ERROR or DENY. No LLM call.
+**`defended`:** Missing profile/config, malformed body, unknown agent, empty input → ERROR or DENY. No LLM call.
 
-**Phase 1 `vulnerable`:** May ALLOW with `control.reason` documenting the missing check. Workshop must show the label.
+**`vulnerable`:** May ALLOW with `control.reason` documenting the missing or skipped check. Workshop must show the label.
+
+This is the invariant the first attack is designed to teach.
 
 ---
 
@@ -93,49 +112,33 @@ Missing required security context should not automatically produce ALLOW unless 
 
 ### Decision: Invariants are enforced in AcmeBank code, not in Splunk and not in the system prompt
 
-**DECISION:** Prompts may describe policy. Only reference controls decide.
-
-**ALTERNATIVES:** Prompt-only safety; detection-only safety.
-
-**WHY CHOSEN:** Models miss; detections fire after the fact.
-
-**SECURITY CONSEQUENCE:** A hunt is not a control. A polite model is not INV-008.
-
-**LEARNING VALUE:** Where the decision actually happens.
+**WHY:** Models miss. Detections fire after the fact.  
+**SECURITY:** A hunt is not a control. A polite model is not INV-008.  
+**LEARNING:** Where the decision actually happens.
 
 ### Decision: Output inspection cannot satisfy “DENY before inference”
 
-**DECISION:** Post-LLM matches are SANITIZE, OBSERVE, or ERROR on export — never DENY of the call that already succeeded.
+**WHY:** Core rule: never report DENY if the dangerous operation already happened.  
+**SECURITY:** First slice omits output inspection so the lesson cannot be faked.  
+**LEARNING:** Placement vs marketing names.
 
-**ALTERNATIVES:** AgentWatch-style HARD_DENY after `/api/generate`.
+### Decision: Vulnerable profile is the only allowed automatic fail-open
 
-**WHY CHOSEN:** Core rule: never report DENY if the dangerous operation already happened.
-
-**SECURITY CONSEQUENCE:** Token spend and model side effects already occurred; telemetry tells the truth.
-
-**LEARNING VALUE:** Placement vs marketing names (Gate vs Sentinel).
-
-### Decision: Vulnerable profile is an explicit invariant exception
-
-**DECISION:** `security.profile=vulnerable` is the only allowed automatic fail-open.
-
-**ALTERNATIVES:** Hidden flags; env vars that UI shows but code ignores (AgentWatch).
-
-**WHY CHOSEN:** INV-008 requires intention and evidence.
-
-**SECURITY CONSEQUENCE:** Defended labs cannot “forget” a check and look secure.
-
-**LEARNING VALUE:** Fail-open vs fail-closed is a lab switch you can see in Splunk.
+**WHY:** AgentWatch displayed guard flags that the LLM path ignored.  
+**SECURITY:** Defended labs cannot “forget” a check and look secure.  
+**LEARNING:** Fail-open vs fail-closed is visible in telemetry.
 
 ---
 
-## Phase 1 proof tests (required when code exists)
+## Tests required when code is claimed complete
 
 | Invariant | Test idea |
 |-----------|-----------|
+| INV-008 | Defended + injection → DENY, stub LLM call count 0 |
+| INV-008 | Vulnerable + same injection → labeled ALLOW |
+| INV-008 | Defended + empty/malformed → ERROR, no LLM |
+| INV-007 | DENY event includes reason and `operation.executed=false` |
 | INV-004 | `run.id` equal across all events of one pipeline |
-| INV-005 | Unknown `agent_id` → ERROR, no LLM stub call |
-| INV-006 | Custom path cannot invoke agents out of order |
-| INV-007 | DENY event includes reason and `operation_executed=false` |
-| INV-008 | Defended + missing profile → ERROR; vulnerable + missing check → labeled ALLOW |
-| INV-002 | Stubbed model saying `{"approve": true}` cannot override prior DENY |
+| INV-005 | Unknown `agent_id` → ERROR, no LLM |
+| INV-006 | `/process` cannot be reordered by the payload |
+| INV-002 | Stubbed model `{"approve": true}` cannot override prior DENY |

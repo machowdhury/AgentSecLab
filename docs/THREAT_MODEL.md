@@ -1,9 +1,9 @@
 # Threat Model
 
-**Status:** PLANNED  
-**Method:** Identify threat, attacker, asset, boundary, invariant, attack, expected result, reference control, telemetry, detection, tests — as required by AgentSec security rules.
+**Status:** PLANNED (Phase 1A contract)  
+**Method:** threat, attacker, asset, boundary, invariant, attack, expected result, reference control, telemetry, detection, tests.
 
-This is an architecture threat model, not a measured experiment.
+This is an architecture threat model, not a measured experiment. Existing tests in the repo are EXPERIMENTAL alignment; they are not live Ollama/Splunk proof.
 
 ---
 
@@ -11,12 +11,14 @@ This is an architecture threat model, not a measured experiment.
 
 | Asset | Why it matters |
 |-------|----------------|
-| Loan decision path | Privileged business outcome |
-| Agent prompts and tool rights | Authority (INV-001) |
-| Session / future memory | Instruction vs data (INV-003) |
-| Model output shown to a user or next agent | Injection and exfil |
+| Loan pipeline (four LLM hops) | Privileged business-shaped outcome |
+| Right to call Ollama | The only dangerous operation in this slice |
+| Agent prompts and coded order | Authority (INV-001 / INV-006) |
+| Model output shown to a user or next agent | Injection into later hops |
 | Telemetry and artifacts | Evidence integrity (INV-007) |
 | Splunk index | Detection and investigation |
+
+No tools, RAG corpus, durable memory, or inter-agent network exist yet. Those assets are out of scope.
 
 ---
 
@@ -24,135 +26,110 @@ This is an architecture threat model, not a measured experiment.
 
 | Attacker | Position | Typical goal |
 |----------|----------|--------------|
-| External applicant | HTTP to AcmeBank (or via Attack Service) | Inject, jailbreak, tool escape, data leak |
-| Malicious retrieved content (later) | RAG/document text | Grant authority via data (INV-002) |
-| Impersonating agent (later / SIMULATED) | A2A message | Steal another agent’s role (INV-005) |
-| Coverage gamer | SIMULATED emit API | Fake “51 techniques detected” |
+| External applicant / lab red teamer | HTTP to AcmeBank (or via Attack Service) | Prompt injection that changes later agent behavior or approval language |
+| Coverage gamer (later) | SIMULATED emit API (not in this slice) | Fake detections |
 
-Assume the Attack Service operator is a **lab red teamer**, not a bank insider with Splunk admin.
+Assume the Attack Service operator is a **lab red teamer**, not a bank insider with Splunk admin. The LLM is a **confused deputy**, not the primary attacker.
 
 ---
 
-## Phase 1 in-scope threats
+## In-scope threats (first implementation)
 
-### T1 — Prompt injection at intake
+### T1 — Direct prompt injection at the HTTP boundary
 
 | Field | Content |
 |-------|---------|
-| Threat | Untrusted input changes agent behavior |
-| Attacker | External |
-| Asset | Pipeline reasoning / approval language |
-| Boundary | AcmeBank API |
-| Invariant | INV-008 (check before LLM); INV-002 |
-| Attack | Markup/injection strings in the loan message |
-| Expected (defended) | Input control DENY **before** Ollama; `operation_executed=false` |
-| Expected (vulnerable) | May reach LLM; labeled profile |
-| Reference control | Input inspection |
-| Telemetry | `run.id`, `control.decision`, `testbed_mode=LIVE` |
-| Detection | SPL: DENY with `operation_executed=false` |
+| Threat | Untrusted input is treated as instruction |
+| Attacker | External / Attack Service |
+| Asset | Pipeline reasoning; right to call Ollama |
+| Boundary | `acmebank.http_api` then `acmebank.llm_call` |
+| Invariant | INV-008 (check before LLM); INV-002 (model/text is not policy) |
+| Attack | ATK-002 catalog strings in the loan message |
+| Expected (`defended`) | Input control DENY **before** Ollama; `operation.executed=false`; zero LLM calls |
+| Expected (`vulnerable`) | May reach LLM; `security.profile=vulnerable` and fail-open reason |
+| Reference control | CTRL-INPUT-001 (lightweight input inspection) |
+| Telemetry | `run.id`, control decision + reason, `testbed_mode=LIVE` |
+| Detection (later, validated SPL) | LIVE DENY with `operation.executed=false` |
 | Tests | Stubbed LLM: zero calls on DENY |
 
-### T2 — Output jailbreak / sensitive-string leakage
+### T2 — Injection via agent handoff
 
 | Field | Content |
 |-------|---------|
-| Threat | Model emits disallowed content after inference |
-| Attacker | External (payload aims at output) |
-| Asset | Response shown to user / next agent |
-| Boundary | Model output → AcmeBank |
-| Invariant | Honest placement: inference already happened |
-| Attack | Jailbreak / wire-transfer style strings (lab patterns) |
-| Expected | SANITIZE or OBSERVE; **not** DENY-of-call |
-| Reference control | Output inspection |
-| Telemetry | `control.decision=SANITIZE\|OBSERVE`, `operation_executed=true` |
-| Detection | Hunt output-inspect events; do not call them “blocked LLM” |
-| Tests | After stubbed success, decision is not DENY |
+| Threat | A jailbreak that reaches intake (or is concatenated) poisons credit/risk/compliance |
+| Attacker | External (payload survives or is rewritten by the model) |
+| Asset | Later hops |
+| Boundary | `acmebank.agent_handoff` |
+| Invariant | INV-002, INV-006, INV-008 on **each** hop |
+| Attack | Same ATK-002 family; or ALLOW path where model echoes injection |
+| Expected (`defended`) | Input control on **each** hop; DENY stops remaining LLM calls |
+| Reference control | Same input control, not a fake A2A passport |
+| Telemetry | Shared `run.id`; hop identity; which hop blocked |
+| Tests | Pipeline stops; later stub agents are not called |
 
 ### T3 — Baseline vs attack confusion
 
 | Field | Content |
 |-------|---------|
 | Threat | Analyst cannot tell noise from attack |
-| Attacker | None (integrity of evidence) |
+| Attacker | None (evidence integrity) |
 | Asset | Splunk investigations |
-| Boundary | Telemetry schema |
+| Boundary | `observability.export` |
 | Invariant | INV-007 |
-| Attack | N/A |
-| Expected | `testbed_mode=BASELINE` vs `LIVE` |
+| Expected | `testbed_mode=BASELINE` vs `LIVE`; attacker cannot force BASELINE |
 | Reference control | None (observability) |
-| Telemetry | `testbed_mode` required |
-| Detection | Filter `NOT testbed_mode=BASELINE` |
-| Tests | Baseline tick emits BASELINE |
+| Tests | Baseline tick cannot be set from Attack Service JSON in `defended` |
 
-### T4 — Evidence spoofing via SIMULATED events (later, designed now)
+### T4 — Evidence spoofing / decision injection
 
 | Field | Content |
 |-------|---------|
-| Threat | OTel injection counted as live control proof |
-| Attacker | Lab user or buggy workshop |
-| Asset | Coverage / attestation |
-| Boundary | Emit-simulated API vs live path |
-| Invariant | Research integrity |
-| Attack | Force-emit technique events |
-| Expected | `testbed_mode=SIMULATED`; excluded from “live proved” |
-| Reference control | None executed |
-| Telemetry | SIMULATED mode mandatory |
-| Detection | Coverage SPL must split modes |
-| Tests | Attestation query fixtures |
+| Threat | Attacker JSON sets `control.decision`, `run.id`, or profile |
+| Attacker | HTTP client |
+| Asset | Evidence (INV-007), fail-safe (INV-008) |
+| Boundary | `acmebank.http_api` |
+| Expected | Closed handling: extra fields ERROR; decisions computed server-side |
+| Tests | Untrusted JSON cannot bypass |
 
 ---
 
-## Later threats (PLANNED / SIMULATED until redesigned)
+## Out of scope for the first implementation (documented so they are not faked)
 
-| ID | Surface | Invariant | AgentWatch lesson |
-|----|---------|-----------|-------------------|
-| T5 | MCP / tool invocation | INV-001 | Regex on `execute_shell_command(` is not a tool runtime |
-| T6 | RAG / retrieved docs | INV-002 | Probe scores that never block are hunts, not controls |
-| T7 | Memory persistence | INV-003 | In-process dict is not memory trust isolation |
-| T8 | A2A impersonation | INV-005 | `did:acme:` markers fail open if omitted |
-| T9 | Orchestration override | INV-006 | Foundry string markers ≠ state machine |
-| T10 | Missing HITL | INV-008 | Default fail-open must be a labeled vulnerable lab |
-| T11 | Shadow model | INV-004 | Telemetry-only “unapproved model” is not a block |
-| T12 | Cisco enforce claim | Honesty | Function with no caller is not a control |
-
-Phase 1 does not implement T5–T12 as live IMPLEMENTED controls. They may appear as **documented future labs** or explicitly SIMULATED hunts.
+| ID | Surface | Invariant | Why it waits |
+|----|---------|-----------|--------------|
+| T5 | Output jailbreak as a **separate** control story | Honest DENY rule | No output inspector yet. If the model runs, the call is ALLOW + actual text, not DENY |
+| T6 | MCP / tool escape | INV-001 | No tool runtime. Regex on `execute_shell_command(` would be AgentWatch theater |
+| T7 | RAG / retrieved docs | INV-002 | No retriever |
+| T8 | Memory persistence | INV-003 | Display-only session at most |
+| T9 | A2A impersonation | INV-005 | No A2A network |
+| T10 | Orchestration override strings | INV-006 | Order is code; no Foundry markers |
+| T11 | SIMULATED OTel as live proof | Research integrity | No simulated emit API |
+| T12 | Cisco “enforce” | Honesty | No Cisco overlay |
 
 ---
 
 ## Major decisions
 
-### Decision: Threat model the live HTTP path first, not 51 ATLAS IDs
+### Decision: Threat-model the live HTTP path, not 51 ATLAS IDs
 
-**DECISION:** Phase 1 threat model is T1–T4. Technique catalog comes after the path is proven.
+**WHY:** Phase 0: many AgentWatch IDs were SIMULATED or generic replay strings.  
+**SECURITY:** Invariants are proven on real calls.  
+**LEARNING:** Surfaces and placement before catalog breadth.
 
-**ALTERNATIVES:** Import all 51 AgentWatch techniques as equal live threats.
+### Decision: The attacker is the HTTP client, not “the LLM”
 
-**WHY CHOSEN:** Many AgentWatch IDs were SIMULATED or generic replay strings. Mapping 51 IDs first would fake completeness.
-
-**SECURITY CONSEQUENCE:** Invariants are proven on real calls, not on coverage percentages.
-
-**LEARNING VALUE:** Surfaces and placement before catalog breadth.
-
-### Decision: Attacker is the HTTP client, not “the LLM”
-
-**DECISION:** The LLM is a confused deputy / untrusted component, not the primary attacker.
-
-**ALTERNATIVES:** Treat model as adversary only; ignore client injection.
-
-**WHY CHOSEN:** The client chooses the payload. The model may comply or refuse; that is not a trust boundary.
-
-**SECURITY CONSEQUENCE:** Controls sit on AcmeBank, before and after the model, never “inside” Ollama.
-
-**LEARNING VALUE:** Agentic security is still input/output/tool policy, plus workflow.
+**WHY:** The client chooses the payload. The model may comply or refuse.  
+**SECURITY:** Controls sit on AcmeBank, before the model.  
+**LEARNING:** Agentic security is still input and workflow policy.
 
 ### Decision: Prompt-paste handoff is a residual risk, not hidden
 
-**DECISION:** Document that agent 2–4 consume previous model text. That is a dataflow risk (injection into later agents).
+**WHY:** Honesty. Encryption without identity is theater.  
+**SECURITY:** Input control on every hop.  
+**LEARNING:** Multi-agent increases blast radius of one injection.
 
-**ALTERNATIVES:** Pretend four trust enclaves; encrypt handoff in Phase 1.
+### Decision: One catalog attack
 
-**WHY CHOSEN:** Honesty. Encryption without identity is theater.
-
-**SECURITY CONSEQUENCE:** Output inspect and later workflow rules matter on **each** hop, not only intake.
-
-**LEARNING VALUE:** Multi-agent increases blast radius of one jailbreak.
+**WHY:** First implementation target is one direct prompt-injection.  
+**SECURITY:** That attack has an expected control decision and a stub test.  
+**LEARNING:** Depth over coverage percentage.
