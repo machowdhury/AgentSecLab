@@ -8,6 +8,7 @@ from agentsec.bank_app import LabRuntime, create_app
 from agentsec.llm import CountingLLM, StubLLM
 from agentsec.settings import reset_settings_cache
 from agentsec.telemetry import FanoutSink, MemorySink
+from agentsec.mcp.registry import default_registry
 
 
 @pytest.fixture
@@ -46,6 +47,7 @@ def runtime(settings, counting_llm, memory):
         llm=counting_llm,
         memory=memory,
         sink=FanoutSink([memory]),
+        mcp_registry=default_registry(),
     )
 
 

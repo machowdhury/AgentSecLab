@@ -1,0 +1,18 @@
+| makeresults count=2
+| streamstats count as row
+| eval evidence_class="SIMULATED"
+| eval "agentsec.run.id"="simulated-q-mcp-after-deny-0001"
+| eval "gen_ai.tool.name"="lookup_customer_tier"
+| eval "event.name"=if(row=1,"agentsec.control.decision","agentsec.mcp.started")
+| eval "agentsec.control.decision"=if(row=1,"DENY",null())
+| eval "agentsec.sequence"=if(row=1,"3","4")
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
+| eval is_deny=if(event_name="agentsec.control.decision" AND decision="DENY",1,0)
+| eval is_mcp=if(match(event_name,"^agentsec\\.mcp\\."),1,0)
+| eventstats min(eval(if(is_deny=1,sequence,null()))) as deny_seq, max(is_deny) as has_deny by run_id, tool
+| where has_deny=1 AND is_mcp=1 AND sequence>deny_seq
+| table run_id, tool, deny_seq, sequence, event_name, decision, evidence_class

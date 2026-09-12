@@ -37,12 +37,15 @@ def questions() -> dict:
 
 
 def test_schema_identity(schema: dict) -> None:
-    assert schema["properties"]["agentsec.schema.version"]["const"] == "1.0.0"
+    assert schema["properties"]["agentsec.schema.version"]["const"] == "1.1.0"
     assert schema["properties"]["agentsec.schema.name"]["const"] == "agentsec.security_event"
     names = set(schema["properties"]["event.name"]["enum"])
     assert names.isdisjoint(PREDECESSOR_EVENT_NAMES)
     assert "agentsec.control.decision" in names
     assert "agentsec.llm.started" in names
+    assert "agentsec.mcp.started" in names
+    assert "agentsec.mcp.completed" in names
+    assert "agentsec.mcp.failed" in names
 
 
 def test_splunk_questions_map_to_schema_properties(schema: dict, questions: dict) -> None:

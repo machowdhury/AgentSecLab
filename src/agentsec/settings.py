@@ -97,3 +97,7 @@ def get_settings() -> Settings:
 
 def reset_settings_cache() -> None:
     get_settings.cache_clear()
+    from agentsec.schema import load_schema, validator
+
+    load_schema.cache_clear()
+    validator.cache_clear()

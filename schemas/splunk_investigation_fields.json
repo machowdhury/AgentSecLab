@@ -1,10 +1,10 @@
 {
-  "description": "Phase 1B investigation questions → fields. Schema 1.0.0. Design contract. SPL is not validated. Splunk is corroborating unless run completeness is established. Do not hunt names that are not listed.",
+  "description": "Phase 1C investigation questions remain valid under schema 1.1.0. Q-MCP-* are not listed yet (no SPL in Phase 3B). Splunk is corroborating unless run completeness is established. Do not hunt names that are not listed.",
   "index": "agentsec_telemetry",
   "sourcetype": "otel:agentic:json",
   "schema": {
     "name": "agentsec.security_event",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "correlation_keys": {
     "primary": "agentsec.run.id",

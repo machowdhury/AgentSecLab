@@ -1,0 +1,15 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"=__RUN_ID__ ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
+| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)
+| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)
+| eval is_started=if(event_name="agentsec.mcp.started",1,0)
+| eval is_completed=if(event_name="agentsec.mcp.completed",1,0)
+| eval is_failed=if(event_name="agentsec.mcp.failed",1,0)
+| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool
+| where event_name="agentsec.control.decision"
+| eval execution_state=case(has_completed=1,"mcp.completed",has_failed=1,"mcp.failed",has_started=1,"mcp.started",decision="ALLOW","ALLOW_execution_not_proven_in_this_copy",1=1,"no_mcp_execution_event")
+| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state

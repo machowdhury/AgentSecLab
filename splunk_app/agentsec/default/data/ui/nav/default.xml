@@ -1,4 +1,5 @@
 <nav search_view="search" color="0B1F33">
   <view name="ws_lab_pi_001" default="true" />
+  <view name="ws_lab_mcp_001" />
   <view name="search" />
 </nav>

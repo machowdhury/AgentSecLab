@@ -1,0 +1,7 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"=__RUN_ID__ "event.name"=agentsec.mcp.completed
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)
+| eval result_provenance=mvindex(mvdedup('agentsec.mcp.result.provenance'),0)
+| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)
+| table run_id, tool, result_trust, result_provenance, outcome
