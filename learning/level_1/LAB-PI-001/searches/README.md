@@ -10,3 +10,5 @@ Validated 2026-09-11 against:
 - Defended ATK-002 `78f05d1b-728e-4e70-8993-f5e365871f87`
 
 Q-LLM-AFTER-DENY positive control is SIMULATED (`makeresults`, not indexed). See `Q-LLM-AFTER-DENY-POSITIVE-CONTROL.spl`.
+
+Workshop (no Studio): `../workshop.md`. See `docs/PHASE2C_SPL_VALIDATION.md`.
