@@ -3,6 +3,7 @@ from agentsec.bank_app import LabRuntime, create_app
 from agentsec.llm import CountingLLM, StubLLM
 from agentsec.settings import reset_settings_cache
 from agentsec.telemetry import FanoutSink, MemorySink
+from agentsec.mcp.registry import default_registry
 from tests.helpers import assert_all_schema_valid, control_events, event_names
 
 
@@ -84,6 +85,7 @@ def test_vulnerable_profile_fail_open_is_labeled(tmp_path, monkeypatch):
         llm=llm,
         memory=memory,
         sink=FanoutSink([memory]),
+        mcp_registry=default_registry(),
     )
     app = create_app(runtime)
     client = app.test_client()
@@ -116,6 +118,7 @@ def test_retest_label_is_server_owned(tmp_path, monkeypatch):
         llm=llm,
         memory=memory,
         sink=FanoutSink([memory]),
+        mcp_registry=default_registry(),
     )
     client = create_app(runtime).test_client()
     response = client.post("/process", json={"input": ATK_002_PAYLOAD, "user_id": "attacker-lab"})

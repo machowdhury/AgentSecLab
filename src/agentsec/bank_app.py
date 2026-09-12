@@ -9,7 +9,10 @@ from pathlib import Path
 from flask import Flask, jsonify, render_template, request
 
 from agentsec.agents import PIPELINE_ORDER
-from agentsec.experiment import resolve_attack_id, resolve_testbed_mode
+from agentsec.experiment import resolve_attack_id, resolve_mcp_attack_id, resolve_mcp_testbed_mode, resolve_testbed_mode
+from agentsec.mcp.pipeline import mcp_result_to_dict, run_mcp_invoke, run_mcp_schema_failure
+from agentsec.mcp.registry import ToolRegistry, default_registry
+from agentsec.mcp.request_contract import parse_mcp_invoke_body
 from agentsec.llm import LLMClient, OllamaClient
 from agentsec.pipeline import result_to_dict, run_loan_pipeline, run_schema_failure
 from agentsec.request_contract import parse_process_body
@@ -28,6 +31,7 @@ class LabRuntime:
     llm: LLMClient
     memory: MemorySink
     sink: FanoutSink
+    mcp_registry: ToolRegistry
 
 
 def build_runtime(
@@ -43,7 +47,13 @@ def build_runtime(
     if enabled:
         sinks.append(OtlpSink(settings))
     sink = FanoutSink(sinks)
-    return LabRuntime(settings=settings, llm=llm, memory=memory, sink=sink)
+    return LabRuntime(
+        settings=settings,
+        llm=llm,
+        memory=memory,
+        sink=sink,
+        mcp_registry=default_registry(),
+    )
 
 
 def create_app(runtime: LabRuntime | None = None) -> Flask:
@@ -139,6 +149,49 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
             return jsonify(body), 200
         if result.error_stage == "llm_invocation":
             return jsonify(body), 503
+        if result.error_stage == "control_evaluation":
+            return jsonify(body), 500
+        return jsonify(body), 400
+
+    @app.post("/mcp/invoke")
+    def mcp_invoke():
+        data = request.get_json(silent=True)
+        parsed = parse_mcp_invoke_body(data)
+        testbed_mode = resolve_mcp_testbed_mode(tool=parsed.tool, settings=runtime.settings)
+        attack_id = resolve_mcp_attack_id(parsed.tool)
+        if not parsed.ok:
+            result = run_mcp_schema_failure(
+                sink=runtime.sink,
+                memory=runtime.memory,
+                settings=runtime.settings,
+                user_id=parsed.user_id,
+                testbed_mode=testbed_mode,
+                attack_id=attack_id,
+                error_reason=parsed.error_reason,
+                extra_fields=parsed.extra_fields,
+                registry=runtime.mcp_registry,
+            )
+            return jsonify(mcp_result_to_dict(result)), 400
+
+        result = run_mcp_invoke(
+            tool=parsed.tool or "",
+            arguments=parsed.arguments,
+            requested_scope=parsed.requested_scope,
+            sink=runtime.sink,
+            memory=runtime.memory,
+            settings=runtime.settings,
+            user_id=parsed.user_id,
+            testbed_mode=testbed_mode,
+            attack_id=attack_id,
+            registry=runtime.mcp_registry,
+        )
+        body = mcp_result_to_dict(result)
+        if result.terminal == "completed_allowed":
+            return jsonify(body), 200
+        if result.terminal == "completed_denied":
+            return jsonify(body), 200
+        if result.error_stage == "mcp_invocation":
+            return jsonify(body), 500
         if result.error_stage == "control_evaluation":
             return jsonify(body), 500
         return jsonify(body), 400

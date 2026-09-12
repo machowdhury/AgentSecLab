@@ -48,11 +48,16 @@ def assert_all_schema_valid(events: list[dict]) -> None:
     for event in events:
         validate_event(event)
         assert event["agentsec.schema.name"] == "agentsec.security_event"
-        assert event["agentsec.schema.version"] == "1.0.0"
+        assert event["agentsec.schema.version"] == "1.1.0"
         assert event["event.name"] not in PREDECESSOR_EVENT_NAMES
 
 
-def assert_correlation(events: list[dict], run_id: str) -> None:
+def assert_correlation(
+    events: list[dict],
+    run_id: str,
+    *,
+    workflow_entry: str = "/process",
+) -> None:
     assert events
     traces = {event["trace_id"] for event in events}
     assert traces == {events[0]["trace_id"]}
@@ -61,7 +66,7 @@ def assert_correlation(events: list[dict], run_id: str) -> None:
         assert event["agentsec.incident.id"] == run_id
         assert event["agentsec.execution.mode"] == "LIVE"
         assert event["agentsec.telemetry.fidelity"] == "OBSERVED"
-        assert event["agentsec.workflow.entry"] == "/process"
+        assert event["agentsec.workflow.entry"] == workflow_entry
 
 
 def assert_sequence_ordering(events: list[dict]) -> None:

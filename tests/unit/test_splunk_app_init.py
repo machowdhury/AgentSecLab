@@ -28,6 +28,7 @@ def test_splunk_app_init_copies_to_writable_dest(tmp_path: Path):
     assert (dest / "default" / "app.conf").is_file()
     assert (dest / "default" / "indexes.conf").is_file()
     assert (dest / "default" / "data" / "ui" / "views" / "ws_lab_pi_001.xml").is_file()
+    assert (dest / "default" / "data" / "ui" / "views" / "ws_lab_mcp_001.xml").is_file()
     assert "Staged AgentSec app" in proc.stdout
 
 

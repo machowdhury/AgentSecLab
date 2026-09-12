@@ -1,4 +1,4 @@
-"""Build schema 1.0.0 AgentSec security events. Attackers never copy JSON into control fields."""
+"""Build schema 1.1.0 AgentSec security events. Attackers never copy JSON into control fields."""
 
 from __future__ import annotations
 
@@ -11,11 +11,11 @@ from uuid import UUID, uuid4
 
 from agentsec.experiment import (
     EXECUTION_MODE,
+    LOAN_WORKFLOW_ENTRY,
+    LOAN_WORKFLOW_NAME,
     SCHEMA_NAME,
     SCHEMA_VERSION,
     TELEMETRY_FIDELITY,
-    WORKFLOW_ENTRY,
-    WORKFLOW_NAME,
     technique_id_for,
 )
 from agentsec.schema import validate_event
@@ -32,6 +32,9 @@ EVENT_CONTROL_DECISION = "agentsec.control.decision"
 EVENT_LLM_STARTED = "agentsec.llm.started"
 EVENT_LLM_COMPLETED = "agentsec.llm.completed"
 EVENT_LLM_FAILED = "agentsec.llm.failed"
+EVENT_MCP_STARTED = "agentsec.mcp.started"
+EVENT_MCP_COMPLETED = "agentsec.mcp.completed"
+EVENT_MCP_FAILED = "agentsec.mcp.failed"
 EVENT_PIPELINE_STOPPED = "agentsec.pipeline.stopped"
 
 
@@ -71,6 +74,8 @@ class RunContext:
     last_agent_id: str | None = None
     last_agent_name: str | None = None
     last_hop_span_id: str | None = None
+    workflow_entry: str = LOAN_WORKFLOW_ENTRY
+    workflow_name: str = LOAN_WORKFLOW_NAME
 
     @classmethod
     def mint(
@@ -79,6 +84,8 @@ class RunContext:
         user_id: str,
         testbed_mode: str,
         attack_id: str,
+        workflow_entry: str = LOAN_WORKFLOW_ENTRY,
+        workflow_name: str = LOAN_WORKFLOW_NAME,
     ) -> "RunContext":
         run_id = uuid4()
         return cls(
@@ -90,6 +97,8 @@ class RunContext:
             testbed_mode=testbed_mode,
             attack_id=attack_id,
             technique_id=technique_id_for(attack_id),
+            workflow_entry=workflow_entry,
+            workflow_name=workflow_name,
         )
 
     def next_sequence(self) -> int:
@@ -118,8 +127,8 @@ def _base_event(ctx: RunContext, settings: Settings, span_id: str) -> dict[str, 
         "agentsec.sequence": ctx.next_sequence(),
         "agentsec.principal.id": ctx.user_id,
         "agentsec.principal.type": "user",
-        "agentsec.workflow.entry": WORKFLOW_ENTRY,
-        "gen_ai.workflow.name": WORKFLOW_NAME,
+        "agentsec.workflow.entry": ctx.workflow_entry,
+        "gen_ai.workflow.name": ctx.workflow_name,
         "agentsec.attack.id": ctx.attack_id,
     }
     if ctx.technique_id:
@@ -252,6 +261,10 @@ class EventEmitter:
         influence_kind: str,
         delegator_agent_id: str | None,
         error_stage: str | None = None,
+        tool_name: str | None = None,
+        mcp_method: str | None = None,
+        requested_scope: str | None = None,
+        allowed_scope: str | None = None,
     ) -> dict[str, Any]:
         span_id = new_span_id()
         event = _base_event(self.ctx, self.settings, span_id)
@@ -276,6 +289,14 @@ class EventEmitter:
         event["agentsec.content.influence.kind"] = influence_kind
         if error_stage:
             event["agentsec.error.stage"] = error_stage
+        if tool_name is not None:
+            event["gen_ai.tool.name"] = tool_name
+        if mcp_method is not None:
+            event["mcp.method.name"] = mcp_method
+        if requested_scope is not None:
+            event["agentsec.mcp.requested_scope"] = requested_scope
+        if allowed_scope is not None:
+            event["agentsec.mcp.allowed_scope"] = allowed_scope
         _with_hop_identity(
             event,
             hop_index=hop_index,
@@ -381,6 +402,116 @@ class EventEmitter:
         event["agentsec.error.stage"] = "llm_invocation"
         event["agentsec.error.message"] = error_message[:500]
         event["agentsec.trust_boundary"] = "acmebank.llm_call"
+        _with_hop_identity(
+            event,
+            hop_index=hop_index,
+            agent_id=agent_id,
+            agent_name=agent_name,
+            delegator_agent_id=delegator_agent_id,
+        )
+        return self._emit(event)
+
+    def mcp_started(
+        self,
+        *,
+        hop_index: int,
+        agent_id: str,
+        agent_name: str,
+        hop_span_id: str,
+        mcp_span_id: str,
+        tool_name: str,
+        delegator_agent_id: str | None,
+    ) -> dict[str, Any]:
+        event = _base_event(self.ctx, self.settings, mcp_span_id)
+        event["event.name"] = EVENT_MCP_STARTED
+        event["parent_span_id"] = hop_span_id
+        event["agentsec.operation.type"] = "mcp_tool_invoke"
+        event["agentsec.span.kind"] = "mcp_tool_invoke"
+        event["gen_ai.operation.name"] = "execute_tool"
+        event["gen_ai.tool.name"] = tool_name
+        event["mcp.method.name"] = "tools/call"
+        event["agentsec.operation.attempted"] = True
+        event["agentsec.operation.executed"] = True
+        event["agentsec.trust_boundary"] = "mcp.tool.execute"
+        _with_hop_identity(
+            event,
+            hop_index=hop_index,
+            agent_id=agent_id,
+            agent_name=agent_name,
+            delegator_agent_id=delegator_agent_id,
+        )
+        return self._emit(event)
+
+    def mcp_completed(
+        self,
+        *,
+        hop_index: int,
+        agent_id: str,
+        agent_name: str,
+        hop_span_id: str,
+        mcp_span_id: str,
+        tool_name: str,
+        duration_ms: int,
+        result_text: str,
+        delegator_agent_id: str | None,
+    ) -> dict[str, Any]:
+        event = _base_event(self.ctx, self.settings, mcp_span_id)
+        event["event.name"] = EVENT_MCP_COMPLETED
+        event["parent_span_id"] = hop_span_id
+        event["agentsec.operation.type"] = "mcp_tool_invoke"
+        event["agentsec.span.kind"] = "mcp_tool_invoke"
+        event["gen_ai.operation.name"] = "execute_tool"
+        event["gen_ai.tool.name"] = tool_name
+        event["mcp.method.name"] = "tools/call"
+        event["agentsec.operation.attempted"] = True
+        event["agentsec.operation.executed"] = True
+        event["agentsec.operation.outcome"] = "success"
+        event["agentsec.duration_ms"] = duration_ms
+        event["agentsec.trust_boundary"] = "mcp.tool.result"
+        event["agentsec.mcp.result.trust"] = "untrusted_data"
+        event["agentsec.mcp.result.provenance"] = "mcp.tool.handler"
+        event["agentsec.content.preview"] = content_preview(result_text)
+        event["agentsec.content.hash"] = content_hash(result_text)
+        event["agentsec.content.origin.type"] = "agent"
+        event["agentsec.content.origin.id"] = agent_id
+        event["agentsec.content.influence.kind"] = "tool_request"
+        _with_hop_identity(
+            event,
+            hop_index=hop_index,
+            agent_id=agent_id,
+            agent_name=agent_name,
+            delegator_agent_id=delegator_agent_id,
+        )
+        return self._emit(event)
+
+    def mcp_failed(
+        self,
+        *,
+        hop_index: int,
+        agent_id: str,
+        agent_name: str,
+        hop_span_id: str,
+        mcp_span_id: str,
+        tool_name: str,
+        error_type: str,
+        error_message: str,
+        delegator_agent_id: str | None,
+    ) -> dict[str, Any]:
+        event = _base_event(self.ctx, self.settings, mcp_span_id)
+        event["event.name"] = EVENT_MCP_FAILED
+        event["parent_span_id"] = hop_span_id
+        event["agentsec.operation.type"] = "mcp_tool_invoke"
+        event["agentsec.span.kind"] = "mcp_tool_invoke"
+        event["gen_ai.operation.name"] = "execute_tool"
+        event["gen_ai.tool.name"] = tool_name
+        event["mcp.method.name"] = "tools/call"
+        event["agentsec.operation.attempted"] = True
+        event["agentsec.operation.executed"] = True
+        event["agentsec.operation.outcome"] = "error"
+        event["error.type"] = error_type
+        event["agentsec.error.stage"] = "mcp_invocation"
+        event["agentsec.error.message"] = error_message[:500]
+        event["agentsec.trust_boundary"] = "mcp.tool.execute"
         _with_hop_identity(
             event,
             hop_index=hop_index,

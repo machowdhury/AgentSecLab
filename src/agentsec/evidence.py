@@ -27,6 +27,10 @@ def write_evidence_bundle(
     llm_call_count: int,
     blocked: bool,
     terminal: str,
+    extra_manifest: dict[str, Any] | None = None,
+    request_doc: dict[str, Any] | None = None,
+    extra_result: dict[str, Any] | None = None,
+    limitations_items: list[str] | None = None,
     export_report: ExportReport | None = None,
 ) -> Path:
     root = settings.artifacts_dir / run_id
@@ -48,6 +52,11 @@ def write_evidence_bundle(
         }
         if hop.index >= 1:
             row["delegator.agent.id"] = hop.delegator_agent_id
+        if getattr(hop, "mcp_started", None) is not None:
+            row["mcp.started"] = hop.mcp_started
+            row["mcp.completed"] = hop.mcp_completed
+            row["mcp.failed"] = hop.mcp_failed
+            row["handler.invoked"] = hop.handler_invoked
         hop_rows.append(row)
 
     events_path = root / "events.jsonl"
@@ -65,7 +74,7 @@ def write_evidence_bundle(
         control_result = {"decision": "ERROR", "reason": "schema_validation"}
 
     llm_completed_count = sum(1 for event in events if event.get("event.name") == "agentsec.llm.completed")
-    llm_invoked_count = sum(1 for hop in hop_rows if hop["operation.executed"] is True)
+    llm_invoked_count = sum(1 for hop in hop_rows if hop["llm.started"] is True)
 
     manifest = {
         "schema.name": SCHEMA_NAME,
@@ -90,46 +99,45 @@ def write_evidence_bundle(
         "evidence.class": "OBSERVED",
         "evidence.class.scope": "local_runtime_and_events_jsonl; Splunk not verified by runtime",
         "splunk.validated": False,
-        "workflow.entry": "/process",
+        "workflow.entry": extra_manifest.get("workflow.entry", "/process") if extra_manifest else "/process",
         "runtime.authoritative": True,
     }
+    if extra_manifest:
+        manifest.update(extra_manifest)
     (root / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
-    request_doc = {
-        "input.length": len(user_input),
-        "input.hash": content_hash(user_input) if user_input else content_hash(""),
-        "input.preview": content_preview(user_input),
-    }
+    if request_doc is None:
+        request_doc = {
+            "input.length": len(user_input),
+            "input.hash": content_hash(user_input) if user_input else content_hash(""),
+            "input.preview": content_preview(user_input),
+        }
     (root / "request.json").write_text(json.dumps(request_doc, indent=2) + "\n", encoding="utf-8")
 
-    (root / "result.json").write_text(
-        json.dumps(
-            {
-                "run.id": run_id,
-                "incident.id": incident_id,
-                "blocked": blocked,
-                "terminal": terminal,
-                "hops": hop_rows,
-            },
-            indent=2,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
+    result_body: dict[str, Any] = {
+        "run.id": run_id,
+        "incident.id": incident_id,
+        "blocked": blocked,
+        "terminal": terminal,
+        "hops": hop_rows,
+    }
+    if extra_result:
+        result_body.update(extra_result)
+    (root / "result.json").write_text(json.dumps(result_body, indent=2) + "\n", encoding="utf-8")
 
     report = export_report or ExportReport.not_attempted()
     export_doc = report.to_export_doc()
     (root / "export.json").write_text(json.dumps(export_doc, indent=2) + "\n", encoding="utf-8")
 
-    limitations = {
-        "items": [
+    if limitations_items is None:
+        limitations_items = [
             "CTRL-INPUT-001 is a lightweight lab reference control, not production prompt-injection protection.",
             "Stub-LLM tests prove deterministic control placement. Live Ollama wording is nondeterministic.",
             "Runtime never sets collector.observed, hec.ok, or splunk.verified. otlp.ok is SDK flush only.",
             "Default evidence stores sanitized preview (<=200) plus SHA-256 hash, not complete prompts.",
             "operation.executed=true means the governed LLM call began, not that it succeeded.",
-            "No MCP, A2A, memory, RAG, MLTK, Cisco overlay, or attack chains in this slice.",
+            "No A2A, memory, RAG, MLTK, Cisco overlay, or attack chains in this slice.",
         ]
-    }
+    limitations = {"items": limitations_items}
     (root / "limitations.json").write_text(json.dumps(limitations, indent=2) + "\n", encoding="utf-8")
     return root
