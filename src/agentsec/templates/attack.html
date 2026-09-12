@@ -4,13 +4,27 @@
   <meta charset="utf-8">
   <title>Attack Service — AgentSec</title>
   <style>
-    body { font-family: Georgia, serif; background: #F6F8FB; color: #17202A; margin: 0; }
-    header { background: #0B1F33; color: #fff; padding: 1rem 1.5rem; }
+    :root {
+      --bg-page: #F6F8FB;
+      --bg-panel: #FFFFFF;
+      --text-primary: #17202A;
+      --chrome-navy: #0B1F33;
+      --state-critical: #C62828;
+      --border: #D9E0E7;
+      --accent-teal: #007F86;
+    }
+    body { font-family: system-ui, "Segoe UI", sans-serif; background: var(--bg-page); color: var(--text-primary); margin: 0; line-height: 1.45; }
+    header { background: var(--chrome-navy); color: #fff; padding: 1rem 1.5rem; }
     main { max-width: 760px; margin: 1.5rem auto; padding: 0 1rem; }
-    .card { background: #fff; border: 1px solid #D9E0E7; padding: 1rem 1.25rem; }
-    button { background: #C62828; color: #fff; border: 0; padding: .5rem 1rem; cursor: pointer; }
-    pre { white-space: pre-wrap; background: #F6F8FB; padding: .75rem; }
-    .meta { color: #5B6573; font-size: .9rem; }
+    .card { background: var(--bg-panel); border: 1px solid var(--border); padding: 1rem 1.25rem; }
+    button {
+      background: var(--state-critical); color: #fff; border: 0; padding: .75rem 1.25rem;
+      cursor: pointer; min-height: 44px; font: inherit; font-weight: 600;
+    }
+    button:focus-visible { outline: 2px solid var(--accent-teal); outline-offset: 2px; }
+    pre { white-space: pre-wrap; background: var(--bg-page); padding: .75rem; font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .meta { color: #fff; font-size: 1rem; opacity: 0.92; }
+    .label { font-weight: 700; }
   </style>
 </head>
 <body>
@@ -20,10 +34,10 @@
   </header>
   <main>
     <div class="card">
-      <p><strong>{{ attack.attack_id }}</strong> — {{ attack.name }}</p>
+      <p><span class="label">{{ attack.attack_id }}</span> — {{ attack.name }}</p>
       <p>Technique {{ attack.technique_id }}. Expected in defended: {{ attack.expected_defended }}</p>
       <p>This service only HTTP-POSTs to AcmeBank. It does not call Ollama.</p>
-      <p><button id="fire">Fire ATK-002</button></p>
+      <p><button id="fire" type="button">Fire ATK-002</button></p>
       <pre id="result">No attack fired yet.</pre>
     </div>
   </main>

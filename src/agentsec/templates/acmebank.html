@@ -4,15 +4,29 @@
   <meta charset="utf-8">
   <title>AcmeBank — AgentSec</title>
   <style>
-    body { font-family: Georgia, serif; background: #F6F8FB; color: #17202A; margin: 0; }
-    header { background: #0B1F33; color: #fff; padding: 1rem 1.5rem; }
+    :root {
+      --bg-page: #F6F8FB;
+      --bg-panel: #FFFFFF;
+      --text-primary: #17202A;
+      --text-secondary: #3D4654;
+      --chrome-navy: #0B1F33;
+      --accent-teal: #007F86;
+      --border: #D9E0E7;
+    }
+    body { font-family: system-ui, "Segoe UI", sans-serif; background: var(--bg-page); color: var(--text-primary); margin: 0; line-height: 1.45; }
+    header { background: var(--chrome-navy); color: #fff; padding: 1rem 1.5rem; }
     main { max-width: 760px; margin: 1.5rem auto; padding: 0 1rem; }
-    .card { background: #fff; border: 1px solid #D9E0E7; padding: 1rem 1.25rem; margin-bottom: 1rem; }
-    label { display: block; margin-bottom: .4rem; }
-    textarea { width: 100%; min-height: 8rem; }
-    button { background: #007F86; color: #fff; border: 0; padding: .5rem 1rem; cursor: pointer; }
-    pre { white-space: pre-wrap; background: #F6F8FB; padding: .75rem; }
-    .meta { color: #5B6573; font-size: .9rem; }
+    .card { background: var(--bg-panel); border: 1px solid var(--border); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    label { display: block; margin-bottom: .4rem; font-weight: 600; }
+    textarea { width: 100%; min-height: 8rem; font: inherit; }
+    button {
+      background: var(--accent-teal); color: #fff; border: 0; padding: .75rem 1.25rem;
+      cursor: pointer; min-height: 44px; font: inherit; font-weight: 600;
+    }
+    button:focus-visible { outline: 2px solid var(--accent-teal); outline-offset: 2px; }
+    a:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent-teal); outline-offset: 2px; }
+    pre { white-space: pre-wrap; background: var(--bg-page); padding: .75rem; font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .meta { color: #fff; font-size: 1rem; opacity: 0.92; }
   </style>
 </head>
 <body>

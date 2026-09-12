@@ -1,18 +1,23 @@
-# Query definitions for AgentSec Phase 2.
-# These have NOT been executed against a live Splunk instance in this repository.
-# Use local Python reconstruction (agentsec.detections) until a lab run validates them.
-# Field semantics: SECURITY_EVENT_MODEL.md (Phase 1B). testbed.mode is BASELINE|ATTACK|RETEST.
-# Splunk is corroborating only. Absence of llm.* is not DENY proof by itself.
+# AgentSec Splunk app
 
-## Q-RUN
-Question: Did this run.id produce events?
-Fields: agentsec.run.id, agentsec.incident.id, agentsec.schema.version
-SPL (unvalidated):
-  `agentsec_index` "agentsec.run.id"=<uuid>
+App id: `agentsec`  
+Index: `agentsec_telemetry`  
+Sourcetype: `otel:agentic:json`
 
-## Q-DENY
-Question: Was inference prevented before invocation for this run?
-Fields: agentsec.control.decision, agentsec.operation.attempted, agentsec.operation.executed, agentsec.operation.outcome, agentsec.testbed.mode
-Note: Filter ATTACK or RETEST. Do not use testbed.mode=LIVE. Runtime + complete local evidence are authoritative.
-SPL (unvalidated):
-  `agentsec_index` "agentsec.control.decision"=DENY "agentsec.operation.executed"=false "agentsec.operation.outcome"=prevented "agentsec.testbed.mode"=ATTACK
+## What is packaged
+
+- `macros.conf` — `` `agentsec_index` `` (index + sourcetype). Phase 2C.1 validated searches still hardcode those values; the dashboard reuses those files, not this macro.
+- `props.conf` — JSON extraction for `otel:agentic:json`.
+- `indexes.conf` — `agentsec_telemetry`.
+- `views/ws_lab_pi_001.xml` — Dashboard Studio workshop for LAB-PI-001 (GRID tabs).
+- `savedsearches.conf` — **disabled placeholders** `Q-RUN` / `Q-DENY`. They are not the validated lab searches and are not this dashboard.
+
+## LOCAL Docker
+
+Do not copy this directory by hand. `./scripts/lab-up.sh` stages it into named volume `splunk_app_agentsec`. See `docs/LOCAL_DOCKER_LAB.md`.
+
+## EXTERNAL Splunk
+
+Install this folder (or a tarball of it) with the Splunk deployment mechanism you already use. Point the collector at your HEC endpoint/token/index. The local compose init container is not part of that path.
+
+Studio source of truth: `learning/level_1/LAB-PI-001/dashboard.definition.json`. Rebuild: `python scripts/build_lab_pi_001_dashboard.py`.

@@ -33,7 +33,12 @@ if ollama list | grep -q "$MODEL"; then
     echo "[ollama_init] Model '$MODEL' already present"
 else
     echo "[ollama_init] Pulling model '$MODEL'..."
-    ollama pull "$MODEL"
+    if ollama pull "$MODEL"; then
+        echo "[ollama_init] Model '$MODEL' pulled."
+    else
+        echo "[ollama_init] WARNING: could not pull '$MODEL'. API stays up; AcmeBank LLM calls will fail until a model exists."
+        echo "[ollama_init] Host Ollama on 11434 is a valid fallback via OLLAMA_BASE_URL=http://host.docker.internal:11434"
+    fi
 fi
 
 echo "[ollama_init] Ready."

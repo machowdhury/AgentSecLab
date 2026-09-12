@@ -27,7 +27,7 @@ Use absolute layout only when specifically justified.
 
 Background: #F6F8FB
 Primary text: #17202A
-Secondary text: #5B6573
+Secondary text: #3D4654 (do not use #5B6573 for captions; fails AA on #F6F8FB)
 Primary navy: #0B1F33
 Accent teal: #007F86
 Success: #2E7D32

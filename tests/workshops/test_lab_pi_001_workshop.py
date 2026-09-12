@@ -40,6 +40,7 @@ REQUIRED_FILES = (
     LAB_DIR / "workshop.md",
     LAB_DIR / "evidence-requirements.md",
     LAB_DIR / "knowledge-check.md",
+    LAB_DIR / "dashboard.md",
 )
 
 
@@ -51,6 +52,8 @@ def test_workshop_files_exist():
     for path in REQUIRED_FILES:
         assert path.is_file(), path
     assert (LAB_DIR / "searches" / "catalog.json").is_file()
+    assert (LAB_DIR / "dashboard.definition.json").is_file()
+    assert (LAB_DIR / "dashboard.md").is_file()
 
 
 def test_workshop_flow_headings_in_order():
@@ -94,10 +97,24 @@ def test_validated_run_ids_and_attack_mode_honesty():
     blob = _lab_text()
     assert "b3611d56-0d3f-4b2e-9a51-75ae36628155" in blob
     assert "78f05d1b-728e-4e70-8993-f5e365871f87" in blob
-    assert "testbed.mode=ATTACK" in blob or "`ATTACK`" in blob
+    assert "f39fed12-de89-45ba-b684-5b6077942580" in blob
+    assert "bbe75cb8-0190-47d6-86be-5feba58ad5c0" in blob
     workshop = (LAB_DIR / "workshop.md").read_text(encoding="utf-8")
     retest = workshop.split("## RETEST", 1)[1].split("## COMPARE", 1)[0]
-    assert "not `RETEST`" in retest or "not env `RETEST`" in retest
+    assert "bbe75cb8-0190-47d6-86be-5feba58ad5c0" in retest
+    assert "`testbed.mode=ATTACK`" in retest or "**`testbed.mode=ATTACK`**" in retest
+    assert "must not be described as RETEST" in retest
+    compare = workshop.split("## COMPARE", 1)[1].split("## PROVE", 1)[0]
+    assert "BASELINE" in compare and "VULNERABLE ATTACK" in compare and "DEFENDED RETEST" in compare
+    assert "b3611d56" in compare and "f39fed12" in compare and "bbe75cb8" in compare
+    assert "78f05d1b" in compare
+    assert "Do not relabel" in compare
+    assert "benign request" in compare
+    assert "fail-open" in compare
+    assert "DENY before invocation" in compare
+    assert "0 LLM executions" in compare
+    assert "ws_lab_pi_001" in blob
+    assert "dashboard.definition.json" in (LAB_DIR / "dashboard.md").read_text(encoding="utf-8")
     assert "3367455f" in blob
     assert "never exported" in blob.lower() or "were never exported" in blob
 

@@ -8,7 +8,9 @@
   "run_id_token": "__RUN_ID__",
   "validated_runs": {
     "BASELINE": "b3611d56-0d3f-4b2e-9a51-75ae36628155",
-    "DEFENDED_ATK-002": "78f05d1b-728e-4e70-8993-f5e365871f87"
+    "VULNERABLE_ATK-002": "f39fed12-de89-45ba-b684-5b6077942580",
+    "DEFENDED_ATK-002": "78f05d1b-728e-4e70-8993-f5e365871f87",
+    "DEFENDED_ATK-002_RETEST": "bbe75cb8-0190-47d6-86be-5feba58ad5c0"
   },
   "validation_date": "2026-09-11",
   "prohibited_fields": [
