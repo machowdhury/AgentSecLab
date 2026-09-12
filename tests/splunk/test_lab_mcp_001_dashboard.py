@@ -153,11 +153,11 @@ def test_datasources_are_validated_spl_with_token_bind_only():
         bound = spl.replace("__RUN_ID__", f'"${token}$"')
         assert definition["dataSources"][ds_id]["options"]["query"] == bound, ds_id
         assert definition["dataSources"][ds_id]["type"] == "ds.search"
-    sim = catalog["positive_control"]
-    sim_spl = (SEARCH_DIR / sim["spl_file"]).read_text(encoding="utf-8").strip()
-    assert definition["dataSources"]["ds_q_after_deny_sim"]["options"]["query"] == sim_spl
+    det_sim = catalog["detection"]["positive_control"]
+    det_sim_spl = (SEARCH_DIR / det_sim["spl_file"]).read_text(encoding="utf-8").strip()
+    assert definition["dataSources"]["ds_det_mcp_001_sim"]["options"]["query"] == det_sim_spl
     extra = {
-        "ds_q_after_deny_sim",
+        "ds_det_mcp_001_sim",
         "ds_observe_seq",
         "ds_what_identity",
         "ds_what_decision",
@@ -232,9 +232,12 @@ def test_no_detections_and_security_semantics():
     assert "alert.track" not in lowered
     assert "ds.savedsearch" not in lowered
     assert "ds.mltk" not in lowered
-    assert "not a detection" in lowered
+    assert "does not enable" in lowered
+    assert "det-mcp-001" in lowered
     assert "simulated" in lowered
     assert "makeresults" in lowered
+    assert "Q-MCP-AFTER-DENY-POSITIVE-CONTROL" in blob
+    assert "DET-MCP-001-POSITIVE-CONTROL" in blob
     for query_id in REQUIRED_IDS:
         assert query_id in blob
     assert "Q-MCP-AFTER-DENY-POSITIVE-CONTROL" in blob

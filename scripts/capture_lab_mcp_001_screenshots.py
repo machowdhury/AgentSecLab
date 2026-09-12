@@ -69,6 +69,11 @@ def main() -> int:
         help="Directory for PNG + validation JSON",
     )
     parser.add_argument("--label", default="pass1", help="Filename prefix")
+    parser.add_argument(
+        "--tabs",
+        default="",
+        help="Comma-separated tab names to capture (default: all 10)",
+    )
     args = parser.parse_args()
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -84,6 +89,7 @@ def main() -> int:
         print("ERROR: SPLUNK_PASSWORD missing from .env", file=sys.stderr)
         return 2
 
+    tabs = tuple(t.strip().upper() for t in args.tabs.split(",") if t.strip()) or TABS
     report: dict = {
         "url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_mcp_001",
         "tabs_found": [],
@@ -93,6 +99,7 @@ def main() -> int:
         "token_values": {},
         "screenshots": [],
         "label": args.label,
+        "tabs_requested": list(tabs),
     }
 
     with sync_playwright() as p:
@@ -126,7 +133,7 @@ def main() -> int:
             else:
                 report["tokens_missing"].append(token)
 
-        for tab in TABS:
+        for tab in tabs:
             loc = page.get_by_role("tab", name=tab)
             if loc.count() == 0:
                 loc = page.get_by_text(tab, exact=True)
@@ -162,7 +169,7 @@ def main() -> int:
             indent=2,
         )
     )
-    if report["tabs_missing"] or report["tokens_missing"] or len(report["tabs_found"]) != 10:
+    if report["tabs_missing"] or report["tokens_missing"] or len(report["tabs_found"]) != len(tabs):
         return 1
     return 0
 

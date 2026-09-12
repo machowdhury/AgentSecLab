@@ -24,6 +24,12 @@ Not a scored LMS. Not certification. Answers use Phase 3B / 3C facts only.
 
 10. Is the DETECT right-hand table OBSERVED runtime evidence?
 
+11. Why is DENY alone not a DET-MCP-001 alert?
+
+12. Why is `mcp.failed` after ALLOW not the same condition as DET-MCP-001?
+
+13. Does DET-MCP-001 enforce MCP authorization?
+
 ## Answers
 
 1. The tool is **registered** (known) but **not granted** to `acme-agent-mcp-001`. Known-ungranted is an authorization failure → **DENY** (`tool_not_granted`). ERROR is reserved for unknown tools, malformed arguments, and control-evaluation failures.
@@ -44,7 +50,13 @@ Not a scored LMS. Not certification. Answers use Phase 3B / 3C facts only.
 
 9. No indexed DENY-then-mcp sequence was found for that `run.id`. On a complete copy of RETEST that matches local events, it corroborates the contract. It does not independently prove the runtime never invoked the handler.
 
-10. No. Q-MCP-AFTER-DENY-POSITIVE-CONTROL is **SIMULATED** `| makeresults`. It was not indexed. It is not OBSERVED runtime.
+10. No. The DETECT right-hand table is **SIMULATED** `| makeresults` (`DET-MCP-001-POSITIVE-CONTROL`). It was not indexed. It is not OBSERVED runtime. The hunt fixture `Q-MCP-AFTER-DENY-POSITIVE-CONTROL` is also SIMULATED.
+
+11. DENY with no later `mcp.started` is the control working (RETEST). The detection asks whether execution began **after** DENY, not whether a DENY happened.
+
+12. `mcp.failed` after ALLOW means the handler **began** and then errored. There was no DENY. DET-MCP-001 requires DENY then later `mcp.started` for the same run/tool.
+
+13. No. CTRL-MCP-001 enforces authorization in AcmeBank before the handler. DET-MCP-001 reads a Splunk copy after the fact. Splunk does not ALLOW or DENY the tool.
 
 ## Common wrong answers (do not teach these)
 

@@ -200,7 +200,6 @@ def build() -> dict:
     q_params = bind_run_id(load_spl("Q-MCP-PARAMS.spl"), "run_id")
     q_executed = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "run_id")
     q_after = bind_run_id(load_spl("Q-MCP-AFTER-DENY.spl"), "run_id")
-    q_sim = load_spl("Q-MCP-AFTER-DENY-POSITIVE-CONTROL.spl")
     q_result = bind_run_id(load_spl("Q-MCP-RESULT.spl"), "run_id")
     q_trust = bind_run_id(load_spl("Q-MCP-RESULT-TRUST.spl"), "run_id")
     q_authz_b = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "baseline_run_id")
@@ -222,7 +221,11 @@ def build() -> dict:
             search_ds("ds_q_params", "Q-MCP-PARAMS", q_params),
             search_ds("ds_q_executed", "Q-MCP-EXECUTED", q_executed),
             search_ds("ds_q_after_deny", "Q-MCP-AFTER-DENY", q_after),
-            search_ds("ds_q_after_deny_sim", "Q-MCP-AFTER-DENY-POSITIVE-CONTROL", q_sim),
+            search_ds(
+                "ds_det_mcp_001_sim",
+                "DET-MCP-001-POSITIVE-CONTROL",
+                load_spl("DET-MCP-001-POSITIVE-CONTROL.spl"),
+            ),
             search_ds("ds_q_result", "Q-MCP-RESULT", q_result),
             search_ds("ds_q_result_trust", "Q-MCP-RESULT-TRUST", q_trust),
             search_ds("ds_observe_seq", "MCP observe sequence", observe_sequence_spl("run_id")),
@@ -559,33 +562,36 @@ If Splunk is empty, check `artifacts/<run-id>/export.json`. Do not conclude DENY
     add_md(
         "viz_detect_md",
         """
-# DETECT — contract hunt, not a shipped detection
+# DETECT — investigation hunt and one operational detection
 
-No notable event. No saved alert. No DET-001.
+No notable event. No ES notable. No automatic remediation.
 
-**Invariant:** a DENY, then a later `mcp.started` / `mcp.completed` / `mcp.failed` for the **same run and tool**, would violate authorization-before-handler.
+**Invariant:** if CTRL-MCP-001 returns DENY for a run/tool, no later `mcp.started` may occur for that same run/tool (`sequence` greater than the DENY).
 
-Left table: `Q-MCP-AFTER-DENY` on Hunt run.id (indexed). Validated real specimens: **0** violations.
+## HUNT vs DETECTION
 
-Zero rows means no indexed violation was found. It does **not** independently prove the handler never executed.
+- **HUNT** (`Q-MCP-AFTER-DENY` on Hunt run.id): asks whether the violation occurred in this copy. Left table. Validated LIVE specimens: **0** rows. Zero rows is not independent proof the handler never ran.
+- **DETECTION** (`DET-MCP-001`, saved search `AgentSec - MCP Execution After Authorization Deny`): continuously checks the same invariant across the index window. Severity **HIGH** because authorization already denied and execution nevertheless began. Packaged **disabled**. This dashboard does **not** enable it. It did **not** fire on the validated LIVE runs.
 
-Right table: `Q-MCP-AFTER-DENY-POSITIVE-CONTROL` — **SIMULATED** `| makeresults`. Not indexed. Not an AcmeBank run. Not OBSERVED runtime evidence.
+DENY alone is not an alert. ALLOW (including labeled fail-open) is not this detection. `mcp.failed` after ALLOW is execution then error, not DENY-then-start. ERROR is not DENY. Splunk detects a copy of a violation; it does not enforce authorization.
+
+Right table: `DET-MCP-001-POSITIVE-CONTROL` — **SIMULATED** `| makeresults` (DENY seq 3, `mcp.started` seq 4). Not indexed. Not an AcmeBank run. Not OBSERVED runtime evidence. Hunt fixture `Q-MCP-AFTER-DENY-POSITIVE-CONTROL` remains in `searches/` and is also SIMULATED.
 """,
         title="STEP 5 DETECT",
     )
     add_table(
         "viz_detect_live",
         "ds_q_after_deny",
-        "Q-MCP-AFTER-DENY (indexed)",
-        "Indexed invariant hunt. Validated specimens: 0 rows. Zero rows = no indexed violation found, not independent proof of non-execution.",
+        "Q-MCP-AFTER-DENY (indexed hunt)",
+        "Investigation query. Validated LIVE specimens: 0 rows. Zero rows = no indexed violation found, not independent proof of non-execution. DET-MCP-001 did not fire on those runs.",
         no_data=empty_after,
     )
     add_table(
         "viz_detect_sim",
-        "ds_q_after_deny_sim",
-        "Q-MCP-AFTER-DENY-POSITIVE-CONTROL (SIMULATED)",
-        "Always one fixture row labeled SIMULATED. Do not treat as a live incident. Not written to index=agentsec_telemetry. Not OBSERVED runtime evidence.",
-        no_data="SIMULATED search returned no fixture row. Re-check Q-MCP-AFTER-DENY-POSITIVE-CONTROL.spl (makeresults).",
+        "ds_det_mcp_001_sim",
+        "DET-MCP-001-POSITIVE-CONTROL (SIMULATED)",
+        "Always one fixture row labeled SIMULATED. Detection-shaped columns. Do not treat as a live incident. Not written to index=agentsec_telemetry. Not OBSERVED runtime evidence.",
+        no_data="SIMULATED search returned no fixture row. Re-check DET-MCP-001-POSITIVE-CONTROL.spl (makeresults).",
     )
 
     add_md(
@@ -821,7 +827,8 @@ Validated references: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST
         "title": "LAB-MCP-001 MCP tool authorization",
         "description": (
             "WS-MCP-001 Dashboard Studio workshop. Reuses validated Q-MCP investigation SPL. "
-            "Not a detection. Splunk does not ALLOW or DENY a tool."
+            "Saved search DET-MCP-001 is packaged disabled; this dashboard does not enable it. "
+            "Not a notable-event pack. Splunk does not ALLOW or DENY a tool."
         ),
         "defaults": {
             "visualizations": {
@@ -932,11 +939,11 @@ Validated references: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST
                 ),
                 "layout_detect": layout(
                     [
-                        block("viz_detect_md", 0, 0, FULL, 320),
-                        block("viz_detect_live", 0, 320, HALF, 400),
-                        block("viz_detect_sim", HALF, 320, HALF, 400),
+                        block("viz_detect_md", 0, 0, FULL, 420),
+                        block("viz_detect_live", 0, 420, HALF, 400),
+                        block("viz_detect_sim", HALF, 420, HALF, 400),
                     ],
-                    740,
+                    840,
                 ),
                 "layout_defend": layout([block("viz_defend", 0, 0, FULL, 520)], 540),
                 "layout_retest": layout(
@@ -992,7 +999,7 @@ def write_xml(definition: dict) -> None:
         '<?xml version="1.0" encoding="utf-8"?>\n'
         '<dashboard version="2" theme="light">\n'
         "  <label>LAB-MCP-001 MCP tool authorization</label>\n"
-        "  <description>WS-MCP-001. Validated Q-MCP SPL. Not a detection. Splunk does not ALLOW or DENY a tool.</description>\n"
+        "  <description>WS-MCP-001. Validated Q-MCP SPL. DET-MCP-001 packaged disabled. Not a notable-event pack. Splunk does not ALLOW or DENY a tool.</description>\n"
         "  <definition><![CDATA[\n"
         f"{payload}\n"
         "  ]]></definition>\n"

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dashboard version="2" theme="light">
   <label>LAB-MCP-001 MCP tool authorization</label>
-  <description>WS-MCP-001. Validated Q-MCP SPL. Not a detection. Splunk does not ALLOW or DENY a tool.</description>
+  <description>WS-MCP-001. Validated Q-MCP SPL. DET-MCP-001 packaged disabled. Not a notable-event pack. Splunk does not ALLOW or DENY a tool.</description>
   <definition><![CDATA[
 {
   "title": "LAB-MCP-001 MCP tool authorization",
-  "description": "WS-MCP-001 Dashboard Studio workshop. Reuses validated Q-MCP investigation SPL. Not a detection. Splunk does not ALLOW or DENY a tool.",
+  "description": "WS-MCP-001 Dashboard Studio workshop. Reuses validated Q-MCP investigation SPL. Saved search DET-MCP-001 is packaged disabled; this dashboard does not enable it. Not a notable-event pack. Splunk does not ALLOW or DENY a tool.",
   "defaults": {
     "visualizations": {
       "splunk.table": {
@@ -107,11 +107,11 @@
         "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval is_deny=if(event_name=\"agentsec.control.decision\" AND decision=\"DENY\",1,0)\n| eval is_mcp=if(match(event_name,\"^agentsec\\\\.mcp\\\\.\"),1,0)\n| eventstats min(eval(if(is_deny=1,sequence,null()))) as deny_seq, max(is_deny) as has_deny by run_id, tool\n| where has_deny=1 AND is_mcp=1 AND sequence>deny_seq\n| table run_id, tool, deny_seq, sequence, event_name, decision"
       }
     },
-    "ds_q_after_deny_sim": {
+    "ds_det_mcp_001_sim": {
       "type": "ds.search",
-      "name": "Q-MCP-AFTER-DENY-POSITIVE-CONTROL",
+      "name": "DET-MCP-001-POSITIVE-CONTROL",
       "options": {
-        "query": "| makeresults count=2\n| streamstats count as row\n| eval evidence_class=\"SIMULATED\"\n| eval \"agentsec.run.id\"=\"simulated-q-mcp-after-deny-0001\"\n| eval \"gen_ai.tool.name\"=\"lookup_customer_tier\"\n| eval \"event.name\"=if(row=1,\"agentsec.control.decision\",\"agentsec.mcp.started\")\n| eval \"agentsec.control.decision\"=if(row=1,\"DENY\",null())\n| eval \"agentsec.sequence\"=if(row=1,\"3\",\"4\")\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval is_deny=if(event_name=\"agentsec.control.decision\" AND decision=\"DENY\",1,0)\n| eval is_mcp=if(match(event_name,\"^agentsec\\\\.mcp\\\\.\"),1,0)\n| eventstats min(eval(if(is_deny=1,sequence,null()))) as deny_seq, max(is_deny) as has_deny by run_id, tool\n| where has_deny=1 AND is_mcp=1 AND sequence>deny_seq\n| table run_id, tool, deny_seq, sequence, event_name, decision, evidence_class"
+        "query": "| makeresults count=2\n| streamstats count as row\n| eval evidence_class=\"SIMULATED\"\n| eval \"agentsec.run.id\"=\"simulated-det-mcp-001-0001\"\n| eval \"gen_ai.tool.name\"=\"lookup_customer_tier\"\n| eval \"event.name\"=if(row=1,\"agentsec.control.decision\",\"agentsec.mcp.started\")\n| eval \"agentsec.control.decision\"=if(row=1,\"DENY\",null())\n| eval \"agentsec.sequence\"=if(row=1,\"3\",\"4\")\n| eval \"gen_ai.agent.id\"=\"acme-agent-mcp-001\"\n| eval \"agentsec.principal.id\"=\"applicant-web\"\n| eval \"agentsec.control.id\"=if(row=1,\"CTRL-MCP-001\",null())\n| eval \"agentsec.security.profile\"=\"defended\"\n| eval \"agentsec.testbed.mode\"=\"RETEST\"\n| eval \"agentsec.mcp.requested_scope\"=if(row=1,\"customer:read\",null())\n| eval \"agentsec.mcp.allowed_scope\"=if(row=1,\"policy:read\",null())\n| eval \"trace_id\"=\"simulated-trace-det-mcp-001\"\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval principal=mvindex(mvdedup('agentsec.principal.id'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval trace_id=mvindex(mvdedup('trace_id'),0)\n| eval is_deny=if(event_name=\"agentsec.control.decision\" AND decision=\"DENY\",1,0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eventstats min(eval(if(is_deny=1,sequence,null()))) as deny_sequence, max(is_deny) as has_deny, latest(eval(if(is_deny=1,agent,null()))) as agent, latest(eval(if(is_deny=1,principal,null()))) as principal, latest(eval(if(is_deny=1,control_id,null()))) as control_id, latest(eval(if(is_deny=1,profile,null()))) as profile, latest(eval(if(is_deny=1,mode,null()))) as mode, latest(eval(if(is_deny=1,requested_scope,null()))) as requested_scope, latest(eval(if(is_deny=1,allowed_scope,null()))) as allowed_scope, latest(eval(if(is_started=1,trace_id,null()))) as start_trace_id by run_id, tool\n| eval trace_id=coalesce(start_trace_id,trace_id)\n| where has_deny=1 AND is_started=1 AND sequence>deny_sequence\n| eval decision=\"DENY\"\n| eval mcp_start_sequence=sequence\n| table run_id, tool, agent, principal, control_id, decision, deny_sequence, mcp_start_sequence, profile, mode, requested_scope, allowed_scope, trace_id, evidence_class"
       }
     },
     "ds_q_result": {
@@ -651,7 +651,7 @@
     "viz_detect_md": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# DETECT — contract hunt, not a shipped detection\n\nNo notable event. No saved alert. No DET-001.\n\n**Invariant:** a DENY, then a later `mcp.started` / `mcp.completed` / `mcp.failed` for the **same run and tool**, would violate authorization-before-handler.\n\nLeft table: `Q-MCP-AFTER-DENY` on Hunt run.id (indexed). Validated real specimens: **0** violations.\n\nZero rows means no indexed violation was found. It does **not** independently prove the handler never executed.\n\nRight table: `Q-MCP-AFTER-DENY-POSITIVE-CONTROL` — **SIMULATED** `| makeresults`. Not indexed. Not an AcmeBank run. Not OBSERVED runtime evidence.\n",
+        "markdown": "# DETECT — investigation hunt and one operational detection\n\nNo notable event. No ES notable. No automatic remediation.\n\n**Invariant:** if CTRL-MCP-001 returns DENY for a run/tool, no later `mcp.started` may occur for that same run/tool (`sequence` greater than the DENY).\n\n## HUNT vs DETECTION\n\n- **HUNT** (`Q-MCP-AFTER-DENY` on Hunt run.id): asks whether the violation occurred in this copy. Left table. Validated LIVE specimens: **0** rows. Zero rows is not independent proof the handler never ran.\n- **DETECTION** (`DET-MCP-001`, saved search `AgentSec - MCP Execution After Authorization Deny`): continuously checks the same invariant across the index window. Severity **HIGH** because authorization already denied and execution nevertheless began. Packaged **disabled**. This dashboard does **not** enable it. It did **not** fire on the validated LIVE runs.\n\nDENY alone is not an alert. ALLOW (including labeled fail-open) is not this detection. `mcp.failed` after ALLOW is execution then error, not DENY-then-start. ERROR is not DENY. Splunk detects a copy of a violation; it does not enforce authorization.\n\nRight table: `DET-MCP-001-POSITIVE-CONTROL` — **SIMULATED** `| makeresults` (DENY seq 3, `mcp.started` seq 4). Not indexed. Not an AcmeBank run. Not OBSERVED runtime evidence. Hunt fixture `Q-MCP-AFTER-DENY-POSITIVE-CONTROL` remains in `searches/` and is also SIMULATED.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -660,8 +660,8 @@
     },
     "viz_detect_live": {
       "type": "splunk.table",
-      "title": "Q-MCP-AFTER-DENY (indexed)",
-      "description": "Indexed invariant hunt. Validated specimens: 0 rows. Zero rows = no indexed violation found, not independent proof of non-execution.",
+      "title": "Q-MCP-AFTER-DENY (indexed hunt)",
+      "description": "Investigation query. Validated LIVE specimens: 0 rows. Zero rows = no indexed violation found, not independent proof of non-execution. DET-MCP-001 did not fire on those runs.",
       "dataSources": {
         "primary": "ds_q_after_deny"
       },
@@ -679,10 +679,10 @@
     },
     "viz_detect_sim": {
       "type": "splunk.table",
-      "title": "Q-MCP-AFTER-DENY-POSITIVE-CONTROL (SIMULATED)",
-      "description": "Always one fixture row labeled SIMULATED. Do not treat as a live incident. Not written to index=agentsec_telemetry. Not OBSERVED runtime evidence.",
+      "title": "DET-MCP-001-POSITIVE-CONTROL (SIMULATED)",
+      "description": "Always one fixture row labeled SIMULATED. Detection-shaped columns. Do not treat as a live incident. Not written to index=agentsec_telemetry. Not OBSERVED runtime evidence.",
       "dataSources": {
-        "primary": "ds_q_after_deny_sim"
+        "primary": "ds_det_mcp_001_sim"
       },
       "showProgressBar": true,
       "showLastUpdated": false,
@@ -693,7 +693,7 @@
         "backgroundColor": "#FFFFFF",
         "headerBackgroundColor": "#0B1F33",
         "headerTextColor": "#FFFFFF",
-        "noDataMessage": "SIMULATED search returned no fixture row. Re-check Q-MCP-AFTER-DENY-POSITIVE-CONTROL.spl (makeresults)."
+        "noDataMessage": "SIMULATED search returned no fixture row. Re-check DET-MCP-001-POSITIVE-CONTROL.spl (makeresults)."
       }
     },
     "viz_defend": {
@@ -1398,7 +1398,7 @@
           "display": "auto-scale",
           "gutterSize": 8,
           "width": 1440,
-          "height": 740
+          "height": 840
         },
         "structure": [
           {
@@ -1408,7 +1408,7 @@
               "x": 0,
               "y": 0,
               "w": 1440,
-              "h": 320
+              "h": 420
             }
           },
           {
@@ -1416,7 +1416,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 320,
+              "y": 420,
               "w": 720,
               "h": 400
             }
@@ -1426,7 +1426,7 @@
             "type": "block",
             "position": {
               "x": 720,
-              "y": 320,
+              "y": 420,
               "w": 720,
               "h": 400
             }
