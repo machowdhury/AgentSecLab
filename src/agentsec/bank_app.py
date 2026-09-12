@@ -19,6 +19,7 @@ from agentsec.telemetry import FanoutSink, MemorySink, OtlpSink
 logger = logging.getLogger("agentsec.acmebank")
 
 TEMPLATE_DIR = Path(__file__).resolve().parent / "templates"
+STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 
 @dataclass
@@ -47,7 +48,12 @@ def build_runtime(
 
 def create_app(runtime: LabRuntime | None = None) -> Flask:
     runtime = runtime or build_runtime()
-    app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
+    app = Flask(
+        __name__,
+        template_folder=str(TEMPLATE_DIR),
+        static_folder=str(STATIC_DIR),
+        static_url_path="/static",
+    )
     app.config["SECRET_KEY"] = runtime.settings.flask_secret_key
     app.config["AGENTSEC_RUNTIME"] = runtime
 

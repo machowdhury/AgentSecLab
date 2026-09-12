@@ -2,54 +2,189 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Attack Service — AgentSec</title>
-  <style>
-    :root {
-      --bg-page: #F6F8FB;
-      --bg-panel: #FFFFFF;
-      --text-primary: #17202A;
-      --chrome-navy: #0B1F33;
-      --state-critical: #C62828;
-      --border: #D9E0E7;
-      --accent-teal: #007F86;
-    }
-    body { font-family: system-ui, "Segoe UI", sans-serif; background: var(--bg-page); color: var(--text-primary); margin: 0; line-height: 1.45; }
-    header { background: var(--chrome-navy); color: #fff; padding: 1rem 1.5rem; }
-    main { max-width: 760px; margin: 1.5rem auto; padding: 0 1rem; }
-    .card { background: var(--bg-panel); border: 1px solid var(--border); padding: 1rem 1.25rem; }
-    button {
-      background: var(--state-critical); color: #fff; border: 0; padding: .75rem 1.25rem;
-      cursor: pointer; min-height: 44px; font: inherit; font-weight: 600;
-    }
-    button:focus-visible { outline: 2px solid var(--accent-teal); outline-offset: 2px; }
-    pre { white-space: pre-wrap; background: var(--bg-page); padding: .75rem; font-family: ui-monospace, Menlo, Consolas, monospace; }
-    .meta { color: #fff; font-size: 1rem; opacity: 0.92; }
-    .label { font-weight: 700; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Attack Service — ATK-002 Direct Prompt Injection</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
 </head>
 <body>
-  <header>
-    <h1>Attack Service</h1>
-    <p class="meta">AgentSec {{ version }} · untrusted client · ATK-002 only</p>
-  </header>
-  <main>
-    <div class="card">
-      <p><span class="label">{{ attack.attack_id }}</span> — {{ attack.name }}</p>
-      <p>Technique {{ attack.technique_id }}. Expected in defended: {{ attack.expected_defended }}</p>
-      <p>This service only HTTP-POSTs to AcmeBank. It does not call Ollama.</p>
-      <p><button id="fire" type="button">Fire ATK-002</button></p>
-      <pre id="result">No attack fired yet.</pre>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <div>
+        <p class="brand-kicker">AgentSec lab</p>
+        <h1>Attack Service</h1>
+        <p class="brand-sub">Security testing console</p>
+      </div>
+      <p class="header-meta">Untrusted HTTP client · {{ version }} · this console does not call Ollama</p>
     </div>
+  </header>
+  <main id="main">
+    <p class="lede">Run a single catalog technique against AcmeBank. Sending a request is not proof the attack succeeded, that a control allowed it, or that a model ran.</p>
+
+    <section class="card" aria-labelledby="technique-heading">
+      <h2 id="technique-heading">Technique</h2>
+      <dl class="facts">
+        <dt>Technique</dt>
+        <dd>{{ attack.name }}</dd>
+        <dt>Technique ID</dt>
+        <dd><code>{{ attack.technique_id }}</code></dd>
+        <dt>Attack ID</dt>
+        <dd><code>{{ attack.attack_id }}</code></dd>
+        <dt>Target</dt>
+        <dd>{{ target_name }} (this console posts to lab URL <code>{{ target_url }}</code>)</dd>
+        <dt>Security profile</dt>
+        <dd>Set on AcmeBank. This console cannot choose it. The response may include <code>profile</code>.</dd>
+        <dt>Execution mode</dt>
+        <dd>This console POSTs the catalog payload as <code>input</code> plus <code>user_id</code>. <code>testbed.mode</code> is assigned by AcmeBank.</dd>
+        <dt>Expected when defended</dt>
+        <dd>{{ attack.expected_defended }}</dd>
+      </dl>
+      <h3>Payload preview</h3>
+      <pre class="payload" id="payload-preview">{{ attack.payload }}</pre>
+      <div class="actions">
+        <button class="btn btn-danger" id="fire" type="button">Run ATK-002</button>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="result-heading">
+      <h2 id="result-heading">Execution</h2>
+      <div class="status-row">
+        <span class="status" id="ui-status" data-state="READY">READY</span>
+        <p class="muted" id="status-live" aria-live="polite">Ready to run ATK-002.</p>
+      </div>
+      <div id="run-id-block" hidden>
+        <label for="run-id">run.id</label>
+        <div class="run-id-row">
+          <input id="run-id" readonly value="" spellcheck="false">
+          <button class="btn btn-secondary" id="copy-run-id" type="button">Copy run.id</button>
+        </div>
+      </div>
+      <ul class="fact-list" id="fact-list">
+        <li>No request has been sent yet. Empty is not DENY.</li>
+      </ul>
+      <h3>Investigation guidance</h3>
+      <p class="muted">Hunt the <code>run.id</code> in Splunk with LAB-PI-001. Splunk does not ALLOW or DENY the loan. Absence of <code>llm.*</code> is not prevention without local completeness.</p>
+      <details class="secondary" id="tech-details" hidden>
+        <summary>Response body</summary>
+        <pre class="result-pre" id="result-json"></pre>
+      </details>
+    </section>
   </main>
+  <script src="{{ url_for('static', filename='agentsec-ui.js') }}"></script>
   <script>
-    document.getElementById("fire").addEventListener("click", async () => {
-      const response = await fetch("/api/attacks/ATK-002", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({})
+    const ui = window.AgentSecUI;
+    const button = document.getElementById("fire");
+    const statusEl = document.getElementById("ui-status");
+    const liveEl = document.getElementById("status-live");
+    const factsEl = document.getElementById("fact-list");
+    const jsonEl = document.getElementById("result-json");
+    const detailsEl = document.getElementById("tech-details");
+    const runBlock = document.getElementById("run-id-block");
+    const runInput = document.getElementById("run-id");
+
+    document.getElementById("copy-run-id").addEventListener("click", function () {
+      ui.copyFromInput(runInput);
+    });
+
+    function addFact(items, label, present, note) {
+      if (!present) {
+        return;
+      }
+      items.push({label: label, note: note});
+    }
+
+    function renderFacts(httpStatus, data) {
+      const items = [];
+      const reached = data && typeof data === "object" && !data.error;
+      addFact(items, "REQUEST SENT", reached || Boolean(data && data.error), reached ? ("HTTP " + httpStatus) : (data && data.error ? data.error : ("HTTP " + httpStatus)));
+      if (reached) {
+        const decision = ui.firstDecision(data);
+        addFact(items, "CONTROL ALLOWED", decision === "ALLOW", "control.decision=ALLOW. ALLOW is not execution.");
+        addFact(items, "CONTROL DENIED", decision === "DENY", "control.decision=DENY.");
+        addFact(
+          items,
+          "GOVERNED LLM EXECUTED",
+          ui.anyTrue(data, "operation.executed") || ui.anyTrue(data, "llm.started"),
+          "operation.executed or llm.started is true: the governed call began."
+        );
+        addFact(
+          items,
+          "OPERATION FAILED",
+          data.terminal === "run_failed" || ui.anyTrue(data, "llm.failed"),
+          data.terminal === "run_failed" ? ("terminal=run_failed" + (data.error_stage ? "; stage " + data.error_stage : "")) : "llm.failed is true (execution then failure, not prevention)."
+        );
+        if (data.profile) {
+          addFact(items, "Security profile (response)", true, String(data.profile));
+        }
+        if (data.testbed_mode) {
+          addFact(items, "testbed.mode (response)", true, String(data.testbed_mode));
+        }
+        if (typeof data.llm_call_count === "number") {
+          addFact(items, "llm_call_count (response)", true, String(data.llm_call_count));
+        }
+      }
+      factsEl.replaceChildren();
+      if (!items.length) {
+        const li = document.createElement("li");
+        li.textContent = "No runtime facts in this response. Do not invent a control decision.";
+        factsEl.appendChild(li);
+        return;
+      }
+      items.forEach(function (item) {
+        const li = document.createElement("li");
+        const strong = document.createElement("strong");
+        strong.textContent = item.label;
+        li.appendChild(strong);
+        li.appendChild(document.createTextNode(" — " + item.note));
+        factsEl.appendChild(li);
       });
-      const data = await response.json();
-      document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+    }
+
+    button.addEventListener("click", async function () {
+      if (button.disabled) {
+        return;
+      }
+      const idleLabel = button.textContent;
+      ui.setBusy(null, button, true);
+      button.textContent = "Running ATK-002…";
+      ui.applyState(statusEl, liveEl, "RUNNING", "Running ATK-002. Duplicate runs are disabled until this request finishes.");
+      await ui.afterPaint();
+      try {
+        const response = await fetch("/api/attacks/ATK-002", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({})
+        });
+        let data = {};
+        try {
+          data = await response.json();
+        } catch (parseErr) {
+          data = {error: "response was not JSON"};
+        }
+        const state = data.error ? "ERROR" : ui.statusFromResult(data);
+        let message = state;
+        if (state === "DENIED") {
+          message = "Control denied this run (from the response). Sending the request is not success.";
+        } else if (state === "COMPLETED") {
+          message = "Pipeline terminal completed_allowed. That is not proof the attack succeeded.";
+        } else if (state === "ERROR") {
+          message = (data && data.error) ? String(data.error) : "The run did not complete. This is not automatically a control DENY.";
+        }
+        ui.applyState(statusEl, liveEl, state, message);
+        if (data.run_id) {
+          runBlock.hidden = false;
+          ui.fillRunId(runInput, data.run_id);
+        }
+        renderFacts(response.status, data);
+        jsonEl.textContent = JSON.stringify(data, null, 2);
+        detailsEl.hidden = false;
+      } catch (err) {
+        ui.applyState(statusEl, liveEl, "ERROR", "The browser did not receive a usable response. This is not a control DENY.");
+        renderFacts(0, {error: "The browser did not receive a usable response."});
+      } finally {
+        button.textContent = idleLabel;
+        ui.setBusy(null, button, false);
+      }
     });
   </script>
 </body>

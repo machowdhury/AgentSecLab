@@ -2,67 +2,144 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>AcmeBank — AgentSec</title>
-  <style>
-    :root {
-      --bg-page: #F6F8FB;
-      --bg-panel: #FFFFFF;
-      --text-primary: #17202A;
-      --text-secondary: #3D4654;
-      --chrome-navy: #0B1F33;
-      --accent-teal: #007F86;
-      --border: #D9E0E7;
-    }
-    body { font-family: system-ui, "Segoe UI", sans-serif; background: var(--bg-page); color: var(--text-primary); margin: 0; line-height: 1.45; }
-    header { background: var(--chrome-navy); color: #fff; padding: 1rem 1.5rem; }
-    main { max-width: 760px; margin: 1.5rem auto; padding: 0 1rem; }
-    .card { background: var(--bg-panel); border: 1px solid var(--border); padding: 1rem 1.25rem; margin-bottom: 1rem; }
-    label { display: block; margin-bottom: .4rem; font-weight: 600; }
-    textarea { width: 100%; min-height: 8rem; font: inherit; }
-    button {
-      background: var(--accent-teal); color: #fff; border: 0; padding: .75rem 1.25rem;
-      cursor: pointer; min-height: 44px; font: inherit; font-weight: 600;
-    }
-    button:focus-visible { outline: 2px solid var(--accent-teal); outline-offset: 2px; }
-    a:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent-teal); outline-offset: 2px; }
-    pre { white-space: pre-wrap; background: var(--bg-page); padding: .75rem; font-family: ui-monospace, Menlo, Consolas, monospace; }
-    .meta { color: #fff; font-size: 1rem; opacity: 0.92; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AcmeBank — Home loan application</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
 </head>
 <body>
-  <header>
-    <h1>AcmeBank</h1>
-    <p class="meta">AgentSec {{ version }} · profile {{ profile }} · model {{ model }}</p>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <div>
+        <p class="brand-kicker">AgentSec lab</p>
+        <h1>AcmeBank</h1>
+        <p class="brand-sub">Home loan application</p>
+      </div>
+      <p class="header-meta">Lab profile <strong>{{ profile }}</strong> · model {{ model }} · {{ version }}</p>
+    </div>
   </header>
-  <main>
-    <div class="card">
-      <p>Legitimate loan path. Four sequential agents in one process: Intake → Credit → Risk → Compliance.</p>
+  <main id="main">
+    <p class="lede">Submit a home purchase loan request. AcmeBank processes the application with four in-process roles. This page does not fire attacks.</p>
+
+    <section class="card" aria-labelledby="apply-heading">
+      <h2 id="apply-heading">Loan request</h2>
+      <form id="loan-form">
+        <label for="input">Customer request</label>
+        <textarea id="input" name="input" required>Hi, I'm Priya Chen. I'd like to apply for a home purchase loan of $420000. I'm employed full-time as a pharmacist, annual income about $118000, credit score around 740. Property is in Ottawa, Ontario.</textarea>
+        <div class="actions">
+          <button class="btn btn-primary" id="submit-loan" type="submit">Submit loan</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="result-heading">
+      <h2 id="result-heading">Application status</h2>
+      <div class="status-row">
+        <span class="status" id="ui-status" data-state="READY">READY</span>
+        <p class="muted" id="status-live" aria-live="polite">Ready to submit.</p>
+      </div>
+      <div id="run-id-block" hidden>
+        <label for="run-id">run.id</label>
+        <div class="run-id-row">
+          <input id="run-id" readonly value="" spellcheck="false">
+          <button class="btn btn-secondary" id="copy-run-id" type="button">Copy run.id</button>
+        </div>
+      </div>
+      <p id="result-summary">Submit a request to mint a <code>run.id</code>. Prompt-injection tests belong on the Attack Service (port 5001).</p>
+      <details class="secondary" id="tech-details" hidden>
+        <summary>Pipeline details</summary>
+        <p class="muted">Facts from this response only. ALLOW is a control decision, not proof the model ran.</p>
+        <pre class="result-pre" id="result-json"></pre>
+      </details>
+    </section>
+
+    <details class="card secondary">
+      <summary>How this application is processed</summary>
+      <p class="muted">Four sequential roles in one process (not A2A). Security checks run in AcmeBank, not in Splunk.</p>
       <ol>
         {% for agent in agents %}
-        <li>{{ agent.name }} ({{ agent.agent_id }})</li>
+        <li>{{ agent.name }}</li>
         {% endfor %}
       </ol>
-    </div>
-    <div class="card">
-      <form id="loan-form">
-        <label for="input">Loan request</label>
-        <textarea id="input" name="input">Hi, I'm Priya Chen. I'd like to apply for a home purchase loan of $420000. I'm employed full-time as a pharmacist, annual income about $118000, credit score around 740. Property is in Ottawa, Ontario.</textarea>
-        <p><button type="submit">Submit loan</button></p>
-      </form>
-      <pre id="result">Submit to mint a run.id. Attacks belong on port 5001.</pre>
-    </div>
+    </details>
   </main>
+  <script src="{{ url_for('static', filename='agentsec-ui.js') }}"></script>
   <script>
-    document.getElementById("loan-form").addEventListener("submit", async (event) => {
+    const ui = window.AgentSecUI;
+    const form = document.getElementById("loan-form");
+    const button = document.getElementById("submit-loan");
+    const statusEl = document.getElementById("ui-status");
+    const liveEl = document.getElementById("status-live");
+    const summaryEl = document.getElementById("result-summary");
+    const jsonEl = document.getElementById("result-json");
+    const detailsEl = document.getElementById("tech-details");
+    const runBlock = document.getElementById("run-id-block");
+    const runInput = document.getElementById("run-id");
+
+    document.getElementById("copy-run-id").addEventListener("click", function () {
+      ui.copyFromInput(runInput);
+    });
+
+    function bankMessage(state, data) {
+      if (state === "RUNNING") {
+        return "Submitting your application.";
+      }
+      if (state === "DENIED") {
+        return "AcmeBank stopped this request (terminal completed_denied). That is not a missing Splunk event.";
+      }
+      if (state === "COMPLETED") {
+        const n = data && typeof data.llm_call_count === "number" ? data.llm_call_count : null;
+        const extra = n === null ? "" : " Governed model calls started: " + n + " (started means the call began, not that a loan was approved).";
+        return "The application pipeline finished (completed_allowed)." + extra;
+      }
+      const stage = data && data.error_stage ? " Stage: " + data.error_stage + "." : "";
+      const notDeny = data && data.error_stage === "llm_invocation"
+        ? " This is a failed model invocation, not a control DENY and not prevention."
+        : "";
+      return "The application could not be completed." + stage + notDeny;
+    }
+
+    form.addEventListener("submit", async function (event) {
       event.preventDefault();
-      const input = document.getElementById("input").value;
-      const response = await fetch("/process", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({input})
-      });
-      const data = await response.json();
-      document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+      if (button.disabled) {
+        return;
+      }
+      const idleLabel = button.textContent;
+      ui.setBusy(form, button, true);
+      button.textContent = "Submitting…";
+      ui.applyState(statusEl, liveEl, "RUNNING", "Submitting your application.");
+      summaryEl.textContent = "Submitting your application.";
+      await ui.afterPaint();
+      try {
+        const response = await fetch("/process", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({input: document.getElementById("input").value})
+        });
+        let data = {};
+        try {
+          data = await response.json();
+        } catch (parseErr) {
+          data = {};
+        }
+        const state = ui.statusFromResult(data);
+        const message = bankMessage(state, data);
+        ui.applyState(statusEl, liveEl, state, message);
+        summaryEl.textContent = message;
+        if (data.run_id) {
+          runBlock.hidden = false;
+          ui.fillRunId(runInput, data.run_id);
+        }
+        jsonEl.textContent = JSON.stringify(data, null, 2);
+        detailsEl.hidden = false;
+      } catch (err) {
+        const message = "The application could not be completed. The browser did not receive a usable response. This is not a control DENY.";
+        ui.applyState(statusEl, liveEl, "ERROR", message);
+        summaryEl.textContent = message;
+      } finally {
+        button.textContent = idleLabel;
+        ui.setBusy(form, button, false);
+      }
     });
   </script>
 </body>

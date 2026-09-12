@@ -1,0 +1,26 @@
+{
+  "screenshot": "docs/screenshots/acmebank/pass2_completed.png",
+  "ui_states": ["READY", "RUNNING", "COMPLETED"],
+  "status_live": "The application pipeline finished (completed_allowed). Governed model calls started: 4 (started means the call began, not that a loan was approved).",
+  "run_id": "fc7c5e9a-9078-459c-8a1b-488b740176aa",
+  "allow_described_as_execution": false,
+  "ollama": {
+    "OLLAMA_BASE_URL": "http://host.docker.internal:11434",
+    "model": "llama3.2:1b",
+    "health.ollama_reachable": true
+  },
+  "runtime_from_api": {
+    "source": "GET /api/v1/runs/fc7c5e9a-9078-459c-8a1b-488b740176aa",
+    "event_count": 22,
+    "agentsec.run.completed.outcome": "completed_allowed",
+    "testbed.mode": "BASELINE",
+    "control.decision": ["ALLOW", "ALLOW", "ALLOW", "ALLOW"],
+    "llm.started": 4,
+    "llm.completed": 4,
+    "operation.executed_on_llm.started": true
+  },
+  "evidence_class": {
+    "ui": "OBSERVED",
+    "events": "MEASURED"
+  }
+}

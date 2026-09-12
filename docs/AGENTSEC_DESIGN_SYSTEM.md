@@ -70,7 +70,7 @@ Splunk Dashboard Studio uses Splunk’s font; we still set markdown `fontColor` 
 | Surface | Primary action | Must include |
 |---------|----------------|--------------|
 | AcmeBank | Submit loan (teal) | profile label, `run.id` in result |
-| Attack Service | Fire ATK-002 (critical **with words**) | attack id, untrusted-client copy |
+| Attack Service | Run ATK-002 (critical **with words**) | attack id, untrusted-client copy |
 | WS-001 | Submit tokens | Hunt `run.id` defaults to the BASELINE specimen; COMPARE specimen defaults; SIMULATED labeled |
 
 ---

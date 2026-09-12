@@ -35,3 +35,102 @@ Primary buttons ≥44px tall. Body ≥16px equivalent.
 - Splunk UI copy must not imply the dashboard DENYs the loan.
 - Studio: GRID, 12-column, tabs for workshop steps.
 - No neon, no extra charts, no MLTK purple on first lab.
+
+## Interaction states
+
+Interactive learner-facing UI must explicitly represent:
+
+- READY
+- RUNNING
+- COMPLETED
+- DENIED
+- ERROR
+
+Do not leave users guessing whether an action executed.
+
+Buttons that launch an operation should provide visible feedback and should not permit accidental duplicate execution while a request is running.
+
+## Accessibility
+
+- Do not communicate state with color alone.
+- Interactive controls must have accessible names.
+- Form fields require visible labels.
+- Keyboard focus must remain visible.
+- Text and controls must maintain sufficient contrast.
+- Long identifiers must remain accessible even if visually truncated.
+- HTML pages must use semantic structure where practical.
+- Do not claim formal accessibility compliance unless it was actually tested.
+
+## Responsive behavior
+
+For HTML surfaces:
+
+- layouts must work at desktop, tablet, and mobile widths
+- multi-column layouts must stack sensibly
+- long run IDs must wrap, truncate safely, or expose the full value
+- tables must not destroy the page layout
+- primary actions must remain visible and understandable
+
+For Dashboard Studio:
+
+- use native GRID behavior
+- do not claim arbitrary responsive behavior outside Splunk Studio capabilities
+- verify representative browser widths visually
+
+## Security semantics
+
+UI language must preserve the AgentSec evidence model.
+
+- ALLOW does not mean execution occurred.
+- DENY must not be inferred from absent Splunk events.
+- `operation.executed=true` means the governed operation began, not that it succeeded.
+- `llm.failed` is execution followed by failure, not prevention.
+- SIMULATED must be visibly distinct from OBSERVED and MEASURED.
+- Splunk is an investigation/evidence surface, not the runtime authorization layer.
+- Empty results must not be presented as "safe", "blocked", or "no attack" without supporting evidence.
+
+## Visual QA gate
+
+A learner-facing interface is NOT complete merely because:
+
+- HTML renders
+- Dashboard Studio JSON parses
+- Splunk REST returns HTTP 200
+- automated tests pass
+
+Completion requires:
+
+1. Render the interface.
+2. Capture screenshots.
+3. Run `/ui-review`.
+4. Record the review under `docs/reviews/`.
+5. Resolve all BLOCKER and HIGH findings.
+6. Capture pass-2 screenshots after fixes.
+7. Document any residual MEDIUM/LOW findings.
+8. Verify loading, empty, error, completed, and denied states where applicable.
+9. Confirm security-state wording remains accurate.
+10. Confirm the result is suitable for a customer-facing demonstration.
+
+## Reference implementation
+
+LAB-PI-001 is the initial reference implementation for AgentSec workshop visual quality.
+
+Future workshops should reuse its visual patterns unless there is a documented reason to diverge.
+
+## Cross-surface consistency
+
+AcmeBank, Attack Service, and AgentSec Splunk workshops must feel like parts of the same product family.
+
+Reuse:
+
+- the canonical palette
+- typography hierarchy
+- spacing conventions
+- status terminology
+- button hierarchy
+- evidence terminology
+- control-state language
+
+Do not make AcmeBank, Attack Service, and Splunk workshops look like three unrelated applications.
+
+Platform-native chrome may differ, especially in Splunk, but AgentSec-owned content should remain visually consistent.

@@ -1,0 +1,29 @@
+{
+  "label": "pass2",
+  "widths": [
+    1440,
+    1024,
+    768,
+    390
+  ],
+  "screenshots": [
+    "docs/screenshots/acmebank/pass2_ready_1440.png",
+    "docs/screenshots/attack-ui/pass2_ready_1440.png",
+    "docs/screenshots/acmebank/pass2_ready_1024.png",
+    "docs/screenshots/attack-ui/pass2_ready_1024.png",
+    "docs/screenshots/acmebank/pass2_ready_768.png",
+    "docs/screenshots/attack-ui/pass2_ready_768.png",
+    "docs/screenshots/acmebank/pass2_ready_390.png",
+    "docs/screenshots/attack-ui/pass2_ready_390.png",
+    "docs/screenshots/acmebank/pass2_running.png",
+    "docs/screenshots/acmebank/pass2_error.png",
+    "docs/screenshots/acmebank/pass2_error_390.png",
+    "docs/screenshots/attack-ui/pass2_running.png",
+    "docs/screenshots/attack-ui/pass2_denied.png",
+    "docs/screenshots/attack-ui/pass2_denied_390.png"
+  ],
+  "states": {
+    "acmebank": "ERROR",
+    "attack": "DENIED"
+  }
+}
