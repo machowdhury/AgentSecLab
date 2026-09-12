@@ -42,7 +42,7 @@ Each unique event has three identical copies of that field (JSON indexed extract
 
 ### 10. Was the Phase 2C.1 defended Splunk run a RETEST?
 
-No. `78f05d1b-728e-4e70-8993-f5e365871f87` has `testbed.mode=ATTACK` (auto). RETEST is a server-owned override. Same payload and DENY outcome; different label.
+No. `78f05d1b-728e-4e70-8993-f5e365871f87` has `testbed.mode=ATTACK` (auto). The RETEST reference is `bbe75cb8-0190-47d6-86be-5feba58ad5c0` (`AGENTSEC_TESTBED_MODE=RETEST`). Same payload and DENY outcome; different label.
 
 ### 11. What payload is ATK-002?
 
@@ -50,7 +50,7 @@ No. `78f05d1b-728e-4e70-8993-f5e365871f87` has `testbed.mode=ATTACK` (auto). RET
 
 ### 12. What happens in `vulnerable` for that payload?
 
-Labeled ALLOW (`vulnerable_profile_fail_open:…`). LLM may run. Proven with a stub spy in Phase 2A. No Splunk-validated vulnerable copy in Phase 2C.1.
+Labeled ALLOW (`vulnerable_profile_fail_open:…`). Live Ollama **does** run. Validated: `f39fed12-de89-45ba-b684-5b6077942580` (22 events, 4 generates, Splunk 22=22). That is not “the model approved the loan.”
 
 ## Common wrong answers (do not teach these)
 
@@ -58,4 +58,4 @@ Labeled ALLOW (`vulnerable_profile_fail_open:…`). LLM may run. Proven with a s
 - “ALLOW means four models ran.”
 - “The makeresults row is OBSERVED runtime.”
 - “66 events were indexed for BASELINE.”
-- “Dashboard Studio proved INV-008.” (Studio is not built.)
+- “Dashboard Studio proved INV-008.” (The view hunts a copy. Runtime remains authoritative.)

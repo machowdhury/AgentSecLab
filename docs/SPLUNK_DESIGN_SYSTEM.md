@@ -1,7 +1,6 @@
 # Splunk Design System
 
-**Status:** PLANNED  
-**Applies to:** All AgentSec Dashboard Studio views when they exist.
+**Status:** APPLIED to LAB-PI-001 (`ws_lab_pi_001`). Parent tokens: `docs/AGENTSEC_DESIGN_SYSTEM.md`.
 
 All new dashboards use Dashboard Studio unless a documented technical limitation requires classic Simple XML. Default layout: **GRID**. Absolute layout only with a written justification.
 
@@ -13,7 +12,7 @@ All new dashboards use Dashboard Studio unless a documented technical limitation
 |-------|-----|-----|
 | Background | `#F6F8FB` | Page |
 | Primary text | `#17202A` | Body |
-| Secondary text | `#5B6573` | Captions |
+| Secondary text | `#3D4654` | Captions (AA). Do not use `#5B6573`. |
 | Primary navy | `#0B1F33` | Headers, chrome |
 | Accent teal | `#007F86` | Links, focus |
 | Success | `#2E7D32` | ALLOW / pass **with label** |

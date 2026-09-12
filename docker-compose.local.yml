@@ -1,7 +1,12 @@
 # Local Splunk overlay: collector waits for HEC bootstrap.
-# docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local up --build -d
+# Normal start: ./scripts/lab-up.sh
+# Equivalent compose: docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local up -d
 
 services:
+  acmebank:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   otel_collector:
     depends_on:
       splunk:

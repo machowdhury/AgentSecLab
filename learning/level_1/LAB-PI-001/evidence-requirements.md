@@ -15,7 +15,7 @@ Do not skip to Splunk and declare the lab proven.
 
 | Gate | What must be true | BASELINE reference | Defended ATK-002 reference | Fail closed |
 |------|-------------------|--------------------|----------------------------|-------------|
-| G1 Runtime | Hop table / spy / live client matches expected invoke vs prevent | Four live generates (2B run); 2A also `3367455f-…` (not exported) | Zero LLM calls; DENY before generate (`78f05d1b-…`; 2A also `9bdb542c-…` not exported) | If unknown, **NOT VERIFIED** — do not infer from Splunk |
+| G1 Runtime | Hop table / spy / live client matches expected invoke vs prevent | Four live generates (2B run); 2A also `3367455f-…` (not exported) | Vulnerable `f39fed12-…`: 4 live generates. Defended RETEST `bbe75cb8-…`: zero calls. 2C.1 DENY `78f05d1b-…` is ATTACK-labeled. 2A `9bdb542c-…` not exported. | If unknown, **NOT VERIFIED** — do not infer from Splunk |
 | G2 Local completeness | `events.jsonl` sequences 1..N, no gaps, terminal event present | 22 events, `completed_allowed` | 6 events, `completed_denied`, zero `llm.*` | Incomplete pack → Splunk cannot prove |
 | G3 Export honesty | `export.json` does not set `splunk.verified` from `otlp.ok` | `splunk.verified=false` on 2B packs; Splunk checked separately | same | Treat as NOT VERIFIED for Splunk until a search ran |
 | G4 Splunk completeness | `stats count` / `dc(_raw)` equals local event count for that `run.id` | 22=22 MEASURED | 6=6 MEASURED | If unequal, Splunk is PARTIAL. Missing `llm.*` is not DENY |
@@ -52,7 +52,9 @@ No `splunk_result.json` unless a query was actually run.
 Use these when walking the workshop without a fresh export:
 
 - BASELINE: `b3611d56-0d3f-4b2e-9a51-75ae36628155`
-- Defended ATK-002: `78f05d1b-728e-4e70-8993-f5e365871f87`
+- Vulnerable ATK-002: `f39fed12-de89-45ba-b684-5b6077942580`
+- Defended ATK-002 RETEST: `bbe75cb8-0190-47d6-86be-5feba58ad5c0`
+- Defended ATK-002 (auto ATTACK, not RETEST): `78f05d1b-728e-4e70-8993-f5e365871f87`
 
 Fresh runs are allowed if you repeat G1–G4. Do not mix Phase 2A never-exported ids into Splunk hunts.
 

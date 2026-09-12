@@ -116,7 +116,7 @@ See `docs/SPLUNK_DATA_VALIDATION.md`. Required security fields were present as f
 ## Known limitations
 
 - Official `splunk/splunk:10.2` is amd64-only. This lab used `platform: linux/amd64` (Rosetta).
-- Read-only bind-mount of the app onto `/opt/splunk/etc/apps` makes ansible `chown` fail (EROFS). App was copied in after first boot.
+- Read-only bind-mount of the app onto `/opt/splunk/etc/apps` makes ansible `chown` fail (EROFS). **Later local compose** stages a writable named volume instead of a manual copy (`docs/LOCAL_DOCKER_LAB.md`).
 - Host Python 3.14 cannot import OTel 1.24/protobuf 4 (`Metaclasses with custom tp_new`). Live export used OpenTelemetry **1.44.0**.
 - Collector **file** exporter could not write a logfile in this image. Debug + HEC still received the batches. File archive is not proof.
 - Splunk `fieldsummary` shows some fields with extra copies (body JSON + OTLP attributes). `agentsec.run.id` appeared more than once per event.
@@ -128,7 +128,7 @@ See `docs/SPLUNK_DATA_VALIDATION.md`. Required security fields were present as f
 ## Deviations
 
 - `SPLUNK_PLATFORM=linux/amd64`
-- Splunk app installed via copy from `/tmp/agentsec-app` rather than `:ro` apps bind-mount
+- Splunk app installed via copy from `/tmp/agentsec-app` rather than `:ro` apps bind-mount (superseded for local compose by named volume `splunk_app_agentsec`)
 - OpenTelemetry packages 1.24.0 → 1.44.0 (Python 3.14)
 - Collector logs pipeline: HEC + debug (file exporter dropped after it failed)
 - Splunk healthcheck `start_period` 600s (slow amd64 emulation first boot)

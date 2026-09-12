@@ -1,0 +1,37 @@
+---
+description: AgentSec learner-facing UI Design System (Flask + Dashboard Studio)
+globs: "src/agentsec/templates/**,splunk_app/**,learning/**/dashboard.definition.json,docs/AGENTSEC_DESIGN_SYSTEM.md"
+alwaysApply: false
+---
+
+# AgentSec UI Design System
+
+Canonical tokens: `docs/AGENTSEC_DESIGN_SYSTEM.md`. Review: `.cursor/skills/ui-review/SKILL.md`.
+
+Learner-facing surfaces (AcmeBank, Attack Service, Studio workshops) share one palette. Do not restyle Splunk login or enterprise chrome.
+
+## Tokens
+
+Background: #F6F8FB
+Panel: #FFFFFF
+Primary text: #17202A
+Secondary text: #3D4654 (AA on page). Do not use #5B6573 for captions.
+Primary navy: #0B1F33
+Accent teal: #007F86
+Success: #2E7D32
+Warning: #B7791F
+Critical: #C62828
+Information: #3568A8
+Advanced/ML: #6B46C1 (MLTK track only)
+Borders: #D9E0E7
+
+Focus: 2px solid #007F86, 2px offset.
+Primary buttons ≥44px tall. Body ≥16px equivalent.
+
+## Rules
+
+- Severity is never color alone (ALLOW, DENY, SIMULATED, LIVE, BASELINE, ATTACK, RETEST).
+- Empty tables stay visible; explain zero rows.
+- Splunk UI copy must not imply the dashboard DENYs the loan.
+- Studio: GRID, 12-column, tabs for workshop steps.
+- No neon, no extra charts, no MLTK purple on first lab.

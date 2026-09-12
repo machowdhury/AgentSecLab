@@ -24,7 +24,7 @@ Runtime truth is authoritative. Local `artifacts/<run-id>/` is the lab record wh
 |-------|-----|-----|
 | Background | `#F6F8FB` | Page |
 | Primary text | `#17202A` | Body |
-| Secondary text | `#5B6573` | Captions, hints |
+| Secondary text | `#3D4654` | Captions, hints (AA). Do not use `#5B6573`. |
 | Navy | `#0B1F33` | Headers, chrome |
 | Accent teal | `#007F86` | Links, focus, next step |
 | Success | `#2E7D32` | ALLOW / success **with label** |

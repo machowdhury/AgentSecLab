@@ -207,4 +207,4 @@ If no events: say so. Do not write a story.
 
 ## Implementation note
 
-Studio JSON is a **later** phase, after schema 1.0.0 events exist and searches in `SPLUNK_SEARCH_CONTRACT.md` are validated. This file is the layout contract only.
+Studio JSON for WS-001 exists in Phase 2C.3: `ws_lab_pi_001`. Tabs map to the twelve-row contract so the page stays readable. Searches remain the validated files in `learning/level_1/LAB-PI-001/searches/`.
