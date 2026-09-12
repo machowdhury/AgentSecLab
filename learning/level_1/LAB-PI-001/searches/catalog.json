@@ -1,0 +1,119 @@
+{
+  "lab.id": "LAB-PI-001",
+  "title": "Direct Prompt Injection — foundational investigation SPL",
+  "schema.name": "agentsec.security_event",
+  "schema.version": "1.0.0",
+  "index": "agentsec_telemetry",
+  "sourcetype": "otel:agentic:json",
+  "run_id_token": "__RUN_ID__",
+  "validated_runs": {
+    "BASELINE": "b3611d56-0d3f-4b2e-9a51-75ae36628155",
+    "DEFENDED_ATK-002": "78f05d1b-728e-4e70-8993-f5e365871f87"
+  },
+  "validation_date": "2026-09-11",
+  "prohibited_fields": [
+    "agentsec.event.name",
+    "agentsec.profile",
+    "agentsec.pipeline.outcome"
+  ],
+  "indexed_field_corrections": {
+    "agentsec.event.name": "event.name",
+    "agentsec.profile": "agentsec.security.profile",
+    "agentsec.pipeline.outcome": "agentsec.outcome",
+    "agentsec.invariant.id": "agentsec.invariant.id{}"
+  },
+  "queries": [
+    {
+      "id": "Q-RUN-EVENTS",
+      "spl_file": "Q-RUN-EVENTS.spl",
+      "doc_file": "Q-RUN-EVENTS.md",
+      "security_question": "What happened during one AgentSec run?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "agentsec.incident.id",
+        "agentsec.sequence",
+        "agentsec.schema.version",
+        "agentsec.security.profile",
+        "agentsec.testbed.mode",
+        "agentsec.execution.mode",
+        "agentsec.telemetry.fidelity",
+        "agentsec.outcome",
+        "gen_ai.agent.id",
+        "trace_id",
+        "span_id",
+        "parent_span_id"
+      ],
+      "validation_status": "VALIDATED"
+    },
+    {
+      "id": "Q-CONTROL-DECISION",
+      "spl_file": "Q-CONTROL-DECISION.spl",
+      "doc_file": "Q-CONTROL-DECISION.md",
+      "security_question": "What security decisions were made, by which control, and at which hop?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "agentsec.sequence",
+        "agentsec.hop.index",
+        "agentsec.control.id",
+        "agentsec.control.type",
+        "agentsec.control.decision",
+        "agentsec.control.reason",
+        "agentsec.security.profile",
+        "agentsec.operation.attempted",
+        "agentsec.operation.executed",
+        "agentsec.operation.outcome",
+        "agentsec.invariant.id{}",
+        "gen_ai.agent.id",
+        "gen_ai.agent.name"
+      ],
+      "validation_status": "VALIDATED"
+    },
+    {
+      "id": "Q-LLM-EXECUTED",
+      "spl_file": "Q-LLM-EXECUTED.spl",
+      "doc_file": "Q-LLM-EXECUTED.md",
+      "security_question": "Which governed LLM operations actually began and how did they end?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "agentsec.sequence",
+        "agentsec.hop.index",
+        "agentsec.operation.attempted",
+        "agentsec.operation.executed",
+        "agentsec.operation.outcome",
+        "gen_ai.agent.id",
+        "gen_ai.operation.name",
+        "gen_ai.provider.name",
+        "gen_ai.request.model"
+      ],
+      "validation_status": "VALIDATED"
+    },
+    {
+      "id": "Q-LLM-AFTER-DENY",
+      "spl_file": "Q-LLM-AFTER-DENY.spl",
+      "doc_file": "Q-LLM-AFTER-DENY.md",
+      "security_question": "Did a governed LLM operation begin after a pre-invocation DENY?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "agentsec.sequence",
+        "agentsec.hop.index",
+        "agentsec.control.decision"
+      ],
+      "validation_status": "VALIDATED"
+    }
+  ],
+  "positive_control": {
+    "id": "Q-LLM-AFTER-DENY-POSITIVE-CONTROL",
+    "spl_file": "Q-LLM-AFTER-DENY-POSITIVE-CONTROL.spl",
+    "doc_file": "Q-LLM-AFTER-DENY-POSITIVE-CONTROL.md",
+    "evidence_class": "SIMULATED",
+    "generator": "makeresults",
+    "indexed": false,
+    "expected_violation_rows": 1,
+    "validation_status": "VALIDATED"
+  }
+}
+

@@ -1,0 +1,11 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"=__RUN_ID__ ("event.name"=agentsec.control.decision OR "event.name"=agentsec.llm.started OR "event.name"=agentsec.llm.completed OR "event.name"=agentsec.llm.failed)
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval hop_index=mvindex(mvdedup('agentsec.hop.index'),0)
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
+| eval is_deny=if(event_name="agentsec.control.decision" AND decision="DENY",1,0)
+| eval is_llm=if(match(event_name,"^agentsec\\.llm\\."),1,0)
+| eventstats min(eval(if(is_deny=1,sequence,null()))) as deny_seq, max(is_deny) as has_deny by run_id, hop_index
+| where has_deny=1 AND is_llm=1 AND sequence>deny_seq
+| table run_id, hop_index, deny_seq, sequence, event_name, decision

@@ -18,7 +18,7 @@ This document records **observed** Splunk representations. It does not contain D
 | MEASURED | Local `events.jsonl` compared to parsed Splunk `_raw` |
 | DOCUMENTED | Schema / `OtlpSink` / collector config |
 | INFERRED | Not used for ingest success |
-| SIMULATED / REPLAYED | Not used |
+| SIMULATED / REPLAYED | Q-LLM-AFTER-DENY positive control only (`makeresults`; not indexed). Not used as runtime or completeness evidence. |
 
 ## Live `_raw`
 
@@ -45,7 +45,7 @@ OTLP (DOCUMENTED, unchanged):
 
 | Field name | Runtime source | Event types | Native type | OTLP representation | Observed Splunk representation | Example | Nullable/optional | Validation status | Limitations |
 |------------|----------------|-------------|-------------|---------------------|--------------------------------|---------|-------------------|-------------------|-------------|
-| `agentsec.run.id` | server-minted UUID | all | string | body + log attribute | first-class field; 22/22 and 6/6 | `b3611d56-0d3f-4b2e-9a51-75ae36628155` | required | OBSERVED | fieldsummary count can exceed event count (body + attribute copies) |
+| `agentsec.run.id` | server-minted UUID | all | string | body + log attribute | first-class field; 22/22 and 6/6 unique events; field is mv with 3 identical copies | `b3611d56-0d3f-4b2e-9a51-75ae36628155` | required | OBSERVED | `stats count by "agentsec.run.id"` explodes to 66/18; see count inflation below |
 | `event.name` | emitter | all | string | body + log attribute | first-class; 7 names on BASELINE | `agentsec.control.decision` | required | OBSERVED | there is no `agentsec.event.name` field |
 | `agentsec.sequence` | monotonic int | all | int | body JSON number | first-class; 22 distinct values | `3` | required | OBSERVED / MEASURED 1..N | Splunk displays numeric tokens as strings in `fieldsummary` |
 | `agentsec.schema.version` | constant | all | string | body | first-class `1.0.0` on all events | `1.0.0` | required | OBSERVED | |
@@ -63,6 +63,27 @@ OTLP (DOCUMENTED, unchanged):
 
 MEASURED for both new runs against local `events.jsonl`. Same `run.id`, schema 1.0.0, counts, sequences, names-by-sequence, terminal event, `trace_id`, control decisions, llm started/completed presence/absence, operation flags.
 
+Physical event uniqueness was re-checked 2026-09-11: `stats count` = `dc(_raw)` = distinct `agentsec.sequence` = 22 and 6. **Not duplicate indexed events.** Phase 2B completeness is unchanged.
+
+## Count inflation (`stats count by "agentsec.run.id"`)
+
+**OBSERVED** 2026-09-11 on the same two run IDs.
+
+| Run | `stats count` | `dc(_raw)` | `mvcount('agentsec.run.id')` | `mvcount(mvdedup('agentsec.run.id'))` | `stats count by "agentsec.run.id"` | normalized `run_id=mvindex(mvdedup(...),0)` |
+|-----|---------------|------------|------------------------------|---------------------------------------|--------------------------------------|-----------------------------------------------|
+| BASELINE | 22 | 22 | 3 | 1 | 66 | 22 |
+| ATK-002 | 6 | 6 | 3 | 1 | 18 | 6 |
+
+Root cause: **one unique event with repeated identical field copies**, not extra `_raw` documents.
+
+- JSON `_raw` contains the key `agentsec.run.id` once (`rex` match count = 1).
+- `INDEXED_EXTRACTIONS = json` and `KV_MODE = json` on `otel:agentic:json` each extract body scalars → `mvcount=2` on body-only fields (`agentsec.sequence`, `agentsec.schema.version`, `agentsec.security.profile`). `stats count by` those fields yields 44 on BASELINE (22×2).
+- OTLP log attributes add a third copy for overlapping keys (`agentsec.run.id`, `agentsec.testbed.mode`, `event.name`) → `mvcount=3`. `stats count by "agentsec.run.id"` yields 66 (22×3) and 18 (6×3).
+
+Splunk `stats count by` treats each multivalue slot as a row. Collapse with `eval run_id=mvindex(mvdedup('agentsec.run.id'),0)` before counting events.
+
+Companion: `docs/PHASE2C_SPL_VALIDATION.md`.
+
 ## HEC / collector
 
 - HEC **OBSERVED**: indexed events carry `source=agentsec-otel-collector`.
@@ -72,6 +93,6 @@ MEASURED for both new runs against local `events.jsonl`. Same `run.id`, schema 1
 ## Known limitations
 
 - Runtime still must not set `splunk.verified`.
-- Duplicate field copies from overlapping body JSON and OTLP attributes.
+- Scalar fields are multivalue at search time: JSON indexed extraction + JSON search-time KV, plus OTLP attributes on overlapping keys. Events themselves are unique. Do not use raw `stats count by "agentsec.run.id"` as an event count.
 - `_time` is index/envelope time; sequence remains the ordering key for completeness.
 - No production detection or dashboard validation.
