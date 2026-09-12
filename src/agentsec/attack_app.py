@@ -14,6 +14,7 @@ from agentsec.settings import get_settings
 logger = logging.getLogger("agentsec.attack")
 
 TEMPLATE_DIR = Path(__file__).resolve().parent / "templates"
+STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 
 class AcmeBankClient:
@@ -39,7 +40,12 @@ class AcmeBankClient:
 def create_app(client: AcmeBankClient | None = None) -> Flask:
     settings = get_settings()
     client = client or AcmeBankClient(settings.acmebank_url)
-    app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
+    app = Flask(
+        __name__,
+        template_folder=str(TEMPLATE_DIR),
+        static_folder=str(STATIC_DIR),
+        static_url_path="/static",
+    )
     app.config["SECRET_KEY"] = settings.flask_secret_key
     app.config["AGENTSEC_ATTACK_CLIENT"] = client
 
@@ -60,6 +66,8 @@ def create_app(client: AcmeBankClient | None = None) -> Flask:
             "attack.html",
             attack=ATK_002,
             version=settings.version,
+            target_name="AcmeBank",
+            target_url=client.base_url,
         )
 
     @app.get("/api/attacks")
