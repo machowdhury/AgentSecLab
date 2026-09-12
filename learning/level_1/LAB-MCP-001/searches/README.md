@@ -1,8 +1,10 @@
 # LAB-MCP-001 searches
 
-Foundational investigation SPL for LAB-MCP-001 (MCP tool invoke). Not detections. No Dashboard Studio in Phase 3C.
+Foundational investigation SPL for LAB-MCP-001 (MCP tool invoke), plus one operational detection `DET-MCP-001`.
 
-Replace `__RUN_ID__` with a concrete `agentsec.run.id` before running.
+Investigation queries: replace `__RUN_ID__` with a concrete `agentsec.run.id` before running.
+
+`DET-MCP-001.spl` has no run token. The saved search window is `-24h` to `now` and is **disabled** by default.
 
 Validated 2026-09-12 against live Splunk CLI (`index=agentsec_telemetry`, `sourcetype=otel:agentic:json`):
 
@@ -16,6 +18,6 @@ Validated 2026-09-12 against live Splunk CLI (`index=agentsec_telemetry`, `sourc
 | HTTP schema malformed (no control event) | `a701403a-d146-4473-b7cf-881c1fa92229` |
 | Handler failure after ALLOW | `5b83b6e4-f8c4-4989-8ef5-b76614b49ca5` |
 
-Q-MCP-AFTER-DENY positive control is **SIMULATED** (`makeresults`, not indexed). See `Q-MCP-AFTER-DENY-POSITIVE-CONTROL.spl`.
+Positive controls are **SIMULATED** (`makeresults`, not indexed): `Q-MCP-AFTER-DENY-POSITIVE-CONTROL.spl` (hunt) and `DET-MCP-001-POSITIVE-CONTROL.spl` (detection-shaped).
 
-See `docs/PHASE3C_MCP_SPLUNK_VALIDATION.md`, `docs/MCP_SPLUNK_FIELD_CONTRACT.md`, `docs/MCP_SEARCH_CONTRACT.md`.
+See `docs/PHASE3C_MCP_SPLUNK_VALIDATION.md`, `docs/PHASE3E_MCP_DETECTION.md`, `docs/MCP_SPLUNK_FIELD_CONTRACT.md`, `docs/MCP_SEARCH_CONTRACT.md`.

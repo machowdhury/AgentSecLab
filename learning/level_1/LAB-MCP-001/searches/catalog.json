@@ -189,5 +189,53 @@
     "indexed": false,
     "expected_violation_rows": 1,
     "validation_status": "VALIDATED"
+  },
+  "detection": {
+    "id": "DET-MCP-001",
+    "savedsearch_name": "AgentSec - MCP Execution After Authorization Deny",
+    "spl_file": "DET-MCP-001.spl",
+    "doc_file": "DET-MCP-001.md",
+    "severity": "HIGH",
+    "disabled_by_default": true,
+    "enable_sched_default": false,
+    "cron_schedule": "0 * * * *",
+    "dispatch_earliest": "-24h",
+    "dispatch_latest": "now",
+    "throttle": "none",
+    "security_domain": "agentsec.mcp.authorization",
+    "invariant": "DENY then later mcp.started for the same run.id and tool",
+    "required_output_fields": [
+      "run_id",
+      "tool",
+      "agent",
+      "principal",
+      "control_id",
+      "decision",
+      "deny_sequence",
+      "mcp_start_sequence",
+      "profile",
+      "mode",
+      "requested_scope",
+      "allowed_scope",
+      "trace_id"
+    ],
+    "does_not_alert_on": [
+      "DENY alone",
+      "ALLOW",
+      "vulnerable fail-open ALLOW",
+      "mcp.failed after ALLOW",
+      "unknown tool ERROR",
+      "malformed args ERROR",
+      "zero MCP execution rows"
+    ],
+    "positive_control": {
+      "id": "DET-MCP-001-POSITIVE-CONTROL",
+      "spl_file": "DET-MCP-001-POSITIVE-CONTROL.spl",
+      "doc_file": "DET-MCP-001-POSITIVE-CONTROL.md",
+      "evidence_class": "SIMULATED",
+      "generator": "makeresults",
+      "indexed": false,
+      "expected_violation_rows": 1
+    }
   }
 }

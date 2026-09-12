@@ -3,7 +3,7 @@
 **View:** `ws_lab_mcp_001` in the `agentsec` app  
 **Layout:** Dashboard Studio GRID, one dashboard, ten tabs  
 **SPL:** Phase 3C validated Q-MCP searches. Token bind only (`__RUN_ID__` → `"$token$"`).  
-**Not:** a detection pack, MCP-003+, or Cisco overlay
+**Not:** a notable-event pack, MCP-003+, or Cisco overlay. Saved search `DET-MCP-001` is packaged **disabled**; this dashboard does not enable it.
 
 Definition: `dashboard.definition.json` (source) and `splunk_app/agentsec/default/data/ui/views/ws_lab_mcp_001.xml` (what Splunk loads). Rebuild both with `python scripts/build_lab_mcp_001_dashboard.py`.
 
@@ -26,7 +26,7 @@ Hunt defaults to BASELINE so the dashboard does not open in an error state. Spec
 
 1. Open Splunk → AgentSec → **LAB-MCP-001 MCP tool authorization**.
 2. Submit if needed (`submitOnDashboardLoad` is on).
-3. Walk the ten tabs. DETECT right table is **SIMULATED** `makeresults`.
+3. Walk the ten tabs. DETECT teaches hunt (`Q-MCP-AFTER-DENY`) and operational detection (`DET-MCP-001`, disabled). Right table is **SIMULATED** `DET-MCP-001-POSITIVE-CONTROL`.
 4. Paste another complete `run.id` into Hunt to explore OBSERVE / HUNT / DETECT.
 
 Splunk does not invoke tools and does not switch `AGENTSEC_SECURITY_PROFILE`.
@@ -37,7 +37,7 @@ Tables stay visible when empty (`hideWhenNoData` is false). Studio `description`
 
 - “No indexed MCP execution event was found for this run.” — not “Tool was blocked.”
 - “No indexed control.decision was found for this run. That is not DENY.”
-- Q-MCP-AFTER-DENY empty: no indexed violation found; not independent prevention proof.
+- Q-MCP-AFTER-DENY empty: no indexed violation found; not independent prevention proof. DET-MCP-001 also did not fire on validated LIVE runs.
 
 Do not read a populated table’s caption as “no events found.”
 

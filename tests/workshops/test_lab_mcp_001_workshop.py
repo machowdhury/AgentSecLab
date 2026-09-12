@@ -65,8 +65,12 @@ def test_validated_searches_named_per_step():
     for query_id in REQUIRED_IDS:
         assert query_id in workshop
     detect = workshop.split("## DETECT", 1)[1].split("## DEFEND", 1)[0]
+    assert "DET-MCP-001" in detect
+    assert "HUNT" in detect
+    assert "DETECTION" in detect
     assert "Q-MCP-AFTER-DENY" in detect
     assert "Q-MCP-AFTER-DENY-POSITIVE-CONTROL" in detect
+    assert "DET-MCP-001-POSITIVE-CONTROL" in detect
     assert "SIMULATED" in detect
     observe = workshop.split("## OBSERVE", 1)[1].split("## HUNT", 1)[0]
     assert "sequence" in observe.lower()

@@ -1,7 +1,7 @@
 # LAB-MCP-001 workshop
 
 **Lab:** MCP tool authorization  
-**Do not** create notable-event detections.  
+**Saved search:** `DET-MCP-001` (`AgentSec - MCP Execution After Authorization Deny`) is packaged **disabled**. No notable event. No MCP-003+.  
 **Do** open Dashboard Studio workshop `ws_lab_mcp_001` (AgentSec app). Reuse Phase 3C searches in `searches/`. The dashboard binds `__RUN_ID__` as `"$token$"`. You may still run the same `.spl` files in Search.
 
 Facts in this file come from Phase 3B and 3C only. The Studio page does not create new evidence.
@@ -96,15 +96,19 @@ If Splunk is empty, check `artifacts/<run-id>/export.json`. Do not conclude DENY
 
 ## DETECT
 
-Not a shipped detection. No notable event.
+**HUNT** asks whether the violation occurred in this copy.
 
-**Invariant hunt:** Q-MCP-AFTER-DENY — DENY then later `mcp.*` for the same run/tool.
+**SPL:** `Q-MCP-AFTER-DENY` on Hunt `run.id`. Validated LIVE specimens: **0** rows. Zero rows means no indexed violation was found. It does not independently prove the handler never executed.
 
-Validated real specimens: **0** violations.
+**DETECTION** continuously checks the same invariant.
 
-Zero rows means no indexed violation was found. It does not independently prove the handler never executed.
+**Saved search:** `AgentSec - MCP Execution After Authorization Deny` (`DET-MCP-001`). Severity **HIGH**. Packaged **disabled**. This workshop dashboard does not enable it. It did **not** fire on the validated LIVE runs.
 
-**Positive control:** Q-MCP-AFTER-DENY-POSITIVE-CONTROL — **SIMULATED** `| makeresults`. Not indexed. Not an AcmeBank run. Not OBSERVED runtime evidence.
+Invariant: DENY, then later `mcp.started`, same run/tool, start sequence > DENY sequence.
+
+DENY alone is not an alert. ALLOW (including labeled fail-open) is not this detection. `mcp.failed` after ALLOW is not DENY-then-start. ERROR is not DENY. Splunk detects a copy of a violation; it does not enforce authorization.
+
+**Positive control:** `DET-MCP-001-POSITIVE-CONTROL` — **SIMULATED** `| makeresults` (DENY seq 3, `mcp.started` seq 4). Not indexed. Not an AcmeBank run. Not OBSERVED runtime evidence. Hunt fixture `Q-MCP-AFTER-DENY-POSITIVE-CONTROL` remains SIMULATED in `searches/`.
 
 ---
 
