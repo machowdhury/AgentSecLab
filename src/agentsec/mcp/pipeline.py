@@ -106,6 +106,17 @@ def _expected(attack_id: str, profile: str, decision: str | None = None) -> str:
         )
     if attack_id == "MCP-003":
         return "ALLOW lookup_policy; handler executes; result is untrusted data"
+    if attack_id == "MCP-004" and decision == "ERROR":
+        return "ERROR before handler; executed=false"
+    if attack_id == "MCP-004" and profile == "vulnerable":
+        return "labeled ALLOW fail-open for granted tool/scope with ungranted resource; handler executes"
+    if attack_id == "MCP-004" and decision == "DENY":
+        return (
+            "DENY lookup_policy resource_not_granted; attempted=false, executed=false, "
+            "outcome=prevented; handler does not begin"
+        )
+    if attack_id == "MCP-004":
+        return "ALLOW lookup_policy; handler executes; result is untrusted data"
     if decision == "ERROR":
         return "ERROR before handler; executed=false"
     return "MCP invoke"
@@ -184,6 +195,8 @@ def run_mcp_invoke(
         mcp_method="tools/call",
         requested_scope=control.requested_scope,
         allowed_scope=control.allowed_scope,
+        resource_id=control.resource_id,
+        allowed_resource_ids=control.allowed_resource_ids,
     )
 
     mcp_started = False
@@ -359,6 +372,8 @@ def run_mcp_invoke(
                 "mcp.handler.invoked.count": handler_count,
                 "mcp.tool.name": hop.tool_name,
                 "result.trust": "untrusted_data",
+                "mcp.resource.id": control.resource_id,
+                "mcp.allowed_resource.ids": control.allowed_resource_ids,
             },
             request_doc=request_doc,
             extra_result={
@@ -369,6 +384,8 @@ def run_mcp_invoke(
                 "result.trust": "untrusted_data",
                 "result.provenance": "mcp.tool.handler",
                 "tool.result": payload,
+                "mcp.resource.id": control.resource_id,
+                "mcp.allowed_resource.ids": control.allowed_resource_ids,
             },
             limitations_items=[
                 "CTRL-MCP-001 is a lab allow-list, not production MCP IAM.",
@@ -378,7 +395,8 @@ def run_mcp_invoke(
                 "operation.executed=true on mcp.* means the tool handler began, not that it succeeded.",
                 "Runtime never sets collector.observed, hec.ok, or splunk.verified.",
                 "Scope tokens are opaque labels. Matching is exact set membership (no prefix, regex, or case folding).",
-                "No Splunk SPL, Dashboard Studio, MCP-004+, A2A, RAG, memory, or Cisco overlay in this slice.",
+                "Resource ids are opaque labels. Matching is exact set membership (no strip, case fold, prefix, or wildcard).",
+                "No Splunk SPL, Dashboard Studio, MCP-005+, A2A, RAG, memory, or Cisco overlay in this slice.",
             ],
         )
         evidence_dir = str(bundle)

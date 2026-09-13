@@ -1,0 +1,57 @@
+{
+  "url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_mcp_004",
+  "tabs_found": [
+    "LEARN",
+    "BASELINE",
+    "ATTACK",
+    "OBSERVE",
+    "HUNT",
+    "DETECT",
+    "DEFEND",
+    "RETEST",
+    "COMPARE",
+    "PROVE"
+  ],
+  "tabs_missing": [],
+  "tokens_found": [
+    "run_id",
+    "baseline_run_id",
+    "attack_run_id",
+    "retest_run_id",
+    "unknown_run_id"
+  ],
+  "tokens_missing": [],
+  "token_values": {
+    "run_id": "fb50dcaf-8e84-4a3f-a55b-997c72edbd04",
+    "baseline_run_id": "fb50dcaf-8e84-4a3f-a55b-997c72edbd04",
+    "attack_run_id": "5ab59fc7-303e-4eea-84e7-ae0b2f405146",
+    "retest_run_id": "0726a0ff-a551-41a8-bfbb-ab2ceca4c0dd",
+    "unknown_run_id": "0e4e0051-528d-4bf3-8773-d1fb55a5864f"
+  },
+  "screenshots": [
+    "docs/screenshots/lab-mcp-004/pass1_overview.png",
+    "docs/screenshots/lab-mcp-004/pass1_learn.png",
+    "docs/screenshots/lab-mcp-004/pass1_baseline.png",
+    "docs/screenshots/lab-mcp-004/pass1_attack.png",
+    "docs/screenshots/lab-mcp-004/pass1_observe.png",
+    "docs/screenshots/lab-mcp-004/pass1_hunt.png",
+    "docs/screenshots/lab-mcp-004/pass1_detect.png",
+    "docs/screenshots/lab-mcp-004/pass1_defend.png",
+    "docs/screenshots/lab-mcp-004/pass1_retest.png",
+    "docs/screenshots/lab-mcp-004/pass1_compare.png",
+    "docs/screenshots/lab-mcp-004/pass1_prove.png"
+  ],
+  "label": "pass1",
+  "tabs_requested": [
+    "LEARN",
+    "BASELINE",
+    "ATTACK",
+    "OBSERVE",
+    "HUNT",
+    "DETECT",
+    "DEFEND",
+    "RETEST",
+    "COMPARE",
+    "PROVE"
+  ]
+}

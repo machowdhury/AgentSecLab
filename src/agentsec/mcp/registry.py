@@ -35,6 +35,8 @@ class ToolRegistry:
             valid_scopes=current.valid_scopes,
             required_keys=current.required_keys,
             handler=handler,
+            resource_key=current.resource_key,
+            valid_resources=current.valid_resources,
         )
 
     def call_handler(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:

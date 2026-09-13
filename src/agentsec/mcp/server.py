@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import secrets
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any, Callable
 
-from agentsec.mcp.authorize import McpControlResult, evaluate_mcp_control
+from agentsec.mcp.authorize import McpControlResult, authorize_resource, evaluate_mcp_control
 from agentsec.mcp.policy import McpPolicy, coded_policy
 from agentsec.mcp.protocol import ToolsCallRequest, decode_tools_call
 from agentsec.mcp.registry import ToolRegistry, default_registry
+from agentsec.mcp.tools import ToolSpec
 
 AuthorizeFn = Callable[..., McpControlResult]
 
@@ -22,6 +23,7 @@ class AllowTicket:
     arguments: dict[str, Any]
     request_id: int | str
     token: str
+    resource_id: str | None = None
 
 
 @dataclass
@@ -64,7 +66,7 @@ class McpServer:
         requested_scope: str,
         coded_agent_id: str,
     ) -> ServerDecision:
-        """Resolve coded policy, validate tool/args, then decide. Never starts a handler."""
+        """Resolve coded policy, validate tool/scope/args/resource, then decide. Never starts a handler."""
         del coded_agent_id  # identity is policy.agent_id; parameter documents the trust rule
         parsed, rpc_error = decode_tools_call(rpc_message)
         if parsed is None:
@@ -148,7 +150,7 @@ class McpServer:
         )
         if control.blocks_tool:
             return ServerDecision(
-                control=control,
+                control=_attach_resource_telemetry(control, spec, arguments, self.policy),
                 ticket=None,
                 tool_name=tool_name,
                 arguments=arguments,
@@ -169,22 +171,93 @@ class McpServer:
                 error_stage="argument_validation",
             )
             return ServerDecision(
-                control=control,
+                control=_attach_resource_telemetry(control, spec, arguments, self.policy),
                 ticket=None,
                 tool_name=tool_name,
                 arguments=arguments,
                 request_id=parsed.id,
             )
 
+        resource_id = _extract_resource_id(spec, arguments)
+        if spec.resource_key is not None:
+            if resource_id is None:
+                control = McpControlResult(
+                    control_id="CTRL-MCP-001",
+                    control_type="mcp_allowlist",
+                    decision="ERROR",
+                    reason="malformed_arguments",
+                    profile=profile,
+                    tool_name=tool_name,
+                    requested_scope=scope,
+                    allowed_scope=self.policy.allowed_scope_wire(),
+                    error_stage="argument_validation",
+                    allowed_resource_ids=self.policy.allowed_policy_ids_wire(),
+                )
+                return ServerDecision(
+                    control=control,
+                    ticket=None,
+                    tool_name=tool_name,
+                    arguments=arguments,
+                    request_id=parsed.id,
+                )
+            resource_decision, resource_reason, resource_stage = authorize_resource(
+                profile=profile,
+                policy=self.policy,
+                resource_id=resource_id,
+                valid_resources=spec.valid_resources,
+            )
+            wire = self.policy.allowed_policy_ids_wire()
+            if resource_decision != "ALLOW":
+                control = McpControlResult(
+                    control_id="CTRL-MCP-001",
+                    control_type="mcp_allowlist",
+                    decision=resource_decision,
+                    reason=resource_reason,
+                    profile=profile,
+                    tool_name=tool_name,
+                    requested_scope=scope,
+                    allowed_scope=self.policy.allowed_scope_wire(),
+                    error_stage=resource_stage,
+                    resource_id=resource_id,
+                    allowed_resource_ids=wire,
+                )
+                return ServerDecision(
+                    control=control,
+                    ticket=None,
+                    tool_name=tool_name,
+                    arguments=arguments,
+                    request_id=parsed.id,
+                )
+            if control.reason.startswith("vulnerable_profile_fail_open:"):
+                control = replace(
+                    control,
+                    resource_id=resource_id,
+                    allowed_resource_ids=wire,
+                )
+            else:
+                control = McpControlResult(
+                    control_id="CTRL-MCP-001",
+                    control_type="mcp_allowlist",
+                    decision="ALLOW",
+                    reason=resource_reason,
+                    profile=profile,
+                    tool_name=tool_name,
+                    requested_scope=scope,
+                    allowed_scope=self.policy.allowed_scope_wire(),
+                    resource_id=resource_id,
+                    allowed_resource_ids=wire,
+                )
+
         ticket = AllowTicket(
             tool_name=tool_name,
-            arguments=arguments,
+            arguments=dict(arguments),
             request_id=parsed.id,
             token=secrets.token_hex(16),
+            resource_id=resource_id,
         )
         self._tickets[ticket.token] = ticket
         return ServerDecision(
-            control=control,
+            control=_attach_resource_telemetry(control, spec, arguments, self.policy, resource_id=resource_id),
             ticket=ticket,
             tool_name=tool_name,
             arguments=arguments,
@@ -202,8 +275,9 @@ class McpServer:
                 error_message="execute requires an ALLOW ticket from this server",
             )
         stored = self._tickets.pop(ticket.token)
+        handler_args = _handler_arguments(self.registry.spec(stored.tool_name), stored)
         try:
-            payload = self.registry.call_handler(stored.tool_name, stored.arguments)
+            payload = self.registry.call_handler(stored.tool_name, handler_args)
         except Exception as exc:
             return ServerExecution(
                 ok=False,
@@ -220,6 +294,39 @@ class McpServer:
         from agentsec.mcp.authorize import authorize_tool
 
         return authorize_tool(**kwargs)
+
+
+def _extract_resource_id(spec: ToolSpec, arguments: dict[str, Any]) -> str | None:
+    if spec.resource_key is None:
+        return None
+    value = arguments.get(spec.resource_key)
+    if isinstance(value, str) and value:
+        return value
+    return None
+
+
+def _attach_resource_telemetry(
+    control: McpControlResult,
+    spec: ToolSpec,
+    arguments: dict[str, Any],
+    policy: McpPolicy,
+    resource_id: str | None = None,
+) -> McpControlResult:
+    if spec.resource_key is None:
+        return control
+    extracted = resource_id if resource_id is not None else _extract_resource_id(spec, arguments)
+    return replace(
+        control,
+        resource_id=extracted if extracted is not None else control.resource_id,
+        allowed_resource_ids=policy.allowed_policy_ids_wire(),
+    )
+
+
+def _handler_arguments(spec: ToolSpec, ticket: AllowTicket) -> dict[str, Any]:
+    """Handler sees the authorized resource id, not a later mutation of the request dict."""
+    if spec.resource_key is None or ticket.resource_id is None:
+        return dict(ticket.arguments)
+    return {spec.resource_key: ticket.resource_id}
 
 
 def _argument_error(required_keys: frozenset[str], arguments: dict[str, Any]) -> str:

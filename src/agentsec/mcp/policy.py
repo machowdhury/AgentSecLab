@@ -11,6 +11,8 @@ MCP_AGENT_DESCRIPTION = "Dedicated LAB-MCP-001 agent. Not a loan-pipeline hop."
 ALLOWED_TOOLS = frozenset({"lookup_policy"})
 ALLOWED_SCOPES = frozenset({"policy:read"})
 ALLOWED_SCOPE_WIRE = "policy:read"
+ALLOWED_POLICY_IDS = frozenset({"lending-basics"})
+ALLOWED_POLICY_IDS_WIRE = "lending-basics"
 
 
 @dataclass(frozen=True)
@@ -18,9 +20,13 @@ class McpPolicy:
     agent_id: str
     allowed_tools: frozenset[str]
     allowed_scopes: frozenset[str]
+    allowed_policy_ids: frozenset[str]
 
     def allowed_scope_wire(self) -> str:
         return ",".join(sorted(self.allowed_scopes))
+
+    def allowed_policy_ids_wire(self) -> str:
+        return ",".join(sorted(self.allowed_policy_ids))
 
 
 def coded_policy() -> McpPolicy:
@@ -29,6 +35,7 @@ def coded_policy() -> McpPolicy:
         agent_id=MCP_AGENT_ID,
         allowed_tools=ALLOWED_TOOLS,
         allowed_scopes=ALLOWED_SCOPES,
+        allowed_policy_ids=ALLOWED_POLICY_IDS,
     )
 
 

@@ -1,4 +1,4 @@
-"""Build schema 1.1.0 AgentSec security events. Attackers never copy JSON into control fields."""
+"""Build schema 1.2.0 AgentSec security events. Attackers never copy JSON into control fields."""
 
 from __future__ import annotations
 
@@ -265,6 +265,8 @@ class EventEmitter:
         mcp_method: str | None = None,
         requested_scope: str | None = None,
         allowed_scope: str | None = None,
+        resource_id: str | None = None,
+        allowed_resource_ids: str | None = None,
     ) -> dict[str, Any]:
         span_id = new_span_id()
         event = _base_event(self.ctx, self.settings, span_id)
@@ -297,6 +299,10 @@ class EventEmitter:
             event["agentsec.mcp.requested_scope"] = requested_scope
         if allowed_scope is not None:
             event["agentsec.mcp.allowed_scope"] = allowed_scope
+        if resource_id is not None:
+            event["agentsec.mcp.resource.id"] = resource_id
+        if allowed_resource_ids is not None:
+            event["agentsec.mcp.allowed_resource.ids"] = allowed_resource_ids
         _with_hop_identity(
             event,
             hop_index=hop_index,

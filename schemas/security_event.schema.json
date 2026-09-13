@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://agentsec.local/schemas/security_event.schema.json",
-  "title": "AgentSec Security Event 1.1.0 (loan pipeline + LAB-MCP-001)",
-  "description": "Closed JSON body for AcmeBank security events. Additive extension of 1.0.0: MCP tool invoke events and fields. Existing 1.0.0 field meanings are unchanged. incident.id equals run.id. No session.id. LLM events exist only after input ALLOW. MCP handler events exist only after MCP ALLOW. operation.executed on llm.* means the governed LLM call started; on mcp.* it means the tool handler began. Emitters use execution.mode=LIVE and telemetry.fidelity=OBSERVED; other enum values are reserved.",
+  "title": "AgentSec Security Event 1.2.0 (loan pipeline + MCP tool/scope/resource authorization)",
+  "description": "Closed JSON body for AcmeBank security events. Additive extension of 1.1.0: optional MCP resource identity and server-owned resource grant fields. Existing 1.0.0 and 1.1.0 field meanings are unchanged. incident.id equals run.id. No session.id. LLM events exist only after input ALLOW. MCP handler events exist only after MCP ALLOW. operation.executed on llm.* means the governed LLM call started; on mcp.* it means the tool handler began. Emitters use execution.mode=LIVE and telemetry.fidelity=OBSERVED; other enum values are reserved.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -98,8 +98,8 @@
     },
     "agentsec.schema.version": {
       "type": "string",
-      "const": "1.1.0",
-      "description": "Event contract version. 1.1.0 is additive over 1.0.0. Required on every AgentSec security event."
+      "const": "1.2.0",
+      "description": "Event contract version. 1.2.0 is additive over 1.1.0. Required on every AgentSec security event. Loan and MCP-001/003 field meanings are unchanged."
     },
     "agentsec.run.id": {"type": "string", "format": "uuid"},
     "agentsec.incident.id": {
@@ -197,7 +197,7 @@
     "agentsec.control.type": {"type": "string", "enum": ["input_inspection", "schema_validation", "mcp_allowlist"]},
     "agentsec.control.decision": {"type": "string", "enum": ["ALLOW", "DENY", "ERROR"]},
     "agentsec.control.reason": {"type": "string", "minLength": 1},
-    "agentsec.attack.id": {"type": "string", "enum": ["ATK-001", "ATK-002", "MCP-001", "MCP-002", "MCP-003"]},
+    "agentsec.attack.id": {"type": "string", "enum": ["ATK-001", "ATK-002", "MCP-001", "MCP-002", "MCP-003", "MCP-004"]},
     "agentsec.technique.id": {"type": "string"},
     "agentsec.expected.behavior": {"type": "string"},
     "agentsec.content.influence.kind": {
@@ -234,6 +234,16 @@
       "type": "string",
       "minLength": 1,
       "description": "AGENTSEC authorization field. Scope coded policy granted this agent. Never copied from the request."
+    },
+    "agentsec.mcp.resource.id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "AGENTSEC authorization field. Exact opaque resource identifier used for authorization (ticket resource_id). Lab fixture labels only. Not a dump of tool arguments. Never copied from a client grant field."
+    },
+    "agentsec.mcp.allowed_resource.ids": {
+      "type": "string",
+      "minLength": 1,
+      "description": "AGENTSEC authorization field. Server-owned resource grant set for this agent, stable comma-sorted. Never rewritten on fail-open. Never copied from the request."
     },
     "agentsec.mcp.result.trust": {
       "type": "string",
