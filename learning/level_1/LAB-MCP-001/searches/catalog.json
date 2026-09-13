@@ -1,0 +1,251 @@
+{
+  "lab.id": "LAB-MCP-001",
+  "title": "MCP tool invoke — foundational investigation SPL",
+  "schema.name": "agentsec.security_event",
+  "schema.version": "1.1.0",
+  "index": "agentsec_telemetry",
+  "sourcetype": "otel:agentic:json",
+  "run_id_token": "__RUN_ID__",
+  "validation_date": "2026-09-12",
+  "validated_runs": {
+    "BASELINE": "163d11e2-e751-4282-9406-19b490542ed4",
+    "ATTACK": "5e8f55f3-eb46-47ee-b979-b72d9c9b1f49",
+    "RETEST": "7a1d37b5-d589-4dfd-8322-25ebd0152dbc",
+    "UNKNOWN_TOOL_ERROR": "2e804c0d-eb86-405a-ab8d-360616df0ef9",
+    "MALFORMED_ARGUMENTS_ERROR": "f2ef017e-d66c-4712-bacd-07138a30d2e6",
+    "HTTP_SCHEMA_MALFORMED": "a701403a-d146-4473-b7cf-881c1fa92229",
+    "HANDLER_FAILURE_AFTER_ALLOW": "5b83b6e4-f8c4-4989-8ef5-b76614b49ca5"
+  },
+  "prohibited_fields": [
+    "agentsec.event.name",
+    "agentsec.profile",
+    "agentsec.pipeline.outcome",
+    "session.id",
+    "mcp.session.id",
+    "gen_ai.tool.call.arguments"
+  ],
+  "indexed_field_corrections": {
+    "agentsec.event.name": "event.name",
+    "agentsec.profile": "agentsec.security.profile",
+    "agentsec.pipeline.outcome": "agentsec.outcome",
+    "agentsec.invariant.id": "agentsec.invariant.id{}",
+    "incident.id": "agentsec.incident.id",
+    "run.id": "agentsec.run.id"
+  },
+  "queries": [
+    {
+      "id": "Q-MCP-WHO",
+      "spl_file": "Q-MCP-WHO.spl",
+      "doc_file": "Q-MCP-WHO.md",
+      "security_question": "Which principal / agent requested which MCP tool?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "agentsec.principal.id",
+        "gen_ai.agent.id",
+        "gen_ai.tool.name",
+        "mcp.method.name",
+        "agentsec.security.profile",
+        "agentsec.testbed.mode"
+      ],
+      "validation_status": "VALIDATED"
+    },
+    {
+      "id": "Q-MCP-AUTHZ",
+      "spl_file": "Q-MCP-AUTHZ.spl",
+      "doc_file": "Q-MCP-AUTHZ.md",
+      "security_question": "What authorization decision was made?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "gen_ai.tool.name",
+        "agentsec.control.id",
+        "agentsec.control.decision",
+        "agentsec.control.reason",
+        "agentsec.mcp.requested_scope",
+        "agentsec.mcp.allowed_scope",
+        "agentsec.operation.attempted",
+        "agentsec.operation.executed",
+        "agentsec.operation.outcome"
+      ],
+      "validation_status": "VALIDATED"
+    },
+    {
+      "id": "Q-MCP-TOOL",
+      "spl_file": "Q-MCP-TOOL.spl",
+      "doc_file": "Q-MCP-TOOL.md",
+      "security_question": "Which tool executions actually began?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "gen_ai.tool.name",
+        "agentsec.sequence",
+        "agentsec.operation.executed",
+        "agentsec.operation.outcome"
+      ],
+      "validation_status": "VALIDATED"
+    },
+    {
+      "id": "Q-MCP-SCOPE",
+      "spl_file": "Q-MCP-SCOPE.spl",
+      "doc_file": "Q-MCP-SCOPE.md",
+      "security_question": "What scope was requested and what scope was granted?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "gen_ai.tool.name",
+        "agentsec.mcp.requested_scope",
+        "agentsec.mcp.allowed_scope",
+        "agentsec.control.decision"
+      ],
+      "validation_status": "VALIDATED"
+    },
+    {
+      "id": "Q-MCP-PARAMS",
+      "spl_file": "Q-MCP-PARAMS.spl",
+      "doc_file": "Q-MCP-PARAMS.md",
+      "security_question": "What arguments were supplied to the tool?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "gen_ai.tool.name",
+        "agentsec.content.origin.type",
+        "agentsec.content.influence.kind",
+        "agentsec.content.hash",
+        "agentsec.content.preview"
+      ],
+      "validation_status": "VALIDATED"
+    },
+    {
+      "id": "Q-MCP-EXECUTED",
+      "spl_file": "Q-MCP-EXECUTED.spl",
+      "doc_file": "Q-MCP-EXECUTED.md",
+      "security_question": "Did the governed MCP operation begin?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "gen_ai.tool.name",
+        "agentsec.sequence",
+        "agentsec.control.decision",
+        "agentsec.operation.executed",
+        "agentsec.operation.outcome"
+      ],
+      "validation_status": "VALIDATED"
+    },
+    {
+      "id": "Q-MCP-AFTER-DENY",
+      "spl_file": "Q-MCP-AFTER-DENY.spl",
+      "doc_file": "Q-MCP-AFTER-DENY.md",
+      "security_question": "Did an MCP execution event occur after a DENY for the same run/tool?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "gen_ai.tool.name",
+        "agentsec.sequence",
+        "agentsec.control.decision"
+      ],
+      "validation_status": "VALIDATED"
+    },
+    {
+      "id": "Q-MCP-RESULT",
+      "spl_file": "Q-MCP-RESULT.spl",
+      "doc_file": "Q-MCP-RESULT.md",
+      "security_question": "What result did the MCP tool produce?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "gen_ai.tool.name",
+        "agentsec.sequence",
+        "agentsec.operation.outcome",
+        "agentsec.content.hash",
+        "agentsec.content.preview",
+        "agentsec.mcp.result.trust",
+        "agentsec.mcp.result.provenance"
+      ],
+      "validation_status": "VALIDATED"
+    },
+    {
+      "id": "Q-MCP-RESULT-TRUST",
+      "spl_file": "Q-MCP-RESULT-TRUST.spl",
+      "doc_file": "Q-MCP-RESULT-TRUST.md",
+      "security_question": "How is returned MCP content classified?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "gen_ai.tool.name",
+        "agentsec.mcp.result.trust",
+        "agentsec.mcp.result.provenance",
+        "agentsec.operation.outcome"
+      ],
+      "validation_status": "VALIDATED"
+    }
+  ],
+  "positive_control": {
+    "id": "Q-MCP-AFTER-DENY-POSITIVE-CONTROL",
+    "spl_file": "Q-MCP-AFTER-DENY-POSITIVE-CONTROL.spl",
+    "doc_file": "Q-MCP-AFTER-DENY-POSITIVE-CONTROL.md",
+    "evidence_class": "SIMULATED",
+    "generator": "makeresults",
+    "indexed": false,
+    "expected_violation_rows": 1,
+    "validation_status": "VALIDATED"
+  },
+  "detection": {
+    "id": "DET-MCP-001",
+    "savedsearch_name": "AgentSec - MCP Execution After Authorization Deny",
+    "spl_file": "DET-MCP-001.spl",
+    "doc_file": "DET-MCP-001.md",
+    "severity": "HIGH",
+    "disabled_by_default": true,
+    "enable_sched_default": false,
+    "cron_schedule": "0 * * * *",
+    "dispatch_earliest": "-24h",
+    "dispatch_latest": "now",
+    "throttle": "none",
+    "security_domain": "agentsec.mcp.authorization",
+    "invariant": "DENY then later mcp.started for the same run.id and tool",
+    "required_output_fields": [
+      "run_id",
+      "tool",
+      "agent",
+      "principal",
+      "control_id",
+      "decision",
+      "deny_sequence",
+      "mcp_start_sequence",
+      "profile",
+      "mode",
+      "requested_scope",
+      "allowed_scope",
+      "trace_id"
+    ],
+    "does_not_alert_on": [
+      "DENY alone",
+      "ALLOW",
+      "vulnerable fail-open ALLOW",
+      "mcp.failed after ALLOW",
+      "unknown tool ERROR",
+      "malformed args ERROR",
+      "zero MCP execution rows"
+    ],
+    "positive_control": {
+      "id": "DET-MCP-001-POSITIVE-CONTROL",
+      "spl_file": "DET-MCP-001-POSITIVE-CONTROL.spl",
+      "doc_file": "DET-MCP-001-POSITIVE-CONTROL.md",
+      "evidence_class": "SIMULATED",
+      "generator": "makeresults",
+      "indexed": false,
+      "expected_violation_rows": 1
+    },
+    "scope_teaching_fixture": {
+      "id": "DET-MCP-001-SCOPE-POSITIVE-CONTROL",
+      "spl_file": "DET-MCP-001-SCOPE-POSITIVE-CONTROL.spl",
+      "doc_file": "DET-MCP-001-SCOPE-POSITIVE-CONTROL.md",
+      "evidence_class": "SIMULATED",
+      "generator": "makeresults",
+      "indexed": false,
+      "expected_violation_rows": 1,
+      "note": "MCP-003 teaching fixture for existing DET-MCP-001. Not DET-MCP-003. Not a catalog query."
+    }
+  }
+}

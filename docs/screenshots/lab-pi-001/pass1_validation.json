@@ -1,0 +1,37 @@
+{
+  "url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_pi_001",
+  "tabs_found": [
+    "LEARN",
+    "BASELINE",
+    "ATTACK",
+    "OBSERVE",
+    "HUNT",
+    "DETECT",
+    "DEFEND",
+    "RETEST",
+    "COMPARE",
+    "PROVE"
+  ],
+  "tabs_missing": [],
+  "tokens_found": [
+    "run_id",
+    "baseline_run_id",
+    "attack_run_id",
+    "retest_run_id"
+  ],
+  "tokens_missing": [],
+  "screenshots": [
+    "docs/screenshots/lab-pi-001/pass1_overview.png",
+    "docs/screenshots/lab-pi-001/pass1_learn.png",
+    "docs/screenshots/lab-pi-001/pass1_baseline.png",
+    "docs/screenshots/lab-pi-001/pass1_attack.png",
+    "docs/screenshots/lab-pi-001/pass1_observe.png",
+    "docs/screenshots/lab-pi-001/pass1_hunt.png",
+    "docs/screenshots/lab-pi-001/pass1_detect.png",
+    "docs/screenshots/lab-pi-001/pass1_defend.png",
+    "docs/screenshots/lab-pi-001/pass1_retest.png",
+    "docs/screenshots/lab-pi-001/pass1_compare.png",
+    "docs/screenshots/lab-pi-001/pass1_prove.png"
+  ],
+  "label": "pass1"
+}

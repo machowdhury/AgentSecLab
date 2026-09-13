@@ -1,0 +1,46 @@
+---
+description: AgentSec experiment and research evidence requirements
+alwaysApply: true
+---
+
+# Research Integrity
+
+Classify evidence as:
+
+OBSERVED
+MEASURED
+DOCUMENTED
+INFERRED
+SIMULATED
+REPLAYED
+
+Never represent simulated or replayed evidence as a newly measured live experiment.
+
+Never fabricate:
+
+- attack results
+- telemetry
+- scanner findings
+- Splunk results
+- control effectiveness
+- model performance
+- framework mappings
+
+Every experiment should capture:
+
+run.id
+lab.id
+AgentSec version
+model
+security profile
+attack
+expected behavior
+actual behavior
+telemetry
+control result
+detection result
+limitations
+
+Store reproducible experiment evidence under:
+
+artifacts/<run-id>/

@@ -1,0 +1,13 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"=__RUN_ID__ ("event.name"=agentsec.llm.started OR "event.name"=agentsec.llm.completed OR "event.name"=agentsec.llm.failed)
+| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval hop_index=mvindex(mvdedup('agentsec.hop.index'),0)
+| eval agent_id=mvindex(mvdedup('gen_ai.agent.id'),0)
+| eval op_name=mvindex(mvdedup('gen_ai.operation.name'),0)
+| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)
+| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)
+| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)
+| eval provider=mvindex(mvdedup('gen_ai.provider.name'),0)
+| eval model=mvindex(mvdedup('gen_ai.request.model'),0)
+| table sequence, hop_index, agent_id, event_name, op_name, attempted, executed, outcome, provider, model
+| sort sequence

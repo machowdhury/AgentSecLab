@@ -1,0 +1,9 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"=__RUN_ID__ "event.name"=agentsec.control.decision
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval principal=mvindex(mvdedup('agentsec.principal.id'),0)
+| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval method=mvindex(mvdedup('mcp.method.name'),0)
+| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| table run_id, principal, agent, tool, method, profile, mode

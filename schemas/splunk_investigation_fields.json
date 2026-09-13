@@ -1,0 +1,158 @@
+{
+  "description": "Phase 1C investigation questions remain valid under schema 1.1.0. Q-MCP-* are not listed yet (no SPL in Phase 3B). Splunk is corroborating unless run completeness is established. Do not hunt names that are not listed.",
+  "index": "agentsec_telemetry",
+  "sourcetype": "otel:agentic:json",
+  "schema": {
+    "name": "agentsec.security_event",
+    "version": "1.1.0"
+  },
+  "correlation_keys": {
+    "primary": "agentsec.run.id",
+    "incident": "agentsec.incident.id",
+    "note": "First lab: incident.id equals run.id on every event."
+  },
+  "evidence_hierarchy": [
+    "AUTHORITATIVE RUNTIME STATE",
+    "LOCAL RUN EVIDENCE",
+    "EXPORTED TELEMETRY",
+    "SPLUNK REPRESENTATION"
+  ],
+  "questions": [
+    {
+      "id": "Q-SCHEMA",
+      "question": "WHICH event contract produced this record?",
+      "fields": ["agentsec.schema.name", "agentsec.schema.version"]
+    },
+    {
+      "id": "Q-WHO",
+      "question": "WHO initiated the activity?",
+      "fields": ["user.id", "agentsec.principal.id", "agentsec.principal.type"]
+    },
+    {
+      "id": "Q-AGENT",
+      "question": "WHICH agent hop?",
+      "fields": ["gen_ai.agent.id", "gen_ai.agent.name", "agentsec.hop.index"]
+    },
+    {
+      "id": "Q-DELEGATOR",
+      "question": "WHICH prior hop influenced this hop?",
+      "fields": ["agentsec.delegator.agent.id", "agentsec.hop.index"],
+      "note": "Required when hop.index >= 1. Absent on hop 0. In-process attribution, not A2A."
+    },
+    {
+      "id": "Q-MODEL",
+      "question": "WHICH model?",
+      "fields": ["gen_ai.provider.name", "gen_ai.request.model", "gen_ai.response.model"]
+    },
+    {
+      "id": "Q-RUN",
+      "question": "WHICH experiment / run?",
+      "fields": ["agentsec.run.id", "agentsec.incident.id", "trace_id", "agentsec.sequence"]
+    },
+    {
+      "id": "Q-SPAN",
+      "question": "HOW do hops nest under the pipeline?",
+      "fields": ["trace_id", "span_id", "parent_span_id", "agentsec.span.kind"]
+    },
+    {
+      "id": "Q-CONTROL",
+      "question": "WHAT did the reference control decide, and WHY?",
+      "fields": [
+        "event.name",
+        "agentsec.control.id",
+        "agentsec.control.type",
+        "agentsec.control.decision",
+        "agentsec.control.reason",
+        "agentsec.security.profile",
+        "agentsec.invariant.id"
+      ],
+      "filter": "event.name=agentsec.control.decision"
+    },
+    {
+      "id": "Q-DENY-PROOF",
+      "question": "WAS inference prevented before invocation?",
+      "fields": [
+        "agentsec.run.id",
+        "agentsec.hop.index",
+        "agentsec.control.decision",
+        "agentsec.operation.attempted",
+        "agentsec.operation.executed",
+        "agentsec.operation.outcome",
+        "event.name"
+      ],
+      "proof": "Authoritative: runtime did not invoke the LLM. Local complete events.jsonl: DENY or pre-invoke ERROR, attempted=false, executed=false, outcome=prevented, and no llm.* for that hop. Splunk with no llm.* is corroborating only unless completeness for that run.id is established (export ok and expected event set present).",
+      "not_proof": "Absence of llm.* in Splunk alone."
+    },
+    {
+      "id": "Q-ALLOW-EXEC",
+      "question": "DID ALLOW actually start inference, and how did that call end?",
+      "fields": [
+        "event.name",
+        "agentsec.hop.index",
+        "agentsec.operation.attempted",
+        "agentsec.operation.executed",
+        "agentsec.operation.outcome"
+      ],
+      "proof": "ALLOW on control.decision is not execution. llm.started: attempted=true, executed=true. llm.completed: outcome=success. llm.failed: executed=true, outcome=error (started, then failed — not prevention).",
+      "not_proof": "ALLOW alone; missing llm.* in Splunk after ALLOW (may be export loss)."
+    },
+    {
+      "id": "Q-OUTCOME",
+      "question": "WHAT was the actual pipeline outcome?",
+      "fields": [
+        "event.name",
+        "agentsec.outcome",
+        "agentsec.operation.outcome",
+        "agentsec.stop.reason"
+      ],
+      "note": "agentsec.outcome is hop/run. agentsec.operation.outcome is the governed LLM result (prevented|success|error)."
+    },
+    {
+      "id": "Q-ATTACK",
+      "question": "WHICH experiment, and how did it run?",
+      "fields": [
+        "agentsec.testbed.mode",
+        "agentsec.attack.id",
+        "agentsec.technique.id",
+        "agentsec.execution.mode",
+        "agentsec.telemetry.fidelity"
+      ],
+      "note": "Filter baseline vs attack vs retest with testbed.mode (BASELINE|ATTACK|RETEST), not execution.mode. First lab: execution.mode=LIVE, telemetry.fidelity=OBSERVED."
+    },
+    {
+      "id": "Q-CONTENT",
+      "question": "WHAT content influenced the hop, without full prompts?",
+      "fields": [
+        "agentsec.content.origin.type",
+        "agentsec.content.origin.id",
+        "agentsec.content.influence.kind",
+        "agentsec.content.hash",
+        "agentsec.content.preview"
+      ],
+      "note": "Default store is preview + hash. Complete prompts are not required for evidence."
+    },
+    {
+      "id": "Q-ERROR",
+      "question": "WHERE did a failure occur?",
+      "fields": ["error.type", "agentsec.error.message", "agentsec.error.stage"]
+    },
+    {
+      "id": "Q-BOUNDARY",
+      "question": "WHICH trust boundary?",
+      "fields": ["agentsec.trust_boundary"]
+    },
+    {
+      "id": "Q-ENTRY",
+      "question": "WHICH workflow entrypoint?",
+      "fields": ["agentsec.workflow.entry", "gen_ai.workflow.name"]
+    }
+  ],
+  "omitted_on_purpose": [
+    "session.id",
+    "session_id",
+    "gen_ai.conversation.id",
+    "gen_ai.tool.name",
+    "agentsec.chain.id",
+    "gen_ai.input.messages"
+  ]
+}
