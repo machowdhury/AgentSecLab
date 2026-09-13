@@ -38,7 +38,7 @@ def parse_mcp_invoke_body(data: object) -> ParsedMcpInvokeRequest:
             ok=False,
             tool=tool,
             arguments=_as_dict(data.get("arguments")),
-            requested_scope=_as_scope(data.get("requested_scope")),
+            requested_scope=_as_scope_raw(data.get("requested_scope")),
             user_id=_label_user_id(data.get("user_id")),
             error_reason="unknown_fields",
             extra_fields=extra,
@@ -50,7 +50,7 @@ def parse_mcp_invoke_body(data: object) -> ParsedMcpInvokeRequest:
             ok=False,
             tool=None,
             arguments=_as_dict(data.get("arguments")),
-            requested_scope=_as_scope(data.get("requested_scope")),
+            requested_scope=_as_scope_raw(data.get("requested_scope")),
             user_id=_label_user_id(data.get("user_id")),
             error_reason="missing_tool",
             extra_fields=(),
@@ -62,7 +62,7 @@ def parse_mcp_invoke_body(data: object) -> ParsedMcpInvokeRequest:
             ok=False,
             tool=tool.strip(),
             arguments={},
-            requested_scope=_as_scope(data.get("requested_scope")),
+            requested_scope=_as_scope_raw(data.get("requested_scope")),
             user_id=_label_user_id(data.get("user_id")),
             error_reason="malformed_arguments",
             extra_fields=(),
@@ -86,7 +86,7 @@ def parse_mcp_invoke_body(data: object) -> ParsedMcpInvokeRequest:
             ok=False,
             tool=tool.strip(),
             arguments=dict(arguments),
-            requested_scope=requested_scope.strip(),
+            requested_scope=requested_scope,
             user_id="unknown",
             error_reason="malformed_input",
             extra_fields=(),
@@ -96,7 +96,7 @@ def parse_mcp_invoke_body(data: object) -> ParsedMcpInvokeRequest:
         ok=True,
         tool=tool.strip(),
         arguments=dict(arguments),
-        requested_scope=requested_scope.strip(),
+        requested_scope=requested_scope,
         user_id=_label_user_id(user_id),
         error_reason="",
         extra_fields=(),
@@ -109,9 +109,10 @@ def _as_dict(value: object) -> dict[str, Any]:
     return {}
 
 
-def _as_scope(value: object) -> str:
+def _as_scope_raw(value: object) -> str:
+    """Preserve the caller token. Do not strip or lowercase authority-bearing scopes."""
     if isinstance(value, str):
-        return value.strip()
+        return value
     return ""
 
 

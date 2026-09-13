@@ -78,7 +78,7 @@
       "type": "ds.search",
       "name": "Q-MCP-SCOPE",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval scope_relation=case(requested_scope=allowed_scope AND decision=\"ALLOW\",\"granted\",requested_scope!=allowed_scope,\"known_but_ungranted\",decision=\"ERROR\",\"not_a_grant\",decision=\"DENY\",\"denied_without_scope_mismatch\",1=1,\"other\")\n| table run_id, tool, requested_scope, allowed_scope, decision, scope_relation"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval scope_relation=case(decision=\"ERROR\",\"not_a_grant\",requested_scope=allowed_scope AND decision=\"ALLOW\",\"granted\",requested_scope!=allowed_scope,\"known_but_ungranted\",decision=\"DENY\",\"denied_without_scope_mismatch\",1=1,\"other\")\n| table run_id, tool, requested_scope, allowed_scope, decision, scope_relation"
       }
     },
     "ds_q_params": {

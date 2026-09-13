@@ -36,18 +36,27 @@ def technique_id_for(attack_id: str) -> str | None:
         return "AML.T0054"
     if attack_id == "MCP-002":
         return "AML.T0050"
+    if attack_id == "MCP-003":
+        return "AML.T0050"
     return None
 
 
-def resolve_mcp_attack_id(tool: str | None) -> str:
+def resolve_mcp_attack_id(tool: str | None, requested_scope: str | None = None) -> str:
     if tool == "lookup_policy":
+        if requested_scope and requested_scope != "policy:read":
+            return "MCP-003"
         return "MCP-001"
     return "MCP-002"
 
 
-def resolve_mcp_testbed_mode(*, tool: str | None, settings: Settings) -> str:
+def resolve_mcp_testbed_mode(
+    *,
+    tool: str | None,
+    settings: Settings,
+    requested_scope: str | None = None,
+) -> str:
     if settings.testbed_mode_override in VALID_TESTBED_MODES:
         return settings.testbed_mode_override
-    if tool == "lookup_policy":
+    if tool == "lookup_policy" and (not requested_scope or requested_scope == "policy:read"):
         return "BASELINE"
     return "ATTACK"

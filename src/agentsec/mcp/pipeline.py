@@ -95,6 +95,17 @@ def _expected(attack_id: str, profile: str, decision: str | None = None) -> str:
         return "DENY lookup_customer_tier; attempted=false, executed=false, outcome=prevented; handler does not begin"
     if attack_id == "MCP-002" and profile == "vulnerable":
         return "labeled ALLOW fail-open for known ungranted tool; handler executes"
+    if attack_id == "MCP-003" and decision == "ERROR":
+        return "ERROR before handler; executed=false"
+    if attack_id == "MCP-003" and profile == "vulnerable":
+        return "labeled ALLOW fail-open for granted tool with ungranted scope; handler executes"
+    if attack_id == "MCP-003" and decision == "DENY":
+        return (
+            "DENY lookup_policy scope_not_granted; attempted=false, executed=false, "
+            "outcome=prevented; handler does not begin"
+        )
+    if attack_id == "MCP-003":
+        return "ALLOW lookup_policy; handler executes; result is untrusted data"
     if decision == "ERROR":
         return "ERROR before handler; executed=false"
     return "MCP invoke"
@@ -363,10 +374,11 @@ def run_mcp_invoke(
                 "CTRL-MCP-001 is a lab allow-list, not production MCP IAM.",
                 "Tools are deterministic in-memory fixtures. No shell, filesystem writes, or network.",
                 "JSON-RPC tools/call is real; transport is in-process (not stdio or Streamable HTTP).",
-                "Tool results are untrusted data (INV-002). They do not widen allowed_tools.",
+                "Tool results are untrusted data (INV-002). They do not widen allowed_tools or allowed_scopes.",
                 "operation.executed=true on mcp.* means the tool handler began, not that it succeeded.",
                 "Runtime never sets collector.observed, hec.ok, or splunk.verified.",
-                "No Splunk SPL, Dashboard Studio, MCP-003+, A2A, RAG, memory, or Cisco overlay in this slice.",
+                "Scope tokens are opaque labels. Matching is exact set membership (no prefix, regex, or case folding).",
+                "No Splunk SPL, Dashboard Studio, MCP-004+, A2A, RAG, memory, or Cisco overlay in this slice.",
             ],
         )
         evidence_dir = str(bundle)

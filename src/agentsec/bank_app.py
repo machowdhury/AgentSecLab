@@ -157,8 +157,12 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
     def mcp_invoke():
         data = request.get_json(silent=True)
         parsed = parse_mcp_invoke_body(data)
-        testbed_mode = resolve_mcp_testbed_mode(tool=parsed.tool, settings=runtime.settings)
-        attack_id = resolve_mcp_attack_id(parsed.tool)
+        testbed_mode = resolve_mcp_testbed_mode(
+            tool=parsed.tool,
+            requested_scope=parsed.requested_scope,
+            settings=runtime.settings,
+        )
+        attack_id = resolve_mcp_attack_id(parsed.tool, parsed.requested_scope)
         if not parsed.ok:
             result = run_mcp_schema_failure(
                 sink=runtime.sink,

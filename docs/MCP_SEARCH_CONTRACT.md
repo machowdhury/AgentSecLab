@@ -64,3 +64,15 @@ Avoid unless required: `join`, `transaction`, `map`, `append`, large subsearches
 | Q-MCP-AFTER-DENY | run.id, tool, deny_seq, sequence, event.name, decision |
 | Q-MCP-RESULT | run.id, tool, event.name, sequence, outcome, hash, trust, provenance, preview |
 | Q-MCP-RESULT-TRUST | run.id, tool, result_trust, provenance, outcome |
+
+---
+
+## MCP-003 reuse (Phase 4C)
+
+LAB-MCP-003 **reuses** these query IDs. Do not add Q-MCP-003. Live proof: `docs/PHASE4C_MCP003_SPLUNK_VALIDATION.md`.
+
+Q-MCP-WHO, Q-MCP-AUTHZ, Q-MCP-TOOL, Q-MCP-EXECUTED, and Q-MCP-AFTER-DENY were **reused unchanged**.
+
+Q-MCP-SCOPE is the same query ID. Phase 4C documented a helper-order gap (`ERROR` must be `not_a_grant` before `requested != allowed`) and corrected `case()` accordingly. That is not a new search.
+
+`scope_relation` remains a display helper. ERROR is not DENY. `known_but_ungranted` is not a detector.
