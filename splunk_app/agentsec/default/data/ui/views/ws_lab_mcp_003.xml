@@ -1,0 +1,1904 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="2" theme="light">
+  <label>LAB-MCP-003 Scope escalation in MCP tool authorization</label>
+  <description>WS-MCP-003. Validated Q-MCP SPL. DET-MCP-001 packaged disabled. Not DET-MCP-003. Not a notable-event pack. Splunk does not ALLOW or DENY a tool.</description>
+  <definition><![CDATA[
+{
+  "title": "LAB-MCP-003 Scope escalation in MCP tool authorization",
+  "description": "WS-MCP-003 Dashboard Studio workshop. Reuses validated Q-MCP investigation SPL. Saved search DET-MCP-001 is packaged disabled; this dashboard does not enable it. Not a notable-event pack. Not DET-MCP-003. Splunk does not ALLOW or DENY a tool.",
+  "defaults": {
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "large"
+        }
+      }
+    }
+  },
+  "inputs": {
+    "input_run_id": {
+      "type": "input.text",
+      "title": "Hunt",
+      "options": {
+        "token": "run_id",
+        "defaultValue": "5b089682-1d5a-49a7-ac43-967265fd6bc6"
+      }
+    },
+    "input_baseline_run_id": {
+      "type": "input.text",
+      "title": "BASELINE",
+      "options": {
+        "token": "baseline_run_id",
+        "defaultValue": "5b089682-1d5a-49a7-ac43-967265fd6bc6"
+      }
+    },
+    "input_attack_run_id": {
+      "type": "input.text",
+      "title": "ATTACK",
+      "options": {
+        "token": "attack_run_id",
+        "defaultValue": "b466ad12-72ec-44b7-be28-aacfaf2c25b1"
+      }
+    },
+    "input_retest_run_id": {
+      "type": "input.text",
+      "title": "RETEST",
+      "options": {
+        "token": "retest_run_id",
+        "defaultValue": "f638fd4f-1c4f-4ab6-8d42-4d03a4f3afd5"
+      }
+    },
+    "input_unknown_run_id": {
+      "type": "input.text",
+      "title": "UNKNOWN",
+      "options": {
+        "token": "unknown_run_id",
+        "defaultValue": "6ce19813-6cb5-4aae-a3a0-aa59386a82dd"
+      }
+    }
+  },
+  "dataSources": {
+    "ds_q_authz": {
+      "type": "ds.search",
+      "name": "Q-MCP-AUTHZ",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome"
+      }
+    },
+    "ds_q_scope": {
+      "type": "ds.search",
+      "name": "Q-MCP-SCOPE",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval scope_relation=case(decision=\"ERROR\",\"not_a_grant\",requested_scope=allowed_scope AND decision=\"ALLOW\",\"granted\",requested_scope!=allowed_scope,\"known_but_ungranted\",decision=\"DENY\",\"denied_without_scope_mismatch\",1=1,\"other\")\n| table run_id, tool, requested_scope, allowed_scope, decision, scope_relation"
+      }
+    },
+    "ds_q_tool": {
+      "type": "ds.search",
+      "name": "Q-MCP-TOOL",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" \"event.name\"=agentsec.mcp.started\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, event_name, sequence, executed, outcome\n| sort sequence"
+      }
+    },
+    "ds_q_executed": {
+      "type": "ds.search",
+      "name": "Q-MCP-EXECUTED",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state"
+      }
+    },
+    "ds_q_after_deny": {
+      "type": "ds.search",
+      "name": "Q-MCP-AFTER-DENY",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval is_deny=if(event_name=\"agentsec.control.decision\" AND decision=\"DENY\",1,0)\n| eval is_mcp=if(match(event_name,\"^agentsec\\\\.mcp\\\\.\"),1,0)\n| eventstats min(eval(if(is_deny=1,sequence,null()))) as deny_seq, max(is_deny) as has_deny by run_id, tool\n| where has_deny=1 AND is_mcp=1 AND sequence>deny_seq\n| table run_id, tool, deny_seq, sequence, event_name, decision"
+      }
+    },
+    "ds_det_mcp_001_scope_sim": {
+      "type": "ds.search",
+      "name": "DET-MCP-001-SCOPE-POSITIVE-CONTROL",
+      "options": {
+        "query": "| makeresults count=2\n| streamstats count as row\n| eval evidence_class=\"SIMULATED\"\n| eval \"agentsec.run.id\"=\"simulated-det-mcp-001-scope-0001\"\n| eval \"gen_ai.tool.name\"=\"lookup_policy\"\n| eval \"event.name\"=if(row=1,\"agentsec.control.decision\",\"agentsec.mcp.started\")\n| eval \"agentsec.control.decision\"=if(row=1,\"DENY\",null())\n| eval \"agentsec.control.reason\"=if(row=1,\"scope_not_granted\",null())\n| eval \"agentsec.sequence\"=if(row=1,\"3\",\"4\")\n| eval \"gen_ai.agent.id\"=\"acme-agent-mcp-001\"\n| eval \"agentsec.principal.id\"=\"applicant-web\"\n| eval \"agentsec.control.id\"=if(row=1,\"CTRL-MCP-001\",null())\n| eval \"agentsec.security.profile\"=\"defended\"\n| eval \"agentsec.testbed.mode\"=\"RETEST\"\n| eval \"agentsec.mcp.requested_scope\"=if(row=1,\"policy:restricted:read\",null())\n| eval \"agentsec.mcp.allowed_scope\"=if(row=1,\"policy:read\",null())\n| eval \"trace_id\"=\"simulated-trace-det-mcp-001-scope\"\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval principal=mvindex(mvdedup('agentsec.principal.id'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval trace_id=mvindex(mvdedup('trace_id'),0)\n| eval is_deny=if(event_name=\"agentsec.control.decision\" AND decision=\"DENY\",1,0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eventstats min(eval(if(is_deny=1,sequence,null()))) as deny_sequence, max(is_deny) as has_deny, latest(eval(if(is_deny=1,agent,null()))) as agent, latest(eval(if(is_deny=1,principal,null()))) as principal, latest(eval(if(is_deny=1,control_id,null()))) as control_id, latest(eval(if(is_deny=1,profile,null()))) as profile, latest(eval(if(is_deny=1,mode,null()))) as mode, latest(eval(if(is_deny=1,requested_scope,null()))) as requested_scope, latest(eval(if(is_deny=1,allowed_scope,null()))) as allowed_scope, latest(eval(if(is_started=1,trace_id,null()))) as start_trace_id by run_id, tool\n| eval trace_id=coalesce(start_trace_id,trace_id)\n| where has_deny=1 AND is_started=1 AND sequence>deny_sequence\n| eval decision=\"DENY\"\n| eval mcp_start_sequence=sequence\n| table run_id, tool, agent, principal, control_id, decision, deny_sequence, mcp_start_sequence, profile, mode, requested_scope, allowed_scope, trace_id, evidence_class"
+      }
+    },
+    "ds_observe_seq": {
+      "type": "ds.search",
+      "name": "MCP-003 observe sequence",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table sequence, run_id, event_name, tool, requested_scope, allowed_scope, decision, reason, attempted, executed, outcome\n| sort sequence"
+      }
+    },
+    "ds_what_identity": {
+      "type": "ds.search",
+      "name": "What Happened identity hunt",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, profile, mode, agent, tool"
+      }
+    },
+    "ds_what_decision": {
+      "type": "ds.search",
+      "name": "What Happened decision hunt",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust"
+      }
+    },
+    "ds_q_authz_baseline": {
+      "type": "ds.search",
+      "name": "Q-MCP-AUTHZ BASELINE",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$baseline_run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome"
+      }
+    },
+    "ds_q_authz_attack": {
+      "type": "ds.search",
+      "name": "Q-MCP-AUTHZ ATTACK",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$attack_run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome"
+      }
+    },
+    "ds_q_authz_retest": {
+      "type": "ds.search",
+      "name": "Q-MCP-AUTHZ RETEST",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$retest_run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome"
+      }
+    },
+    "ds_q_authz_unknown": {
+      "type": "ds.search",
+      "name": "Q-MCP-AUTHZ UNKNOWN",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$unknown_run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome"
+      }
+    },
+    "ds_q_scope_baseline": {
+      "type": "ds.search",
+      "name": "Q-MCP-SCOPE BASELINE",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$baseline_run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval scope_relation=case(decision=\"ERROR\",\"not_a_grant\",requested_scope=allowed_scope AND decision=\"ALLOW\",\"granted\",requested_scope!=allowed_scope,\"known_but_ungranted\",decision=\"DENY\",\"denied_without_scope_mismatch\",1=1,\"other\")\n| table run_id, tool, requested_scope, allowed_scope, decision, scope_relation"
+      }
+    },
+    "ds_q_scope_attack": {
+      "type": "ds.search",
+      "name": "Q-MCP-SCOPE ATTACK",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$attack_run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval scope_relation=case(decision=\"ERROR\",\"not_a_grant\",requested_scope=allowed_scope AND decision=\"ALLOW\",\"granted\",requested_scope!=allowed_scope,\"known_but_ungranted\",decision=\"DENY\",\"denied_without_scope_mismatch\",1=1,\"other\")\n| table run_id, tool, requested_scope, allowed_scope, decision, scope_relation"
+      }
+    },
+    "ds_q_scope_retest": {
+      "type": "ds.search",
+      "name": "Q-MCP-SCOPE RETEST",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$retest_run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval scope_relation=case(decision=\"ERROR\",\"not_a_grant\",requested_scope=allowed_scope AND decision=\"ALLOW\",\"granted\",requested_scope!=allowed_scope,\"known_but_ungranted\",decision=\"DENY\",\"denied_without_scope_mismatch\",1=1,\"other\")\n| table run_id, tool, requested_scope, allowed_scope, decision, scope_relation"
+      }
+    },
+    "ds_q_scope_unknown": {
+      "type": "ds.search",
+      "name": "Q-MCP-SCOPE UNKNOWN",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$unknown_run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval scope_relation=case(decision=\"ERROR\",\"not_a_grant\",requested_scope=allowed_scope AND decision=\"ALLOW\",\"granted\",requested_scope!=allowed_scope,\"known_but_ungranted\",decision=\"DENY\",\"denied_without_scope_mismatch\",1=1,\"other\")\n| table run_id, tool, requested_scope, allowed_scope, decision, scope_relation"
+      }
+    },
+    "ds_q_tool_baseline": {
+      "type": "ds.search",
+      "name": "Q-MCP-TOOL BASELINE",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$baseline_run_id$\" \"event.name\"=agentsec.mcp.started\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, event_name, sequence, executed, outcome\n| sort sequence"
+      }
+    },
+    "ds_q_tool_attack": {
+      "type": "ds.search",
+      "name": "Q-MCP-TOOL ATTACK",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$attack_run_id$\" \"event.name\"=agentsec.mcp.started\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, event_name, sequence, executed, outcome\n| sort sequence"
+      }
+    },
+    "ds_q_tool_retest": {
+      "type": "ds.search",
+      "name": "Q-MCP-TOOL RETEST",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$retest_run_id$\" \"event.name\"=agentsec.mcp.started\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, event_name, sequence, executed, outcome\n| sort sequence"
+      }
+    },
+    "ds_q_executed_baseline": {
+      "type": "ds.search",
+      "name": "Q-MCP-EXECUTED BASELINE",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$baseline_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state"
+      }
+    },
+    "ds_q_executed_attack": {
+      "type": "ds.search",
+      "name": "Q-MCP-EXECUTED ATTACK",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$attack_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state"
+      }
+    },
+    "ds_q_executed_retest": {
+      "type": "ds.search",
+      "name": "Q-MCP-EXECUTED RETEST",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$retest_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state"
+      }
+    },
+    "ds_what_baseline_id": {
+      "type": "ds.search",
+      "name": "What Happened identity BASELINE",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$baseline_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, profile, mode, agent, tool"
+      }
+    },
+    "ds_what_baseline_dec": {
+      "type": "ds.search",
+      "name": "What Happened decision BASELINE",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$baseline_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust"
+      }
+    },
+    "ds_what_attack_id": {
+      "type": "ds.search",
+      "name": "What Happened identity ATTACK",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$attack_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, profile, mode, agent, tool"
+      }
+    },
+    "ds_what_attack_dec": {
+      "type": "ds.search",
+      "name": "What Happened decision ATTACK",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$attack_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust"
+      }
+    },
+    "ds_what_retest_id": {
+      "type": "ds.search",
+      "name": "What Happened identity RETEST",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$retest_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, profile, mode, agent, tool"
+      }
+    },
+    "ds_what_retest_dec": {
+      "type": "ds.search",
+      "name": "What Happened decision RETEST",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$retest_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust"
+      }
+    }
+  },
+  "visualizations": {
+    "viz_learn": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# LAB-MCP-003 Scope escalation in MCP tool authorization\n\n**WS-MCP-003** · GUIDED · schema `agentsec.security_event` **1.1.0** · INV-001 · MCP-003 · CTRL-MCP-001\n\nSplunk is the hunt workbench. Splunk does **not** ALLOW or DENY a tool. AcmeBank `POST /mcp/invoke` is the enforcement point.\n\n## Two labs, two questions\n\n- **LAB-MCP-001:** May this agent call this **tool**?\n- **LAB-MCP-003:** May this agent call this tool **at this requested scope**?\n\nIn this lab the **tool is granted**. The **excessive scope is not**. Same tool `lookup_policy`, same arguments `policy_id=lending-basics`. Only requested authority changes.\n\n## Validated specimen ids (Phase 4C LIVE)\n\nCopy the full UUID. Token fields may ellipsis; these bullets do not.\n\n- **BASELINE** `5b089682-1d5a-49a7-ac43-967265fd6bc6` — defended, `policy:read`, ALLOW `tool_granted`, handler=1, `mcp.completed`\n- **ATTACK** `b466ad12-72ec-44b7-be28-aacfaf2c25b1` — vulnerable, `policy:restricted:read`, labeled fail-open ALLOW, handler=1\n- **RETEST** `f638fd4f-1c4f-4ab6-8d42-4d03a4f3afd5` — defended, same excessive scope, DENY `scope_not_granted`, handler=0\n- **UNKNOWN** `6ce19813-6cb5-4aae-a3a0-aa59386a82dd` — `policy:write`, ERROR `unknown_scope`, handler=0 (not RETEST)\n\n## Authorization path (before the handler)\n\n```text\nrequest\n  → tool exists?\n  → tool granted?\n  → requested scope valid?   (in tool catalog)\n  → requested scope granted? (in agent grant)\n  → args valid?\n  → ALLOW\n  → handler\n```\n\nColons are **opaque labels**. No hierarchy, no wildcard, no prefix matching. `policy:read` does not imply `policy:restricted:read`.\n\nALLOW is the control decision. Tool execution begins at `mcp.started` (`executed=true` on that event). Do not read ALLOW as execution. `mcp.completed` is success of a begun call. `mcp.failed` is execution then error, not prevention.\n\nTabs: LEARN → BASELINE → ATTACK → OBSERVE → HUNT → DETECT → DEFEND → RETEST → COMPARE → PROVE.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "LEARN"
+    },
+    "viz_learn_granted": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# GRANTED\n\n`requested_scope=policy:read`  \n`allowed_scope=policy:read`\n\nKnown to the tool catalog **and** granted to the agent.\n\nDefended result: **ALLOW** `tool_granted`.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "GRANTED"
+    },
+    "viz_learn_known": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# KNOWN BUT UNGRANTED\n\n`requested_scope=policy:restricted:read`  \n`allowed_scope=policy:read`\n\nKnown to the **tool catalog**. **Not** granted to the agent.\n\nDefended: **DENY** `scope_not_granted`.  \nVulnerable: labeled **ALLOW** fail-open. The grant does not change.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "KNOWN BUT UNGRANTED"
+    },
+    "viz_learn_unknown": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# UNKNOWN\n\n`requested_scope=policy:write`\n\nNot in the tool catalog. Not a grant question.\n\nResult: **ERROR** `unknown_scope`. Not DENY. Not RETEST.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "UNKNOWN"
+    },
+    "viz_baseline_md": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# BASELINE\n\n**What the learner did:** `POST /mcp/invoke` for granted tool `lookup_policy`, requested_scope `policy:read`, profile `defended`, `testbed.mode=BASELINE`.\n\n**Authorization:** CTRL-MCP-001 **ALLOW** `tool_granted`. Requested and allowed scopes both `policy:read`.\n\n**Execution (separate fact):** `mcp.started` then `mcp.completed`. Runtime handler count **1**.\n\n**Evidence:** What Happened (indexed fields), then Q-MCP-AUTHZ / Q-MCP-SCOPE / Q-MCP-TOOL / Q-MCP-EXECUTED on token **BASELINE**.\n\nValidated reference: `5b089682-1d5a-49a7-ac43-967265fd6bc6`.\n\nALLOW is the control decision. Tool execution begins at `mcp.started` (`executed=true` on that event). Do not read ALLOW as execution. `mcp.completed` is success of a begun call. `mcp.failed` is execution then error, not prevention.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "STEP 1 BASELINE"
+    },
+    "viz_baseline_what_id": {
+      "type": "splunk.table",
+      "title": "What Happened? identity (indexed fields)",
+      "description": "Indexed identity fields for this run. Not a story. Empty is not DENY. Expect agent acme-agent-mcp-001, tool lookup_policy, profile defended, mode BASELINE.",
+      "dataSources": {
+        "primary": "ds_what_baseline_id"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. The dashboard will not invent DENY, executed, or prevented from an empty table."
+      }
+    },
+    "viz_baseline_what_dec": {
+      "type": "splunk.table",
+      "title": "What Happened? decision (indexed fields)",
+      "description": "Indexed decision fields. `decision` is the control token. `execution_state` is derived from mcp.* presence in this copy. Control `executed` is not this table. Expect ALLOW, tool_granted, scopes both policy:read, execution_state mcp.completed.",
+      "dataSources": {
+        "primary": "ds_what_baseline_dec"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. The dashboard will not invent DENY, executed, or prevented from an empty table."
+      }
+    },
+    "viz_baseline_authz": {
+      "type": "splunk.table",
+      "title": "Q-MCP-AUTHZ",
+      "description": "Q-MCP-AUTHZ control.decision row. `executed` here is the control-event field (false on ALLOW). It is not handler execution. ERROR is not DENY. Expect ALLOW, tool_granted, scopes both policy:read.",
+      "dataSources": {
+        "primary": "ds_q_authz_baseline"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_baseline_scope": {
+      "type": "splunk.table",
+      "title": "Q-MCP-SCOPE",
+      "description": "Q-MCP-SCOPE. `scope_relation` is a display helper. `granted` is ALLOW with matching scopes. `known_but_ungranted` is catalog-valid requested ≠ allowed (DENY or fail-open ALLOW). `not_a_grant` is ERROR (unknown or missing scope). Do not collapse known-but-ungranted with unknown. Expect scope_relation=granted.",
+      "dataSources": {
+        "primary": "ds_q_scope_baseline"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_baseline_tool": {
+      "type": "splunk.table",
+      "title": "Q-MCP-TOOL",
+      "description": "Q-MCP-TOOL `mcp.started` rows. Zero rows is not automatically DENY. Expect one mcp.started row, executed=true on that event.",
+      "dataSources": {
+        "primary": "ds_q_tool_baseline"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed MCP execution event was found for this run. That does not automatically mean DENY. ERROR, schema failure, and export loss also look like zero rows."
+      }
+    },
+    "viz_baseline_exec": {
+      "type": "splunk.table",
+      "title": "Q-MCP-EXECUTED",
+      "description": "Q-MCP-EXECUTED. Control `executed` stays false on ALLOW. Read `has_started` and `execution_state` for whether the handler began. Scroll right if needed. Expect execution_state=mcp.completed.",
+      "dataSources": {
+        "primary": "ds_q_executed_baseline"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed MCP execution event was found for this run. That does not automatically mean DENY. ERROR, schema failure, and export loss also look like zero rows."
+      }
+    },
+    "viz_attack_md": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# ATTACK\n\n**Request:** same granted tool `lookup_policy`, same arguments. Requested scope `policy:restricted:read`. Profile `vulnerable`. `testbed.mode=ATTACK`.\n\n- The **tool** is granted.\n- The requested scope is **known** to the catalog.\n- The requested scope is **not granted** to the agent.\n- Vulnerable profile intentionally **fails open**.\n- Decision: **ALLOW** `vulnerable_profile_fail_open:scope_not_granted`.\n- allowed_scope stays the coded grant policy:read. Fail-open ALLOW does not rewrite the grant. The tool being granted does not mean the requested scope is granted.\n- Handler executes. Runtime handler count **1**. `mcp.completed` is observed.\n\nThis is a controlled lab authorization failure, not a production exploit. The grant did **not** change.\n\n**Validated reference:** `b466ad12-72ec-44b7-be28-aacfaf2c25b1`.\n\nTables on this tab use the **ATTACK** token. Predict DENY vs fail-open before you read them.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "STEP 2 ATTACK"
+    },
+    "viz_attack_what_id": {
+      "type": "splunk.table",
+      "title": "What Happened? identity (indexed fields)",
+      "description": "Indexed identity fields for this run. Not a story. Empty is not DENY. Expect tool lookup_policy, profile vulnerable, mode ATTACK.",
+      "dataSources": {
+        "primary": "ds_what_attack_id"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. The dashboard will not invent DENY, executed, or prevented from an empty table."
+      }
+    },
+    "viz_attack_what_dec": {
+      "type": "splunk.table",
+      "title": "What Happened? decision (indexed fields)",
+      "description": "Indexed decision fields. `decision` is the control token. `execution_state` is derived from mcp.* presence in this copy. Control `executed` is not this table. Expect labeled fail-open ALLOW, requested policy:restricted:read, allowed still policy:read, execution_state mcp.completed.",
+      "dataSources": {
+        "primary": "ds_what_attack_dec"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. The dashboard will not invent DENY, executed, or prevented from an empty table."
+      }
+    },
+    "viz_attack_authz": {
+      "type": "splunk.table",
+      "title": "Q-MCP-AUTHZ",
+      "description": "Q-MCP-AUTHZ control.decision row. `executed` here is the control-event field (false on ALLOW). It is not handler execution. ERROR is not DENY. Expect ALLOW vulnerable_profile_fail_open:scope_not_granted. allowed_scope remains policy:read.",
+      "dataSources": {
+        "primary": "ds_q_authz_attack"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_attack_scope": {
+      "type": "splunk.table",
+      "title": "Q-MCP-SCOPE",
+      "description": "Q-MCP-SCOPE. `scope_relation` is a display helper. `granted` is ALLOW with matching scopes. `known_but_ungranted` is catalog-valid requested ≠ allowed (DENY or fail-open ALLOW). `not_a_grant` is ERROR (unknown or missing scope). Do not collapse known-but-ungranted with unknown. Expect known_but_ungranted with decision ALLOW.",
+      "dataSources": {
+        "primary": "ds_q_scope_attack"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_attack_tool": {
+      "type": "splunk.table",
+      "title": "Q-MCP-TOOL",
+      "description": "Q-MCP-TOOL `mcp.started` rows. Zero rows is not automatically DENY. Expect mcp.started. Fail-open executed the handler; it did not create a grant.",
+      "dataSources": {
+        "primary": "ds_q_tool_attack"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed MCP execution event was found for this run. That does not automatically mean DENY. ERROR, schema failure, and export loss also look like zero rows."
+      }
+    },
+    "viz_attack_exec": {
+      "type": "splunk.table",
+      "title": "Q-MCP-EXECUTED",
+      "description": "Q-MCP-EXECUTED. Control `executed` stays false on ALLOW. Read `has_started` and `execution_state` for whether the handler began. Scroll right if needed. Expect has_started=1 and execution_state=mcp.completed.",
+      "dataSources": {
+        "primary": "ds_q_executed_attack"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed MCP execution event was found for this run. That does not automatically mean DENY. ERROR, schema failure, and export loss also look like zero rows."
+      }
+    },
+    "viz_observe_md": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# OBSERVE\n\nUse **Hunt run.id** (defaults to BASELINE). Tables are telemetry, not a story.\n\nRead sequence top to bottom. You must see `agentsec.control.decision` **before** `agentsec.mcp.started` when execution occurred.\n\nMinimum fields: `run_id`, `sequence`, `event.name`, tool, requested_scope, allowed_scope, decision, reason, attempted, executed, outcome.\n\nHunt `run.id` defaults to the BASELINE specimen so this page is not an error state. Replace it and Submit to hunt another complete copy. Zero rows means no matching indexed events for that id. Zero rows is not DENY and is not proof the handler never ran.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "STEP 3 OBSERVE"
+    },
+    "viz_observe_seq": {
+      "type": "splunk.table",
+      "title": "Control then MCP events (ordered)",
+      "description": "Ordered control then mcp.* events. You must see control.decision before mcp.started when execution occurred. Scopes appear on the control row.",
+      "dataSources": {
+        "primary": "ds_observe_seq"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control or mcp.* events were found for this run. Ordering cannot be shown. That is not a security outcome."
+      }
+    },
+    "viz_observe_authz": {
+      "type": "splunk.table",
+      "title": "Q-MCP-AUTHZ",
+      "description": "Q-MCP-AUTHZ control.decision row. `executed` here is the control-event field (false on ALLOW). It is not handler execution. ERROR is not DENY.",
+      "dataSources": {
+        "primary": "ds_q_authz"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_observe_scope": {
+      "type": "splunk.table",
+      "title": "Q-MCP-SCOPE",
+      "description": "Q-MCP-SCOPE. `scope_relation` is a display helper. `granted` is ALLOW with matching scopes. `known_but_ungranted` is catalog-valid requested ≠ allowed (DENY or fail-open ALLOW). `not_a_grant` is ERROR (unknown or missing scope). Do not collapse known-but-ungranted with unknown.",
+      "dataSources": {
+        "primary": "ds_q_scope"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_hunt_md": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HUNT\n\n**Question:** What did CTRL-MCP-001 decide, what scope was requested vs coded, and did execution begin?\n\nReuse validated Q-MCP searches. Do not invent a duplicate scope query. Filter is already `agentsec.run.id`. Do not hunt `session.id`.\n\nALLOW is the control decision. Tool execution begins at `mcp.started` (`executed=true` on that event). Do not read ALLOW as execution. `mcp.completed` is success of a begun call. `mcp.failed` is execution then error, not prevention.\n\nZero Q-MCP-TOOL rows does **not** automatically mean DENY.\n\nIf Splunk is empty, check `artifacts/<run-id>/export.json`. Do not conclude DENY.\n\nHunt `run.id` defaults to the BASELINE specimen so this page is not an error state. Replace it and Submit to hunt another complete copy. Zero rows means no matching indexed events for that id. Zero rows is not DENY and is not proof the handler never ran.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "STEP 4 HUNT"
+    },
+    "viz_hunt_authz": {
+      "type": "splunk.table",
+      "title": "Q-MCP-AUTHZ",
+      "description": "Q-MCP-AUTHZ control.decision row. `executed` here is the control-event field (false on ALLOW). It is not handler execution. ERROR is not DENY.",
+      "dataSources": {
+        "primary": "ds_q_authz"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_hunt_scope": {
+      "type": "splunk.table",
+      "title": "Q-MCP-SCOPE",
+      "description": "Q-MCP-SCOPE. `scope_relation` is a display helper. `granted` is ALLOW with matching scopes. `known_but_ungranted` is catalog-valid requested ≠ allowed (DENY or fail-open ALLOW). `not_a_grant` is ERROR (unknown or missing scope). Do not collapse known-but-ungranted with unknown.",
+      "dataSources": {
+        "primary": "ds_q_scope"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_hunt_tool": {
+      "type": "splunk.table",
+      "title": "Q-MCP-TOOL",
+      "description": "Q-MCP-TOOL `mcp.started` rows. Zero rows is not automatically DENY.",
+      "dataSources": {
+        "primary": "ds_q_tool"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed MCP execution event was found for this run. That does not automatically mean DENY. ERROR, schema failure, and export loss also look like zero rows."
+      }
+    },
+    "viz_hunt_exec": {
+      "type": "splunk.table",
+      "title": "Q-MCP-EXECUTED",
+      "description": "Q-MCP-EXECUTED. Control `executed` stays false on ALLOW. Read `has_started` and `execution_state` for whether the handler began. Scroll right if needed.",
+      "dataSources": {
+        "primary": "ds_q_executed"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed MCP execution event was found for this run. That does not automatically mean DENY. ERROR, schema failure, and export loss also look like zero rows."
+      }
+    },
+    "viz_detect_md": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# DETECT — reuse DET-MCP-001\n\nNo notable event. No ES notable. No DET-MCP-003. This dashboard does **not** enable the saved search.\n\n**Invariant:** if CTRL-MCP-001 returns **DENY** for a run/tool, no later `mcp.started` may occur for that same run/tool (`sequence` greater than the DENY).\n\nDET-MCP-001 does **not** care whether DENY came from `tool_not_granted` or `scope_not_granted`. The invariant is DENY, then later `mcp.started`, same run/tool.\n\n## HUNT vs DETECTION\n\n- **HUNT** (`Q-MCP-AFTER-DENY` on Hunt run.id): left table. LIVE MCP-003 specimens: **0** rows. Zero rows is not independent proof the handler never ran.\n- **DETECTION** (`DET-MCP-001`): same invariant across the index window. Severity **HIGH**. Packaged **disabled**. It did **not** fire on the validated LIVE MCP-003 runs.\n\nDENY alone is not an alert. ALLOW (including labeled fail-open) is not this detection. ERROR is not DENY. Splunk detects a copy of a violation; it does not enforce authorization.\n\nRight table: `DET-MCP-001-SCOPE-POSITIVE-CONTROL` — **SIMULATED** `| makeresults` (DENY `scope_not_granted`, requested `policy:restricted:read`, allowed `policy:read`, then `mcp.started`). Not indexed. Not an AcmeBank run. Not OBSERVED runtime evidence.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "STEP 5 DETECT"
+    },
+    "viz_detect_live": {
+      "type": "splunk.table",
+      "title": "Q-MCP-AFTER-DENY (indexed hunt)",
+      "description": "Investigation query. LIVE MCP-003 specimens: 0 rows. Zero rows = no indexed violation found, not independent proof of non-execution. DET-MCP-001 did not fire on those runs.",
+      "dataSources": {
+        "primary": "ds_q_after_deny"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed violation was found. That does not independently prove the handler never executed. Runtime handler count remains authoritative."
+      }
+    },
+    "viz_detect_sim": {
+      "type": "splunk.table",
+      "title": "DET-MCP-001-SCOPE-POSITIVE-CONTROL (SIMULATED)",
+      "description": "Always one fixture row labeled SIMULATED. Scope-context DENY then mcp.started. Do not treat as a live incident. Not written to index=agentsec_telemetry. Not OBSERVED runtime evidence. Not DET-MCP-003.",
+      "dataSources": {
+        "primary": "ds_det_mcp_001_scope_sim"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "SIMULATED search returned no fixture row. Re-check DET-MCP-001-SCOPE-POSITIVE-CONTROL.spl (makeresults)."
+      }
+    },
+    "viz_defend": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# DEFEND\n\n**Control:** CTRL-MCP-001 (`src/agentsec/mcp/authorize.py`). Same control as LAB-MCP-001. No CTRL-MCP-003.\n\n**Where it executes:** MCP server, **before** the tool handler.\n\nThis is a **lab allow-list**, not production IAM, not an enterprise MCP gateway, and not Splunk authorization.\n\n## Defended policy for this lab\n\nTool granted. Requested scope **known** to the catalog. Requested scope **not granted** to the agent.\n\n→ **DENY** `scope_not_granted`  \n→ handler does not begin  \n→ allowed_scope stays the coded grant policy:read. Fail-open ALLOW does not rewrite the grant. The tool being granted does not mean the requested scope is granted.\n\n`vulnerable` is an intentional labeled fail-open for that **known-but-ungranted scope** only. Unknown catalog tokens stay ERROR and do not fail-open.\n\nInspecting a tool result after the handler cannot be DENY of that invoke. Splunk searches do not move the control.\n\n**SPL this step:** none for the policy text. Unknown-scope tables below use the **UNKNOWN** token. **Next:** RETEST the same excessive-scope request with `defended`.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "STEP 6 DEFEND"
+    },
+    "viz_unknown_md": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# UNKNOWN SCOPE (not RETEST)\n\nRequested `policy:write`. That token is **not** in `lookup_policy` catalog `valid_scopes`.\n\n**Expected:** **ERROR** `unknown_scope`. Runtime handler count **0**. No `mcp.started`.\n\n**DENY** means known authority was requested but not granted (`policy:restricted:read`).  \n**ERROR** means the requested scope is not part of the tool's defined scope model (`policy:write`).\n\nDo not treat this as RETEST. Validated reference: `6ce19813-6cb5-4aae-a3a0-aa59386a82dd`.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "UNKNOWN SCOPE TEACHING"
+    },
+    "viz_unknown_authz": {
+      "type": "splunk.table",
+      "title": "Q-MCP-AUTHZ (UNKNOWN token)",
+      "description": "Q-MCP-AUTHZ control.decision row. `executed` here is the control-event field (false on ALLOW). It is not handler execution. ERROR is not DENY. Expect ERROR unknown_scope, requested policy:write, allowed still policy:read.",
+      "dataSources": {
+        "primary": "ds_q_authz_unknown"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_unknown_scope": {
+      "type": "splunk.table",
+      "title": "Q-MCP-SCOPE (UNKNOWN token)",
+      "description": "Q-MCP-SCOPE. `scope_relation` is a display helper. `granted` is ALLOW with matching scopes. `known_but_ungranted` is catalog-valid requested ≠ allowed (DENY or fail-open ALLOW). `not_a_grant` is ERROR (unknown or missing scope). Do not collapse known-but-ungranted with unknown. Expect decision ERROR and scope_relation=not_a_grant. Not known_but_ungranted.",
+      "dataSources": {
+        "primary": "ds_q_scope_unknown"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_retest_md": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# RETEST\n\nSame request as ATTACK: `lookup_policy`, requested_scope `policy:restricted:read`, same arguments. Profile **defended**. `testbed.mode=RETEST`.\n\n**Expected:** DENY `scope_not_granted`. Control `attempted=false`, `executed=false`, `outcome=prevented`. Runtime handler count **0**. No `mcp.started`. allowed_scope stays the coded grant policy:read. Fail-open ALLOW does not rewrite the grant. The tool being granted does not mean the requested scope is granted.\n\nValidated reference: `f638fd4f-1c4f-4ab6-8d42-4d03a4f3afd5`.\n\nRuntime handler count is authoritative proof of non-execution. Splunk absence of `mcp.started` is corroboration only, and only on a complete copy.\n\nTables on this tab use the **RETEST** token.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "STEP 7 RETEST"
+    },
+    "viz_retest_what_id": {
+      "type": "splunk.table",
+      "title": "What Happened? identity (indexed fields)",
+      "description": "Indexed identity fields for this run. Not a story. Empty is not DENY. Expect tool lookup_policy, profile defended, mode RETEST.",
+      "dataSources": {
+        "primary": "ds_what_retest_id"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. The dashboard will not invent DENY, executed, or prevented from an empty table."
+      }
+    },
+    "viz_retest_what_dec": {
+      "type": "splunk.table",
+      "title": "What Happened? decision (indexed fields)",
+      "description": "Indexed decision fields. `decision` is the control token. `execution_state` is derived from mcp.* presence in this copy. Control `executed` is not this table. Expect DENY, scope_not_granted, execution_state no_mcp_execution_event, outcome prevented.",
+      "dataSources": {
+        "primary": "ds_what_retest_dec"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. The dashboard will not invent DENY, executed, or prevented from an empty table."
+      }
+    },
+    "viz_retest_authz": {
+      "type": "splunk.table",
+      "title": "Q-MCP-AUTHZ",
+      "description": "Q-MCP-AUTHZ control.decision row. `executed` here is the control-event field (false on ALLOW). It is not handler execution. ERROR is not DENY. Expect DENY, scope_not_granted, outcome=prevented.",
+      "dataSources": {
+        "primary": "ds_q_authz_retest"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_retest_scope": {
+      "type": "splunk.table",
+      "title": "Q-MCP-SCOPE",
+      "description": "Q-MCP-SCOPE. `scope_relation` is a display helper. `granted` is ALLOW with matching scopes. `known_but_ungranted` is catalog-valid requested ≠ allowed (DENY or fail-open ALLOW). `not_a_grant` is ERROR (unknown or missing scope). Do not collapse known-but-ungranted with unknown. Expect known_but_ungranted with decision DENY.",
+      "dataSources": {
+        "primary": "ds_q_scope_retest"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_retest_tool": {
+      "type": "splunk.table",
+      "title": "Q-MCP-TOOL",
+      "description": "Complete RETEST copy should have zero mcp.started rows. That is Splunk corroboration, not independent proof. Runtime handler count remains authoritative.",
+      "dataSources": {
+        "primary": "ds_q_tool_retest"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed MCP execution event was found for this run. That does not automatically mean DENY. ERROR, schema failure, and export loss also look like zero rows."
+      }
+    },
+    "viz_retest_exec": {
+      "type": "splunk.table",
+      "title": "Q-MCP-EXECUTED",
+      "description": "Q-MCP-EXECUTED. Control `executed` stays false on ALLOW. Read `has_started` and `execution_state` for whether the handler began. Scroll right if needed. Expect has_started=0 and execution_state=no_mcp_execution_event.",
+      "dataSources": {
+        "primary": "ds_q_executed_retest"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed MCP execution event was found for this run. That does not automatically mean DENY. ERROR, schema failure, and export loss also look like zero rows."
+      }
+    },
+    "viz_compare_md": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# COMPARE\n\nSame tool `lookup_policy`. Same arguments. Different requested authority.\n\n**BASELINE** `5b089682-1d5a-49a7-ac43-967265fd6bc6`  \nprofile defended · mode BASELINE · tool lookup_policy · tool granted **yes** · requested `policy:read` · scope known **yes** · scope granted **yes** · allowed `policy:read` · ALLOW `tool_granted` · mcp.started **yes** · terminal `mcp.completed` · runtime handler **1** · control executed false · mcp executed true · outcome success\n\n**ATTACK** `b466ad12-72ec-44b7-be28-aacfaf2c25b1`  \nprofile vulnerable · mode ATTACK · tool lookup_policy · tool granted **yes** · requested `policy:restricted:read` · scope known **yes** · scope granted **no** · allowed still `policy:read` · ALLOW fail-open `scope_not_granted` · mcp.started **yes** · terminal `mcp.completed` · runtime handler **1** · control executed false · mcp executed true · outcome success\n\n**RETEST** `f638fd4f-1c4f-4ab6-8d42-4d03a4f3afd5`  \nprofile defended · mode RETEST · tool lookup_policy · tool granted **yes** · requested `policy:restricted:read` · scope known **yes** · scope granted **no** · allowed `policy:read` · DENY `scope_not_granted` · mcp.started **no** · terminal none · runtime handler **0** · control executed false · outcome prevented\n\nHandler counts are **runtime** facts from Phase 4C. Splunk tables below corroborate the indexed copy. Empty COMPARE tables on this volume mean those run.ids are not in `index=agentsec_telemetry` here. That is not DENY.\n\nQ-MCP-EXECUTED column `executed` is the **control-event** field (false on ALLOW). Use `has_started` and `execution_state`. Scroll right in the EXECUTED tables.\n\nALLOW is the control decision. Tool execution begins at `mcp.started` (`executed=true` on that event). Do not read ALLOW as execution. `mcp.completed` is success of a begun call. `mcp.failed` is execution then error, not prevention.\n\nCore lesson: same granted tool, same arguments, different requested scope. Vulnerable labeled fail-open ALLOW executes. Defended DENY does not. The grant never becomes `policy:restricted:read`.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "BEFORE / AFTER"
+    },
+    "viz_cmp_c_base": {
+      "type": "splunk.table",
+      "title": "BASELINE Q-MCP-AUTHZ",
+      "description": "Q-MCP-AUTHZ control.decision row. `executed` here is the control-event field (false on ALLOW). It is not handler execution. ERROR is not DENY. Expect ALLOW tool_granted.",
+      "dataSources": {
+        "primary": "ds_q_authz_baseline"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_cmp_c_atk": {
+      "type": "splunk.table",
+      "title": "ATTACK Q-MCP-AUTHZ",
+      "description": "Q-MCP-AUTHZ control.decision row. `executed` here is the control-event field (false on ALLOW). It is not handler execution. ERROR is not DENY. Expect labeled fail-open ALLOW. ALLOW is not execution. Grant unchanged.",
+      "dataSources": {
+        "primary": "ds_q_authz_attack"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_cmp_c_rt": {
+      "type": "splunk.table",
+      "title": "RETEST Q-MCP-AUTHZ",
+      "description": "Q-MCP-AUTHZ control.decision row. `executed` here is the control-event field (false on ALLOW). It is not handler execution. ERROR is not DENY. Expect DENY scope_not_granted prevented.",
+      "dataSources": {
+        "primary": "ds_q_authz_retest"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_cmp_s_base": {
+      "type": "splunk.table",
+      "title": "BASELINE Q-MCP-SCOPE",
+      "description": "Q-MCP-SCOPE. `scope_relation` is a display helper. `granted` is ALLOW with matching scopes. `known_but_ungranted` is catalog-valid requested ≠ allowed (DENY or fail-open ALLOW). `not_a_grant` is ERROR (unknown or missing scope). Do not collapse known-but-ungranted with unknown. Expect granted.",
+      "dataSources": {
+        "primary": "ds_q_scope_baseline"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_cmp_s_atk": {
+      "type": "splunk.table",
+      "title": "ATTACK Q-MCP-SCOPE",
+      "description": "Q-MCP-SCOPE. `scope_relation` is a display helper. `granted` is ALLOW with matching scopes. `known_but_ungranted` is catalog-valid requested ≠ allowed (DENY or fail-open ALLOW). `not_a_grant` is ERROR (unknown or missing scope). Do not collapse known-but-ungranted with unknown. Expect known_but_ungranted with ALLOW.",
+      "dataSources": {
+        "primary": "ds_q_scope_attack"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_cmp_s_rt": {
+      "type": "splunk.table",
+      "title": "RETEST Q-MCP-SCOPE",
+      "description": "Q-MCP-SCOPE. `scope_relation` is a display helper. `granted` is ALLOW with matching scopes. `known_but_ungranted` is catalog-valid requested ≠ allowed (DENY or fail-open ALLOW). `not_a_grant` is ERROR (unknown or missing scope). Do not collapse known-but-ungranted with unknown. Expect known_but_ungranted with DENY.",
+      "dataSources": {
+        "primary": "ds_q_scope_retest"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+      }
+    },
+    "viz_cmp_e_base": {
+      "type": "splunk.table",
+      "title": "BASELINE Q-MCP-EXECUTED",
+      "description": "Q-MCP-EXECUTED. Control `executed` stays false on ALLOW. Read `has_started` and `execution_state` for whether the handler began. Scroll right if needed. Expect execution_state=mcp.completed.",
+      "dataSources": {
+        "primary": "ds_q_executed_baseline"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed MCP execution event was found for this run. That does not automatically mean DENY. ERROR, schema failure, and export loss also look like zero rows."
+      }
+    },
+    "viz_cmp_e_atk": {
+      "type": "splunk.table",
+      "title": "ATTACK Q-MCP-EXECUTED",
+      "description": "Q-MCP-EXECUTED. Control `executed` stays false on ALLOW. Read `has_started` and `execution_state` for whether the handler began. Scroll right if needed. Expect execution_state=mcp.completed.",
+      "dataSources": {
+        "primary": "ds_q_executed_attack"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed MCP execution event was found for this run. That does not automatically mean DENY. ERROR, schema failure, and export loss also look like zero rows."
+      }
+    },
+    "viz_cmp_e_rt": {
+      "type": "splunk.table",
+      "title": "RETEST Q-MCP-EXECUTED",
+      "description": "Q-MCP-EXECUTED. Control `executed` stays false on ALLOW. Read `has_started` and `execution_state` for whether the handler began. Scroll right if needed. Expect execution_state=no_mcp_execution_event.",
+      "dataSources": {
+        "primary": "ds_q_executed_retest"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed MCP execution event was found for this run. That does not automatically mean DENY. ERROR, schema failure, and export loss also look like zero rows."
+      }
+    },
+    "viz_prove": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# PROVE\n\nSix layers. Never merge them into one evidence claim. Never a single PROVEN tile from index presence.\n\n1. **RUNTIME.** Did the handler run? `ToolRegistry` / `handler_invoke_count`. Splunk does not decide this.\n2. **LOCAL.** `artifacts/<run-id>/events.jsonl` sequence and event contract.\n3. **EXPORT.** `export.json` — telemetry was emitted. `otlp.ok` is not Splunk success. Packs keep `splunk.verified=false` until a search ran.\n4. **SPLUNK.** A copy arrived. Completeness is local count vs `dc(_raw)` for that `run.id`.\n5. **SEARCH.** Analytical interpretation of that copy (Q-MCP-*). Zero rows follow no-data semantics.\n6. **DETECTION.** DET-MCP-001 proves only that **no indexed DENY→execution invariant violation was found**. It does not prove the handler never ran.\n\nStates: COMPLETE / PARTIAL / FAILED / NOT VERIFIED per layer.\n\nRuntime handler count is authoritative proof of non-execution. Splunk absence of `mcp.started` is corroboration only, and only on a complete copy.\n\n## Knowledge check (not scored)\n\nQuestions live in `learning/level_1/LAB-MCP-003/knowledge-check.md`. Sample:\n\n- Why is `policy:restricted:read` DENY rather than ERROR?\n- Why is `policy:write` ERROR?\n- Does ALLOW mean the tool executed?\n- Why must `allowed_scope` remain `policy:read` during vulnerable fail-open?\n- Can arguments grant a broader scope?\n- Why can DET-MCP-001 be reused?\n- Why is no detector hit not proof that the handler never ran?\n\n## Limitations that still apply\n\n- CTRL-MCP-001 is a lab allow-list, not production IAM.\n- JSON-RPC is in-process, not stdio/HTTP MCP transport.\n- Q-MCP-AFTER-DENY zero rows ≠ independent non-execution.\n- Scope positive control is **SIMULATED** (`makeresults`).\n- This dashboard is not a detection pack. It does not enable DET-MCP-001. It does not create DET-MCP-003.\n- No MCP-004 / Cisco / MLTK on this page.\n\nValidated references: BASELINE `5b089682-1d5a-49a7-ac43-967265fd6bc6` · ATTACK `b466ad12-72ec-44b7-be28-aacfaf2c25b1` · RETEST `f638fd4f-1c4f-4ab6-8d42-4d03a4f3afd5` · UNKNOWN `6ce19813-6cb5-4aae-a3a0-aa59386a82dd`.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "PROVE"
+    },
+    "viz_prove_what_id": {
+      "type": "splunk.table",
+      "title": "What Happened? identity (Hunt run.id)",
+      "description": "Indexed identity fields for this run. Not a story. Empty is not DENY.",
+      "dataSources": {
+        "primary": "ds_what_identity"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. The dashboard will not invent DENY, executed, or prevented from an empty table."
+      }
+    },
+    "viz_prove_what_dec": {
+      "type": "splunk.table",
+      "title": "What Happened? decision (Hunt run.id)",
+      "description": "Indexed decision fields. `decision` is the control token. `execution_state` is derived from mcp.* presence in this copy. Control `executed` is not this table.",
+      "dataSources": {
+        "primary": "ds_what_decision"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed control.decision was found for this run. The dashboard will not invent DENY, executed, or prevented from an empty table."
+      }
+    }
+  },
+  "layout": {
+    "options": {
+      "submitButton": true,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "globalInputs": [
+      "input_run_id",
+      "input_baseline_run_id",
+      "input_attack_run_id",
+      "input_retest_run_id",
+      "input_unknown_run_id"
+    ],
+    "tabs": {
+      "options": {
+        "barPosition": "top"
+      },
+      "items": [
+        {
+          "layoutId": "layout_learn",
+          "label": "LEARN"
+        },
+        {
+          "layoutId": "layout_baseline",
+          "label": "BASELINE"
+        },
+        {
+          "layoutId": "layout_attack",
+          "label": "ATTACK"
+        },
+        {
+          "layoutId": "layout_observe",
+          "label": "OBSERVE"
+        },
+        {
+          "layoutId": "layout_hunt",
+          "label": "HUNT"
+        },
+        {
+          "layoutId": "layout_detect",
+          "label": "DETECT"
+        },
+        {
+          "layoutId": "layout_defend",
+          "label": "DEFEND"
+        },
+        {
+          "layoutId": "layout_retest",
+          "label": "RETEST"
+        },
+        {
+          "layoutId": "layout_compare",
+          "label": "COMPARE"
+        },
+        {
+          "layoutId": "layout_prove",
+          "label": "PROVE"
+        }
+      ]
+    },
+    "layoutDefinitions": {
+      "layout_learn": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1000
+        },
+        "structure": [
+          {
+            "item": "viz_learn",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 680
+            }
+          },
+          {
+            "item": "viz_learn_granted",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 680,
+              "w": 480,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_learn_known",
+            "type": "block",
+            "position": {
+              "x": 480,
+              "y": 680,
+              "w": 480,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_learn_unknown",
+            "type": "block",
+            "position": {
+              "x": 960,
+              "y": 680,
+              "w": 480,
+              "h": 300
+            }
+          }
+        ]
+      },
+      "layout_baseline": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1320
+        },
+        "structure": [
+          {
+            "item": "viz_baseline_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 320
+            }
+          },
+          {
+            "item": "viz_baseline_what_id",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 320,
+              "w": 1440,
+              "h": 220
+            }
+          },
+          {
+            "item": "viz_baseline_what_dec",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 540,
+              "w": 1440,
+              "h": 240
+            }
+          },
+          {
+            "item": "viz_baseline_authz",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 780,
+              "w": 720,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_baseline_scope",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 780,
+              "w": 720,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_baseline_tool",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1040,
+              "w": 720,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_baseline_exec",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 1040,
+              "w": 720,
+              "h": 260
+            }
+          }
+        ]
+      },
+      "layout_attack": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1400
+        },
+        "structure": [
+          {
+            "item": "viz_attack_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 400
+            }
+          },
+          {
+            "item": "viz_attack_what_id",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 400,
+              "w": 1440,
+              "h": 220
+            }
+          },
+          {
+            "item": "viz_attack_what_dec",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 620,
+              "w": 1440,
+              "h": 240
+            }
+          },
+          {
+            "item": "viz_attack_authz",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 860,
+              "w": 720,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_attack_scope",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 860,
+              "w": 720,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_attack_tool",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1120,
+              "w": 720,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_attack_exec",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 1120,
+              "w": 720,
+              "h": 260
+            }
+          }
+        ]
+      },
+      "layout_observe": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 960
+        },
+        "structure": [
+          {
+            "item": "viz_observe_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_observe_seq",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 260,
+              "w": 1440,
+              "h": 380
+            }
+          },
+          {
+            "item": "viz_observe_authz",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 640,
+              "w": 720,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_observe_scope",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 640,
+              "w": 720,
+              "h": 300
+            }
+          }
+        ]
+      },
+      "layout_hunt": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1140
+        },
+        "structure": [
+          {
+            "item": "viz_hunt_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_hunt_authz",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 300,
+              "w": 720,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_hunt_scope",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 300,
+              "w": 720,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_hunt_exec",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 580,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_hunt_tool",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 880,
+              "w": 1440,
+              "h": 240
+            }
+          }
+        ]
+      },
+      "layout_detect": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 860
+        },
+        "structure": [
+          {
+            "item": "viz_detect_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 440
+            }
+          },
+          {
+            "item": "viz_detect_live",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 440,
+              "w": 720,
+              "h": 400
+            }
+          },
+          {
+            "item": "viz_detect_sim",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 440,
+              "w": 720,
+              "h": 400
+            }
+          }
+        ]
+      },
+      "layout_defend": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 980
+        },
+        "structure": [
+          {
+            "item": "viz_defend",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 400
+            }
+          },
+          {
+            "item": "viz_unknown_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 400,
+              "w": 1440,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_unknown_authz",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 660,
+              "w": 720,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_unknown_scope",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 660,
+              "w": 720,
+              "h": 300
+            }
+          }
+        ]
+      },
+      "layout_retest": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1300
+        },
+        "structure": [
+          {
+            "item": "viz_retest_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_retest_what_id",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 300,
+              "w": 1440,
+              "h": 220
+            }
+          },
+          {
+            "item": "viz_retest_what_dec",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 520,
+              "w": 1440,
+              "h": 240
+            }
+          },
+          {
+            "item": "viz_retest_authz",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 760,
+              "w": 720,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_retest_scope",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 760,
+              "w": 720,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_retest_tool",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1020,
+              "w": 720,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_retest_exec",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 1020,
+              "w": 720,
+              "h": 260
+            }
+          }
+        ]
+      },
+      "layout_compare": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1400
+        },
+        "structure": [
+          {
+            "item": "viz_compare_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_cmp_c_base",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 520,
+              "w": 480,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_cmp_c_atk",
+            "type": "block",
+            "position": {
+              "x": 480,
+              "y": 520,
+              "w": 480,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_cmp_c_rt",
+            "type": "block",
+            "position": {
+              "x": 960,
+              "y": 520,
+              "w": 480,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_cmp_s_base",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 800,
+              "w": 480,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_cmp_s_atk",
+            "type": "block",
+            "position": {
+              "x": 480,
+              "y": 800,
+              "w": 480,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_cmp_s_rt",
+            "type": "block",
+            "position": {
+              "x": 960,
+              "y": 800,
+              "w": 480,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_cmp_e_base",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1080,
+              "w": 480,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_cmp_e_atk",
+            "type": "block",
+            "position": {
+              "x": 480,
+              "y": 1080,
+              "w": 480,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_cmp_e_rt",
+            "type": "block",
+            "position": {
+              "x": 960,
+              "y": 1080,
+              "w": 480,
+              "h": 300
+            }
+          }
+        ]
+      },
+      "layout_prove": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1240
+        },
+        "structure": [
+          {
+            "item": "viz_prove",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 760
+            }
+          },
+          {
+            "item": "viz_prove_what_id",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 760,
+              "w": 1440,
+              "h": 220
+            }
+          },
+          {
+            "item": "viz_prove_what_dec",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 980,
+              "w": 1440,
+              "h": 240
+            }
+          }
+        ]
+      }
+    }
+  },
+  "applicationProperties": {
+    "collapseNavigation": false,
+    "downsampleVisualizations": false
+  }
+}
+  ]]></definition>
+</dashboard>
