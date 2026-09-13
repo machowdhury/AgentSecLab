@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,6 +11,8 @@ from flask import Flask, jsonify, render_template, request
 
 from agentsec.agents import PIPELINE_ORDER
 from agentsec.experiment import resolve_attack_id, resolve_mcp_attack_id, resolve_mcp_testbed_mode, resolve_testbed_mode
+from agentsec.json_strict import DuplicateJsonKeyError, loads_json_no_duplicate_keys
+from agentsec.mcp.pipeline import mcp_result_to_dict, run_mcp_invoke, run_mcp_schema_failure
 from agentsec.mcp.pipeline import mcp_result_to_dict, run_mcp_invoke, run_mcp_schema_failure
 from agentsec.mcp.registry import ToolRegistry, default_registry
 from agentsec.mcp.request_contract import parse_mcp_invoke_body
@@ -155,14 +158,40 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
 
     @app.post("/mcp/invoke")
     def mcp_invoke():
-        data = request.get_json(silent=True)
+        raw = request.get_data(as_text=True)
+        if not raw or not str(raw).strip():
+            data: object | None = None
+        else:
+            try:
+                data = loads_json_no_duplicate_keys(raw)
+            except DuplicateJsonKeyError:
+                result = run_mcp_schema_failure(
+                    sink=runtime.sink,
+                    memory=runtime.memory,
+                    settings=runtime.settings,
+                    user_id="unknown",
+                    testbed_mode=resolve_mcp_testbed_mode(
+                        tool=None,
+                        requested_scope=None,
+                        settings=runtime.settings,
+                    ),
+                    attack_id="MCP-004",
+                    error_reason="duplicate_json_keys",
+                    extra_fields=(),
+                    registry=runtime.mcp_registry,
+                )
+                return jsonify(mcp_result_to_dict(result)), 400
+            except json.JSONDecodeError:
+                data = None
         parsed = parse_mcp_invoke_body(data)
+        policy_id = parsed.arguments.get("policy_id") if isinstance(parsed.arguments.get("policy_id"), str) else None
         testbed_mode = resolve_mcp_testbed_mode(
             tool=parsed.tool,
             requested_scope=parsed.requested_scope,
+            policy_id=policy_id,
             settings=runtime.settings,
         )
-        attack_id = resolve_mcp_attack_id(parsed.tool, parsed.requested_scope)
+        attack_id = resolve_mcp_attack_id(parsed.tool, parsed.requested_scope, policy_id)
         if not parsed.ok:
             result = run_mcp_schema_failure(
                 sink=runtime.sink,

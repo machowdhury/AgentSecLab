@@ -1,0 +1,18 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"=__RUN_ID__ "event.name"=agentsec.control.decision
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)
+| eval principal=mvindex(mvdedup('agentsec.principal.id'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval resource_id=mvindex(mvdedup('agentsec.mcp.resource.id'),0)
+| eval allowed_resource_ids=mvindex(mvdedup('agentsec.mcp.allowed_resource.ids'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
+| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)
+| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)
+| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)
+| eval trace_id=mvindex(mvdedup('trace_id'),0)
+| eval resource_in_grant=if(isnull(resource_id) OR resource_id="", "0", if(resource_id=allowed_resource_ids, "1", "0"))
+| eval resource_relation=case(decision="ERROR","not_a_grant",match(reason,"resource_not_granted"),"known_but_ungranted",decision="ALLOW" AND resource_in_grant="1","granted",1=1,"other")
+| table run_id, agent, principal, tool, resource_id, allowed_resource_ids, decision, reason, resource_relation, profile, mode, attempted, executed, outcome, trace_id

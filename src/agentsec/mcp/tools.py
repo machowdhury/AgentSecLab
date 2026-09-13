@@ -10,7 +10,12 @@ POLICY_FIXTURES: dict[str, dict[str, str]] = {
         "policy_id": "lending-basics",
         "title": "Lab lending policy",
         "summary": "Lab-only snippet: document income before credit scoring.",
-    }
+    },
+    "executive-restricted": {
+        "policy_id": "executive-restricted",
+        "title": "Lab executive policy placeholder",
+        "summary": "Lab-only restricted snippet. Not a real executive document.",
+    },
 }
 
 CUSTOMER_FIXTURES: dict[str, dict[str, str]] = {
@@ -23,29 +28,36 @@ CUSTOMER_FIXTURES: dict[str, dict[str, str]] = {
 POLICY_READ_SCOPE = "policy:read"
 POLICY_RESTRICTED_READ_SCOPE = "policy:restricted:read"
 CUSTOMER_READ_SCOPE = "customer:read"
+POLICY_RESOURCE_CATALOG = frozenset(POLICY_FIXTURES)
+POLICY_RESOURCE_KEY = "policy_id"
 
 
 @dataclass(frozen=True)
 class ToolSpec:
-    """Catalog of a fixture tool. valid_scopes are opaque labels, not a hierarchy."""
+    """Catalog of a fixture tool. valid_scopes and valid_resources are opaque labels."""
 
     name: str
     required_scope: str
     valid_scopes: frozenset[str]
     required_keys: frozenset[str]
     handler: Callable[[dict[str, Any]], dict[str, Any]]
+    resource_key: str | None = None
+    valid_resources: frozenset[str] = frozenset()
 
     def __post_init__(self) -> None:
         if self.required_scope not in self.valid_scopes:
             raise ValueError(f"{self.name}: required_scope must be a member of valid_scopes")
+        if self.resource_key is not None:
+            if self.resource_key not in self.required_keys:
+                raise ValueError(f"{self.name}: resource_key must be a required argument key")
+            if not self.valid_resources:
+                raise ValueError(f"{self.name}: resource catalog must be non-empty")
 
 
 def lookup_policy(arguments: dict[str, Any]) -> dict[str, Any]:
-    """Handler does not inspect requested_scope. arguments remain data."""
+    """Handler uses ticket-supplied policy_id only. Catalog membership is not the ACL."""
     policy_id = arguments["policy_id"]
-    row = POLICY_FIXTURES.get(policy_id)
-    if row is None:
-        return {"policy_id": policy_id, "found": False}
+    row = POLICY_FIXTURES[policy_id]
     return {**row, "found": True}
 
 
@@ -62,8 +74,10 @@ TOOL_SPECS: dict[str, ToolSpec] = {
         name="lookup_policy",
         required_scope=POLICY_READ_SCOPE,
         valid_scopes=frozenset({POLICY_READ_SCOPE, POLICY_RESTRICTED_READ_SCOPE}),
-        required_keys=frozenset({"policy_id"}),
+        required_keys=frozenset({POLICY_RESOURCE_KEY}),
         handler=lookup_policy,
+        resource_key=POLICY_RESOURCE_KEY,
+        valid_resources=POLICY_RESOURCE_CATALOG,
     ),
     "lookup_customer_tier": ToolSpec(
         name="lookup_customer_tier",

@@ -15,6 +15,7 @@ MCP002_FAIL_OPEN_REASON = (
     f"{VULNERABLE_FAIL_OPEN_PREFIX}CTRL-MCP-001 known tool "
 )
 MCP003_FAIL_OPEN_REASON = f"{VULNERABLE_FAIL_OPEN_PREFIX}scope_not_granted"
+MCP004_FAIL_OPEN_REASON = f"{VULNERABLE_FAIL_OPEN_PREFIX}resource_not_granted"
 
 
 @dataclass(frozen=True)
@@ -28,6 +29,8 @@ class McpControlResult:
     requested_scope: str
     allowed_scope: str
     error_stage: str | None = None
+    resource_id: str | None = None
+    allowed_resource_ids: str | None = None
 
     @property
     def blocks_tool(self) -> bool:
@@ -146,6 +149,27 @@ def authorize_tool(
         requested_scope=requested_scope,
         allowed_scope=allowed_scope,
     )
+
+
+def authorize_resource(
+    *,
+    profile: str,
+    policy: McpPolicy,
+    resource_id: str,
+    valid_resources: frozenset[str],
+) -> tuple[str, str, str | None]:
+    """Exact catalog then grant. No strip, lowercase, prefix, regex, or wildcard.
+
+    Unknown catalog id → ERROR unknown_resource (no fail-open).
+    Known ungranted → DENY resource_not_granted (vulnerable: MCP-004 fail-open).
+    """
+    if resource_id not in valid_resources:
+        return "ERROR", "unknown_resource", "schema_validation"
+    if resource_id not in policy.allowed_policy_ids:
+        if profile == "vulnerable":
+            return "ALLOW", MCP004_FAIL_OPEN_REASON, None
+        return "DENY", "resource_not_granted", None
+    return "ALLOW", "tool_granted", None
 
 
 def evaluate_mcp_control(

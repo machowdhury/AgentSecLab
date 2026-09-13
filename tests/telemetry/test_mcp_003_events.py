@@ -32,7 +32,7 @@ def test_mcp003_baseline_attack_retest_sequences(settings, memory, tmp_path, mon
     assert names.index(EVENT_CONTROL_DECISION) < names.index(EVENT_MCP_STARTED)
     assert EVENT_MCP_COMPLETED in names
     allow = events_named(baseline.events, EVENT_CONTROL_DECISION)[0]
-    assert allow["agentsec.schema.version"] == "1.1.0"
+    assert allow["agentsec.schema.version"] == "1.2.0"
     assert allow["agentsec.control.decision"] == "ALLOW"
     assert allow["agentsec.operation.attempted"] is False
     assert allow["agentsec.operation.executed"] is False
@@ -93,7 +93,7 @@ def test_mcp003_baseline_attack_retest_sequences(settings, memory, tmp_path, mon
     assert deny["agentsec.operation.attempted"] is False
     assert deny["agentsec.operation.executed"] is False
     assert deny["agentsec.operation.outcome"] == "prevented"
-    assert deny["agentsec.schema.version"] == "1.1.0"
+    assert deny["agentsec.schema.version"] == "1.2.0"
     assert deny["gen_ai.tool.name"] == "lookup_policy"
     assert deny["mcp.method.name"] == "tools/call"
     assert deny["agentsec.control.id"] == "CTRL-MCP-001"

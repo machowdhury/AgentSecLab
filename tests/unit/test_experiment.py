@@ -44,12 +44,22 @@ def test_unknown_fields_are_rejected():
 def test_mcp_attack_id_separates_tool_grant_from_scope(settings):
     assert resolve_mcp_attack_id("lookup_policy", "policy:read") == "MCP-001"
     assert resolve_mcp_attack_id("lookup_policy", "policy:restricted:read") == "MCP-003"
+    assert resolve_mcp_attack_id("lookup_policy", "policy:read", "executive-restricted") == "MCP-004"
     assert resolve_mcp_attack_id("lookup_customer_tier", "customer:read") == "MCP-002"
     assert resolve_mcp_testbed_mode(tool="lookup_policy", requested_scope="policy:read", settings=settings) == "BASELINE"
     assert (
         resolve_mcp_testbed_mode(
             tool="lookup_policy",
             requested_scope="policy:restricted:read",
+            settings=settings,
+        )
+        == "ATTACK"
+    )
+    assert (
+        resolve_mcp_testbed_mode(
+            tool="lookup_policy",
+            requested_scope="policy:read",
+            policy_id="executive-restricted",
             settings=settings,
         )
         == "ATTACK"

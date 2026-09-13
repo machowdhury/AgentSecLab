@@ -1,0 +1,80 @@
+{
+  "lab.id": "LAB-MCP-004",
+  "title": "MCP resource authorization — Splunk hunt (schema 1.2.0)",
+  "schema.name": "agentsec.security_event",
+  "schema.version": "1.2.0",
+  "index": "agentsec_telemetry",
+  "sourcetype": "otel:agentic:json",
+  "run_id_token": "__RUN_ID__",
+  "validation_date": "2026-09-12",
+  "reuses_lab_mcp_001_queries": [
+    "Q-MCP-WHO",
+    "Q-MCP-AUTHZ",
+    "Q-MCP-SCOPE",
+    "Q-MCP-PARAMS",
+    "Q-MCP-TOOL",
+    "Q-MCP-EXECUTED",
+    "Q-MCP-AFTER-DENY"
+  ],
+  "schema_version_note": "LAB-MCP-001 searches/catalog.json schema.version=1.1.0 is documentation metadata for previously validated runs. Q-MCP-*.spl does not filter on schema.version and is 1.2.0-compatible.",
+  "validated_runs": {
+    "BASELINE": "fb50dcaf-8e84-4a3f-a55b-997c72edbd04",
+    "ATTACK": "5ab59fc7-303e-4eea-84e7-ae0b2f405146",
+    "RETEST": "0726a0ff-a551-41a8-bfbb-ab2ceca4c0dd",
+    "UNKNOWN_RESOURCE": "0e4e0051-528d-4bf3-8773-d1fb55a5864f",
+    "MALFORMED_ARGUMENTS": "9ea63448-bf6a-4619-b313-b152f4d94bb6",
+    "HANDLER_FAILURE_AFTER_ALLOW": "ccd13a5f-0c4f-4447-84da-e0bbb1184585",
+    "DUPLICATE_JSON_KEYS": "ffafb62e-a6c6-42c0-837d-094cbfb3f795"
+  },
+  "prohibited_fields": [
+    "agentsec.event.name",
+    "agentsec.profile",
+    "agentsec.pipeline.outcome",
+    "session.id",
+    "mcp.session.id",
+    "gen_ai.tool.call.arguments",
+    "effective_resource",
+    "resource.authorized"
+  ],
+  "queries": [
+    {
+      "id": "Q-MCP-RESOURCE-AUTHZ",
+      "spl_file": "Q-MCP-RESOURCE-AUTHZ.spl",
+      "doc_file": "Q-MCP-RESOURCE-AUTHZ.md",
+      "security_question": "What resource was requested, what resource set was granted, and what authorization decision was made?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "gen_ai.agent.id",
+        "agentsec.principal.id",
+        "gen_ai.tool.name",
+        "agentsec.mcp.resource.id",
+        "agentsec.mcp.allowed_resource.ids",
+        "agentsec.control.decision",
+        "agentsec.control.reason",
+        "agentsec.security.profile",
+        "agentsec.testbed.mode",
+        "agentsec.operation.attempted",
+        "agentsec.operation.executed",
+        "agentsec.operation.outcome",
+        "trace_id"
+      ],
+      "validation_status": "VALIDATED"
+    }
+  ],
+  "detection": {
+    "id": "DET-MCP-001",
+    "note": "Reused unchanged. Not DET-MCP-004.",
+    "spl_file": "../../LAB-MCP-001/searches/DET-MCP-001.spl",
+    "resource_teaching_fixture": {
+      "id": "DET-MCP-001-RESOURCE-POSITIVE-CONTROL",
+      "spl_file": "DET-MCP-001-RESOURCE-POSITIVE-CONTROL.spl",
+      "doc_file": "DET-MCP-001-RESOURCE-POSITIVE-CONTROL.md",
+      "evidence_class": "SIMULATED",
+      "generator": "makeresults",
+      "indexed": false,
+      "expected_violation_rows": 1,
+      "note": "MCP-004 teaching fixture for existing DET-MCP-001. Not DET-MCP-004. Not a catalog query."
+    }
+  }
+}

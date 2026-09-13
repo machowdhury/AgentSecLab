@@ -12,6 +12,7 @@ Sourcetype: `otel:agentic:json`
 - `views/ws_lab_pi_001.xml` — Dashboard Studio workshop for LAB-PI-001 (GRID tabs).
 - `views/ws_lab_mcp_001.xml` — Dashboard Studio workshop for LAB-MCP-001 (GRID tabs). Rebuild: `python scripts/build_lab_mcp_001_dashboard.py`.
 - `views/ws_lab_mcp_003.xml` — Dashboard Studio workshop for LAB-MCP-003 (GRID tabs). Rebuild: `python scripts/build_lab_mcp_003_dashboard.py`.
+- `views/ws_lab_mcp_004.xml` — Dashboard Studio workshop for LAB-MCP-004 (GRID tabs). Rebuild: `python scripts/build_lab_mcp_004_dashboard.py`.
 - `savedsearches.conf` — **disabled** `AgentSec - MCP Execution After Authorization Deny` (`DET-MCP-001`). Placeholders `Q-RUN` / `Q-DENY` remain unvalidated and are not this dashboard.
 
 ## LOCAL Docker

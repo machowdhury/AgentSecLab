@@ -76,3 +76,17 @@ Q-MCP-WHO, Q-MCP-AUTHZ, Q-MCP-TOOL, Q-MCP-EXECUTED, and Q-MCP-AFTER-DENY were **
 Q-MCP-SCOPE is the same query ID. Phase 4C documented a helper-order gap (`ERROR` must be `not_a_grant` before `requested != allowed`) and corrected `case()` accordingly. That is not a new search.
 
 `scope_relation` remains a display helper. ERROR is not DENY. `known_but_ungranted` is not a detector.
+
+---
+
+## MCP-004 reuse and resource hunt (Phase 5C)
+
+LAB-MCP-004 **reuses** the same Q-MCP IDs. They are schema-version **agnostic** (no `schema.version=1.1.0` filter). Live proof: `docs/PHASE5C_MCP004_SPLUNK_VALIDATION.md`.
+
+Q-MCP-SCOPE is **not** the resource hunt. On MCP-004 ATTACK, requested scope still equals allowed scope.
+
+**Q-MCP-RESOURCE-AUTHZ** (`learning/level_1/LAB-MCP-004/searches/`) answers requested resource vs coded grant vs decision. `resource_relation` is a display helper. ERROR is `not_a_grant`. Fail-open ALLOW with `resource_not_granted` in the reason is `known_but_ungranted`, not granted.
+
+Q-MCP-PARAMS remains preview/hash provenance. Not the resource-authorization hunt.
+
+DET-MCP-001 reused unchanged. No DET-MCP-004.
