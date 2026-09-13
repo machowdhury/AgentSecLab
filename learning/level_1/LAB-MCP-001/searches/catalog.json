@@ -236,6 +236,16 @@
       "generator": "makeresults",
       "indexed": false,
       "expected_violation_rows": 1
+    },
+    "scope_teaching_fixture": {
+      "id": "DET-MCP-001-SCOPE-POSITIVE-CONTROL",
+      "spl_file": "DET-MCP-001-SCOPE-POSITIVE-CONTROL.spl",
+      "doc_file": "DET-MCP-001-SCOPE-POSITIVE-CONTROL.md",
+      "evidence_class": "SIMULATED",
+      "generator": "makeresults",
+      "indexed": false,
+      "expected_violation_rows": 1,
+      "note": "MCP-003 teaching fixture for existing DET-MCP-001. Not DET-MCP-003. Not a catalog query."
     }
   }
 }

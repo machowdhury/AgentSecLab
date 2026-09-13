@@ -1,5 +1,10 @@
 from agentsec.attacks import ATK_002_PAYLOAD
-from agentsec.experiment import resolve_attack_id, resolve_testbed_mode
+from agentsec.experiment import (
+    resolve_attack_id,
+    resolve_mcp_attack_id,
+    resolve_mcp_testbed_mode,
+    resolve_testbed_mode,
+)
 from agentsec.request_contract import parse_process_body
 
 
@@ -34,3 +39,18 @@ def test_unknown_fields_are_rejected():
     assert parsed.ok is False
     assert parsed.error_reason == "unknown_fields"
     assert "testbed.mode" in parsed.extra_fields
+
+
+def test_mcp_attack_id_separates_tool_grant_from_scope(settings):
+    assert resolve_mcp_attack_id("lookup_policy", "policy:read") == "MCP-001"
+    assert resolve_mcp_attack_id("lookup_policy", "policy:restricted:read") == "MCP-003"
+    assert resolve_mcp_attack_id("lookup_customer_tier", "customer:read") == "MCP-002"
+    assert resolve_mcp_testbed_mode(tool="lookup_policy", requested_scope="policy:read", settings=settings) == "BASELINE"
+    assert (
+        resolve_mcp_testbed_mode(
+            tool="lookup_policy",
+            requested_scope="policy:restricted:read",
+            settings=settings,
+        )
+        == "ATTACK"
+    )

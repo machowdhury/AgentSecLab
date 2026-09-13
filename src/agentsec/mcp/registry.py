@@ -32,6 +32,7 @@ class ToolRegistry:
         self.specs[name] = ToolSpec(
             name=current.name,
             required_scope=current.required_scope,
+            valid_scopes=current.valid_scopes,
             required_keys=current.required_keys,
             handler=handler,
         )

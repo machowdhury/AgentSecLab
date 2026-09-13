@@ -95,8 +95,8 @@ class McpServer:
 
         tool_name = parsed.name
         arguments = dict(parsed.arguments)
-        scope = requested_scope.strip() if isinstance(requested_scope, str) else ""
-        if not scope:
+        # Exact token. Do not strip or lowercase: whitespace/case change meaning.
+        if not isinstance(requested_scope, str) or not requested_scope.strip():
             control = McpControlResult(
                 control_id="CTRL-MCP-001",
                 control_type="mcp_allowlist",
@@ -115,6 +115,7 @@ class McpServer:
                 arguments=arguments,
                 request_id=parsed.id,
             )
+        scope = requested_scope
 
         registered = self.registry.known(tool_name)
         if not registered:
@@ -124,6 +125,7 @@ class McpServer:
                 profile=profile,
                 policy=self.policy,
                 tool_registered=False,
+                valid_scopes=frozenset(),
                 authorize_fn=self._authorize_or_default,
             )
             return ServerDecision(
@@ -134,7 +136,26 @@ class McpServer:
                 request_id=parsed.id,
             )
 
-        arg_error = _argument_error(self.registry.spec(tool_name).required_keys, arguments)
+        spec = self.registry.spec(tool_name)
+        control = evaluate_mcp_control(
+            tool_name=tool_name,
+            requested_scope=scope,
+            profile=profile,
+            policy=self.policy,
+            tool_registered=True,
+            valid_scopes=spec.valid_scopes,
+            authorize_fn=self._authorize_or_default,
+        )
+        if control.blocks_tool:
+            return ServerDecision(
+                control=control,
+                ticket=None,
+                tool_name=tool_name,
+                arguments=arguments,
+                request_id=parsed.id,
+            )
+
+        arg_error = _argument_error(spec.required_keys, arguments)
         if arg_error:
             control = McpControlResult(
                 control_id="CTRL-MCP-001",
@@ -155,23 +176,13 @@ class McpServer:
                 request_id=parsed.id,
             )
 
-        control = evaluate_mcp_control(
+        ticket = AllowTicket(
             tool_name=tool_name,
-            requested_scope=scope,
-            profile=profile,
-            policy=self.policy,
-            tool_registered=True,
-            authorize_fn=self._authorize_or_default,
+            arguments=arguments,
+            request_id=parsed.id,
+            token=secrets.token_hex(16),
         )
-        ticket = None
-        if control.decision == "ALLOW":
-            ticket = AllowTicket(
-                tool_name=tool_name,
-                arguments=arguments,
-                request_id=parsed.id,
-                token=secrets.token_hex(16),
-            )
-            self._tickets[ticket.token] = ticket
+        self._tickets[ticket.token] = ticket
         return ServerDecision(
             control=control,
             ticket=ticket,

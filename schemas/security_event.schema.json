@@ -197,7 +197,7 @@
     "agentsec.control.type": {"type": "string", "enum": ["input_inspection", "schema_validation", "mcp_allowlist"]},
     "agentsec.control.decision": {"type": "string", "enum": ["ALLOW", "DENY", "ERROR"]},
     "agentsec.control.reason": {"type": "string", "minLength": 1},
-    "agentsec.attack.id": {"type": "string", "enum": ["ATK-001", "ATK-002", "MCP-001", "MCP-002"]},
+    "agentsec.attack.id": {"type": "string", "enum": ["ATK-001", "ATK-002", "MCP-001", "MCP-002", "MCP-003"]},
     "agentsec.technique.id": {"type": "string"},
     "agentsec.expected.behavior": {"type": "string"},
     "agentsec.content.influence.kind": {

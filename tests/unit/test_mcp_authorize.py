@@ -70,3 +70,91 @@ def test_control_evaluation_failure_is_error():
     assert result.decision == "ERROR"
     assert "control_evaluation_failure" in result.reason
     assert result.error_stage == "control_evaluation"
+
+
+def test_restricted_scope_defended_is_scope_not_granted():
+    result = authorize_tool(
+        tool_name="lookup_policy",
+        requested_scope="policy:restricted:read",
+        profile="defended",
+        policy=coded_policy(),
+        tool_registered=True,
+    )
+    assert result.decision == "DENY"
+    assert result.reason == "scope_not_granted"
+    assert result.requested_scope == "policy:restricted:read"
+    assert result.allowed_scope == "policy:read"
+
+
+def test_restricted_scope_vulnerable_is_mcp003_fail_open():
+    result = authorize_tool(
+        tool_name="lookup_policy",
+        requested_scope="policy:restricted:read",
+        profile="vulnerable",
+        policy=coded_policy(),
+        tool_registered=True,
+    )
+    assert result.decision == "ALLOW"
+    assert result.reason == "vulnerable_profile_fail_open:scope_not_granted"
+    assert result.allowed_scope == "policy:read"
+    assert "allowed_tools" not in result.reason
+
+
+def test_unknown_scope_is_error_not_deny():
+    result = authorize_tool(
+        tool_name="lookup_policy",
+        requested_scope="policy:write",
+        profile="defended",
+        policy=coded_policy(),
+        tool_registered=True,
+    )
+    assert result.decision == "ERROR"
+    assert result.reason == "unknown_scope"
+    assert result.error_stage == "schema_validation"
+
+
+def test_unknown_scope_does_not_fail_open_when_vulnerable():
+    result = authorize_tool(
+        tool_name="lookup_policy",
+        requested_scope="policy:write",
+        profile="vulnerable",
+        policy=coded_policy(),
+        tool_registered=True,
+    )
+    assert result.decision == "ERROR"
+    assert result.reason == "unknown_scope"
+
+
+def test_mcp002_and_mcp003_fail_open_reasons_differ():
+    mcp002 = authorize_tool(
+        tool_name="lookup_customer_tier",
+        requested_scope="customer:read",
+        profile="vulnerable",
+        policy=coded_policy(),
+        tool_registered=True,
+    )
+    mcp003 = authorize_tool(
+        tool_name="lookup_policy",
+        requested_scope="policy:restricted:read",
+        profile="vulnerable",
+        policy=coded_policy(),
+        tool_registered=True,
+    )
+    assert mcp002.reason != mcp003.reason
+    assert "allowed_tools" in mcp002.reason
+    assert mcp003.reason == "vulnerable_profile_fail_open:scope_not_granted"
+    assert not mcp002.reason.startswith("vulnerable_profile_fail_open:scope_not_granted")
+
+
+def test_case_and_whitespace_are_unknown_scope_not_normalized():
+    for token in ("Policy:read", "policy:read ", " policy:read", "policy:*", "*", "policy"):
+        result = authorize_tool(
+            tool_name="lookup_policy",
+            requested_scope=token,
+            profile="defended",
+            policy=coded_policy(),
+            tool_registered=True,
+        )
+        assert result.decision == "ERROR", token
+        assert result.reason == "unknown_scope", token
+        assert result.requested_scope == token

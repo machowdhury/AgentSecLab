@@ -4,5 +4,5 @@ index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.i
 | eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)
 | eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)
 | eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
-| eval scope_relation=case(requested_scope=allowed_scope AND decision="ALLOW","granted",requested_scope!=allowed_scope,"known_but_ungranted",decision="ERROR","not_a_grant",decision="DENY","denied_without_scope_mismatch",1=1,"other")
+| eval scope_relation=case(decision="ERROR","not_a_grant",requested_scope=allowed_scope AND decision="ALLOW","granted",requested_scope!=allowed_scope,"known_but_ungranted",decision="DENY","denied_without_scope_mismatch",1=1,"other")
 | table run_id, tool, requested_scope, allowed_scope, decision, scope_relation
