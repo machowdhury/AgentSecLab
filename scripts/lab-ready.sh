@@ -74,8 +74,9 @@ docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/defa
 docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/indexes.conf'
 docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_pi_001.xml'
 docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_mcp_001.xml'
+docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_mcp_003.xml'
 docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/nav/default.xml'
-log "AgentSec app, ws_lab_pi_001.xml, and ws_lab_mcp_001.xml are present."
+log "AgentSec app, ws_lab_pi_001.xml, ws_lab_mcp_001.xml, and ws_lab_mcp_003.xml are present."
 
 login_code="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 15 http://127.0.0.1:8000/en-US/account/login || echo 000)"
 if [ "$login_code" != "200" ]; then
@@ -149,6 +150,18 @@ if ! docker exec agentsec_splunk bash -lc 'grep -q "ws_lab_mcp_001\|LAB-MCP-001"
   fail "view payload did not mention LAB-MCP-001 / ws_lab_mcp_001"
 fi
 log "Dashboard view ws_lab_mcp_001 is available via Splunk REST."
+
+mcp003_view_code="$(
+  docker exec -u splunk -e SPLUNK_PASSWORD="$SPLUNK_PASSWORD" agentsec_splunk bash -lc \
+    'curl -sk -u "admin:${SPLUNK_PASSWORD}" -o /tmp/ws_lab_mcp_003_view.xml -w "%{http_code}" https://127.0.0.1:8089/servicesNS/nobody/agentsec/data/ui/views/ws_lab_mcp_003'
+)"
+if [ "$mcp003_view_code" != "200" ]; then
+  fail "view ws_lab_mcp_003 HTTP ${mcp003_view_code}"
+fi
+if ! docker exec agentsec_splunk bash -lc 'grep -q "ws_lab_mcp_003\|LAB-MCP-003" /tmp/ws_lab_mcp_003_view.xml'; then
+  fail "view payload did not mention LAB-MCP-003 / ws_lab_mcp_003"
+fi
+log "Dashboard view ws_lab_mcp_003 is available via Splunk REST."
 
 acme_code="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 10 http://127.0.0.1:5000/health || echo 000)"
 atk_code="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 10 http://127.0.0.1:5001/health || echo 000)"

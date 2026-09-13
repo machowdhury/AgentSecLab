@@ -1,6 +1,6 @@
 # MCP scope in Splunk
 
-**Status:** Phase 4C validated on live Splunk. MCP-003 Dashboard Studio is **not** built. DET-MCP-003 is **not** created.  
+**Status:** Phase 4C validated on live Splunk. Phase 4D workshop is `docs/learning-notes/mcp-scope-workshop.md`. DET-MCP-003 is **not** created.  
 **Parents:** `docs/PHASE4C_MCP003_SPLUNK_VALIDATION.md`, `docs/MCP003_SPLUNK_FIELD_VALIDATION.md`, `docs/MCP_SEARCH_CONTRACT.md`.  
 **SPL:** existing LAB-MCP-001 Q-MCP searches. Same `__RUN_ID__` token.
 
