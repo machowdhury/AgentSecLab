@@ -10,12 +10,19 @@ from pathlib import Path
 from flask import Flask, jsonify, render_template, request
 
 from agentsec.agents import PIPELINE_ORDER
-from agentsec.experiment import resolve_attack_id, resolve_mcp_attack_id, resolve_mcp_testbed_mode, resolve_testbed_mode
+from agentsec.experiment import (
+    resolve_attack_id,
+    resolve_mcp_attack_id,
+    resolve_mcp_testbed_mode,
+    resolve_rag_testbed_mode,
+    resolve_testbed_mode,
+)
 from agentsec.json_strict import DuplicateJsonKeyError, loads_json_no_duplicate_keys
-from agentsec.mcp.pipeline import mcp_result_to_dict, run_mcp_invoke, run_mcp_schema_failure
 from agentsec.mcp.pipeline import mcp_result_to_dict, run_mcp_invoke, run_mcp_schema_failure
 from agentsec.mcp.registry import ToolRegistry, default_registry
 from agentsec.mcp.request_contract import parse_mcp_invoke_body
+from agentsec.rag.pipeline import rag_result_to_dict, run_rag_retrieve, run_rag_schema_failure
+from agentsec.rag.request_contract import parse_rag_retrieve_body
 from agentsec.llm import LLMClient, OllamaClient
 from agentsec.pipeline import result_to_dict, run_loan_pipeline, run_schema_failure
 from agentsec.request_contract import parse_process_body
@@ -191,7 +198,9 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
             policy_id=policy_id,
             settings=runtime.settings,
         )
-        attack_id = resolve_mcp_attack_id(parsed.tool, parsed.requested_scope, policy_id)
+        attack_id = resolve_mcp_attack_id(
+            parsed.tool, parsed.requested_scope, policy_id, testbed_mode=testbed_mode
+        )
         if not parsed.ok:
             result = run_mcp_schema_failure(
                 sink=runtime.sink,
@@ -219,6 +228,61 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
             registry=runtime.mcp_registry,
         )
         body = mcp_result_to_dict(result)
+        if result.terminal == "completed_allowed":
+            return jsonify(body), 200
+        if result.terminal == "completed_denied":
+            return jsonify(body), 200
+        if result.error_stage == "mcp_invocation":
+            return jsonify(body), 500
+        if result.error_stage == "control_evaluation":
+            return jsonify(body), 500
+        return jsonify(body), 400
+
+    @app.post("/rag/retrieve")
+    def rag_retrieve():
+        raw = request.get_data(as_text=True)
+        if not raw or not str(raw).strip():
+            data: object | None = None
+        else:
+            try:
+                data = loads_json_no_duplicate_keys(raw)
+            except DuplicateJsonKeyError:
+                result = run_rag_schema_failure(
+                    sink=runtime.sink,
+                    memory=runtime.memory,
+                    settings=runtime.settings,
+                    user_id="unknown",
+                    testbed_mode=resolve_rag_testbed_mode(settings=runtime.settings),
+                    error_reason="duplicate_json_keys",
+                    extra_fields=(),
+                )
+                return jsonify(rag_result_to_dict(result)), 400
+            except json.JSONDecodeError:
+                data = None
+        parsed = parse_rag_retrieve_body(data)
+        testbed_mode = resolve_rag_testbed_mode(settings=runtime.settings)
+        if not parsed.ok:
+            result = run_rag_schema_failure(
+                sink=runtime.sink,
+                memory=runtime.memory,
+                settings=runtime.settings,
+                user_id=parsed.user_id,
+                testbed_mode=testbed_mode,
+                error_reason=parsed.error_reason,
+                extra_fields=parsed.extra_fields,
+            )
+            return jsonify(rag_result_to_dict(result)), 400
+
+        result = run_rag_retrieve(
+            document_id=parsed.document_id or "",
+            sink=runtime.sink,
+            memory=runtime.memory,
+            settings=runtime.settings,
+            user_id=parsed.user_id,
+            testbed_mode=testbed_mode,
+            registry=runtime.mcp_registry,
+        )
+        body = rag_result_to_dict(result)
         if result.terminal == "completed_allowed":
             return jsonify(body), 200
         if result.terminal == "completed_denied":

@@ -3,7 +3,8 @@
 **Status:** Phase 3A catalog (six labs). Phase 3B implemented **LAB-MCP-001** runtime only. **No SPL. No Dashboard Studio.**  
 **Parents:** `MCP_ARCHITECTURE.md`, `MCP_THREAT_MODEL.md`, `MCP_EVENT_MODEL_PROPOSAL.md`.  
 **Workshop standard:** LEARN → BASELINE → ATTACK → OBSERVE → HUNT → DETECT → DEFEND → RETEST → COMPARE → PROVE (same as LAB-PI-001).  
-**Evidence class:** DOCUMENTED design.
+**Evidence class:** DOCUMENTED design.  
+**Splunk KO work:** Apply the AgentSec Splunk engineering rule and run splunk-ko-review for all new or materially changed Splunk knowledge objects (`.cursor/rules/33-splunk-agent-skills.mdc`, `.cursor/skills/splunk-ko-review/SKILL.md`).
 
 Do not implement all six labs in the next coding phase. Implement **one** workshop first.
 
@@ -18,7 +19,7 @@ Do not implement all six labs in the next coding phase. Implement **one** worksh
 | MCP-003 | Scope escalation | INV-001 | Low | Later |
 | MCP-004 | Parameter manipulation | INV-001 | Medium | Later |
 | MCP-005 | Malicious tool response | INV-002 | Medium | Later |
-| MCP-006 | Confused deputy | INV-001, INV-004 | Higher | Later |
+| MCP-006 | Confused deputy / delegated authority | INV-001, INV-004 | Higher | **7C Splunk validated; workshop later (7D)** |
 
 This matches LAB-PI-001: one benign path, one unauthorized variation, deterministic, no chain.
 
@@ -126,7 +127,11 @@ This matches LAB-PI-001: one benign path, one unauthorized variation, determinis
 
 ## MCP-006 — Confused deputy
 
-| Field | Definition |
+**SUPERSEDED as the attack design (Phase 7A).** The table below was a Phase 3A sketch (payload identity spoof). Authoritative design: `docs/MCP006_LAB_SPECIFICATION.md`. Preferred ATTACK is authentic caller + authentic deputy + excessive operation + deputy uses **ambient** authority. Identity spoof remains a **negative test**, not A/B/C.
+
+Status: **IMPLEMENTED + LOCALLY VALIDATED + SPLUNK VALIDATED + WORKSHOP VALIDATED**. Detection: **DETECTION ANALYZED — NO NEW DETECTOR**. No DET-MCP-006.
+
+| Field | Definition (historical 3A sketch; do not implement as the lab) |
 |-------|------------|
 | **Learning objective** | The agent must spend **its** grant, not a grant inferred from the user story or another agent’s identity. |
 | **Normal behavior** | Agent A calls only A’s tools. |
@@ -220,7 +225,7 @@ Reuse Phase 1C questions where they still apply (`Q-RUN`, `Q-CONTROL`, `Q-WHO`, 
 | **Q-MCP-AFTER-DENY** | Did execution occur after DENY on that invoke? | DENY row + later tool-started same hop/invoke |
 | **Q-MCP-RESULT** | What did the tool return? | Result preview/hash |
 | **Q-MCP-RESULT-TRUST** | Was returned content used as authority? | Follow-up control decision vs unchanged allow-list (MCP-005) |
-| **Q-MCP-AFTER-DENY-POSITIVE-CONTROL** | How would a contract violation look? | SIMULATED `makeresults` only — never as OBSERVED proof |
+| **Q-MCP-DELEGATION** | What did CTRL-DELEGATION-001 decide, for which caller/deputy/tool, and which authority source? | `agentsec.delegation.authority.source`, hop 0 / hop 1 agents, CTRL-DELEGATION-001 vs CTRL-MCP-001 |
 
 No SPL files in Phase 3A. Do not copy AgentWatch savedsearches (`scope_violation`, `HARD_DENY`, `mcp.gateway.action`).
 

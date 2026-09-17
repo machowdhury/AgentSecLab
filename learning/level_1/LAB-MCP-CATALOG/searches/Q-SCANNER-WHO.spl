@@ -1,0 +1,14 @@
+index=agentsec_telemetry sourcetype=agentsec:scanner:finding earliest=0 scan_id=__SCAN_ID__ "event.name"=agentsec.scanner.scan
+| eval scan_id=mvindex(mvdedup(scan_id),0)
+| eval scanner_name=mvindex(mvdedup('scanner.name'),0)
+| eval scanner_version=mvindex(mvdedup('scanner.version'),0)
+| eval scanner_repository=mvindex(mvdedup('scanner.repository'),0)
+| eval scanner_commit=mvindex(mvdedup('scanner.commit'),0)
+| eval scanner_wheel_sha256=mvindex(mvdedup('scanner.wheel_sha256'),0)
+| eval adapter_version=mvindex(mvdedup('provenance.adapter_version'),0)
+| eval static_scan=mvindex(mvdedup('execution.static_scan'),0)
+| eval target_executed=mvindex(mvdedup('execution.target_executed'),0)
+| eval network_required=mvindex(mvdedup('execution.network_required'),0)
+| eval llm_used=mvindex(mvdedup('execution.llm_used'),0)
+| eval evidence_class=mvindex(mvdedup(evidence_class),0)
+| table scan_id, evidence_class, scanner_name, scanner_version, scanner_repository, scanner_commit, scanner_wheel_sha256, adapter_version, static_scan, target_executed, network_required, llm_used

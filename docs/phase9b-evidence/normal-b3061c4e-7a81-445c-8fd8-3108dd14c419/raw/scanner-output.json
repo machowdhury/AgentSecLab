@@ -1,0 +1,38 @@
+{
+  "server_url": "https://mcp.deepwiki.com/mcp",
+  "scan_results": [
+    {
+      "status": "completed",
+      "is_safe": true,
+      "findings": {
+        "yara_analyzer": {
+          "severity": "SAFE",
+          "threat_names": [],
+          "threat_summary": "No threats detected",
+          "total_findings": 0
+        }
+      },
+      "tool_name": "lookup_customer_tier",
+      "tool_description": "Look up a customer's lab tier.",
+      "item_type": "tool"
+    },
+    {
+      "status": "completed",
+      "is_safe": true,
+      "findings": {
+        "yara_analyzer": {
+          "severity": "SAFE",
+          "threat_names": [],
+          "threat_summary": "No threats detected",
+          "total_findings": 0
+        }
+      },
+      "tool_name": "lookup_policy",
+      "tool_description": "Look up lending policy guidance.",
+      "item_type": "tool"
+    }
+  ],
+  "requested_analyzers": [
+    "yara"
+  ]
+}

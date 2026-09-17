@@ -1,0 +1,75 @@
+{
+  "lab.id": "LAB-MCP-005",
+  "title": "MCP result trust — Splunk hunt (schema 1.3.0)",
+  "schema.name": "agentsec.security_event",
+  "schema.version": "1.3.0",
+  "index": "agentsec_telemetry",
+  "sourcetype": "otel:agentic:json",
+  "run_id_token": "__RUN_ID__",
+  "validation_date": "2026-09-13",
+  "reuses_lab_mcp_001_queries": [
+    "Q-MCP-WHO",
+    "Q-MCP-AUTHZ",
+    "Q-MCP-SCOPE",
+    "Q-MCP-PARAMS",
+    "Q-MCP-TOOL",
+    "Q-MCP-EXECUTED",
+    "Q-MCP-AFTER-DENY",
+    "Q-MCP-RESULT",
+    "Q-MCP-RESULT-TRUST"
+  ],
+  "schema_version_note": "LAB-MCP-001 searches/catalog.json schema.version=1.1.0 is documentation metadata. Q-MCP-*.spl does not filter on schema.version and is 1.3.0-compatible.",
+  "validated_runs": {
+    "BASELINE": "3013aa39-fe08-4b58-9898-f3abb092ac06",
+    "ATTACK": "f3f48182-df57-4b38-b069-17a199dc4939",
+    "RETEST": "0ab10594-a7fc-48b6-81bf-4cbca54a64c6",
+    "INITIAL_HANDLER_FAILURE": "6fe7370c-a288-4634-91a5-d6c78b52bd01"
+  },
+  "prohibited_fields": [
+    "agentsec.event.name",
+    "agentsec.profile",
+    "agentsec.pipeline.outcome",
+    "session.id",
+    "mcp.session.id",
+    "gen_ai.tool.call.arguments",
+    "agentsec.mcp.allowed_tools",
+    "gen_ai.tool.call.id",
+    "result.authorized",
+    "trusted_result"
+  ],
+  "queries": [
+    {
+      "id": "Q-MCP-RESULT-AUTHORITY",
+      "spl_file": "Q-MCP-RESULT-AUTHORITY.spl",
+      "doc_file": "Q-MCP-RESULT-AUTHORITY.md",
+      "security_question": "Did result-derived data influence authorization state, and what follow-on decision and execution were indexed?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "gen_ai.tool.name",
+        "agentsec.control.id",
+        "agentsec.control.decision",
+        "agentsec.control.reason",
+        "agentsec.mcp.requested_scope",
+        "agentsec.mcp.allowed_scope",
+        "agentsec.hop.index",
+        "agentsec.security.profile",
+        "agentsec.testbed.mode",
+        "agentsec.content.preview"
+      ],
+      "validation_status": "VALIDATED"
+    }
+  ],
+  "queries_not_created": [
+    {
+      "id": "Q-MCP-RESULT-FOLLOWON",
+      "reason": "Q-MCP-RESULT-AUTHORITY already tables follow-on tool, scopes, decision, reason, and execution observation. A second hunt would duplicate the same rows."
+    }
+  ],
+  "detection": {
+    "id": "DET-MCP-001",
+    "note": "Reused unchanged. DET-MCP-005 not created. Detection analyzed; hunt is sufficient for Phase 6C.",
+    "spl_file": "../../LAB-MCP-001/searches/DET-MCP-001.spl",
+    "status": "DETECTION ANALYZED — NO NEW DETECTOR"
+  }
+}

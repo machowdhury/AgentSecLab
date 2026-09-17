@@ -1,0 +1,97 @@
+{
+  "lab.id": "LAB-MCP-CATALOG",
+  "title": "MCP catalog / tool-description poisoning — Splunk hunt (schema 1.5.0)",
+  "schema.name": "agentsec.security_event",
+  "schema.version": "1.5.0",
+  "index": "agentsec_telemetry",
+  "sourcetype": "otel:agentic:json",
+  "run_id_token": "__RUN_ID__",
+  "validation_date": "2026-09-16",
+  "reuses_lab_mcp_001_queries": [
+    "Q-MCP-WHO",
+    "Q-MCP-AUTHZ",
+    "Q-MCP-SCOPE",
+    "Q-MCP-PARAMS",
+    "Q-MCP-TOOL",
+    "Q-MCP-EXECUTED",
+    "Q-MCP-AFTER-DENY",
+    "Q-MCP-RESULT",
+    "Q-MCP-RESULT-TRUST"
+  ],
+  "schema_version_note": "LAB-MCP-001 searches/catalog.json schema.version is documentation metadata. Q-MCP-*.spl does not filter on schema.version and is 1.5.0-compatible.",
+  "validated_runs": {
+    "BASELINE": "d95717ed-ffd2-46c0-a130-9a5d7d539a5d",
+    "ATTACK": "a0937bff-31a5-453a-99bf-47d7b5148ce4",
+    "RETEST": "23c222ea-6a87-40b7-a3e9-f12a5b572fa1"
+  },
+  "prohibited_fields": [
+    "agentsec.event.name",
+    "agentsec.profile",
+    "agentsec.pipeline.outcome",
+    "session.id",
+    "mcp.session.id",
+    "gen_ai.tool.call.arguments",
+    "agentsec.mcp.allowed_tools",
+    "gen_ai.tool.call.id",
+    "agentsec.mcp.catalog.fixture",
+    "trusted_metadata"
+  ],
+  "queries": [
+    {
+      "id": "Q-MCP-CATALOG-AUTHORITY",
+      "spl_file": "Q-MCP-CATALOG-AUTHORITY.spl",
+      "doc_file": "Q-MCP-CATALOG-AUTHORITY.md",
+      "security_question": "What catalog metadata did this run observe, how was it classified, and did a follow-on tool request after that observation get authorized?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "gen_ai.tool.name",
+        "agentsec.control.id",
+        "agentsec.control.decision",
+        "agentsec.control.reason",
+        "agentsec.mcp.metadata.trust",
+        "agentsec.mcp.metadata.provenance",
+        "agentsec.content.hash",
+        "agentsec.content.preview",
+        "agentsec.mcp.requested_scope",
+        "agentsec.mcp.allowed_scope",
+        "agentsec.hop.index",
+        "agentsec.security.profile",
+        "agentsec.testbed.mode"
+      ],
+      "validation_status": "VALIDATED"
+    }
+  ],
+  "queries_not_created": [
+    {
+      "id": "Q-MCP-CATALOG-METADATA",
+      "reason": "SUPPORTED by Q-MCP-CATALOG-AUTHORITY columns metadata_hash / metadata_preview / metadata_provenance. A second hunt would duplicate the METADATA-001 row."
+    },
+    {
+      "id": "Q-MCP-CATALOG-TRUST",
+      "reason": "SUPPORTED by Q-MCP-CATALOG-AUTHORITY columns metadata_trust / metadata_decision / metadata_reason. Q-MCP-AUTHZ already shows the OBSERVE row without trust fields."
+    },
+    {
+      "id": "Q-MCP-CATALOG-FINGERPRINT",
+      "reason": "Hash is indexed. ATTACK/RETEST equality is a two-run CLI comparison of metadata_hash, not a join hunt. Publishing a second file would invite correlating by preview."
+    },
+    {
+      "id": "Q-MCP-CATALOG-FOLLOWON",
+      "reason": "REUSED: Q-MCP-AUTHZ hop-1 row, Q-MCP-TOOL, and Q-MCP-CATALOG-AUTHORITY followon_* columns."
+    },
+    {
+      "id": "Q-MCP-CATALOG-AUTHZ",
+      "reason": "REUSED: Q-MCP-AUTHZ already tables hop-1 CTRL-MCP-001 decision and reason."
+    },
+    {
+      "id": "Q-CATALOG-WHAT-WAS-ADVERTISED",
+      "reason": "BLOCKED BY TELEMETRY: full catalog tool list is not indexed."
+    }
+  ],
+  "detection": {
+    "id": "DET-MCP-001",
+    "note": "Reused unchanged. DET-MCP-CATALOG not created. Lab fail-open reason is a teaching signal, not a general production detector.",
+    "spl_file": "../../LAB-MCP-001/searches/DET-MCP-001.spl",
+    "status": "DETECTION ANALYZED — DETECTION CANDIDATE JUSTIFIED FOR LATER DESIGN"
+  }
+}

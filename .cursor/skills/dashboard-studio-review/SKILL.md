@@ -8,6 +8,8 @@ paths:
 
 # Dashboard Studio Review
 
+Technical Studio review. For knowledge-object design, field contract, CIM, and detection readiness, also read `.cursor/rules/33-splunk-agent-skills.mdc` and run `/splunk-ko-review`. Visual QA is `/ui-review`. Evidence claims are `/logic-proof`.
+
 Do not modify initially.
 
 Review from four roles:

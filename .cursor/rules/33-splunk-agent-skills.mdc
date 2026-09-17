@@ -1,0 +1,92 @@
+---
+description: Splunk engineering workflow and official Agent Skills mapping for AgentSec knowledge objects
+globs: "splunk_app/**,learning/**/searches/**,learning/**/dashboard.definition.json,scripts/build_*dashboard.py,docs/**/*SPLUNK*,docs/**/*DETECTION*,docs/**/*WORKSHOP*"
+alwaysApply: false
+---
+
+# AgentSec Splunk Engineering
+
+Official catalog: https://splunkbase.splunk.com/skills
+
+For Splunk knowledge-object work, read this rule, then `.cursor/skills/splunk-ko-review/SKILL.md`, then only the official Splunk Agent Skills that match the task. Skill names and mapping: `.cursor/skills/splunk-ko-review/reference.md`.
+
+Do **not** set this rule alwaysApply. It must not load for unrelated Python/runtime work.
+
+Inventory: `docs/SPLUNK_KNOWLEDGE_OBJECT_INVENTORY.md`. Process: `docs/SPLUNK_ENGINEERING_GOVERNANCE.md`.
+
+Companion gates (separate): `.cursor/rules/31-spl-validation.mdc`, `.cursor/skills/spl-validate/SKILL.md`, `.cursor/rules/32-ui-design-system.mdc`, `/ui-review`, `/logic-proof`.
+
+## Rejected method
+
+Do **not** write SPL first and make the evidence fit later.
+
+## Required workflow
+
+SECURITY / OPERATIONAL QUESTION
+→ EVIDENCE REQUIREMENT
+→ VALIDATED TELEMETRY
+→ INDEXED FIELD DISCOVERY
+→ FIELD CONTRACT
+→ KNOWLEDGE OBJECT DESIGN
+→ SPL
+→ SPL CORRECTNESS REVIEW
+→ PERFORMANCE REVIEW
+→ LIVE SPLUNK VALIDATION
+→ DASHBOARD / DETECTION / WORKSHOP CONSUMER
+
+Dashboard order: FIELD CONTRACT → SPL REVIEW → SPLUNK KO REVIEW → LIVE VALIDATION → DASHBOARD IMPLEMENTATION → `/ui-review` → `/logic-proof`.
+
+UI review and Splunk engineering review are separate gates.
+
+## Classify before persisting
+
+INVESTIGATION SEARCH · HUNT · REPORT · SAVED SEARCH · DETECTION · ALERT · LOOKUP · MACRO · FIELD EXTRACTION · EVENT TYPE · TAG · DATA MODEL · DASHBOARD · DASHBOARD DATA SOURCE · APP CONFIGURATION
+
+Not every useful query is a persistent KO. Document why persistence is justified. Prefer reuse and `__RUN_ID__` / Studio tokens over duplicated SPL.
+
+## Field-contract gate
+
+Before learner-facing or production SPL:
+
+1. Security or operational question
+2. Evidence needed
+3. Actual telemetry source
+4. Actual indexed field discovery
+5. Field semantics
+6. Multivalue behavior
+7. Correlation keys
+8. Sequence/time semantics where relevant
+9. No-data semantics
+10. Evidence limitations
+
+If required telemetry is absent: **STOP.** Record `TELEMETRY GAP — QUERY NOT DEFENSIBLE`. Do not invent fields. Do not derive a proxy to make a dashboard work.
+
+## Safety (do not weaken)
+
+- ALLOW ≠ execution
+- `mcp.started` = execution began, not success
+- `mcp.failed` = execution then error, not prevention
+- DENY cannot be inferred solely from missing execution telemetry
+- Zero rows ≠ safe
+- Zero detection rows ≠ no attack
+- Splunk is investigation/evidence, not runtime authorization
+- SIMULATED ≠ OBSERVED runtime
+- Pytest does not prove SPL ran correctly in Splunk
+
+## Detection gate
+
+A hunt is not a detection. Publish a detector only with: security predicate, required telemetry, correlation contract, negative specimens, positive control, FP/FN analysis, performance, severity, time window, schedule, throttle decision, live Splunk validation.
+
+Otherwise: `DETECTION ANALYZED — DO NOT PUBLISH` or `DETECTION BLOCKED BY TELEMETRY GAP`. Do not create a detector because a phase number suggests one.
+
+## CIM
+
+Classify: CIM MAPPED · CIM PARTIALLY APPLICABLE · CIM NOT APPLICABLE · CIM DEFERRED.
+
+Do not force agentic-security concepts into unrelated CIM fields. AgentSec-specific fields may remain AgentSec-specific. Document the reason.
+
+## Existing validated SPL
+
+Do not mass-edit validated searches for style. Classify BLOCKER / HIGH / MEDIUM / LOW. Change existing validated content only for demonstrated correctness or security defects.
+
+Every phase that creates or materially changes SPL, saved searches, detections, alerts, extractions, CIM, data models, lookups, macros, Studio data sources, or Splunk app config **must** include a Splunk Knowledge Object Review in its acceptance criteria.

@@ -8,11 +8,13 @@ from agentsec.settings import Settings, VALID_TESTBED_MODES
 EXECUTION_MODE = "LIVE"
 TELEMETRY_FIDELITY = "OBSERVED"
 SCHEMA_NAME = "agentsec.security_event"
-SCHEMA_VERSION = "1.2.0"
+SCHEMA_VERSION = "1.6.0"
 LOAN_WORKFLOW_ENTRY = "/process"
 LOAN_WORKFLOW_NAME = "loan_pipeline"
 MCP_WORKFLOW_ENTRY = "/mcp/invoke"
 MCP_WORKFLOW_NAME = "mcp_tool_lab"
+RAG_WORKFLOW_ENTRY = "/rag/retrieve"
+RAG_WORKFLOW_NAME = "rag_context_lab"
 WORKFLOW_ENTRY = LOAN_WORKFLOW_ENTRY
 WORKFLOW_NAME = LOAN_WORKFLOW_NAME
 
@@ -47,12 +49,15 @@ def resolve_mcp_attack_id(
     tool: str | None,
     requested_scope: str | None = None,
     policy_id: str | None = None,
+    testbed_mode: str | None = None,
 ) -> str:
     if tool == "lookup_policy":
         if requested_scope and requested_scope != "policy:read":
             return "MCP-003"
         if policy_id and policy_id != "lending-basics":
             return "MCP-004"
+        if testbed_mode in ("ATTACK", "RETEST"):
+            return "MCP-005"
         return "MCP-001"
     return "MCP-002"
 
@@ -71,3 +76,9 @@ def resolve_mcp_testbed_mode(
             return "ATTACK"
         return "BASELINE"
     return "ATTACK"
+
+
+def resolve_rag_testbed_mode(*, settings: Settings) -> str:
+    if settings.testbed_mode_override in VALID_TESTBED_MODES:
+        return settings.testbed_mode_override
+    return "BASELINE"

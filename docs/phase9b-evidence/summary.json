@@ -1,0 +1,62 @@
+{
+  "scanner": {
+    "binary": "/Users/mahamudc/Documents/workspace/AgentSecLab/tools/cisco-mcp-scanner/.venv/bin/mcp-scanner",
+    "identity": {
+      "name": "cisco-ai-mcp-scanner",
+      "version": "4.8.4",
+      "repository": "https://github.com/cisco-ai-defense/mcp-scanner",
+      "commit": "be87b90d88bca2527a6e2075769a7608decd8f27",
+      "license": "Apache-2.0",
+      "package": "cisco-ai-mcp-scanner",
+      "cli": "mcp-scanner",
+      "wheel_sha256": "cd25f68d4f22c6e40b74578a8c28e2dfc350f69ebf4122801d9d05f804e769cd"
+    }
+  },
+  "boundary": "SCANNER FINDING != AUTHORIZATION DECISION",
+  "scans": [
+    {
+      "fixture": "NORMAL",
+      "scan_id": "b3061c4e-7a81-445c-8fd8-3108dd14c419",
+      "pack": "/Users/mahamudc/Documents/workspace/AgentSecLab/artifacts/scanners/b3061c4e-7a81-445c-8fd8-3108dd14c419",
+      "artifact_sha256": "sha256:d706a2f8f8476ed0a972d2b7f371a42450addbfbafa2448488d8223e370bac60",
+      "description_sha256": "sha256:8a76d34c6c21fda0dc930fa2f64fe87c3216f23cbc73ca357c47b0927850d9c3",
+      "bytes": 826,
+      "exit_code": 0,
+      "timed_out": false,
+      "finding_count": 0,
+      "classification": null,
+      "llm_used": false,
+      "network_required": false,
+      "target_executed": false,
+      "parse_error": null,
+      "findings": []
+    },
+    {
+      "fixture": "MALICIOUS",
+      "scan_id": "7ae3ea64-4e7a-40fe-943f-3e582bce5ee8",
+      "pack": "/Users/mahamudc/Documents/workspace/AgentSecLab/artifacts/scanners/7ae3ea64-4e7a-40fe-943f-3e582bce5ee8",
+      "artifact_sha256": "sha256:5e0bf29c6546a9a3d791918b59f7f6a99ac09dd9462f3295be8cbacc64c84cb7",
+      "description_sha256": "sha256:9d0745320ca79852f2fbd7145bf074fcd353e290c18ba16fd02d801f9f3375b1",
+      "bytes": 963,
+      "exit_code": 0,
+      "timed_out": false,
+      "finding_count": 1,
+      "classification": "DETECTED_BY_SCANNER",
+      "llm_used": false,
+      "network_required": false,
+      "target_executed": false,
+      "parse_error": null,
+      "findings": [
+        {
+          "native_rule_id": "PROMPT INJECTION",
+          "native_category": "PROMPT INJECTION",
+          "native_severity": "HIGH",
+          "summary": "Detected 1 threat: prompt injection",
+          "tool_name": "lookup_policy",
+          "analyzer": "yara_analyzer"
+        }
+      ]
+    }
+  ],
+  "policy_unchanged": true
+}

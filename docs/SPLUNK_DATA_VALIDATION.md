@@ -10,6 +10,8 @@
 
 This document records **observed** Splunk representations. It does not contain Dashboard Studio or detection SPL. Runtime `export.json` still has `splunk.verified=false`; this file is the independent search record.
 
+Later lab companions (do not replace this baseline 1.0.0 table): `docs/PHASE3C_MCP_SPLUNK_VALIDATION.md`, `docs/PHASE4C_MCP003_SPLUNK_VALIDATION.md`, `docs/PHASE5C_MCP004_SPLUNK_VALIDATION.md`, `docs/MCP005_SPLUNK_VALIDATION.md` / `docs/MCP005_SPLUNK_FIELD_VALIDATION.md` (schema **1.3.0** MCP-005).
+
 ## Evidence classes
 
 | Class | Use here |

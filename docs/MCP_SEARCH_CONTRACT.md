@@ -90,3 +90,60 @@ Q-MCP-SCOPE is **not** the resource hunt. On MCP-004 ATTACK, requested scope sti
 Q-MCP-PARAMS remains preview/hash provenance. Not the resource-authorization hunt.
 
 DET-MCP-001 reused unchanged. No DET-MCP-004.
+
+---
+
+## MCP-006 reuse and delegation hunt (Phase 7C)
+
+LAB-MCP-006 **reuses** the same Q-MCP IDs. They are schema-version **agnostic** (no `schema.version` filter). Live proof: `docs/MCP006_SPLUNK_VALIDATION.md`.
+
+Q-MCP-WHO / Q-MCP-AUTHZ show two hops but do not label caller vs deputy or `authority.source`.
+
+**Q-MCP-DELEGATION** (`learning/level_1/LAB-MCP-006/searches/`) answers CTRL-DELEGATION-001, caller, deputy observation, `delegation.authority.source`, downstream CTRL-MCP-001, and indexed execution observation. Display helpers: `deputy_not_on_indexed_hop1`, `no_downstream_mcp_control_event`, `no_indexed_mcp_execution_event`. Hop-0 `allowed_scope` is coded delegated **scope**, not `allowed_tools`.
+
+DET-MCP-001 reused unchanged. No DET-MCP-006.
+
+---
+
+## MCP-CATALOG reuse and catalog-authority hunt (Phase 8D)
+
+LAB-MCP-CATALOG **reuses** the same Q-MCP IDs. They are schema-version **agnostic** (no `schema.version` filter). Live proof: `docs/PHASE8D_MCP_CATALOG_SPLUNK_VALIDATION.md`.
+
+Q-MCP-WHO / Q-MCP-AUTHZ gain an extra METADATA-001 row (OBSERVE `metadata_is_data`; empty `mcp.method.name` / scopes). Q-MCP-EXECUTED extra OBSERVE row for `lookup_policy` inherits that tool’s `mcp.completed` because `eventstats` is `by run_id, tool`. Q-MCP-PARAMS labels the description hash as `arguments_hash`. Do **not** rewrite those files for catalog.
+
+**Q-MCP-CATALOG-AUTHORITY** (`learning/level_1/LAB-MCP-CATALOG/searches/`) answers METADATA-001 classification, description hash, first `lookup_policy` grant, follow-on CTRL-MCP-001, and indexed follow-on execution observation. Display helpers: `derived_authority`, `no_followon`, `no_indexed_followon_execution_event`. Hash is the fingerprint. Do not correlate by preview.
+
+DET-MCP-001 reused unchanged. No DET-MCP-CATALOG.
+
+---
+
+## Splunk knowledge-object engineering
+
+This contract is the field/question catalog. It is not a substitute for KO review.
+
+For Splunk knowledge-object work:
+
+read:
+
+`.cursor/rules/33-splunk-agent-skills.mdc`
+
+then use:
+
+`.cursor/skills/splunk-ko-review/SKILL.md`
+
+and consult the applicable official Splunk Agent Skills.
+
+For learner-facing UI also read:
+
+`.cursor/rules/32-ui-design-system.mdc`
+
+and run:
+
+`/ui-review`
+
+For evidence/security reasoning run:
+
+`/logic-proof`
+
+Inventory: `docs/SPLUNK_KNOWLEDGE_OBJECT_INVENTORY.md`. Process: `docs/SPLUNK_ENGINEERING_GOVERNANCE.md`.
+

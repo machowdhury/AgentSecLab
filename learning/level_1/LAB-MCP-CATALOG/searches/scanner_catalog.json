@@ -1,0 +1,130 @@
+{
+  "lab.id": "LAB-MCP-CATALOG",
+  "title": "External scanner evidence — Splunk investigation (Phase 9C)",
+  "schema.name": "not agentsec.security_event",
+  "schema.version": "n/a — scanner sourcetype is independent of 1.5.0",
+  "index": "agentsec_telemetry",
+  "sourcetype": "agentsec:scanner:finding",
+  "scan_id_token": "__SCAN_ID__",
+  "description_sha256_token": "__DESCRIPTION_SHA256__",
+  "validation_date": "2026-09-16",
+  "boundary": "SCANNER FINDING != AUTHORIZATION DECISION",
+  "validated_scans": {
+    "NORMAL": "b3061c4e-7a81-445c-8fd8-3108dd14c419",
+    "MALICIOUS": "7ae3ea64-4e7a-40fe-943f-3e582bce5ee8"
+  },
+  "hash_semantics": {
+    "artifact.sha256": "SHA-256 of exported tools.json bytes",
+    "artifact.description_sha256": "SHA-256 of lookup_policy description UTF-8 bytes; equals 8D agentsec.content.hash when those bytes match",
+    "do_not_equate": "artifact.sha256 != agentsec.content.hash"
+  },
+  "reuses": [
+    "Q-MCP-WHO",
+    "Q-MCP-AUTHZ",
+    "Q-MCP-EXECUTED",
+    "Q-MCP-CATALOG-AUTHORITY"
+  ],
+  "queries": [
+    {
+      "id": "Q-SCANNER-WHO",
+      "spl_file": "Q-SCANNER-WHO.spl",
+      "doc_file": "Q-SCANNER-WHO.md",
+      "security_question": "Which scanner ran this scan?",
+      "required_fields": [
+        "event.name",
+        "scan_id",
+        "evidence_class",
+        "scanner.name",
+        "scanner.version",
+        "scanner.repository",
+        "scanner.commit",
+        "scanner.wheel_sha256",
+        "provenance.adapter_version",
+        "execution.static_scan",
+        "execution.target_executed",
+        "execution.network_required",
+        "execution.llm_used"
+      ],
+      "validation_status": "VALIDATED"
+    },
+    {
+      "id": "Q-SCANNER-ARTIFACT",
+      "spl_file": "Q-SCANNER-ARTIFACT.spl",
+      "doc_file": "Q-SCANNER-ARTIFACT.md",
+      "security_question": "What artifact did the scanner scan, and how is that artifact identified?",
+      "required_fields": [
+        "event.name",
+        "scan_id",
+        "artifact.type",
+        "artifact.sha256",
+        "artifact.description_sha256",
+        "artifact.bytes",
+        "artifact.fixture",
+        "artifact.tool_count",
+        "scan.finding_count",
+        "provenance.raw_output_sha256"
+      ],
+      "validation_status": "VALIDATED"
+    },
+    {
+      "id": "Q-SCANNER-FINDINGS",
+      "spl_file": "Q-SCANNER-FINDINGS.spl",
+      "doc_file": "Q-SCANNER-FINDINGS.md",
+      "security_question": "Did this scan execute, and were scanner-native findings produced?",
+      "required_fields": [
+        "event.name",
+        "scan_id",
+        "scan.finding_count",
+        "scan.classification",
+        "finding.native_rule_id",
+        "finding.native_category",
+        "finding.native_severity",
+        "finding.title",
+        "finding.tool_name",
+        "finding.analyzer"
+      ],
+      "validation_status": "VALIDATED"
+    },
+    {
+      "id": "Q-SCANNER-RUNTIME-CORRELATION",
+      "spl_file": "Q-SCANNER-RUNTIME-CORRELATION.spl",
+      "doc_file": "Q-SCANNER-RUNTIME-CORRELATION.md",
+      "security_question": "Which runtime catalog observations correspond to the scanned artifact by description hash?",
+      "required_fields": [
+        "artifact.description_sha256",
+        "agentsec.content.hash",
+        "event.name",
+        "scan_id",
+        "agentsec.run.id",
+        "agentsec.control.id",
+        "agentsec.control.decision",
+        "agentsec.mcp.metadata.trust",
+        "agentsec.testbed.mode"
+      ],
+      "validation_status": "VALIDATED"
+    }
+  ],
+  "queries_not_created": [
+    {
+      "id": "Q-SCANNER-PASS-FAIL",
+      "reason": "Would collapse scan_executed_zero_findings, missing scan, and scanner error into PASS/FAIL."
+    },
+    {
+      "id": "DET-SCANNER-HIGH",
+      "reason": "Scanner HIGH is not DENY. Phase 9C is investigation evidence only."
+    },
+    {
+      "id": "Q-SCANNER-FILEHASH-TO-CONTENT-HASH",
+      "reason": "artifact.sha256 hashes tools.json; agentsec.content.hash hashes description bytes. Live wrong-hash search returned 0 rows."
+    },
+    {
+      "id": "Q-MCP-AUTHZ-WITH-SCANNER",
+      "reason": "REUSED unchanged: Q-MCP-AUTHZ answers authorization, not scanner findings."
+    }
+  ],
+  "detection": {
+    "id": "DET-MCP-001",
+    "note": "Unchanged. No DET-SCANNER-*. No DET-MCP-CATALOG.",
+    "status": "UNCHANGED"
+  }
+}

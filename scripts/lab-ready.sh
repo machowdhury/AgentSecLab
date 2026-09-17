@@ -76,8 +76,13 @@ docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/defa
 docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_mcp_001.xml'
 docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_mcp_003.xml'
 docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_mcp_004.xml'
+docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_mcp_005.xml'
+docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_mcp_006.xml'
+docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_mcp_catalog.xml'
+docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_scanner_runtime_evidence.xml'
+docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_rag_context.xml'
 docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/nav/default.xml'
-log "AgentSec app, ws_lab_pi_001.xml, ws_lab_mcp_001.xml, ws_lab_mcp_003.xml, and ws_lab_mcp_004.xml are present."
+log "AgentSec app, ws_lab_pi_001.xml, ws_lab_mcp_001.xml, ws_lab_mcp_003.xml, ws_lab_mcp_004.xml, ws_lab_mcp_005.xml, ws_lab_mcp_006.xml, ws_lab_mcp_catalog.xml, ws_lab_scanner_runtime_evidence.xml, and ws_lab_rag_context.xml are present."
 
 login_code="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 15 http://127.0.0.1:8000/en-US/account/login || echo 000)"
 if [ "$login_code" != "200" ]; then
@@ -175,6 +180,66 @@ if ! docker exec agentsec_splunk bash -lc 'grep -q "ws_lab_mcp_004\|LAB-MCP-004"
   fail "view payload did not mention LAB-MCP-004 / ws_lab_mcp_004"
 fi
 log "Dashboard view ws_lab_mcp_004 is available via Splunk REST."
+
+mcp005_view_code="$(
+  docker exec -u splunk -e SPLUNK_PASSWORD="$SPLUNK_PASSWORD" agentsec_splunk bash -lc \
+    'curl -sk -u "admin:${SPLUNK_PASSWORD}" -o /tmp/ws_lab_mcp_005_view.xml -w "%{http_code}" https://127.0.0.1:8089/servicesNS/nobody/agentsec/data/ui/views/ws_lab_mcp_005'
+)"
+if [ "$mcp005_view_code" != "200" ]; then
+  fail "view ws_lab_mcp_005 HTTP ${mcp005_view_code}"
+fi
+if ! docker exec agentsec_splunk bash -lc 'grep -q "ws_lab_mcp_005\|LAB-MCP-005" /tmp/ws_lab_mcp_005_view.xml'; then
+  fail "view payload did not mention LAB-MCP-005 / ws_lab_mcp_005"
+fi
+log "Dashboard view ws_lab_mcp_005 is available via Splunk REST."
+
+mcp006_view_code="$(
+  docker exec -u splunk -e SPLUNK_PASSWORD="$SPLUNK_PASSWORD" agentsec_splunk bash -lc \
+    'curl -sk -u "admin:${SPLUNK_PASSWORD}" -o /tmp/ws_lab_mcp_006_view.xml -w "%{http_code}" https://127.0.0.1:8089/servicesNS/nobody/agentsec/data/ui/views/ws_lab_mcp_006'
+)"
+if [ "$mcp006_view_code" != "200" ]; then
+  fail "view ws_lab_mcp_006 HTTP ${mcp006_view_code}"
+fi
+if ! docker exec agentsec_splunk bash -lc 'grep -q "ws_lab_mcp_006\|LAB-MCP-006" /tmp/ws_lab_mcp_006_view.xml'; then
+  fail "view payload did not mention LAB-MCP-006 / ws_lab_mcp_006"
+fi
+log "Dashboard view ws_lab_mcp_006 is available via Splunk REST."
+
+mcp_catalog_view_code="$(
+  docker exec -u splunk -e SPLUNK_PASSWORD="$SPLUNK_PASSWORD" agentsec_splunk bash -lc \
+    'curl -sk -u "admin:${SPLUNK_PASSWORD}" -o /tmp/ws_lab_mcp_catalog_view.xml -w "%{http_code}" https://127.0.0.1:8089/servicesNS/nobody/agentsec/data/ui/views/ws_lab_mcp_catalog'
+)"
+if [ "$mcp_catalog_view_code" != "200" ]; then
+  fail "view ws_lab_mcp_catalog HTTP ${mcp_catalog_view_code}"
+fi
+if ! docker exec agentsec_splunk bash -lc 'grep -q "ws_lab_mcp_catalog\|LAB-MCP-CATALOG" /tmp/ws_lab_mcp_catalog_view.xml'; then
+  fail "view payload did not mention LAB-MCP-CATALOG / ws_lab_mcp_catalog"
+fi
+log "Dashboard view ws_lab_mcp_catalog is available via Splunk REST."
+
+scanner_runtime_view_code="$(
+  docker exec -u splunk -e SPLUNK_PASSWORD="$SPLUNK_PASSWORD" agentsec_splunk bash -lc \
+    'curl -sk -u "admin:${SPLUNK_PASSWORD}" -o /tmp/ws_lab_scanner_runtime_evidence_view.xml -w "%{http_code}" https://127.0.0.1:8089/servicesNS/nobody/agentsec/data/ui/views/ws_lab_scanner_runtime_evidence'
+)"
+if [ "$scanner_runtime_view_code" != "200" ]; then
+  fail "view ws_lab_scanner_runtime_evidence HTTP ${scanner_runtime_view_code}"
+fi
+if ! docker exec agentsec_splunk bash -lc 'grep -q "ws_lab_scanner_runtime_evidence\|LAB-SCANNER-RUNTIME" /tmp/ws_lab_scanner_runtime_evidence_view.xml'; then
+  fail "view payload did not mention LAB-SCANNER-RUNTIME / ws_lab_scanner_runtime_evidence"
+fi
+log "Dashboard view ws_lab_scanner_runtime_evidence is available via Splunk REST."
+
+rag_view_code="$(
+  docker exec -u splunk -e SPLUNK_PASSWORD="$SPLUNK_PASSWORD" agentsec_splunk bash -lc \
+    'curl -sk -u "admin:${SPLUNK_PASSWORD}" -o /tmp/ws_lab_rag_context_view.xml -w "%{http_code}" https://127.0.0.1:8089/servicesNS/nobody/agentsec/data/ui/views/ws_lab_rag_context'
+)"
+if [ "$rag_view_code" != "200" ]; then
+  fail "view ws_lab_rag_context HTTP ${rag_view_code}"
+fi
+if ! docker exec agentsec_splunk bash -lc 'grep -q "ws_lab_rag_context\|LAB-RAG-CONTEXT" /tmp/ws_lab_rag_context_view.xml'; then
+  fail "view payload did not mention LAB-RAG-CONTEXT / ws_lab_rag_context"
+fi
+log "Dashboard view ws_lab_rag_context is available via Splunk REST."
 
 acme_code="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 10 http://127.0.0.1:5000/health || echo 000)"
 atk_code="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 10 http://127.0.0.1:5001/health || echo 000)"

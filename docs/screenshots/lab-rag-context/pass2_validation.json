@@ -1,0 +1,74 @@
+{
+  "url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_rag_context",
+  "tabs_found": [
+    "LEARN",
+    "BASELINE",
+    "ATTACK",
+    "OBSERVE",
+    "HUNT",
+    "DETECT",
+    "DEFEND",
+    "RETEST",
+    "COMPARE",
+    "PROVE"
+  ],
+  "tabs_missing": [],
+  "tokens_found": [
+    "run_id",
+    "baseline_run_id",
+    "attack_run_id",
+    "retest_run_id"
+  ],
+  "tokens_missing": [],
+  "token_values": {
+    "run_id": "51f70fb9-994e-4dd4-9b36-cac6fb1e8232",
+    "baseline_run_id": "51f70fb9-994e-4dd4-9b36-cac6fb1e8232",
+    "attack_run_id": "3a43d24f-9281-42f6-8375-1fb2efaa80ac",
+    "retest_run_id": "bea97bae-491b-4b36-b52f-1417d2bad01b"
+  },
+  "screenshots": [
+    "docs/screenshots/lab-rag-context/pass2_overview.png",
+    "docs/screenshots/lab-rag-context/pass2_learn.png",
+    "docs/screenshots/lab-rag-context/pass2_baseline.png",
+    "docs/screenshots/lab-rag-context/pass2_attack.png",
+    "docs/screenshots/lab-rag-context/pass2_observe.png",
+    "docs/screenshots/lab-rag-context/pass2_hunt.png",
+    "docs/screenshots/lab-rag-context/pass2_detect.png",
+    "docs/screenshots/lab-rag-context/pass2_defend.png",
+    "docs/screenshots/lab-rag-context/pass2_retest.png",
+    "docs/screenshots/lab-rag-context/pass2_compare.png",
+    "docs/screenshots/lab-rag-context/pass2_prove.png",
+    "docs/screenshots/lab-rag-context/pass2_w1024_learn.png",
+    "docs/screenshots/lab-rag-context/pass2_w1024_compare.png",
+    "docs/screenshots/lab-rag-context/pass2_w1024_detect.png",
+    "docs/screenshots/lab-rag-context/pass2_w768_learn.png",
+    "docs/screenshots/lab-rag-context/pass2_w768_compare.png",
+    "docs/screenshots/lab-rag-context/pass2_w768_detect.png"
+  ],
+  "clipping_screenshots": [
+    "docs/screenshots/lab-rag-context/pass2_w1024_learn.png",
+    "docs/screenshots/lab-rag-context/pass2_w1024_compare.png",
+    "docs/screenshots/lab-rag-context/pass2_w1024_detect.png",
+    "docs/screenshots/lab-rag-context/pass2_w768_learn.png",
+    "docs/screenshots/lab-rag-context/pass2_w768_compare.png",
+    "docs/screenshots/lab-rag-context/pass2_w768_detect.png"
+  ],
+  "label": "pass2",
+  "tabs_requested": [
+    "LEARN",
+    "BASELINE",
+    "ATTACK",
+    "OBSERVE",
+    "HUNT",
+    "DETECT",
+    "DEFEND",
+    "RETEST",
+    "COMPARE",
+    "PROVE"
+  ],
+  "viewports": [
+    1440,
+    1024,
+    768
+  ]
+}

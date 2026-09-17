@@ -1,0 +1,90 @@
+{
+  "lab.id": "LAB-RAG-001",
+  "title": "RAG / retrieved-context security — Splunk hunt (schema 1.6.0)",
+  "schema.name": "agentsec.security_event",
+  "schema.version": "1.6.0",
+  "index": "agentsec_telemetry",
+  "sourcetype": "otel:agentic:json",
+  "run_id_token": "__RUN_ID__",
+  "validation_date": "2026-09-16",
+  "reuses_lab_mcp_001_queries": [
+    "Q-MCP-WHO",
+    "Q-MCP-AUTHZ",
+    "Q-MCP-TOOL",
+    "Q-MCP-EXECUTED",
+    "Q-MCP-AFTER-DENY"
+  ],
+  "schema_version_note": "LAB-MCP-001 Q-MCP-*.spl does not filter schema.version and is 1.6.0-compatible. This hunt is schema-version agnostic in SPL.",
+  "validated_runs": {
+    "BASELINE": "51f70fb9-994e-4dd4-9b36-cac6fb1e8232",
+    "ATTACK": "3a43d24f-9281-42f6-8375-1fb2efaa80ac",
+    "RETEST": "bea97bae-491b-4b36-b52f-1417d2bad01b"
+  },
+  "prohibited_fields": [
+    "agentsec.event.name",
+    "session.id",
+    "mcp.session.id",
+    "gen_ai.tool.call.arguments",
+    "agentsec.mcp.allowed_tools",
+    "gen_ai.tool.call.id",
+    "trusted_document",
+    "document_authorized",
+    "rag_allowed_tools",
+    "full_document"
+  ],
+  "queries": [
+    {
+      "id": "Q-RAG-CONTEXT-AUTHORITY",
+      "spl_file": "Q-RAG-CONTEXT-AUTHORITY.spl",
+      "doc_file": "Q-RAG-CONTEXT-AUTHORITY.md",
+      "security_question": "What retrieved context did this run observe, how was it classified, and did a follow-on tool request after that observation get authorized?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "gen_ai.tool.name",
+        "agentsec.control.id",
+        "agentsec.control.decision",
+        "agentsec.control.reason",
+        "agentsec.rag.context.trust",
+        "agentsec.rag.context.provenance",
+        "agentsec.rag.context.document.id",
+        "agentsec.content.hash",
+        "agentsec.content.preview",
+        "agentsec.mcp.requested_scope",
+        "agentsec.mcp.allowed_scope",
+        "agentsec.hop.index",
+        "agentsec.security.profile",
+        "agentsec.testbed.mode"
+      ],
+      "validation_status": "VALIDATED"
+    }
+  ],
+  "queries_not_created": [
+    {
+      "id": "Q-RAG-CONTEXT",
+      "reason": "SUPPORTED by Q-RAG-CONTEXT-AUTHORITY context_* columns. A second hunt would duplicate CONTEXT-001."
+    },
+    {
+      "id": "Q-RAG-TRUST",
+      "reason": "SUPPORTED by context_trust / context_decision / context_reason. Q-MCP-AUTHZ already shows the OBSERVE row without RAG fields."
+    },
+    {
+      "id": "Q-RAG-FINGERPRINT",
+      "reason": "Hash is indexed on CONTEXT-001. ATTACK/RETEST equality is a two-run CLI comparison of context_hash, not a join hunt."
+    },
+    {
+      "id": "Q-RAG-FOLLOWON",
+      "reason": "REUSED: Q-MCP-AUTHZ hop-1 row, Q-MCP-TOOL, and Q-RAG-CONTEXT-AUTHORITY followon_* columns."
+    },
+    {
+      "id": "Q-RAG-AUTHZ",
+      "reason": "REUSED: Q-MCP-AUTHZ already tables hop-1 CTRL-MCP-001 decision and reason."
+    }
+  ],
+  "detection": {
+    "id": "DET-MCP-001",
+    "note": "Reused unchanged. DET-RAG not created. Overlay reason and AGENT NOTE regex are REJECT as production detectors.",
+    "spl_file": "../../LAB-MCP-001/searches/DET-MCP-001.spl",
+    "status": "DETECTION ANALYZED — NO NEW DETECTOR"
+  }
+}

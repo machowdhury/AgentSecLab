@@ -3,5 +3,10 @@
   <view name="ws_lab_mcp_001" />
   <view name="ws_lab_mcp_003" />
   <view name="ws_lab_mcp_004" />
+  <view name="ws_lab_mcp_005" />
+  <view name="ws_lab_mcp_006" />
+  <view name="ws_lab_mcp_catalog" />
+  <view name="ws_lab_scanner_runtime_evidence" />
+  <view name="ws_lab_rag_context" />
   <view name="search" />
 </nav>

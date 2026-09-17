@@ -32,4 +32,5 @@ pythonpath = ["src", "."]
 markers = [
     "live_ollama: requires a reachable local Ollama with the configured model",
     "live_splunk: requires local collector + Splunk; skipped unless AGENTSEC_LIVE_SPLUNK=1",
+    "live_scanner: requires pinned cisco-ai-mcp-scanner 4.8.4 static CLI",
 ]

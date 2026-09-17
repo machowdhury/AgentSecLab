@@ -1,0 +1,11 @@
+index=agentsec_telemetry sourcetype=agentsec:scanner:finding earliest=0 scan_id=__SCAN_ID__ "event.name"=agentsec.scanner.scan
+| eval scan_id=mvindex(mvdedup(scan_id),0)
+| eval artifact_type=mvindex(mvdedup('artifact.type'),0)
+| eval artifact_sha256=mvindex(mvdedup('artifact.sha256'),0)
+| eval description_sha256=mvindex(mvdedup('artifact.description_sha256'),0)
+| eval artifact_bytes=mvindex(mvdedup('artifact.bytes'),0)
+| eval fixture=mvindex(mvdedup('artifact.fixture'),0)
+| eval tool_count=mvindex(mvdedup('artifact.tool_count'),0)
+| eval raw_output_sha256=mvindex(mvdedup('provenance.raw_output_sha256'),0)
+| eval finding_count=mvindex(mvdedup('scan.finding_count'),0)
+| table scan_id, fixture, artifact_type, artifact_sha256, description_sha256, artifact_bytes, tool_count, finding_count, raw_output_sha256

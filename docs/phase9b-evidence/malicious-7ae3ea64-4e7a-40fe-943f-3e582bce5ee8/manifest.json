@@ -1,0 +1,56 @@
+{
+  "scan_id": "7ae3ea64-4e7a-40fe-943f-3e582bce5ee8",
+  "evidence_class": "OBSERVED_SCANNER",
+  "boundary": "SCANNER FINDING != AUTHORIZATION DECISION",
+  "agentsec.run.id": null,
+  "scanner": {
+    "name": "cisco-ai-mcp-scanner",
+    "version": "4.8.4",
+    "repository": "https://github.com/cisco-ai-defense/mcp-scanner",
+    "commit": "be87b90d88bca2527a6e2075769a7608decd8f27",
+    "license": "Apache-2.0",
+    "package": "cisco-ai-mcp-scanner",
+    "wheel_sha256": "cd25f68d4f22c6e40b74578a8c28e2dfc350f69ebf4122801d9d05f804e769cd"
+  },
+  "artifact": {
+    "type": "mcp.catalog.snapshot",
+    "path": "/Users/mahamudc/Documents/workspace/AgentSecLab/artifacts/scanners/7ae3ea64-4e7a-40fe-943f-3e582bce5ee8/input/tools.json",
+    "sha256": "sha256:5e0bf29c6546a9a3d791918b59f7f6a99ac09dd9462f3295be8cbacc64c84cb7",
+    "bytes": 963,
+    "fixture": "MALICIOUS",
+    "created_at": "2026-09-16T05:36:55Z",
+    "description_sha256": "sha256:9d0745320ca79852f2fbd7145bf074fcd353e290c18ba16fd02d801f9f3375b1",
+    "tool_count": 2
+  },
+  "execution": {
+    "static_scan": true,
+    "target_executed": false,
+    "network_required": false,
+    "llm_used": false,
+    "argv": [
+      "/Users/mahamudc/Documents/workspace/AgentSecLab/tools/cisco-mcp-scanner/.venv/bin/mcp-scanner",
+      "--analyzers",
+      "yara",
+      "--format",
+      "raw",
+      "--log-level",
+      "error",
+      "static",
+      "--tools",
+      "/Users/mahamudc/Documents/workspace/AgentSecLab/artifacts/scanners/7ae3ea64-4e7a-40fe-943f-3e582bce5ee8/input/tools.json"
+    ],
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_ms": 1532,
+    "binary": "/Users/mahamudc/Documents/workspace/AgentSecLab/tools/cisco-mcp-scanner/.venv/bin/mcp-scanner"
+  },
+  "provenance": {
+    "raw_artifact": "raw/scanner-output.json",
+    "raw_output_sha256": "sha256:b560cf38d9734fbe31ee5616b80093c3d27f64263ca6761dc3d8fe38e210e4f0",
+    "stdout_sha256": "sha256:b560cf38d9734fbe31ee5616b80093c3d27f64263ca6761dc3d8fe38e210e4f0",
+    "stderr_sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "adapter_version": "9b.1"
+  },
+  "classification": "DETECTED_BY_SCANNER",
+  "finding_count": 1
+}
