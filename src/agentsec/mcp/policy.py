@@ -43,3 +43,15 @@ def policy_unchanged_by_result(policy: McpPolicy, _tool_result: object) -> McpPo
     """INV-002: tool results are data. They never become a new grant object."""
     del _tool_result
     return policy
+
+
+def policy_unchanged_by_catalog(policy: McpPolicy, _catalog: object) -> McpPolicy:
+    """INV-002: catalog metadata is data. It never becomes a new grant object."""
+    del _catalog
+    return policy
+
+
+def policy_unchanged_by_retrieved_context(policy: McpPolicy, _retrieved: object) -> McpPolicy:
+    """INV-002: retrieved context is data. It never becomes a new grant object."""
+    del _retrieved
+    return policy

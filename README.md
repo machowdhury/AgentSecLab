@@ -4,6 +4,8 @@ An open agentic AI security learning and SOC experimentation range. Splunk is wh
 
 See `docs/IMPLEMENTATION_STATUS.md`. LAB-PI-001 Dashboard Studio: `docs/PHASE2C3_DASHBOARD.md`. Local compose: `docs/LOCAL_DOCKER_LAB.md`.
 
+For Splunk knowledge-object work, read `.cursor/rules/33-splunk-agent-skills.mdc`, then use `.cursor/skills/splunk-ko-review/SKILL.md`, and consult the applicable official Splunk Agent Skills. For learner-facing UI also read `.cursor/rules/32-ui-design-system.mdc` and run `/ui-review`. For evidence/security reasoning run `/logic-proof`. Inventory: `docs/SPLUNK_KNOWLEDGE_OBJECT_INVENTORY.md`.
+
 ## Tests
 
 ```bash

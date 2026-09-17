@@ -4,8 +4,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from agentsec.mcp.metadata_trust import MCP_CATALOG_FAIL_OPEN_REASON, MetadataDerivedOverlay
 from agentsec.mcp.policy import McpPolicy
+from agentsec.mcp.result_trust import MCP005_FAIL_OPEN_REASON, ResultDerivedOverlay
 from agentsec.mcp.tools import TOOL_SPECS
+from agentsec.rag.context_trust import RAG_FAIL_OPEN_REASON, ContextDerivedOverlay
 
 CONTROL_ID = "CTRL-MCP-001"
 CONTROL_TYPE = "mcp_allowlist"
@@ -53,10 +56,18 @@ def authorize_tool(
     policy: McpPolicy,
     tool_registered: bool,
     valid_scopes: frozenset[str] | None = None,
+    result_derived_overlay: ResultDerivedOverlay | None = None,
+    metadata_derived_overlay: MetadataDerivedOverlay | None = None,
+    context_derived_overlay: ContextDerivedOverlay | None = None,
 ) -> McpControlResult:
     """Exact set membership. No prefix, regex, lowercase, or strip matching.
 
     Order: tool exists → tool granted → requested_scope in catalog → in grant.
+
+    A result-derived, metadata-derived, or retrieved-context-derived overlay,
+    if present, is consulted only after the tool is known to exist. It cannot
+    register unknown tools. It does not mutate policy. Overlay ALLOW uses the
+    overlay's lab reason, never the MCP-002/003/004 fail-open strings.
     """
     allowed_scope = policy.allowed_scope_wire()
     catalog = valid_scopes
@@ -79,8 +90,47 @@ def authorize_tool(
             error_stage="schema_validation",
         )
 
+    overlay_hit_result = result_derived_overlay is not None and result_derived_overlay.matches(
+        tool_name, requested_scope
+    )
+    overlay_hit_metadata = metadata_derived_overlay is not None and metadata_derived_overlay.matches(
+        tool_name, requested_scope
+    )
+    overlay_hit_context = context_derived_overlay is not None and context_derived_overlay.matches(
+        tool_name, requested_scope
+    )
+    overlay_hit = overlay_hit_result or overlay_hit_metadata or overlay_hit_context
     granted = tool_name in policy.allowed_tools
     if not granted:
+        if overlay_hit:
+            if requested_scope not in catalog:
+                return McpControlResult(
+                    control_id=CONTROL_ID,
+                    control_type=CONTROL_TYPE,
+                    decision="ERROR",
+                    reason="unknown_scope",
+                    profile=profile,
+                    tool_name=tool_name,
+                    requested_scope=requested_scope,
+                    allowed_scope=allowed_scope,
+                    error_stage="schema_validation",
+                )
+            if overlay_hit_result:
+                overlay_reason = MCP005_FAIL_OPEN_REASON
+            elif overlay_hit_metadata:
+                overlay_reason = MCP_CATALOG_FAIL_OPEN_REASON
+            else:
+                overlay_reason = RAG_FAIL_OPEN_REASON
+            return McpControlResult(
+                control_id=CONTROL_ID,
+                control_type=CONTROL_TYPE,
+                decision="ALLOW",
+                reason=overlay_reason,
+                profile=profile,
+                tool_name=tool_name,
+                requested_scope=requested_scope,
+                allowed_scope=allowed_scope,
+            )
         if profile == "vulnerable":
             return McpControlResult(
                 control_id=CONTROL_ID,
@@ -181,6 +231,9 @@ def evaluate_mcp_control(
     tool_registered: bool,
     authorize_fn=authorize_tool,
     valid_scopes: frozenset[str] | None = None,
+    result_derived_overlay: ResultDerivedOverlay | None = None,
+    metadata_derived_overlay: MetadataDerivedOverlay | None = None,
+    context_derived_overlay: ContextDerivedOverlay | None = None,
 ) -> McpControlResult:
     try:
         return authorize_fn(
@@ -190,6 +243,9 @@ def evaluate_mcp_control(
             policy=policy,
             tool_registered=tool_registered,
             valid_scopes=valid_scopes,
+            result_derived_overlay=result_derived_overlay,
+            metadata_derived_overlay=metadata_derived_overlay,
+            context_derived_overlay=context_derived_overlay,
         )
     except Exception as exc:
         return McpControlResult(

@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://agentsec.local/schemas/security_event.schema.json",
-  "title": "AgentSec Security Event 1.2.0 (loan pipeline + MCP tool/scope/resource authorization)",
-  "description": "Closed JSON body for AcmeBank security events. Additive extension of 1.1.0: optional MCP resource identity and server-owned resource grant fields. Existing 1.0.0 and 1.1.0 field meanings are unchanged. incident.id equals run.id. No session.id. LLM events exist only after input ALLOW. MCP handler events exist only after MCP ALLOW. operation.executed on llm.* means the governed LLM call started; on mcp.* it means the tool handler began. Emitters use execution.mode=LIVE and telemetry.fidelity=OBSERVED; other enum values are reserved.",
+  "title": "AgentSec Security Event 1.6.0 (loan pipeline + MCP + catalog metadata trust + RAG retrieved-context trust)",
+  "description": "Closed JSON body for AcmeBank security events. Additive extension of 1.5.0: rag_context_trust / CTRL-RAG-CONTEXT-001, attack id RAG-001, rag.retrieved.context, and agentsec.rag.context.trust. Existing 1.0.0 / 1.1.0 / 1.2.0 / 1.3.0 / 1.4.0 / 1.5.0 field meanings are unchanged. incident.id equals run.id. No session.id. LLM events exist only after input ALLOW. MCP handler events exist only after MCP ALLOW. RESULT-001 OBSERVE means result content was not merged into authority. METADATA-001 OBSERVE means catalog metadata was classified as data. RAG-CONTEXT-001 OBSERVE means retrieved context was classified as data, not that the document is safe, not that a follow-on is authorized, and not that the retriever is trusted instructions. CTRL-DELEGATION-001 ALLOW/DENY records which authority set was consulted. operation.executed on llm.* means the governed LLM call started; on mcp.* it means the tool handler began. Emitters use execution.mode=LIVE and telemetry.fidelity=OBSERVED; other enum values are reserved.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -81,8 +81,8 @@
     "gen_ai.agent.description": {"type": "string"},
     "gen_ai.workflow.name": {
       "type": "string",
-      "enum": ["loan_pipeline", "mcp_tool_lab"],
-      "description": "loan_pipeline remains the four-agent loan lab. mcp_tool_lab is the dedicated MCP agent lab. Meanings are not mixed."
+      "enum": ["loan_pipeline", "mcp_tool_lab", "rag_context_lab"],
+      "description": "loan_pipeline remains the four-agent loan lab. mcp_tool_lab is the dedicated MCP agent lab. rag_context_lab is the dedicated retrieve-then-request lab. Meanings are not mixed."
     },
     "mcp.method.name": {
       "type": "string",
@@ -98,8 +98,8 @@
     },
     "agentsec.schema.version": {
       "type": "string",
-      "const": "1.2.0",
-      "description": "Event contract version. 1.2.0 is additive over 1.1.0. Required on every AgentSec security event. Loan and MCP-001/003 field meanings are unchanged."
+      "const": "1.6.0",
+      "description": "Event contract version. 1.6.0 is additive over 1.5.0. Required on every AgentSec security event. Loan, MCP-001/003/004/005/006, and catalog field meanings are unchanged."
     },
     "agentsec.run.id": {"type": "string", "format": "uuid"},
     "agentsec.incident.id": {
@@ -155,8 +155,8 @@
     },
     "agentsec.workflow.entry": {
       "type": "string",
-      "enum": ["/process", "/mcp/invoke"],
-      "description": "/process is the loan pipeline. /mcp/invoke is the dedicated MCP lab. Not interchangeable."
+      "enum": ["/process", "/mcp/invoke", "/rag/retrieve"],
+      "description": "/process is the loan pipeline. /mcp/invoke is the dedicated MCP lab. /rag/retrieve is the dedicated RAG context lab. Not interchangeable."
     },
     "agentsec.hop.index": {"type": "integer", "minimum": 0, "maximum": 3},
     "agentsec.duration_ms": {"type": "integer", "minimum": 0},
@@ -182,6 +182,8 @@
         "mcp.server.invoke",
         "mcp.tool.execute",
         "mcp.tool.result",
+        "mcp.catalog.metadata",
+        "rag.retrieved.context",
         "observability.export"
       ]
     },
@@ -194,15 +196,15 @@
       }
     },
     "agentsec.control.id": {"type": "string", "minLength": 1},
-    "agentsec.control.type": {"type": "string", "enum": ["input_inspection", "schema_validation", "mcp_allowlist"]},
-    "agentsec.control.decision": {"type": "string", "enum": ["ALLOW", "DENY", "ERROR"]},
+    "agentsec.control.type": {"type": "string", "enum": ["input_inspection", "schema_validation", "mcp_allowlist", "mcp_result_trust", "mcp_delegation", "mcp_metadata_trust", "rag_context_trust"]},
+    "agentsec.control.decision": {"type": "string", "enum": ["ALLOW", "DENY", "ERROR", "OBSERVE"]},
     "agentsec.control.reason": {"type": "string", "minLength": 1},
-    "agentsec.attack.id": {"type": "string", "enum": ["ATK-001", "ATK-002", "MCP-001", "MCP-002", "MCP-003", "MCP-004"]},
+    "agentsec.attack.id": {"type": "string", "enum": ["ATK-001", "ATK-002", "MCP-001", "MCP-002", "MCP-003", "MCP-004", "MCP-005", "MCP-006", "MCP-CATALOG-001", "RAG-001"]},
     "agentsec.technique.id": {"type": "string"},
     "agentsec.expected.behavior": {"type": "string"},
     "agentsec.content.influence.kind": {
       "type": "string",
-      "enum": ["user_message", "prior_agent_output", "tool_request"]
+      "enum": ["user_message", "prior_agent_output", "tool_request", "retrieved_context"]
     },
     "agentsec.content.origin.type": {"type": "string", "enum": ["user", "agent"]},
     "agentsec.content.origin.id": {"type": "string"},
@@ -254,6 +256,36 @@
       "type": "string",
       "enum": ["mcp.tool.handler"],
       "description": "Which lab component produced the tool result. Not authority."
+    },
+    "agentsec.delegation.authority.source": {
+      "type": "string",
+      "enum": ["delegated", "ambient_deputy"],
+      "description": "Which authority set CTRL-DELEGATION-001 consulted for this decision. Server-owned. Never copied from the request. Not RESULT_DERIVED."
+    },
+    "agentsec.mcp.metadata.trust": {
+      "type": "string",
+      "enum": ["untrusted_data"],
+      "description": "MCP catalog metadata is data (INV-002). LAB-MCP-CATALOG always untrusted_data. Not agentsec.mcp.result.trust."
+    },
+    "agentsec.mcp.metadata.provenance": {
+      "type": "string",
+      "enum": ["mcp.catalog.snapshot"],
+      "description": "Which lab component produced the catalog metadata. Not authority."
+    },
+    "agentsec.rag.context.trust": {
+      "type": "string",
+      "enum": ["untrusted_data"],
+      "description": "Retrieved context is data (INV-002). LAB-RAG-001 always untrusted_data. Not agentsec.mcp.result.trust or mcp.metadata.trust. Provenance is not trust."
+    },
+    "agentsec.rag.context.provenance": {
+      "type": "string",
+      "enum": ["rag.local.fixture"],
+      "description": "Which lab component produced the retrieved bytes. Configured source is not trusted instructions."
+    },
+    "agentsec.rag.context.document.id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opaque fixture document id. Exact match only. Not a grant."
     }
   },
   "allOf": [
@@ -316,6 +348,26 @@
         "properties": {
           "event.name": {"const": "agentsec.control.decision"},
           "agentsec.control.decision": {"const": "ALLOW"}
+        },
+        "required": ["event.name", "agentsec.control.decision"]
+      },
+      "then": {
+        "properties": {
+          "agentsec.operation.attempted": {"const": false},
+          "agentsec.operation.executed": {"const": false}
+        },
+        "required": [
+          "agentsec.operation.attempted",
+          "agentsec.operation.executed"
+        ],
+        "not": {"required": ["agentsec.operation.outcome"]}
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {"const": "agentsec.control.decision"},
+          "agentsec.control.decision": {"const": "OBSERVE"}
         },
         "required": ["event.name", "agentsec.control.decision"]
       },
@@ -537,6 +589,107 @@
           "agentsec.control.id": {"const": "CTRL-MCP-001"},
           "mcp.method.name": {"const": "tools/call"}
         }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {"const": "agentsec.control.decision"},
+          "agentsec.control.type": {"const": "mcp_result_trust"}
+        },
+        "required": ["event.name", "agentsec.control.type"]
+      },
+      "then": {
+        "required": [
+          "gen_ai.tool.name",
+          "agentsec.control.id",
+          "agentsec.trust_boundary"
+        ],
+        "properties": {
+          "agentsec.control.id": {"const": "CTRL-MCP-RESULT-001"},
+          "agentsec.trust_boundary": {"const": "mcp.tool.result"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {"const": "agentsec.control.decision"},
+          "agentsec.control.type": {"const": "mcp_delegation"}
+        },
+        "required": ["event.name", "agentsec.control.type"]
+      },
+      "then": {
+        "required": [
+          "gen_ai.tool.name",
+          "agentsec.control.id"
+        ],
+        "properties": {
+          "agentsec.control.id": {"const": "CTRL-DELEGATION-001"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {"const": "agentsec.control.decision"},
+          "agentsec.control.type": {"const": "mcp_metadata_trust"}
+        },
+        "required": ["event.name", "agentsec.control.type"]
+      },
+      "then": {
+        "required": [
+          "gen_ai.tool.name",
+          "agentsec.control.id",
+          "agentsec.trust_boundary",
+          "agentsec.mcp.metadata.trust",
+          "agentsec.mcp.metadata.provenance",
+          "agentsec.content.hash",
+          "agentsec.content.preview"
+        ],
+        "properties": {
+          "agentsec.control.id": {"const": "CTRL-MCP-METADATA-001"},
+          "agentsec.trust_boundary": {"const": "mcp.catalog.metadata"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {"const": "agentsec.control.decision"},
+          "agentsec.control.type": {"const": "rag_context_trust"}
+        },
+        "required": ["event.name", "agentsec.control.type"]
+      },
+      "then": {
+        "required": [
+          "agentsec.control.id",
+          "agentsec.trust_boundary",
+          "agentsec.rag.context.trust",
+          "agentsec.rag.context.provenance",
+          "agentsec.rag.context.document.id",
+          "agentsec.content.hash",
+          "agentsec.content.preview"
+        ],
+        "properties": {
+          "agentsec.control.id": {"const": "CTRL-RAG-CONTEXT-001"},
+          "agentsec.trust_boundary": {"const": "rag.retrieved.context"},
+          "agentsec.rag.context.trust": {"const": "untrusted_data"},
+          "agentsec.rag.context.provenance": {"const": "rag.local.fixture"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {"const": "agentsec.control.decision"},
+          "agentsec.control.type": {"const": "mcp_delegation"},
+          "agentsec.control.decision": {"enum": ["ALLOW", "DENY"]}
+        },
+        "required": ["event.name", "agentsec.control.type", "agentsec.control.decision"]
+      },
+      "then": {
+        "required": ["agentsec.delegation.authority.source"]
       }
     },
     {

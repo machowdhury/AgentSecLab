@@ -32,3 +32,5 @@ Do not approve a search that was not tested.
 If not tested label:
 
 NOT YET VALIDATED.
+
+Companion: for knowledge-object classification, CIM honesty, detection readiness, and official Splunk Agent Skills, also run `/splunk-ko-review` (`.cursor/skills/splunk-ko-review/SKILL.md`) after reading `.cursor/rules/33-splunk-agent-skills.mdc`. `/spl-validate` remains the SPL correctness gate; it does not replace KO review.

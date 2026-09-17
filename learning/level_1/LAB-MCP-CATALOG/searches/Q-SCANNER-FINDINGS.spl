@@ -1,0 +1,13 @@
+index=agentsec_telemetry sourcetype=agentsec:scanner:finding earliest=0 scan_id=__SCAN_ID__
+| eval scan_id=mvindex(mvdedup(scan_id),0)
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval finding_count=mvindex(mvdedup('scan.finding_count'),0)
+| eval classification=mvindex(mvdedup('scan.classification'),0)
+| eval native_rule_id=mvindex(mvdedup('finding.native_rule_id'),0)
+| eval native_category=mvindex(mvdedup('finding.native_category'),0)
+| eval native_severity=mvindex(mvdedup('finding.native_severity'),0)
+| eval title=mvindex(mvdedup('finding.title'),0)
+| eval tool_name=mvindex(mvdedup('finding.tool_name'),0)
+| eval analyzer=mvindex(mvdedup('finding.analyzer'),0)
+| eval finding_state=case(event_name="agentsec.scanner.scan" AND finding_count=0,"scan_executed_zero_findings",event_name="agentsec.scanner.scan" AND finding_count>0,"scan_executed_with_findings",event_name="agentsec.scanner.finding","finding_present",1=1,"unknown")
+| table scan_id, event_name, finding_state, finding_count, classification, native_rule_id, native_category, native_severity, title, tool_name, analyzer

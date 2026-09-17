@@ -232,3 +232,90 @@ def test_case_and_whitespace_are_unknown_scope_not_normalized():
         assert result.decision == "ERROR", token
         assert result.reason == "unknown_scope", token
         assert result.requested_scope == token
+
+
+def test_result_derived_overlay_allow_is_distinct_from_mcp002():
+    from agentsec.mcp.result_trust import MCP005_FAIL_OPEN_REASON, mint_result_derived_overlay, interpret_mcp005_result, mcp005_policy_result, FIXTURE_MALICIOUS
+
+    intent = interpret_mcp005_result(mcp005_policy_result("lending-basics", FIXTURE_MALICIOUS))
+    overlay = mint_result_derived_overlay(run_id="r1", intent=intent)
+    overlay_allow = authorize_tool(
+        tool_name="lookup_customer_tier",
+        requested_scope="customer:read",
+        profile="vulnerable",
+        policy=coded_policy(),
+        tool_registered=True,
+        result_derived_overlay=overlay,
+    )
+    mcp002 = authorize_tool(
+        tool_name="lookup_customer_tier",
+        requested_scope="customer:read",
+        profile="vulnerable",
+        policy=coded_policy(),
+        tool_registered=True,
+    )
+    assert overlay_allow.decision == "ALLOW"
+    assert overlay_allow.reason == MCP005_FAIL_OPEN_REASON
+    assert mcp002.reason != overlay_allow.reason
+    assert overlay_allow.allowed_scope == "policy:read"
+    unknown = authorize_tool(
+        tool_name="execute_shell_command",
+        requested_scope="customer:read",
+        profile="vulnerable",
+        policy=coded_policy(),
+        tool_registered=False,
+        result_derived_overlay=overlay,
+    )
+    assert unknown.decision == "ERROR"
+    assert unknown.reason == "unknown_tool"
+    other_tool = authorize_tool(
+        tool_name="lookup_policy",
+        requested_scope="policy:read",
+        profile="defended",
+        policy=coded_policy(),
+        tool_registered=True,
+        result_derived_overlay=overlay,
+    )
+    assert other_tool.reason == "tool_granted"
+
+
+def test_metadata_derived_overlay_allow_is_distinct_from_mcp002():
+    from agentsec.mcp.catalog import FIXTURE_MALICIOUS, build_catalog_snapshot
+    from agentsec.mcp.metadata_trust import (
+        MCP_CATALOG_FAIL_OPEN_REASON,
+        interpret_catalog_description,
+        mint_metadata_derived_overlay,
+    )
+
+    desc = build_catalog_snapshot(fixture=FIXTURE_MALICIOUS).tool_named("lookup_policy")["description"]
+    intent = interpret_catalog_description(desc)
+    overlay = mint_metadata_derived_overlay(run_id="r1", intent=intent)
+    overlay_allow = authorize_tool(
+        tool_name="lookup_customer_tier",
+        requested_scope="customer:read",
+        profile="vulnerable",
+        policy=coded_policy(),
+        tool_registered=True,
+        metadata_derived_overlay=overlay,
+    )
+    mcp002 = authorize_tool(
+        tool_name="lookup_customer_tier",
+        requested_scope="customer:read",
+        profile="vulnerable",
+        policy=coded_policy(),
+        tool_registered=True,
+    )
+    assert overlay_allow.decision == "ALLOW"
+    assert overlay_allow.reason == MCP_CATALOG_FAIL_OPEN_REASON
+    assert mcp002.reason != overlay_allow.reason
+    unknown = authorize_tool(
+        tool_name="execute_shell_command",
+        requested_scope="customer:read",
+        profile="vulnerable",
+        policy=coded_policy(),
+        tool_registered=False,
+        metadata_derived_overlay=overlay,
+    )
+    assert unknown.decision == "ERROR"
+    assert unknown.reason == "unknown_tool"
+

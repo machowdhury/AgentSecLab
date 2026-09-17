@@ -37,6 +37,8 @@ class ToolRegistry:
             handler=handler,
             resource_key=current.resource_key,
             valid_resources=current.valid_resources,
+            description=current.description,
+            input_schema=dict(current.input_schema),
         )
 
     def call_handler(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:

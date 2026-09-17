@@ -6,6 +6,8 @@ alwaysApply: false
 
 # Dashboard Studio Requirements
 
+Studio may bind only validated searches or explicitly labeled teaching fixtures. Before implementing a new data source, read `.cursor/rules/33-splunk-agent-skills.mdc` and run `/splunk-ko-review`. Visual review remains `.cursor/rules/32-ui-design-system.mdc` and `/ui-review`. Do not rewrite validated SPL merely because a table is hard to display.
+
 All new AgentSec dashboards must use Splunk Dashboard Studio unless a documented technical limitation requires otherwise.
 
 Use GRID layout by default for:

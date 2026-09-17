@@ -57,6 +57,8 @@ def write_evidence_bundle(
             row["mcp.completed"] = hop.mcp_completed
             row["mcp.failed"] = hop.mcp_failed
             row["handler.invoked"] = hop.handler_invoked
+            if getattr(hop, "tool_name", None):
+                row["tool.name"] = hop.tool_name
         hop_rows.append(row)
 
     events_path = root / "events.jsonl"

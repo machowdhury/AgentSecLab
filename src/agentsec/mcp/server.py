@@ -7,10 +7,13 @@ from dataclasses import dataclass, field, replace
 from typing import Any, Callable
 
 from agentsec.mcp.authorize import McpControlResult, authorize_resource, evaluate_mcp_control
+from agentsec.mcp.metadata_trust import MetadataDerivedOverlay
 from agentsec.mcp.policy import McpPolicy, coded_policy
 from agentsec.mcp.protocol import ToolsCallRequest, decode_tools_call
 from agentsec.mcp.registry import ToolRegistry, default_registry
+from agentsec.mcp.result_trust import ResultDerivedOverlay
 from agentsec.mcp.tools import ToolSpec
+from agentsec.rag.context_trust import ContextDerivedOverlay
 
 AuthorizeFn = Callable[..., McpControlResult]
 
@@ -57,6 +60,9 @@ class McpServer:
         self.policy = policy or coded_policy()
         self._authorize_fn = authorize_fn
         self._tickets: dict[str, AllowTicket] = {}
+        self.result_derived_overlay: ResultDerivedOverlay | None = None
+        self.metadata_derived_overlay: MetadataDerivedOverlay | None = None
+        self.context_derived_overlay: ContextDerivedOverlay | None = None
 
     def authorize(
         self,
@@ -65,9 +71,23 @@ class McpServer:
         profile: str,
         requested_scope: str,
         coded_agent_id: str,
+        result_derived_overlay: ResultDerivedOverlay | None = None,
+        metadata_derived_overlay: MetadataDerivedOverlay | None = None,
+        context_derived_overlay: ContextDerivedOverlay | None = None,
     ) -> ServerDecision:
         """Resolve coded policy, validate tool/scope/args/resource, then decide. Never starts a handler."""
         del coded_agent_id  # identity is policy.agent_id; parameter documents the trust rule
+        overlay = result_derived_overlay if result_derived_overlay is not None else self.result_derived_overlay
+        meta_overlay = (
+            metadata_derived_overlay
+            if metadata_derived_overlay is not None
+            else self.metadata_derived_overlay
+        )
+        ctx_overlay = (
+            context_derived_overlay
+            if context_derived_overlay is not None
+            else self.context_derived_overlay
+        )
         parsed, rpc_error = decode_tools_call(rpc_message)
         if parsed is None:
             stage = "argument_validation" if rpc_error == "malformed_arguments" else "schema_validation"
@@ -80,6 +100,9 @@ class McpServer:
                 policy=self.policy,
                 tool_registered=False,
                 authorize_fn=self._authorize_or_default,
+                result_derived_overlay=overlay,
+                metadata_derived_overlay=meta_overlay,
+                context_derived_overlay=ctx_overlay,
             )
             # RPC envelope failures are ERROR even if authorize_fn would ALLOW an unknown name.
             control = McpControlResult(
@@ -129,6 +152,9 @@ class McpServer:
                 tool_registered=False,
                 valid_scopes=frozenset(),
                 authorize_fn=self._authorize_or_default,
+                result_derived_overlay=overlay,
+                metadata_derived_overlay=meta_overlay,
+                context_derived_overlay=ctx_overlay,
             )
             return ServerDecision(
                 control=control,
@@ -147,6 +173,9 @@ class McpServer:
             tool_registered=True,
             valid_scopes=spec.valid_scopes,
             authorize_fn=self._authorize_or_default,
+            result_derived_overlay=overlay,
+            metadata_derived_overlay=meta_overlay,
+            context_derived_overlay=ctx_overlay,
         )
         if control.blocks_tool:
             return ServerDecision(

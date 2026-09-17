@@ -1,4 +1,4 @@
-"""Build schema 1.2.0 AgentSec security events. Attackers never copy JSON into control fields."""
+"""Build schema 1.6.0 AgentSec security events. Attackers never copy JSON into control fields."""
 
 from __future__ import annotations
 
@@ -267,6 +267,12 @@ class EventEmitter:
         allowed_scope: str | None = None,
         resource_id: str | None = None,
         allowed_resource_ids: str | None = None,
+        authority_source: str | None = None,
+        metadata_trust: str | None = None,
+        metadata_provenance: str | None = None,
+        rag_context_trust: str | None = None,
+        rag_context_provenance: str | None = None,
+        rag_document_id: str | None = None,
     ) -> dict[str, Any]:
         span_id = new_span_id()
         event = _base_event(self.ctx, self.settings, span_id)
@@ -303,6 +309,18 @@ class EventEmitter:
             event["agentsec.mcp.resource.id"] = resource_id
         if allowed_resource_ids is not None:
             event["agentsec.mcp.allowed_resource.ids"] = allowed_resource_ids
+        if authority_source is not None:
+            event["agentsec.delegation.authority.source"] = authority_source
+        if metadata_trust is not None:
+            event["agentsec.mcp.metadata.trust"] = metadata_trust
+        if metadata_provenance is not None:
+            event["agentsec.mcp.metadata.provenance"] = metadata_provenance
+        if rag_context_trust is not None:
+            event["agentsec.rag.context.trust"] = rag_context_trust
+        if rag_context_provenance is not None:
+            event["agentsec.rag.context.provenance"] = rag_context_provenance
+        if rag_document_id is not None:
+            event["agentsec.rag.context.document.id"] = rag_document_id
         _with_hop_identity(
             event,
             hop_index=hop_index,

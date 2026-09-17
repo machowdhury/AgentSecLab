@@ -1,0 +1,56 @@
+{
+  "scan_id": "b3061c4e-7a81-445c-8fd8-3108dd14c419",
+  "evidence_class": "OBSERVED_SCANNER",
+  "boundary": "SCANNER FINDING != AUTHORIZATION DECISION",
+  "agentsec.run.id": null,
+  "scanner": {
+    "name": "cisco-ai-mcp-scanner",
+    "version": "4.8.4",
+    "repository": "https://github.com/cisco-ai-defense/mcp-scanner",
+    "commit": "be87b90d88bca2527a6e2075769a7608decd8f27",
+    "license": "Apache-2.0",
+    "package": "cisco-ai-mcp-scanner",
+    "wheel_sha256": "cd25f68d4f22c6e40b74578a8c28e2dfc350f69ebf4122801d9d05f804e769cd"
+  },
+  "artifact": {
+    "type": "mcp.catalog.snapshot",
+    "path": "/Users/mahamudc/Documents/workspace/AgentSecLab/artifacts/scanners/b3061c4e-7a81-445c-8fd8-3108dd14c419/input/tools.json",
+    "sha256": "sha256:d706a2f8f8476ed0a972d2b7f371a42450addbfbafa2448488d8223e370bac60",
+    "bytes": 826,
+    "fixture": "NORMAL",
+    "created_at": "2026-09-16T05:36:53Z",
+    "description_sha256": "sha256:8a76d34c6c21fda0dc930fa2f64fe87c3216f23cbc73ca357c47b0927850d9c3",
+    "tool_count": 2
+  },
+  "execution": {
+    "static_scan": true,
+    "target_executed": false,
+    "network_required": false,
+    "llm_used": false,
+    "argv": [
+      "/Users/mahamudc/Documents/workspace/AgentSecLab/tools/cisco-mcp-scanner/.venv/bin/mcp-scanner",
+      "--analyzers",
+      "yara",
+      "--format",
+      "raw",
+      "--log-level",
+      "error",
+      "static",
+      "--tools",
+      "/Users/mahamudc/Documents/workspace/AgentSecLab/artifacts/scanners/b3061c4e-7a81-445c-8fd8-3108dd14c419/input/tools.json"
+    ],
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_ms": 1985,
+    "binary": "/Users/mahamudc/Documents/workspace/AgentSecLab/tools/cisco-mcp-scanner/.venv/bin/mcp-scanner"
+  },
+  "provenance": {
+    "raw_artifact": "raw/scanner-output.json",
+    "raw_output_sha256": "sha256:360d31670dfbcc9e0f60fdf23015f3f110323d08eb18fbe49a1efef71e079567",
+    "stdout_sha256": "sha256:360d31670dfbcc9e0f60fdf23015f3f110323d08eb18fbe49a1efef71e079567",
+    "stderr_sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "adapter_version": "9b.1"
+  },
+  "classification": null,
+  "finding_count": 0
+}

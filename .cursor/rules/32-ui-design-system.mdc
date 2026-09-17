@@ -98,6 +98,8 @@ A learner-facing interface is NOT complete merely because:
 - Splunk REST returns HTTP 200
 - automated tests pass
 
+Studio data sources may consume only validated searches or explicitly labeled teaching fixtures. Splunk engineering review (`.cursor/rules/33-splunk-agent-skills.mdc`, `/splunk-ko-review`) and this UI review are separate gates. Required order: FIELD CONTRACT → SPL REVIEW → SPLUNK KO REVIEW → LIVE VALIDATION → DASHBOARD IMPLEMENTATION → `/ui-review` → `/logic-proof`.
+
 Completion requires:
 
 1. Render the interface.

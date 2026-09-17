@@ -89,7 +89,7 @@ if [ "$WAIT_READY" -eq 1 ]; then
       log "Lab is READY."
       log "AcmeBank    http://127.0.0.1:5000"
       log "Attack UI   http://127.0.0.1:5001"
-      log "Splunk      http://127.0.0.1:8000  (app: AgentSec / ws_lab_pi_001 / ws_lab_mcp_001 / ws_lab_mcp_003 / ws_lab_mcp_004)"
+      log "Splunk      http://127.0.0.1:8000  (app: AgentSec / ws_lab_pi_001 / ws_lab_mcp_001 / ws_lab_mcp_003 / ws_lab_mcp_004 / ws_lab_mcp_005 / ws_lab_mcp_006 / ws_lab_mcp_catalog / ws_lab_scanner_runtime_evidence / ws_lab_rag_context)"
       exit 0
     fi
     log "Not ready yet (attempt ${i}/80). Sleeping 15s..."

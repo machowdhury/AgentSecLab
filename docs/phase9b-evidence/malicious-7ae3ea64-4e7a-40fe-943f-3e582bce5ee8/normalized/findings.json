@@ -1,0 +1,19 @@
+{
+  "scan_id": "7ae3ea64-4e7a-40fe-943f-3e582bce5ee8",
+  "evidence_class": "OBSERVED_SCANNER",
+  "classification": "DETECTED_BY_SCANNER",
+  "finding_count": 1,
+  "findings": [
+    {
+      "native_rule_id": "PROMPT INJECTION",
+      "native_category": "PROMPT INJECTION",
+      "native_severity": "HIGH",
+      "title": "PROMPT INJECTION",
+      "summary": "Detected 1 threat: prompt injection",
+      "tool_name": "lookup_policy",
+      "analyzer": "yara_analyzer"
+    }
+  ],
+  "parse_error": null,
+  "adapter_version": "9b.1"
+}

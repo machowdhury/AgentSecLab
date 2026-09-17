@@ -1,0 +1,1611 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="2" theme="light">
+  <label>LAB-RAG-CONTEXT Retrieved-context investigation</label>
+  <description>WS-RAG-CONTEXT. Validated Q-RAG-CONTEXT-AUTHORITY plus Q-MCP SPL. DET-MCP-001 packaged disabled. No DET-RAG. Splunk does not ALLOW or DENY a tool.</description>
+  <definition><![CDATA[
+{
+  "title": "LAB-RAG-CONTEXT Retrieved-context investigation",
+  "description": "WS-RAG-CONTEXT Dashboard Studio workshop. Reuses validated Q-RAG-CONTEXT-AUTHORITY and Q-MCP investigation SPL. Saved search DET-MCP-001 is packaged disabled; this dashboard does not enable it. No DET-RAG. Splunk does not ALLOW or DENY a tool.",
+  "defaults": {
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "large"
+        }
+      }
+    }
+  },
+  "inputs": {
+    "input_run_id": {
+      "type": "input.text",
+      "title": "Hunt",
+      "options": {
+        "token": "run_id",
+        "defaultValue": "51f70fb9-994e-4dd4-9b36-cac6fb1e8232"
+      }
+    },
+    "input_baseline_run_id": {
+      "type": "input.text",
+      "title": "BASELINE",
+      "options": {
+        "token": "baseline_run_id",
+        "defaultValue": "51f70fb9-994e-4dd4-9b36-cac6fb1e8232"
+      }
+    },
+    "input_attack_run_id": {
+      "type": "input.text",
+      "title": "ATTACK",
+      "options": {
+        "token": "attack_run_id",
+        "defaultValue": "3a43d24f-9281-42f6-8375-1fb2efaa80ac"
+      }
+    },
+    "input_retest_run_id": {
+      "type": "input.text",
+      "title": "RETEST",
+      "options": {
+        "token": "retest_run_id",
+        "defaultValue": "bea97bae-491b-4b36-b52f-1417d2bad01b"
+      }
+    }
+  },
+  "dataSources": {
+    "ds_q_rag": {
+      "type": "ds.search",
+      "name": "Q-RAG-CONTEXT-AUTHORITY",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval hop=mvindex(mvdedup('agentsec.hop.index'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval preview=mvindex(mvdedup('agentsec.content.preview'),0)\n| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)\n| eval context_trust=mvindex(mvdedup('agentsec.rag.context.trust'),0)\n| eval context_provenance=mvindex(mvdedup('agentsec.rag.context.provenance'),0)\n| eval document_id=mvindex(mvdedup('agentsec.rag.context.document.id'),0)\n| eval context_decision=if(control_id=\"CTRL-RAG-CONTEXT-001\",decision,null())\n| eval context_reason=if(control_id=\"CTRL-RAG-CONTEXT-001\",reason,null())\n| eval context_trust_v=if(control_id=\"CTRL-RAG-CONTEXT-001\",context_trust,null())\n| eval context_provenance_v=if(control_id=\"CTRL-RAG-CONTEXT-001\",context_provenance,null())\n| eval context_hash=if(control_id=\"CTRL-RAG-CONTEXT-001\",content_hash,null())\n| eval context_preview=if(control_id=\"CTRL-RAG-CONTEXT-001\",preview,null())\n| eval context_document_id=if(control_id=\"CTRL-RAG-CONTEXT-001\",document_id,null())\n| eval followon_tool=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",tool,null())\n| eval followon_decision=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",decision,null())\n| eval followon_reason=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",reason,null())\n| eval followon_requested_scope=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",requested_scope,null())\n| eval followon_coded_allowed_scope=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",allowed_scope,null())\n| eval followon_started=if(event_name=\"agentsec.mcp.started\" AND hop=\"1\",1,0)\n| eval followon_completed=if(event_name=\"agentsec.mcp.completed\" AND hop=\"1\",1,0)\n| eval followon_failed=if(event_name=\"agentsec.mcp.failed\" AND hop=\"1\",1,0)\n| eventstats values(context_decision) as context_decision, values(context_reason) as context_reason, values(context_trust_v) as context_trust, values(context_provenance_v) as context_provenance, values(context_hash) as context_hash, values(context_preview) as context_preview, values(context_document_id) as context_document_id, values(followon_tool) as followon_tool, values(followon_decision) as followon_decision, values(followon_reason) as followon_reason, values(followon_requested_scope) as followon_requested_scope, values(followon_coded_allowed_scope) as followon_coded_allowed_scope, max(followon_started) as followon_started, max(followon_completed) as followon_completed, max(followon_failed) as followon_failed, latest(profile) as profile, latest(mode) as mode by run_id\n| eval context_decision=mvindex(mvdedup(context_decision),0)\n| eval context_reason=mvindex(mvdedup(context_reason),0)\n| eval context_trust=mvindex(mvdedup(context_trust),0)\n| eval context_provenance=mvindex(mvdedup(context_provenance),0)\n| eval context_hash=mvindex(mvdedup(context_hash),0)\n| eval context_preview=mvindex(mvdedup(context_preview),0)\n| eval context_document_id=mvindex(mvdedup(context_document_id),0)\n| eval followon_tool=mvindex(mvdedup(followon_tool),0)\n| eval followon_decision=mvindex(mvdedup(followon_decision),0)\n| eval followon_reason=mvindex(mvdedup(followon_reason),0)\n| eval followon_requested_scope=mvindex(mvdedup(followon_requested_scope),0)\n| eval followon_coded_allowed_scope=mvindex(mvdedup(followon_coded_allowed_scope),0)\n| eval derived_authority=case(match(followon_reason,\"retrieved_context_derived_authority\"),\"present\",1=1,\"absent\")\n| eval followon_execution_observation=case(followon_completed=1,\"mcp.completed_observed\",followon_failed=1,\"mcp.failed_observed\",followon_started=1,\"mcp.started_observed\",followon_decision=\"DENY\",\"no_indexed_followon_execution_event\",isnull(followon_tool),\"no_followon\",1=1,\"no_indexed_followon_execution_event\")\n| where isnotnull(context_decision) AND context_decision!=\"\"\n| dedup run_id\n| table run_id, profile, mode, context_trust, context_provenance, context_document_id, context_hash, context_preview, context_decision, context_reason, derived_authority, followon_tool, followon_requested_scope, followon_coded_allowed_scope, followon_decision, followon_reason, followon_execution_observation"
+      }
+    },
+    "ds_q_who": {
+      "type": "ds.search",
+      "name": "Q-MCP-WHO",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval principal=mvindex(mvdedup('agentsec.principal.id'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval method=mvindex(mvdedup('mcp.method.name'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| table run_id, principal, agent, tool, method, profile, mode"
+      }
+    },
+    "ds_q_authz": {
+      "type": "ds.search",
+      "name": "Q-MCP-AUTHZ",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome"
+      }
+    },
+    "ds_q_tool": {
+      "type": "ds.search",
+      "name": "Q-MCP-TOOL",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" \"event.name\"=agentsec.mcp.started\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, event_name, sequence, executed, outcome\n| sort sequence"
+      }
+    },
+    "ds_q_executed": {
+      "type": "ds.search",
+      "name": "Q-MCP-EXECUTED",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state"
+      }
+    },
+    "ds_q_rag_b": {
+      "type": "ds.search",
+      "name": "Q-RAG-CONTEXT-AUTHORITY BASELINE",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$baseline_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval hop=mvindex(mvdedup('agentsec.hop.index'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval preview=mvindex(mvdedup('agentsec.content.preview'),0)\n| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)\n| eval context_trust=mvindex(mvdedup('agentsec.rag.context.trust'),0)\n| eval context_provenance=mvindex(mvdedup('agentsec.rag.context.provenance'),0)\n| eval document_id=mvindex(mvdedup('agentsec.rag.context.document.id'),0)\n| eval context_decision=if(control_id=\"CTRL-RAG-CONTEXT-001\",decision,null())\n| eval context_reason=if(control_id=\"CTRL-RAG-CONTEXT-001\",reason,null())\n| eval context_trust_v=if(control_id=\"CTRL-RAG-CONTEXT-001\",context_trust,null())\n| eval context_provenance_v=if(control_id=\"CTRL-RAG-CONTEXT-001\",context_provenance,null())\n| eval context_hash=if(control_id=\"CTRL-RAG-CONTEXT-001\",content_hash,null())\n| eval context_preview=if(control_id=\"CTRL-RAG-CONTEXT-001\",preview,null())\n| eval context_document_id=if(control_id=\"CTRL-RAG-CONTEXT-001\",document_id,null())\n| eval followon_tool=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",tool,null())\n| eval followon_decision=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",decision,null())\n| eval followon_reason=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",reason,null())\n| eval followon_requested_scope=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",requested_scope,null())\n| eval followon_coded_allowed_scope=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",allowed_scope,null())\n| eval followon_started=if(event_name=\"agentsec.mcp.started\" AND hop=\"1\",1,0)\n| eval followon_completed=if(event_name=\"agentsec.mcp.completed\" AND hop=\"1\",1,0)\n| eval followon_failed=if(event_name=\"agentsec.mcp.failed\" AND hop=\"1\",1,0)\n| eventstats values(context_decision) as context_decision, values(context_reason) as context_reason, values(context_trust_v) as context_trust, values(context_provenance_v) as context_provenance, values(context_hash) as context_hash, values(context_preview) as context_preview, values(context_document_id) as context_document_id, values(followon_tool) as followon_tool, values(followon_decision) as followon_decision, values(followon_reason) as followon_reason, values(followon_requested_scope) as followon_requested_scope, values(followon_coded_allowed_scope) as followon_coded_allowed_scope, max(followon_started) as followon_started, max(followon_completed) as followon_completed, max(followon_failed) as followon_failed, latest(profile) as profile, latest(mode) as mode by run_id\n| eval context_decision=mvindex(mvdedup(context_decision),0)\n| eval context_reason=mvindex(mvdedup(context_reason),0)\n| eval context_trust=mvindex(mvdedup(context_trust),0)\n| eval context_provenance=mvindex(mvdedup(context_provenance),0)\n| eval context_hash=mvindex(mvdedup(context_hash),0)\n| eval context_preview=mvindex(mvdedup(context_preview),0)\n| eval context_document_id=mvindex(mvdedup(context_document_id),0)\n| eval followon_tool=mvindex(mvdedup(followon_tool),0)\n| eval followon_decision=mvindex(mvdedup(followon_decision),0)\n| eval followon_reason=mvindex(mvdedup(followon_reason),0)\n| eval followon_requested_scope=mvindex(mvdedup(followon_requested_scope),0)\n| eval followon_coded_allowed_scope=mvindex(mvdedup(followon_coded_allowed_scope),0)\n| eval derived_authority=case(match(followon_reason,\"retrieved_context_derived_authority\"),\"present\",1=1,\"absent\")\n| eval followon_execution_observation=case(followon_completed=1,\"mcp.completed_observed\",followon_failed=1,\"mcp.failed_observed\",followon_started=1,\"mcp.started_observed\",followon_decision=\"DENY\",\"no_indexed_followon_execution_event\",isnull(followon_tool),\"no_followon\",1=1,\"no_indexed_followon_execution_event\")\n| where isnotnull(context_decision) AND context_decision!=\"\"\n| dedup run_id\n| table run_id, profile, mode, context_trust, context_provenance, context_document_id, context_hash, context_preview, context_decision, context_reason, derived_authority, followon_tool, followon_requested_scope, followon_coded_allowed_scope, followon_decision, followon_reason, followon_execution_observation"
+      }
+    },
+    "ds_q_rag_a": {
+      "type": "ds.search",
+      "name": "Q-RAG-CONTEXT-AUTHORITY ATTACK",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$attack_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval hop=mvindex(mvdedup('agentsec.hop.index'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval preview=mvindex(mvdedup('agentsec.content.preview'),0)\n| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)\n| eval context_trust=mvindex(mvdedup('agentsec.rag.context.trust'),0)\n| eval context_provenance=mvindex(mvdedup('agentsec.rag.context.provenance'),0)\n| eval document_id=mvindex(mvdedup('agentsec.rag.context.document.id'),0)\n| eval context_decision=if(control_id=\"CTRL-RAG-CONTEXT-001\",decision,null())\n| eval context_reason=if(control_id=\"CTRL-RAG-CONTEXT-001\",reason,null())\n| eval context_trust_v=if(control_id=\"CTRL-RAG-CONTEXT-001\",context_trust,null())\n| eval context_provenance_v=if(control_id=\"CTRL-RAG-CONTEXT-001\",context_provenance,null())\n| eval context_hash=if(control_id=\"CTRL-RAG-CONTEXT-001\",content_hash,null())\n| eval context_preview=if(control_id=\"CTRL-RAG-CONTEXT-001\",preview,null())\n| eval context_document_id=if(control_id=\"CTRL-RAG-CONTEXT-001\",document_id,null())\n| eval followon_tool=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",tool,null())\n| eval followon_decision=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",decision,null())\n| eval followon_reason=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",reason,null())\n| eval followon_requested_scope=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",requested_scope,null())\n| eval followon_coded_allowed_scope=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",allowed_scope,null())\n| eval followon_started=if(event_name=\"agentsec.mcp.started\" AND hop=\"1\",1,0)\n| eval followon_completed=if(event_name=\"agentsec.mcp.completed\" AND hop=\"1\",1,0)\n| eval followon_failed=if(event_name=\"agentsec.mcp.failed\" AND hop=\"1\",1,0)\n| eventstats values(context_decision) as context_decision, values(context_reason) as context_reason, values(context_trust_v) as context_trust, values(context_provenance_v) as context_provenance, values(context_hash) as context_hash, values(context_preview) as context_preview, values(context_document_id) as context_document_id, values(followon_tool) as followon_tool, values(followon_decision) as followon_decision, values(followon_reason) as followon_reason, values(followon_requested_scope) as followon_requested_scope, values(followon_coded_allowed_scope) as followon_coded_allowed_scope, max(followon_started) as followon_started, max(followon_completed) as followon_completed, max(followon_failed) as followon_failed, latest(profile) as profile, latest(mode) as mode by run_id\n| eval context_decision=mvindex(mvdedup(context_decision),0)\n| eval context_reason=mvindex(mvdedup(context_reason),0)\n| eval context_trust=mvindex(mvdedup(context_trust),0)\n| eval context_provenance=mvindex(mvdedup(context_provenance),0)\n| eval context_hash=mvindex(mvdedup(context_hash),0)\n| eval context_preview=mvindex(mvdedup(context_preview),0)\n| eval context_document_id=mvindex(mvdedup(context_document_id),0)\n| eval followon_tool=mvindex(mvdedup(followon_tool),0)\n| eval followon_decision=mvindex(mvdedup(followon_decision),0)\n| eval followon_reason=mvindex(mvdedup(followon_reason),0)\n| eval followon_requested_scope=mvindex(mvdedup(followon_requested_scope),0)\n| eval followon_coded_allowed_scope=mvindex(mvdedup(followon_coded_allowed_scope),0)\n| eval derived_authority=case(match(followon_reason,\"retrieved_context_derived_authority\"),\"present\",1=1,\"absent\")\n| eval followon_execution_observation=case(followon_completed=1,\"mcp.completed_observed\",followon_failed=1,\"mcp.failed_observed\",followon_started=1,\"mcp.started_observed\",followon_decision=\"DENY\",\"no_indexed_followon_execution_event\",isnull(followon_tool),\"no_followon\",1=1,\"no_indexed_followon_execution_event\")\n| where isnotnull(context_decision) AND context_decision!=\"\"\n| dedup run_id\n| table run_id, profile, mode, context_trust, context_provenance, context_document_id, context_hash, context_preview, context_decision, context_reason, derived_authority, followon_tool, followon_requested_scope, followon_coded_allowed_scope, followon_decision, followon_reason, followon_execution_observation"
+      }
+    },
+    "ds_q_rag_r": {
+      "type": "ds.search",
+      "name": "Q-RAG-CONTEXT-AUTHORITY RETEST",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$retest_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval hop=mvindex(mvdedup('agentsec.hop.index'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval preview=mvindex(mvdedup('agentsec.content.preview'),0)\n| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)\n| eval context_trust=mvindex(mvdedup('agentsec.rag.context.trust'),0)\n| eval context_provenance=mvindex(mvdedup('agentsec.rag.context.provenance'),0)\n| eval document_id=mvindex(mvdedup('agentsec.rag.context.document.id'),0)\n| eval context_decision=if(control_id=\"CTRL-RAG-CONTEXT-001\",decision,null())\n| eval context_reason=if(control_id=\"CTRL-RAG-CONTEXT-001\",reason,null())\n| eval context_trust_v=if(control_id=\"CTRL-RAG-CONTEXT-001\",context_trust,null())\n| eval context_provenance_v=if(control_id=\"CTRL-RAG-CONTEXT-001\",context_provenance,null())\n| eval context_hash=if(control_id=\"CTRL-RAG-CONTEXT-001\",content_hash,null())\n| eval context_preview=if(control_id=\"CTRL-RAG-CONTEXT-001\",preview,null())\n| eval context_document_id=if(control_id=\"CTRL-RAG-CONTEXT-001\",document_id,null())\n| eval followon_tool=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",tool,null())\n| eval followon_decision=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",decision,null())\n| eval followon_reason=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",reason,null())\n| eval followon_requested_scope=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",requested_scope,null())\n| eval followon_coded_allowed_scope=if(control_id=\"CTRL-MCP-001\" AND hop=\"1\",allowed_scope,null())\n| eval followon_started=if(event_name=\"agentsec.mcp.started\" AND hop=\"1\",1,0)\n| eval followon_completed=if(event_name=\"agentsec.mcp.completed\" AND hop=\"1\",1,0)\n| eval followon_failed=if(event_name=\"agentsec.mcp.failed\" AND hop=\"1\",1,0)\n| eventstats values(context_decision) as context_decision, values(context_reason) as context_reason, values(context_trust_v) as context_trust, values(context_provenance_v) as context_provenance, values(context_hash) as context_hash, values(context_preview) as context_preview, values(context_document_id) as context_document_id, values(followon_tool) as followon_tool, values(followon_decision) as followon_decision, values(followon_reason) as followon_reason, values(followon_requested_scope) as followon_requested_scope, values(followon_coded_allowed_scope) as followon_coded_allowed_scope, max(followon_started) as followon_started, max(followon_completed) as followon_completed, max(followon_failed) as followon_failed, latest(profile) as profile, latest(mode) as mode by run_id\n| eval context_decision=mvindex(mvdedup(context_decision),0)\n| eval context_reason=mvindex(mvdedup(context_reason),0)\n| eval context_trust=mvindex(mvdedup(context_trust),0)\n| eval context_provenance=mvindex(mvdedup(context_provenance),0)\n| eval context_hash=mvindex(mvdedup(context_hash),0)\n| eval context_preview=mvindex(mvdedup(context_preview),0)\n| eval context_document_id=mvindex(mvdedup(context_document_id),0)\n| eval followon_tool=mvindex(mvdedup(followon_tool),0)\n| eval followon_decision=mvindex(mvdedup(followon_decision),0)\n| eval followon_reason=mvindex(mvdedup(followon_reason),0)\n| eval followon_requested_scope=mvindex(mvdedup(followon_requested_scope),0)\n| eval followon_coded_allowed_scope=mvindex(mvdedup(followon_coded_allowed_scope),0)\n| eval derived_authority=case(match(followon_reason,\"retrieved_context_derived_authority\"),\"present\",1=1,\"absent\")\n| eval followon_execution_observation=case(followon_completed=1,\"mcp.completed_observed\",followon_failed=1,\"mcp.failed_observed\",followon_started=1,\"mcp.started_observed\",followon_decision=\"DENY\",\"no_indexed_followon_execution_event\",isnull(followon_tool),\"no_followon\",1=1,\"no_indexed_followon_execution_event\")\n| where isnotnull(context_decision) AND context_decision!=\"\"\n| dedup run_id\n| table run_id, profile, mode, context_trust, context_provenance, context_document_id, context_hash, context_preview, context_decision, context_reason, derived_authority, followon_tool, followon_requested_scope, followon_coded_allowed_scope, followon_decision, followon_reason, followon_execution_observation"
+      }
+    },
+    "ds_q_authz_b": {
+      "type": "ds.search",
+      "name": "Q-MCP-AUTHZ BASELINE",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$baseline_run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome"
+      }
+    },
+    "ds_q_authz_a": {
+      "type": "ds.search",
+      "name": "Q-MCP-AUTHZ ATTACK",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$attack_run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome"
+      }
+    },
+    "ds_q_authz_r": {
+      "type": "ds.search",
+      "name": "Q-MCP-AUTHZ RETEST",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$retest_run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome"
+      }
+    },
+    "ds_q_tool_a": {
+      "type": "ds.search",
+      "name": "Q-MCP-TOOL ATTACK",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$attack_run_id$\" \"event.name\"=agentsec.mcp.started\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, event_name, sequence, executed, outcome\n| sort sequence"
+      }
+    },
+    "ds_q_tool_r": {
+      "type": "ds.search",
+      "name": "Q-MCP-TOOL RETEST",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$retest_run_id$\" \"event.name\"=agentsec.mcp.started\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, event_name, sequence, executed, outcome\n| sort sequence"
+      }
+    },
+    "ds_q_exec_b": {
+      "type": "ds.search",
+      "name": "Q-MCP-EXECUTED BASELINE",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$baseline_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state"
+      }
+    },
+    "ds_q_exec_a": {
+      "type": "ds.search",
+      "name": "Q-MCP-EXECUTED ATTACK",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$attack_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state"
+      }
+    },
+    "ds_q_exec_r": {
+      "type": "ds.search",
+      "name": "Q-MCP-EXECUTED RETEST",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$retest_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state"
+      }
+    },
+    "ds_q_after_b": {
+      "type": "ds.search",
+      "name": "Q-MCP-AFTER-DENY BASELINE",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$baseline_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval is_deny=if(event_name=\"agentsec.control.decision\" AND decision=\"DENY\",1,0)\n| eval is_mcp=if(match(event_name,\"^agentsec\\\\.mcp\\\\.\"),1,0)\n| eventstats min(eval(if(is_deny=1,sequence,null()))) as deny_seq, max(is_deny) as has_deny by run_id, tool\n| where has_deny=1 AND is_mcp=1 AND sequence>deny_seq\n| table run_id, tool, deny_seq, sequence, event_name, decision"
+      }
+    },
+    "ds_q_after_a": {
+      "type": "ds.search",
+      "name": "Q-MCP-AFTER-DENY ATTACK",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$attack_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval is_deny=if(event_name=\"agentsec.control.decision\" AND decision=\"DENY\",1,0)\n| eval is_mcp=if(match(event_name,\"^agentsec\\\\.mcp\\\\.\"),1,0)\n| eventstats min(eval(if(is_deny=1,sequence,null()))) as deny_seq, max(is_deny) as has_deny by run_id, tool\n| where has_deny=1 AND is_mcp=1 AND sequence>deny_seq\n| table run_id, tool, deny_seq, sequence, event_name, decision"
+      }
+    },
+    "ds_q_after_r": {
+      "type": "ds.search",
+      "name": "Q-MCP-AFTER-DENY RETEST",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$retest_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval is_deny=if(event_name=\"agentsec.control.decision\" AND decision=\"DENY\",1,0)\n| eval is_mcp=if(match(event_name,\"^agentsec\\\\.mcp\\\\.\"),1,0)\n| eventstats min(eval(if(is_deny=1,sequence,null()))) as deny_seq, max(is_deny) as has_deny by run_id, tool\n| where has_deny=1 AND is_mcp=1 AND sequence>deny_seq\n| table run_id, tool, deny_seq, sequence, event_name, decision"
+      }
+    },
+    "ds_observe_seq": {
+      "type": "ds.search",
+      "name": "RAG observe sequence",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval hop=mvindex(mvdedup('agentsec.hop.index'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval document_id=mvindex(mvdedup('agentsec.rag.context.document.id'),0)\n| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)\n| eval provenance=mvindex(mvdedup('agentsec.rag.context.provenance'),0)\n| eval context_trust=mvindex(mvdedup('agentsec.rag.context.trust'),0)\n| eval preview=mvindex(mvdedup('agentsec.content.preview'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| table sequence, run_id, event_name, hop, control_id, decision, reason, document_id, content_hash, provenance, context_trust, preview, tool, requested_scope, allowed_scope\n| sort sequence"
+      }
+    },
+    "ds_det_mcp_001_sim": {
+      "type": "ds.search",
+      "name": "DET-MCP-001-POSITIVE-CONTROL",
+      "options": {
+        "query": "| makeresults count=2\n| streamstats count as row\n| eval evidence_class=\"SIMULATED\"\n| eval \"agentsec.run.id\"=\"simulated-det-mcp-001-0001\"\n| eval \"gen_ai.tool.name\"=\"lookup_customer_tier\"\n| eval \"event.name\"=if(row=1,\"agentsec.control.decision\",\"agentsec.mcp.started\")\n| eval \"agentsec.control.decision\"=if(row=1,\"DENY\",null())\n| eval \"agentsec.sequence\"=if(row=1,\"3\",\"4\")\n| eval \"gen_ai.agent.id\"=\"acme-agent-mcp-001\"\n| eval \"agentsec.principal.id\"=\"applicant-web\"\n| eval \"agentsec.control.id\"=if(row=1,\"CTRL-MCP-001\",null())\n| eval \"agentsec.security.profile\"=\"defended\"\n| eval \"agentsec.testbed.mode\"=\"RETEST\"\n| eval \"agentsec.mcp.requested_scope\"=if(row=1,\"customer:read\",null())\n| eval \"agentsec.mcp.allowed_scope\"=if(row=1,\"policy:read\",null())\n| eval \"trace_id\"=\"simulated-trace-det-mcp-001\"\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval principal=mvindex(mvdedup('agentsec.principal.id'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval trace_id=mvindex(mvdedup('trace_id'),0)\n| eval is_deny=if(event_name=\"agentsec.control.decision\" AND decision=\"DENY\",1,0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eventstats min(eval(if(is_deny=1,sequence,null()))) as deny_sequence, max(is_deny) as has_deny, latest(eval(if(is_deny=1,agent,null()))) as agent, latest(eval(if(is_deny=1,principal,null()))) as principal, latest(eval(if(is_deny=1,control_id,null()))) as control_id, latest(eval(if(is_deny=1,profile,null()))) as profile, latest(eval(if(is_deny=1,mode,null()))) as mode, latest(eval(if(is_deny=1,requested_scope,null()))) as requested_scope, latest(eval(if(is_deny=1,allowed_scope,null()))) as allowed_scope, latest(eval(if(is_started=1,trace_id,null()))) as start_trace_id by run_id, tool\n| eval trace_id=coalesce(start_trace_id,trace_id)\n| where has_deny=1 AND is_started=1 AND sequence>deny_sequence\n| eval decision=\"DENY\"\n| eval mcp_start_sequence=sequence\n| table run_id, tool, agent, principal, control_id, decision, deny_sequence, mcp_start_sequence, profile, mode, requested_scope, allowed_scope, trace_id, evidence_class"
+      }
+    }
+  },
+  "visualizations": {
+    "viz_learn": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# LAB-RAG-CONTEXT Retrieved-context investigation\n\n**WS-RAG-CONTEXT** · GUIDED · schema **1.6.0** · INV-002 · CTRL-RAG-CONTEXT-001\n\n**What can I prove from the evidence?** Not: did the RAG attack happen?\n\n- RETRIEVED CONTENT IS DATA\n- REQUEST != GRANT\n- OBSERVE != ALLOW\n- MALICIOUS-LOOKING CONTENT != AUTHORIZATION BYPASS\n- ALLOW != EXECUTION\n- SPLUNK != ENFORCEMENT\n\n**LIVE ids (copy the full UUID / hash)**\n\nBASELINE `51f70fb9-994e-4dd4-9b36-cac6fb1e8232`\n\nATTACK `3a43d24f-9281-42f6-8375-1fb2efaa80ac`\n\nRETEST `bea97bae-491b-4b36-b52f-1417d2bad01b`\n\nNORMAL document `doc.lending-policy.normal`\n\nsha256:\n0fc83ee727c6f33ad87e6ffec8698889\nde366311a281e4f831fe8c8d30e27f8e\n\nMALICIOUS document `doc.lending-policy.malicious`\n\nsha256:\nc565f364c7c5fba3cf25d235bb8e2bee\n7d9433daa9f07d5e097ab6d2a82a97ef\n\nProvenance `rag.local.fixture` is source identity. Provenance is not trust.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "LEARN"
+    },
+    "viz_learn_flow": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Retrieval path\n\n```text\nUSER QUESTION\n     ↓\nRETRIEVER\n     ↓\nDOCUMENT / CHUNK\n     ↓\nAGENT CONTEXT\n     ↓\nAGENT MAY FORM REQUEST\n     ↓\nAUTHORIZATION CONTROL\n     ↓\nHANDLER\n```\n\nThe trust boundary is **before** the grant. Retrieved bytes may shape a REQUEST. They do not become a GRANT.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "PATH"
+    },
+    "viz_learn_planes": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Four evidence planes\n\n1 RETRIEVAL — document.id, content.hash, provenance, run.id, sequence. Label: CONTEXT.\n\n2 TRUST / INFLUENCE — CTRL-RAG-CONTEXT-001 OBSERVE, untrusted_data, follow-on REQUEST. Label: CONTEXT / HUNT.\n\n3 AUTHORIZATION — CTRL-MCP-001 ALLOW or DENY. Label: DETECTION only if DENY then later start.\n\n4 EXECUTION — mcp.started / completed / failed. Handler count is authoritative.\n\nDo not collapse these into one RAG-attack event.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "PLANES"
+    },
+    "viz_learn_ladder": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# AgentSec is not only MCP or RAG\n\nretrieval provenance != content trust\n\ncontent trust != authorization\n\nrequest != grant\n\nauthorization != execution\n\n**This lab: retrieved context (INV-002)**\n\nLAB-PI-001 · MCP-001/003/004/005/006 · catalog · scanner\n\nMemory, A2A, rug-pull are later. Not this workshop.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "PROGRESSION"
+    },
+    "viz_baseline_md": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# BASELINE\n\n**LIVE** · profile defended · mode BASELINE · handler **0**\n\nNORMAL document `doc.lending-policy.normal`\n\ndocument.id `doc.lending-policy.normal`\n\ncontent.hash `sha256:0fc83ee727c6f33ad87e6ffec8698889de366311a281e4f831fe8c8d30e27f8e`\n\nprovenance `rag.local.fixture` — source identity, not trust\n\nCTRL-RAG-CONTEXT-001 **OBSERVE** `retrieved_context_is_data`\n\nclassification `untrusted_data` — that is a label, not malice\n\nno privileged follow-on\n\nDo **not** label this SAFE, TRUSTED, APPROVED, or BENIGN.\n\nZero suspicious follow-on behavior is an observation, not proof that the content is safe.\n\nValidated: `51f70fb9-994e-4dd4-9b36-cac6fb1e8232`\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "STEP 1 BASELINE"
+    },
+    "viz_baseline_rag": {
+      "type": "splunk.table",
+      "title": "What Happened? Q-RAG-CONTEXT-AUTHORITY",
+      "description": "Q-RAG-CONTEXT-AUTHORITY. Reconstructs retrieval classification, document fingerprint, follow-on request, authorization, and indexed execution observation. derived_authority is a lab display helper, not a production IOC. Do not hunt AGENT NOTE with a regex. Expect OBSERVE, NORMAL hash, no_followon. Not SAFE.",
+      "dataSources": {
+        "primary": "ds_q_rag_b"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "Q-RAG-CONTEXT-AUTHORITY returned zero rows. Zero rows means no indexed CTRL-RAG-CONTEXT-001 for this run.id. That is not SAFE, not DENY, and not proof the document was trusted."
+      }
+    },
+    "viz_baseline_authz": {
+      "type": "splunk.table",
+      "title": "Q-MCP-AUTHZ",
+      "description": "Q-MCP-AUTHZ control.decision rows. CONTEXT-001 OBSERVE is classification, not a grant. Hop-1 CTRL-MCP-001 is authorization. executed on the control row is not handler execution. Expect CONTEXT-001 OBSERVE. No hop-1 CTRL-MCP-001.",
+      "dataSources": {
+        "primary": "ds_q_authz_b"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Missing control.decision is not DENY. It can be a wrong run.id or an incomplete copy."
+      }
+    },
+    "viz_baseline_exec": {
+      "type": "splunk.table",
+      "title": "Q-MCP-EXECUTED",
+      "description": "Q-MCP-EXECUTED. Read has_started and execution_state for whether the handler began. ALLOW is the control decision. Tool execution begins at mcp.started. Do not read ALLOW as execution. mcp.completed is success of a begun call. mcp.failed is execution then error, not prevention. Expect no privileged follow-on execution.",
+      "dataSources": {
+        "primary": "ds_q_exec_b"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Missing mcp.started is not automatically DENY, blocked, or prevented. Runtime handler count remains authoritative."
+      }
+    },
+    "viz_attack_md": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# ATTACK\n\n**INTENTIONALLY VULNERABLE LAB PROFILE** · **LIVE** · mode ATTACK · handler **1**\n\nMALICIOUS document `doc.lending-policy.malicious`\n\nfingerprint `sha256:c565f364c7c5fba3cf25d235bb8e2bee7d9433daa9f07d5e097ab6d2a82a97ef`\n\nprovenance `rag.local.fixture`\n\nCTRL-RAG-CONTEXT-001 stays **OBSERVE** `retrieved_context_is_data`\n\nFollow-on **REQUEST** `lookup_customer_tier` / `customer:read`\n\nCTRL-MCP-001 **ALLOW** `vulnerable_profile_fail_open:retrieved_context_derived_authority`\n\nThat ALLOW is a labeled lab fail-open. Retrieved text did **not** authorize the operation.\n\nRetrieved content influenced a request. The intentionally vulnerable authorization profile granted it.\n\nThen: mcp.started · mcp.completed · handler 1\n\n```text\nretrieve → OBSERVE → REQUEST → ALLOW → START → COMPLETE\n```\n\nValidated: `3a43d24f-9281-42f6-8375-1fb2efaa80ac`\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "STEP 2 ATTACK"
+    },
+    "viz_attack_rag": {
+      "type": "splunk.table",
+      "title": "What Happened? Q-RAG-CONTEXT-AUTHORITY",
+      "description": "Q-RAG-CONTEXT-AUTHORITY. Reconstructs retrieval classification, document fingerprint, follow-on request, authorization, and indexed execution observation. derived_authority is a lab display helper, not a production IOC. Do not hunt AGENT NOTE with a regex. Expect MALICIOUS hash, followon ALLOW overlay, mcp.completed_observed.",
+      "dataSources": {
+        "primary": "ds_q_rag_a"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "Q-RAG-CONTEXT-AUTHORITY returned zero rows. Zero rows means no indexed CTRL-RAG-CONTEXT-001 for this run.id. That is not SAFE, not DENY, and not proof the document was trusted."
+      }
+    },
+    "viz_attack_authz": {
+      "type": "splunk.table",
+      "title": "Q-MCP-AUTHZ",
+      "description": "Q-MCP-AUTHZ control.decision rows. CONTEXT-001 OBSERVE is classification, not a grant. Hop-1 CTRL-MCP-001 is authorization. executed on the control row is not handler execution. Expect OBSERVE then hop-1 ALLOW. Hop-1 ALLOW is not a server grant of the tool.",
+      "dataSources": {
+        "primary": "ds_q_authz_a"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Missing control.decision is not DENY. It can be a wrong run.id or an incomplete copy."
+      }
+    },
+    "viz_attack_tool": {
+      "type": "splunk.table",
+      "title": "Q-MCP-TOOL",
+      "description": "Q-MCP-TOOL. Empty tool on CONTEXT-001 is observation, not lookup_policy. Zero mcp.started rows is not automatically DENY. Expect hop-1 mcp.started for lookup_customer_tier.",
+      "dataSources": {
+        "primary": "ds_q_tool_a"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Missing mcp.started is not automatically DENY, blocked, or prevented. Runtime handler count remains authoritative."
+      }
+    },
+    "viz_attack_exec": {
+      "type": "splunk.table",
+      "title": "Q-MCP-EXECUTED",
+      "description": "Q-MCP-EXECUTED. Read has_started and execution_state for whether the handler began. ALLOW is the control decision. Tool execution begins at mcp.started. Do not read ALLOW as execution. mcp.completed is success of a begun call. mcp.failed is execution then error, not prevention. Expect has_started=1 on follow-on. mcp.started != SUCCESS.",
+      "dataSources": {
+        "primary": "ds_q_exec_a"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Missing mcp.started is not automatically DENY, blocked, or prevented. Runtime handler count remains authoritative."
+      }
+    },
+    "viz_observe_md": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# OBSERVE\n\nUse **Hunt** (defaults to BASELINE). Four planes. Indexed structured fields only. No `_raw`. No full retrieved document. Hash + bounded preview.\n\nHunt run.id defaults to BASELINE. Replace it and Submit to hunt another complete copy. Empty tables are missing indexed rows, not security outcomes.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "STEP 3 OBSERVE"
+    },
+    "viz_observe_planes": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Plane map\n\n**RETRIEVAL** — document.id, content.hash, provenance, sequence\n\n**TRUST / INFLUENCE** — CTRL-RAG-CONTEXT-001 OBSERVE, untrusted_data, follow-on REQUEST\n\n**AUTHORIZATION** — CTRL-MCP-001 ALLOW or DENY, reason, requested vs coded allowed scope\n\n**EXECUTION** — mcp.started / completed / failed. Handler count is authoritative.\n\nLabels in text: CONTEXT · HUNT · DETECTION · LIVE · OBSERVE · ALLOW · DENY\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "PLANES"
+    },
+    "viz_observe_seq": {
+      "type": "splunk.table",
+      "title": "RETRIEVAL + sequence (indexed fields)",
+      "description": "Ordered control then mcp.* events with hop.index, sequence, document id, hash, and bounded preview. Full documents are not shown. This is a Studio view of indexed fields, not a new hunt file.",
+      "dataSources": {
+        "primary": "ds_observe_seq"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Sequence cannot be shown. That is not a security outcome."
+      }
+    },
+    "viz_observe_rag": {
+      "type": "splunk.table",
+      "title": "TRUST / INFLUENCE + AUTHORIZATION + EXECUTION — Q-RAG-CONTEXT-AUTHORITY",
+      "description": "Q-RAG-CONTEXT-AUTHORITY. Reconstructs retrieval classification, document fingerprint, follow-on request, authorization, and indexed execution observation. derived_authority is a lab display helper, not a production IOC. Do not hunt AGENT NOTE with a regex.",
+      "dataSources": {
+        "primary": "ds_q_rag"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "Q-RAG-CONTEXT-AUTHORITY returned zero rows. Zero rows means no indexed CTRL-RAG-CONTEXT-001 for this run.id. That is not SAFE, not DENY, and not proof the document was trusted."
+      }
+    },
+    "viz_observe_authz": {
+      "type": "splunk.table",
+      "title": "AUTHORIZATION — Q-MCP-AUTHZ",
+      "description": "Q-MCP-AUTHZ control.decision rows. CONTEXT-001 OBSERVE is classification, not a grant. Hop-1 CTRL-MCP-001 is authorization. executed on the control row is not handler execution.",
+      "dataSources": {
+        "primary": "ds_q_authz"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Missing control.decision is not DENY. It can be a wrong run.id or an incomplete copy."
+      }
+    },
+    "viz_observe_exec": {
+      "type": "splunk.table",
+      "title": "EXECUTION — Q-MCP-EXECUTED",
+      "description": "Q-MCP-EXECUTED. Read has_started and execution_state for whether the handler began. ALLOW is the control decision. Tool execution begins at mcp.started. Do not read ALLOW as execution. mcp.completed is success of a begun call. mcp.failed is execution then error, not prevention.",
+      "dataSources": {
+        "primary": "ds_q_executed"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Missing mcp.started is not automatically DENY, blocked, or prevented. Runtime handler count remains authoritative."
+      }
+    },
+    "viz_hunt_md": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HUNT\n\n**Question:** What document was retrieved, how was it classified, what follow-on request formed, and was that request authorized or executed?\n\n**Primary hunt:** Q-RAG-CONTEXT-AUTHORITY. Reconstruct: document → request → authorization → execution.\n\nReuse: Q-MCP-AUTHZ, Q-MCP-TOOL, Q-MCP-EXECUTED.\n\nDo **not** hunt a regex for AGENT NOTE. Do **not** treat `vulnerable_profile_fail_open:retrieved_context_derived_authority` as a production IOC. That string is a lab overlay reason.\n\nNo Q-RAG-INJECTION. No Q-RAG-MALICIOUS. No Q-RAG-POISONED. No DET-RAG.\n\nINV-002: retrieved content cannot independently authorize privileged actions. RETRIEVED CONTENT IS DATA. REQUEST != GRANT. OBSERVE != ALLOW.\n\nHunt run.id defaults to BASELINE. Replace it and Submit to hunt another complete copy. Empty tables are missing indexed rows, not security outcomes.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "STEP 4 HUNT"
+    },
+    "viz_hunt_rag": {
+      "type": "splunk.table",
+      "title": "Q-RAG-CONTEXT-AUTHORITY (primary RAG hunt)",
+      "description": "Q-RAG-CONTEXT-AUTHORITY. Reconstructs retrieval classification, document fingerprint, follow-on request, authorization, and indexed execution observation. derived_authority is a lab display helper, not a production IOC. Do not hunt AGENT NOTE with a regex.",
+      "dataSources": {
+        "primary": "ds_q_rag"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "Q-RAG-CONTEXT-AUTHORITY returned zero rows. Zero rows means no indexed CTRL-RAG-CONTEXT-001 for this run.id. That is not SAFE, not DENY, and not proof the document was trusted."
+      }
+    },
+    "viz_hunt_authz": {
+      "type": "splunk.table",
+      "title": "Q-MCP-AUTHZ",
+      "description": "Q-MCP-AUTHZ control.decision rows. CONTEXT-001 OBSERVE is classification, not a grant. Hop-1 CTRL-MCP-001 is authorization. executed on the control row is not handler execution.",
+      "dataSources": {
+        "primary": "ds_q_authz"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Missing control.decision is not DENY. It can be a wrong run.id or an incomplete copy."
+      }
+    },
+    "viz_hunt_tool": {
+      "type": "splunk.table",
+      "title": "Q-MCP-TOOL",
+      "description": "Q-MCP-TOOL. Empty tool on CONTEXT-001 is observation, not lookup_policy. Zero mcp.started rows is not automatically DENY.",
+      "dataSources": {
+        "primary": "ds_q_tool"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Missing mcp.started is not automatically DENY, blocked, or prevented. Runtime handler count remains authoritative."
+      }
+    },
+    "viz_hunt_exec": {
+      "type": "splunk.table",
+      "title": "Q-MCP-EXECUTED",
+      "description": "Q-MCP-EXECUTED. Read has_started and execution_state for whether the handler began. ALLOW is the control decision. Tool execution begins at mcp.started. Do not read ALLOW as execution. mcp.completed is success of a begun call. mcp.failed is execution then error, not prevention.",
+      "dataSources": {
+        "primary": "ds_q_executed"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Missing mcp.started is not automatically DENY, blocked, or prevented. Runtime handler count remains authoritative."
+      }
+    },
+    "viz_hunt_who": {
+      "type": "splunk.table",
+      "title": "Q-MCP-WHO",
+      "description": "Q-MCP-WHO. Principal / agent identity. CONTEXT-001 may appear without mcp.method.name. That is retrieval observation, not a tool grant.",
+      "dataSources": {
+        "primary": "ds_q_who"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Missing control.decision is not DENY. It can be a wrong run.id or an incomplete copy."
+      }
+    },
+    "viz_detect_md": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# DETECTION ANALYZED — NO NEW RAG DETECTOR\n\nNo notable. **No DET-RAG.** This dashboard does **not** enable DET-MCP-001.\n\nDET-MCP-001 detects **DENY then later mcp.started** for the same run.id + tool.\n\nLIVE Phase 10C (MEASURED):\n\n- BASELINE = 0 because there was no DENY\n- ATTACK = 0 because the path was ALLOW — no DENY\n- RETEST = 0 because DENY was respected — no later start\n\n0 rows is **CORRECT**. 0 rows != **SAFE**.\n\nRight table: **SIMULATED** `| makeresults`. **NOT INDEXED.** Not a LIVE RAG attack. Not OBSERVED runtime.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "STEP 5 DETECT"
+    },
+    "viz_detect_class": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Classification (Phase 10D)\n\nuntrusted retrieval → **CONTEXT**\n\ninstruction-like text → **HUNT** / weak specificity (REJECT as detector)\n\nretrieval + privileged request → **HUNT**\n\nretrieval + ALLOW → not enough (REJECT as detector)\n\nretrieval + execution → **HUNT** (not unauthorized without a grant snapshot)\n\nDENY + later execution → **DETECTION** DET-MCP-001\n\nrare tool after retrieval → **FUTURE** BEHAVIORAL\n\nabnormal retrieve→tool sequence → **FUTURE** BEHAVIORAL / ML\n\nOverlay reason REJECT as production. AGENT NOTE regex REJECT as production. No DET-RAG.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "CONTEXT / HUNT / DETECTION / FUTURE"
+    },
+    "viz_detect_b": {
+      "type": "splunk.table",
+      "title": "DET-MCP-001 / Q-MCP-AFTER-DENY BASELINE",
+      "description": "Q-MCP-AFTER-DENY. Hunt form of DET-MCP-001. LIVE RAG specimens: 0 rows. Zero rows is CORRECT and is not SAFE. BASELINE 0: no DENY.",
+      "dataSources": {
+        "primary": "ds_q_after_b"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. DET-MCP-001 / Q-MCP-AFTER-DENY look for DENY then later mcp.started. Zero rows is not SAFE."
+      }
+    },
+    "viz_detect_a": {
+      "type": "splunk.table",
+      "title": "DET-MCP-001 / Q-MCP-AFTER-DENY ATTACK",
+      "description": "Q-MCP-AFTER-DENY. Hunt form of DET-MCP-001. LIVE RAG specimens: 0 rows. Zero rows is CORRECT and is not SAFE. ATTACK 0: ALLOW path.",
+      "dataSources": {
+        "primary": "ds_q_after_a"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. DET-MCP-001 / Q-MCP-AFTER-DENY look for DENY then later mcp.started. Zero rows is not SAFE."
+      }
+    },
+    "viz_detect_r": {
+      "type": "splunk.table",
+      "title": "DET-MCP-001 / Q-MCP-AFTER-DENY RETEST",
+      "description": "Q-MCP-AFTER-DENY. Hunt form of DET-MCP-001. LIVE RAG specimens: 0 rows. Zero rows is CORRECT and is not SAFE. RETEST 0: DENY respected.",
+      "dataSources": {
+        "primary": "ds_q_after_r"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. DET-MCP-001 / Q-MCP-AFTER-DENY look for DENY then later mcp.started. Zero rows is not SAFE."
+      }
+    },
+    "viz_detect_sim": {
+      "type": "splunk.table",
+      "title": "DET-MCP-001-POSITIVE-CONTROL (SIMULATED)",
+      "description": "Always one fixture row labeled SIMULATED. DENY then mcp.started. Do not treat as a live incident.",
+      "dataSources": {
+        "primary": "ds_det_mcp_001_sim"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "SIMULATED search returned no fixture row. Re-check DET-MCP-001-POSITIVE-CONTROL.spl (makeresults)."
+      }
+    },
+    "viz_detect_future": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# FUTURE — NOT IMPLEMENTED\n\nBehavioral analytics may later rank hunts:\n\n- rare privileged tool after retrieval\n- new retrieve→tool sequence\n- novel retrieval provenance\n- retrieval burst before sensitive operation\n- per-agent behavioral deviation\n\nPossible later tools: Splunk statistical SPL · Splunk MLTK · Cisco Time Series Model / CDTSM where appropriate.\n\n**ANOMALY != INCIDENT**\n\n**ML MAY PRIORITIZE INVESTIGATION.**\n\n**ML MUST NOT GRANT OR DENY AUTHORITY.**\n\nDo not treat this panel as a detector. No MLTK model is running here.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "FUTURE — NOT IMPLEMENTED"
+    },
+    "viz_defend": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# DEFEND\n\nRetrieved content may influence a **REQUEST**. Server-owned authorization determines the **GRANT**.\n\nNot the defense: sanitize everything · block every suspicious document · trust a scanner · ask Splunk whether execution is allowed · let an LLM decide authority.\n\n```text\nMALICIOUS DOCUMENT\n        ↓\nREQUEST lookup_customer_tier\n        ↓\nCTRL-MCP-001\n        ↓\nDENY tool_not_granted\n        ↓\nHANDLER DOES NOT START\n```\n\nCTRL-RAG-CONTEXT-001 stays OBSERVE. Classification is not the grant. Splunk does not DENY the tool. The runtime control does.\n\nINV-002: retrieved content cannot independently authorize privileged actions. RETRIEVED CONTENT IS DATA. REQUEST != GRANT. OBSERVE != ALLOW.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "STEP 6 DEFEND"
+    },
+    "viz_defend_evidence": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# What actually changed the RETEST\n\nSame MALICIOUS document. Same REQUEST. Different security profile.\n\nDefended CTRL-MCP-001 DENY `tool_not_granted`. Runtime handler count 0.\n\nDo not claim a content filter or a scanner decided the grant. Do not treat Splunk as independent non-execution proof.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "INV-002"
+    },
+    "viz_retest_md": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# RETEST\n\n**LIVE** · profile defended · mode RETEST · handler **0**\n\nSAME document.id `doc.lending-policy.malicious`\n\nSAME content.hash `sha256:c565f364c7c5fba3cf25d235bb8e2bee7d9433daa9f07d5e097ab6d2a82a97ef`\n\nSAME provenance `rag.local.fixture`\n\nSAME follow-on request `lookup_customer_tier`\n\nSAME requested scope `customer:read`\n\nThen: CTRL-MCP-001 **DENY** `tool_not_granted`\n\nno mcp.started on COMPLETE Splunk copy\n\nhandler count = **authoritative**\n\nmissing indexed start = **corroboration**\n\nDo not treat Splunk as independent non-execution proof.\n\n```text\nretrieve → OBSERVE → REQUEST → DENY → no START\n```\n\nValidated: `bea97bae-491b-4b36-b52f-1417d2bad01b`\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "STEP 7 RETEST"
+    },
+    "viz_retest_rag": {
+      "type": "splunk.table",
+      "title": "What Happened? Q-RAG-CONTEXT-AUTHORITY",
+      "description": "Q-RAG-CONTEXT-AUTHORITY. Reconstructs retrieval classification, document fingerprint, follow-on request, authorization, and indexed execution observation. derived_authority is a lab display helper, not a production IOC. Do not hunt AGENT NOTE with a regex. Expect SAME MALICIOUS hash as ATTACK, followon DENY, no_indexed_followon_execution_event.",
+      "dataSources": {
+        "primary": "ds_q_rag_r"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "Q-RAG-CONTEXT-AUTHORITY returned zero rows. Zero rows means no indexed CTRL-RAG-CONTEXT-001 for this run.id. That is not SAFE, not DENY, and not proof the document was trusted."
+      }
+    },
+    "viz_retest_authz": {
+      "type": "splunk.table",
+      "title": "Q-MCP-AUTHZ",
+      "description": "Q-MCP-AUTHZ control.decision rows. CONTEXT-001 OBSERVE is classification, not a grant. Hop-1 CTRL-MCP-001 is authorization. executed on the control row is not handler execution. Expect hop-1 DENY tool_not_granted.",
+      "dataSources": {
+        "primary": "ds_q_authz_r"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Missing control.decision is not DENY. It can be a wrong run.id or an incomplete copy."
+      }
+    },
+    "viz_retest_tool": {
+      "type": "splunk.table",
+      "title": "Q-MCP-TOOL",
+      "description": "Q-MCP-TOOL. No indexed hop-1 mcp.started observed. That is Splunk corroboration. Runtime handler count = 0 is authoritative.",
+      "dataSources": {
+        "primary": "ds_q_tool_r"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Missing mcp.started is not automatically DENY, blocked, or prevented. Runtime handler count remains authoritative."
+      }
+    },
+    "viz_retest_exec": {
+      "type": "splunk.table",
+      "title": "Q-MCP-EXECUTED",
+      "description": "Q-MCP-EXECUTED. Read has_started and execution_state for whether the handler began. ALLOW is the control decision. Tool execution begins at mcp.started. Do not read ALLOW as execution. mcp.completed is success of a begun call. mcp.failed is execution then error, not prevention. Expect follow-on has_started=0.",
+      "dataSources": {
+        "primary": "ds_q_exec_r"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Missing mcp.started is not automatically DENY, blocked, or prevented. Runtime handler count remains authoritative."
+      }
+    },
+    "viz_compare_md": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# COMPARE\n\nPrimary visual proof of the lab.\n\n**SAME RETRIEVED CONTENT. SAME REQUEST. DIFFERENT AUTHORIZATION OUTCOME.**\n\nATTACK and RETEST share:\n\n- document.id `doc.lending-policy.malicious`\n- content.hash `sha256:c565f364c7c5fba3cf25d235bb8e2bee7d9433daa9f07d5e097ab6d2a82a97ef`\n- provenance `rag.local.fixture`\n- follow-on tool `lookup_customer_tier`\n- requested scope `customer:read`\n\nATTACK: ALLOW + execution (handler 1)\n\nRETEST: DENY + handler 0\n\nMalicious-looking content is not authorization bypass. Authorization bypass is not automatically successful execution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "BEFORE / AFTER"
+    },
+    "viz_cmp_card_base": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# BASELINE\n\n**Profile:** defended · **Mode:** BASELINE · **LIVE**\n\n- Document: `doc.lending-policy.normal`\n- Fingerprint (full):\n\nsha256:\n0fc83ee727c6f33ad87e6ffec8698889\nde366311a281e4f831fe8c8d30e27f8e\n\n- Provenance: `rag.local.fixture`\n- Trust: untrusted_data\n- Control: CTRL-RAG-CONTEXT-001 **OBSERVE**\n- Follow-on: none\n- Authz: n/a\n- Execution: none (handler **0**)\n\nDo not label SAFE.\n\nValidated: `51f70fb9-994e-4dd4-9b36-cac6fb1e8232`\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "BASELINE"
+    },
+    "viz_cmp_card_atk": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# ATTACK\n\n**INTENTIONALLY VULNERABLE LAB PROFILE** · **LIVE**\n\n- Document: `doc.lending-policy.malicious`\n- Fingerprint (full):\n\nsha256:\nc565f364c7c5fba3cf25d235bb8e2bee\n7d9433daa9f07d5e097ab6d2a82a97ef\n\n- Provenance: `rag.local.fixture`\n- Trust: untrusted_data · **OBSERVE**\n- Request: `lookup_customer_tier` / `customer:read`\n- Authz: CTRL-MCP-001 **ALLOW** overlay\n- Execution: mcp.started + mcp.completed (handler **1**)\n\nRetrieved text did not grant the tool.\n\nValidated: `3a43d24f-9281-42f6-8375-1fb2efaa80ac`\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "ATTACK"
+    },
+    "viz_cmp_card_rt": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# RETEST\n\n**Profile:** defended · **Mode:** RETEST · **LIVE**\n\n- Document: `doc.lending-policy.malicious`\n- Fingerprint (full):\n\nsha256:\nc565f364c7c5fba3cf25d235bb8e2bee\n7d9433daa9f07d5e097ab6d2a82a97ef\n\n- Provenance: `rag.local.fixture`\n- Trust: untrusted_data · **OBSERVE**\n- Request: `lookup_customer_tier` / `customer:read`\n- Authz: CTRL-MCP-001 **DENY** `tool_not_granted`\n- Execution: no mcp.started (handler **0**)\n\nSAME hash as ATTACK.\n\nValidated: `bea97bae-491b-4b36-b52f-1417d2bad01b`\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "RETEST"
+    },
+    "viz_cmp_base": {
+      "type": "splunk.table",
+      "title": "BASELINE Q-RAG-CONTEXT-AUTHORITY",
+      "description": "Q-RAG-CONTEXT-AUTHORITY. Reconstructs retrieval classification, document fingerprint, follow-on request, authorization, and indexed execution observation. derived_authority is a lab display helper, not a production IOC. Do not hunt AGENT NOTE with a regex. Expect no_followon.",
+      "dataSources": {
+        "primary": "ds_q_rag_b"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "Q-RAG-CONTEXT-AUTHORITY returned zero rows. Zero rows means no indexed CTRL-RAG-CONTEXT-001 for this run.id. That is not SAFE, not DENY, and not proof the document was trusted."
+      }
+    },
+    "viz_cmp_atk": {
+      "type": "splunk.table",
+      "title": "ATTACK Q-RAG-CONTEXT-AUTHORITY",
+      "description": "Q-RAG-CONTEXT-AUTHORITY. Reconstructs retrieval classification, document fingerprint, follow-on request, authorization, and indexed execution observation. derived_authority is a lab display helper, not a production IOC. Do not hunt AGENT NOTE with a regex. Expect SAME MALICIOUS hash as RETEST plus ALLOW.",
+      "dataSources": {
+        "primary": "ds_q_rag_a"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "Q-RAG-CONTEXT-AUTHORITY returned zero rows. Zero rows means no indexed CTRL-RAG-CONTEXT-001 for this run.id. That is not SAFE, not DENY, and not proof the document was trusted."
+      }
+    },
+    "viz_cmp_rt": {
+      "type": "splunk.table",
+      "title": "RETEST Q-RAG-CONTEXT-AUTHORITY",
+      "description": "Q-RAG-CONTEXT-AUTHORITY. Reconstructs retrieval classification, document fingerprint, follow-on request, authorization, and indexed execution observation. derived_authority is a lab display helper, not a production IOC. Do not hunt AGENT NOTE with a regex. Expect SAME MALICIOUS hash as ATTACK plus DENY.",
+      "dataSources": {
+        "primary": "ds_q_rag_r"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "Q-RAG-CONTEXT-AUTHORITY returned zero rows. Zero rows means no indexed CTRL-RAG-CONTEXT-001 for this run.id. That is not SAFE, not DENY, and not proof the document was trusted."
+      }
+    },
+    "viz_prove": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# PROVE\n\nEvidence hierarchy. Splunk does not manufacture runtime truth.\n\n```text\nRUNTIME  →  LOCAL EVIDENCE  →  OTLP  →  SPLUNK  →  HUNT  →  SECURITY EVIDENCE\n```\n\n1. **RUNTIME.** Handler counts. Authoritative for execution / non-execution. Runtime handler count is authoritative proof of non-execution. Missing indexed mcp.started is corroboration only, and only on a complete copy. Splunk does not prove prevention.\n2. **LOCAL.** artifacts pack / events.jsonl\n3. **EXPORT.** export.json (`otlp.ok` is not Splunk success)\n4. **SPLUNK.** Completeness = local count vs dc(_raw)\n5. **SEARCH.** Q-RAG-CONTEXT-AUTHORITY. Zero rows follow no-data semantics.\n6. **DETECTION.** DET-MCP-001: 0/0/0. Silent is correct. Not SAFE. **NO NEW RAG DETECTOR.**\n\nLIVE A/B/C are OBSERVED/MEASURED. DETECT SIMULATED table is **SIMULATED**.\n\nKnowledge check (answers in knowledge-check.md):\n\n1. What document was retrieved?\n2. What was its provenance?\n3. Was provenance equivalent to trust?\n4. What was its content classification?\n5. Did OBSERVE authorize anything?\n6. Did retrieved text directly grant a tool?\n7. What follow-on request occurred?\n8. Which control decided authorization?\n9. Why did ATTACK execute?\n10. Why did RETEST not execute?\n11. What proves handler non-execution?\n12. Why is missing Splunk execution only corroboration?\n13. Why is DET-MCP-001 empty?\n14. Does DET-MCP-001 silence mean SAFE?\n15. Why is instruction-like text not a production detector?\n16. What telemetry is missing for a stronger detector?\n17. Why are ATTACK and RETEST comparable?\n18. What does INV-002 mean here?\n19. Where could behavioral analytics help later?\n20. Can ML grant or deny authority?\n\nValidated: BASELINE `51f70fb9-994e-4dd4-9b36-cac6fb1e8232` · ATTACK `3a43d24f-9281-42f6-8375-1fb2efaa80ac` · RETEST `bea97bae-491b-4b36-b52f-1417d2bad01b`.\n\nNORMAL fingerprint `sha256:0fc83ee727c6f33ad87e6ffec8698889de366311a281e4f831fe8c8d30e27f8e`\n\nMALICIOUS fingerprint `sha256:c565f364c7c5fba3cf25d235bb8e2bee7d9433daa9f07d5e097ab6d2a82a97ef` (ATTACK and RETEST share this hash)\n\nNo DET-RAG. Schema 1.6.0. Phase 11 not started. No embeddings. No A2A. No rug-pull.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "PROVE"
+    },
+    "viz_prove_rag": {
+      "type": "splunk.table",
+      "title": "What Happened? Q-RAG-CONTEXT-AUTHORITY (Hunt run.id)",
+      "description": "Q-RAG-CONTEXT-AUTHORITY. Reconstructs retrieval classification, document fingerprint, follow-on request, authorization, and indexed execution observation. derived_authority is a lab display helper, not a production IOC. Do not hunt AGENT NOTE with a regex.",
+      "dataSources": {
+        "primary": "ds_q_rag"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "Q-RAG-CONTEXT-AUTHORITY returned zero rows. Zero rows means no indexed CTRL-RAG-CONTEXT-001 for this run.id. That is not SAFE, not DENY, and not proof the document was trusted."
+      }
+    }
+  },
+  "layout": {
+    "options": {
+      "submitButton": true,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "globalInputs": [
+      "input_run_id",
+      "input_baseline_run_id",
+      "input_attack_run_id",
+      "input_retest_run_id"
+    ],
+    "tabs": {
+      "options": {
+        "barPosition": "top"
+      },
+      "items": [
+        {
+          "layoutId": "layout_learn",
+          "label": "LEARN"
+        },
+        {
+          "layoutId": "layout_baseline",
+          "label": "BASELINE"
+        },
+        {
+          "layoutId": "layout_attack",
+          "label": "ATTACK"
+        },
+        {
+          "layoutId": "layout_observe",
+          "label": "OBSERVE"
+        },
+        {
+          "layoutId": "layout_hunt",
+          "label": "HUNT"
+        },
+        {
+          "layoutId": "layout_detect",
+          "label": "DETECT"
+        },
+        {
+          "layoutId": "layout_defend",
+          "label": "DEFEND"
+        },
+        {
+          "layoutId": "layout_retest",
+          "label": "RETEST"
+        },
+        {
+          "layoutId": "layout_compare",
+          "label": "COMPARE"
+        },
+        {
+          "layoutId": "layout_prove",
+          "label": "PROVE"
+        }
+      ]
+    },
+    "layoutDefinitions": {
+      "layout_learn": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1040
+        },
+        "structure": [
+          {
+            "item": "viz_learn",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_learn_flow",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 520,
+              "w": 480,
+              "h": 500
+            }
+          },
+          {
+            "item": "viz_learn_planes",
+            "type": "block",
+            "position": {
+              "x": 480,
+              "y": 520,
+              "w": 480,
+              "h": 500
+            }
+          },
+          {
+            "item": "viz_learn_ladder",
+            "type": "block",
+            "position": {
+              "x": 960,
+              "y": 520,
+              "w": 480,
+              "h": 500
+            }
+          }
+        ]
+      },
+      "layout_baseline": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 960
+        },
+        "structure": [
+          {
+            "item": "viz_baseline_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 400
+            }
+          },
+          {
+            "item": "viz_baseline_rag",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 400,
+              "w": 1440,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_baseline_authz",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 680,
+              "w": 720,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_baseline_exec",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 680,
+              "w": 720,
+              "h": 260
+            }
+          }
+        ]
+      },
+      "layout_attack": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1280
+        },
+        "structure": [
+          {
+            "item": "viz_attack_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 460
+            }
+          },
+          {
+            "item": "viz_attack_rag",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 460,
+              "w": 1440,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_attack_authz",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 740,
+              "w": 720,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_attack_tool",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 740,
+              "w": 720,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_attack_exec",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1000,
+              "w": 1440,
+              "h": 260
+            }
+          }
+        ]
+      },
+      "layout_observe": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1140
+        },
+        "structure": [
+          {
+            "item": "viz_observe_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 720,
+              "h": 220
+            }
+          },
+          {
+            "item": "viz_observe_planes",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 0,
+              "w": 720,
+              "h": 220
+            }
+          },
+          {
+            "item": "viz_observe_seq",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 220,
+              "w": 1440,
+              "h": 360
+            }
+          },
+          {
+            "item": "viz_observe_rag",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 580,
+              "w": 1440,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_observe_authz",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 860,
+              "w": 720,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_observe_exec",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 860,
+              "w": 720,
+              "h": 260
+            }
+          }
+        ]
+      },
+      "layout_hunt": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1120
+        },
+        "structure": [
+          {
+            "item": "viz_hunt_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 340
+            }
+          },
+          {
+            "item": "viz_hunt_rag",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 340,
+              "w": 1440,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_hunt_authz",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 620,
+              "w": 720,
+              "h": 240
+            }
+          },
+          {
+            "item": "viz_hunt_tool",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 620,
+              "w": 720,
+              "h": 240
+            }
+          },
+          {
+            "item": "viz_hunt_exec",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 860,
+              "w": 720,
+              "h": 240
+            }
+          },
+          {
+            "item": "viz_hunt_who",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 860,
+              "w": 720,
+              "h": 240
+            }
+          }
+        ]
+      },
+      "layout_detect": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 960
+        },
+        "structure": [
+          {
+            "item": "viz_detect_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 720,
+              "h": 380
+            }
+          },
+          {
+            "item": "viz_detect_class",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 0,
+              "w": 720,
+              "h": 380
+            }
+          },
+          {
+            "item": "viz_detect_b",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 380,
+              "w": 480,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_detect_a",
+            "type": "block",
+            "position": {
+              "x": 480,
+              "y": 380,
+              "w": 480,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_detect_r",
+            "type": "block",
+            "position": {
+              "x": 960,
+              "y": 380,
+              "w": 480,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_detect_sim",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 660,
+              "w": 720,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_detect_future",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 660,
+              "w": 720,
+              "h": 280
+            }
+          }
+        ]
+      },
+      "layout_defend": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 740
+        },
+        "structure": [
+          {
+            "item": "viz_defend",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 480
+            }
+          },
+          {
+            "item": "viz_defend_evidence",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 480,
+              "w": 1440,
+              "h": 240
+            }
+          }
+        ]
+      },
+      "layout_retest": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1280
+        },
+        "structure": [
+          {
+            "item": "viz_retest_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 460
+            }
+          },
+          {
+            "item": "viz_retest_rag",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 460,
+              "w": 1440,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_retest_authz",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 740,
+              "w": 720,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_retest_tool",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 740,
+              "w": 720,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_retest_exec",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1000,
+              "w": 1440,
+              "h": 260
+            }
+          }
+        ]
+      },
+      "layout_compare": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1160
+        },
+        "structure": [
+          {
+            "item": "viz_compare_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 320
+            }
+          },
+          {
+            "item": "viz_cmp_card_base",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 320,
+              "w": 480,
+              "h": 540
+            }
+          },
+          {
+            "item": "viz_cmp_card_atk",
+            "type": "block",
+            "position": {
+              "x": 480,
+              "y": 320,
+              "w": 480,
+              "h": 540
+            }
+          },
+          {
+            "item": "viz_cmp_card_rt",
+            "type": "block",
+            "position": {
+              "x": 960,
+              "y": 320,
+              "w": 480,
+              "h": 540
+            }
+          },
+          {
+            "item": "viz_cmp_base",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 860,
+              "w": 480,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_cmp_atk",
+            "type": "block",
+            "position": {
+              "x": 480,
+              "y": 860,
+              "w": 480,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_cmp_rt",
+            "type": "block",
+            "position": {
+              "x": 960,
+              "y": 860,
+              "w": 480,
+              "h": 280
+            }
+          }
+        ]
+      },
+      "layout_prove": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1060
+        },
+        "structure": [
+          {
+            "item": "viz_prove",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 760
+            }
+          },
+          {
+            "item": "viz_prove_rag",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 760,
+              "w": 1440,
+              "h": 280
+            }
+          }
+        ]
+      }
+    }
+  },
+  "applicationProperties": {
+    "collapseNavigation": false,
+    "downsampleVisualizations": false
+  }
+}
+  ]]></definition>
+</dashboard>

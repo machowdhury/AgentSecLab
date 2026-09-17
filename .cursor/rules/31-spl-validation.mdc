@@ -58,3 +58,5 @@ WHAT DID THE RESULT ACTUALLY SHOW?
 WHY DOES IT MATTER?
 
 WHAT SHOULD YOU LOOK AT NEXT?
+
+Companion (does not replace this gate): `.cursor/rules/33-splunk-agent-skills.mdc` then `.cursor/skills/splunk-ko-review/SKILL.md`. Do not write SPL first and make the evidence fit later.

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Callable
 
 POLICY_FIXTURES: dict[str, dict[str, str]] = {
@@ -31,10 +31,37 @@ CUSTOMER_READ_SCOPE = "customer:read"
 POLICY_RESOURCE_CATALOG = frozenset(POLICY_FIXTURES)
 POLICY_RESOURCE_KEY = "policy_id"
 
+LOOKUP_POLICY_DESCRIPTION_NORMAL = "Look up lending policy guidance."
+LOOKUP_CUSTOMER_TIER_DESCRIPTION = "Look up a customer's lab tier."
+LOOKUP_POLICY_INPUT_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "policy_id": {
+            "type": "string",
+            "description": "Identifier of the lending policy document to retrieve.",
+        }
+    },
+    "required": ["policy_id"],
+}
+LOOKUP_CUSTOMER_TIER_INPUT_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "customer_id": {
+            "type": "string",
+            "description": "Identifier of the customer whose lab tier is requested.",
+        }
+    },
+    "required": ["customer_id"],
+}
+
 
 @dataclass(frozen=True)
 class ToolSpec:
-    """Catalog of a fixture tool. valid_scopes and valid_resources are opaque labels."""
+    """Catalog of a fixture tool. valid_scopes and valid_resources are opaque labels.
+
+    description and input_schema are MCP tools/list-shaped metadata. They are DATA.
+    They never authorize.
+    """
 
     name: str
     required_scope: str
@@ -43,6 +70,8 @@ class ToolSpec:
     handler: Callable[[dict[str, Any]], dict[str, Any]]
     resource_key: str | None = None
     valid_resources: frozenset[str] = frozenset()
+    description: str = ""
+    input_schema: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if self.required_scope not in self.valid_scopes:
@@ -78,6 +107,8 @@ TOOL_SPECS: dict[str, ToolSpec] = {
         handler=lookup_policy,
         resource_key=POLICY_RESOURCE_KEY,
         valid_resources=POLICY_RESOURCE_CATALOG,
+        description=LOOKUP_POLICY_DESCRIPTION_NORMAL,
+        input_schema=LOOKUP_POLICY_INPUT_SCHEMA,
     ),
     "lookup_customer_tier": ToolSpec(
         name="lookup_customer_tier",
@@ -85,5 +116,7 @@ TOOL_SPECS: dict[str, ToolSpec] = {
         valid_scopes=frozenset({CUSTOMER_READ_SCOPE}),
         required_keys=frozenset({"customer_id"}),
         handler=lookup_customer_tier,
+        description=LOOKUP_CUSTOMER_TIER_DESCRIPTION,
+        input_schema=LOOKUP_CUSTOMER_TIER_INPUT_SCHEMA,
     ),
 }

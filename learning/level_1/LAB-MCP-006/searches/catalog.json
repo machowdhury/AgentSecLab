@@ -1,0 +1,93 @@
+{
+  "lab.id": "LAB-MCP-006",
+  "title": "MCP confused deputy / delegated authority — Splunk hunt (schema 1.4.0)",
+  "schema.name": "agentsec.security_event",
+  "schema.version": "1.4.0",
+  "index": "agentsec_telemetry",
+  "sourcetype": "otel:agentic:json",
+  "run_id_token": "__RUN_ID__",
+  "validation_date": "2026-09-14",
+  "reuses_lab_mcp_001_queries": [
+    "Q-MCP-WHO",
+    "Q-MCP-AUTHZ",
+    "Q-MCP-SCOPE",
+    "Q-MCP-PARAMS",
+    "Q-MCP-TOOL",
+    "Q-MCP-EXECUTED",
+    "Q-MCP-AFTER-DENY",
+    "Q-MCP-RESULT",
+    "Q-MCP-RESULT-TRUST"
+  ],
+  "reuses_lab_mcp_004_queries": [
+    "Q-MCP-RESOURCE-AUTHZ"
+  ],
+  "schema_version_note": "LAB-MCP-001 searches/catalog.json schema.version=1.1.0 is documentation metadata. Q-MCP-*.spl does not filter on schema.version and is 1.4.0-compatible.",
+  "validated_runs": {
+    "BASELINE": "1cf98c4d-1bd8-4df5-be70-b82419e2c2b2",
+    "ATTACK": "d7524a4e-8da6-4171-8867-d2a2168128ac",
+    "RETEST": "50f7ec04-7524-41c0-95a8-3b1ef4d91dc4"
+  },
+  "prohibited_fields": [
+    "agentsec.event.name",
+    "agentsec.profile",
+    "agentsec.pipeline.outcome",
+    "session.id",
+    "mcp.session.id",
+    "gen_ai.tool.call.arguments",
+    "agentsec.mcp.allowed_tools",
+    "gen_ai.tool.call.id",
+    "agentsec.deputy.agent.id",
+    "effective_authority"
+  ],
+  "queries": [
+    {
+      "id": "Q-MCP-DELEGATION",
+      "spl_file": "Q-MCP-DELEGATION.spl",
+      "doc_file": "Q-MCP-DELEGATION.md",
+      "security_question": "What did CTRL-DELEGATION-001 decide, for which caller/deputy/tool, which authority source was used, and what downstream MCP decision and execution were indexed?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "gen_ai.tool.name",
+        "gen_ai.agent.id",
+        "agentsec.principal.id",
+        "agentsec.delegator.agent.id",
+        "agentsec.control.id",
+        "agentsec.control.decision",
+        "agentsec.control.reason",
+        "agentsec.delegation.authority.source",
+        "agentsec.mcp.requested_scope",
+        "agentsec.mcp.allowed_scope",
+        "agentsec.mcp.resource.id",
+        "agentsec.hop.index",
+        "agentsec.security.profile",
+        "agentsec.testbed.mode"
+      ],
+      "validation_status": "VALIDATED"
+    }
+  ],
+  "queries_not_created": [
+    {
+      "id": "Q-MCP-DELEGATION-AUTHORITY",
+      "reason": "Q-MCP-DELEGATION already tables authority.source, hop-0 coded delegated scope, and the requested tool. A second hunt would duplicate the same row."
+    },
+    {
+      "id": "Q-MCP-DELEGATION-CHAIN",
+      "reason": "Caller, hop-1 deputy, and hop-1 delegator are already columns on Q-MCP-DELEGATION."
+    },
+    {
+      "id": "Q-MCP-DELEGATION-EXECUTED",
+      "reason": "execution_observation plus existing Q-MCP-EXECUTED / Q-MCP-TOOL already cover indexed start/complete. Runtime handler count remains authoritative."
+    },
+    {
+      "id": "Q-MCP-AMBIENT-USE",
+      "reason": "authority.source=ambient_deputy plus execution_observation are already on Q-MCP-DELEGATION. Publishing a second hunt would look like a detector."
+    }
+  ],
+  "detection": {
+    "id": "DET-MCP-001",
+    "note": "Reused unchanged. DET-MCP-006 not created. Detection analyzed; hunt is sufficient for Phase 7C.",
+    "spl_file": "../../LAB-MCP-001/searches/DET-MCP-001.spl",
+    "status": "DETECTION ANALYZED — NO NEW DETECTOR"
+  }
+}
