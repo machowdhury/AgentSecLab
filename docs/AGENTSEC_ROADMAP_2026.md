@@ -1,6 +1,6 @@
 # AgentSec roadmap 2026
 
-**Status:** Phase 8A DESIGN ONLY (historical snapshot in this file). Phase 8B–8E LAB-MCP-CATALOG completed separately. **Phase 9A DESIGN / RESEARCH ONLY** (scanner architecture). Phases **9B–9C** executed in dedicated reports (scanner static integrate + Splunk ingest). **Phase 9D DESIGN / ANALYSIS** (detection engineering; **DETECTION ANALYZED — NO NEW DETECTOR**). **Phase 9E VALIDATED** (scanner + runtime evidence workshop). **Phase 10A DESIGN / RESEARCH ONLY** (RAG / retrieved-context security). **Phase 10B IMPLEMENTED + LOCALLY VALIDATED** (LAB-RAG-001 runtime + schema 1.6.0). **Phase 10C VALIDATED** (LAB-RAG-001 Splunk; **DETECTION ANALYZED — NO NEW DETECTOR**). **Phase 10D DESIGN / ANALYSIS** (RAG detection engineering; **DETECTION ANALYZED — NO NEW DETECTOR**). **Phase 10E VALIDATED** (LAB-RAG-CONTEXT workshop). **Phase 11A DESIGN / RESEARCH ONLY** (agent memory security / INV-003). This file does not authorize a detector, Agent Scan, rug-pull, A2A, or Phase 11B.  
+**Status:** Phase 8A DESIGN ONLY (historical snapshot in this file). Phase 8B–8E LAB-MCP-CATALOG completed separately. **Phase 9A DESIGN / RESEARCH ONLY** (scanner architecture). Phases **9B–9C** executed in dedicated reports (scanner static integrate + Splunk ingest). **Phase 9D DESIGN / ANALYSIS** (detection engineering; **DETECTION ANALYZED — NO NEW DETECTOR**). **Phase 9E VALIDATED** (scanner + runtime evidence workshop). **Phase 10A DESIGN / RESEARCH ONLY** (RAG / retrieved-context security). **Phase 10B IMPLEMENTED + LOCALLY VALIDATED** (LAB-RAG-001 runtime + schema 1.6.0). **Phase 10C VALIDATED** (LAB-RAG-001 Splunk; **DETECTION ANALYZED — NO NEW DETECTOR**). **Phase 10D DESIGN / ANALYSIS** (RAG detection engineering; **DETECTION ANALYZED — NO NEW DETECTOR**). **Phase 10E VALIDATED** (LAB-RAG-CONTEXT workshop). **Phase 11A DESIGN / RESEARCH ONLY** (agent memory security / INV-003). **Phase 11B IMPLEMENTED + LOCALLY VALIDATED** (LAB-MEMORY-001 runtime + schema 1.7.0). **Phase 11C VALIDATED** (LAB-MEMORY-001 Splunk; **DETECTION ANALYZED — NO NEW DETECTOR**). **Phase 11D DESIGN / ANALYSIS** (memory detection engineering; **DETECTION ANALYZED — NO NEW DETECTOR**). This file does not authorize a detector, Agent Scan, rug-pull, A2A, or Phase 11E.  
 **Schema remains 1.4.0 until a later lab spec proposes otherwise.** Runtime emitters are **1.5.0** as of Phase 8C; 9A and **10A do not bump schema**. 10A records **SCHEMA BUMP JUSTIFIED** (proposed 1.6.0) for a later implementation phase.
 
 Parents: `docs/AGENTSEC_EXPANSION_ARCHITECTURE.md`, `docs/AGENTSEC_LEARNING_ARCHITECTURE.md`.
@@ -163,7 +163,7 @@ Same security question as 8B. Runtime fixture, CTRL-MCP-METADATA-001 OBSERVE, pe
 
 ### Phase 11B — LAB-MEMORY-001 runtime (IMPLEMENTED + LOCALLY VALIDATED)
 
-**Status:** IMPLEMENTED + LOCALLY VALIDATED 2026-09-17. Schema **1.7.0**. `splunk.verified=false`. **Do not start Phase 11C from this file.** No DET-MEMORY. No embeddings. No A2A. No rug-pull.
+**Status:** IMPLEMENTED + LOCALLY VALIDATED 2026-09-17. Schema **1.7.0**. Local `splunk.verified=false`. Splunk proof is Phase 11C. No DET-MEMORY. No embeddings. No A2A. No rug-pull.
 
 | Field | Content |
 |-------|---------|
@@ -171,10 +171,40 @@ Same security question as 8B. Runtime fixture, CTRL-MCP-METADATA-001 OBSERVE, pe
 | **Attack** | WRITE then RECALL across two `run.id`s. MALICIOUS fixture + `AGENT MEMORY NOTE`. Same hash on ATTACK and RETEST. |
 | **Control** | CTRL-MEMORY-CONTEXT-001 OBSERVE `memory_context_is_data`. Grant remains CTRL-MCP-001. Overlay `vulnerable_profile_fail_open:memory_derived_authority` is LAB fail-open on recall only. |
 | **Telemetry** | Schema 1.7.0. `agentsec.memory.written` / `agentsec.memory.recalled`. `memory.source_run_id` links write→recall. |
-| **Splunk** | Not attempted. No SPL. DET-MCP-001 unchanged. |
+| **Splunk** | Not attempted in 11B. See Phase 11C. |
 | **Learning objective** | MEMORY IS PERSISTED DATA. PERSISTENCE != TRUST. RECALL != GRANT. SAME MEMORY / SAME REQUEST / DIFFERENT AUTHORIZATION. |
 
-**Do not start Phase 11C automatically.** No A2A. No rug-pull.
+**Do not start Phase 11C automatically.** (Historical 11B gate. 11C completed in a dedicated named phase.) No A2A. No rug-pull.
+
+### Phase 11C — LAB-MEMORY-001 live Splunk (VALIDATED)
+
+**Status:** VALIDATED 2026-09-17 — MEMORY SECURITY SPLUNK VALIDATED. Schema **1.7.0**. **Do not start Phase 11D from this file.** No DET-MEMORY. No Dashboard Studio. No embeddings. No A2A. No rug-pull.
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Can an analyst reconstruct write → persist → later recall → trust → follow-on request → authorization → execution from indexed evidence, including cross-run correlation? |
+| **Attack** | Fresh LIVE A/B/C two-run specimens. SAME MALICIOUS SHA-256 on ATTACK and RETEST. |
+| **Control** | CTRL-MEMORY-CONTEXT-001 OBSERVE. Grant remains CTRL-MCP-001. Overlay is recall-only vulnerable fail-open. |
+| **Telemetry** | Indexed `agentsec.memory.*`, SHA-256, bounded preview. Completeness `dc(_raw)` COMPLETE on six run IDs. |
+| **Splunk** | Q-MCP reuse + one hunt `Q-MEMORY-CONTEXT-AUTHORITY`. DET-MCP-001 unchanged (0/0/0). CIM NOT APPLICABLE. |
+| **Learning objective** | SAME MEMORY / SAME REQUEST / DIFFERENT AUTHORIZATION. Write `run.id` is the writer; recall `run.id` is the destination. |
+
+**Do not start Phase 11D automatically.** (Historical 11C gate. 11D completed in a dedicated named phase.) No A2A. No rug-pull.
+
+### Phase 11D — LAB-MEMORY-001 detection engineering (ANALYSIS)
+
+**Status:** ANALYSIS complete 2026-09-18. **DETECTION ANALYZED — NO NEW DETECTOR.** **Do not start Phase 11E from this file.** No Dashboard Studio. No DET-MEMORY. No embeddings. No A2A. No rug-pull.
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Detect vs hunt vs context for persisted-memory influence across five planes? |
+| **Attack** | 11C LIVE A/B/C. SAME MALICIOUS SHA-256 on ATTACK and RETEST. Discriminator is authorization, then execution. |
+| **Control** | CTRL-MEMORY-CONTEXT-001 OBSERVE. Grant remains CTRL-MCP-001. Overlay reason REJECT as production signal. |
+| **Telemetry** | Schema **1.7.0** unchanged. Grant snapshot / tenant / writer≠reader remain TELEMETRY GAP. |
+| **Splunk** | KEEP AS-IS hunts. DET-MCP-001 unchanged (0/0/0 is CORRECT BEHAVIOR, not SAFE). No new SPL. |
+| **Learning objective** | MEMORY IS PERSISTED DATA. Untrusted recall ≠ incident. DET-MCP-001 silence ≠ SAFE. ANOMALY ≠ INCIDENT. |
+
+**Do not start Phase 11E automatically.** No A2A. No rug-pull.
 
 ---
 
@@ -196,6 +226,9 @@ Planning labels shifted: **9A is scanner architecture (this file), not rug-pull.
 | **10E** | RAG workshop (**VALIDATED**) | How does a SOC walk retrieve → OBSERVE → request → authz → execute? | Low | None | Collapsing planes |
 | **11A** | Memory security DESIGN (**this file**) | Can persisted memory widen authority on a later run? (INV-003) | Medium | None in 11A | RAG overload; one-run collapse |
 | **11B** | LAB-MEMORY-001 runtime (**IMPLEMENTED + LOCALLY VALIDATED**) | Same question; fixture store + overlay + CTRL-MCP-001 | Medium | None required | Schema 1.7.0; global grants |
+| **11C** | LAB-MEMORY-001 Splunk (**VALIDATED**) | Honest cross-run reconstruction after field discovery | Medium | None | Invented fields; DET-MEMORY sprawl |
+| **11D** | Memory detection analysis (**ANALYSIS**; no new detector) | Detect vs hunt vs context for persisted-memory influence? | Low | None | Detector sprawl; overlay-reason notable |
+| **11E** | Memory workshop (not started) | How does a SOC walk write → later recall → OBSERVE → request → authz → execute? | Low | None | Collapsing planes |
 | **Identity (was 10A/B)** | INV-005 identity deepen (deferred) | Can a request mint `gen_ai.agent.id` the allow-list does not own? | Low–medium | None required | Crypto theater (forbid) |
 | **A2A (was 11A–D)** | A2A slice | Does an Agent Card / A2A message confer more authority than coded? (ASI07) | High | `a2aproject/A2A` 1.0.0; later a2a-scanner | Fake A2A regex |
 | **12A–D** | RAG chapter (brought forward to **10A/10B**) | See 10A. Do not run a second RAG design track. | — | — | Duplicate labs |
@@ -236,7 +269,13 @@ First research reproductions (not scheduled as product phases):
 
 ## Recommended next phase (exactly one)
 
-**Phase 11A — agent memory security / INV-003: ACCEPT as DESIGN ONLY (this phase). Do not start Phase 11B from this file.**
+**Phase 11D — LAB-MEMORY-001 detection engineering: ACCEPT as ANALYSIS. DETECTION ANALYZED — NO NEW DETECTOR. Do not start Phase 11E from this file.**
+
+Historical 11C text (kept): **Phase 11C — LAB-MEMORY-001 Splunk: ACCEPT as VALIDATED. Do not start Phase 11D from this file.** (11D was completed in a dedicated named phase; this sentence remains as the 11C snapshot contract.)
+
+Historical 11B text (kept): **Phase 11B — LAB-MEMORY-001 runtime: ACCEPT as IMPLEMENTED + LOCALLY VALIDATED. Do not start Phase 11C from this file.** (11C was completed in a dedicated named phase; this sentence remains as the 11B snapshot contract.)
+
+Historical 11A text (kept): **Phase 11A — agent memory security / INV-003: ACCEPT as DESIGN ONLY (this phase). Do not start Phase 11B from this file.**
 
 Historical 10E text (kept): **Phase 10E — LAB-RAG-CONTEXT workshop: ACCEPT as VALIDATED. Do not start Phase 11 from this file.** (11A was completed in a dedicated named phase; this sentence remains as the 10E snapshot contract.)
 

@@ -36,9 +36,9 @@ Keep eight levels, but reorder so architecture dependencies are honest.
 |-------|------|--------|----------|
 | **1** | Foundations: prompt + MCP authorization | **COMPLETE** | PI-001, MCP-001/003/004/005/006, Q-MCP hunts, one detector, Studio workshops |
 | **2** | Agent trust: catalog, identity, A2A | **PARTIAL** | Catalog + scanner **COMPLETE**. INV-005 deepen and A2A (ASI07) remain later. |
-| **3** | Knowledge & memory | **PARTIAL** | RAG / LAB-RAG-CONTEXT **COMPLETE** (INV-002). INV-003 memory: **Phase 11B runtime locally validated** (Splunk 11C not started). |
+| **3** | Knowledge & memory | **PARTIAL** | RAG / LAB-RAG-CONTEXT **COMPLETE** (INV-002). INV-003 memory: **Phase 11D detection analyzed — NO NEW DETECTOR** (workshop 11E not started). |
 | **4** | Agent supply chain | **ABSENT** | AI BOM, package/model scans, MCP server provenance, skill-scanner — as **imported evidence**, not a tool zoo |
-| **5** | Detection engineering | **PARTIAL** | Splunk KO review, hunts vs detections, no-data semantics, DET-MCP-001. More detectors only when predicates exist. |
+| **5** | Detection engineering | **PARTIAL** | Splunk KO review, hunts vs detections, no-data semantics, DET-MCP-001. Memory 11D: hunt ≠ detection; no DET-MEMORY. More detectors only when predicates exist. |
 | **6** | Behavioral analytics | **PLANNED** | Counters first; AI Toolkit / CDTSM optional |
 | **7** | Enterprise overlay | **PLANNED** | Optional Cisco enrichment + optional Splunk ES. Core still runs without them. |
 | **8** | Research lab | **DESIGNED, not built** | The DISCOVER→TEACH pipeline |

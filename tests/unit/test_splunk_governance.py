@@ -104,6 +104,7 @@ def test_inventory_covers_required_labs_and_objects():
         "Q-MCP-DELEGATION",
         "Q-MCP-CATALOG-AUTHORITY",
         "Q-RAG-CONTEXT-AUTHORITY",
+        "Q-MEMORY-CONTEXT-AUTHORITY",
         "DET-MCP-001",
         "ws_lab_mcp_006",
         "ws_lab_mcp_catalog",

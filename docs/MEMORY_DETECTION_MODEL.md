@@ -48,6 +48,10 @@ Do not widen DET-MCP-001 to “caught poisoned memory.”
 
 **NO DETECTOR JUSTIFIED.** Until 1.7.0 + live validation: **DETECTION BLOCKED BY TELEMETRY GAP** for any memory-specific notable.
 
+Phase 11C live validation: **DETECTION ANALYZED — NO NEW DETECTOR.** Overlay reason and AGENT MEMORY NOTE regex remain **REJECT**. DET-MEMORY was not created.
+
+Phase 11D detection engineering analysis: **DETECTION ANALYZED — NO NEW DETECTOR.** Candidate “untrusted recall + privileged execution as unauthorized” remains a **TELEMETRY GAP** until a grant snapshot exists. DET-MCP-001 remains sufficient **only** for DENY-then-start. See `docs/PHASE11D_MEMORY_DETECTION_ANALYSIS.md`.
+
 ---
 
 ## Behavioral / ML future path (not implemented)
