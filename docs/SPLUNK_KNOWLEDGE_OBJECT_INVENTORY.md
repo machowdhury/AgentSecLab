@@ -1,12 +1,12 @@
 # Splunk knowledge object inventory
 
-**Date:** 2026-09-16  
-**Scope:** AgentSec repository Splunk content as of Phase 10E RAG workshop. No DET-RAG. No new hunt file.  
+**Date:** 2026-09-17  
+**Scope:** AgentSec repository Splunk content as of Phase 11D memory detection analysis. No DET-MEMORY. No memory Studio.  
 **This file is inventory, not live Splunk proof.** Validation status is copied from existing phase documents.
 
 Governance: `docs/SPLUNK_ENGINEERING_GOVERNANCE.md`. Rule: `.cursor/rules/33-splunk-agent-skills.mdc`. Review skill: `.cursor/skills/splunk-ko-review/SKILL.md`.
 
-Index: `agentsec_telemetry`. Sourcetypes: `otel:agentic:json` (runtime schema 1.6.0), `agentsec:scanner:finding` (scanner evidence, not security_event). App: `agentsec`.
+Index: `agentsec_telemetry`. Sourcetypes: `otel:agentic:json` (runtime schema 1.7.0), `agentsec:scanner:finding` (scanner evidence, not security_event). App: `agentsec`.
 
 Q-MCP investigation searches are **schema-version agnostic** (no `schema.version=` filter). Catalog `schema.version` values are documentation metadata for the lab that first published the file.
 
@@ -98,6 +98,14 @@ No unique `.spl` hunt. Reuses LAB-MCP-001. Scope teaching fixture listed above. 
 
 ---
 
+## LAB-MEMORY-001 searches
+
+| NAME | TYPE | LAB | QUESTION ANSWERED | SOURCE FILE | VALIDATION STATUS | DASHBOARD CONSUMER | DETECTION/HUNT | SCHEMA VERSION DEPENDENCY | NOTES |
+|------|------|-----|-------------------|-------------|-------------------|--------------------|----------------|---------------------------|-------|
+| Q-MEMORY-CONTEXT-AUTHORITY | HUNT | LAB-MEMORY-001 | Write → recall correlation, memory trust/hash, follow-on authorization, indexed execution | `learning/level_1/LAB-MEMORY-001/searches/Q-MEMORY-CONTEXT-AUTHORITY.spl` | VALIDATED (11C) | NO | HUNT | Agnostic | Tokens `__WRITE_RUN_ID__` + `__RECALL_RUN_ID__`. Rejected extra Q-MEMORY-* files. No DET-MEMORY. No Studio. |
+
+---
+
 ## Scanner evidence searches (Phase 9C)
 
 | NAME | TYPE | LAB | QUESTION ANSWERED | SOURCE FILE | VALIDATION STATUS | DASHBOARD CONSUMER | DETECTION/HUNT | SCHEMA VERSION DEPENDENCY | NOTES |
@@ -115,7 +123,7 @@ Field contract: `docs/SCANNER_SPLUNK_FIELD_CONTRACT.md`. Search contract: `docs/
 
 | NAME | TYPE | LAB | QUESTION ANSWERED | SOURCE FILE | VALIDATION STATUS | DASHBOARD CONSUMER | DETECTION/HUNT | SCHEMA VERSION DEPENDENCY | NOTES |
 |------|------|-----|-------------------|-------------|-------------------|--------------------|----------------|---------------------------|-------|
-| DET-MCP-001 | DETECTION | LAB-MCP-001 | After authorization DENY, did `mcp.started` occur for the same run.id + tool? | `learning/level_1/LAB-MCP-001/searches/DET-MCP-001.spl` | VALIDATED (3E); revalidated 4C–8D | NO (dashboards bind hunt + SIMULATED fixture; do not enable this saved search) | DETECTION | Agnostic | Packaged **disabled**, `enableSched=0`. Not a general MCP bypass detector. Not an ES notable |
+| DET-MCP-001 | DETECTION | LAB-MCP-001 | After authorization DENY, did `mcp.started` occur for the same run.id + tool? | `learning/level_1/LAB-MCP-001/searches/DET-MCP-001.spl` | VALIDATED (3E); revalidated 4C–11C | NO (dashboards bind hunt + SIMULATED fixture; do not enable this saved search) | DETECTION | Agnostic | Packaged **disabled**, `enableSched=0`. Not a general MCP bypass detector. Not an ES notable |
 
 Saved search name: `AgentSec - MCP Execution After Authorization Deny`.
 
@@ -160,6 +168,7 @@ Canonical JSON beside each lab: `learning/level_1/LAB-*/dashboard.definition.jso
 | MCP-006 field validation | FIELD EXTRACTION / contract | LAB-MCP-006 | Indexed delegation fields | `docs/MCP006_SPLUNK_FIELD_VALIDATION.md` | VALIDATED | docs | — | 1.4.0 additive | `agentsec.delegation.authority.source` |
 | MCP-CATALOG field contract | FIELD EXTRACTION / contract | LAB-MCP-CATALOG | Indexed metadata-trust fields | `docs/MCP_CATALOG_SPLUNK_FIELD_CONTRACT.md` | VALIDATED (8D) | docs | — | 1.5.0 additive | `agentsec.mcp.metadata.trust` / provenance; no `allowed_tools` |
 | RAG field contract | FIELD EXTRACTION / contract | LAB-RAG-001 | Indexed retrieved-context fields | `docs/RAG_SPLUNK_FIELD_CONTRACT.md` | VALIDATED (10C) | docs | — | 1.6.0 additive | `agentsec.rag.context.trust` / provenance / document.id; no `trusted_document` |
+| Memory field contract | FIELD EXTRACTION / contract | LAB-MEMORY-001 | Indexed memory write/recall fields | `docs/MEMORY_SPLUNK_FIELD_CONTRACT.md` | VALIDATED (11C) | docs | — | 1.7.0 additive | `agentsec.memory.id` / trust / provenance / `source_run_id`; no `trusted_memory` |
 | Scanner field contract | FIELD EXTRACTION / contract | scanner evidence | Indexed scanner finding/scan fields | `docs/SCANNER_SPLUNK_FIELD_CONTRACT.md` | VALIDATED (9C) | docs | — | N/A | Independent of 1.5.0; native severity preserved |
 | `agentsec_index` | MACRO | app | Index+sourcetype shortcut | `splunk_app/agentsec/default/macros.conf` | Packaged | NO (validated Q-* hardcode index/sourcetype) | — | N/A | Runtime only (`otel:agentic:json`). Not widened for scanner |
 | JSON props | FIELD EXTRACTION | app | INDEXED_EXTRACTIONS=json for `otel:agentic:json` | `splunk_app/agentsec/default/props.conf` | OBSERVED | runtime searches | — | N/A | Causes documented mv duplication |
@@ -184,6 +193,7 @@ Canonical JSON beside each lab: `learning/level_1/LAB-*/dashboard.definition.jso
 | Q-MCP-CATALOG-METADATA / TRUST / FINGERPRINT / FOLLOWON / AUTHZ | HUNT | Duplicate or reused; not published as separate files |
 | DET-MCP-CATALOG | DETECTION | DETECTION ANALYZED — DETECTION CANDIDATE JUSTIFIED FOR LATER DESIGN; not implemented |
 | DET-RAG / Q-RAG-CONTEXT / TRUST / FINGERPRINT / FOLLOWON / AUTHZ | DETECTION / HUNT | 10C extra hunts redundant; 10D DET-RAG REJECT; DETECTION ANALYZED — NO NEW DETECTOR (`docs/reviews/splunk-ko-review-rag-detection-2026-09-16.md`) |
+| DET-MEMORY / Q-MEMORY-WRITE / TRUST / FINGERPRINT / FOLLOWON / AUTHZ | DETECTION / HUNT | 11C extra hunts redundant; 11D DET-MEMORY REJECT; overlay reason and AGENT MEMORY NOTE regex REJECT; DETECTION ANALYZED — NO NEW DETECTOR (`docs/reviews/splunk-ko-review-memory-2026-09-17.md`, `docs/reviews/splunk-ko-review-memory-detection-2026-09-18.md`) |
 | Q-SCANNER-PASS-FAIL | HUNT | Would collapse zero findings / missing scan / error |
 | DET-SCANNER-* | DETECTION | Phase 9C investigation only; scanner HIGH ≠ DENY |
 | Q-SCANNER-FILEHASH-TO-CONTENT-HASH | HUNT | Wrong hash semantics; live 0 rows |
