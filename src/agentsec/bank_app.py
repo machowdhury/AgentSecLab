@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request
@@ -14,6 +14,7 @@ from agentsec.experiment import (
     resolve_attack_id,
     resolve_mcp_attack_id,
     resolve_mcp_testbed_mode,
+    resolve_memory_testbed_mode,
     resolve_rag_testbed_mode,
     resolve_testbed_mode,
 )
@@ -23,6 +24,16 @@ from agentsec.mcp.registry import ToolRegistry, default_registry
 from agentsec.mcp.request_contract import parse_mcp_invoke_body
 from agentsec.rag.pipeline import rag_result_to_dict, run_rag_retrieve, run_rag_schema_failure
 from agentsec.rag.request_contract import parse_rag_retrieve_body
+from agentsec.memory.pipeline import (
+    memory_recall_result_to_dict,
+    memory_write_result_to_dict,
+    run_memory_recall,
+    run_memory_schema_failure,
+    run_memory_write,
+)
+from agentsec.memory.request_contract import parse_memory_recall_body, parse_memory_write_body
+from agentsec.memory.store import InProcessMemoryStore
+from agentsec.memory.fixtures import MEMORY_RECALL_ENTRY, MEMORY_WRITE_ENTRY
 from agentsec.llm import LLMClient, OllamaClient
 from agentsec.pipeline import result_to_dict, run_loan_pipeline, run_schema_failure
 from agentsec.request_contract import parse_process_body
@@ -42,6 +53,7 @@ class LabRuntime:
     memory: MemorySink
     sink: FanoutSink
     mcp_registry: ToolRegistry
+    memory_store: InProcessMemoryStore = field(default_factory=InProcessMemoryStore)
 
 
 def build_runtime(
@@ -63,6 +75,7 @@ def build_runtime(
         memory=memory,
         sink=sink,
         mcp_registry=default_registry(),
+        memory_store=InProcessMemoryStore(),
     )
 
 
@@ -283,6 +296,113 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
             registry=runtime.mcp_registry,
         )
         body = rag_result_to_dict(result)
+        if result.terminal == "completed_allowed":
+            return jsonify(body), 200
+        if result.terminal == "completed_denied":
+            return jsonify(body), 200
+        if result.error_stage == "mcp_invocation":
+            return jsonify(body), 500
+        if result.error_stage == "control_evaluation":
+            return jsonify(body), 500
+        return jsonify(body), 400
+
+    @app.post("/memory/write")
+    def memory_write():
+        raw = request.get_data(as_text=True)
+        if not raw or not str(raw).strip():
+            data: object | None = None
+        else:
+            try:
+                data = loads_json_no_duplicate_keys(raw)
+            except DuplicateJsonKeyError:
+                result = run_memory_schema_failure(
+                    sink=runtime.sink,
+                    memory=runtime.memory,
+                    settings=runtime.settings,
+                    user_id="unknown",
+                    testbed_mode=resolve_memory_testbed_mode(settings=runtime.settings),
+                    workflow_entry=MEMORY_WRITE_ENTRY,
+                    error_reason="duplicate_json_keys",
+                    extra_fields=(),
+                )
+                return jsonify(memory_write_result_to_dict(result)), 400
+            except json.JSONDecodeError:
+                data = None
+        parsed = parse_memory_write_body(data)
+        testbed_mode = resolve_memory_testbed_mode(settings=runtime.settings)
+        if not parsed.ok:
+            result = run_memory_schema_failure(
+                sink=runtime.sink,
+                memory=runtime.memory,
+                settings=runtime.settings,
+                user_id=parsed.user_id,
+                testbed_mode=testbed_mode,
+                workflow_entry=MEMORY_WRITE_ENTRY,
+                error_reason=parsed.error_reason,
+                extra_fields=parsed.extra_fields,
+            )
+            return jsonify(memory_write_result_to_dict(result)), 400
+        result = run_memory_write(
+            memory_id=parsed.memory_id or "",
+            store=runtime.memory_store,
+            sink=runtime.sink,
+            memory=runtime.memory,
+            settings=runtime.settings,
+            user_id=parsed.user_id,
+            testbed_mode=testbed_mode,
+        )
+        body = memory_write_result_to_dict(result)
+        if result.terminal == "completed_allowed":
+            return jsonify(body), 200
+        return jsonify(body), 400
+
+    @app.post("/memory/recall")
+    def memory_recall():
+        raw = request.get_data(as_text=True)
+        if not raw or not str(raw).strip():
+            data: object | None = None
+        else:
+            try:
+                data = loads_json_no_duplicate_keys(raw)
+            except DuplicateJsonKeyError:
+                result = run_memory_schema_failure(
+                    sink=runtime.sink,
+                    memory=runtime.memory,
+                    settings=runtime.settings,
+                    user_id="unknown",
+                    testbed_mode=resolve_memory_testbed_mode(settings=runtime.settings),
+                    workflow_entry=MEMORY_RECALL_ENTRY,
+                    error_reason="duplicate_json_keys",
+                    extra_fields=(),
+                )
+                return jsonify(memory_write_result_to_dict(result)), 400
+            except json.JSONDecodeError:
+                data = None
+        parsed = parse_memory_recall_body(data)
+        testbed_mode = resolve_memory_testbed_mode(settings=runtime.settings)
+        if not parsed.ok:
+            result = run_memory_schema_failure(
+                sink=runtime.sink,
+                memory=runtime.memory,
+                settings=runtime.settings,
+                user_id=parsed.user_id,
+                testbed_mode=testbed_mode,
+                workflow_entry=MEMORY_RECALL_ENTRY,
+                error_reason=parsed.error_reason,
+                extra_fields=parsed.extra_fields,
+            )
+            return jsonify(memory_write_result_to_dict(result)), 400
+        result = run_memory_recall(
+            memory_id=parsed.memory_id or "",
+            store=runtime.memory_store,
+            sink=runtime.sink,
+            memory=runtime.memory,
+            settings=runtime.settings,
+            user_id=parsed.user_id,
+            testbed_mode=testbed_mode,
+            registry=runtime.mcp_registry,
+        )
+        body = memory_recall_result_to_dict(result)
         if result.terminal == "completed_allowed":
             return jsonify(body), 200
         if result.terminal == "completed_denied":

@@ -94,7 +94,7 @@ def test_phase10a_status_marks_planned_not_implemented():
 
 def test_phase10a_design_docs_remain_and_detector_was_not_created():
     schema = SCHEMA.read_text(encoding="utf-8")
-    assert '"const": "1.6.0"' in schema
+    assert '"const": "1.7.0"' in schema
     assert "rag_context_trust" in schema
     protocol = PROTOCOL.read_text(encoding="utf-8")
     assert "rag" not in protocol.lower()

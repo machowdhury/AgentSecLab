@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://agentsec.local/schemas/security_event.schema.json",
-  "title": "AgentSec Security Event 1.6.0 (loan pipeline + MCP + catalog metadata trust + RAG retrieved-context trust)",
-  "description": "Closed JSON body for AcmeBank security events. Additive extension of 1.5.0: rag_context_trust / CTRL-RAG-CONTEXT-001, attack id RAG-001, rag.retrieved.context, and agentsec.rag.context.trust. Existing 1.0.0 / 1.1.0 / 1.2.0 / 1.3.0 / 1.4.0 / 1.5.0 field meanings are unchanged. incident.id equals run.id. No session.id. LLM events exist only after input ALLOW. MCP handler events exist only after MCP ALLOW. RESULT-001 OBSERVE means result content was not merged into authority. METADATA-001 OBSERVE means catalog metadata was classified as data. RAG-CONTEXT-001 OBSERVE means retrieved context was classified as data, not that the document is safe, not that a follow-on is authorized, and not that the retriever is trusted instructions. CTRL-DELEGATION-001 ALLOW/DENY records which authority set was consulted. operation.executed on llm.* means the governed LLM call started; on mcp.* it means the tool handler began. Emitters use execution.mode=LIVE and telemetry.fidelity=OBSERVED; other enum values are reserved.",
+  "title": "AgentSec Security Event 1.7.0 (loan pipeline + MCP + catalog metadata trust + RAG retrieved-context trust + agent memory trust)",
+  "description": "Closed JSON body for AcmeBank security events. Additive extension of 1.6.0: memory_context_trust / CTRL-MEMORY-CONTEXT-001, attack id MEMORY-001, agent.memory.store, agentsec.memory.* , memory.written / memory.recalled. Existing 1.0.0 / 1.1.0 / 1.2.0 / 1.3.0 / 1.4.0 / 1.5.0 / 1.6.0 field meanings are unchanged. incident.id equals run.id. No session.id. LLM events exist only after input ALLOW. MCP handler events exist only after MCP ALLOW. RESULT-001 OBSERVE means result content was not merged into authority. METADATA-001 OBSERVE means catalog metadata was classified as data. RAG-CONTEXT-001 OBSERVE means retrieved context was classified as data, not that the document is safe, not that a follow-on is authorized, and not that the retriever is trusted instructions. MEMORY-CONTEXT-001 OBSERVE means recalled persistent memory was classified as data, not that the memory is safe, not that a follow-on is authorized, and not that a write is a trust promotion. CTRL-DELEGATION-001 ALLOW/DENY records which authority set was consulted. operation.executed on llm.* means the governed LLM call started; on mcp.* it means the tool handler began. Emitters use execution.mode=LIVE and telemetry.fidelity=OBSERVED; other enum values are reserved.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -47,7 +47,9 @@
         "agentsec.mcp.started",
         "agentsec.mcp.completed",
         "agentsec.mcp.failed",
-        "agentsec.pipeline.stopped"
+        "agentsec.pipeline.stopped",
+        "agentsec.memory.written",
+        "agentsec.memory.recalled"
       ]
     },
     "timestamp": {
@@ -81,8 +83,8 @@
     "gen_ai.agent.description": {"type": "string"},
     "gen_ai.workflow.name": {
       "type": "string",
-      "enum": ["loan_pipeline", "mcp_tool_lab", "rag_context_lab"],
-      "description": "loan_pipeline remains the four-agent loan lab. mcp_tool_lab is the dedicated MCP agent lab. rag_context_lab is the dedicated retrieve-then-request lab. Meanings are not mixed."
+      "enum": ["loan_pipeline", "mcp_tool_lab", "rag_context_lab", "memory_lab"],
+      "description": "loan_pipeline remains the four-agent loan lab. mcp_tool_lab is the dedicated MCP agent lab. rag_context_lab is the dedicated retrieve-then-request lab. memory_lab is the dedicated write-then-recall lab. Meanings are not mixed."
     },
     "mcp.method.name": {
       "type": "string",
@@ -98,8 +100,8 @@
     },
     "agentsec.schema.version": {
       "type": "string",
-      "const": "1.6.0",
-      "description": "Event contract version. 1.6.0 is additive over 1.5.0. Required on every AgentSec security event. Loan, MCP-001/003/004/005/006, and catalog field meanings are unchanged."
+      "const": "1.7.0",
+      "description": "Event contract version. 1.7.0 is additive over 1.6.0. Required on every AgentSec security event. Loan, MCP-001/003/004/005/006, catalog, and RAG field meanings are unchanged."
     },
     "agentsec.run.id": {"type": "string", "format": "uuid"},
     "agentsec.incident.id": {
@@ -155,8 +157,8 @@
     },
     "agentsec.workflow.entry": {
       "type": "string",
-      "enum": ["/process", "/mcp/invoke", "/rag/retrieve"],
-      "description": "/process is the loan pipeline. /mcp/invoke is the dedicated MCP lab. /rag/retrieve is the dedicated RAG context lab. Not interchangeable."
+      "enum": ["/process", "/mcp/invoke", "/rag/retrieve", "/memory/write", "/memory/recall"],
+      "description": "/process is the loan pipeline. /mcp/invoke is the dedicated MCP lab. /rag/retrieve is the dedicated RAG context lab. /memory/write and /memory/recall are the dedicated memory lab. Not interchangeable."
     },
     "agentsec.hop.index": {"type": "integer", "minimum": 0, "maximum": 3},
     "agentsec.duration_ms": {"type": "integer", "minimum": 0},
@@ -184,6 +186,7 @@
         "mcp.tool.result",
         "mcp.catalog.metadata",
         "rag.retrieved.context",
+        "agent.memory.store",
         "observability.export"
       ]
     },
@@ -196,15 +199,15 @@
       }
     },
     "agentsec.control.id": {"type": "string", "minLength": 1},
-    "agentsec.control.type": {"type": "string", "enum": ["input_inspection", "schema_validation", "mcp_allowlist", "mcp_result_trust", "mcp_delegation", "mcp_metadata_trust", "rag_context_trust"]},
+    "agentsec.control.type": {"type": "string", "enum": ["input_inspection", "schema_validation", "mcp_allowlist", "mcp_result_trust", "mcp_delegation", "mcp_metadata_trust", "rag_context_trust", "memory_context_trust"]},
     "agentsec.control.decision": {"type": "string", "enum": ["ALLOW", "DENY", "ERROR", "OBSERVE"]},
     "agentsec.control.reason": {"type": "string", "minLength": 1},
-    "agentsec.attack.id": {"type": "string", "enum": ["ATK-001", "ATK-002", "MCP-001", "MCP-002", "MCP-003", "MCP-004", "MCP-005", "MCP-006", "MCP-CATALOG-001", "RAG-001"]},
+    "agentsec.attack.id": {"type": "string", "enum": ["ATK-001", "ATK-002", "MCP-001", "MCP-002", "MCP-003", "MCP-004", "MCP-005", "MCP-006", "MCP-CATALOG-001", "RAG-001", "MEMORY-001"]},
     "agentsec.technique.id": {"type": "string"},
     "agentsec.expected.behavior": {"type": "string"},
     "agentsec.content.influence.kind": {
       "type": "string",
-      "enum": ["user_message", "prior_agent_output", "tool_request", "retrieved_context"]
+      "enum": ["user_message", "prior_agent_output", "tool_request", "retrieved_context", "recalled_memory"]
     },
     "agentsec.content.origin.type": {"type": "string", "enum": ["user", "agent"]},
     "agentsec.content.origin.id": {"type": "string"},
@@ -286,6 +289,26 @@
       "type": "string",
       "minLength": 1,
       "description": "Opaque fixture document id. Exact match only. Not a grant."
+    },
+    "agentsec.memory.id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opaque fixture memory id. Exact match only. Not a grant."
+    },
+    "agentsec.memory.trust": {
+      "type": "string",
+      "enum": ["untrusted_data"],
+      "description": "Persisted memory is data (INV-003). LAB-MEMORY-001 always untrusted_data. Not authorization. Provenance is not trust."
+    },
+    "agentsec.memory.provenance": {
+      "type": "string",
+      "enum": ["agentsec.memory.fixture"],
+      "description": "Which lab component produced the memory bytes. Configured source is not trusted instructions."
+    },
+    "agentsec.memory.source_run_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Write-run id that persisted this memory. On write events this equals agentsec.run.id. On recall events agentsec.run.id is the destination/recall run."
     }
   },
   "allOf": [
@@ -676,6 +699,95 @@
           "agentsec.trust_boundary": {"const": "rag.retrieved.context"},
           "agentsec.rag.context.trust": {"const": "untrusted_data"},
           "agentsec.rag.context.provenance": {"const": "rag.local.fixture"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {"const": "agentsec.control.decision"},
+          "agentsec.control.type": {"const": "memory_context_trust"}
+        },
+        "required": ["event.name", "agentsec.control.type"]
+      },
+      "then": {
+        "required": [
+          "agentsec.control.id",
+          "agentsec.trust_boundary",
+          "agentsec.memory.id",
+          "agentsec.memory.trust",
+          "agentsec.memory.provenance",
+          "agentsec.content.hash",
+          "agentsec.content.preview"
+        ],
+        "properties": {
+          "agentsec.control.id": {"const": "CTRL-MEMORY-CONTEXT-001"},
+          "agentsec.trust_boundary": {"const": "agent.memory.store"},
+          "agentsec.memory.trust": {"const": "untrusted_data"},
+          "agentsec.memory.provenance": {"const": "agentsec.memory.fixture"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {"const": "agentsec.control.decision"},
+          "agentsec.control.type": {"const": "memory_context_trust"},
+          "agentsec.control.decision": {"const": "OBSERVE"}
+        },
+        "required": ["event.name", "agentsec.control.type", "agentsec.control.decision"]
+      },
+      "then": {
+        "required": ["agentsec.memory.source_run_id"]
+      }
+    },
+    {
+      "if": {
+        "properties": {"event.name": {"const": "agentsec.memory.written"}}
+      },
+      "then": {
+        "required": [
+          "parent_span_id",
+          "gen_ai.agent.id",
+          "agentsec.hop.index",
+          "agentsec.memory.id",
+          "agentsec.memory.provenance",
+          "agentsec.memory.source_run_id",
+          "agentsec.content.hash",
+          "agentsec.content.preview",
+          "agentsec.trust_boundary"
+        ],
+        "properties": {
+          "agentsec.operation.type": {"const": "agent_hop"},
+          "agentsec.span.kind": {"const": "hop"},
+          "agentsec.trust_boundary": {"const": "agent.memory.store"},
+          "agentsec.memory.provenance": {"const": "agentsec.memory.fixture"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"event.name": {"const": "agentsec.memory.recalled"}}
+      },
+      "then": {
+        "required": [
+          "parent_span_id",
+          "gen_ai.agent.id",
+          "agentsec.hop.index",
+          "agentsec.memory.id",
+          "agentsec.memory.provenance",
+          "agentsec.memory.trust",
+          "agentsec.memory.source_run_id",
+          "agentsec.content.hash",
+          "agentsec.content.preview",
+          "agentsec.trust_boundary"
+        ],
+        "properties": {
+          "agentsec.operation.type": {"const": "agent_hop"},
+          "agentsec.span.kind": {"const": "hop"},
+          "agentsec.trust_boundary": {"const": "agent.memory.store"},
+          "agentsec.memory.trust": {"const": "untrusted_data"},
+          "agentsec.memory.provenance": {"const": "agentsec.memory.fixture"}
         }
       }
     },

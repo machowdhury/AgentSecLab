@@ -37,7 +37,7 @@ def questions() -> dict:
 
 
 def test_schema_identity(schema: dict) -> None:
-    assert schema["properties"]["agentsec.schema.version"]["const"] == "1.6.0"
+    assert schema["properties"]["agentsec.schema.version"]["const"] == "1.7.0"
     assert schema["properties"]["agentsec.schema.name"]["const"] == "agentsec.security_event"
     names = set(schema["properties"]["event.name"]["enum"])
     assert names.isdisjoint(PREDECESSOR_EVENT_NAMES)
@@ -46,20 +46,28 @@ def test_schema_identity(schema: dict) -> None:
     assert "agentsec.mcp.started" in names
     assert "agentsec.mcp.completed" in names
     assert "agentsec.mcp.failed" in names
+    assert "agentsec.memory.written" in names
+    assert "agentsec.memory.recalled" in names
     assert "MCP-004" in schema["properties"]["agentsec.attack.id"]["enum"]
     assert "MCP-005" in schema["properties"]["agentsec.attack.id"]["enum"]
     assert "MCP-006" in schema["properties"]["agentsec.attack.id"]["enum"]
     assert "MCP-CATALOG-001" in schema["properties"]["agentsec.attack.id"]["enum"]
     assert "RAG-001" in schema["properties"]["agentsec.attack.id"]["enum"]
+    assert "MEMORY-001" in schema["properties"]["agentsec.attack.id"]["enum"]
     assert "OBSERVE" in schema["properties"]["agentsec.control.decision"]["enum"]
     assert "mcp_result_trust" in schema["properties"]["agentsec.control.type"]["enum"]
     assert "mcp_delegation" in schema["properties"]["agentsec.control.type"]["enum"]
     assert "mcp_metadata_trust" in schema["properties"]["agentsec.control.type"]["enum"]
     assert "rag_context_trust" in schema["properties"]["agentsec.control.type"]["enum"]
+    assert "memory_context_trust" in schema["properties"]["agentsec.control.type"]["enum"]
     assert "agentsec.mcp.metadata.trust" in schema["properties"]
     assert "agentsec.rag.context.trust" in schema["properties"]
+    assert "agentsec.memory.id" in schema["properties"]
+    assert "agentsec.memory.trust" in schema["properties"]
+    assert "trusted_memory" not in schema["properties"]
     assert "mcp.catalog.metadata" in schema["properties"]["agentsec.trust_boundary"]["enum"]
     assert "rag.retrieved.context" in schema["properties"]["agentsec.trust_boundary"]["enum"]
+    assert "agent.memory.store" in schema["properties"]["agentsec.trust_boundary"]["enum"]
     assert "trusted_document" not in schema["properties"]
     assert "rag_allowed_tools" not in schema["properties"]
     assert "agentsec.delegation.authority.source" in schema["properties"]

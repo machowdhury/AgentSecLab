@@ -28,7 +28,7 @@ def test_phase10d_no_new_detector_or_studio():
 
 def test_phase10d_runtime_schema_and_existing_spl_unchanged():
     schema = SCHEMA.read_text(encoding="utf-8")
-    assert '"const": "1.6.0"' in schema
+    assert '"const": "1.7.0"' in schema
     det = DET.read_text(encoding="utf-8")
     assert det.startswith("index=agentsec_telemetry sourcetype=otel:agentic:json")
     assert "sequence>deny_sequence" in det

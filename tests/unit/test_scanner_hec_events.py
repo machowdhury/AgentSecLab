@@ -85,7 +85,7 @@ def test_privacy_and_schema_boundary():
     assert CONTROL_ID == "CTRL-MCP-001"
     assert METADATA_CONTROL_ID == "CTRL-MCP-METADATA-001"
     schema = SCHEMA.read_text(encoding="utf-8")
-    assert '"const": "1.6.0"' in schema
+    assert '"const": "1.7.0"' in schema
     assert "agentsec.scanner" not in schema
     for payload in _events():
         assert payload["sourcetype"] == SOURCETYPE

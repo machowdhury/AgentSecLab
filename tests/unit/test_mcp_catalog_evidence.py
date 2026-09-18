@@ -35,7 +35,7 @@ def test_catalog_retest_evidence_bundle_is_honest(settings, memory):
     for name in REQUIRED:
         assert (root / name).exists(), name
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
-    assert manifest["schema.version"] == "1.6.0"
+    assert manifest["schema.version"] == "1.7.0"
     assert manifest["attack.id"] == "MCP-CATALOG-001"
     assert manifest["catalog.fixture"] == "MALICIOUS"
     assert manifest["metadata.control.decision"] == "OBSERVE"

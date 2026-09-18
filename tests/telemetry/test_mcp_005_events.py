@@ -45,7 +45,7 @@ def test_mcp005_baseline_attack_retest_sequences(settings, memory, tmp_path, mon
     assert names.index(EVENT_CONTROL_DECISION) < names.index(EVENT_MCP_STARTED)
     assert EVENT_MCP_COMPLETED in names
     result_ctrl = next(e for e in control_events(baseline.events) if e["agentsec.control.id"] == "CTRL-MCP-RESULT-001")
-    assert result_ctrl["agentsec.schema.version"] == "1.6.0"
+    assert result_ctrl["agentsec.schema.version"] == "1.7.0"
     assert result_ctrl["agentsec.control.decision"] == "OBSERVE"
     assert result_ctrl["agentsec.control.reason"] == RESULT_IS_DATA_REASON
     assert result_ctrl["agentsec.operation.attempted"] is False

@@ -35,8 +35,8 @@ Keep eight levels, but reorder so architecture dependencies are honest.
 | Level | Name | Status | Contents |
 |-------|------|--------|----------|
 | **1** | Foundations: prompt + MCP authorization | **COMPLETE** | PI-001, MCP-001/003/004/005/006, Q-MCP hunts, one detector, Studio workshops |
-| **2** | Agent trust: catalog, identity, A2A | **NEXT** | Tool-description poisoning first; then INV-005 deepen; then A2A (ASI07) using `a2aproject/A2A` |
-| **3** | Knowledge & memory | **ABSENT** | RAG poisoning, indirect PI via retrieval, INV-003 memory tags. Result-trust is prerequisite (done). |
+| **2** | Agent trust: catalog, identity, A2A | **PARTIAL** | Catalog + scanner **COMPLETE**. INV-005 deepen and A2A (ASI07) remain later. |
+| **3** | Knowledge & memory | **PARTIAL** | RAG / LAB-RAG-CONTEXT **COMPLETE** (INV-002). INV-003 memory: **Phase 11B runtime locally validated** (Splunk 11C not started). |
 | **4** | Agent supply chain | **ABSENT** | AI BOM, package/model scans, MCP server provenance, skill-scanner — as **imported evidence**, not a tool zoo |
 | **5** | Detection engineering | **PARTIAL** | Splunk KO review, hunts vs detections, no-data semantics, DET-MCP-001. More detectors only when predicates exist. |
 | **6** | Behavioral analytics | **PLANNED** | Counters first; AI Toolkit / CDTSM optional |

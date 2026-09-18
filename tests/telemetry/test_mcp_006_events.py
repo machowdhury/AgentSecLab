@@ -42,7 +42,7 @@ def test_baseline_event_order_and_schema(settings, memory):
     assert names[started_at + 1] == "agentsec.mcp.completed"
     assert result.events[-1]["event.name"] == "agentsec.run.completed"
     for event in result.events:
-        assert event["agentsec.schema.version"] == "1.6.0"
+        assert event["agentsec.schema.version"] == "1.7.0"
         assert event["agentsec.attack.id"] == "MCP-006"
         assert "gen_ai.tool.call.id" not in event
     hop0 = result.events[2]
