@@ -32,7 +32,7 @@ def test_evidence_bundle_has_required_files_and_honest_export(settings, counting
 
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["schema.name"] == "agentsec.security_event"
-    assert manifest["schema.version"] == "1.6.0"
+    assert manifest["schema.version"] == "1.7.0"
     assert manifest["run.id"] == result.run_id
     assert manifest["incident.id"] == result.run_id
     assert manifest["testbed.mode"] == "BASELINE"

@@ -23,7 +23,7 @@ def test_baseline_event_order(settings, memory):
     assert names[-1] == "agentsec.run.completed"
     assert EVENT_MCP_STARTED not in names
     for event in result.events:
-        assert event["agentsec.schema.version"] == "1.6.0"
+        assert event["agentsec.schema.version"] == "1.7.0"
         assert event["agentsec.attack.id"] == "RAG-001"
         assert event["gen_ai.workflow.name"] == "rag_context_lab"
         assert "full_document" not in event

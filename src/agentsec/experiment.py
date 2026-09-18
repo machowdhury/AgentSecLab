@@ -8,13 +8,16 @@ from agentsec.settings import Settings, VALID_TESTBED_MODES
 EXECUTION_MODE = "LIVE"
 TELEMETRY_FIDELITY = "OBSERVED"
 SCHEMA_NAME = "agentsec.security_event"
-SCHEMA_VERSION = "1.6.0"
+SCHEMA_VERSION = "1.7.0"
 LOAN_WORKFLOW_ENTRY = "/process"
 LOAN_WORKFLOW_NAME = "loan_pipeline"
 MCP_WORKFLOW_ENTRY = "/mcp/invoke"
 MCP_WORKFLOW_NAME = "mcp_tool_lab"
 RAG_WORKFLOW_ENTRY = "/rag/retrieve"
 RAG_WORKFLOW_NAME = "rag_context_lab"
+MEMORY_WRITE_ENTRY = "/memory/write"
+MEMORY_RECALL_ENTRY = "/memory/recall"
+MEMORY_WORKFLOW_NAME = "memory_lab"
 WORKFLOW_ENTRY = LOAN_WORKFLOW_ENTRY
 WORKFLOW_NAME = LOAN_WORKFLOW_NAME
 
@@ -79,6 +82,12 @@ def resolve_mcp_testbed_mode(
 
 
 def resolve_rag_testbed_mode(*, settings: Settings) -> str:
+    if settings.testbed_mode_override in VALID_TESTBED_MODES:
+        return settings.testbed_mode_override
+    return "BASELINE"
+
+
+def resolve_memory_testbed_mode(*, settings: Settings) -> str:
     if settings.testbed_mode_override in VALID_TESTBED_MODES:
         return settings.testbed_mode_override
     return "BASELINE"

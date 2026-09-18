@@ -377,8 +377,8 @@ def test_det_mcp_001_file_is_not_rewritten():
     assert not list(LAB_DIR.glob("searches/DET-MCP-CATALOG.*"))
     assert not list(LAB_DIR.glob("searches/Q-MCP-CATALOG-METADATA.*"))
     schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
-    assert "1.6.0" in schema["title"]
-    assert schema["properties"]["agentsec.schema.version"]["const"] == "1.6.0"
+    assert "1.7.0" in schema["title"]
+    assert schema["properties"]["agentsec.schema.version"]["const"] == "1.7.0"
 
 
 def test_q_mcp_source_files_unchanged_by_bind():

@@ -45,6 +45,7 @@ from agentsec.mcp.result_trust import (
 )
 from agentsec.mcp.server import McpServer, ServerDecision
 from agentsec.mcp.fixtures import MCP_CUSTOMER_SCOPE, MCP_LOOKUP_TIER_ARGS
+from agentsec.memory.trust import MemoryDerivedOverlay
 from agentsec.rag.context_trust import ContextDerivedOverlay
 from agentsec.settings import Settings, get_settings
 from agentsec.telemetry import EventSink, MemorySink, flush_export
@@ -871,6 +872,8 @@ def _run_follow_on_tool(
         authority_source = "metadata-derived overlay"
     elif isinstance(overlay, ContextDerivedOverlay):
         authority_source = "context-derived overlay"
+    elif isinstance(overlay, MemoryDerivedOverlay):
+        authority_source = "memory-derived overlay"
     else:
         authority_source = "server-owned"
     decision = server.authorize(
@@ -881,6 +884,7 @@ def _run_follow_on_tool(
         result_derived_overlay=overlay if isinstance(overlay, ResultDerivedOverlay) else None,
         metadata_derived_overlay=overlay if isinstance(overlay, MetadataDerivedOverlay) else None,
         context_derived_overlay=overlay if isinstance(overlay, ContextDerivedOverlay) else None,
+        memory_derived_overlay=overlay if isinstance(overlay, MemoryDerivedOverlay) else None,
     )
     control = decision.control
     content = json.dumps(

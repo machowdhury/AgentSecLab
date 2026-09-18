@@ -48,7 +48,7 @@ def assert_all_schema_valid(events: list[dict]) -> None:
     for event in events:
         validate_event(event)
         assert event["agentsec.schema.name"] == "agentsec.security_event"
-        assert event["agentsec.schema.version"] == "1.6.0"
+        assert event["agentsec.schema.version"] == "1.7.0"
         assert event["event.name"] not in PREDECESSOR_EVENT_NAMES
 
 

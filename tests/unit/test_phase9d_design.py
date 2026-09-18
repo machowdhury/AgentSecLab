@@ -28,7 +28,7 @@ def test_phase9d_no_new_detector_or_studio():
 
 def test_phase9d_runtime_and_schema_unchanged_contracts():
     schema = SCHEMA.read_text(encoding="utf-8")
-    assert '"const": "1.6.0"' in schema
+    assert '"const": "1.7.0"' in schema
     assert "agentsec.scanner" not in schema
     det = DET.read_text(encoding="utf-8")
     assert det.startswith("index=agentsec_telemetry sourcetype=otel:agentic:json")

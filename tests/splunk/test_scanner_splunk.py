@@ -48,7 +48,7 @@ def test_scanner_sourcetype_in_props_not_security_event():
     assert "INDEXED_EXTRACTIONS = json" in props
     assert "KV_MODE = none" in props
     schema = (ROOT / "schemas" / "security_event.schema.json").read_text(encoding="utf-8")
-    assert '"const": "1.6.0"' in schema
+    assert '"const": "1.7.0"' in schema
     assert "agentsec.scanner" not in schema
     assert "agentsec:scanner:finding" not in schema
 

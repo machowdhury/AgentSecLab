@@ -55,3 +55,9 @@ def policy_unchanged_by_retrieved_context(policy: McpPolicy, _retrieved: object)
     """INV-002: retrieved context is data. It never becomes a new grant object."""
     del _retrieved
     return policy
+
+
+def policy_unchanged_by_memory(policy: McpPolicy, _memory: object) -> McpPolicy:
+    """INV-003: persisted memory is data. It never becomes a new grant object."""
+    del _memory
+    return policy

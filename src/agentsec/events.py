@@ -1,4 +1,4 @@
-"""Build schema 1.6.0 AgentSec security events. Attackers never copy JSON into control fields."""
+"""Build schema 1.7.0 AgentSec security events. Attackers never copy JSON into control fields."""
 
 from __future__ import annotations
 
@@ -36,6 +36,8 @@ EVENT_MCP_STARTED = "agentsec.mcp.started"
 EVENT_MCP_COMPLETED = "agentsec.mcp.completed"
 EVENT_MCP_FAILED = "agentsec.mcp.failed"
 EVENT_PIPELINE_STOPPED = "agentsec.pipeline.stopped"
+EVENT_MEMORY_WRITTEN = "agentsec.memory.written"
+EVENT_MEMORY_RECALLED = "agentsec.memory.recalled"
 
 
 def utc_now() -> str:
@@ -273,6 +275,10 @@ class EventEmitter:
         rag_context_trust: str | None = None,
         rag_context_provenance: str | None = None,
         rag_document_id: str | None = None,
+        memory_id: str | None = None,
+        memory_trust: str | None = None,
+        memory_provenance: str | None = None,
+        memory_source_run_id: str | None = None,
     ) -> dict[str, Any]:
         span_id = new_span_id()
         event = _base_event(self.ctx, self.settings, span_id)
@@ -321,6 +327,14 @@ class EventEmitter:
             event["agentsec.rag.context.provenance"] = rag_context_provenance
         if rag_document_id is not None:
             event["agentsec.rag.context.document.id"] = rag_document_id
+        if memory_id is not None:
+            event["agentsec.memory.id"] = memory_id
+        if memory_trust is not None:
+            event["agentsec.memory.trust"] = memory_trust
+        if memory_provenance is not None:
+            event["agentsec.memory.provenance"] = memory_provenance
+        if memory_source_run_id is not None:
+            event["agentsec.memory.source_run_id"] = memory_source_run_id
         _with_hop_identity(
             event,
             hop_index=hop_index,
@@ -564,5 +578,78 @@ class EventEmitter:
             hop_index=hop_index,
             agent_id=agent_id,
             delegator_agent_id=delegator_agent_id,
+        )
+        return self._emit(event)
+
+    def memory_written(
+        self,
+        *,
+        hop_index: int,
+        agent_id: str,
+        agent_name: str,
+        hop_span_id: str,
+        memory_id: str,
+        provenance: str,
+        source_run_id: str,
+        content_text: str,
+        writer_agent_id: str,
+    ) -> dict[str, Any]:
+        event = _base_event(self.ctx, self.settings, new_span_id())
+        event["event.name"] = EVENT_MEMORY_WRITTEN
+        event["parent_span_id"] = hop_span_id
+        event["agentsec.operation.type"] = "agent_hop"
+        event["agentsec.span.kind"] = "hop"
+        event["agentsec.trust_boundary"] = "agent.memory.store"
+        event["agentsec.memory.id"] = memory_id
+        event["agentsec.memory.provenance"] = provenance
+        event["agentsec.memory.source_run_id"] = source_run_id
+        event["agentsec.content.hash"] = content_hash(content_text)
+        event["agentsec.content.preview"] = content_preview(content_text)
+        event["agentsec.content.origin.type"] = "agent"
+        event["agentsec.content.origin.id"] = writer_agent_id
+        _with_hop_identity(
+            event,
+            hop_index=hop_index,
+            agent_id=agent_id,
+            agent_name=agent_name,
+            delegator_agent_id=None,
+        )
+        return self._emit(event)
+
+    def memory_recalled(
+        self,
+        *,
+        hop_index: int,
+        agent_id: str,
+        agent_name: str,
+        hop_span_id: str,
+        memory_id: str,
+        provenance: str,
+        trust: str,
+        source_run_id: str,
+        content_text: str,
+        reader_agent_id: str,
+    ) -> dict[str, Any]:
+        event = _base_event(self.ctx, self.settings, new_span_id())
+        event["event.name"] = EVENT_MEMORY_RECALLED
+        event["parent_span_id"] = hop_span_id
+        event["agentsec.operation.type"] = "agent_hop"
+        event["agentsec.span.kind"] = "hop"
+        event["agentsec.trust_boundary"] = "agent.memory.store"
+        event["agentsec.memory.id"] = memory_id
+        event["agentsec.memory.provenance"] = provenance
+        event["agentsec.memory.trust"] = trust
+        event["agentsec.memory.source_run_id"] = source_run_id
+        event["agentsec.content.hash"] = content_hash(content_text)
+        event["agentsec.content.preview"] = content_preview(content_text)
+        event["agentsec.content.origin.type"] = "agent"
+        event["agentsec.content.origin.id"] = reader_agent_id
+        event["agentsec.content.influence.kind"] = "recalled_memory"
+        _with_hop_identity(
+            event,
+            hop_index=hop_index,
+            agent_id=agent_id,
+            agent_name=agent_name,
+            delegator_agent_id=None,
         )
         return self._emit(event)

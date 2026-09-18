@@ -25,7 +25,7 @@ def test_phase9b_docs_exist():
     ).read_text(encoding="utf-8")
 
     schema = SCHEMA.read_text(encoding="utf-8")
-    assert '"const": "1.6.0"' in schema
+    assert '"const": "1.7.0"' in schema
     assert "agentsec.scanner" not in schema
     authz = AUTHZ.read_text(encoding="utf-8")
     assert authz.startswith(
