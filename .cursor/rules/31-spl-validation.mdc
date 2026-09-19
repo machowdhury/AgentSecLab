@@ -1,0 +1,62 @@
+---
+description: Mandatory validation and explanation requirements for AgentSec SPL
+globs: "splunk_app/**,detections/**,learning/**,research/**"
+alwaysApply: false
+---
+
+# SPL Validation
+
+Never invent fields.
+
+Never state that SPL "should work."
+
+Every important query must document:
+
+QUERY ID
+SECURITY QUESTION
+REQUIRED FIELDS
+SPL
+WHY EACH MAJOR COMMAND EXISTS
+EXPECTED RESULT
+ACTUAL VALIDATED RESULT
+TEST DATA
+FALSE POSITIVES
+FALSE NEGATIVES
+PERFORMANCE NOTES
+KNOWN LIMITATIONS
+
+## Process
+
+1. State the security question.
+2. Identify required fields.
+3. Verify those fields in actual AgentSec events.
+4. Write the simplest correct query.
+5. Run against representative data.
+6. Inspect actual output.
+7. Confirm the output answers the question.
+8. Only then add it to Dashboard Studio.
+
+Prefer scalable SPL.
+
+Avoid unnecessary:
+- join
+- transaction
+- map
+- append
+- large subsearches
+
+Every learner-facing SPL query must include a plain-language explanation:
+
+WHAT ARE WE ASKING?
+
+HOW DOES THIS SEARCH WORK?
+
+WHAT SHOULD YOU SEE?
+
+WHAT DID THE RESULT ACTUALLY SHOW?
+
+WHY DOES IT MATTER?
+
+WHAT SHOULD YOU LOOK AT NEXT?
+
+Companion (does not replace this gate): `.cursor/rules/33-splunk-agent-skills.mdc` then `.cursor/skills/splunk-ko-review/SKILL.md`. Do not write SPL first and make the evidence fit later.

@@ -1,0 +1,12 @@
+{
+  "items": [
+    "SCANNER FINDING != AUTHORIZATION DECISION",
+    "Scanner PASS != trusted.",
+    "Scanner FAIL != DENY.",
+    "Scanner silence != safe.",
+    "Network isolation is not technically guaranteed on this host; canonical argv is YARA-static with secrets stripped from the child environment.",
+    "artifact.sha256 hashes the exported JSON file. description_sha256 hashes lookup_policy description UTF-8 bytes only.",
+    "No Splunk ingest. No schema 1.5.0 change. No runtime authorization change.",
+    "Scanner JSON may include a default server_url field. Canonical argv did not pass --server-url and did not start MCP. This field is scanner-native output, not AgentSec runtime connection evidence."
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "tools": [
+    {
+      "name": "lookup_customer_tier",
+      "description": "Look up a customer's lab tier.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "description": "Identifier of the customer whose lab tier is requested."
+          }
+        },
+        "required": [
+          "customer_id"
+        ]
+      }
+    },
+    {
+      "name": "lookup_policy",
+      "description": "Look up lending policy guidance.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "policy_id": {
+            "type": "string",
+            "description": "Identifier of the lending policy document to retrieve."
+          }
+        },
+        "required": [
+          "policy_id"
+        ]
+      }
+    }
+  ]
+}

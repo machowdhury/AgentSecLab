@@ -1,0 +1,56 @@
+---
+description: Mandatory logic, security, telemetry and workshop validation
+alwaysApply: true
+---
+
+# AgentSec Testing
+
+No important feature is complete until tested.
+
+Use:
+
+tests/unit/
+tests/integration/
+tests/security/
+tests/telemetry/
+tests/workshops/
+tests/detections/
+tests/splunk/
+
+Test:
+
+NORMAL INPUT
+
+MALICIOUS INPUT
+
+MALFORMED INPUT
+
+BOUNDARY CONDITION
+
+DEPENDENCY FAILURE
+
+SECURITY BYPASS ATTEMPT
+
+Test deterministic security logic separately from nondeterministic LLM behavior.
+
+Security assertions should focus on:
+
+authorization
+control decision
+tool invocation
+state transition
+identity
+trust level
+telemetry
+correlation
+evidence
+
+When fixing bugs:
+
+1. reproduce bug
+2. create failing regression test
+3. fix code
+4. run regression test
+5. run related test suite
+
+Never claim passing tests unless actually executed.

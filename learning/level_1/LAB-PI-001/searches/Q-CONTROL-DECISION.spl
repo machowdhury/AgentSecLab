@@ -1,0 +1,16 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"=__RUN_ID__ "event.name"=agentsec.control.decision
+| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
+| eval hop_index=mvindex(mvdedup('agentsec.hop.index'),0)
+| eval agent_id=mvindex(mvdedup('gen_ai.agent.id'),0)
+| eval agent_name=mvindex(mvdedup('gen_ai.agent.name'),0)
+| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)
+| eval control_type=mvindex(mvdedup('agentsec.control.type'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
+| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)
+| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)
+| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)
+| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)
+| eval invariants=mvjoin(mvdedup('agentsec.invariant.id{}'), ",")
+| table sequence, hop_index, agent_id, agent_name, control_id, control_type, decision, reason, profile, attempted, executed, outcome, invariants
+| sort sequence

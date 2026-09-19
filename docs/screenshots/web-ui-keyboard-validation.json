@@ -1,0 +1,88 @@
+{
+  "class": "MEASURED",
+  "limitation": "Playwright Tab/Enter/Space on Chromium. Not a screen-reader test. Not a WCAG certification.",
+  "acmebank": {
+    "skip_link_can_focus": true,
+    "skip_link_tag": "A",
+    "skip_link_text": "Skip to content",
+    "textarea_reached": true,
+    "submit_reached": true,
+    "enter_activated_submit": true,
+    "running_button_disabled": true,
+    "second_enter_while_running_state": "RUNNING",
+    "run_id_reachable": true,
+    "copy_run_id_reachable": true,
+    "focus_indicator_nonzero_outline": true,
+    "focus_samples": [
+      {
+        "tag": "A",
+        "id": null,
+        "type": null,
+        "text": "Skip to content",
+        "outline": "solid 2px rgb(0, 127, 134)",
+        "outlineWidth": "2px",
+        "disabled": false
+      },
+      {
+        "tag": "TEXTAREA",
+        "id": "input",
+        "type": null,
+        "text": "Hi, I'm Priya Chen. I'd like to apply for a home purchase loan of $420000. I'm e",
+        "outline": "solid 2px rgb(0, 127, 134)",
+        "outlineWidth": "2px",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "id": "submit-loan",
+        "type": "submit",
+        "text": "Submit loan",
+        "outline": "solid 2px rgb(0, 127, 134)",
+        "outlineWidth": "2px",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "id": "submit-loan",
+        "type": "submit",
+        "text": "Submit loan",
+        "outline": "solid 2px rgb(0, 127, 134)",
+        "outlineWidth": "2px",
+        "disabled": false
+      }
+    ],
+    "final_state": "COMPLETED"
+  },
+  "attack": {
+    "skip_link_can_focus": true,
+    "skip_link_text": "Skip to content",
+    "fire_reached": true,
+    "enter_activated_fire": true,
+    "running_button_disabled": true,
+    "copy_run_id_reachable": true,
+    "run_id_reachable": true,
+    "focus_indicator_nonzero_outline": true,
+    "focus_samples": [
+      {
+        "tag": "A",
+        "id": null,
+        "type": null,
+        "text": "Skip to content",
+        "outline": "solid 2px rgb(0, 127, 134)",
+        "outlineWidth": "2px",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "id": "fire",
+        "type": "button",
+        "text": "Run ATK-002",
+        "outline": "solid 2px rgb(0, 127, 134)",
+        "outlineWidth": "2px",
+        "disabled": false
+      }
+    ],
+    "final_state": "DENIED"
+  },
+  "verdict": "MEASURED"
+}

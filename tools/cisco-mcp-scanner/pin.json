@@ -1,0 +1,19 @@
+{
+  "scanner.name": "cisco-ai-mcp-scanner",
+  "scanner.cli": "mcp-scanner",
+  "scanner.package": "cisco-ai-mcp-scanner",
+  "scanner.version": "4.8.4",
+  "scanner.repository": "https://github.com/cisco-ai-defense/mcp-scanner",
+  "scanner.license": "Apache-2.0",
+  "pypi.project": "https://pypi.org/project/cisco-ai-mcp-scanner/4.8.4/",
+  "pypi.wheel.filename": "cisco_ai_mcp_scanner-4.8.4-py3-none-any.whl",
+  "pypi.wheel.sha256": "cd25f68d4f22c6e40b74578a8c28e2dfc350f69ebf4122801d9d05f804e769cd",
+  "pypi.sdist.sha256": "d417e19e72bc0ebc26227ec4482527e8ca202c83e2559bcf4b4a28fd94f9a8b5",
+  "github.main.verified_at": "2026-09-16",
+  "github.main.commit": "be87b90d88bca2527a6e2075769a7608decd8f27",
+  "github.main.commit_note": "Repo HEAD at verification. Wheel 4.8.4 is the executed pin, not this commit. HEAD only added CodeQL workflow.",
+  "canonical.argv_shape": "mcp-scanner --analyzers yara --format raw --log-level error static --tools <artifact>",
+  "canonical.analyzers": ["yara"],
+  "requires.api_key": false,
+  "requires.llm": false
+}

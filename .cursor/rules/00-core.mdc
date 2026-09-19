@@ -1,0 +1,87 @@
+---
+description: Core architecture and engineering requirements for AgentSec Lab
+alwaysApply: true
+---
+
+# AgentSec Lab Core Rules
+
+AgentSec Lab follows this learning lifecycle:
+
+LEARN
+→ BASELINE
+→ ATTACK
+→ OBSERVE
+→ HUNT
+→ DETECT
+→ DEFEND
+→ RETEST
+→ INVESTIGATE
+→ MEASURE
+→ PROVE
+
+The technical security lifecycle is:
+
+Attack
+→ Trust Boundary
+→ Security Invariant
+→ Control
+→ Control Decision
+→ OpenTelemetry
+→ Splunk
+→ Detection
+→ Investigation
+→ Evidence
+
+## Core Principles
+
+AgentSec is a learning and SOC experimentation range.
+
+It is NOT a replacement for production AI-security products.
+
+Splunk is the primary telemetry, investigation, detection, learning, MLTK, and evidence workbench for AgentSec.
+
+For Splunk knowledge-object work (SPL, saved searches, detections, Studio data sources, app config), read `.cursor/rules/33-splunk-agent-skills.mdc` then `.cursor/skills/splunk-ko-review/SKILL.md`. That workflow is glob-scoped; do not load it into unrelated runtime work.
+
+Splunk does not make authorization decisions for the agent runtime unless a specific lab intentionally demonstrates such an integration.
+
+Reference controls exist to teach security principles.
+
+Do not add features simply because they appear impressive.
+
+Prefer understandable architecture over clever architecture.
+
+Do not introduce unnecessary:
+- Kubernetes
+- Kafka
+- databases
+- cloud infrastructure
+- microservices
+- enterprise IAM
+- speculative frameworks
+
+## Change Process
+
+For significant work:
+
+1. Inspect.
+2. Explain the concept.
+3. Propose the design.
+4. Identify affected files.
+5. Identify security assumptions.
+6. Identify required tests.
+7. Implement the smallest useful scope.
+8. Run tests.
+9. Report actual results.
+10. Stop.
+
+Never claim:
+- a test passed unless it ran
+- a Splunk query works unless validated
+- a control blocked an operation unless execution proves it
+- an external integration works unless actually tested
+
+AgentWatch Range is a READ-ONLY predecessor.
+
+Use it to identify proven assets.
+
+Do not blindly copy it.
