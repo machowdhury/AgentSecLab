@@ -1,0 +1,82 @@
+{
+  "url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_memory_security",
+  "tabs_found": [
+    "LEARN",
+    "BASELINE",
+    "ATTACK",
+    "OBSERVE",
+    "HUNT",
+    "DETECT",
+    "DEFEND",
+    "RETEST",
+    "COMPARE",
+    "PROVE"
+  ],
+  "tabs_missing": [],
+  "tokens_found": [
+    "write_run_id",
+    "run_id",
+    "baseline_write_run_id",
+    "baseline_recall_run_id",
+    "attack_write_run_id",
+    "attack_recall_run_id",
+    "retest_write_run_id",
+    "retest_recall_run_id"
+  ],
+  "tokens_missing": [],
+  "token_values": {
+    "write_run_id": "a8407246-7992-4ad8-bd02-cb701e150f30",
+    "run_id": "914c41ce-5123-49eb-892c-c948295dbc46",
+    "baseline_write_run_id": "a8407246-7992-4ad8-bd02-cb701e150f30",
+    "baseline_recall_run_id": "914c41ce-5123-49eb-892c-c948295dbc46",
+    "attack_write_run_id": "05f1d8d0-28b7-40ac-bbb9-1dc64b4ba464",
+    "attack_recall_run_id": "b8737cd9-9b6b-48f2-acfa-178ae1446ddc",
+    "retest_write_run_id": "060a0a72-ceb5-4b99-8330-98de81d8ae5e",
+    "retest_recall_run_id": "5d5b9d1b-092d-4ddb-8422-4092d289cd49"
+  },
+  "screenshots": [
+    "docs/screenshots/lab-memory-security/pass2_overview.png",
+    "docs/screenshots/lab-memory-security/pass2_learn.png",
+    "docs/screenshots/lab-memory-security/pass2_baseline.png",
+    "docs/screenshots/lab-memory-security/pass2_attack.png",
+    "docs/screenshots/lab-memory-security/pass2_observe.png",
+    "docs/screenshots/lab-memory-security/pass2_hunt.png",
+    "docs/screenshots/lab-memory-security/pass2_detect.png",
+    "docs/screenshots/lab-memory-security/pass2_defend.png",
+    "docs/screenshots/lab-memory-security/pass2_retest.png",
+    "docs/screenshots/lab-memory-security/pass2_compare.png",
+    "docs/screenshots/lab-memory-security/pass2_prove.png",
+    "docs/screenshots/lab-memory-security/pass2_w1024_learn.png",
+    "docs/screenshots/lab-memory-security/pass2_w1024_compare.png",
+    "docs/screenshots/lab-memory-security/pass2_w1024_detect.png",
+    "docs/screenshots/lab-memory-security/pass2_w768_learn.png",
+    "docs/screenshots/lab-memory-security/pass2_w768_compare.png",
+    "docs/screenshots/lab-memory-security/pass2_w768_detect.png"
+  ],
+  "clipping_screenshots": [
+    "docs/screenshots/lab-memory-security/pass2_w1024_learn.png",
+    "docs/screenshots/lab-memory-security/pass2_w1024_compare.png",
+    "docs/screenshots/lab-memory-security/pass2_w1024_detect.png",
+    "docs/screenshots/lab-memory-security/pass2_w768_learn.png",
+    "docs/screenshots/lab-memory-security/pass2_w768_compare.png",
+    "docs/screenshots/lab-memory-security/pass2_w768_detect.png"
+  ],
+  "label": "pass2",
+  "tabs_requested": [
+    "LEARN",
+    "BASELINE",
+    "ATTACK",
+    "OBSERVE",
+    "HUNT",
+    "DETECT",
+    "DEFEND",
+    "RETEST",
+    "COMPARE",
+    "PROVE"
+  ],
+  "viewports": [
+    1440,
+    1024,
+    768
+  ]
+}

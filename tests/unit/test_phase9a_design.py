@@ -69,7 +69,7 @@ def test_phase9a_first_target_is_mcp_scanner_static_not_merely_cisco():
 
 def test_phase9a_did_not_change_schema_runtime_or_validated_spl():
     schema = SCHEMA.read_text(encoding="utf-8")
-    assert '"const": "1.7.0"' in schema
+    assert '"const": "1.9.0"' in schema
     assert "agentsec.scanner" not in schema
     assert "agentsec:scanner:finding" not in schema
     protocol = PROTOCOL.read_text(encoding="utf-8")

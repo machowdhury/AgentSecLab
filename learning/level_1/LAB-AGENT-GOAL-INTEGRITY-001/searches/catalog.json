@@ -1,0 +1,95 @@
+{
+  "lab.id": "LAB-AGENT-GOAL-INTEGRITY-001",
+  "title": "Agent goal / instruction integrity — Splunk hunt (schema 1.9.0)",
+  "schema.name": "agentsec.security_event",
+  "schema.version": "1.9.0",
+  "index": "agentsec_telemetry",
+  "sourcetype": "otel:agentic:json",
+  "run_id_token": "__RUN_ID__",
+  "validation_date": "2026-09-18",
+  "reuses_lab_mcp_001_queries": [
+    "Q-MCP-WHO",
+    "Q-MCP-AUTHZ",
+    "Q-MCP-TOOL",
+    "Q-MCP-EXECUTED",
+    "Q-MCP-AFTER-DENY"
+  ],
+  "schema_version_note": "LAB-MCP-001 Q-MCP-*.spl does not filter schema.version and is 1.9.0-compatible. This hunt is schema-version agnostic in SPL. Q-MCP-DELEGATION is NOT APPLICABLE (CTRL-DELEGATION-001 / ambient_deputy).",
+  "validated_runs": {
+    "BASELINE": "0aced342-1295-4820-b807-9a8718d9e847",
+    "ATTACK": "fd994587-7e1c-4a70-8013-54cb2c85254d",
+    "RETEST": "605ba7c1-449b-4338-92df-7da3b704b08e"
+  },
+  "validated_hashes": {
+    "TASK": "sha256:6f95aaf2adf5b37b11e35805f9bbbb24fdb34f38435590b5042d7c406bdf7b6c",
+    "ATTACK_AND_RETEST_INSTRUCTION": "sha256:15a1c5fa3724419b21b854623c594dba28bf4f357efe39c932084374a8cbe5e2",
+    "ATTACK_AND_RETEST_PROPOSED_CHANGE": "sha256:6326e3be47ecf73831a06be2b718f42219e0c950d4c989de23aa558bfdc01b34",
+    "ATTACK_AND_RETEST_GOAL_SNAPSHOT": "sha256:56ebf3bf964a45b39931007bfa4e3d3de20535d42c44cfabf7635bf421ed8b3d"
+  },
+  "prohibited_fields": [
+    "agentsec.event.name",
+    "session.id",
+    "mcp.session.id",
+    "invocation.id",
+    "gen_ai.tool.call.arguments",
+    "agentsec.mcp.allowed_tools",
+    "gen_ai.tool.call.id",
+    "trusted_instruction",
+    "task_authorized",
+    "goal_authorized",
+    "allowed_tools"
+  ],
+  "queries": [
+    {
+      "id": "Q-GOAL-INTEGRITY-AUTHORITY",
+      "spl_file": "Q-GOAL-INTEGRITY-AUTHORITY.spl",
+      "doc_file": "Q-GOAL-INTEGRITY-AUTHORITY.md",
+      "security_question": "For this run: what authoritative task was assigned, what untrusted instruction was observed, what task change was proposed, what did CTRL-GOAL-INTEGRITY-001 decide, what became the effective action, what did CTRL-MCP-001 decide, and was execution observed?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "agentsec.task.id",
+        "agentsec.task.hash",
+        "agentsec.task.provenance",
+        "agentsec.instruction.trust",
+        "agentsec.goal.proposed",
+        "agentsec.control.id",
+        "agentsec.control.decision",
+        "agentsec.control.reason",
+        "agentsec.content.hash",
+        "agentsec.content.preview",
+        "gen_ai.tool.name",
+        "agentsec.mcp.requested_scope",
+        "agentsec.mcp.allowed_scope",
+        "agentsec.hop.index",
+        "agentsec.security.profile",
+        "agentsec.testbed.mode"
+      ],
+      "validation_status": "VALIDATED"
+    }
+  ],
+  "queries_not_created": [
+    {
+      "id": "Q-GOAL-TASK",
+      "reason": "Authoritative task id/hash/provenance are columns on Q-GOAL-INTEGRITY-AUTHORITY."
+    },
+    {
+      "id": "Q-GOAL-INSTRUCTION",
+      "reason": "instruction.trust and bounded GOAL preview (instruction_hash) are columns on Q-GOAL-INTEGRITY-AUTHORITY."
+    },
+    {
+      "id": "Q-GOAL-EXECUTED",
+      "reason": "REUSED: Q-MCP-TOOL, Q-MCP-EXECUTED, and execution_observation on Q-GOAL-INTEGRITY-AUTHORITY."
+    },
+    {
+      "id": "Q-MCP-DELEGATION",
+      "reason": "NOT APPLICABLE. That hunt requires CTRL-DELEGATION-001 / ambient_deputy (MCP-006)."
+    }
+  ],
+  "detection": {
+    "id": "DET-MCP-001",
+    "note": "Reused unchanged. DET-GOAL not created. Overlay reason and AGENT NOTE are LAB-ONLY, not production IOCs.",
+    "spl_file": "../../LAB-MCP-001/searches/DET-MCP-001.spl",
+    "status": "DETECTION ANALYZED — NO NEW DETECTOR"
+  }
+}

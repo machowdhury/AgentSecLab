@@ -80,7 +80,8 @@ docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/defa
 docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_mcp_006.xml'
 docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_mcp_catalog.xml'
 docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_scanner_runtime_evidence.xml'
-docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_rag_context.xml'
+  docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_rag_context.xml'
+  docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_memory_security.xml'
 docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/nav/default.xml'
 log "AgentSec app, ws_lab_pi_001.xml, ws_lab_mcp_001.xml, ws_lab_mcp_003.xml, ws_lab_mcp_004.xml, ws_lab_mcp_005.xml, ws_lab_mcp_006.xml, ws_lab_mcp_catalog.xml, ws_lab_scanner_runtime_evidence.xml, and ws_lab_rag_context.xml are present."
 
@@ -240,6 +241,18 @@ if ! docker exec agentsec_splunk bash -lc 'grep -q "ws_lab_rag_context\|LAB-RAG-
   fail "view payload did not mention LAB-RAG-CONTEXT / ws_lab_rag_context"
 fi
 log "Dashboard view ws_lab_rag_context is available via Splunk REST."
+
+memory_view_code="$(
+  docker exec -u splunk -e SPLUNK_PASSWORD="$SPLUNK_PASSWORD" agentsec_splunk bash -lc \
+    'curl -sk -u "admin:${SPLUNK_PASSWORD}" -o /tmp/ws_lab_memory_security_view.xml -w "%{http_code}" https://127.0.0.1:8089/servicesNS/nobody/agentsec/data/ui/views/ws_lab_memory_security'
+)"
+if [ "$memory_view_code" != "200" ]; then
+  fail "view ws_lab_memory_security HTTP ${memory_view_code}"
+fi
+if ! docker exec agentsec_splunk bash -lc 'grep -q "ws_lab_memory_security\|LAB-MEMORY-001" /tmp/ws_lab_memory_security_view.xml'; then
+  fail "view payload did not mention LAB-MEMORY-001 / ws_lab_memory_security"
+fi
+log "Dashboard view ws_lab_memory_security is available via Splunk REST."
 
 acme_code="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 10 http://127.0.0.1:5000/health || echo 000)"
 atk_code="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 10 http://127.0.0.1:5001/health || echo 000)"

@@ -57,6 +57,10 @@ if [ ! -f "${SRC}/default/data/ui/views/ws_lab_rag_context.xml" ]; then
   log "ERROR: ${SRC}/default/data/ui/views/ws_lab_rag_context.xml missing"
   exit 1
 fi
+if [ ! -f "${SRC}/default/data/ui/views/ws_lab_memory_security.xml" ]; then
+  log "ERROR: ${SRC}/default/data/ui/views/ws_lab_memory_security.xml missing"
+  exit 1
+fi
 
 mkdir -p "$DEST"
 log "Clearing previous staged files in ${DEST}"
@@ -82,6 +86,7 @@ test -f "${DEST}/default/data/ui/views/ws_lab_mcp_006.xml"
 test -f "${DEST}/default/data/ui/views/ws_lab_mcp_catalog.xml"
 test -f "${DEST}/default/data/ui/views/ws_lab_scanner_runtime_evidence.xml"
 test -f "${DEST}/default/data/ui/views/ws_lab_rag_context.xml"
+test -f "${DEST}/default/data/ui/views/ws_lab_memory_security.xml"
 test -f "${DEST}/default/data/ui/nav/default.xml"
 
 log "Staged AgentSec app (writable volume). Splunk may chown this copy."

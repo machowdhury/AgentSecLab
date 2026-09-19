@@ -32,7 +32,7 @@ def test_mcp004_baseline_attack_retest_sequences(settings, memory, tmp_path, mon
     assert names.index(EVENT_CONTROL_DECISION) < names.index(EVENT_MCP_STARTED)
     assert EVENT_MCP_COMPLETED in names
     allow = events_named(baseline.events, EVENT_CONTROL_DECISION)[0]
-    assert allow["agentsec.schema.version"] == "1.7.0"
+    assert allow["agentsec.schema.version"] == "1.9.0"
     assert allow["agentsec.mcp.resource.id"] == "lending-basics"
     assert allow["agentsec.mcp.allowed_resource.ids"] == "lending-basics"
     assert allow["agentsec.operation.attempted"] is False
@@ -91,7 +91,7 @@ def test_mcp004_baseline_attack_retest_sequences(settings, memory, tmp_path, mon
     assert deny["agentsec.mcp.resource.id"] == "executive-restricted"
     assert deny["agentsec.mcp.allowed_resource.ids"] == "lending-basics"
     assert deny["agentsec.operation.outcome"] == "prevented"
-    assert deny["agentsec.schema.version"] == "1.7.0"
+    assert deny["agentsec.schema.version"] == "1.9.0"
 
 
 def test_unknown_resource_telemetry(settings, memory):

@@ -31,7 +31,7 @@ def test_mcp_evidence_bundle_is_honest(settings, memory):
     for name in REQUIRED:
         assert (root / name).exists(), name
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
-    assert manifest["schema.version"] == "1.7.0"
+    assert manifest["schema.version"] == "1.9.0"
     assert manifest["workflow.entry"] == "/mcp/invoke"
     assert manifest["mcp.handler.invoked.count"] == 1
     assert manifest["llm.invoked.count"] == 0

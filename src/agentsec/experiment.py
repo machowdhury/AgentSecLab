@@ -8,7 +8,7 @@ from agentsec.settings import Settings, VALID_TESTBED_MODES
 EXECUTION_MODE = "LIVE"
 TELEMETRY_FIDELITY = "OBSERVED"
 SCHEMA_NAME = "agentsec.security_event"
-SCHEMA_VERSION = "1.7.0"
+SCHEMA_VERSION = "1.9.0"
 LOAN_WORKFLOW_ENTRY = "/process"
 LOAN_WORKFLOW_NAME = "loan_pipeline"
 MCP_WORKFLOW_ENTRY = "/mcp/invoke"
@@ -18,6 +18,10 @@ RAG_WORKFLOW_NAME = "rag_context_lab"
 MEMORY_WRITE_ENTRY = "/memory/write"
 MEMORY_RECALL_ENTRY = "/memory/recall"
 MEMORY_WORKFLOW_NAME = "memory_lab"
+IDENTITY_WORKFLOW_ENTRY = "/identity/delegate"
+IDENTITY_WORKFLOW_NAME = "identity_delegation_lab"
+GOAL_WORKFLOW_ENTRY = "/goal/evaluate"
+GOAL_WORKFLOW_NAME = "goal_integrity_lab"
 WORKFLOW_ENTRY = LOAN_WORKFLOW_ENTRY
 WORKFLOW_NAME = LOAN_WORKFLOW_NAME
 

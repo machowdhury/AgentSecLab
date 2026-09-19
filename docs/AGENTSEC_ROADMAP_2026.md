@@ -1,6 +1,6 @@
 # AgentSec roadmap 2026
 
-**Status:** Phase 8A DESIGN ONLY (historical snapshot in this file). Phase 8B–8E LAB-MCP-CATALOG completed separately. **Phase 9A DESIGN / RESEARCH ONLY** (scanner architecture). Phases **9B–9C** executed in dedicated reports (scanner static integrate + Splunk ingest). **Phase 9D DESIGN / ANALYSIS** (detection engineering; **DETECTION ANALYZED — NO NEW DETECTOR**). **Phase 9E VALIDATED** (scanner + runtime evidence workshop). **Phase 10A DESIGN / RESEARCH ONLY** (RAG / retrieved-context security). **Phase 10B IMPLEMENTED + LOCALLY VALIDATED** (LAB-RAG-001 runtime + schema 1.6.0). **Phase 10C VALIDATED** (LAB-RAG-001 Splunk; **DETECTION ANALYZED — NO NEW DETECTOR**). **Phase 10D DESIGN / ANALYSIS** (RAG detection engineering; **DETECTION ANALYZED — NO NEW DETECTOR**). **Phase 10E VALIDATED** (LAB-RAG-CONTEXT workshop). **Phase 11A DESIGN / RESEARCH ONLY** (agent memory security / INV-003). **Phase 11B IMPLEMENTED + LOCALLY VALIDATED** (LAB-MEMORY-001 runtime + schema 1.7.0). **Phase 11C VALIDATED** (LAB-MEMORY-001 Splunk; **DETECTION ANALYZED — NO NEW DETECTOR**). **Phase 11D DESIGN / ANALYSIS** (memory detection engineering; **DETECTION ANALYZED — NO NEW DETECTOR**). This file does not authorize a detector, Agent Scan, rug-pull, A2A, or Phase 11E.  
+**Status:** Phase 8A DESIGN ONLY (historical snapshot in this file). Phase 8B–8E LAB-MCP-CATALOG completed separately. **Phase 9A DESIGN / RESEARCH ONLY** (scanner architecture). Phases **9B–9C** executed in dedicated reports (scanner static integrate + Splunk ingest). **Phase 9D DESIGN / ANALYSIS** (detection engineering; **DETECTION ANALYZED — NO NEW DETECTOR**). **Phase 9E VALIDATED** (scanner + runtime evidence workshop). **Phase 10A DESIGN / RESEARCH ONLY** (RAG / retrieved-context security). **Phase 10B IMPLEMENTED + LOCALLY VALIDATED** (LAB-RAG-001 runtime + schema 1.6.0). **Phase 10C VALIDATED** (LAB-RAG-001 Splunk; **DETECTION ANALYZED — NO NEW DETECTOR**). **Phase 10D DESIGN / ANALYSIS** (RAG detection engineering; **DETECTION ANALYZED — NO NEW DETECTOR**). **Phase 10E VALIDATED** (LAB-RAG-CONTEXT workshop). **Phase 11A DESIGN / RESEARCH ONLY** (agent memory security / INV-003). **Phase 11B IMPLEMENTED + LOCALLY VALIDATED** (LAB-MEMORY-001 runtime + schema 1.7.0). **Phase 11C VALIDATED** (LAB-MEMORY-001 Splunk; **DETECTION ANALYZED — NO NEW DETECTOR**). **Phase 11D DESIGN / ANALYSIS** (memory detection engineering; **DETECTION ANALYZED — NO NEW DETECTOR**). **Phase 11E VALIDATED** (LAB-MEMORY-001 workshop). This file does not authorize a detector, Agent Scan, rug-pull, live A2A transport, or Phase 12B.  
 **Schema remains 1.4.0 until a later lab spec proposes otherwise.** Runtime emitters are **1.5.0** as of Phase 8C; 9A and **10A do not bump schema**. 10A records **SCHEMA BUMP JUSTIFIED** (proposed 1.6.0) for a later implementation phase.
 
 Parents: `docs/AGENTSEC_EXPANSION_ARCHITECTURE.md`, `docs/AGENTSEC_LEARNING_ARCHITECTURE.md`.
@@ -204,7 +204,153 @@ Same security question as 8B. Runtime fixture, CTRL-MCP-METADATA-001 OBSERVE, pe
 | **Splunk** | KEEP AS-IS hunts. DET-MCP-001 unchanged (0/0/0 is CORRECT BEHAVIOR, not SAFE). No new SPL. |
 | **Learning objective** | MEMORY IS PERSISTED DATA. Untrusted recall ≠ incident. DET-MCP-001 silence ≠ SAFE. ANOMALY ≠ INCIDENT. |
 
-**Do not start Phase 11E automatically.** No A2A. No rug-pull.
+**Do not start Phase 11E automatically.** (Historical 11D gate. 11E completed in a dedicated named phase.) No A2A. No rug-pull.
+
+### Phase 11E — LAB-MEMORY-001 learner workshop (VALIDATED)
+
+**Status:** VALIDATED 2026-09-18. View `ws_lab_memory_security`. **DETECTION ANALYZED — NO NEW MEMORY DETECTOR.** **Do not start Phase 12 from this file.** No DET-MEMORY. No embeddings. No A2A. No rug-pull.
+
+| Field | Content |
+|-------|---------|
+| **Security question** | What can a SOC prove from persistent-memory evidence across five planes and two runs? |
+| **Result** | Ten-tab GRID workshop. LIVE 11C write+recall ids. ATTACK/RETEST same hash visible. DET-MCP-001 unchanged. |
+| **Splunk** | Bind-only Q-MEMORY-CONTEXT-AUTHORITY + Q-MCP-*. Observe sequences are Studio-only. |
+| **Learning objective** | PERSISTED MEMORY != TRUSTED INSTRUCTION. SAME MEMORY / SAME REQUEST / DIFFERENT AUTHORIZATION. SPLUNK != ENFORCEMENT. |
+
+**Do not start Phase 12 automatically.** (Historical 11E gate. 12A completed in a dedicated named phase.) No live A2A. No rug-pull.
+
+### Phase 12A — Agent identity, delegation & A2A trust (DESIGN / RESEARCH ONLY)
+
+**Status:** DESIGN complete 2026-09-18. Schema remains **1.7.0**. Runtime **ABSENT**. **Do not start Phase 12B from this file.** No DET-A2A. No DET-DELEGATION. No SPL. No Studio. No OAuth. No SPIFFE. No live A2A transport.
+
+| Field | Content |
+|-------|---------|
+| **Security question** | When one agent acts on behalf of a user or another agent, what identity and authority is it actually permitted to exercise? |
+| **Attack concept** | A2A-001: authority amplification. Neither Agent A nor Agent B is coded `customer:read`; a vulnerable profile treats the A2A-shaped caller claim as a grant. Distinct from MCP-006 ambient confused-deputy. |
+| **Control** | Proposed CTRL-IDENTITY-001 **OBSERVE**. CTRL-MCP-001 remains the tool PDP. Overlay `caller_identity_derived_authority` (lab-only). |
+| **Telemetry** | Schema 1.7.0 unchanged. **SCHEMA BUMP JUSTIFIED** (proposed 1.8.0) for caller/callee/claim fields in a later implementation phase. |
+| **Splunk** | Design questions only. No SPL. DET-MCP-001 unchanged. |
+| **Invariant** | INV-001 reused. **No INV-009.** INV-005 / INV-004 supporting. |
+| **Learning objective** | IDENTITY CLAIM != VERIFIED IDENTITY. A2A REQUEST != DELEGATED GRANT. SAME REQUEST / DIFFERENT AUTHORIZATION. |
+| **Dependencies** | Memory 11A–11E complete; MCP-006 remains closed as the deputy lab. |
+| **Risk** | Re-teaching MCP-006; Agent Card as grant; JWT logging; crypto theater. |
+| **Complexity** | Medium (research). 12B is a later, smaller in-process runner. |
+
+**Do not start Phase 12B automatically.** No live A2A. No rug-pull. (Historical 12A gate. 12B completed in a dedicated named phase.)
+
+### Phase 12B — Agent identity / delegation runtime (IMPLEMENTED + LOCALLY VALIDATED)
+
+**Status:** IMPLEMENTED + LOCALLY VALIDATED 2026-09-18. Schema **1.8.0**. Splunk **NOT VALIDATED**. Detection **NOT STARTED**. Workshop **NOT STARTED**. A2A transport **NOT IMPLEMENTED**. **Do not start Phase 12C from this file.**
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Can an A2A-shaped request amplify authority neither agent was granted? |
+| **Attack** | A2A-001. Neither advisor-005 nor fulfillment-006 is coded `customer:read`. |
+| **Control** | CTRL-IDENTITY-001 **OBSERVE**. CTRL-MCP-001 remains the tool PDP. Overlay `caller_identity_derived_authority` (lab-only). |
+| **Telemetry** | Schema **1.8.0**: caller/callee ids, `untrusted_claim`, `claimed_scope`. |
+| **Splunk** | Not started. No SPL. DET-MCP-001 unchanged. |
+| **Invariant** | INV-001 reused. **No INV-009.** |
+| **Learning objective** | IDENTITY CLAIM != VERIFIED IDENTITY. SAME REQUEST / DIFFERENT AUTHORIZATION. |
+| **Dependencies** | 12A DESIGN accepted. |
+| **Risk** | Re-teaching MCP-006; JWT logging; starting 12C automatically. |
+| **Complexity** | Medium (smallest in-process runner). |
+
+**Do not start Phase 12C automatically.** No live A2A. No rug-pull. (Historical 12B gate. 12C completed in a dedicated named phase.)
+
+### Phase 12C — Agent identity / delegation Splunk validation (VALIDATED)
+
+**Status:** VALIDATED 2026-09-18. Fresh LIVE A/B/C; `Q-AGENT-DELEGATION-AUTHORITY`; DET-MCP-001 unchanged **0/0/0**. **DETECTION ANALYZED — NO NEW DETECTOR.** Workshop **NOT STARTED**. A2A transport **NOT IMPLEMENTED**. **Do not start Phase 12D from this file.**
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Can Splunk reconstruct who called whom, what was claimed, what CTRL-MCP-001 decided, and whether execution was observed — without treating identity as authentication? |
+| **Attack** | A2A-001 (same 12B model). |
+| **Control** | CTRL-IDENTITY-001 **OBSERVE**. CTRL-MCP-001 unchanged. |
+| **Telemetry** | Schema **1.8.0** identity fields **OBSERVED** in index. |
+| **Splunk** | `Q-AGENT-DELEGATION-AUTHORITY` + Q-MCP reuse. No Studio. |
+| **Invariant** | INV-001. **TELEMETRY GAP** `allowed_tools`. |
+| **Learning objective** | IDENTITY CLAIM != VERIFIED IDENTITY. SAME REQUEST / DIFFERENT AUTHORIZATION. SPLUNK != ENFORCEMENT. |
+| **Dependencies** | 12B runtime accepted. |
+| **Risk** | Overlay reason as IOC; rewriting Q-MCP-DELEGATION; starting 12D/12E automatically. |
+| **Complexity** | Medium (investigation engineering). |
+
+**Do not start Phase 12D automatically.** No live A2A. No rug-pull. No detector. No Dashboard Studio.
+
+### Phase 13A — Agent goal / instruction integrity (DESIGN ONLY)
+
+**Status:** DESIGN complete 2026-09-18. Schema remained **1.8.0** in the design phase. Runtime belongs to 13B. **Do not start Phase 13C from this file.**
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Can untrusted instructions silently redefine a server-owned task while a granted tool still ALLOWs? |
+| **Attack** | GOAL-001. AUTHORIZED TOOL + UNAUTHORIZED GOAL (`lookup_policy` in-task vs extract). |
+| **Control** | CTRL-GOAL-INTEGRITY-001. CTRL-MCP-001 remains the tool PDP. Overlay `untrusted_instruction_derived_task_authority` (lab-only). |
+| **Telemetry** | SCHEMA BUMP JUSTIFIED **1.9.0**. |
+| **Splunk** | Not started. No SPL. DET-MCP-001 unchanged. **NO DETECTOR JUSTIFIED.** |
+| **Invariant** | INV-002 reused. INV-006 applied. **No INV-009.** |
+| **Learning objective** | TASK AUTHORITY != TOOL AUTHORITY. SAME TASK / SAME INPUT / DIFFERENT OUTCOME. |
+| **Dependencies** | Identity chapter through 12C. |
+| **Risk** | Retesting MCP DENY; overlay as IOC; starting 13C automatically. |
+| **Complexity** | Medium. |
+
+**Do not start Phase 13B automatically.** (Historical 13A gate. 13B completed in a dedicated named phase.)
+
+### Phase 13B — Agent goal / instruction integrity runtime (IMPLEMENTED + LOCALLY VALIDATED)
+
+**Status:** IMPLEMENTED + LOCALLY VALIDATED 2026-09-18. Schema **1.9.0**. Splunk **NOT VALIDATED**. Detection **ANALYZED — NO IMPLEMENTATION**. Workshop **NOT STARTED**. **Do not start Phase 13C from this file.**
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Same as 13A; frozen TaskContract + ProposedTaskChange + overlay + CTRL-MCP-001. |
+| **Attack** | GOAL-001. Same malicious bytes on ATTACK and RETEST. |
+| **Control** | CTRL-GOAL-INTEGRITY-001 OBSERVE/DENY. CTRL-MCP-001 ALLOW `tool_granted` when the tool is `lookup_policy`. |
+| **Telemetry** | Schema **1.9.0**. |
+| **Splunk** | Not started. No Q-GOAL. No DET-GOAL. DET-MCP-001 unchanged. |
+| **Invariant** | INV-002 / INV-006. |
+| **Learning objective** | SAME PROPOSED CHANGE; different profile → different execution. |
+| **Dependencies** | 13A DESIGN accepted. |
+| **Risk** | Collapsing goal DENY into tool DENY; starting 13C automatically. |
+| **Complexity** | Medium (smallest in-process runner). |
+
+**Do not start Phase 13C automatically.** (Historical 13B gate. 13C completed in a dedicated named phase.)
+
+### Phase 13C — Agent goal / instruction integrity Splunk (VALIDATED)
+
+**Status:** VALIDATED 2026-09-18. Schema **1.9.0**. Detection **ANALYZED — NO NEW DETECTOR**. Workshop **NOT STARTED**. **Do not start Phase 13D from this file.**
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Can Splunk reconstruct task contract → untrusted instruction → proposed change → goal decision → tool ALLOW → effective action using indexed evidence? |
+| **Attack** | GOAL-001 LIVE A/B/C. Same task/instruction/proposed fingerprints on ATTACK and RETEST. |
+| **Control** | CTRL-GOAL-INTEGRITY-001 OBSERVE/DENY. CTRL-MCP-001 ALLOW `tool_granted` on A/B/C. Unchanged. |
+| **Telemetry** | Schema **1.9.0** field discovery OBSERVED. Instruction hash / effective action / proposed fingerprint are preview-bounded. |
+| **Splunk** | `Q-GOAL-INTEGRITY-AUTHORITY` + Q-MCP reuse. DET-MCP-001 0/0/0. No Studio. |
+| **Invariant** | INV-002 / INV-006. TOOL AUTHORITY != TASK AUTHORITY. |
+| **Learning objective** | MCP ALLOW DOES NOT MEAN THE AGENT'S GOAL WAS AUTHORIZED. |
+| **Dependencies** | 13B runtime accepted. |
+| **Risk** | Treating goal DENY as tool DENY; overlay/`AGENT NOTE` as IOC; starting 13D automatically. |
+| **Complexity** | Medium (investigation engineering). |
+
+**Do not start Phase 13D automatically.** (Historical 13C gate. 13D completed in a dedicated named phase.)
+
+### Phase 13D — Agent goal / instruction integrity detection analysis + workshop design
+
+**Status:** DETECTION ANALYZED — NO NEW DETECTOR. Workshop **DESIGNED — NOT IMPLEMENTED** 2026-09-18. Schema **1.9.0** unchanged. Runtime **UNCHANGED**. **Do not start Phase 13E from this file.** No rug-pull. No A2A. No DET-GOAL. No Studio.
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Detect vs hunt vs context for authorized tool + unauthorized goal? |
+| **Attack** | GOAL-001 13C LIVE A/B/C (not re-ingested). |
+| **Control** | CTRL-GOAL-INTEGRITY-001; CTRL-MCP-001 sole tool PDP. |
+| **Telemetry** | 1.9.0 as 13C; no schema bump. |
+| **Splunk** | `Q-GOAL-INTEGRITY-AUTHORITY` REUSE. DET-MCP-001 0/0/0 correct, not SAFE. |
+| **Invariant** | INV-002 / INV-006. No INV-009. |
+| **Learning objective** | MCP ALLOW DOES NOT MEAN THE AGENT'S GOAL WAS AUTHORIZED. |
+| **Dependencies** | 13C Splunk accepted. |
+| **Risk** | Inventing DET-GOAL; treating goal DENY as tool DENY; starting 13E automatically. |
+| **Complexity** | Low–medium (analysis + workshop contract). |
+
+**Do not start Phase 13E automatically.** No Dashboard Studio. No DET-GOAL. No runtime/schema/authz change. No LLM planner. No rug-pull. No A2A.
 
 ---
 
@@ -228,9 +374,14 @@ Planning labels shifted: **9A is scanner architecture (this file), not rug-pull.
 | **11B** | LAB-MEMORY-001 runtime (**IMPLEMENTED + LOCALLY VALIDATED**) | Same question; fixture store + overlay + CTRL-MCP-001 | Medium | None required | Schema 1.7.0; global grants |
 | **11C** | LAB-MEMORY-001 Splunk (**VALIDATED**) | Honest cross-run reconstruction after field discovery | Medium | None | Invented fields; DET-MEMORY sprawl |
 | **11D** | Memory detection analysis (**ANALYSIS**; no new detector) | Detect vs hunt vs context for persisted-memory influence? | Low | None | Detector sprawl; overlay-reason notable |
-| **11E** | Memory workshop (not started) | How does a SOC walk write → later recall → OBSERVE → request → authz → execute? | Low | None | Collapsing planes |
-| **Identity (was 10A/B)** | INV-005 identity deepen (deferred) | Can a request mint `gen_ai.agent.id` the allow-list does not own? | Low–medium | None required | Crypto theater (forbid) |
-| **A2A (was 11A–D)** | A2A slice | Does an Agent Card / A2A message confer more authority than coded? (ASI07) | High | `a2aproject/A2A` 1.0.0; later a2a-scanner | Fake A2A regex |
+| **11E** | Memory workshop (**VALIDATED**) | How does a SOC walk write → later recall → OBSERVE → request → authz → execute? | Low | None | Collapsing planes |
+| **12A** | Identity / A2A DESIGN (**this file**) | Can an A2A-shaped request amplify authority neither agent was granted? (INV-001 + INV-005) | Medium | None in 12A | Re-teach MCP-006; Agent Card as grant |
+| **12B** | LAB-AGENT-DELEGATION-001 runtime (**IMPLEMENTED + LOCALLY VALIDATED**) | Same question; frozen A2A-shaped request + overlay + CTRL-MCP-001 | Medium | None required | Schema 1.8.0; global grants; MCP-006 overload |
+| **12C** | LAB-AGENT-DELEGATION-001 Splunk (**VALIDATED**) | Honest reconstruction after field discovery | Medium | None | Invented fields; DET-A2A sprawl; Q-MCP-DELEGATION overload |
+| **13A** | Goal / instruction integrity DESIGN (**this file**) | Can untrusted instructions redefine the task while a granted tool ALLOWs? (INV-002 / INV-006) | Medium | None in 13A | MCP DENY retest; INV-009 |
+| **13B** | LAB-AGENT-GOAL-INTEGRITY-001 runtime (**IMPLEMENTED + LOCALLY VALIDATED**) | Same question; frozen TaskContract + overlay + CTRL-MCP-001 | Medium | None required | Schema 1.9.0; global grants |
+| **Identity (was 10A/B)** | INV-005 deepen | **Absorbed into 12A design**; runtime remains 12B | Low–medium | None required | Crypto theater (forbid) |
+| **A2A transport** | Live A2A protocol | Does an Agent Card / A2A message confer more authority than coded? | High | `a2aproject/A2A` 1.0.0; later a2a-scanner | Fake A2A regex; **DEFER** |
 | **12A–D** | RAG chapter (brought forward to **10A/10B**) | See 10A. Do not run a second RAG design track. | — | — | Duplicate labs |
 | **13** | Detection engineering workshop | When is a hunt allowed to become a detector? | Medium | None | Detector sprawl |
 
@@ -269,7 +420,23 @@ First research reproductions (not scheduled as product phases):
 
 ## Recommended next phase (exactly one)
 
-**Phase 11D — LAB-MEMORY-001 detection engineering: ACCEPT as ANALYSIS. DETECTION ANALYZED — NO NEW DETECTOR. Do not start Phase 11E from this file.**
+**Phase 13D — LAB-AGENT-GOAL-INTEGRITY-001 detection engineering + workshop design: ACCEPT as ANALYSIS. DETECTION ANALYZED — NO NEW DETECTOR. Workshop DESIGNED — NOT IMPLEMENTED. Do not start Phase 13E from this file.**
+
+Historical 13C text (kept): **Phase 13C — LAB-AGENT-GOAL-INTEGRITY-001 Splunk: ACCEPT as VALIDATED. DETECTION ANALYZED — NO NEW DETECTOR. Workshop NOT STARTED. Do not start Phase 13D from this file.** (13D was completed in a dedicated named phase; this sentence remains as the 13C snapshot contract.)
+
+Historical 13B text (kept): **Phase 13B — LAB-AGENT-GOAL-INTEGRITY-001 runtime: ACCEPT as IMPLEMENTED + LOCALLY VALIDATED. Splunk NOT VALIDATED. Detection ANALYZED — NO IMPLEMENTATION. Workshop NOT STARTED. Do not start Phase 13C from this file.** (13C was completed in a dedicated named phase; this sentence remains as the 13B snapshot contract.)
+
+Historical 13A text (kept): **Phase 13A — agent goal / instruction integrity: ACCEPT as DESIGN ONLY (this phase). Do not start Phase 13B from this file.** (13B was completed in a dedicated named phase; this sentence remains as the 13A snapshot contract.)
+
+**Phase 12C — LAB-AGENT-DELEGATION-001 Splunk: ACCEPT as VALIDATED. DETECTION ANALYZED — NO NEW DETECTOR. Workshop NOT STARTED. A2A transport NOT IMPLEMENTED. Do not start Phase 12D from this file.**
+
+Historical 12B text (kept): **Phase 12B — LAB-AGENT-DELEGATION-001 runtime: ACCEPT as IMPLEMENTED + LOCALLY VALIDATED. Splunk NOT VALIDATED. Detection NOT STARTED. Workshop NOT STARTED. A2A transport NOT IMPLEMENTED. Do not start Phase 12C from this file.** (12C was completed in a dedicated named phase; this sentence remains as the 12B snapshot contract.)
+
+Historical 12A text (kept): **Phase 12A — agent identity / A2A trust: ACCEPT as DESIGN ONLY (this phase). Do not start Phase 12B from this file.** (12B was completed in a dedicated named phase; this sentence remains as the 12A snapshot contract.)
+
+Historical 11E text (kept): **Phase 11E — LAB-MEMORY-001 workshop: ACCEPT as VALIDATED. DETECTION ANALYZED — NO NEW MEMORY DETECTOR. Do not start Phase 12 from this file.** (12A was completed in a dedicated named phase; this sentence remains as the 11E snapshot contract.)
+
+Historical 11D text (kept): **Phase 11D — LAB-MEMORY-001 detection engineering: ACCEPT as ANALYSIS. DETECTION ANALYZED — NO NEW DETECTOR. Do not start Phase 11E from this file.** (11E was completed in a dedicated named phase; this sentence remains as the 11D snapshot contract.)
 
 Historical 11C text (kept): **Phase 11C — LAB-MEMORY-001 Splunk: ACCEPT as VALIDATED. Do not start Phase 11D from this file.** (11D was completed in a dedicated named phase; this sentence remains as the 11C snapshot contract.)
 

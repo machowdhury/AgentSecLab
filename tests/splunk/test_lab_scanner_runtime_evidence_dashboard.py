@@ -277,7 +277,7 @@ def test_no_new_detector_and_security_semantics():
 
 def test_schema_runtime_and_det_unchanged():
     schema = SCHEMA.read_text(encoding="utf-8")
-    assert '"const": "1.7.0"' in schema
+    assert '"const": "1.9.0"' in schema
     assert "agentsec.scanner" not in schema
     assert "CTRL-MCP-001" in AUTHZ.read_text(encoding="utf-8")
     assert "CTRL-MCP-METADATA-001" in META.read_text(encoding="utf-8")

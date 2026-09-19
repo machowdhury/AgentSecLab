@@ -1,4 +1,4 @@
-"""Build schema 1.7.0 AgentSec security events. Attackers never copy JSON into control fields."""
+"""Build schema 1.9.0 AgentSec security events. Attackers never copy JSON into control fields."""
 
 from __future__ import annotations
 
@@ -279,6 +279,19 @@ class EventEmitter:
         memory_trust: str | None = None,
         memory_provenance: str | None = None,
         memory_source_run_id: str | None = None,
+        identity_caller_agent_id: str | None = None,
+        identity_callee_agent_id: str | None = None,
+        identity_claim_trust: str | None = None,
+        claimed_scope: str | None = None,
+        task_id: str | None = None,
+        task_hash: str | None = None,
+        task_preview: str | None = None,
+        task_provenance: str | None = None,
+        instruction_trust: str | None = None,
+        instruction_provenance: str | None = None,
+        goal_proposed: str | None = None,
+        goal_decision: str | None = None,
+        goal_reason: str | None = None,
     ) -> dict[str, Any]:
         span_id = new_span_id()
         event = _base_event(self.ctx, self.settings, span_id)
@@ -335,6 +348,32 @@ class EventEmitter:
             event["agentsec.memory.provenance"] = memory_provenance
         if memory_source_run_id is not None:
             event["agentsec.memory.source_run_id"] = memory_source_run_id
+        if identity_caller_agent_id is not None:
+            event["agentsec.identity.caller_agent_id"] = identity_caller_agent_id
+        if identity_callee_agent_id is not None:
+            event["agentsec.identity.callee_agent_id"] = identity_callee_agent_id
+        if identity_claim_trust is not None:
+            event["agentsec.identity.claim.trust"] = identity_claim_trust
+        if claimed_scope is not None:
+            event["agentsec.delegation.claimed_scope"] = claimed_scope
+        if task_id is not None:
+            event["agentsec.task.id"] = task_id
+        if task_hash is not None:
+            event["agentsec.task.hash"] = task_hash
+        if task_preview is not None:
+            event["agentsec.task.preview"] = task_preview
+        if task_provenance is not None:
+            event["agentsec.task.provenance"] = task_provenance
+        if instruction_trust is not None:
+            event["agentsec.instruction.trust"] = instruction_trust
+        if instruction_provenance is not None:
+            event["agentsec.instruction.provenance"] = instruction_provenance
+        if goal_proposed is not None:
+            event["agentsec.goal.proposed"] = goal_proposed
+        if goal_decision is not None:
+            event["agentsec.goal.decision"] = goal_decision
+        if goal_reason is not None:
+            event["agentsec.goal.reason"] = goal_reason
         _with_hop_identity(
             event,
             hop_index=hop_index,

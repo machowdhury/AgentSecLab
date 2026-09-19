@@ -28,7 +28,7 @@ def test_baseline_evidence_bundle(settings, memory):
     for name in ("manifest.json", "events.jsonl", "request.json", "result.json", "export.json", "limitations.json"):
         assert (bundle / name).is_file(), name
     manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
-    assert manifest["schema.version"] == "1.7.0"
+    assert manifest["schema.version"] == "1.9.0"
     assert manifest["attack.id"] == "RAG-001"
     assert manifest["splunk.verified"] is False
     assert manifest["rag.document.id"] == DOCUMENT_ID_NORMAL
