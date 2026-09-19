@@ -30,8 +30,8 @@ def test_write_and_recall_evidence_bundles(settings, memory):
     recall_dir = Path(recall.evidence_dir)
     write_manifest = json.loads((write_dir / "manifest.json").read_text(encoding="utf-8"))
     recall_manifest = json.loads((recall_dir / "manifest.json").read_text(encoding="utf-8"))
-    assert write_manifest["schema.version"] == "1.7.0"
-    assert recall_manifest["schema.version"] == "1.7.0"
+    assert write_manifest["schema.version"] == "1.9.0"
+    assert recall_manifest["schema.version"] == "1.9.0"
     assert write_manifest["memory.write.run.id"] == write.run_id
     assert recall_manifest["memory.write.run.id"] == write.run_id
     assert recall_manifest["memory.recall.run.id"] == recall.run_id

@@ -78,7 +78,7 @@ def test_does_not_create_det_memory_or_extra_hunts():
     ):
         assert not list(MEMORY.glob(f"{name}.*"))
     studio = ROOT / "splunk_app" / "agentsec" / "default" / "data" / "ui" / "views"
-    assert {path.name for path in studio.glob("*memory*")} == set()
+    assert {path.name for path in studio.glob("*memory*")} <= {"ws_lab_memory_security.xml"}
 
 
 def test_det_mcp_001_file_unchanged_contract():

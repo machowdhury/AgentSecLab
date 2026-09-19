@@ -1,0 +1,96 @@
+{
+  "lab.id": "LAB-AGENT-DELEGATION-001",
+  "title": "Agent identity / delegation — Splunk hunt (schema 1.8.0)",
+  "schema.name": "agentsec.security_event",
+  "schema.version": "1.8.0",
+  "index": "agentsec_telemetry",
+  "sourcetype": "otel:agentic:json",
+  "run_id_token": "__RUN_ID__",
+  "validation_date": "2026-09-18",
+  "reuses_lab_mcp_001_queries": [
+    "Q-MCP-WHO",
+    "Q-MCP-AUTHZ",
+    "Q-MCP-TOOL",
+    "Q-MCP-EXECUTED",
+    "Q-MCP-AFTER-DENY"
+  ],
+  "schema_version_note": "LAB-MCP-001 Q-MCP-*.spl does not filter schema.version and is 1.8.0-compatible. This hunt is schema-version agnostic in SPL. Q-MCP-DELEGATION is NOT APPLICABLE (CTRL-DELEGATION-001 / ambient_deputy).",
+  "validated_runs": {
+    "BASELINE": "b419465c-84d8-4639-8449-34dd99841ba9",
+    "ATTACK": "f846be88-1f9d-4dde-ac80-193c01b47660",
+    "RETEST": "271695f5-4739-44f2-8bf4-0749d04f4b03"
+  },
+  "validated_hashes": {
+    "BASELINE": "sha256:93f1e257a7d6c7660aa8b1d1b980f1509b7da69e215b385ac79c222e1058b3eb",
+    "ATTACK_AND_RETEST": "sha256:56179e463b2faf18c056389ebff32a61e346dd0b4010fb82e8826c4508790dfd"
+  },
+  "prohibited_fields": [
+    "agentsec.event.name",
+    "session.id",
+    "mcp.session.id",
+    "invocation.id",
+    "gen_ai.tool.call.arguments",
+    "agentsec.mcp.allowed_tools",
+    "gen_ai.tool.call.id",
+    "authenticated",
+    "verified_identity",
+    "trusted_identity",
+    "cryptographic_passport_valid"
+  ],
+  "queries": [
+    {
+      "id": "Q-AGENT-DELEGATION-AUTHORITY",
+      "spl_file": "Q-AGENT-DELEGATION-AUTHORITY.spl",
+      "doc_file": "Q-AGENT-DELEGATION-AUTHORITY.md",
+      "security_question": "For this run: who called whom, what authority was claimed, what privileged operation was requested, what did CTRL-MCP-001 decide, and was execution observed?",
+      "required_fields": [
+        "event.name",
+        "agentsec.run.id",
+        "agentsec.principal.id",
+        "agentsec.identity.caller_agent_id",
+        "agentsec.identity.callee_agent_id",
+        "agentsec.identity.claim.trust",
+        "agentsec.delegation.claimed_scope",
+        "agentsec.control.id",
+        "agentsec.control.decision",
+        "agentsec.control.reason",
+        "gen_ai.tool.name",
+        "agentsec.mcp.requested_scope",
+        "agentsec.mcp.allowed_scope",
+        "agentsec.content.hash",
+        "agentsec.hop.index",
+        "agentsec.security.profile",
+        "agentsec.testbed.mode"
+      ],
+      "validation_status": "VALIDATED"
+    }
+  ],
+  "queries_not_created": [
+    {
+      "id": "Q-A2A-WHO",
+      "reason": "Caller vs callee is first-class on Q-AGENT-DELEGATION-AUTHORITY. Q-MCP-WHO already lists principal + gen_ai.agent.id (callee) with a documented extra IDENTITY row."
+    },
+    {
+      "id": "Q-A2A-CLAIM",
+      "reason": "claim.trust, claimed_scope, and identity_claim_hash are columns on Q-AGENT-DELEGATION-AUTHORITY."
+    },
+    {
+      "id": "Q-AGENT-IDENTITY-OBSERVE",
+      "reason": "CTRL-IDENTITY-001 OBSERVE is already a Q-MCP-AUTHZ row plus the identity_* columns on the new hunt."
+    },
+    {
+      "id": "Q-AGENT-DELEGATION-EXECUTED",
+      "reason": "REUSED: Q-MCP-TOOL, Q-MCP-EXECUTED, and execution_observation on Q-AGENT-DELEGATION-AUTHORITY."
+    },
+    {
+      "id": "Q-MCP-DELEGATION",
+      "reason": "NOT APPLICABLE. That hunt requires CTRL-DELEGATION-001 / ambient_deputy (MCP-006). A2A-001 uses CTRL-IDENTITY-001. Do not rewrite Q-MCP-DELEGATION for this lab."
+    }
+  ],
+  "detection": {
+    "id": "DET-MCP-001",
+    "note": "Reused unchanged. DET-A2A and DET-DELEGATION not created. Overlay reason is LAB-ONLY, not a production IOC.",
+    "spl_file": "../../LAB-MCP-001/searches/DET-MCP-001.spl",
+    "status": "DETECTION ANALYZED — NO NEW DETECTOR"
+  }
+}

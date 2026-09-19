@@ -37,7 +37,7 @@ def questions() -> dict:
 
 
 def test_schema_identity(schema: dict) -> None:
-    assert schema["properties"]["agentsec.schema.version"]["const"] == "1.7.0"
+    assert schema["properties"]["agentsec.schema.version"]["const"] == "1.9.0"
     assert schema["properties"]["agentsec.schema.name"]["const"] == "agentsec.security_event"
     names = set(schema["properties"]["event.name"]["enum"])
     assert names.isdisjoint(PREDECESSOR_EVENT_NAMES)
@@ -54,12 +54,16 @@ def test_schema_identity(schema: dict) -> None:
     assert "MCP-CATALOG-001" in schema["properties"]["agentsec.attack.id"]["enum"]
     assert "RAG-001" in schema["properties"]["agentsec.attack.id"]["enum"]
     assert "MEMORY-001" in schema["properties"]["agentsec.attack.id"]["enum"]
+    assert "A2A-001" in schema["properties"]["agentsec.attack.id"]["enum"]
+    assert "GOAL-001" in schema["properties"]["agentsec.attack.id"]["enum"]
     assert "OBSERVE" in schema["properties"]["agentsec.control.decision"]["enum"]
     assert "mcp_result_trust" in schema["properties"]["agentsec.control.type"]["enum"]
     assert "mcp_delegation" in schema["properties"]["agentsec.control.type"]["enum"]
     assert "mcp_metadata_trust" in schema["properties"]["agentsec.control.type"]["enum"]
     assert "rag_context_trust" in schema["properties"]["agentsec.control.type"]["enum"]
     assert "memory_context_trust" in schema["properties"]["agentsec.control.type"]["enum"]
+    assert "identity_claim_trust" in schema["properties"]["agentsec.control.type"]["enum"]
+    assert "goal_integrity" in schema["properties"]["agentsec.control.type"]["enum"]
     assert "agentsec.mcp.metadata.trust" in schema["properties"]
     assert "agentsec.rag.context.trust" in schema["properties"]
     assert "agentsec.memory.id" in schema["properties"]
@@ -68,6 +72,8 @@ def test_schema_identity(schema: dict) -> None:
     assert "mcp.catalog.metadata" in schema["properties"]["agentsec.trust_boundary"]["enum"]
     assert "rag.retrieved.context" in schema["properties"]["agentsec.trust_boundary"]["enum"]
     assert "agent.memory.store" in schema["properties"]["agentsec.trust_boundary"]["enum"]
+    assert "agent.identity.claim" in schema["properties"]["agentsec.trust_boundary"]["enum"]
+    assert "agent.task.contract" in schema["properties"]["agentsec.trust_boundary"]["enum"]
     assert "trusted_document" not in schema["properties"]
     assert "rag_allowed_tools" not in schema["properties"]
     assert "agentsec.delegation.authority.source" in schema["properties"]

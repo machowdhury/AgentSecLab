@@ -11,7 +11,7 @@ def test_run_started_is_schema_valid_and_owns_ids(settings):
     assert event["event.name"] == "agentsec.run.started"
     assert event["agentsec.run.id"] == str(ctx.run_id)
     assert event["agentsec.incident.id"] == str(ctx.run_id)
-    assert event["agentsec.schema.version"] == "1.7.0"
+    assert event["agentsec.schema.version"] == "1.9.0"
     assert event["agentsec.execution.mode"] == "LIVE"
     assert event["agentsec.telemetry.fidelity"] == "OBSERVED"
     assert "parent_span_id" not in event

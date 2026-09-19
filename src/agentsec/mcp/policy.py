@@ -61,3 +61,15 @@ def policy_unchanged_by_memory(policy: McpPolicy, _memory: object) -> McpPolicy:
     """INV-003: persisted memory is data. It never becomes a new grant object."""
     del _memory
     return policy
+
+
+def policy_unchanged_by_identity_claim(policy: McpPolicy, _claim: object) -> McpPolicy:
+    """INV-001 / INV-002 / INV-005: identity and delegation claims are data, not grants."""
+    del _claim
+    return policy
+
+
+def policy_unchanged_by_goal_instruction(policy: McpPolicy, _instruction: object) -> McpPolicy:
+    """INV-002: untrusted instructions are data. They never become a new grant or task contract."""
+    del _instruction
+    return policy

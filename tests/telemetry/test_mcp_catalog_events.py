@@ -30,7 +30,7 @@ def test_catalog_events_are_schema_1_5_0(settings, memory):
     assert_sequence_ordering(result.events)
     for event in result.events:
         validate_event(event)
-        assert event["agentsec.schema.version"] == "1.7.0"
+        assert event["agentsec.schema.version"] == "1.9.0"
         assert event["agentsec.attack.id"] == "MCP-CATALOG-001"
     meta = next(e for e in control_events(result.events) if e["agentsec.control.type"] == "mcp_metadata_trust")
     assert meta["agentsec.control.id"] == "CTRL-MCP-METADATA-001"

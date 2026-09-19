@@ -102,4 +102,4 @@ def test_phase11a_did_not_create_spl_detector_or_studio():
     assert list(learning.rglob("DET-MEMORY*")) == []
     views = ROOT / "splunk_app" / "agentsec" / "default" / "data" / "ui" / "views"
     studio = {path.name for path in views.glob("*memory*")} if views.is_dir() else set()
-    assert studio == set()
+    assert studio <= {"ws_lab_memory_security.xml"}

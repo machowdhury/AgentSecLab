@@ -8,6 +8,7 @@ from agentsec.mcp.metadata_trust import MCP_CATALOG_FAIL_OPEN_REASON, MetadataDe
 from agentsec.mcp.policy import McpPolicy
 from agentsec.mcp.result_trust import MCP005_FAIL_OPEN_REASON, ResultDerivedOverlay
 from agentsec.mcp.tools import TOOL_SPECS
+from agentsec.identity.trust import IDENTITY_FAIL_OPEN_REASON, IdentityDerivedOverlay
 from agentsec.memory.trust import MEMORY_FAIL_OPEN_REASON, MemoryDerivedOverlay
 from agentsec.rag.context_trust import RAG_FAIL_OPEN_REASON, ContextDerivedOverlay
 
@@ -61,16 +62,17 @@ def authorize_tool(
     metadata_derived_overlay: MetadataDerivedOverlay | None = None,
     context_derived_overlay: ContextDerivedOverlay | None = None,
     memory_derived_overlay: MemoryDerivedOverlay | None = None,
+    identity_derived_overlay: IdentityDerivedOverlay | None = None,
 ) -> McpControlResult:
     """Exact set membership. No prefix, regex, lowercase, or strip matching.
 
     Order: tool exists → tool granted → requested_scope in catalog → in grant.
 
-    A result-derived, metadata-derived, retrieved-context-derived, or
-    memory-derived overlay, if present, is consulted only after the tool is
-    known to exist. It cannot register unknown tools. It does not mutate
-    policy. Overlay ALLOW uses the overlay's lab reason, never the
-    MCP-002/003/004 fail-open strings.
+    A result-derived, metadata-derived, retrieved-context-derived,
+    memory-derived, or caller-identity-derived overlay, if present, is
+    consulted only after the tool is known to exist. It cannot register
+    unknown tools. It does not mutate policy. Overlay ALLOW uses the
+    overlay's lab reason, never the MCP-002/003/004 fail-open strings.
     """
     allowed_scope = policy.allowed_scope_wire()
     catalog = valid_scopes
@@ -105,7 +107,16 @@ def authorize_tool(
     overlay_hit_memory = memory_derived_overlay is not None and memory_derived_overlay.matches(
         tool_name, requested_scope
     )
-    overlay_hit = overlay_hit_result or overlay_hit_metadata or overlay_hit_context or overlay_hit_memory
+    overlay_hit_identity = identity_derived_overlay is not None and identity_derived_overlay.matches(
+        tool_name, requested_scope
+    )
+    overlay_hit = (
+        overlay_hit_result
+        or overlay_hit_metadata
+        or overlay_hit_context
+        or overlay_hit_memory
+        or overlay_hit_identity
+    )
     granted = tool_name in policy.allowed_tools
     if not granted:
         if overlay_hit:
@@ -127,8 +138,10 @@ def authorize_tool(
                 overlay_reason = MCP_CATALOG_FAIL_OPEN_REASON
             elif overlay_hit_context:
                 overlay_reason = RAG_FAIL_OPEN_REASON
-            else:
+            elif overlay_hit_memory:
                 overlay_reason = MEMORY_FAIL_OPEN_REASON
+            else:
+                overlay_reason = IDENTITY_FAIL_OPEN_REASON
             return McpControlResult(
                 control_id=CONTROL_ID,
                 control_type=CONTROL_TYPE,
@@ -215,15 +228,22 @@ def authorize_resource(
     policy: McpPolicy,
     resource_id: str,
     valid_resources: frozenset[str],
+    identity_derived_overlay: IdentityDerivedOverlay | None = None,
 ) -> tuple[str, str, str | None]:
     """Exact catalog then grant. No strip, lowercase, prefix, regex, or wildcard.
 
     Unknown catalog id → ERROR unknown_resource (no fail-open).
     Known ungranted → DENY resource_not_granted (vulnerable: MCP-004 fail-open).
+    When an identity overlay is present, the generic MCP-004 fail-open is
+    skipped so A2A-001 has exactly one labeled failure point.
     """
     if resource_id not in valid_resources:
         return "ERROR", "unknown_resource", "schema_validation"
     if resource_id not in policy.allowed_policy_ids:
+        if identity_derived_overlay is not None:
+            if identity_derived_overlay.matches_resource(resource_id):
+                return "ALLOW", IDENTITY_FAIL_OPEN_REASON, None
+            return "DENY", "resource_not_granted", None
         if profile == "vulnerable":
             return "ALLOW", MCP004_FAIL_OPEN_REASON, None
         return "DENY", "resource_not_granted", None
@@ -243,6 +263,7 @@ def evaluate_mcp_control(
     metadata_derived_overlay: MetadataDerivedOverlay | None = None,
     context_derived_overlay: ContextDerivedOverlay | None = None,
     memory_derived_overlay: MemoryDerivedOverlay | None = None,
+    identity_derived_overlay: IdentityDerivedOverlay | None = None,
 ) -> McpControlResult:
     try:
         return authorize_fn(
@@ -256,6 +277,7 @@ def evaluate_mcp_control(
             metadata_derived_overlay=metadata_derived_overlay,
             context_derived_overlay=context_derived_overlay,
             memory_derived_overlay=memory_derived_overlay,
+            identity_derived_overlay=identity_derived_overlay,
         )
     except Exception as exc:
         return McpControlResult(

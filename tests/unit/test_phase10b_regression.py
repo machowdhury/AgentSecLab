@@ -36,7 +36,7 @@ def test_no_rag_studio_from_phase_10b():
 
 def test_schema_16_has_rag_and_not_trusted_document():
     schema = SCHEMA.read_text(encoding="utf-8")
-    assert '"const": "1.7.0"' in schema
+    assert '"const": "1.9.0"' in schema
     assert "rag_context_trust" in schema
     assert "trusted_document" not in schema
     assert "rag_allowed_tools" not in schema

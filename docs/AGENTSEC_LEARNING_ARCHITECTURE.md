@@ -21,6 +21,7 @@ The suggested “Level 1 = prompt injection + MCP authorization” is **already 
 | LAB-MCP-CATALOG | Tool-description poisoning (INV-002) | `ws_lab_mcp_catalog` |
 | LAB-SCANNER-RUNTIME | Scanner finding vs runtime authz | `ws_lab_scanner_runtime_evidence` |
 | LAB-RAG-CONTEXT | Retrieved-context / indirect PI (INV-002) | `ws_lab_rag_context` |
+| LAB-MEMORY-001 | Persistent memory / INV-003 | `ws_lab_memory_security` |
 
 Result trust is **not** waiting for a future “knowledge” level. Do not re-teach MCP-005 as if it were new.
 
@@ -35,8 +36,8 @@ Keep eight levels, but reorder so architecture dependencies are honest.
 | Level | Name | Status | Contents |
 |-------|------|--------|----------|
 | **1** | Foundations: prompt + MCP authorization | **COMPLETE** | PI-001, MCP-001/003/004/005/006, Q-MCP hunts, one detector, Studio workshops |
-| **2** | Agent trust: catalog, identity, A2A | **PARTIAL** | Catalog + scanner **COMPLETE**. INV-005 deepen and A2A (ASI07) remain later. |
-| **3** | Knowledge & memory | **PARTIAL** | RAG / LAB-RAG-CONTEXT **COMPLETE** (INV-002). INV-003 memory: **Phase 11D detection analyzed — NO NEW DETECTOR** (workshop 11E not started). |
+| **2** | Agent trust: catalog, identity, A2A | **PARTIAL** | Catalog + scanner **COMPLETE**. INV-005 / A2A: **Phase 12C Splunk validated** (`LAB-AGENT-DELEGATION-001`; schema 1.8.0; `Q-AGENT-DELEGATION-AUTHORITY`). Workshop and live A2A transport remain later. Goal integrity: **Phase 13D detection analyzed** (`LAB-AGENT-GOAL-INTEGRITY-001`; schema 1.9.0; hunt REUSE; **NO NEW DETECTOR**). Workshop **DESIGNED — NOT IMPLEMENTED**. |
+| **3** | Knowledge & memory | **PARTIAL** | RAG / LAB-RAG-CONTEXT **COMPLETE** (INV-002). INV-003 memory: **Phase 11E workshop validated**. Identity runtime remains 12B+. |
 | **4** | Agent supply chain | **ABSENT** | AI BOM, package/model scans, MCP server provenance, skill-scanner — as **imported evidence**, not a tool zoo |
 | **5** | Detection engineering | **PARTIAL** | Splunk KO review, hunts vs detections, no-data semantics, DET-MCP-001. Memory 11D: hunt ≠ detection; no DET-MEMORY. More detectors only when predicates exist. |
 | **6** | Behavioral analytics | **PLANNED** | Counters first; AI Toolkit / CDTSM optional |
@@ -62,4 +63,4 @@ A level is not complete because a scanner ran. It is complete when the learner c
 - Cisco product certification track
 - Antares vulnerability localization (wrong job)
 - MLTK before metrics
-- A2A before a real protocol slice and identity story
+- Live A2A protocol before an identity/grant story (12A designed it; 12B implemented the in-process runtime; transport remains deferred)

@@ -8,5 +8,6 @@
   <view name="ws_lab_mcp_catalog" />
   <view name="ws_lab_scanner_runtime_evidence" />
   <view name="ws_lab_rag_context" />
+  <view name="ws_lab_memory_security" />
   <view name="search" />
 </nav>

@@ -485,7 +485,7 @@ def test_specimen_pack_records_both_run_ids(settings, memory):
     assert manifest["memory.write.run.id"] == write.run_id
     assert manifest["memory.recall.run.id"] == recall.run_id
     assert manifest["splunk.verified"] is False
-    assert manifest["schema.version"] == "1.7.0"
+    assert manifest["schema.version"] == "1.9.0"
     lines = (pack / "events.jsonl").read_text(encoding="utf-8").strip().splitlines()
     assert any(write.run_id in line for line in lines)
     assert any(recall.run_id in line for line in lines)

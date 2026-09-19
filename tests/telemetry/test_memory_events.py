@@ -35,7 +35,7 @@ def test_write_and_recall_events_are_schema_valid(settings, memory):
     assert recalled["agentsec.memory.source_run_id"] == write.run_id
     assert recalled["agentsec.run.id"] == recall.run_id
     assert written["agentsec.run.id"] != recalled["agentsec.run.id"]
-    assert written["agentsec.schema.version"] == "1.7.0"
+    assert written["agentsec.schema.version"] == "1.9.0"
     assert "agentsec.memory.content" not in written
     assert "agentsec.memory.content" not in recalled
     assert EVENT_MEMORY_WRITTEN in event_names(write.events)

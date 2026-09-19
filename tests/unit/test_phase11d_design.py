@@ -18,7 +18,7 @@ def test_phase11d_no_new_detector_or_studio():
     assert not list((ROOT / "splunk_app").rglob("*DET-MEMORY*"))
     views = ROOT / "splunk_app" / "agentsec" / "default" / "data" / "ui" / "views"
     memory_views = {path.name for path in views.glob("*memory*")} if views.is_dir() else set()
-    assert memory_views == set()
+    assert memory_views <= {"ws_lab_memory_security.xml"}
     saved = (ROOT / "splunk_app" / "agentsec" / "default" / "savedsearches.conf").read_text(
         encoding="utf-8"
     )
@@ -28,7 +28,7 @@ def test_phase11d_no_new_detector_or_studio():
 
 def test_phase11d_runtime_schema_and_existing_spl_unchanged():
     schema = SCHEMA.read_text(encoding="utf-8")
-    assert '"const": "1.7.0"' in schema
+    assert '"const": "1.9.0"' in schema
     det = DET.read_text(encoding="utf-8")
     assert det.startswith("index=agentsec_telemetry sourcetype=otel:agentic:json")
     assert "sequence>deny_sequence" in det

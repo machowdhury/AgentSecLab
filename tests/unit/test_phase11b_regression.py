@@ -31,12 +31,12 @@ def test_q_mcp_not_rewritten_for_memory():
 def test_no_memory_studio_from_phase_11b():
     views = ROOT / "splunk_app" / "agentsec" / "default" / "data" / "ui" / "views"
     if views.is_dir():
-        assert {path.name for path in views.glob("*memory*")} == set()
+        assert {path.name for path in views.glob("*memory*")} <= {"ws_lab_memory_security.xml"}
 
 
 def test_schema_17_has_memory_and_keeps_rag():
     schema = SCHEMA.read_text(encoding="utf-8")
-    assert '"const": "1.7.0"' in schema
+    assert '"const": "1.9.0"' in schema
     assert "memory_context_trust" in schema
     assert "CTRL-MEMORY-CONTEXT-001" in schema
     assert "MEMORY-001" in schema

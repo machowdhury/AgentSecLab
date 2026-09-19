@@ -14,6 +14,7 @@ from agentsec.mcp.registry import ToolRegistry, default_registry
 from agentsec.mcp.result_trust import ResultDerivedOverlay
 from agentsec.mcp.tools import ToolSpec
 from agentsec.memory.trust import MemoryDerivedOverlay
+from agentsec.identity.trust import IdentityDerivedOverlay
 from agentsec.rag.context_trust import ContextDerivedOverlay
 
 AuthorizeFn = Callable[..., McpControlResult]
@@ -65,6 +66,7 @@ class McpServer:
         self.metadata_derived_overlay: MetadataDerivedOverlay | None = None
         self.context_derived_overlay: ContextDerivedOverlay | None = None
         self.memory_derived_overlay: MemoryDerivedOverlay | None = None
+        self.identity_derived_overlay: IdentityDerivedOverlay | None = None
 
     def authorize(
         self,
@@ -77,6 +79,7 @@ class McpServer:
         metadata_derived_overlay: MetadataDerivedOverlay | None = None,
         context_derived_overlay: ContextDerivedOverlay | None = None,
         memory_derived_overlay: MemoryDerivedOverlay | None = None,
+        identity_derived_overlay: IdentityDerivedOverlay | None = None,
     ) -> ServerDecision:
         """Resolve coded policy, validate tool/scope/args/resource, then decide. Never starts a handler."""
         del coded_agent_id  # identity is policy.agent_id; parameter documents the trust rule
@@ -96,6 +99,11 @@ class McpServer:
             if memory_derived_overlay is not None
             else self.memory_derived_overlay
         )
+        id_overlay = (
+            identity_derived_overlay
+            if identity_derived_overlay is not None
+            else self.identity_derived_overlay
+        )
         parsed, rpc_error = decode_tools_call(rpc_message)
         if parsed is None:
             stage = "argument_validation" if rpc_error == "malformed_arguments" else "schema_validation"
@@ -112,6 +120,7 @@ class McpServer:
                 metadata_derived_overlay=meta_overlay,
                 context_derived_overlay=ctx_overlay,
                 memory_derived_overlay=mem_overlay,
+                identity_derived_overlay=id_overlay,
             )
             # RPC envelope failures are ERROR even if authorize_fn would ALLOW an unknown name.
             control = McpControlResult(
@@ -165,6 +174,7 @@ class McpServer:
                 metadata_derived_overlay=meta_overlay,
                 context_derived_overlay=ctx_overlay,
                 memory_derived_overlay=mem_overlay,
+                identity_derived_overlay=id_overlay,
             )
             return ServerDecision(
                 control=control,
@@ -187,6 +197,7 @@ class McpServer:
             metadata_derived_overlay=meta_overlay,
             context_derived_overlay=ctx_overlay,
             memory_derived_overlay=mem_overlay,
+            identity_derived_overlay=id_overlay,
         )
         if control.blocks_tool:
             return ServerDecision(
@@ -245,6 +256,7 @@ class McpServer:
                 policy=self.policy,
                 resource_id=resource_id,
                 valid_resources=spec.valid_resources,
+                identity_derived_overlay=id_overlay,
             )
             wire = self.policy.allowed_policy_ids_wire()
             if resource_decision != "ALLOW":
