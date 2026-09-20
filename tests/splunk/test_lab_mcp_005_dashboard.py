@@ -55,12 +55,7 @@ PROHIBITED_FIELDS = (
     "result.authorized",
     "trusted_result",
 )
-REQUIRED_TOKENS = (
-    "run_id",
-    "baseline_run_id",
-    "attack_run_id",
-    "retest_run_id",
-)
+REQUIRED_TOKENS = ("run_id",)
 SPECIMEN_IDS = {
     "baseline_run_id": "3013aa39-fe08-4b58-9898-f3abb092ac06",
     "attack_run_id": "f3f48182-df57-4b38-b069-17a199dc4939",
@@ -122,20 +117,17 @@ def test_grid_workshop_tabs_and_tokens():
     assert tokens == set(REQUIRED_TOKENS)
     for input_id in definition["inputs"]:
         assert input_id in definition["layout"]["globalInputs"]
-    for token, run_id in SPECIMEN_IDS.items():
-        match = [
-            inp for inp in definition["inputs"].values() if inp["options"]["token"] == token
-        ]
-        assert match[0]["options"]["defaultValue"] == run_id
+    hunt_inp = [inp for inp in definition["inputs"].values() if inp["options"]["token"] == "run_id"][0]
+    assert hunt_inp["type"] == "input.dropdown"
+    assert hunt_inp["options"]["defaultValue"] == SPECIMEN_IDS.get("run_id", SPECIMEN_IDS["baseline_run_id"])
+    item_values = {item["value"] for item in hunt_inp["options"]["items"]}
+    assert SPECIMEN_IDS["baseline_run_id"] in item_values
+    assert SPECIMEN_IDS["attack_run_id"] in item_values
+    assert SPECIMEN_IDS["retest_run_id"] in item_values
     hunt = [inp for inp in definition["inputs"].values() if inp["options"]["token"] == "run_id"][0]
     assert hunt["options"]["defaultValue"] == SPECIMEN_IDS["baseline_run_id"]
-    assert hunt["title"] == "Hunt"
-    assert {inp["title"] for inp in definition["inputs"].values()} == {
-        "Hunt",
-        "BASELINE",
-        "ATTACK",
-        "RETEST",
-    }
+    assert hunt["title"] == "Investigate specimen"
+    assert {inp["title"] for inp in definition["inputs"].values()} == {"Investigate specimen"}
 
 
 def test_datasources_are_validated_spl_with_token_bind_only():
@@ -154,25 +146,22 @@ def test_datasources_are_validated_spl_with_token_bind_only():
         "ds_q_result": (SEARCH_DIR / queries["Q-MCP-RESULT"]["spl_file"], "run_id"),
         "ds_q_result_trust": (SEARCH_DIR / queries["Q-MCP-RESULT-TRUST"]["spl_file"], "run_id"),
         "ds_q_result_authority": (RESULT_DIR / result_query["spl_file"], "run_id"),
-        "ds_q_authz_baseline": (SEARCH_DIR / queries["Q-MCP-AUTHZ"]["spl_file"], "baseline_run_id"),
-        "ds_q_authz_attack": (SEARCH_DIR / queries["Q-MCP-AUTHZ"]["spl_file"], "attack_run_id"),
-        "ds_q_authz_retest": (SEARCH_DIR / queries["Q-MCP-AUTHZ"]["spl_file"], "retest_run_id"),
-        "ds_q_authority_baseline": (RESULT_DIR / result_query["spl_file"], "baseline_run_id"),
-        "ds_q_authority_attack": (RESULT_DIR / result_query["spl_file"], "attack_run_id"),
-        "ds_q_authority_retest": (RESULT_DIR / result_query["spl_file"], "retest_run_id"),
-        "ds_q_tool_baseline": (SEARCH_DIR / queries["Q-MCP-TOOL"]["spl_file"], "baseline_run_id"),
-        "ds_q_tool_attack": (SEARCH_DIR / queries["Q-MCP-TOOL"]["spl_file"], "attack_run_id"),
-        "ds_q_tool_retest": (SEARCH_DIR / queries["Q-MCP-TOOL"]["spl_file"], "retest_run_id"),
-        "ds_q_executed_baseline": (SEARCH_DIR / queries["Q-MCP-EXECUTED"]["spl_file"], "baseline_run_id"),
-        "ds_q_executed_attack": (SEARCH_DIR / queries["Q-MCP-EXECUTED"]["spl_file"], "attack_run_id"),
-        "ds_q_executed_retest": (SEARCH_DIR / queries["Q-MCP-EXECUTED"]["spl_file"], "retest_run_id"),
-        "ds_what_baseline": (RESULT_DIR / result_query["spl_file"], "baseline_run_id"),
-        "ds_what_attack": (RESULT_DIR / result_query["spl_file"], "attack_run_id"),
-        "ds_what_retest": (RESULT_DIR / result_query["spl_file"], "retest_run_id"),
+        "ds_q_authz_baseline": (SEARCH_DIR / queries["Q-MCP-AUTHZ"]["spl_file"], SPECIMEN_IDS["baseline_run_id"]),
+        "ds_q_authz_attack": (SEARCH_DIR / queries["Q-MCP-AUTHZ"]["spl_file"], SPECIMEN_IDS["attack_run_id"]),
+        "ds_q_authz_retest": (SEARCH_DIR / queries["Q-MCP-AUTHZ"]["spl_file"], SPECIMEN_IDS["retest_run_id"]),
+        "ds_q_authority_baseline": (RESULT_DIR / result_query["spl_file"], SPECIMEN_IDS["baseline_run_id"]),
+        "ds_q_authority_attack": (RESULT_DIR / result_query["spl_file"], SPECIMEN_IDS["attack_run_id"]),
+        "ds_q_authority_retest": (RESULT_DIR / result_query["spl_file"], SPECIMEN_IDS["retest_run_id"]),
+        "ds_q_tool_baseline": (SEARCH_DIR / queries["Q-MCP-TOOL"]["spl_file"], SPECIMEN_IDS["baseline_run_id"]),
+        "ds_q_tool_attack": (SEARCH_DIR / queries["Q-MCP-TOOL"]["spl_file"], SPECIMEN_IDS["attack_run_id"]),
+        "ds_q_tool_retest": (SEARCH_DIR / queries["Q-MCP-TOOL"]["spl_file"], SPECIMEN_IDS["retest_run_id"]),
+        "ds_q_executed_baseline": (SEARCH_DIR / queries["Q-MCP-EXECUTED"]["spl_file"], SPECIMEN_IDS["baseline_run_id"]),
+        "ds_q_executed_attack": (SEARCH_DIR / queries["Q-MCP-EXECUTED"]["spl_file"], SPECIMEN_IDS["attack_run_id"]),
+        "ds_q_executed_retest": (SEARCH_DIR / queries["Q-MCP-EXECUTED"]["spl_file"], SPECIMEN_IDS["retest_run_id"]),
     }
     for ds_id, (spl_path, token) in expected.items():
         spl = spl_path.read_text(encoding="utf-8").strip()
-        bound = spl.replace("__RUN_ID__", f'"${token}$"')
+        bound = spl.replace("__RUN_ID__", f'"${token}$"' if token == "run_id" else f'"{token}"')
         assert definition["dataSources"][ds_id]["options"]["query"] == bound, ds_id
         assert definition["dataSources"][ds_id]["type"] == "ds.search"
     sim_spl = (SEARCH_DIR / "DET-MCP-001-POSITIVE-CONTROL.spl").read_text(encoding="utf-8").strip()
@@ -180,6 +169,9 @@ def test_datasources_are_validated_spl_with_token_bind_only():
     extra = {
         "ds_det_mcp_001_sim",
         "ds_observe_seq",
+        "ds_what_baseline",
+        "ds_what_attack",
+        "ds_what_retest",
     }
     assert set(definition["dataSources"]) == set(expected) | extra
 

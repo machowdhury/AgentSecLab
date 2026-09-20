@@ -48,8 +48,8 @@ HALF = 720
 THIRD = 480
 
 EMPTY_HUNT = (
-    "Hunt run.id defaults to the BASELINE specimen so this page is not an error "
-    "state. Replace it and Submit to hunt another complete copy. Zero rows means "
+    "Investigate specimen defaults to the BASELINE specimen so this page is not an error "
+    "state. Custom run.id is available from Search. Zero rows means "
     "no indexed CTRL-MCP-RESULT-001 for that id. Zero rows is not DENY and is not "
     "proof the handler never ran."
 )
@@ -83,6 +83,19 @@ def bind_run_id(spl: str, token: str) -> str:
     if "__RUN_ID__" not in spl:
         raise ValueError(f"expected __RUN_ID__ in query for token {token}")
     return spl.replace("__RUN_ID__", f'"${token}$"')
+
+def bind_literal(spl: str, run_id: str) -> str:
+    if "__RUN_ID__" not in spl:
+        raise ValueError("expected __RUN_ID__ in query")
+    return spl.replace("__RUN_ID__", f'"{run_id}"')
+
+
+def bound_run(ref: str) -> str:
+    """Token name stays "$token$"; UUID becomes a quoted literal."""
+    if len(ref) == 36 and ref.count("-") == 4:
+        return f'"{ref}"'
+    return f'"${ref}$"'
+
 
 
 def block(item: str, x: int, y: int, w: int, h: int) -> dict:
@@ -154,7 +167,7 @@ def layout(structure: list[dict], height: int) -> dict:
 
 
 def observe_sequence_spl(token: str) -> str:
-    return f"""index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"="${token}$" ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
+    return f"""index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"={bound_run(token)} ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
 | eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
 | eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
 | eval event_name=mvindex(mvdedup('event.name'),0)
@@ -186,18 +199,18 @@ def build() -> dict:
     q_result = bind_run_id(load_spl("Q-MCP-RESULT.spl"), "run_id")
     q_result_trust = bind_run_id(load_spl("Q-MCP-RESULT-TRUST.spl"), "run_id")
     q_authority = bind_run_id(load_spl("Q-MCP-RESULT-AUTHORITY.spl", result=True), "run_id")
-    q_authz_b = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "baseline_run_id")
-    q_authz_a = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "attack_run_id")
-    q_authz_r = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "retest_run_id")
-    q_auth_b = bind_run_id(load_spl("Q-MCP-RESULT-AUTHORITY.spl", result=True), "baseline_run_id")
-    q_auth_a = bind_run_id(load_spl("Q-MCP-RESULT-AUTHORITY.spl", result=True), "attack_run_id")
-    q_auth_r = bind_run_id(load_spl("Q-MCP-RESULT-AUTHORITY.spl", result=True), "retest_run_id")
-    q_tool_b = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "baseline_run_id")
-    q_tool_a = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "attack_run_id")
-    q_tool_r = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "retest_run_id")
-    q_exec_b = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "baseline_run_id")
-    q_exec_a = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "attack_run_id")
-    q_exec_r = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "retest_run_id")
+    q_authz_b = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), BASELINE_ID)
+    q_authz_a = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), ATTACK_ID)
+    q_authz_r = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), RETEST_ID)
+    q_auth_b = bind_literal(load_spl("Q-MCP-RESULT-AUTHORITY.spl", result=True), BASELINE_ID)
+    q_auth_a = bind_literal(load_spl("Q-MCP-RESULT-AUTHORITY.spl", result=True), ATTACK_ID)
+    q_auth_r = bind_literal(load_spl("Q-MCP-RESULT-AUTHORITY.spl", result=True), RETEST_ID)
+    q_tool_b = bind_literal(load_spl("Q-MCP-TOOL.spl"), BASELINE_ID)
+    q_tool_a = bind_literal(load_spl("Q-MCP-TOOL.spl"), ATTACK_ID)
+    q_tool_r = bind_literal(load_spl("Q-MCP-TOOL.spl"), RETEST_ID)
+    q_exec_b = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), BASELINE_ID)
+    q_exec_a = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), ATTACK_ID)
+    q_exec_r = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), RETEST_ID)
 
     data_sources = dict(
         (
@@ -215,9 +228,9 @@ def build() -> dict:
                 load_spl("DET-MCP-001-POSITIVE-CONTROL.spl"),
             ),
             search_ds("ds_observe_seq", "MCP-005 observe sequence", observe_sequence_spl("run_id")),
-            search_ds("ds_what_baseline", "What Happened BASELINE", what_happened_spl("baseline_run_id")),
-            search_ds("ds_what_attack", "What Happened ATTACK", what_happened_spl("attack_run_id")),
-            search_ds("ds_what_retest", "What Happened RETEST", what_happened_spl("retest_run_id")),
+            search_ds("ds_what_baseline", "What Happened BASELINE", what_happened_spl(BASELINE_ID)),
+            search_ds("ds_what_attack", "What Happened ATTACK", what_happened_spl(ATTACK_ID)),
+            search_ds("ds_what_retest", "What Happened RETEST", what_happened_spl(RETEST_ID)),
             search_ds("ds_q_authz_baseline", "Q-MCP-AUTHZ BASELINE", q_authz_b),
             search_ds("ds_q_authz_attack", "Q-MCP-AUTHZ ATTACK", q_authz_a),
             search_ds("ds_q_authz_retest", "Q-MCP-AUTHZ RETEST", q_authz_r),
@@ -303,13 +316,15 @@ def build() -> dict:
     add_md(
         "viz_learn",
         f"""
-# LAB-MCP-005 Tool Result Trust
+# Tool Result Trust
 
-**WS-MCP-005** · GUIDED · schema **1.3.0** · INV-002 · CTRL-MCP-RESULT-001
+Investigate whether data returned by an authorized tool can change later authority.
+
+**LIVE EVIDENCE** · `LAB-MCP-005` · Schema 1.3.0 · CTRL-MCP-RESULT-001
 
 **The tool was authorized and executed correctly.** Can data returned by that tool change what the agent is authorized to do next? **Defended answer: NO.** Results may influence reasoning. Results do not create authority.
 
-**LIVE ids (copy the full UUID)**
+**LIVE evidence identity**
 
 - BASELINE `{BASELINE_ID}`
 - ATTACK `{ATTACK_ID}`
@@ -814,7 +829,7 @@ Validated: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST `{RETEST_I
     )
 
     definition = {
-        "title": "LAB-MCP-005 Tool Result Trust",
+        "title": "Tool Result Trust",
         "description": (
             "WS-MCP-005 Dashboard Studio workshop. Reuses validated Q-MCP investigation SPL "
             "plus Q-MCP-RESULT-AUTHORITY. Saved search DET-MCP-001 is packaged disabled; this "
@@ -834,39 +849,29 @@ Validated: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST `{RETEST_I
         },
         "inputs": {
             "input_run_id": {
-                "type": "input.text",
-                "title": "Hunt",
-                "options": {"token": "run_id", "defaultValue": BASELINE_ID},
-            },
-            "input_baseline_run_id": {
-                "type": "input.text",
-                "title": "BASELINE",
-                "options": {"token": "baseline_run_id", "defaultValue": BASELINE_ID},
-            },
-            "input_attack_run_id": {
-                "type": "input.text",
-                "title": "ATTACK",
-                "options": {"token": "attack_run_id", "defaultValue": ATTACK_ID},
-            },
-            "input_retest_run_id": {
-                "type": "input.text",
-                "title": "RETEST",
-                "options": {"token": "retest_run_id", "defaultValue": RETEST_ID},
+                "type": "input.dropdown",
+                "title": "Investigate specimen",
+                "options": {
+                    "token": "run_id",
+                    "defaultValue": BASELINE_ID,
+                    "items": [
+                        {"label": "Baseline — defended / normal", "value": BASELINE_ID},
+                        {"label": "Attack — vulnerable / malicious", "value": ATTACK_ID},
+                        {"label": "Retest — defended / malicious", "value": RETEST_ID},
+                    ],
+                },
             },
         },
         "dataSources": data_sources,
         "visualizations": visualizations,
         "layout": {
             "options": {
-                "submitButton": True,
+                "submitButton": False,
                 "submitOnDashboardLoad": True,
                 "showTitleAndDescription": True,
             },
             "globalInputs": [
                 "input_run_id",
-                "input_baseline_run_id",
-                "input_attack_run_id",
-                "input_retest_run_id",
             ],
             "tabs": {
                 "options": {"barPosition": "top"},
@@ -997,8 +1002,8 @@ def write_xml(definition: dict) -> None:
     xml = (
         '<?xml version="1.0" encoding="utf-8"?>\n'
         '<dashboard version="2" theme="light">\n'
-        "  <label>LAB-MCP-005 Tool Result Trust</label>\n"
-        "  <description>WS-MCP-005. Validated Q-MCP SPL plus Q-MCP-RESULT-AUTHORITY. DET-MCP-001 packaged disabled. No DET-MCP-005. Splunk does not ALLOW or DENY a tool.</description>\n"
+        "  <label>Tool Result Trust</label>\n"
+        "  <description>LIVE Tool Result Trust workshop. LAB-MCP-005. Splunk does not ALLOW or DENY.</description>\n"
         "  <definition><![CDATA[\n"
         f"{payload}\n"
         "  ]]></definition>\n"

@@ -70,7 +70,9 @@ def test_phase13a_did_not_create_spl_or_studio():
     }
     found_q_goal = set((ROOT / "learning").rglob("Q-GOAL*"))
     assert found_q_goal <= allowed_q_goal
-    assert not (VIEWS / "ws_lab_agent_goal_integrity.xml").exists()
+    if VIEWS.is_dir():
+        goal_views = {path.name for path in VIEWS.glob("*goal*")}
+        assert goal_views <= {"ws_lab_agent_goal_integrity.xml"}
     det = DET.read_text(encoding="utf-8")
     assert "CTRL-GOAL" not in det
     assert "GOAL-001" not in det

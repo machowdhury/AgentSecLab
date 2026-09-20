@@ -76,6 +76,35 @@ if [ "$REFRESH_APP" -eq 1 ]; then
   log "Ensuring the stack is up, then restarting Splunk to reload default/ views..."
   $COMPOSE up -d
   $COMPOSE restart splunk
+  log "Waiting for Splunk health after restart..."
+  i=1
+  while [ "$i" -le 40 ]; do
+    health="$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' agentsec_splunk 2>/dev/null || true)"
+    if [ "$health" = "healthy" ]; then
+      break
+    fi
+    if [ "$i" -eq 40 ]; then
+      log "ERROR: Splunk did not become healthy after restart (health='${health}')"
+      exit 1
+    fi
+    i=$((i + 1))
+    sleep 3
+  done
+  log "Re-running splunk_hec_init after restart (HTTP Event Collector does not survive restart)."
+  $COMPOSE up -d --force-recreate --no-deps splunk_hec_init
+  i=1
+  while [ "$i" -le 90 ]; do
+    state="$(docker inspect -f '{{.State.Status}} {{.State.ExitCode}}' agentsec_splunk_hec_init 2>/dev/null || true)"
+    if [ "$state" = "exited 0" ]; then
+      break
+    fi
+    if [ "$i" -eq 90 ]; then
+      log "ERROR: splunk_hec_init did not finish after restart (state='${state}')"
+      exit 1
+    fi
+    i=$((i + 1))
+    sleep 5
+  done
 else
   log "Starting stack (splunk_app_init copies the app before Splunk becomes ready)..."
   $COMPOSE up -d
@@ -89,7 +118,7 @@ if [ "$WAIT_READY" -eq 1 ]; then
       log "Lab is READY."
       log "AcmeBank    http://127.0.0.1:5000"
       log "Attack UI   http://127.0.0.1:5001"
-      log "Splunk      http://127.0.0.1:8000  (app: AgentSec / ws_lab_pi_001 / ws_lab_mcp_001 / ws_lab_mcp_003 / ws_lab_mcp_004 / ws_lab_mcp_005 / ws_lab_mcp_006 / ws_lab_mcp_catalog / ws_lab_scanner_runtime_evidence / ws_lab_rag_context / ws_lab_memory_security)"
+      log "Splunk      http://127.0.0.1:8000  (app: AgentSec / Home / Attack Labs / Context Security / Agent Authority / Supply Chain)"
       exit 0
     fi
     log "Not ready yet (attempt ${i}/80). Sleeping 15s..."

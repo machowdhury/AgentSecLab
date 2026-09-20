@@ -1,7 +1,7 @@
 # Splunk knowledge object inventory
 
 **Date:** 2026-09-18  
-**Scope:** AgentSec repository Splunk content as of Phase 13C goal-integrity Splunk validation. No DET-GOAL. No goal Studio. Identity Studio remains unstarted. Memory Studio remains `ws_lab_memory_security`.  
+**Scope:** AgentSec repository Splunk content after Pre-Phase-14 UI/UX remediation. Schema 1.9.0 unchanged. No DET-GOAL. Identity Studio remains unstarted. Home is `ws_agentsec_home`. Memory Studio remains `ws_lab_memory_security`. Goal Studio is `ws_lab_agent_goal_integrity`.  
 **This file is inventory, not live Splunk proof.** Validation status is copied from existing phase documents.
 
 Governance: `docs/SPLUNK_ENGINEERING_GOVERNANCE.md`. Rule: `.cursor/rules/33-splunk-agent-skills.mdc`. Review skill: `.cursor/skills/splunk-ko-review/SKILL.md`.
@@ -118,7 +118,7 @@ No unique `.spl` hunt. Reuses LAB-MCP-001. Scope teaching fixture listed above. 
 
 | NAME | TYPE | LAB | QUESTION ANSWERED | SOURCE FILE | VALIDATION STATUS | DASHBOARD CONSUMER | DETECTION/HUNT | SCHEMA VERSION DEPENDENCY | NOTES |
 |------|------|-----|-------------------|-------------|-------------------|--------------------|----------------|---------------------------|-------|
-| Q-GOAL-INTEGRITY-AUTHORITY | HUNT | LAB-AGENT-GOAL-INTEGRITY-001 | Authoritative task, untrusted instruction, proposed action, CTRL-GOAL-INTEGRITY-001, effective action (preview), CTRL-MCP-001, indexed execution | `learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/searches/Q-GOAL-INTEGRITY-AUTHORITY.spl` | VALIDATED (13C) | NO (workshop not started) | HUNT | Agnostic | Token `__RUN_ID__`. Rejected extra Q-GOAL-* files. No DET-GOAL. Instruction hash / effective action are preview-bounded |
+| Q-GOAL-INTEGRITY-AUTHORITY | HUNT | LAB-AGENT-GOAL-INTEGRITY-001 | Authoritative task, untrusted instruction, proposed action, CTRL-GOAL-INTEGRITY-001, effective action (preview), CTRL-MCP-001, indexed execution | `learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/searches/Q-GOAL-INTEGRITY-AUTHORITY.spl` | VALIDATED (13C) | YES (`ws_lab_agent_goal_integrity`) | HUNT | Agnostic | Token `__RUN_ID__`. Rejected extra Q-GOAL-* files. No DET-GOAL. Instruction hash / effective action are preview-bounded. Rebuild: `scripts/build_lab_agent_goal_integrity_dashboard.py` |
 
 ---
 
@@ -159,8 +159,9 @@ Saved search name: `AgentSec - MCP Execution After Authorization Deny`.
 
 | NAME | TYPE | LAB | QUESTION ANSWERED | SOURCE FILE | VALIDATION STATUS | DASHBOARD CONSUMER | DETECTION/HUNT | SCHEMA VERSION DEPENDENCY | NOTES |
 |------|------|-----|-------------------|-------------|-------------------|--------------------|----------------|---------------------------|-------|
+| ws_agentsec_home | DASHBOARD | HOME | Product landing / orientation | `.../ws_agentsec_home.xml` | CURRENT (UI remediation) | — | none | N/A | Rebuild: `scripts/build_agentsec_home_dashboard.py`. No hunts. |
 | ws_lab_pi_001 | DASHBOARD | LAB-PI-001 | Ten-step PI workshop | `splunk_app/agentsec/default/data/ui/views/ws_lab_pi_001.xml` | VALIDATED | — | consumes hunts | Agnostic | Rebuild: `scripts/build_lab_pi_001_dashboard.py` |
-| ws_lab_mcp_001 | DASHBOARD | LAB-MCP-001 | Ten-step MCP tool-grant workshop | `.../ws_lab_mcp_001.xml` | VALIDATED | — | consumes Q-MCP | Agnostic | |
+| ws_lab_mcp_001 | DASHBOARD | LAB-MCP-001 | Ten-step MCP tool-grant workshop + Phase 14E Path A/B stacked HUNT; LIVE launch teaching. Same Q-MCP bind-only. No new hunt. No DET-MCP-NEW. | `.../ws_lab_mcp_001.xml` | VALIDATED | 14E reuse | consumes Q-MCP | Agnostic | |
 | ws_lab_mcp_003 | DASHBOARD | LAB-MCP-003 | Scope escalation workshop | `.../ws_lab_mcp_003.xml` | VALIDATED | — | consumes Q-MCP | Agnostic | No DET-MCP-003 |
 | ws_lab_mcp_004 | DASHBOARD | LAB-MCP-004 | Resource authorization workshop | `.../ws_lab_mcp_004.xml` | VALIDATED | — | consumes Q-MCP + RESOURCE-AUTHZ | Agnostic | |
 | ws_lab_mcp_005 | DASHBOARD | LAB-MCP-005 | Result-trust workshop | `.../ws_lab_mcp_005.xml` | VALIDATED | — | consumes Q-MCP + RESULT-AUTHORITY | Agnostic | No DET-MCP-005 |
@@ -169,6 +170,7 @@ Saved search name: `AgentSec - MCP Execution After Authorization Deny`.
 | ws_lab_scanner_runtime_evidence | DASHBOARD | LAB-SCANNER-RUNTIME-EVIDENCE | Combine scanner + runtime evidence without collapsing planes | `.../ws_lab_scanner_runtime_evidence.xml` | VALIDATED (9E) | — | consumes Q-SCANNER + Q-MCP + CATALOG-AUTHORITY | Agnostic | No DET-SCANNER. No DET-MCP-CATALOG. Rebuild: `scripts/build_lab_scanner_runtime_evidence_dashboard.py` |
 | ws_lab_rag_context | DASHBOARD | LAB-RAG-CONTEXT | Reconstruct retrieved-context investigation without collapsing planes | `.../ws_lab_rag_context.xml` | VALIDATED (10E) | — | consumes Q-RAG-CONTEXT-AUTHORITY + Q-MCP | Agnostic | No DET-RAG. Rebuild: `scripts/build_lab_rag_context_dashboard.py` |
 | ws_lab_memory_security | DASHBOARD | LAB-MEMORY-001 | Reconstruct write→later recall investigation without collapsing five planes | `.../ws_lab_memory_security.xml` | VALIDATED (11E) | — | consumes Q-MEMORY-CONTEXT-AUTHORITY + Q-MCP | Agnostic | No DET-MEMORY. Hunt write + Hunt recall tokens. Rebuild: `scripts/build_lab_memory_security_dashboard.py` |
+| ws_lab_agent_goal_integrity | DASHBOARD | LAB-AGENT-GOAL-INTEGRITY-001 | Reconstruct task → instruction → goal decision → tool authz → execution without collapsing five planes | `.../ws_lab_agent_goal_integrity.xml` | VALIDATED (13E) | — | consumes Q-GOAL-INTEGRITY-AUTHORITY + Q-MCP | Agnostic | No DET-GOAL. Hunt Investigate specimen defaults to BASELINE. Rebuild: `scripts/build_lab_agent_goal_integrity_dashboard.py` |
 
 Canonical JSON beside each lab: `learning/level_1/LAB-*/dashboard.definition.json`. Studio **DASHBOARD DATA SOURCE** objects are `ds.search` binds of the files above (`__RUN_ID__` → `"$token$"`), plus labeled SIMULATED fixtures and a small observe-sequence helper per workshop.
 

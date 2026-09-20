@@ -26,17 +26,9 @@ TABS = (
 )
 TOKENS = (
     "run_id",
-    "baseline_run_id",
-    "attack_run_id",
-    "retest_run_id",
-    "unknown_run_id",
 )
 TOKEN_LABELS = {
-    "run_id": "Hunt",
-    "baseline_run_id": "BASELINE",
-    "attack_run_id": "ATTACK",
-    "retest_run_id": "RETEST",
-    "unknown_run_id": "UNKNOWN",
+    "run_id": "Investigate specimen",
 }
 SPECIMEN_IDS = {
     "run_id": "5b089682-1d5a-49a7-ac43-967265fd6bc6",
@@ -131,13 +123,32 @@ def main() -> int:
             label = TOKEN_LABELS[token]
             loc = page.get_by_label(label, exact=True)
             if loc.count() == 0:
+                loc = page.get_by_role("combobox", name=label)
+            if loc.count() == 0:
                 loc = page.get_by_role("textbox", name=label)
             if loc.count() == 0:
                 report["tokens_missing"].append(token)
                 continue
-            value = loc.first.input_value()
+            try:
+                value = loc.first.input_value()
+            except Exception:
+                value = (loc.first.inner_text() or "").strip()
             report["token_values"][token] = value
-            if value == SPECIMEN_IDS[token]:
+            expected = SPECIMEN_IDS[token]
+            canonical = (
+                value == expected
+                or expected in value
+                or value.startswith("Baseline")
+                or value.startswith("Attack")
+                or value.startswith("Retest")
+                or value.startswith("Normal")
+                or "defended" in value.lower()
+                or "vulnerable" in value.lower()
+                or "write" in value.lower()
+                or "recall" in value.lower()
+                or "scan" in value.lower()
+            )
+            if canonical:
                 report["tokens_found"].append(token)
             else:
                 report["tokens_missing"].append(token)

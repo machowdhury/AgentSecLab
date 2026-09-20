@@ -51,7 +51,7 @@ PROHIBITED_FIELDS = (
     "mcp.session.id",
     "gen_ai.tool.call.arguments",
 )
-REQUIRED_TOKENS = ("run_id", "baseline_run_id", "attack_run_id", "retest_run_id")
+REQUIRED_TOKENS = ("run_id",)
 SPECIMEN_IDS = {
     "baseline_run_id": "163d11e2-e751-4282-9406-19b490542ed4",
     "attack_run_id": "5e8f55f3-eb46-47ee-b979-b72d9c9b1f49",
@@ -108,20 +108,17 @@ def test_grid_workshop_tabs_and_tokens():
     assert tokens == set(REQUIRED_TOKENS)
     for input_id in definition["inputs"]:
         assert input_id in definition["layout"]["globalInputs"]
-    for token, run_id in SPECIMEN_IDS.items():
-        match = [
-            inp for inp in definition["inputs"].values() if inp["options"]["token"] == token
-        ]
-        assert match[0]["options"]["defaultValue"] == run_id
+    hunt_inp = [inp for inp in definition["inputs"].values() if inp["options"]["token"] == "run_id"][0]
+    assert hunt_inp["type"] == "input.dropdown"
+    assert hunt_inp["options"]["defaultValue"] == SPECIMEN_IDS.get("run_id", SPECIMEN_IDS["baseline_run_id"])
+    item_values = {item["value"] for item in hunt_inp["options"]["items"]}
+    assert SPECIMEN_IDS["baseline_run_id"] in item_values
+    assert SPECIMEN_IDS["attack_run_id"] in item_values
+    assert SPECIMEN_IDS["retest_run_id"] in item_values
     hunt = [inp for inp in definition["inputs"].values() if inp["options"]["token"] == "run_id"][0]
     assert hunt["options"]["defaultValue"] == SPECIMEN_IDS["baseline_run_id"]
-    assert hunt["title"] == "Hunt"
-    assert {inp["title"] for inp in definition["inputs"].values()} == {
-        "Hunt",
-        "BASELINE",
-        "ATTACK",
-        "RETEST",
-    }
+    assert hunt["title"] == "Investigate specimen"
+    assert {inp["title"] for inp in definition["inputs"].values()} == {"Investigate specimen"}
 
 
 def test_datasources_are_validated_spl_with_token_bind_only():
@@ -138,19 +135,19 @@ def test_datasources_are_validated_spl_with_token_bind_only():
         "ds_q_after_deny": (queries["Q-MCP-AFTER-DENY"]["spl_file"], "run_id"),
         "ds_q_result": (queries["Q-MCP-RESULT"]["spl_file"], "run_id"),
         "ds_q_result_trust": (queries["Q-MCP-RESULT-TRUST"]["spl_file"], "run_id"),
-        "ds_q_authz_baseline": (queries["Q-MCP-AUTHZ"]["spl_file"], "baseline_run_id"),
-        "ds_q_authz_attack": (queries["Q-MCP-AUTHZ"]["spl_file"], "attack_run_id"),
-        "ds_q_authz_retest": (queries["Q-MCP-AUTHZ"]["spl_file"], "retest_run_id"),
-        "ds_q_tool_baseline": (queries["Q-MCP-TOOL"]["spl_file"], "baseline_run_id"),
-        "ds_q_tool_attack": (queries["Q-MCP-TOOL"]["spl_file"], "attack_run_id"),
-        "ds_q_tool_retest": (queries["Q-MCP-TOOL"]["spl_file"], "retest_run_id"),
-        "ds_q_executed_baseline": (queries["Q-MCP-EXECUTED"]["spl_file"], "baseline_run_id"),
-        "ds_q_executed_attack": (queries["Q-MCP-EXECUTED"]["spl_file"], "attack_run_id"),
-        "ds_q_executed_retest": (queries["Q-MCP-EXECUTED"]["spl_file"], "retest_run_id"),
+        "ds_q_authz_baseline": (queries["Q-MCP-AUTHZ"]["spl_file"], SPECIMEN_IDS["baseline_run_id"]),
+        "ds_q_authz_attack": (queries["Q-MCP-AUTHZ"]["spl_file"], SPECIMEN_IDS["attack_run_id"]),
+        "ds_q_authz_retest": (queries["Q-MCP-AUTHZ"]["spl_file"], SPECIMEN_IDS["retest_run_id"]),
+        "ds_q_tool_baseline": (queries["Q-MCP-TOOL"]["spl_file"], SPECIMEN_IDS["baseline_run_id"]),
+        "ds_q_tool_attack": (queries["Q-MCP-TOOL"]["spl_file"], SPECIMEN_IDS["attack_run_id"]),
+        "ds_q_tool_retest": (queries["Q-MCP-TOOL"]["spl_file"], SPECIMEN_IDS["retest_run_id"]),
+        "ds_q_executed_baseline": (queries["Q-MCP-EXECUTED"]["spl_file"], SPECIMEN_IDS["baseline_run_id"]),
+        "ds_q_executed_attack": (queries["Q-MCP-EXECUTED"]["spl_file"], SPECIMEN_IDS["attack_run_id"]),
+        "ds_q_executed_retest": (queries["Q-MCP-EXECUTED"]["spl_file"], SPECIMEN_IDS["retest_run_id"]),
     }
     for ds_id, (spl_file, token) in expected.items():
         spl = (SEARCH_DIR / spl_file).read_text(encoding="utf-8").strip()
-        bound = spl.replace("__RUN_ID__", f'"${token}$"')
+        bound = spl.replace("__RUN_ID__", f'"${token}$"' if token == "run_id" else f'"{token}"')
         assert definition["dataSources"][ds_id]["options"]["query"] == bound, ds_id
         assert definition["dataSources"][ds_id]["type"] == "ds.search"
     det_sim = catalog["detection"]["positive_control"]
@@ -277,13 +274,13 @@ def test_table_empty_copy_is_nodata_not_caption():
         for viz in _definition()["visualizations"].values()
         if viz["type"] == "splunk.markdown"
     )
-    assert "Validated specimen ids" in markdown
+    assert "Evidence identity" in markdown
     learn = next(
         viz["options"]["markdown"]
         for viz in _definition()["visualizations"].values()
         if viz.get("title") == "LEARN"
     )
-    assert learn.index("163d11e2-e751-4282-9406-19b490542ed4") < learn.index("Trust path")
+    assert learn.index("Trust path") < learn.index("163d11e2-e751-4282-9406-19b490542ed4")
     assert "Control `executed` stays false on ALLOW" in json.dumps(_definition())
 
 
@@ -309,3 +306,18 @@ def test_specimen_uuids_are_complete():
         assert run_id in blob
     hunt = [inp for inp in _definition()["inputs"].values() if inp["options"]["token"] == "run_id"][0]
     assert hunt["options"]["defaultValue"] == SPECIMEN_IDS["baseline_run_id"]
+
+
+def test_hunt_is_stacked_path_a_path_b():
+    definition = _definition()
+    assert "viz_i1_q" in definition["visualizations"]
+    assert "viz_i1_h1" in definition["visualizations"]
+    assert "viz_i1_sol" in definition["visualizations"]
+    blob = json.dumps(definition)
+    assert "Path A" in blob
+    assert "Path B" in blob
+    assert "REQUEST != GRANT" in blob or "tool request is not a tool grant" in blob.lower()
+    hunt_layout = definition["layout"]["layoutDefinitions"]["layout_hunt"]
+    assert hunt_layout["options"]["display"] == "fit-to-width"
+    assert "viz_hunt_md" not in definition["visualizations"]
+    assert "ATTACK != ALERT" in blob or "ATTACK != ALERT" in blob.replace("**", "")

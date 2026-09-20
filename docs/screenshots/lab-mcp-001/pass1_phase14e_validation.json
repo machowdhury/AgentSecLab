@@ -1,0 +1,83 @@
+{
+  "label": "pass1",
+  "http": {
+    "attack_home": 200,
+    "attack_mcp": 200,
+    "attack_unknown": 400,
+    "home": 200,
+    "pi": 200,
+    "mcp": 200
+  },
+  "tabs": {
+    "pi": {
+      "found": [
+        "LEARN",
+        "BASELINE",
+        "ATTACK",
+        "OBSERVE",
+        "HUNT",
+        "DETECT",
+        "DEFEND",
+        "RETEST",
+        "COMPARE",
+        "PROVE"
+      ],
+      "missing": []
+    },
+    "mcp": {
+      "found": [
+        "LEARN",
+        "BASELINE",
+        "ATTACK",
+        "OBSERVE",
+        "HUNT",
+        "DETECT",
+        "DEFEND",
+        "RETEST",
+        "COMPARE",
+        "PROVE"
+      ],
+      "missing": []
+    }
+  },
+  "screenshots": [
+    "docs/screenshots/agentsec-home/pass1_home_1440.png",
+    "docs/screenshots/attack-ui/pass1_pi_1440.png",
+    "docs/screenshots/attack-service-mcp/pass1_ready_1440.png",
+    "docs/screenshots/agentsec-home/pass1_home_1280.png",
+    "docs/screenshots/attack-ui/pass1_pi_1280.png",
+    "docs/screenshots/attack-service-mcp/pass1_ready_1280.png",
+    "docs/screenshots/agentsec-home/pass1_home_1024.png",
+    "docs/screenshots/attack-ui/pass1_pi_1024.png",
+    "docs/screenshots/attack-service-mcp/pass1_ready_1024.png",
+    "docs/screenshots/attack-service-mcp/pass1_attack_result_1440.png",
+    "docs/screenshots/attack-service-mcp/pass1_retest_result_1440.png",
+    "docs/screenshots/lab-pi-001/pass1_prove_1440.png",
+    "docs/screenshots/lab-pi-001/pass1_prove_1280.png",
+    "docs/screenshots/lab-pi-001/pass1_prove_1024.png",
+    "docs/screenshots/lab-pi-001/pass1_hunt_regression_1440.png",
+    "docs/screenshots/lab-mcp-001/pass1_learn.png",
+    "docs/screenshots/lab-mcp-001/pass1_baseline.png",
+    "docs/screenshots/lab-mcp-001/pass1_attack.png",
+    "docs/screenshots/lab-mcp-001/pass1_observe.png",
+    "docs/screenshots/lab-mcp-001/pass1_hunt.png",
+    "docs/screenshots/lab-mcp-001/pass1_detect.png",
+    "docs/screenshots/lab-mcp-001/pass1_defend.png",
+    "docs/screenshots/lab-mcp-001/pass1_retest.png",
+    "docs/screenshots/lab-mcp-001/pass1_compare.png",
+    "docs/screenshots/lab-mcp-001/pass1_prove.png",
+    "docs/screenshots/lab-mcp-001/pass1_w1280_learn.png",
+    "docs/screenshots/lab-mcp-001/pass1_w1280_attack.png",
+    "docs/screenshots/lab-mcp-001/pass1_w1280_hunt.png",
+    "docs/screenshots/lab-mcp-001/pass1_w1280_prove.png",
+    "docs/screenshots/lab-mcp-001/pass1_w1024_learn.png",
+    "docs/screenshots/lab-mcp-001/pass1_w1024_attack.png",
+    "docs/screenshots/lab-mcp-001/pass1_w1024_hunt.png",
+    "docs/screenshots/lab-mcp-001/pass1_w1024_prove.png"
+  ],
+  "defects": [],
+  "attack_service_run_ids": {
+    "attack": "c82b0c62-ebb9-4c3b-94df-75b38bf828c5",
+    "retest": "6b04cf47-6616-4e47-b020-334970797da3"
+  }
+}

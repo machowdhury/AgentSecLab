@@ -33,15 +33,49 @@ def test_attack_index_states_technique_and_target():
     response = client.get("/")
     assert response.status_code == 200
     html = response.get_data(as_text=True)
-    assert "Direct prompt injection" in html
+    assert "Direct prompt injection" in html or "Direct Prompt Injection" in html
     assert "ATK-002" in html
     assert "AML.T0054" in html
     assert "AcmeBank" in html
     assert "http://acmebank.example:5000" in html
     assert "lab URL" in html
-    assert "Run ATK-002" in html
+    assert "Launch ATTACK (LIVE)" in html
+    assert "http://acmebank.example:5000" in html
+    assert "/api/target-health" in html
+    assert "Launch BASELINE (LIVE)" in html
+    assert "Launch RETEST (LIVE)" in html
+    assert "LIVE RUN PAIR" in html
+    assert "Copy ATTACK run.id" in html
+    assert "Copy RETEST run.id" in html
+    assert "Predict before RETEST" in html
+    assert "WHAT WOULD FALSIFY THIS?" in html
+    assert 'execution: "live"' in html
+    assert "profile: profile" not in html
+    assert "LIVE RUN PAIR" in html
+    assert "Open ATTACK in Search" in html
+    assert "Open RETEST in Search" in html
+    assert "Predict before ATTACK" in html
+    assert "WHAT IS THE ATTACKER TRYING TO INFLUENCE?" in html
+    assert "WHAT SHOULD THE DEFENSE DO?" in html
+    assert "LOCAL EDUCATIONAL SERVICE" in html
     assert ATK_002_PAYLOAD in html
     assert "Sending a request is not proof" in html
-    assert "/api/attacks/ATK-002" in html
+    assert "/api/launch" in html
     css = client.get("/static/agentsec.css")
     assert css.status_code == 200
+
+
+def test_attack_target_health_is_same_origin_proxy():
+    app = create_attack_app(
+        AcmeBankClient(
+            "http://acmebank.example:5000",
+            get_fn=lambda _path: (200, {"security.profile": "defended", "service": "acmebank"}),
+        )
+    )
+    app.config["TESTING"] = True
+    client = app.test_client()
+    response = client.get("/api/target-health")
+    assert response.status_code == 200
+    body = response.get_json()
+    assert body["security.profile"] == "defended"
+    assert body["service"] == "acmebank"

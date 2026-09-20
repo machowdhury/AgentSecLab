@@ -14,19 +14,11 @@
   ],
   "tabs_missing": [],
   "tokens_found": [
-    "run_id",
-    "baseline_run_id",
-    "attack_run_id",
-    "retest_run_id",
-    "unknown_run_id"
+    "run_id"
   ],
   "tokens_missing": [],
   "token_values": {
-    "run_id": "fb50dcaf-8e84-4a3f-a55b-997c72edbd04",
-    "baseline_run_id": "fb50dcaf-8e84-4a3f-a55b-997c72edbd04",
-    "attack_run_id": "5ab59fc7-303e-4eea-84e7-ae0b2f405146",
-    "retest_run_id": "0726a0ff-a551-41a8-bfbb-ab2ceca4c0dd",
-    "unknown_run_id": "0e4e0051-528d-4bf3-8773-d1fb55a5864f"
+    "run_id": "Baseline \u2014 defended / normal"
   },
   "screenshots": [
     "docs/screenshots/lab-mcp-004/pass2_overview.png",

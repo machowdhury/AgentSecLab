@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import time
+import threading
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -109,11 +110,17 @@ class EventSink(Protocol):
 
 class MemorySink:
     def __init__(self) -> None:
+        self._lock = threading.Lock()
         self.events: list[dict] = []
 
     def emit(self, event: dict) -> None:
         validate_event(event)
-        self.events.append(event)
+        with self._lock:
+            self.events.append(event)
+
+    def snapshot(self) -> list[dict]:
+        with self._lock:
+            return list(self.events)
 
 
 class FanoutSink:

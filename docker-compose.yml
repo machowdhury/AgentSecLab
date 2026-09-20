@@ -80,10 +80,16 @@ services:
     ports:
       - "127.0.0.1:5001:5001"
     networks: [agentsec_mesh]
+    volumes:
+      - ./artifacts:/app/artifacts
+      - ./learning/level_1/LAB-PI-001/lab-manifest.json:/app/learning/level_1/LAB-PI-001/lab-manifest.json:ro
+      - ./learning/level_1/LAB-MCP-001/lab-manifest.json:/app/learning/level_1/LAB-MCP-001/lab-manifest.json:ro
     environment:
       - AGENTSEC_BIND_HOST=0.0.0.0
       - ATTACK_SERVICE_PORT=5001
       - ACMEBANK_URL=http://acmebank:5000
+      - AGENTSEC_ARTIFACTS_DIR=/app/artifacts
+      - AGENTSEC_SPLUNK_WEB_URL=http://127.0.0.1:8000
     depends_on:
       acmebank:
         condition: service_healthy

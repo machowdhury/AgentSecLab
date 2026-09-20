@@ -1,0 +1,68 @@
+{
+  "url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agent_goal_integrity",
+  "tabs_found": [
+    "LEARN",
+    "BASELINE",
+    "ATTACK",
+    "OBSERVE",
+    "HUNT",
+    "DETECT",
+    "DEFEND",
+    "RETEST",
+    "COMPARE",
+    "PROVE"
+  ],
+  "tabs_missing": [],
+  "tokens_found": [
+    "run_id"
+  ],
+  "tokens_missing": [],
+  "token_values": {
+    "run_id": "Baseline \u2014 defended / normal"
+  },
+  "screenshots": [
+    "docs/screenshots/lab-agent-goal-integrity/pass1_overview.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_learn.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_baseline.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_attack.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_observe.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_hunt.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_detect.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_defend.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_retest.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_compare.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_prove.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_w1024_learn.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_w1024_compare.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_w1024_detect.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_w768_learn.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_w768_compare.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_w768_detect.png"
+  ],
+  "clipping_screenshots": [
+    "docs/screenshots/lab-agent-goal-integrity/pass1_w1024_learn.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_w1024_compare.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_w1024_detect.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_w768_learn.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_w768_compare.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass1_w768_detect.png"
+  ],
+  "label": "pass1",
+  "tabs_requested": [
+    "LEARN",
+    "BASELINE",
+    "ATTACK",
+    "OBSERVE",
+    "HUNT",
+    "DETECT",
+    "DEFEND",
+    "RETEST",
+    "COMPARE",
+    "PROVE"
+  ],
+  "viewports": [
+    1440,
+    1024,
+    768
+  ]
+}

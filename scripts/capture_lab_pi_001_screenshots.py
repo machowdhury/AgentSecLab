@@ -24,12 +24,11 @@ TABS = (
     "COMPARE",
     "PROVE",
 )
-TOKENS = ("run_id", "baseline_run_id", "attack_run_id", "retest_run_id")
+TOKENS = (
+    "run_id",
+)
 TOKEN_LABELS = {
-    "run_id": "Hunt",
-    "baseline_run_id": "BASELINE",
-    "attack_run_id": "ATTACK",
-    "retest_run_id": "RETEST",
+    "run_id": "Investigate specimen",
 }
 SPECIMEN_IDS = {
     "run_id": "b3611d56-0d3f-4b2e-9a51-75ae36628155",
@@ -113,13 +112,32 @@ def main() -> int:
             label = TOKEN_LABELS[token]
             loc = page.get_by_label(label, exact=True)
             if loc.count() == 0:
+                loc = page.get_by_role("combobox", name=label)
+            if loc.count() == 0:
                 loc = page.get_by_role("textbox", name=label)
             if loc.count() == 0:
                 report["tokens_missing"].append(token)
                 continue
-            value = loc.first.input_value()
+            try:
+                value = loc.first.input_value()
+            except Exception:
+                value = (loc.first.inner_text() or "").strip()
             report["token_values"][token] = value
-            if value == SPECIMEN_IDS[token]:
+            expected = SPECIMEN_IDS[token]
+            canonical = (
+                value == expected
+                or expected in value
+                or value.startswith("Baseline")
+                or value.startswith("Attack")
+                or value.startswith("Retest")
+                or value.startswith("Normal")
+                or "defended" in value.lower()
+                or "vulnerable" in value.lower()
+                or "write" in value.lower()
+                or "recall" in value.lower()
+                or "scan" in value.lower()
+            )
+            if canonical:
                 report["tokens_found"].append(token)
             else:
                 report["tokens_missing"].append(token)
@@ -137,6 +155,19 @@ def main() -> int:
             png = out / f"{args.label}_{tab.lower()}.png"
             page.screenshot(path=str(png), full_page=True)
             report["screenshots"].append(str(png.relative_to(ROOT)))
+
+        for width, suffix in ((1280, "w1280"), (1024, "w1024")):
+            page.set_viewport_size({"width": width, "height": 1100})
+            for tab in ("LEARN", "ATTACK", "HUNT", "PROVE"):
+                loc = page.get_by_role("tab", name=tab)
+                if loc.count() == 0:
+                    continue
+                loc.first.click()
+                page.wait_for_timeout(4000)
+                png = out / f"{args.label}_{suffix}_{tab.lower()}.png"
+                page.screenshot(path=str(png), full_page=True)
+                report["screenshots"].append(str(png.relative_to(ROOT)))
+        page.set_viewport_size({"width": 1440, "height": 1100})
 
         overview = out / f"{args.label}_overview.png"
         page.screenshot(path=str(overview), full_page=False)

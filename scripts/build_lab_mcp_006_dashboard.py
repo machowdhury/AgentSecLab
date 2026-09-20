@@ -46,8 +46,8 @@ HALF = 720
 THIRD = 480
 
 EMPTY_HUNT = (
-    "Hunt run.id defaults to the BASELINE specimen so this page is not an error "
-    "state. Replace it and Submit to hunt another complete copy. Zero rows means "
+    "Investigate specimen defaults to the BASELINE specimen so this page is not an error "
+    "state. Custom run.id is available from Search. Zero rows means "
     "no indexed CTRL-DELEGATION-001 for that id. Zero rows is not DENY and is not "
     "proof of non-execution by itself."
 )
@@ -82,6 +82,19 @@ def bind_run_id(spl: str, token: str) -> str:
     if "__RUN_ID__" not in spl:
         raise ValueError(f"expected __RUN_ID__ in query for token {token}")
     return spl.replace("__RUN_ID__", f'"${token}$"')
+
+def bind_literal(spl: str, run_id: str) -> str:
+    if "__RUN_ID__" not in spl:
+        raise ValueError("expected __RUN_ID__ in query")
+    return spl.replace("__RUN_ID__", f'"{run_id}"')
+
+
+def bound_run(ref: str) -> str:
+    """Token name stays "$token$"; UUID becomes a quoted literal."""
+    if len(ref) == 36 and ref.count("-") == 4:
+        return f'"{ref}"'
+    return f'"${ref}$"'
+
 
 
 def block(item: str, x: int, y: int, w: int, h: int) -> dict:
@@ -153,7 +166,7 @@ def layout(structure: list[dict], height: int) -> dict:
 
 
 def observe_sequence_spl(token: str) -> str:
-    return f"""index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"="${token}$" ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
+    return f"""index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"={bound_run(token)} ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
 | eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
 | eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
 | eval event_name=mvindex(mvdedup('event.name'),0)
@@ -185,15 +198,15 @@ def build() -> dict:
     q_executed = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "run_id")
     q_after = bind_run_id(load_spl("Q-MCP-AFTER-DENY.spl"), "run_id")
     q_delegation = bind_run_id(load_spl("Q-MCP-DELEGATION.spl", delegation=True), "run_id")
-    q_authz_b = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "baseline_run_id")
-    q_authz_a = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "attack_run_id")
-    q_authz_r = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "retest_run_id")
-    q_tool_a = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "attack_run_id")
-    q_tool_r = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "retest_run_id")
-    q_exec_b = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "baseline_run_id")
-    q_exec_a = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "attack_run_id")
-    q_exec_r = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "retest_run_id")
-    q_who_b = bind_run_id(load_spl("Q-MCP-WHO.spl"), "baseline_run_id")
+    q_authz_b = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), BASELINE_ID)
+    q_authz_a = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), ATTACK_ID)
+    q_authz_r = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), RETEST_ID)
+    q_tool_a = bind_literal(load_spl("Q-MCP-TOOL.spl"), ATTACK_ID)
+    q_tool_r = bind_literal(load_spl("Q-MCP-TOOL.spl"), RETEST_ID)
+    q_exec_b = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), BASELINE_ID)
+    q_exec_a = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), ATTACK_ID)
+    q_exec_r = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), RETEST_ID)
+    q_who_b = bind_literal(load_spl("Q-MCP-WHO.spl"), BASELINE_ID)
 
     data_sources = dict(
         (
@@ -209,9 +222,9 @@ def build() -> dict:
                 load_spl("DET-MCP-001-POSITIVE-CONTROL.spl"),
             ),
             search_ds("ds_observe_seq", "MCP-006 observe sequence", observe_sequence_spl("run_id")),
-            search_ds("ds_what_baseline", "What Happened BASELINE", what_happened_spl("baseline_run_id")),
-            search_ds("ds_what_attack", "What Happened ATTACK", what_happened_spl("attack_run_id")),
-            search_ds("ds_what_retest", "What Happened RETEST", what_happened_spl("retest_run_id")),
+            search_ds("ds_what_baseline", "What Happened BASELINE", what_happened_spl(BASELINE_ID)),
+            search_ds("ds_what_attack", "What Happened ATTACK", what_happened_spl(ATTACK_ID)),
+            search_ds("ds_what_retest", "What Happened RETEST", what_happened_spl(RETEST_ID)),
             search_ds("ds_q_authz_baseline", "Q-MCP-AUTHZ BASELINE", q_authz_b),
             search_ds("ds_q_authz_attack", "Q-MCP-AUTHZ ATTACK", q_authz_a),
             search_ds("ds_q_authz_retest", "Q-MCP-AUTHZ RETEST", q_authz_r),
@@ -293,9 +306,11 @@ def build() -> dict:
     add_md(
         "viz_learn",
         f"""
-# LAB-MCP-006 Confused Deputy / Delegated Authority
+# Confused Deputy
 
-**WS-MCP-006** · GUIDED · schema **1.4.0** · INV-001 · CTRL-DELEGATION-001 then CTRL-MCP-001
+Investigate whether a deputy's own authority was actually delegated by this caller.
+
+**LIVE EVIDENCE** · `LAB-MCP-006` · Schema 1.4.0 · INV-001 · CTRL-DELEGATION-001
 
 **The deputy may possess authority — but did the caller actually delegate that authority for this operation?**
 
@@ -303,7 +318,7 @@ def build() -> dict:
 
 Not every delegated-agent workflow is a confused-deputy attack. BASELINE is legitimate delegation.
 
-**Phase 7C LIVE ids (copy the full UUID)**
+**Phase 7C LIVE evidence identity**
 
 BASELINE `{BASELINE_ID}`
 
@@ -817,7 +832,7 @@ Validated: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST `{RETEST_I
     )
 
     definition = {
-        "title": "LAB-MCP-006 Confused Deputy",
+        "title": "Confused Deputy",
         "description": (
             "WS-MCP-006 Dashboard Studio workshop. Reuses validated Q-MCP investigation SPL "
             "plus Q-MCP-DELEGATION. Saved search DET-MCP-001 is packaged disabled; this "
@@ -837,39 +852,29 @@ Validated: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST `{RETEST_I
         },
         "inputs": {
             "input_run_id": {
-                "type": "input.text",
-                "title": "Hunt",
-                "options": {"token": "run_id", "defaultValue": BASELINE_ID},
-            },
-            "input_baseline_run_id": {
-                "type": "input.text",
-                "title": "BASELINE",
-                "options": {"token": "baseline_run_id", "defaultValue": BASELINE_ID},
-            },
-            "input_attack_run_id": {
-                "type": "input.text",
-                "title": "ATTACK",
-                "options": {"token": "attack_run_id", "defaultValue": ATTACK_ID},
-            },
-            "input_retest_run_id": {
-                "type": "input.text",
-                "title": "RETEST",
-                "options": {"token": "retest_run_id", "defaultValue": RETEST_ID},
+                "type": "input.dropdown",
+                "title": "Investigate specimen",
+                "options": {
+                    "token": "run_id",
+                    "defaultValue": BASELINE_ID,
+                    "items": [
+                        {"label": "Baseline — defended / normal", "value": BASELINE_ID},
+                        {"label": "Attack — vulnerable / malicious", "value": ATTACK_ID},
+                        {"label": "Retest — defended / malicious", "value": RETEST_ID},
+                    ],
+                },
             },
         },
         "dataSources": data_sources,
         "visualizations": visualizations,
         "layout": {
             "options": {
-                "submitButton": True,
+                "submitButton": False,
                 "submitOnDashboardLoad": True,
                 "showTitleAndDescription": True,
             },
             "globalInputs": [
                 "input_run_id",
-                "input_baseline_run_id",
-                "input_attack_run_id",
-                "input_retest_run_id",
             ],
             "tabs": {
                 "options": {"barPosition": "top"},
@@ -998,8 +1003,8 @@ def write_xml(definition: dict) -> None:
     xml = (
         '<?xml version="1.0" encoding="utf-8"?>\n'
         '<dashboard version="2" theme="light">\n'
-        "  <label>LAB-MCP-006 Confused Deputy</label>\n"
-        "  <description>WS-MCP-006. Validated Q-MCP SPL plus Q-MCP-DELEGATION. DET-MCP-001 packaged disabled. No DET-MCP-006. Splunk does not ALLOW or DENY a deputy call.</description>\n"
+        "  <label>Confused Deputy</label>\n"
+        "  <description>LIVE Confused Deputy workshop. LAB-MCP-006. Splunk does not ALLOW or DENY.</description>\n"
         "  <definition><![CDATA[\n"
         f"{payload}\n"
         "  ]]></definition>\n"

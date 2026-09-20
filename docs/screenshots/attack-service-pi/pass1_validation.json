@@ -1,0 +1,15 @@
+{
+  "studio_extra": [
+    "docs/screenshots/lab-pi-001/pass1_w1280_defend.png",
+    "docs/screenshots/lab-pi-001/pass1_w1280_retest.png",
+    "docs/screenshots/lab-pi-001/pass1_w1280_compare.png",
+    "docs/screenshots/lab-pi-001/pass1_w1024_defend.png",
+    "docs/screenshots/lab-pi-001/pass1_w1024_retest.png",
+    "docs/screenshots/lab-pi-001/pass1_w1024_compare.png"
+  ],
+  "attack_service": [
+    "docs/screenshots/attack-service-pi/pass1_home_1440.png",
+    "docs/screenshots/attack-service-pi/pass1_home_1280.png",
+    "docs/screenshots/attack-service-pi/pass1_home_1024.png"
+  ]
+}

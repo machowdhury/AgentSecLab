@@ -1,0 +1,26 @@
+{
+  "url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home",
+  "screenshots": [
+    "docs/screenshots/agentsec-home/pass2_home_1440.png",
+    "docs/screenshots/agentsec-home/pass2_nav_attack_labs.png",
+    "docs/screenshots/agentsec-home/pass2_nav_context_security.png",
+    "docs/screenshots/agentsec-home/pass2_nav_agent_authority.png",
+    "docs/screenshots/agentsec-home/pass2_nav_supply_chain.png",
+    "docs/screenshots/agentsec-home/pass2_home_1280.png",
+    "docs/screenshots/agentsec-home/pass2_home_1024.png",
+    "docs/screenshots/agentsec-home/pass2_home_768.png"
+  ],
+  "nav_labels": [
+    "Attack Labs",
+    "Context Security",
+    "Agent Authority",
+    "Supply Chain"
+  ],
+  "label": "pass2",
+  "viewports": [
+    1440,
+    1280,
+    1024,
+    768
+  ]
+}

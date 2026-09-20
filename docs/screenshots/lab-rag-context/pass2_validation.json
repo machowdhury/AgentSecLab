@@ -14,17 +14,11 @@
   ],
   "tabs_missing": [],
   "tokens_found": [
-    "run_id",
-    "baseline_run_id",
-    "attack_run_id",
-    "retest_run_id"
+    "run_id"
   ],
   "tokens_missing": [],
   "token_values": {
-    "run_id": "51f70fb9-994e-4dd4-9b36-cac6fb1e8232",
-    "baseline_run_id": "51f70fb9-994e-4dd4-9b36-cac6fb1e8232",
-    "attack_run_id": "3a43d24f-9281-42f6-8375-1fb2efaa80ac",
-    "retest_run_id": "bea97bae-491b-4b36-b52f-1417d2bad01b"
+    "run_id": "Baseline \u2014 defended / normal"
   },
   "screenshots": [
     "docs/screenshots/lab-rag-context/pass2_overview.png",

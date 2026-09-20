@@ -56,15 +56,15 @@ ALLOW is not execution. The control row has `executed=false`. Execution is `mcp.
 
 ## ATTACK
 
-**Action:** same agent requests `lookup_customer_tier` with scope `customer:read`. Profile `vulnerable`.
+**Action:** Open Attack Service Tool Authorization, predict, then Launch ATTACK (LIVE). Same agent requests `lookup_customer_tier` with scope `customer:read`. Profile is server-owned `vulnerable` ExperimentContext. The browser does not send tool, scope, grants, or profile.
 
 The tool is **registered** and **not granted**. This is unauthorized invocation, not a claim that the tool is malware. Controlled lab authorization failure; not a production exploit.
 
-**Expected:** labeled ALLOW `vulnerable_profile_fail_open:CTRL-MCP-001…`, handler begins, `mcp.completed`, handler count **1**.
+**Expected:** labeled ALLOW `vulnerable_profile_fail_open:CTRL-MCP-001…`, handler begins, `mcp.completed`, handler count **1**. Fresh `run.id`.
 
-**Validated reference:** `5e8f55f3-eb46-47ee-b979-b72d9c9b1f49`.
+**Validated REPLAY reference:** `5e8f55f3-eb46-47ee-b979-b72d9c9b1f49`. Fresh LIVE ids are not this UUID.
 
-**SPL this step:** Q-MCP-AUTHZ, Q-MCP-EXECUTED on the ATTACK token. Predict before you read.
+**SPL this step:** Path A in Search with the fresh run.id, or Q-MCP-AUTHZ / Q-MCP-EXECUTED on the ATTACK token. Predict before you launch.
 
 ---
 
@@ -128,17 +128,17 @@ Splunk searches do not move the control.
 
 ## RETEST
 
-Same unauthorized request as ATTACK. Profile `defended`. `testbed.mode=RETEST`.
+Same unauthorized request as ATTACK. Launch RETEST (LIVE) on Attack Service. Profile is server-owned `defended`. `testbed.mode=RETEST`. The request bytes do not change.
 
-**Expected:** DENY `tool_not_granted`, `attempted=false`, `executed=false`, `outcome=prevented`, runtime handler count **0**, no `mcp.started`.
+**Expected:** DENY `tool_not_granted`, `attempted=false`, `executed=false`, `outcome=prevented`, runtime handler count **0**, no `mcp.started`. Fresh `run.id` different from ATTACK.
 
-**Validated reference:** `7a1d37b5-d589-4dfd-8322-25ebd0152dbc` (local 6 = Splunk 6).
+**Validated REPLAY reference:** `7a1d37b5-d589-4dfd-8322-25ebd0152dbc` (local 6 = Splunk 6).
 
 Runtime handler count is authoritative proof of non-execution.
 
 Splunk absence of `mcp.started` is corroboration only.
 
-**SPL:** Q-MCP-AUTHZ, Q-MCP-TOOL, Q-MCP-EXECUTED on the RETEST token.
+**SPL:** Path A on the fresh RETEST run.id, or Q-MCP-AUTHZ, Q-MCP-TOOL, Q-MCP-EXECUTED on the RETEST token.
 
 ---
 

@@ -47,11 +47,6 @@ WORKSHOP_TABS = (
 REQUIRED_TOKENS = (
     "run_id",
     "scan_id",
-    "baseline_run_id",
-    "attack_run_id",
-    "retest_run_id",
-    "normal_scan_id",
-    "malicious_scan_id",
 )
 SPECIMEN_IDS = {
     "run_id": "d95717ed-ffd2-46c0-a130-9a5d7d539a5d",
@@ -129,26 +124,23 @@ def test_ten_tabs_and_token_defaults():
     assert tokens == set(REQUIRED_TOKENS)
     for input_id in definition["inputs"]:
         assert input_id in definition["layout"]["globalInputs"]
-    for token, value in SPECIMEN_IDS.items():
+    for token in REQUIRED_TOKENS:
         match = [
             inp for inp in definition["inputs"].values() if inp["options"]["token"] == token
         ]
-        assert match[0]["options"]["defaultValue"] == value
+        assert match[0]["options"]["defaultValue"] == SPECIMEN_IDS[token]
     hunt = [inp for inp in definition["inputs"].values() if inp["options"]["token"] == "run_id"][0]
-    assert hunt["title"] == "Hunt"
+    assert hunt["title"] == "Investigate specimen"
+    assert hunt["type"] == "input.dropdown"
     scan_hunt = [
         inp for inp in definition["inputs"].values() if inp["options"]["token"] == "scan_id"
     ][0]
-    assert scan_hunt["title"] == "Hunt scan"
+    assert scan_hunt["title"] == "Investigate scan"
+    assert scan_hunt["type"] == "input.dropdown"
     titles = {inp["title"] for inp in definition["inputs"].values()}
     assert titles == {
-        "Hunt",
-        "Hunt scan",
-        "BASELINE RUN",
-        "ATTACK RUN",
-        "RETEST RUN",
-        "NORMAL SCAN",
-        "MALICIOUS SCAN",
+        "Investigate specimen",
+        "Investigate scan",
     }
     for layout in definition["layout"]["layoutDefinitions"].values():
         assert layout["type"] == "grid"
@@ -172,30 +164,30 @@ def test_search_reuse_bind_only():
         "ds_scan_who": who.replace("__SCAN_ID__", '"$scan_id$"'),
         "ds_scan_art": art.replace("__SCAN_ID__", '"$scan_id$"'),
         "ds_scan_find": findings.replace("__SCAN_ID__", '"$scan_id$"'),
-        "ds_scan_who_n": who.replace("__SCAN_ID__", '"$normal_scan_id$"'),
-        "ds_scan_art_n": art.replace("__SCAN_ID__", '"$normal_scan_id$"'),
-        "ds_scan_find_n": findings.replace("__SCAN_ID__", '"$normal_scan_id$"'),
-        "ds_scan_who_m": who.replace("__SCAN_ID__", '"$malicious_scan_id$"'),
-        "ds_scan_art_m": art.replace("__SCAN_ID__", '"$malicious_scan_id$"'),
-        "ds_scan_find_m": findings.replace("__SCAN_ID__", '"$malicious_scan_id$"'),
+        "ds_scan_who_n": who.replace("__SCAN_ID__", f'"{SPECIMEN_IDS["normal_scan_id"]}"'),
+        "ds_scan_art_n": art.replace("__SCAN_ID__", f'"{SPECIMEN_IDS["normal_scan_id"]}"'),
+        "ds_scan_find_n": findings.replace("__SCAN_ID__", f'"{SPECIMEN_IDS["normal_scan_id"]}"'),
+        "ds_scan_who_m": who.replace("__SCAN_ID__", f'"{SPECIMEN_IDS["malicious_scan_id"]}"'),
+        "ds_scan_art_m": art.replace("__SCAN_ID__", f'"{SPECIMEN_IDS["malicious_scan_id"]}"'),
+        "ds_scan_find_m": findings.replace("__SCAN_ID__", f'"{SPECIMEN_IDS["malicious_scan_id"]}"'),
         "ds_corr_n": corr.replace("__DESCRIPTION_SHA256__", NORMAL_HASH),
         "ds_corr_m": corr.replace("__DESCRIPTION_SHA256__", MALICIOUS_HASH),
         "ds_q_authz": authz.replace("__RUN_ID__", '"$run_id$"'),
         "ds_q_tool": tool.replace("__RUN_ID__", '"$run_id$"'),
         "ds_q_executed": executed.replace("__RUN_ID__", '"$run_id$"'),
         "ds_q_catalog": catalog.replace("__RUN_ID__", '"$run_id$"'),
-        "ds_q_authz_b": authz.replace("__RUN_ID__", '"$baseline_run_id$"'),
-        "ds_q_authz_a": authz.replace("__RUN_ID__", '"$attack_run_id$"'),
-        "ds_q_authz_r": authz.replace("__RUN_ID__", '"$retest_run_id$"'),
-        "ds_q_tool_r": tool.replace("__RUN_ID__", '"$retest_run_id$"'),
-        "ds_q_exec_b": executed.replace("__RUN_ID__", '"$baseline_run_id$"'),
-        "ds_q_exec_a": executed.replace("__RUN_ID__", '"$attack_run_id$"'),
-        "ds_q_exec_r": executed.replace("__RUN_ID__", '"$retest_run_id$"'),
-        "ds_q_cat_b": catalog.replace("__RUN_ID__", '"$baseline_run_id$"'),
-        "ds_q_cat_a": catalog.replace("__RUN_ID__", '"$attack_run_id$"'),
-        "ds_q_cat_r": catalog.replace("__RUN_ID__", '"$retest_run_id$"'),
-        "ds_q_after_a": after.replace("__RUN_ID__", '"$attack_run_id$"'),
-        "ds_q_after_r": after.replace("__RUN_ID__", '"$retest_run_id$"'),
+        "ds_q_authz_b": authz.replace("__RUN_ID__", f'"{SPECIMEN_IDS["baseline_run_id"]}"'),
+        "ds_q_authz_a": authz.replace("__RUN_ID__", f'"{SPECIMEN_IDS["attack_run_id"]}"'),
+        "ds_q_authz_r": authz.replace("__RUN_ID__", f'"{SPECIMEN_IDS["retest_run_id"]}"'),
+        "ds_q_tool_r": tool.replace("__RUN_ID__", f'"{SPECIMEN_IDS["retest_run_id"]}"'),
+        "ds_q_exec_b": executed.replace("__RUN_ID__", f'"{SPECIMEN_IDS["baseline_run_id"]}"'),
+        "ds_q_exec_a": executed.replace("__RUN_ID__", f'"{SPECIMEN_IDS["attack_run_id"]}"'),
+        "ds_q_exec_r": executed.replace("__RUN_ID__", f'"{SPECIMEN_IDS["retest_run_id"]}"'),
+        "ds_q_cat_b": catalog.replace("__RUN_ID__", f'"{SPECIMEN_IDS["baseline_run_id"]}"'),
+        "ds_q_cat_a": catalog.replace("__RUN_ID__", f'"{SPECIMEN_IDS["attack_run_id"]}"'),
+        "ds_q_cat_r": catalog.replace("__RUN_ID__", f'"{SPECIMEN_IDS["retest_run_id"]}"'),
+        "ds_q_after_a": after.replace("__RUN_ID__", f'"{SPECIMEN_IDS["attack_run_id"]}"'),
+        "ds_q_after_r": after.replace("__RUN_ID__", f'"{SPECIMEN_IDS["retest_run_id"]}"'),
     }
     for ds_id, bound in expected.items():
         assert queries[ds_id]["options"]["query"] == bound, ds_id

@@ -70,10 +70,9 @@ def test_does_not_create_det_goal_or_extra_hunts_or_studio():
     assert not list(GOAL.glob("DET-GOAL*"))
     assert not list((ROOT / "learning").rglob("DET-GOAL*"))
     studio = ROOT / "splunk_app" / "agentsec" / "default" / "data" / "ui" / "views"
-    names = {path.name for path in studio.glob("*")}
-    assert "ws_lab_agent_goal_integrity.xml" not in names
+    names = {path.name for path in studio.glob("*goal*")}
+    assert names <= {"ws_lab_agent_goal_integrity.xml"}
     assert "ws_lab_goal.xml" not in names
-    assert not (GOAL.parent / "workshop.md").exists()
     for name in ("Q-GOAL-TASK", "Q-GOAL-INSTRUCTION", "Q-GOAL-EXECUTED"):
         assert not list(GOAL.glob(f"{name}.*"))
 

@@ -51,13 +51,7 @@ PROHIBITED_FIELDS = (
     "effective_resource",
     "resource.authorized",
 )
-REQUIRED_TOKENS = (
-    "run_id",
-    "baseline_run_id",
-    "attack_run_id",
-    "retest_run_id",
-    "unknown_run_id",
-)
+REQUIRED_TOKENS = ("run_id",)
 SPECIMEN_IDS = {
     "baseline_run_id": "fb50dcaf-8e84-4a3f-a55b-997c72edbd04",
     "attack_run_id": "5ab59fc7-303e-4eea-84e7-ae0b2f405146",
@@ -122,21 +116,17 @@ def test_grid_workshop_tabs_and_tokens():
     assert tokens == set(REQUIRED_TOKENS)
     for input_id in definition["inputs"]:
         assert input_id in definition["layout"]["globalInputs"]
-    for token, run_id in SPECIMEN_IDS.items():
-        match = [
-            inp for inp in definition["inputs"].values() if inp["options"]["token"] == token
-        ]
-        assert match[0]["options"]["defaultValue"] == run_id
+    hunt_inp = [inp for inp in definition["inputs"].values() if inp["options"]["token"] == "run_id"][0]
+    assert hunt_inp["type"] == "input.dropdown"
+    assert hunt_inp["options"]["defaultValue"] == SPECIMEN_IDS.get("run_id", SPECIMEN_IDS["baseline_run_id"])
+    item_values = {item["value"] for item in hunt_inp["options"]["items"]}
+    assert SPECIMEN_IDS["baseline_run_id"] in item_values
+    assert SPECIMEN_IDS["attack_run_id"] in item_values
+    assert SPECIMEN_IDS["retest_run_id"] in item_values
     hunt = [inp for inp in definition["inputs"].values() if inp["options"]["token"] == "run_id"][0]
     assert hunt["options"]["defaultValue"] == SPECIMEN_IDS["baseline_run_id"]
-    assert hunt["title"] == "Hunt"
-    assert {inp["title"] for inp in definition["inputs"].values()} == {
-        "Hunt",
-        "BASELINE",
-        "ATTACK",
-        "RETEST",
-        "UNKNOWN",
-    }
+    assert hunt["title"] == "Investigate specimen"
+    assert {inp["title"] for inp in definition["inputs"].values()} == {"Investigate specimen"}
 
 
 def test_datasources_are_validated_spl_with_token_bind_only():
@@ -153,24 +143,24 @@ def test_datasources_are_validated_spl_with_token_bind_only():
         "ds_q_executed": (SEARCH_DIR / queries["Q-MCP-EXECUTED"]["spl_file"], "run_id"),
         "ds_q_after_deny": (SEARCH_DIR / queries["Q-MCP-AFTER-DENY"]["spl_file"], "run_id"),
         "ds_q_resource": (RESOURCE_DIR / resource_query["spl_file"], "run_id"),
-        "ds_q_authz_baseline": (SEARCH_DIR / queries["Q-MCP-AUTHZ"]["spl_file"], "baseline_run_id"),
-        "ds_q_authz_attack": (SEARCH_DIR / queries["Q-MCP-AUTHZ"]["spl_file"], "attack_run_id"),
-        "ds_q_authz_retest": (SEARCH_DIR / queries["Q-MCP-AUTHZ"]["spl_file"], "retest_run_id"),
-        "ds_q_authz_unknown": (SEARCH_DIR / queries["Q-MCP-AUTHZ"]["spl_file"], "unknown_run_id"),
-        "ds_q_resource_baseline": (RESOURCE_DIR / resource_query["spl_file"], "baseline_run_id"),
-        "ds_q_resource_attack": (RESOURCE_DIR / resource_query["spl_file"], "attack_run_id"),
-        "ds_q_resource_retest": (RESOURCE_DIR / resource_query["spl_file"], "retest_run_id"),
-        "ds_q_resource_unknown": (RESOURCE_DIR / resource_query["spl_file"], "unknown_run_id"),
-        "ds_q_tool_baseline": (SEARCH_DIR / queries["Q-MCP-TOOL"]["spl_file"], "baseline_run_id"),
-        "ds_q_tool_attack": (SEARCH_DIR / queries["Q-MCP-TOOL"]["spl_file"], "attack_run_id"),
-        "ds_q_tool_retest": (SEARCH_DIR / queries["Q-MCP-TOOL"]["spl_file"], "retest_run_id"),
-        "ds_q_executed_baseline": (SEARCH_DIR / queries["Q-MCP-EXECUTED"]["spl_file"], "baseline_run_id"),
-        "ds_q_executed_attack": (SEARCH_DIR / queries["Q-MCP-EXECUTED"]["spl_file"], "attack_run_id"),
-        "ds_q_executed_retest": (SEARCH_DIR / queries["Q-MCP-EXECUTED"]["spl_file"], "retest_run_id"),
+        "ds_q_authz_baseline": (SEARCH_DIR / queries["Q-MCP-AUTHZ"]["spl_file"], SPECIMEN_IDS["baseline_run_id"]),
+        "ds_q_authz_attack": (SEARCH_DIR / queries["Q-MCP-AUTHZ"]["spl_file"], SPECIMEN_IDS["attack_run_id"]),
+        "ds_q_authz_retest": (SEARCH_DIR / queries["Q-MCP-AUTHZ"]["spl_file"], SPECIMEN_IDS["retest_run_id"]),
+        "ds_q_authz_unknown": (SEARCH_DIR / queries["Q-MCP-AUTHZ"]["spl_file"], SPECIMEN_IDS["unknown_run_id"]),
+        "ds_q_resource_baseline": (RESOURCE_DIR / resource_query["spl_file"], SPECIMEN_IDS["baseline_run_id"]),
+        "ds_q_resource_attack": (RESOURCE_DIR / resource_query["spl_file"], SPECIMEN_IDS["attack_run_id"]),
+        "ds_q_resource_retest": (RESOURCE_DIR / resource_query["spl_file"], SPECIMEN_IDS["retest_run_id"]),
+        "ds_q_resource_unknown": (RESOURCE_DIR / resource_query["spl_file"], SPECIMEN_IDS["unknown_run_id"]),
+        "ds_q_tool_baseline": (SEARCH_DIR / queries["Q-MCP-TOOL"]["spl_file"], SPECIMEN_IDS["baseline_run_id"]),
+        "ds_q_tool_attack": (SEARCH_DIR / queries["Q-MCP-TOOL"]["spl_file"], SPECIMEN_IDS["attack_run_id"]),
+        "ds_q_tool_retest": (SEARCH_DIR / queries["Q-MCP-TOOL"]["spl_file"], SPECIMEN_IDS["retest_run_id"]),
+        "ds_q_executed_baseline": (SEARCH_DIR / queries["Q-MCP-EXECUTED"]["spl_file"], SPECIMEN_IDS["baseline_run_id"]),
+        "ds_q_executed_attack": (SEARCH_DIR / queries["Q-MCP-EXECUTED"]["spl_file"], SPECIMEN_IDS["attack_run_id"]),
+        "ds_q_executed_retest": (SEARCH_DIR / queries["Q-MCP-EXECUTED"]["spl_file"], SPECIMEN_IDS["retest_run_id"]),
     }
     for ds_id, (spl_path, token) in expected.items():
         spl = spl_path.read_text(encoding="utf-8").strip()
-        bound = spl.replace("__RUN_ID__", f'"${token}$"')
+        bound = spl.replace("__RUN_ID__", f'"${token}$"' if token == "run_id" else f'"{token}"')
         assert definition["dataSources"][ds_id]["options"]["query"] == bound, ds_id
         assert definition["dataSources"][ds_id]["type"] == "ds.search"
     fixture = resource_catalog["detection"]["resource_teaching_fixture"]
@@ -308,7 +298,7 @@ def test_table_empty_copy_is_nodata_not_caption():
         for viz in _definition()["visualizations"].values()
         if viz["type"] == "splunk.markdown"
     )
-    assert "Validated specimen ids" in markdown
+    assert "Evidence identity" in markdown
     learn = next(
         viz["options"]["markdown"]
         for viz in _definition()["visualizations"].values()

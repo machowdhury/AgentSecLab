@@ -90,6 +90,24 @@ body {
   color: #fff;
 }
 
+.lab-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin: 0 0 1.25rem;
+}
+
+.lab-switch a {
+  color: var(--navy, #0B1F33);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+
+.lab-switch a[aria-current="page"] {
+  border-bottom-color: var(--teal, #007F86);
+}
+
 .header-meta {
   margin: 0;
   font-size: 0.95rem;
@@ -169,6 +187,12 @@ textarea {
   opacity: 0.65;
 }
 
+.btn[hidden],
+a.btn[hidden],
+[hidden] {
+  display: none !important;
+}
+
 .btn-primary {
   background: var(--accent-teal);
 }
@@ -204,9 +228,31 @@ summary:focus-visible,
 
 .status[data-state="READY"] { color: var(--state-info); }
 .status[data-state="RUNNING"] { color: var(--state-warning); }
+.status[data-state="LAUNCHING"] { color: var(--state-warning); }
+.status[data-state="TELEMETRY SENT"] { color: var(--state-info); }
+.status[data-state="WAITING FOR SPLUNK"] { color: var(--state-warning); }
+.status[data-state="EVIDENCE READY"] { color: var(--state-success); }
 .status[data-state="COMPLETED"] { color: var(--state-success); }
 .status[data-state="DENIED"] { color: var(--state-critical); }
 .status[data-state="ERROR"] { color: var(--state-critical); }
+.status[data-state="WAITING_FOR_EVIDENCE"] { color: var(--state-warning); }
+.status[data-state="EVIDENCE_READY"] { color: var(--state-success); }
+
+.handoff-steps {
+  margin: 0.5rem 0 1rem;
+  padding-left: 1.25rem;
+}
+
+a.btn {
+  text-decoration: none;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+}
 
 .status-row {
   display: flex;
@@ -224,7 +270,7 @@ summary:focus-visible,
 .facts {
   margin: 0;
   display: grid;
-  grid-template-columns: 11rem 1fr;
+  grid-template-columns: minmax(11rem, 16rem) 1fr;
   gap: 0.45rem 1rem;
 }
 
@@ -238,11 +284,19 @@ summary:focus-visible,
   overflow-wrap: anywhere;
 }
 
-.run-id-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: stretch;
+.badge-same,
+.badge-different {
+  display: inline-block;
+  font-weight: 700;
+  padding: 0 0.15rem;
+}
+
+.badge-same::before {
+  content: "SAME: ";
+}
+
+.badge-different::before {
+  content: "DIFFERENT: ";
 }
 
 .run-id-row input {
@@ -292,9 +346,6 @@ details.secondary summary {
   font-weight: 600;
 }
 
-.actions {
-  margin: 1rem 0 0;
-}
 
 @media (max-width: 768px) {
   .facts {

@@ -57,6 +57,8 @@ class PipelineResult:
     actual_behavior: str
     attack_id: str
     error_stage: str | None = None
+    experiment_id: str | None = None
+    input_fingerprint: str | None = None
 
 
 def _handoff_context(user_input: str, previous_name: str, previous_text: str) -> str:
@@ -93,6 +95,8 @@ def run_loan_pipeline(
     expected_behavior: str | None = None,
     write_evidence: bool = True,
     inspect_fn: InspectFn = inspect_input,
+    experiment_id: str | None = None,
+    input_fingerprint: str | None = None,
 ) -> PipelineResult:
     settings = settings or get_settings()
     started = time.monotonic()
@@ -293,7 +297,11 @@ def run_loan_pipeline(
         actual = f"ALLOW complete; llm_calls={llm_calls}"
 
     evidence_dir = None
-    events = [event for event in memory.events if event.get("agentsec.run.id") == str(ctx.run_id)]
+    events = [
+        event
+        for event in (memory.snapshot() if hasattr(memory, "snapshot") else memory.events)
+        if event.get("agentsec.run.id") == str(ctx.run_id)
+    ]
     export_report = flush_export(sink)
     if write_evidence:
         bundle = write_evidence_bundle(
@@ -333,6 +341,8 @@ def run_loan_pipeline(
         actual_behavior=actual,
         attack_id=attack_id,
         error_stage=error_stage,
+        experiment_id=experiment_id,
+        input_fingerprint=input_fingerprint,
     )
 
 
@@ -349,6 +359,7 @@ def run_schema_failure(
     extra_fields: tuple[str, ...] = (),
     input_text: str | None = None,
     write_evidence: bool = True,
+    experiment_id: str | None = None,
 ) -> PipelineResult:
     """Malformed / unknown-field requests: mint ids, emit run.started + run.failed, never call Ollama."""
     del llm
@@ -364,7 +375,11 @@ def run_schema_failure(
         error_message=message,
     )
     actual = f"schema_validation ERROR ({error_reason}); llm_calls=0"
-    events = [event for event in memory.events if event.get("agentsec.run.id") == str(ctx.run_id)]
+    events = [
+        event
+        for event in (memory.snapshot() if hasattr(memory, "snapshot") else memory.events)
+        if event.get("agentsec.run.id") == str(ctx.run_id)
+    ]
     evidence_dir = None
     stored_input = input_text or ""
     export_report = flush_export(sink)
@@ -405,6 +420,8 @@ def run_schema_failure(
         actual_behavior=actual,
         attack_id=attack_id,
         error_stage="schema_validation",
+        experiment_id=experiment_id,
+        input_fingerprint=None,
     )
 
 
@@ -436,6 +453,8 @@ def result_to_dict(result: PipelineResult) -> dict[str, Any]:
         "schema_name": SCHEMA_NAME,
         "schema_version": SCHEMA_VERSION,
         "error_stage": result.error_stage,
+        "experiment_id": result.experiment_id,
+        "input_fingerprint": result.input_fingerprint,
         "hops": [
             {
                 "hop.index": hop.index,

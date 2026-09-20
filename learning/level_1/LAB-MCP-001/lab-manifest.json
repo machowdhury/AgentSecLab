@@ -1,0 +1,101 @@
+{
+  "lab_id": "LAB-MCP-001",
+  "title": "Tool Authorization",
+  "not_authorization": true,
+  "security_question": "Does a tool request become a tool grant, or does CTRL-MCP-001 decide before the handler starts?",
+  "invariant_ids": ["INV-001"],
+  "control_id": "CTRL-MCP-001",
+  "workshop_view": "ws_lab_mcp_001",
+  "level": "1",
+  "domain": "tool_authorization",
+  "execution_modes": {
+    "LIVE": ["BASELINE", "ATTACK", "RETEST"],
+    "REPLAY": ["BASELINE", "ATTACK", "RETEST"],
+    "GUIDED": true
+  },
+  "retest_support": "LIVE",
+  "retest_support_detail": "ATTACK and RETEST share the same known-ungranted lookup_customer_tier request. Profile is server-owned ExperimentContext. Process env is not mutated.",
+  "specimens": [
+    {
+      "specimen_id": "MCP-001",
+      "mode": "BASELINE",
+      "profile": "defended",
+      "live": true,
+      "experiment_id": "LAB-MCP-001:BASELINE",
+      "same_as_attack_payload": false
+    },
+    {
+      "specimen_id": "MCP-002",
+      "mode": "ATTACK",
+      "profile": "vulnerable",
+      "live": true,
+      "experiment_id": "LAB-MCP-001:ATTACK",
+      "intentionally_vulnerable": true,
+      "same_as_retest_payload": true
+    },
+    {
+      "specimen_id": "MCP-002",
+      "mode": "RETEST",
+      "profile": "defended",
+      "live": true,
+      "experiment_id": "LAB-MCP-001:RETEST",
+      "same_as_attack_payload": true
+    }
+  ],
+  "prediction": {
+    "ATTACK": {
+      "attack_objective": "Send the catalog ungranted lookup_customer_tier request on the intentionally vulnerable ATTACK experiment and observe whether CTRL-MCP-001 fail-opens before the handler.",
+      "why_this_matters": "A tool request is not a tool grant. INV-001: an agent cannot receive more authority than was delegated. This ATTACK specimen is labeled vulnerable so you can later RETEST the same request under defense.",
+      "what_will_change": "A new run.id is minted. CTRL-MCP-001 records a labeled fail-open ALLOW. Telemetry is emitted for this execution only.",
+      "what_will_not_change": "Coded allowed_tools, grants, catalog valid_scopes. The browser does not choose the tool, scope, resource, or profile. Splunk does not ALLOW or DENY.",
+      "security_property": "REQUEST != GRANT. On this labeled vulnerable experiment the ungranted known tool is ALLOW then executed. That is not universal MCP bypass.",
+      "expected_evidence_defended": "Not this ATTACK specimen. Defended lookup_customer_tier is the RETEST experiment.",
+      "expected_evidence_vulnerable": "INTENTIONALLY VULNERABLE LAB PROFILE: ALLOW with a fail-open reason, mcp.started, handler_invoke_count=1, testbed.mode=ATTACK. ALLOW is not execution by itself — mcp.started is.",
+      "predict_before_launch": "Before you click Launch ATTACK, write: will CTRL-MCP-001 ALLOW or DENY, will the handler start, and if denied what evidence should exist?",
+      "attacker_influence": "The tool name, requested_scope, and arguments. The attacker wants an ungranted tool treated as authorized.",
+      "defense_should": "On this ATTACK specimen the lab is fail-open. The defense you will enable is the RETEST ExperimentContext (profile=defended), not Splunk."
+    },
+    "BASELINE": {
+      "attack_objective": "Run the catalog granted lookup_policy request so later ATTACK evidence has a normal comparison.",
+      "why_this_matters": "Zero BASELINE rows is not all-clear. You need the shape of a granted ALLOW + mcp.completed before judging an ungranted tool.",
+      "what_will_change": "A new run.id. CTRL-MCP-001 ALLOW tool_granted. Handler 1. mcp.completed.",
+      "what_will_not_change": "The grant list. This is not lookup_customer_tier.",
+      "security_property": "INV-007 evidence for a granted tool; not an unauthorized-invocation test.",
+      "expected_evidence_defended": "testbed.mode=BASELINE, profile=defended, ALLOW tool_granted, handler_invoke_count=1, mcp.completed.",
+      "predict_before_launch": "Before you click Launch, write: should lookup_policy be ALLOW, and should mcp.started appear?"
+    },
+    "RETEST": {
+      "attack_objective": "Replay the SAME lookup_customer_tier request on the defended RETEST experiment and prove the outcome changed because defense changed, not because the request changed.",
+      "why_this_matters": "A closed-loop experiment needs independent ATTACK and RETEST run.ids. Process-global profile mutation would leak between concurrent experiments.",
+      "what_will_change": "A new run.id, testbed.mode=RETEST, profile=defended, DENY tool_not_granted if CTRL-MCP-001 matches.",
+      "what_will_not_change": "The tool, requested_scope, arguments, and request fingerprint. Coded grants. Splunk still does not enforce.",
+      "security_property": "Same adversarial request + different server-owned configuration = different security outcome. Not universal tool-authorization resistance.",
+      "expected_evidence_defended": "DENY tool_not_granted, attempted=false, executed=false, outcome=prevented, handler_invoke_count=0, no mcp.started on a complete copy, testbed.mode=RETEST.",
+      "will_reach_operation": "On defended RETEST, the ungranted tool should not start the handler. CTRL-MCP-001 should DENY first.",
+      "which_control": "CTRL-MCP-001 at acmebank.mcp.authorize, before the tool handler. AcmeBank owns enforcement. Splunk does not.",
+      "expected_decision": "DENY, reason tool_not_granted.",
+      "falsify": "mcp.started after DENY, or ALLOW on this RETEST experiment, would falsify the defended prediction. Missing Splunk rows alone would not.",
+      "predict_before_launch": "Will the same ungranted request reach the handler? If denied, what evidence should exist? Does missing mcp.started alone prove prevention?"
+    }
+  },
+  "investigation": {
+    "entry_hunt": "Q-MCP-WHO",
+    "reuse_hunts": ["Q-MCP-WHO", "Q-MCP-AUTHZ", "Q-MCP-TOOL", "Q-MCP-EXECUTED", "Q-MCP-AFTER-DENY"],
+    "starter_index": "agentsec_telemetry",
+    "starter_sourcetype": "otel:agentic:json",
+    "do_not_create": ["DET-MCP-NEW", "DET-LAUNCH", "DET-ATTACK-SIMULATOR"]
+  },
+  "limitations": [
+    "LOCAL EDUCATIONAL SERVICE. Attack Service is localhost and unauthenticated.",
+    "NOT PRODUCTION AUTHENTICATION. NOT MULTI-TENANT. NOT INTERNET-FACING.",
+    "CTRL-MCP-001 is a lab allow-list, not production MCP IAM.",
+    "JSON-RPC is in-process, not stdio/HTTP MCP transport.",
+    "RETEST DENY is not automatically SAFE.",
+    "HEC HTTP 200 is not searchable evidence.",
+    "Missing mcp.started is not independent proof of prevention.",
+    "ALLOW is not execution. DENY is not an incident.",
+    "DET-MCP-001 alerts only on DENY-then-start. ATTACK fail-open ALLOW is silent. Silence is not SAFE.",
+    "Studio tokens are not auto-bound to a fresh run.id.",
+    "Learning metadata is not security policy."
+  ]
+}

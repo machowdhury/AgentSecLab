@@ -125,6 +125,8 @@ class McpInvokeResult:
     metadata_control_decision: str | None = None
     metadata_control_reason: str | None = None
     metadata_derived_authority: bool = False
+    experiment_id: str | None = None
+    input_fingerprint: str | None = None
 
 
 def _duration_ms(started: float) -> int:
@@ -236,6 +238,8 @@ def run_mcp_invoke(
     authorize_fn: AuthorizeFn | None = None,
     expected_behavior: str | None = None,
     catalog_snapshot: dict[str, Any] | None = None,
+    experiment_id: str | None = None,
+    input_fingerprint: str | None = None,
 ) -> McpInvokeResult:
     settings = settings or get_settings()
     started = time.monotonic()
@@ -835,6 +839,8 @@ def run_mcp_invoke(
         metadata_control_decision=metadata_control_decision,
         metadata_control_reason=metadata_control_reason,
         metadata_derived_authority=metadata_derived_authority,
+        experiment_id=experiment_id,
+        input_fingerprint=input_fingerprint,
     )
 
 
@@ -1129,6 +1135,8 @@ def mcp_result_to_dict(result: McpInvokeResult) -> dict[str, Any]:
         "schema_name": SCHEMA_NAME,
         "schema_version": SCHEMA_VERSION,
         "error_stage": result.error_stage,
+        "experiment_id": result.experiment_id,
+        "input_fingerprint": result.input_fingerprint,
         "result_trust": result.result_trust,
         "result_provenance": result.result_provenance,
         "lookup_policy_handler_count": result.lookup_policy_handler_count,
