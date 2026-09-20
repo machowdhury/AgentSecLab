@@ -22,6 +22,7 @@ The suggested “Level 1 = prompt injection + MCP authorization” is **already 
 | LAB-SCANNER-RUNTIME | Scanner finding vs runtime authz | `ws_lab_scanner_runtime_evidence` |
 | LAB-RAG-CONTEXT | Retrieved-context / indirect PI (INV-002) | `ws_lab_rag_context` |
 | LAB-MEMORY-001 | Persistent memory / INV-003 | `ws_lab_memory_security` |
+| LAB-AGENT-GOAL-INTEGRITY-001 | Goal / instruction integrity (INV-002 / INV-006) | `ws_lab_agent_goal_integrity` |
 
 Result trust is **not** waiting for a future “knowledge” level. Do not re-teach MCP-005 as if it were new.
 
@@ -36,7 +37,7 @@ Keep eight levels, but reorder so architecture dependencies are honest.
 | Level | Name | Status | Contents |
 |-------|------|--------|----------|
 | **1** | Foundations: prompt + MCP authorization | **COMPLETE** | PI-001, MCP-001/003/004/005/006, Q-MCP hunts, one detector, Studio workshops |
-| **2** | Agent trust: catalog, identity, A2A | **PARTIAL** | Catalog + scanner **COMPLETE**. INV-005 / A2A: **Phase 12C Splunk validated** (`LAB-AGENT-DELEGATION-001`; schema 1.8.0; `Q-AGENT-DELEGATION-AUTHORITY`). Workshop and live A2A transport remain later. Goal integrity: **Phase 13D detection analyzed** (`LAB-AGENT-GOAL-INTEGRITY-001`; schema 1.9.0; hunt REUSE; **NO NEW DETECTOR**). Workshop **DESIGNED — NOT IMPLEMENTED**. |
+| **2** | Agent trust: catalog, identity, A2A | **PARTIAL** | Catalog + scanner **COMPLETE**. INV-005 / A2A: **Phase 12C Splunk validated** (`LAB-AGENT-DELEGATION-001`; schema 1.8.0; `Q-AGENT-DELEGATION-AUTHORITY`). Workshop and live A2A transport remain later. Goal integrity: **Phase 13E workshop validated** (`LAB-AGENT-GOAL-INTEGRITY-001`; schema 1.9.0; hunt REUSE; **NO NEW DETECTOR**). Product UI: grouped nav + Home (`docs/AGENTSEC_UI_INFORMATION_ARCHITECTURE.md`). |
 | **3** | Knowledge & memory | **PARTIAL** | RAG / LAB-RAG-CONTEXT **COMPLETE** (INV-002). INV-003 memory: **Phase 11E workshop validated**. Identity runtime remains 12B+. |
 | **4** | Agent supply chain | **ABSENT** | AI BOM, package/model scans, MCP server provenance, skill-scanner — as **imported evidence**, not a tool zoo |
 | **5** | Detection engineering | **PARTIAL** | Splunk KO review, hunts vs detections, no-data semantics, DET-MCP-001. Memory 11D: hunt ≠ detection; no DET-MEMORY. More detectors only when predicates exist. |
@@ -49,6 +50,8 @@ Keep eight levels, but reorder so architecture dependencies are honest.
 ## Workshop contract (unchanged)
 
 LEARN → BASELINE → ATTACK → OBSERVE → HUNT → DETECT → DEFEND → RETEST → COMPARE → PROVE
+
+Phase 14A (`docs/PHASE14A_LEARNING_EXPERIENCE_DESIGN.md`) adds instructional beats UNDERSTAND → PREDICT → INVESTIGATE → CONNECT **on top of** this shell. Phase 14E (`docs/PHASE14E_LEARNING_LOOP_GENERALIZATION.md`) promotes the reusable contracts proven by **two** reference labs: LAB-PI-001 (prompt/input trust) and LAB-MCP-001 (tool authorization). Learning metadata is not policy. Remaining labs are **not** auto-migrated.
 
 UI: `.cursor/rules/32-ui-design-system.mdc` + `/ui-review`  
 Evidence: `/logic-proof`  

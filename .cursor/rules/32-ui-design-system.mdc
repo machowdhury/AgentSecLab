@@ -6,7 +6,7 @@ alwaysApply: false
 
 # AgentSec UI Design System
 
-Canonical tokens: `docs/AGENTSEC_DESIGN_SYSTEM.md`. Review: `.cursor/skills/ui-review/SKILL.md`.
+Canonical tokens: `docs/AGENTSEC_DESIGN_SYSTEM.md`. Product IA: `docs/AGENTSEC_UI_INFORMATION_ARCHITECTURE.md`. Workshop shell: `docs/AGENTSEC_WORKSHOP_UI_STANDARD.md`. Review: `.cursor/skills/ui-review/SKILL.md`.
 
 Learner-facing surfaces (AcmeBank, Attack Service, Studio workshops) share one palette. Do not restyle Splunk login or enterprise chrome.
 
@@ -115,9 +115,11 @@ Completion requires:
 
 ## Reference implementation
 
-LAB-PI-001 is the initial reference implementation for AgentSec workshop visual quality.
+The Goal Integrity workshop (`ws_lab_agent_goal_integrity`) is the current shell exemplar for title hierarchy, hunt dropdown, canonical specimen literals, and LEARN/COMPARE cards.
 
-Future workshops should reuse its visual patterns unless there is a documented reason to diverge.
+Do **not** copy its evidence planes onto RAG, Memory, Scanner, Identity, or MCP.
+
+Future workshops must follow `docs/AGENTSEC_WORKSHOP_UI_STANDARD.md` and `docs/AGENTSEC_UI_INFORMATION_ARCHITECTURE.md`. Do not add `LAB-*` top-level navigation or raw UUID learner fields.
 
 ## Cross-surface consistency
 

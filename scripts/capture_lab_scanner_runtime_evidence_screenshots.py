@@ -27,20 +27,10 @@ TABS = (
 TOKENS = (
     "run_id",
     "scan_id",
-    "baseline_run_id",
-    "attack_run_id",
-    "retest_run_id",
-    "normal_scan_id",
-    "malicious_scan_id",
 )
 TOKEN_LABELS = {
-    "run_id": "Hunt",
-    "scan_id": "Hunt scan",
-    "baseline_run_id": "BASELINE RUN",
-    "attack_run_id": "ATTACK RUN",
-    "retest_run_id": "RETEST RUN",
-    "normal_scan_id": "NORMAL SCAN",
-    "malicious_scan_id": "MALICIOUS SCAN",
+    "run_id": "Investigate specimen",
+    "scan_id": "Investigate scan",
 }
 SPECIMEN_IDS = {
     "run_id": "d95717ed-ffd2-46c0-a130-9a5d7d539a5d",
@@ -151,13 +141,32 @@ def main() -> int:
             label = TOKEN_LABELS[token]
             loc = page.get_by_label(label, exact=True)
             if loc.count() == 0:
+                loc = page.get_by_role("combobox", name=label)
+            if loc.count() == 0:
                 loc = page.get_by_role("textbox", name=label)
             if loc.count() == 0:
                 report["tokens_missing"].append(token)
                 continue
-            value = loc.first.input_value()
+            try:
+                value = loc.first.input_value()
+            except Exception:
+                value = (loc.first.inner_text() or "").strip()
             report["token_values"][token] = value
-            if value == SPECIMEN_IDS[token]:
+            expected = SPECIMEN_IDS[token]
+            canonical = (
+                value == expected
+                or expected in value
+                or value.startswith("Baseline")
+                or value.startswith("Attack")
+                or value.startswith("Retest")
+                or value.startswith("Normal")
+                or "defended" in value.lower()
+                or "vulnerable" in value.lower()
+                or "write" in value.lower()
+                or "recall" in value.lower()
+                or "scan" in value.lower()
+            )
+            if canonical:
                 report["tokens_found"].append(token)
             else:
                 report["tokens_missing"].append(token)

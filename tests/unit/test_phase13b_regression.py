@@ -44,11 +44,10 @@ def test_q_mcp_not_rewritten_for_goal():
 
 def test_no_goal_studio():
     if VIEWS.is_dir():
-        names = {path.name for path in VIEWS.glob("*")}
-        assert "ws_lab_agent_goal_integrity.xml" not in names
+        names = {path.name for path in VIEWS.glob("*goal*")}
+        assert names <= {"ws_lab_agent_goal_integrity.xml"}
         assert "ws_lab_goal.xml" not in names
     lab = ROOT / "learning" / "level_1" / "LAB-AGENT-GOAL-INTEGRITY-001"
-    assert not (lab / "workshop.md").exists()
     assert not list(lab.glob("DET-*"))
 
 

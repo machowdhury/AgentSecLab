@@ -1,13 +1,23 @@
 <nav search_view="search" color="0B1F33">
-  <view name="ws_lab_pi_001" default="true" />
-  <view name="ws_lab_mcp_001" />
-  <view name="ws_lab_mcp_003" />
-  <view name="ws_lab_mcp_004" />
-  <view name="ws_lab_mcp_005" />
-  <view name="ws_lab_mcp_006" />
-  <view name="ws_lab_mcp_catalog" />
-  <view name="ws_lab_scanner_runtime_evidence" />
-  <view name="ws_lab_rag_context" />
-  <view name="ws_lab_memory_security" />
-  <view name="search" />
+  <view name="ws_agentsec_home" default="true">Home</view>
+  <collection label="Attack Labs">
+    <view name="ws_lab_pi_001">Direct Prompt Injection</view>
+    <view name="ws_lab_mcp_001">Tool Authorization</view>
+    <view name="ws_lab_mcp_003">Scope Escalation</view>
+    <view name="ws_lab_mcp_004">Parameter / Resource Authorization</view>
+    <view name="ws_lab_mcp_005">Tool Result Trust</view>
+    <view name="ws_lab_mcp_006">Confused Deputy</view>
+    <view name="ws_lab_mcp_catalog">Tool Catalog</view>
+  </collection>
+  <collection label="Context Security">
+    <view name="ws_lab_rag_context">RAG / Retrieved Context</view>
+    <view name="ws_lab_memory_security">Persistent Memory</view>
+  </collection>
+  <collection label="Agent Authority">
+    <view name="ws_lab_agent_goal_integrity">Goal / Instruction Integrity</view>
+  </collection>
+  <collection label="Supply Chain">
+    <view name="ws_lab_scanner_runtime_evidence">Scanner + Runtime Evidence</view>
+  </collection>
+  <view name="search">Search</view>
 </nav>

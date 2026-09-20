@@ -42,12 +42,7 @@ WORKSHOP_TABS = (
     "COMPARE",
     "PROVE",
 )
-REQUIRED_TOKENS = (
-    "run_id",
-    "baseline_run_id",
-    "attack_run_id",
-    "retest_run_id",
-)
+REQUIRED_TOKENS = ("run_id",)
 SPECIMEN_IDS = {
     "run_id": "51f70fb9-994e-4dd4-9b36-cac6fb1e8232",
     "baseline_run_id": "51f70fb9-994e-4dd4-9b36-cac6fb1e8232",
@@ -122,15 +117,16 @@ def test_ten_tabs_and_token_defaults():
     assert tokens == set(REQUIRED_TOKENS)
     for input_id in definition["inputs"]:
         assert input_id in definition["layout"]["globalInputs"]
-    for token, value in SPECIMEN_IDS.items():
-        match = [
-            inp for inp in definition["inputs"].values() if inp["options"]["token"] == token
-        ]
-        assert match[0]["options"]["defaultValue"] == value
     hunt = [inp for inp in definition["inputs"].values() if inp["options"]["token"] == "run_id"][0]
-    assert hunt["title"] == "Hunt"
+    assert hunt["type"] == "input.dropdown"
+    assert hunt["options"]["defaultValue"] == SPECIMEN_IDS["run_id"]
+    item_values = {item["value"] for item in hunt["options"]["items"]}
+    assert SPECIMEN_IDS["baseline_run_id"] in item_values
+    assert SPECIMEN_IDS["attack_run_id"] in item_values
+    assert SPECIMEN_IDS["retest_run_id"] in item_values
+    assert hunt["title"] == "Investigate specimen"
     titles = {inp["title"] for inp in definition["inputs"].values()}
-    assert titles == {"Hunt", "BASELINE", "ATTACK", "RETEST"}
+    assert titles == {"Investigate specimen"}
     for layout in definition["layout"]["layoutDefinitions"].values():
         assert layout["type"] == "grid"
         assert layout["options"]["backgroundColor"] == "#F6F8FB"
@@ -152,20 +148,20 @@ def test_search_reuse_bind_only():
         "ds_q_authz": authz.replace("__RUN_ID__", '"$run_id$"'),
         "ds_q_tool": tool.replace("__RUN_ID__", '"$run_id$"'),
         "ds_q_executed": executed.replace("__RUN_ID__", '"$run_id$"'),
-        "ds_q_rag_b": rag.replace("__RUN_ID__", '"$baseline_run_id$"'),
-        "ds_q_rag_a": rag.replace("__RUN_ID__", '"$attack_run_id$"'),
-        "ds_q_rag_r": rag.replace("__RUN_ID__", '"$retest_run_id$"'),
-        "ds_q_authz_b": authz.replace("__RUN_ID__", '"$baseline_run_id$"'),
-        "ds_q_authz_a": authz.replace("__RUN_ID__", '"$attack_run_id$"'),
-        "ds_q_authz_r": authz.replace("__RUN_ID__", '"$retest_run_id$"'),
-        "ds_q_tool_a": tool.replace("__RUN_ID__", '"$attack_run_id$"'),
-        "ds_q_tool_r": tool.replace("__RUN_ID__", '"$retest_run_id$"'),
-        "ds_q_exec_b": executed.replace("__RUN_ID__", '"$baseline_run_id$"'),
-        "ds_q_exec_a": executed.replace("__RUN_ID__", '"$attack_run_id$"'),
-        "ds_q_exec_r": executed.replace("__RUN_ID__", '"$retest_run_id$"'),
-        "ds_q_after_b": after.replace("__RUN_ID__", '"$baseline_run_id$"'),
-        "ds_q_after_a": after.replace("__RUN_ID__", '"$attack_run_id$"'),
-        "ds_q_after_r": after.replace("__RUN_ID__", '"$retest_run_id$"'),
+        "ds_q_rag_b": rag.replace("__RUN_ID__", f'"{SPECIMEN_IDS["baseline_run_id"]}"'),
+        "ds_q_rag_a": rag.replace("__RUN_ID__", f'"{SPECIMEN_IDS["attack_run_id"]}"'),
+        "ds_q_rag_r": rag.replace("__RUN_ID__", f'"{SPECIMEN_IDS["retest_run_id"]}"'),
+        "ds_q_authz_b": authz.replace("__RUN_ID__", f'"{SPECIMEN_IDS["baseline_run_id"]}"'),
+        "ds_q_authz_a": authz.replace("__RUN_ID__", f'"{SPECIMEN_IDS["attack_run_id"]}"'),
+        "ds_q_authz_r": authz.replace("__RUN_ID__", f'"{SPECIMEN_IDS["retest_run_id"]}"'),
+        "ds_q_tool_a": tool.replace("__RUN_ID__", f'"{SPECIMEN_IDS["attack_run_id"]}"'),
+        "ds_q_tool_r": tool.replace("__RUN_ID__", f'"{SPECIMEN_IDS["retest_run_id"]}"'),
+        "ds_q_exec_b": executed.replace("__RUN_ID__", f'"{SPECIMEN_IDS["baseline_run_id"]}"'),
+        "ds_q_exec_a": executed.replace("__RUN_ID__", f'"{SPECIMEN_IDS["attack_run_id"]}"'),
+        "ds_q_exec_r": executed.replace("__RUN_ID__", f'"{SPECIMEN_IDS["retest_run_id"]}"'),
+        "ds_q_after_b": after.replace("__RUN_ID__", f'"{SPECIMEN_IDS["baseline_run_id"]}"'),
+        "ds_q_after_a": after.replace("__RUN_ID__", f'"{SPECIMEN_IDS["attack_run_id"]}"'),
+        "ds_q_after_r": after.replace("__RUN_ID__", f'"{SPECIMEN_IDS["retest_run_id"]}"'),
     }
     for ds_id, bound in expected.items():
         assert queries[ds_id]["options"]["query"] == bound, ds_id

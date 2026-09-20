@@ -14,6 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SEARCH_DIR = ROOT / "learning" / "level_1" / "LAB-MCP-001" / "searches"
+INV_PATH = ROOT / "learning" / "level_1" / "LAB-MCP-001" / "investigations.json"
 OUT_JSON = ROOT / "learning" / "level_1" / "LAB-MCP-001" / "dashboard.definition.json"
 OUT_XML = (
     ROOT
@@ -43,9 +44,11 @@ FULL = 1440
 HALF = 720
 THIRD = 480
 
+SEARCH_URL = "http://127.0.0.1:8000/en-US/app/search/search"
+ATTACK_URL = "http://127.0.0.1:5001/labs/LAB-MCP-001"
 EMPTY_HUNT = (
-    "Hunt `run.id` defaults to the BASELINE specimen so this page is not an error "
-    "state. Replace it and Submit to hunt another complete copy. Zero rows means "
+    "Investigate specimen defaults to the BASELINE specimen so this page is not an error "
+    "state. Custom run.id is available from Search. Zero rows means "
     "no matching indexed events for that id. Zero rows is not DENY and is not "
     "proof the handler never ran."
 )
@@ -69,6 +72,217 @@ def bind_run_id(spl: str, token: str) -> str:
     if "__RUN_ID__" not in spl:
         raise ValueError(f"expected __RUN_ID__ in query for token {token}")
     return spl.replace("__RUN_ID__", f'"${token}$"')
+
+def bind_literal(spl: str, run_id: str) -> str:
+    if "__RUN_ID__" not in spl:
+        raise ValueError("expected __RUN_ID__ in query")
+    return spl.replace("__RUN_ID__", f'"{run_id}"')
+
+
+SPL_TEACHING = {
+    "Q-MCP-WHO": (
+        "- **Why control.decision?** Identity of who requested which tool is on the authorization event.\n"
+        "- **Why not session.id?** AgentSec correlates with run.id.\n"
+        "- **Why collapse mvindex(mvdedup(...),0)?** JSON body and OTLP attributes duplicate scalars."
+    ),
+    "Q-MCP-AUTHZ": (
+        "- **Why event.name=agentsec.control.decision?** That is the PDP copy.\n"
+        "- **Why executed is false on ALLOW?** That field is the control event, not handler start.\n"
+        "- Splunk did **not** evaluate CTRL-MCP-001."
+    ),
+    "Q-MCP-TOOL": (
+        "- **Why mcp.started only?** That event means the handler began.\n"
+        "- **Why zero rows are not DENY?** Incomplete export also yields zero rows."
+    ),
+    "Q-MCP-EXECUTED": (
+        "- **Why has_started?** It is derived from mcp.started in this copy.\n"
+        "- **Why control executed stays false?** Do not read it as handler execution.\n"
+        "- Runtime handler count remains authoritative for non-execution."
+    ),
+    "Q-MCP-AFTER-DENY": (
+        "- **Why this hunt?** It asks whether mcp.started followed DENY for the same run/tool.\n"
+        "- **Why zero rows are not a detector?** No notable. Completeness first.\n"
+        "- DET-MCP-001 is the operational detection of the same invariant, packaged disabled."
+    ),
+}
+
+TABLE_BIND = {
+    "MCP-I1-FIND-THE-RUN": [
+        (
+            "ds_q_who",
+            "Q-MCP-WHO (REPLAY specimen)",
+            "Path B identity row. Fresh LIVE run.id is Search, not this table.",
+        )
+    ],
+    "MCP-I2-FIND-THE-REQUEST": [
+        (
+            "ds_q_who",
+            "Q-MCP-WHO tool identity (REPLAY)",
+            "Requested tool. Not a grant.",
+        ),
+        (
+            "ds_q_params",
+            "Q-MCP-PARAMS (REPLAY)",
+            "Preview + hash only.",
+        ),
+        (
+            "ds_q_scope",
+            "Q-MCP-SCOPE (REPLAY)",
+            "requested_scope vs coded allowed_scope.",
+        ),
+    ],
+    "MCP-I3-AUTHORIZATION-DECISION": [
+        (
+            "ds_q_authz",
+            "Q-MCP-AUTHZ (REPLAY specimen)",
+            "Control.id, decision, reason. Splunk did not make this decision.",
+        )
+    ],
+    "MCP-I4-DID-HANDLER-START": [
+        (
+            "ds_q_executed",
+            "Q-MCP-EXECUTED (REPLAY specimen)",
+            "has_started is execution evidence in this copy. Empty is not independently prevented.",
+        ),
+        (
+            "ds_q_tool",
+            "Q-MCP-TOOL (REPLAY)",
+            "mcp.started rows only.",
+        ),
+        (
+            "ds_q_result",
+            "Q-MCP-RESULT (REPLAY)",
+            "Completed/failed result metadata. Empty is not trusted.",
+        ),
+        (
+            "ds_q_result_trust",
+            "Q-MCP-RESULT-TRUST (REPLAY)",
+            "Expect untrusted_data when a result exists.",
+        ),
+    ],
+    "MCP-I5-WHAT-CAN-YOU-PROVE": [
+        (
+            "ds_q_after_deny",
+            "Q-MCP-AFTER-DENY (indexed REPLAY)",
+            "Zero rows on a complete DENY copy is corroboration, not a shipped detector.",
+        )
+    ],
+    "MCP-I6-ATTACK-VS-RETEST": [
+        (
+            "ds_q_authz_attack",
+            "ATTACK Q-MCP-AUTHZ (canonical REPLAY)",
+            "LIVE ATTACK is the vulnerable experiment. This table is REPLAY.",
+        ),
+        (
+            "ds_q_authz_retest",
+            "RETEST Q-MCP-AUTHZ (canonical REPLAY)",
+            "Path B answer key. Fresh RETEST run.id is Search.",
+        ),
+    ],
+}
+
+
+def question_md(inv: dict, number: int, spl_file: str) -> str:
+    del spl_file
+    return f"""
+# Investigation {number} — {inv["title"]}
+
+**QUESTION**
+
+{inv["security_question"]}
+
+**WHAT AM I TRYING TO PROVE?**
+
+{inv["learning_objective"]}
+
+**YOUR TASK (Path A — try it yourself)**
+
+{inv["starter_guidance"]}
+
+1. Copy the fresh LIVE run.id from Attack Service, or use Investigate specimen for canonical REPLAY.
+2. [Open Splunk Search]({SEARCH_URL})
+3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.
+4. Filter quoted `agentsec.run.id`. Execute. Read the fields yourself.
+
+Studio cannot receive a fresh LIVE run.id. That handoff is Search, not a token write.
+
+Starter (paste your LIVE run.id; do not search `index=*`):
+
+```
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"="PASTE-LIVE-RUN-ID"
+```
+
+Need help? Scroll to **Hint 1**, then **Hint 2**, then the Path B solution. Do not skip Path A.
+"""
+
+
+def hint_md(inv: dict, number: int, which: str) -> str:
+    body = inv["hint_1"] if which == "hint_1" else inv["hint_2"]
+    label = "HINT 1" if which == "hint_1" else "HINT 2"
+    return f"""
+# {label} — Investigation {number}
+
+{body}
+
+Path A is still Search. This is not the full solution.
+"""
+
+
+def solution_md(inv: dict, number: int, spl_file: str) -> str:
+    spl = load_spl(spl_file)
+    bound = spl.replace("__RUN_ID__", '"$run_id$"')
+    hunt = inv["related_hunt"]
+    teach = SPL_TEACHING[hunt]
+    nxt = inv["next_investigation"] or "PROVE — classify what you can actually conclude."
+    return f"""
+# Solution — Investigation {number} {inv["title"]}
+
+This is **Path B**. Path A remains Search with your LIVE run.id.
+
+**SOLUTION SPL** (`{hunt}`)
+
+Copy this into Search. Replace `$run_id$` with the LIVE UUID, or leave the token for Investigate specimen REPLAY.
+
+```
+{bound}
+```
+
+**WHY THESE STAGES**
+
+{teach}
+
+**EXPECTED RESULT SHAPE**
+
+{inv["expected_result_shape"]}
+
+**WHAT YOU ARE SEEING**
+
+{inv["result_explanation"]}
+
+**WHAT IT MEANS**
+
+{inv["security_interpretation"]}
+
+**WHAT IT DOES NOT MEAN**
+
+{inv["does_not_prove"]}
+
+**SECURITY CONNECTION**
+
+Control `{inv["related_control"]}` · invariant `{inv["related_invariant"]}` · hunt `{hunt}`. Splunk does **not** ALLOW or DENY.
+
+**NEXT CHALLENGE**
+
+{nxt}
+"""
+
+
+def bound_run(ref: str) -> str:
+    """Token name stays "$token$"; UUID becomes a quoted literal."""
+    if len(ref) == 36 and ref.count("-") == 4:
+        return f'"{ref}"'
+    return f'"${ref}$"'
+
 
 
 def block(item: str, x: int, y: int, w: int, h: int) -> dict:
@@ -126,12 +340,12 @@ def search_ds(ds_id: str, name: str, query: str) -> tuple[str, dict]:
     }
 
 
-def layout(structure: list[dict], height: int) -> dict:
+def layout(structure: list[dict], height: int, display: str = "auto-scale") -> dict:
     return {
         "type": "grid",
         "options": {
             "backgroundColor": BG,
-            "display": "auto-scale",
+            "display": display,
             "gutterSize": 8,
             "width": CANVAS_W,
             "height": height,
@@ -142,7 +356,7 @@ def layout(structure: list[dict], height: int) -> dict:
 
 def observe_sequence_spl(token: str) -> str:
     """Same control+mcp filter as Q-MCP-EXECUTED, without collapsing to one row."""
-    return f"""index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"="${token}$" ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
+    return f"""index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"={bound_run(token)} ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
 | eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
 | eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
 | eval event_name=mvindex(mvdedup('event.name'),0)
@@ -158,7 +372,7 @@ def observe_sequence_spl(token: str) -> str:
 
 def what_happened_spl(token: str) -> str:
     """Telemetry summary from indexed control + mcp fields. Not LLM prose."""
-    return f"""index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"="${token}$" ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
+    return f"""index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"={bound_run(token)} ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
 | eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
 | eval profile=mvindex(mvdedup('agentsec.security.profile'),0)
 | eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
@@ -202,15 +416,15 @@ def build() -> dict:
     q_after = bind_run_id(load_spl("Q-MCP-AFTER-DENY.spl"), "run_id")
     q_result = bind_run_id(load_spl("Q-MCP-RESULT.spl"), "run_id")
     q_trust = bind_run_id(load_spl("Q-MCP-RESULT-TRUST.spl"), "run_id")
-    q_authz_b = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "baseline_run_id")
-    q_authz_a = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "attack_run_id")
-    q_authz_r = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "retest_run_id")
-    q_tool_b = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "baseline_run_id")
-    q_tool_a = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "attack_run_id")
-    q_tool_r = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "retest_run_id")
-    q_exec_b = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "baseline_run_id")
-    q_exec_a = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "attack_run_id")
-    q_exec_r = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "retest_run_id")
+    q_authz_b = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), BASELINE_ID)
+    q_authz_a = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), ATTACK_ID)
+    q_authz_r = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), RETEST_ID)
+    q_tool_b = bind_literal(load_spl("Q-MCP-TOOL.spl"), BASELINE_ID)
+    q_tool_a = bind_literal(load_spl("Q-MCP-TOOL.spl"), ATTACK_ID)
+    q_tool_r = bind_literal(load_spl("Q-MCP-TOOL.spl"), RETEST_ID)
+    q_exec_b = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), BASELINE_ID)
+    q_exec_a = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), ATTACK_ID)
+    q_exec_r = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), RETEST_ID)
 
     data_sources = dict(
         (
@@ -240,12 +454,12 @@ def build() -> dict:
             search_ds("ds_q_executed_baseline", "Q-MCP-EXECUTED BASELINE", q_exec_b),
             search_ds("ds_q_executed_attack", "Q-MCP-EXECUTED ATTACK", q_exec_a),
             search_ds("ds_q_executed_retest", "Q-MCP-EXECUTED RETEST", q_exec_r),
-            search_ds("ds_what_baseline_id", "What Happened identity BASELINE", what_identity_spl("baseline_run_id")),
-            search_ds("ds_what_baseline_dec", "What Happened decision BASELINE", what_decision_spl("baseline_run_id")),
-            search_ds("ds_what_attack_id", "What Happened identity ATTACK", what_identity_spl("attack_run_id")),
-            search_ds("ds_what_attack_dec", "What Happened decision ATTACK", what_decision_spl("attack_run_id")),
-            search_ds("ds_what_retest_id", "What Happened identity RETEST", what_identity_spl("retest_run_id")),
-            search_ds("ds_what_retest_dec", "What Happened decision RETEST", what_decision_spl("retest_run_id")),
+            search_ds("ds_what_baseline_id", "What Happened identity BASELINE", what_identity_spl(BASELINE_ID)),
+            search_ds("ds_what_baseline_dec", "What Happened decision BASELINE", what_decision_spl(BASELINE_ID)),
+            search_ds("ds_what_attack_id", "What Happened identity ATTACK", what_identity_spl(ATTACK_ID)),
+            search_ds("ds_what_attack_dec", "What Happened decision ATTACK", what_decision_spl(ATTACK_ID)),
+            search_ds("ds_what_retest_id", "What Happened identity RETEST", what_identity_spl(RETEST_ID)),
+            search_ds("ds_what_retest_dec", "What Happened decision RETEST", what_decision_spl(RETEST_ID)),
         )
     )
 
@@ -307,62 +521,50 @@ def build() -> dict:
     add_md(
         "viz_learn",
         f"""
-# LAB-MCP-001 MCP tool authorization
+# Tool Authorization
 
-**WS-MCP-001** · GUIDED · schema `agentsec.security_event` **1.1.0** · INV-001 / INV-002 / INV-007 / INV-008 · MCP-001 / MCP-002 · CTRL-MCP-001
+A tool request is not a tool grant. Schema **1.9.0**. CTRL-MCP-001 is the PDP.
 
-Splunk is the hunt workbench. Splunk does **not** ALLOW or DENY a tool. AcmeBank `POST /mcp/invoke` is the enforcement point.
+**Tool** = named operation (`lookup_policy`, `lookup_customer_tier`) plus arguments. **MCP here** = in-process JSON-RPC `tools/call`, not a product catalog UI.
 
-Transport today is **in-process JSON-RPC `tools/call`**. It is a real authorize-then-execute path. It is not a full remote MCP product.
+**Request** = `tool`, `requested_scope`, `arguments`, `user_id`. **Grant** = server-owned `allowed_tools` / `allowed_scopes`. An LLM cannot grant itself. **Resource** (`policy_id`) is checked only after tool ALLOW.
 
-## What you will learn
+Authorization runs at **CTRL-MCP-001 before the handler**. AcmeBank `POST /mcp/invoke` enforces. Splunk observes the copy and does **not** ALLOW or DENY.
 
-- `tools/call` is a named tool plus arguments, not a prompt regex.
-- Registered is not the same as granted.
-- Registered + granted → ALLOW. Registered + not granted → DENY. Not registered → ERROR.
-- ALLOW is not execution. `mcp.started` means the handler began. `mcp.failed` is not prevention.
-- Authorization must run **before** the tool handler.
-- Tool results are `untrusted_data`. They do not become a new grant.
-- Splunk is evidence of a copy. Missing Splunk events alone cannot prove prevention.
-
-## Validated specimen ids (Phase 3C LIVE)
-
-Copy the full UUID. Token fields may ellipsis; these bullets do not. Do not hunt loan-pipeline ids here.
-
-- **BASELINE** `{BASELINE_ID}` — defended, `lookup_policy`, ALLOW, handler=1, `mcp.completed`
-- **ATTACK** `{ATTACK_ID}` — vulnerable, `lookup_customer_tier`, labeled fail-open ALLOW, handler=1
-- **RETEST** `{RETEST_ID}` — defended, same ungranted tool, DENY, handler=0, no `mcp.started`
-
-`lookup_customer_tier` is not malicious by itself. The problem is **unauthorized invocation**.
-
-## Trust path
+## Trust path (authorization boundary)
 
 ```text
-User / HTTP POST /mcp/invoke
-        │  tool, arguments, requested_scope, user_id
-        ▼
-MCP Policy Agent (acme-agent-mcp-001)
-        ▼
-MCP Client  JSON-RPC tools/call
-        ▼
-CTRL-MCP-001  (server-owned policy)
+USER / AGENT
         │
-   ALLOW → MCP Server execute → Tool Handler
-   DENY / ERROR → stop, no mcp.started, handler count unchanged
-        ▼
-Result (untrusted_data)
-        ▼
-OTel → Splunk (observe only)
+TOOL REQUEST  (tool, requested_scope, arguments)
+        │
+CTRL-MCP-001  ← authorization boundary
+        │
+ALLOW / DENY / ERROR
+        │
+HANDLER START (only after ALLOW) → COMPLETE / FAIL
+        │
+TELEMETRY → SPLUNK (observe only)
 ```
 
-## AUTHORIZATION DECISION vs TOOL EXECUTION
+## What you should be able to say
 
-Authorization is `event.name=agentsec.control.decision` (`ALLOW` / `DENY` / `ERROR`).
-Execution begins only after ALLOW, at `event.name=agentsec.mcp.started`.
+- REQUEST != GRANT. ALLOW != EXECUTION (`mcp.started` is handler start).
+- DENY != automatic proof of non-execution. Runtime `handler_invoke_count` is authoritative.
+- Missing Splunk `mcp.started` is corroborative only on a complete copy.
+- ATTACK != ALERT. 0 DET-MCP-001 rows != SAFE. Splunk != enforcement.
 
 {ALLOW_NOT_EXEC}
 
-Tabs: LEARN → BASELINE → ATTACK → OBSERVE → HUNT → DETECT → DEFEND → RETEST → COMPARE → PROVE.
+LEARN → PREDICT → LAUNCH → INVESTIGATE (Path A or Path B) → DEFEND → LIVE RETEST → COMPARE → PROVE
+
+## Evidence identity
+
+Canonical REPLAY (HUNT token). Fresh LIVE ids come from Attack Service. `lookup_customer_tier` is not malware; the issue is unauthorized invocation.
+
+- **BASELINE** `{BASELINE_ID}` — granted `lookup_policy`, ALLOW, handler=1
+- **ATTACK** `{ATTACK_ID}` — ungranted `lookup_customer_tier`, labeled fail-open ALLOW, handler=1
+- **RETEST** `{RETEST_ID}` — same ungranted request, DENY, handler=0
 """,
         title="LEARN",
     )
@@ -429,17 +631,39 @@ Do not imply ALLOW itself proves execution. Execution is `mcp.started`.
         f"""
 # ATTACK
 
-**Request:** same MCP agent asks for `lookup_customer_tier` with scope `customer:read`.
+Predict **before** you launch. Launching is not the investigation.
 
-This tool is **registered** in the lab registry. It is **not granted** to this agent. That is unauthorized invocation, not a “malicious tool” by itself. This is a controlled lab authorization failure, not a production exploit.
+**ATTACK OBJECTIVE**
 
-**Vulnerable profile:** CTRL-MCP-001 intentionally **fails open** with a labeled ALLOW reason `vulnerable_profile_fail_open:CTRL-MCP-001…`. The handler begins. `mcp.completed` is observed. Runtime handler count **1**.
+Send the catalog ungranted `lookup_customer_tier` / `customer:read` request and see whether CTRL-MCP-001 runs before the handler.
 
-**Validated reference:** `{ATTACK_ID}` — profile `vulnerable`, `testbed.mode=ATTACK`.
+**WHY ARE WE DOING THIS?**
 
-Tables on this tab use the **ATTACK** token (not Hunt). Predict DENY vs fail-open before you read them.
+REQUEST != GRANT. An LLM asking for a tool cannot authorize itself.
 
-Splunk does **not** send this request. Fire `POST /mcp/invoke` on AcmeBank with `AGENTSEC_SECURITY_PROFILE=vulnerable`.
+**WHAT IS THE ATTACKER TRYING TO INFLUENCE?**
+
+The tool name, requested_scope, and arguments — treated as if they were a grant.
+
+**WHAT SHOULD THE DEFENSE DO?**
+
+This ATTACK specimen is the labeled vulnerable experiment. CTRL-MCP-001 fail-opens. The defense you will enable next is RETEST (server-owned `profile=defended`), not Splunk.
+
+**WHAT DO YOU PREDICT?**
+
+Will the request be ALLOW or DENY? Will `mcp.started` appear? If denied, what evidence should exist? Does missing `mcp.started` alone prove prevention?
+
+**WHAT EVIDENCE SHOULD APPEAR?**
+
+LIVE ATTACK: ALLOW with a fail-open reason, real `mcp.started`, `handler_invoke_count=1`, `testbed.mode=ATTACK`. ALLOW is not execution.
+
+Splunk does **not** send this. Studio does **not** POST. Open Attack Service, launch ATTACK, copy LIVE RUN, wait until evidence is searchable, then HUNT Path A.
+
+[Open Attack Service (LIVE launch)]({ATTACK_URL})
+
+**Validated vulnerable REPLAY:** `{ATTACK_ID}`. Choose **Attack — vulnerable / malicious** in Investigate specimen for that copy.
+
+**Next:** HUNT Path A on the fresh ATTACK `run.id`, then DEFEND, then Launch RETEST (LIVE).
 """,
         title="STEP 2 ATTACK",
     )
@@ -510,54 +734,81 @@ Distinguish: ALLOW without start in this copy; ALLOW then `mcp.started`; `mcp.co
     )
 
     add_md(
-        "viz_hunt_md",
+        "viz_hunt_intro",
         f"""
-# HUNT
+# HUNT — guided investigation
 
-**Question:** Which principal and agent requested which tool, what was decided, what scope was asked vs coded, and did execution begin?
+Two paths. Path A is the default. Path B is an answer key, not a replacement.
 
-Filter is already `agentsec.run.id`. Do not hunt `session.id`.
+**Path A — Try it yourself:** question, starter guidance, [Open Splunk Search]({SEARCH_URL}). Construct the hunt.
+
+**Path B — Show solution:** copyable SPL from existing Q-MCP hunts, bound REPLAY table, explanation, limitations. Scroll past Hint 1 / Hint 2 when you are ready.
+
+Investigate specimen is canonical **REPLAY**. Fresh LIVE run.id comes from Attack Service Search handoff. Studio tokens are not auto-bound.
+
+Do not search until Attack Service reports **EVIDENCE READY** (or you have measured searchable events). HEC success is not ready.
+
+This tab is a **stacked notebook**: Path A, then optional hints, then Path B. Custom browser scripts are not used.
 
 {ALLOW_NOT_EXEC}
-
-Zero Q-MCP-TOOL rows does **not** automatically mean DENY.
-
-If Splunk is empty, check `artifacts/<run-id>/export.json`. Do not conclude DENY.
-
-{EMPTY_HUNT}
 """,
         title="STEP 4 HUNT",
     )
-    add_table("viz_hunt_who", "ds_q_who", "Q-MCP-WHO", "Principal, agent, tool, method, profile, mode.", no_data=empty_control)
-    add_table(
-        "viz_hunt_scope",
-        "ds_q_scope",
-        "Q-MCP-SCOPE",
-        "Requested vs coded allowed scope. allowed_scope is not rewritten by fail-open.",
-        no_data=empty_control,
-    )
-    add_table(
-        "viz_hunt_params",
-        "ds_q_params",
-        "Q-MCP-PARAMS",
-        "Preview + hash only. No gen_ai.tool.call.arguments. Not a secret dump.",
-        no_data=empty_control,
-    )
-    add_table("viz_hunt_exec", "ds_q_executed", "Q-MCP-EXECUTED", cap_executed, no_data=empty_tool)
-    add_table(
-        "viz_hunt_result",
-        "ds_q_result",
-        "Q-MCP-RESULT",
-        "Safe result metadata. Empty means no mcp.completed/failed in this copy.",
-        no_data=empty_tool,
-    )
-    add_table(
-        "viz_hunt_trust",
-        "ds_q_result_trust",
-        "Q-MCP-RESULT-TRUST",
-        "Expect untrusted_data on completed results. Empty is not 'trusted'. Preparatory; not MCP-005.",
-        no_data="No completed MCP result in this copy. That is not a trust upgrade.",
-    )
+
+    inv_doc = json.loads(INV_PATH.read_text(encoding="utf-8"))
+    hunt_investigations = [
+        row for row in inv_doc["investigations"] if row.get("studio_tab", "HUNT") == "HUNT"
+    ]
+    hunt_files = {
+        "Q-MCP-WHO": "Q-MCP-WHO.spl",
+        "Q-MCP-AUTHZ": "Q-MCP-AUTHZ.spl",
+        "Q-MCP-TOOL": "Q-MCP-TOOL.spl",
+        "Q-MCP-EXECUTED": "Q-MCP-EXECUTED.spl",
+        "Q-MCP-AFTER-DENY": "Q-MCP-AFTER-DENY.spl",
+    }
+    hunt_structure = [
+        block("viz_hunt_intro", 0, 0, FULL, 280),
+    ]
+    q_h, h1_h, h2_h, sol_h, tbl_h = 300, 160, 160, 500, 300
+    y_cursor = 288
+    for index, inv in enumerate(hunt_investigations, start=1):
+        ident = inv["investigation_id"]
+        hunt_id = inv["related_hunt"]
+        spl_file = hunt_files[hunt_id]
+        q_id = f"viz_i{index}_q"
+        h1_id = f"viz_i{index}_h1"
+        h2_id = f"viz_i{index}_h2"
+        sol_id = f"viz_i{index}_sol"
+        add_md(q_id, question_md(inv, index, spl_file), title=f"I{index} question")
+        add_md(h1_id, hint_md(inv, index, "hint_1"), title=f"I{index} hint 1")
+        add_md(h2_id, hint_md(inv, index, "hint_2"), title=f"I{index} hint 2")
+        add_md(sol_id, solution_md(inv, index, spl_file), title=f"I{index} solution")
+        q_y = y_cursor
+        h1_y = q_y + q_h
+        h2_y = h1_y + h1_h
+        sol_y = h2_y + h2_h
+        tbl_y = sol_y + sol_h
+        hunt_structure.extend(
+            [
+                block(q_id, 0, q_y, FULL, q_h),
+                block(h1_id, 0, h1_y, FULL, h1_h),
+                block(h2_id, 0, h2_y, FULL, h2_h),
+                block(sol_id, 0, sol_y, FULL, sol_h),
+            ]
+        )
+        binds = TABLE_BIND[ident]
+        if len(binds) == 1:
+            ds, title, desc = binds[0]
+            tbl_id = f"viz_i{index}_tbl"
+            add_table(tbl_id, ds, title, desc, no_data=EMPTY_HUNT)
+            hunt_structure.append(block(tbl_id, 0, tbl_y, FULL, tbl_h))
+        else:
+            width = FULL // len(binds)
+            for col, (ds, title, desc) in enumerate(binds):
+                tbl_id = f"viz_i{index}_tbl_{col}"
+                add_table(tbl_id, ds, title, desc, no_data=EMPTY_HUNT)
+                hunt_structure.append(block(tbl_id, col * width, tbl_y, width, tbl_h))
+        y_cursor = tbl_y + tbl_h
 
     add_md(
         "viz_detect_md",
@@ -574,6 +825,8 @@ No notable event. No ES notable. No automatic remediation.
 - **DETECTION** (`DET-MCP-001`, saved search `AgentSec - MCP Execution After Authorization Deny`): continuously checks the same invariant across the index window. Severity **HIGH** because authorization already denied and execution nevertheless began. Packaged **disabled**. This dashboard does **not** enable it. It did **not** fire on the validated LIVE runs.
 
 DENY alone is not an alert. ALLOW (including labeled fail-open) is not this detection. `mcp.failed` after ALLOW is execution then error, not DENY-then-start. ERROR is not DENY. Splunk detects a copy of a violation; it does not enforce authorization.
+
+**ATTACK != ALERT.** A successful LIVE ATTACK on the vulnerable profile is fail-open ALLOW. DET-MCP-001 stays silent. **HUNT != DETECTION.** **CONTEXT != INCIDENT.** **0 detection rows != SAFE.**
 
 Right table: `DET-MCP-001-POSITIVE-CONTROL` — **SIMULATED** `| makeresults` (DENY seq 3, `mcp.started` seq 4). Not indexed. Not an AcmeBank run. Not OBSERVED runtime evidence. Hunt fixture `Q-MCP-AFTER-DENY-POSITIVE-CONTROL` remains in `searches/` and is also SIMULATED.
 """,
@@ -616,7 +869,11 @@ This is a **lab allow-list**, not production IAM, not enterprise MCP gateway pol
 
 Inspecting a tool result after the handler cannot be DENY of that invoke. Splunk searches do not move the control.
 
-**SPL this step:** none. Re-read HUNT. **Next:** RETEST the same unauthorized request with `defended`.
+**Action:** Open Attack Service, read the RETEST prediction, then Launch RETEST (LIVE) with the same request bytes.
+
+[Open Attack Service RETEST](http://127.0.0.1:5001/labs/LAB-MCP-001)
+
+**SPL this step:** none. Re-read HUNT. **Next:** LIVE RETEST the same unauthorized request on the defended experiment.
 """,
         title="STEP 6 DEFEND",
     )
@@ -626,11 +883,13 @@ Inspecting a tool result after the handler cannot be DENY of that invoke. Splunk
         f"""
 # RETEST
 
-Same request as ATTACK: `lookup_customer_tier`, scope `customer:read`. Profile **defended**. `testbed.mode=RETEST`.
+Predict **before** you launch. RETEST uses the **same** `lookup_customer_tier` / `customer:read` / `cust-001` request and a **different** server-owned defense.
+
+[Open Attack Service (Launch RETEST LIVE)]({ATTACK_URL})
 
 **Expected:** DENY `tool_not_granted`. Control `attempted=false`, `executed=false`, `outcome=prevented`. Runtime handler count **0**. No `mcp.started`.
 
-Validated reference: `{RETEST_ID}`.
+Validated REPLAY: `{RETEST_ID}`. Fresh LIVE ids are not this UUID.
 
 {RUNTIME_AUTH}
 
@@ -795,6 +1054,26 @@ Questions live in `learning/level_1/LAB-MCP-001/knowledge-check.md`. Sample:
 - Why can't zero Splunk events alone prove the handler never executed?
 - Why are MCP tool results `untrusted_data`?
 
+## Connect the concepts
+
+This lab placed the trust boundary at **tool authorization**. Other AgentSec labs place it elsewhere. The chain stays the same:
+
+```text
+SOURCE → TRUST BOUNDARY → INFLUENCE / REQUEST → AUTHORIZATION → EXECUTION → TELEMETRY → SPLUNK INVESTIGATION
+```
+
+- Prompt / input trust — untrusted text before the LLM (CTRL-INPUT-001)
+- Tool authorization — this lab (CTRL-MCP-001)
+- MCP metadata/catalog — descriptions are data
+- Tool results — untrusted_data, not a new grant
+- RAG context — retrieved text is not authority
+- Persistent memory — untrusted memory is not instruction
+- Identity / delegation — a deputy does not inherit extra grants
+- Goal / instruction integrity — task text is not a policy change
+- Supply chain — a scanner finding is not a runtime ALLOW
+
+This workshop does not run those labs and does not claim they share this control.
+
 ## Limitations that still apply
 
 - CTRL-MCP-001 is a lab allow-list, not production IAM.
@@ -824,7 +1103,7 @@ Validated references: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST
     )
 
     definition = {
-        "title": "LAB-MCP-001 MCP tool authorization",
+        "title": "Tool Authorization",
         "description": (
             "WS-MCP-001 Dashboard Studio workshop. Reuses validated Q-MCP investigation SPL. "
             "Saved search DET-MCP-001 is packaged disabled; this dashboard does not enable it. "
@@ -844,39 +1123,29 @@ Validated references: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST
         },
         "inputs": {
             "input_run_id": {
-                "type": "input.text",
-                "title": "Hunt",
-                "options": {"token": "run_id", "defaultValue": BASELINE_ID},
-            },
-            "input_baseline_run_id": {
-                "type": "input.text",
-                "title": "BASELINE",
-                "options": {"token": "baseline_run_id", "defaultValue": BASELINE_ID},
-            },
-            "input_attack_run_id": {
-                "type": "input.text",
-                "title": "ATTACK",
-                "options": {"token": "attack_run_id", "defaultValue": ATTACK_ID},
-            },
-            "input_retest_run_id": {
-                "type": "input.text",
-                "title": "RETEST",
-                "options": {"token": "retest_run_id", "defaultValue": RETEST_ID},
+                "type": "input.dropdown",
+                "title": "Investigate specimen",
+                "options": {
+                    "token": "run_id",
+                    "defaultValue": BASELINE_ID,
+                    "items": [
+                        {"label": "Baseline — defended / normal", "value": BASELINE_ID},
+                        {"label": "Attack — vulnerable / malicious", "value": ATTACK_ID},
+                        {"label": "Retest — defended / malicious", "value": RETEST_ID},
+                    ],
+                },
             },
         },
         "dataSources": data_sources,
         "visualizations": visualizations,
         "layout": {
             "options": {
-                "submitButton": True,
+                "submitButton": False,
                 "submitOnDashboardLoad": True,
                 "showTitleAndDescription": True,
             },
             "globalInputs": [
                 "input_run_id",
-                "input_baseline_run_id",
-                "input_attack_run_id",
-                "input_retest_run_id",
             ],
             "tabs": {
                 "options": {"barPosition": "top"},
@@ -894,7 +1163,7 @@ Validated references: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST
                 ],
             },
             "layoutDefinitions": {
-                "layout_learn": layout([block("viz_learn", 0, 0, FULL, 980)], 1000),
+                "layout_learn": layout([block("viz_learn", 0, 0, FULL, 1580)], 1640),
                 "layout_baseline": layout(
                     [
                         block("viz_baseline_md", 0, 0, FULL, 300),
@@ -908,13 +1177,13 @@ Validated references: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST
                 ),
                 "layout_attack": layout(
                     [
-                        block("viz_attack_md", 0, 0, FULL, 340),
-                        block("viz_attack_what_id", 0, 340, FULL, 220),
-                        block("viz_attack_what_dec", 0, 560, FULL, 240),
-                        block("viz_attack_authz", 0, 800, HALF, 280),
-                        block("viz_attack_exec", HALF, 800, HALF, 280),
+                        block("viz_attack_md", 0, 0, FULL, 560),
+                        block("viz_attack_what_id", 0, 560, FULL, 220),
+                        block("viz_attack_what_dec", 0, 780, FULL, 240),
+                        block("viz_attack_authz", 0, 1020, HALF, 280),
+                        block("viz_attack_exec", HALF, 1020, HALF, 280),
                     ],
-                    1100,
+                    1320,
                 ),
                 "layout_observe": layout(
                     [
@@ -925,37 +1194,26 @@ Validated references: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST
                     ],
                     940,
                 ),
-                "layout_hunt": layout(
-                    [
-                        block("viz_hunt_md", 0, 0, FULL, 280),
-                        block("viz_hunt_who", 0, 280, HALF, 260),
-                        block("viz_hunt_scope", HALF, 280, HALF, 260),
-                        block("viz_hunt_params", 0, 540, HALF, 280),
-                        block("viz_hunt_exec", HALF, 540, HALF, 280),
-                        block("viz_hunt_result", 0, 820, HALF, 280),
-                        block("viz_hunt_trust", HALF, 820, HALF, 280),
-                    ],
-                    1120,
-                ),
+                "layout_hunt": layout(hunt_structure, y_cursor + 40, display="fit-to-width"),
                 "layout_detect": layout(
                     [
-                        block("viz_detect_md", 0, 0, FULL, 420),
-                        block("viz_detect_live", 0, 420, HALF, 400),
-                        block("viz_detect_sim", HALF, 420, HALF, 400),
+                        block("viz_detect_md", 0, 0, FULL, 500),
+                        block("viz_detect_live", 0, 500, HALF, 400),
+                        block("viz_detect_sim", HALF, 500, HALF, 400),
                     ],
-                    840,
+                    920,
                 ),
-                "layout_defend": layout([block("viz_defend", 0, 0, FULL, 520)], 540),
+                "layout_defend": layout([block("viz_defend", 0, 0, FULL, 640)], 660),
                 "layout_retest": layout(
                     [
-                        block("viz_retest_md", 0, 0, FULL, 300),
-                        block("viz_retest_what_id", 0, 300, FULL, 220),
-                        block("viz_retest_what_dec", 0, 520, FULL, 240),
-                        block("viz_retest_authz", 0, 760, FULL, 260),
-                        block("viz_retest_tool", 0, 1020, HALF, 260),
-                        block("viz_retest_exec", HALF, 1020, HALF, 260),
+                        block("viz_retest_md", 0, 0, FULL, 380),
+                        block("viz_retest_what_id", 0, 380, FULL, 220),
+                        block("viz_retest_what_dec", 0, 600, FULL, 240),
+                        block("viz_retest_authz", 0, 840, FULL, 260),
+                        block("viz_retest_tool", 0, 1100, HALF, 260),
+                        block("viz_retest_exec", HALF, 1100, HALF, 260),
                     ],
-                    1300,
+                    1380,
                 ),
                 "layout_compare": layout(
                     [
@@ -974,11 +1232,11 @@ Validated references: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST
                 ),
                 "layout_prove": layout(
                     [
-                        block("viz_prove", 0, 0, FULL, 720),
-                        block("viz_prove_what_id", 0, 720, FULL, 220),
-                        block("viz_prove_what_dec", 0, 940, FULL, 240),
+                        block("viz_prove", 0, 0, FULL, 980),
+                        block("viz_prove_what_id", 0, 980, FULL, 220),
+                        block("viz_prove_what_dec", 0, 1200, FULL, 240),
                     ],
-                    1200,
+                    1460,
                 ),
             },
         },
@@ -998,8 +1256,8 @@ def write_xml(definition: dict) -> None:
     xml = (
         '<?xml version="1.0" encoding="utf-8"?>\n'
         '<dashboard version="2" theme="light">\n'
-        "  <label>LAB-MCP-001 MCP tool authorization</label>\n"
-        "  <description>WS-MCP-001. Validated Q-MCP SPL. DET-MCP-001 packaged disabled. Not a notable-event pack. Splunk does not ALLOW or DENY a tool.</description>\n"
+        "  <label>Tool Authorization</label>\n"
+        "  <description>WS-MCP-001. Validated Q-MCP SPL. DET-MCP-001 packaged disabled. Not a notable-event pack. LAB-MCP-001. Splunk does not ALLOW or DENY a tool.</description>\n"
         "  <definition><![CDATA[\n"
         f"{payload}\n"
         "  ]]></definition>\n"

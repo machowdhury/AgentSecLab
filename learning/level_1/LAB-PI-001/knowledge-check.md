@@ -52,6 +52,14 @@ No. `78f05d1b-728e-4e70-8993-f5e365871f87` has `testbed.mode=ATTACK` (auto). The
 
 Labeled ALLOW (`vulnerable_profile_fail_open:…`). Live Ollama **does** run. Validated: `f39fed12-de89-45ba-b684-5b6077942580` (22 events, 4 generates, Splunk 22=22). That is not “the model approved the loan.”
 
+### 13. Who enforced the ATK-002 decision, and what did Splunk do?
+
+AcmeBank / CTRL-INPUT-001 enforced it. Splunk observed a copy. Splunk did not ALLOW or DENY.
+
+### 14. Why isn't a missing `llm.*` event enough?
+
+Export can be incomplete. Absence looks like prevention. Runtime + local completeness first; Splunk corroborates.
+
 ## Common wrong answers (do not teach these)
 
 - “Zero Splunk rows means the bank is safe.”
@@ -59,3 +67,6 @@ Labeled ALLOW (`vulnerable_profile_fail_open:…`). Live Ollama **does** run. Va
 - “The makeresults row is OBSERVED runtime.”
 - “66 events were indexed for BASELINE.”
 - “Dashboard Studio proved INV-008.” (The view hunts a copy. Runtime remains authoritative.)
+- “HEC 200 means EVIDENCE READY.”
+- “BASELINE is SAFE.”
+- “DENY alone proves the model never ran.”

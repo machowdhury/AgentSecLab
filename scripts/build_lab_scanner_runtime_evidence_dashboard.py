@@ -75,8 +75,8 @@ EMPTY_CATALOG = (
     "and not proof metadata-derived authority was refused."
 )
 EMPTY_HUNT = (
-    "Hunt run.id defaults to BASELINE. Hunt scan defaults to NORMAL. Replace a "
-    "token and Submit to hunt another complete copy. Empty tables are missing "
+    "Investigate specimen defaults to BASELINE. Investigate scan defaults to NORMAL. "
+    "Custom ids are available from Search. Empty tables are missing "
     "indexed rows, not security outcomes."
 )
 
@@ -112,6 +112,25 @@ def bind_run_id(spl: str, token: str) -> str:
     if "__RUN_ID__" not in spl:
         raise ValueError(f"expected __RUN_ID__ in query for token {token}")
     return spl.replace("__RUN_ID__", f'"${token}$"')
+
+def bind_literal(spl: str, run_id: str) -> str:
+    if "__RUN_ID__" not in spl:
+        raise ValueError("expected __RUN_ID__ in query")
+    return spl.replace("__RUN_ID__", f'"{run_id}"')
+
+
+def bound_run(ref: str) -> str:
+    """Token name stays "$token$"; UUID becomes a quoted literal."""
+    if len(ref) == 36 and ref.count("-") == 4:
+        return f'"{ref}"'
+    return f'"${ref}$"'
+
+
+def bind_scan_literal(spl: str, scan_id: str) -> str:
+    if "__SCAN_ID__" not in spl:
+        raise ValueError("expected __SCAN_ID__ in query")
+    return spl.replace("__SCAN_ID__", f'"{scan_id}"')
+
 
 
 def bind_scan_id(spl: str, token: str) -> str:
@@ -198,12 +217,12 @@ def build() -> dict:
     q_who_scan = bind_scan_id(load_spl("Q-SCANNER-WHO.spl", catalog=True), "scan_id")
     q_art_scan = bind_scan_id(load_spl("Q-SCANNER-ARTIFACT.spl", catalog=True), "scan_id")
     q_find_scan = bind_scan_id(load_spl("Q-SCANNER-FINDINGS.spl", catalog=True), "scan_id")
-    q_who_n = bind_scan_id(load_spl("Q-SCANNER-WHO.spl", catalog=True), "normal_scan_id")
-    q_art_n = bind_scan_id(load_spl("Q-SCANNER-ARTIFACT.spl", catalog=True), "normal_scan_id")
-    q_find_n = bind_scan_id(load_spl("Q-SCANNER-FINDINGS.spl", catalog=True), "normal_scan_id")
-    q_who_m = bind_scan_id(load_spl("Q-SCANNER-WHO.spl", catalog=True), "malicious_scan_id")
-    q_art_m = bind_scan_id(load_spl("Q-SCANNER-ARTIFACT.spl", catalog=True), "malicious_scan_id")
-    q_find_m = bind_scan_id(load_spl("Q-SCANNER-FINDINGS.spl", catalog=True), "malicious_scan_id")
+    q_who_n = bind_scan_literal(load_spl("Q-SCANNER-WHO.spl", catalog=True), NORMAL_SCAN)
+    q_art_n = bind_scan_literal(load_spl("Q-SCANNER-ARTIFACT.spl", catalog=True), NORMAL_SCAN)
+    q_find_n = bind_scan_literal(load_spl("Q-SCANNER-FINDINGS.spl", catalog=True), NORMAL_SCAN)
+    q_who_m = bind_scan_literal(load_spl("Q-SCANNER-WHO.spl", catalog=True), MALICIOUS_SCAN)
+    q_art_m = bind_scan_literal(load_spl("Q-SCANNER-ARTIFACT.spl", catalog=True), MALICIOUS_SCAN)
+    q_find_m = bind_scan_literal(load_spl("Q-SCANNER-FINDINGS.spl", catalog=True), MALICIOUS_SCAN)
     q_corr_n = bind_hash(load_spl("Q-SCANNER-RUNTIME-CORRELATION.spl", catalog=True), NORMAL_HASH)
     q_corr_m = bind_hash(
         load_spl("Q-SCANNER-RUNTIME-CORRELATION.spl", catalog=True), MALICIOUS_HASH
@@ -212,18 +231,18 @@ def build() -> dict:
     q_tool = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "run_id")
     q_executed = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "run_id")
     q_catalog = bind_run_id(load_spl("Q-MCP-CATALOG-AUTHORITY.spl", catalog=True), "run_id")
-    q_authz_b = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "baseline_run_id")
-    q_authz_a = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "attack_run_id")
-    q_authz_r = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "retest_run_id")
-    q_tool_r = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "retest_run_id")
-    q_exec_b = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "baseline_run_id")
-    q_exec_a = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "attack_run_id")
-    q_exec_r = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "retest_run_id")
-    q_cat_b = bind_run_id(load_spl("Q-MCP-CATALOG-AUTHORITY.spl", catalog=True), "baseline_run_id")
-    q_cat_a = bind_run_id(load_spl("Q-MCP-CATALOG-AUTHORITY.spl", catalog=True), "attack_run_id")
-    q_cat_r = bind_run_id(load_spl("Q-MCP-CATALOG-AUTHORITY.spl", catalog=True), "retest_run_id")
-    q_after_a = bind_run_id(load_spl("Q-MCP-AFTER-DENY.spl"), "attack_run_id")
-    q_after_r = bind_run_id(load_spl("Q-MCP-AFTER-DENY.spl"), "retest_run_id")
+    q_authz_b = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), BASELINE_ID)
+    q_authz_a = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), ATTACK_ID)
+    q_authz_r = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), RETEST_ID)
+    q_tool_r = bind_literal(load_spl("Q-MCP-TOOL.spl"), RETEST_ID)
+    q_exec_b = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), BASELINE_ID)
+    q_exec_a = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), ATTACK_ID)
+    q_exec_r = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), RETEST_ID)
+    q_cat_b = bind_literal(load_spl("Q-MCP-CATALOG-AUTHORITY.spl", catalog=True), BASELINE_ID)
+    q_cat_a = bind_literal(load_spl("Q-MCP-CATALOG-AUTHORITY.spl", catalog=True), ATTACK_ID)
+    q_cat_r = bind_literal(load_spl("Q-MCP-CATALOG-AUTHORITY.spl", catalog=True), RETEST_ID)
+    q_after_a = bind_literal(load_spl("Q-MCP-AFTER-DENY.spl"), ATTACK_ID)
+    q_after_r = bind_literal(load_spl("Q-MCP-AFTER-DENY.spl"), RETEST_ID)
 
     data_sources = dict(
         (
@@ -309,9 +328,11 @@ def build() -> dict:
     add_md(
         "viz_learn",
         f"""
-# Scanner + runtime evidence
+# Scanner + Runtime Evidence
 
-**WS-SCANNER-RUNTIME** · GUIDED · schema **1.5.0** · INV-002
+Investigate what a scanner finding can and cannot prove about runtime authorization.
+
+**LIVE EVIDENCE** · `LAB-SCANNER-RUNTIME` · Schema 1.5.0
 
 **When an external security scanner flags agent/tool metadata, what can the SOC actually conclude from that evidence?**
 
@@ -326,7 +347,7 @@ External security evidence and runtime authorization answer **different question
 - mcp.started != SUCCESS
 - SPLUNK != ENFORCEMENT
 
-**LIVE ids (copy the full UUID / hash)**
+**LIVE evidence identity**
 
 BASELINE RUN `{BASELINE_ID}`
 
@@ -935,7 +956,7 @@ Answer from indexed evidence. Full hashes and ids are on LEARN.
     )
 
     definition = {
-        "title": "LAB-SCANNER-RUNTIME Scanner + Runtime Evidence",
+        "title": "Scanner + Runtime Evidence",
         "description": (
             "WS-SCANNER-RUNTIME. Validated Q-SCANNER and Q-MCP hunts. "
             "DET-MCP-001 packaged disabled. No DET-SCANNER. No DET-MCP-CATALOG. "
@@ -955,57 +976,42 @@ Answer from indexed evidence. Full hashes and ids are on LEARN.
         },
         "inputs": {
             "input_run_id": {
-                "type": "input.text",
-                "title": "Hunt",
-                "options": {"token": "run_id", "defaultValue": BASELINE_ID},
+                "type": "input.dropdown",
+                "title": "Investigate specimen",
+                "options": {
+                    "token": "run_id",
+                    "defaultValue": BASELINE_ID,
+                    "items": [
+                        {"label": "Baseline — defended / normal", "value": BASELINE_ID},
+                        {"label": "Attack — vulnerable / malicious", "value": ATTACK_ID},
+                        {"label": "Retest — defended / malicious", "value": RETEST_ID},
+                    ],
+                },
             },
             "input_scan_id": {
-                "type": "input.text",
-                "title": "Hunt scan",
-                "options": {"token": "scan_id", "defaultValue": NORMAL_SCAN},
-            },
-            "input_baseline_run_id": {
-                "type": "input.text",
-                "title": "BASELINE RUN",
-                "options": {"token": "baseline_run_id", "defaultValue": BASELINE_ID},
-            },
-            "input_attack_run_id": {
-                "type": "input.text",
-                "title": "ATTACK RUN",
-                "options": {"token": "attack_run_id", "defaultValue": ATTACK_ID},
-            },
-            "input_retest_run_id": {
-                "type": "input.text",
-                "title": "RETEST RUN",
-                "options": {"token": "retest_run_id", "defaultValue": RETEST_ID},
-            },
-            "input_normal_scan_id": {
-                "type": "input.text",
-                "title": "NORMAL SCAN",
-                "options": {"token": "normal_scan_id", "defaultValue": NORMAL_SCAN},
-            },
-            "input_malicious_scan_id": {
-                "type": "input.text",
-                "title": "MALICIOUS SCAN",
-                "options": {"token": "malicious_scan_id", "defaultValue": MALICIOUS_SCAN},
+                "type": "input.dropdown",
+                "title": "Investigate scan",
+                "options": {
+                    "token": "scan_id",
+                    "defaultValue": NORMAL_SCAN,
+                    "items": [
+                        {"label": "Normal scan — no malicious metadata", "value": NORMAL_SCAN},
+                        {"label": "Malicious scan — poisoned catalog", "value": MALICIOUS_SCAN},
+                    ],
+                },
             },
         },
         "dataSources": data_sources,
         "visualizations": visualizations,
         "layout": {
             "options": {
-                "submitButton": True,
+                "submitButton": False,
                 "submitOnDashboardLoad": True,
                 "showTitleAndDescription": True,
             },
             "globalInputs": [
                 "input_run_id",
                 "input_scan_id",
-                "input_baseline_run_id",
-                "input_attack_run_id",
-                "input_retest_run_id",
-                "input_normal_scan_id",
-                "input_malicious_scan_id",
             ],
             "tabs": {
                 "options": {"barPosition": "top"},
@@ -1146,8 +1152,8 @@ def write_xml(definition: dict) -> None:
     xml = (
         '<?xml version="1.0" encoding="utf-8"?>\n'
         '<dashboard version="2" theme="light">\n'
-        "  <label>LAB-SCANNER-RUNTIME Scanner + Runtime Evidence</label>\n"
-        "  <description>WS-SCANNER-RUNTIME. Validated Q-SCANNER and Q-MCP hunts. DET-MCP-001 packaged disabled. No DET-SCANNER. No DET-MCP-CATALOG. Scanner evidence does not authorize. Splunk does not ALLOW or DENY.</description>\n"
+        "  <label>Scanner + Runtime Evidence</label>\n"
+        "  <description>LIVE Scanner + Runtime Evidence workshop. LAB-SCANNER-RUNTIME. Splunk does not ALLOW or DENY.</description>\n"
         "  <definition><![CDATA[\n"
         f"{payload}\n"
         "  ]]></definition>\n"

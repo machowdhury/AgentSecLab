@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dashboard version="2" theme="light">
-  <label>LAB-MCP-001 MCP tool authorization</label>
-  <description>WS-MCP-001. Validated Q-MCP SPL. DET-MCP-001 packaged disabled. Not a notable-event pack. Splunk does not ALLOW or DENY a tool.</description>
+  <label>Tool Authorization</label>
+  <description>WS-MCP-001. Validated Q-MCP SPL. DET-MCP-001 packaged disabled. Not a notable-event pack. LAB-MCP-001. Splunk does not ALLOW or DENY a tool.</description>
   <definition><![CDATA[
 {
-  "title": "LAB-MCP-001 MCP tool authorization",
+  "title": "Tool Authorization",
   "description": "WS-MCP-001 Dashboard Studio workshop. Reuses validated Q-MCP investigation SPL. Saved search DET-MCP-001 is packaged disabled; this dashboard does not enable it. Not a notable-event pack. Splunk does not ALLOW or DENY a tool.",
   "defaults": {
     "visualizations": {
@@ -25,35 +25,25 @@
   },
   "inputs": {
     "input_run_id": {
-      "type": "input.text",
-      "title": "Hunt",
+      "type": "input.dropdown",
+      "title": "Investigate specimen",
       "options": {
         "token": "run_id",
-        "defaultValue": "163d11e2-e751-4282-9406-19b490542ed4"
-      }
-    },
-    "input_baseline_run_id": {
-      "type": "input.text",
-      "title": "BASELINE",
-      "options": {
-        "token": "baseline_run_id",
-        "defaultValue": "163d11e2-e751-4282-9406-19b490542ed4"
-      }
-    },
-    "input_attack_run_id": {
-      "type": "input.text",
-      "title": "ATTACK",
-      "options": {
-        "token": "attack_run_id",
-        "defaultValue": "5e8f55f3-eb46-47ee-b979-b72d9c9b1f49"
-      }
-    },
-    "input_retest_run_id": {
-      "type": "input.text",
-      "title": "RETEST",
-      "options": {
-        "token": "retest_run_id",
-        "defaultValue": "7a1d37b5-d589-4dfd-8322-25ebd0152dbc"
+        "defaultValue": "163d11e2-e751-4282-9406-19b490542ed4",
+        "items": [
+          {
+            "label": "Baseline — defended / normal",
+            "value": "163d11e2-e751-4282-9406-19b490542ed4"
+          },
+          {
+            "label": "Attack — vulnerable / malicious",
+            "value": "5e8f55f3-eb46-47ee-b979-b72d9c9b1f49"
+          },
+          {
+            "label": "Retest — defended / malicious",
+            "value": "7a1d37b5-d589-4dfd-8322-25ebd0152dbc"
+          }
+        ]
       }
     }
   },
@@ -153,105 +143,105 @@
       "type": "ds.search",
       "name": "Q-MCP-AUTHZ BASELINE",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$baseline_run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"163d11e2-e751-4282-9406-19b490542ed4\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome"
       }
     },
     "ds_q_authz_attack": {
       "type": "ds.search",
       "name": "Q-MCP-AUTHZ ATTACK",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$attack_run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"5e8f55f3-eb46-47ee-b979-b72d9c9b1f49\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome"
       }
     },
     "ds_q_authz_retest": {
       "type": "ds.search",
       "name": "Q-MCP-AUTHZ RETEST",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$retest_run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"7a1d37b5-d589-4dfd-8322-25ebd0152dbc\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome"
       }
     },
     "ds_q_tool_baseline": {
       "type": "ds.search",
       "name": "Q-MCP-TOOL BASELINE",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$baseline_run_id$\" \"event.name\"=agentsec.mcp.started\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, event_name, sequence, executed, outcome\n| sort sequence"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"163d11e2-e751-4282-9406-19b490542ed4\" \"event.name\"=agentsec.mcp.started\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, event_name, sequence, executed, outcome\n| sort sequence"
       }
     },
     "ds_q_tool_attack": {
       "type": "ds.search",
       "name": "Q-MCP-TOOL ATTACK",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$attack_run_id$\" \"event.name\"=agentsec.mcp.started\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, event_name, sequence, executed, outcome\n| sort sequence"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"5e8f55f3-eb46-47ee-b979-b72d9c9b1f49\" \"event.name\"=agentsec.mcp.started\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, event_name, sequence, executed, outcome\n| sort sequence"
       }
     },
     "ds_q_tool_retest": {
       "type": "ds.search",
       "name": "Q-MCP-TOOL RETEST",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$retest_run_id$\" \"event.name\"=agentsec.mcp.started\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, event_name, sequence, executed, outcome\n| sort sequence"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"7a1d37b5-d589-4dfd-8322-25ebd0152dbc\" \"event.name\"=agentsec.mcp.started\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, event_name, sequence, executed, outcome\n| sort sequence"
       }
     },
     "ds_q_executed_baseline": {
       "type": "ds.search",
       "name": "Q-MCP-EXECUTED BASELINE",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$baseline_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"163d11e2-e751-4282-9406-19b490542ed4\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state"
       }
     },
     "ds_q_executed_attack": {
       "type": "ds.search",
       "name": "Q-MCP-EXECUTED ATTACK",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$attack_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"5e8f55f3-eb46-47ee-b979-b72d9c9b1f49\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state"
       }
     },
     "ds_q_executed_retest": {
       "type": "ds.search",
       "name": "Q-MCP-EXECUTED RETEST",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$retest_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"7a1d37b5-d589-4dfd-8322-25ebd0152dbc\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state"
       }
     },
     "ds_what_baseline_id": {
       "type": "ds.search",
       "name": "What Happened identity BASELINE",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$baseline_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, profile, mode, agent, tool"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"163d11e2-e751-4282-9406-19b490542ed4\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, profile, mode, agent, tool"
       }
     },
     "ds_what_baseline_dec": {
       "type": "ds.search",
       "name": "What Happened decision BASELINE",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$baseline_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"163d11e2-e751-4282-9406-19b490542ed4\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust"
       }
     },
     "ds_what_attack_id": {
       "type": "ds.search",
       "name": "What Happened identity ATTACK",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$attack_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, profile, mode, agent, tool"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"5e8f55f3-eb46-47ee-b979-b72d9c9b1f49\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, profile, mode, agent, tool"
       }
     },
     "ds_what_attack_dec": {
       "type": "ds.search",
       "name": "What Happened decision ATTACK",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$attack_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"5e8f55f3-eb46-47ee-b979-b72d9c9b1f49\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust"
       }
     },
     "ds_what_retest_id": {
       "type": "ds.search",
       "name": "What Happened identity RETEST",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$retest_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, profile, mode, agent, tool"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"7a1d37b5-d589-4dfd-8322-25ebd0152dbc\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, profile, mode, agent, tool"
       }
     },
     "ds_what_retest_dec": {
       "type": "ds.search",
       "name": "What Happened decision RETEST",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$retest_run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"7a1d37b5-d589-4dfd-8322-25ebd0152dbc\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval result_trust=mvindex(mvdedup('agentsec.mcp.result.trust'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.mcp.completed\",result_trust,null()))) as completed_trust by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval result_trust=if(isnull(completed_trust),\"no_completed_result\",completed_trust)\n| table run_id, profile, mode, agent, tool, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust\n| table run_id, decision, reason, requested_scope, allowed_scope, execution_state, outcome, result_trust"
       }
     }
   },
@@ -259,7 +249,7 @@
     "viz_learn": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# LAB-MCP-001 MCP tool authorization\n\n**WS-MCP-001** · GUIDED · schema `agentsec.security_event` **1.1.0** · INV-001 / INV-002 / INV-007 / INV-008 · MCP-001 / MCP-002 · CTRL-MCP-001\n\nSplunk is the hunt workbench. Splunk does **not** ALLOW or DENY a tool. AcmeBank `POST /mcp/invoke` is the enforcement point.\n\nTransport today is **in-process JSON-RPC `tools/call`**. It is a real authorize-then-execute path. It is not a full remote MCP product.\n\n## What you will learn\n\n- `tools/call` is a named tool plus arguments, not a prompt regex.\n- Registered is not the same as granted.\n- Registered + granted → ALLOW. Registered + not granted → DENY. Not registered → ERROR.\n- ALLOW is not execution. `mcp.started` means the handler began. `mcp.failed` is not prevention.\n- Authorization must run **before** the tool handler.\n- Tool results are `untrusted_data`. They do not become a new grant.\n- Splunk is evidence of a copy. Missing Splunk events alone cannot prove prevention.\n\n## Validated specimen ids (Phase 3C LIVE)\n\nCopy the full UUID. Token fields may ellipsis; these bullets do not. Do not hunt loan-pipeline ids here.\n\n- **BASELINE** `163d11e2-e751-4282-9406-19b490542ed4` — defended, `lookup_policy`, ALLOW, handler=1, `mcp.completed`\n- **ATTACK** `5e8f55f3-eb46-47ee-b979-b72d9c9b1f49` — vulnerable, `lookup_customer_tier`, labeled fail-open ALLOW, handler=1\n- **RETEST** `7a1d37b5-d589-4dfd-8322-25ebd0152dbc` — defended, same ungranted tool, DENY, handler=0, no `mcp.started`\n\n`lookup_customer_tier` is not malicious by itself. The problem is **unauthorized invocation**.\n\n## Trust path\n\n```text\nUser / HTTP POST /mcp/invoke\n        │  tool, arguments, requested_scope, user_id\n        ▼\nMCP Policy Agent (acme-agent-mcp-001)\n        ▼\nMCP Client  JSON-RPC tools/call\n        ▼\nCTRL-MCP-001  (server-owned policy)\n        │\n   ALLOW → MCP Server execute → Tool Handler\n   DENY / ERROR → stop, no mcp.started, handler count unchanged\n        ▼\nResult (untrusted_data)\n        ▼\nOTel → Splunk (observe only)\n```\n\n## AUTHORIZATION DECISION vs TOOL EXECUTION\n\nAuthorization is `event.name=agentsec.control.decision` (`ALLOW` / `DENY` / `ERROR`).\nExecution begins only after ALLOW, at `event.name=agentsec.mcp.started`.\n\nALLOW is the control decision. Tool execution begins at `mcp.started` (`executed=true` on that event). Do not read ALLOW as execution. `mcp.completed` is success of a begun call. `mcp.failed` is execution then error, not prevention.\n\nTabs: LEARN → BASELINE → ATTACK → OBSERVE → HUNT → DETECT → DEFEND → RETEST → COMPARE → PROVE.\n",
+        "markdown": "# Tool Authorization\n\nA tool request is not a tool grant. Schema **1.9.0**. CTRL-MCP-001 is the PDP.\n\n**Tool** = named operation (`lookup_policy`, `lookup_customer_tier`) plus arguments. **MCP here** = in-process JSON-RPC `tools/call`, not a product catalog UI.\n\n**Request** = `tool`, `requested_scope`, `arguments`, `user_id`. **Grant** = server-owned `allowed_tools` / `allowed_scopes`. An LLM cannot grant itself. **Resource** (`policy_id`) is checked only after tool ALLOW.\n\nAuthorization runs at **CTRL-MCP-001 before the handler**. AcmeBank `POST /mcp/invoke` enforces. Splunk observes the copy and does **not** ALLOW or DENY.\n\n## Trust path (authorization boundary)\n\n```text\nUSER / AGENT\n        │\nTOOL REQUEST  (tool, requested_scope, arguments)\n        │\nCTRL-MCP-001  ← authorization boundary\n        │\nALLOW / DENY / ERROR\n        │\nHANDLER START (only after ALLOW) → COMPLETE / FAIL\n        │\nTELEMETRY → SPLUNK (observe only)\n```\n\n## What you should be able to say\n\n- REQUEST != GRANT. ALLOW != EXECUTION (`mcp.started` is handler start).\n- DENY != automatic proof of non-execution. Runtime `handler_invoke_count` is authoritative.\n- Missing Splunk `mcp.started` is corroborative only on a complete copy.\n- ATTACK != ALERT. 0 DET-MCP-001 rows != SAFE. Splunk != enforcement.\n\nALLOW is the control decision. Tool execution begins at `mcp.started` (`executed=true` on that event). Do not read ALLOW as execution. `mcp.completed` is success of a begun call. `mcp.failed` is execution then error, not prevention.\n\nLEARN → PREDICT → LAUNCH → INVESTIGATE (Path A or Path B) → DEFEND → LIVE RETEST → COMPARE → PROVE\n\n## Evidence identity\n\nCanonical REPLAY (HUNT token). Fresh LIVE ids come from Attack Service. `lookup_customer_tier` is not malware; the issue is unauthorized invocation.\n\n- **BASELINE** `163d11e2-e751-4282-9406-19b490542ed4` — granted `lookup_policy`, ALLOW, handler=1\n- **ATTACK** `5e8f55f3-eb46-47ee-b979-b72d9c9b1f49` — ungranted `lookup_customer_tier`, labeled fail-open ALLOW, handler=1\n- **RETEST** `7a1d37b5-d589-4dfd-8322-25ebd0152dbc` — same ungranted request, DENY, handler=0\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -374,7 +364,7 @@
     "viz_attack_md": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# ATTACK\n\n**Request:** same MCP agent asks for `lookup_customer_tier` with scope `customer:read`.\n\nThis tool is **registered** in the lab registry. It is **not granted** to this agent. That is unauthorized invocation, not a “malicious tool” by itself. This is a controlled lab authorization failure, not a production exploit.\n\n**Vulnerable profile:** CTRL-MCP-001 intentionally **fails open** with a labeled ALLOW reason `vulnerable_profile_fail_open:CTRL-MCP-001…`. The handler begins. `mcp.completed` is observed. Runtime handler count **1**.\n\n**Validated reference:** `5e8f55f3-eb46-47ee-b979-b72d9c9b1f49` — profile `vulnerable`, `testbed.mode=ATTACK`.\n\nTables on this tab use the **ATTACK** token (not Hunt). Predict DENY vs fail-open before you read them.\n\nSplunk does **not** send this request. Fire `POST /mcp/invoke` on AcmeBank with `AGENTSEC_SECURITY_PROFILE=vulnerable`.\n",
+        "markdown": "# ATTACK\n\nPredict **before** you launch. Launching is not the investigation.\n\n**ATTACK OBJECTIVE**\n\nSend the catalog ungranted `lookup_customer_tier` / `customer:read` request and see whether CTRL-MCP-001 runs before the handler.\n\n**WHY ARE WE DOING THIS?**\n\nREQUEST != GRANT. An LLM asking for a tool cannot authorize itself.\n\n**WHAT IS THE ATTACKER TRYING TO INFLUENCE?**\n\nThe tool name, requested_scope, and arguments — treated as if they were a grant.\n\n**WHAT SHOULD THE DEFENSE DO?**\n\nThis ATTACK specimen is the labeled vulnerable experiment. CTRL-MCP-001 fail-opens. The defense you will enable next is RETEST (server-owned `profile=defended`), not Splunk.\n\n**WHAT DO YOU PREDICT?**\n\nWill the request be ALLOW or DENY? Will `mcp.started` appear? If denied, what evidence should exist? Does missing `mcp.started` alone prove prevention?\n\n**WHAT EVIDENCE SHOULD APPEAR?**\n\nLIVE ATTACK: ALLOW with a fail-open reason, real `mcp.started`, `handler_invoke_count=1`, `testbed.mode=ATTACK`. ALLOW is not execution.\n\nSplunk does **not** send this. Studio does **not** POST. Open Attack Service, launch ATTACK, copy LIVE RUN, wait until evidence is searchable, then HUNT Path A.\n\n[Open Attack Service (LIVE launch)](http://127.0.0.1:5001/labs/LAB-MCP-001)\n\n**Validated vulnerable REPLAY:** `5e8f55f3-eb46-47ee-b979-b72d9c9b1f49`. Choose **Attack — vulnerable / malicious** in Investigate specimen for that copy.\n\n**Next:** HUNT Path A on the fresh ATTACK `run.id`, then DEFEND, then Launch RETEST (LIVE).\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -460,7 +450,7 @@
     "viz_observe_md": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# OBSERVE\n\nUse **Hunt run.id** (defaults to BASELINE). Tables are telemetry, not a story.\n\nRead sequence top to bottom. You must see `agentsec.control.decision` **before** `agentsec.mcp.started` when execution occurred.\n\nDistinguish: ALLOW without start in this copy; ALLOW then `mcp.started`; `mcp.completed`; `mcp.failed`; DENY with no mcp.*; ERROR with no mcp.*.\n\nHunt `run.id` defaults to the BASELINE specimen so this page is not an error state. Replace it and Submit to hunt another complete copy. Zero rows means no matching indexed events for that id. Zero rows is not DENY and is not proof the handler never ran.\n",
+        "markdown": "# OBSERVE\n\nUse **Hunt run.id** (defaults to BASELINE). Tables are telemetry, not a story.\n\nRead sequence top to bottom. You must see `agentsec.control.decision` **before** `agentsec.mcp.started` when execution occurred.\n\nDistinguish: ALLOW without start in this copy; ALLOW then `mcp.started`; `mcp.completed`; `mcp.failed`; DENY with no mcp.*; ERROR with no mcp.*.\n\nInvestigate specimen defaults to the BASELINE specimen so this page is not an error state. Custom run.id is available from Search. Zero rows means no matching indexed events for that id. Zero rows is not DENY and is not proof the handler never ran.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -524,20 +514,60 @@
         "noDataMessage": "No indexed MCP execution event was found for this run. That does not automatically mean DENY. ERROR, schema failure, and export loss also look like zero rows."
       }
     },
-    "viz_hunt_md": {
+    "viz_hunt_intro": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# HUNT\n\n**Question:** Which principal and agent requested which tool, what was decided, what scope was asked vs coded, and did execution begin?\n\nFilter is already `agentsec.run.id`. Do not hunt `session.id`.\n\nALLOW is the control decision. Tool execution begins at `mcp.started` (`executed=true` on that event). Do not read ALLOW as execution. `mcp.completed` is success of a begun call. `mcp.failed` is execution then error, not prevention.\n\nZero Q-MCP-TOOL rows does **not** automatically mean DENY.\n\nIf Splunk is empty, check `artifacts/<run-id>/export.json`. Do not conclude DENY.\n\nHunt `run.id` defaults to the BASELINE specimen so this page is not an error state. Replace it and Submit to hunt another complete copy. Zero rows means no matching indexed events for that id. Zero rows is not DENY and is not proof the handler never ran.\n",
+        "markdown": "# HUNT — guided investigation\n\nTwo paths. Path A is the default. Path B is an answer key, not a replacement.\n\n**Path A — Try it yourself:** question, starter guidance, [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search). Construct the hunt.\n\n**Path B — Show solution:** copyable SPL from existing Q-MCP hunts, bound REPLAY table, explanation, limitations. Scroll past Hint 1 / Hint 2 when you are ready.\n\nInvestigate specimen is canonical **REPLAY**. Fresh LIVE run.id comes from Attack Service Search handoff. Studio tokens are not auto-bound.\n\nDo not search until Attack Service reports **EVIDENCE READY** (or you have measured searchable events). HEC success is not ready.\n\nThis tab is a **stacked notebook**: Path A, then optional hints, then Path B. Custom browser scripts are not used.\n\nALLOW is the control decision. Tool execution begins at `mcp.started` (`executed=true` on that event). Do not read ALLOW as execution. `mcp.completed` is success of a begun call. `mcp.failed` is execution then error, not prevention.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
       },
       "title": "STEP 4 HUNT"
     },
-    "viz_hunt_who": {
+    "viz_i1_q": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Investigation 1 — Find the run\n\n**QUESTION**\n\nCan you reconstruct the events that belong to this experiment?\n\n**WHAT AM I TRYING TO PROVE?**\n\nUse run.id as the forensic correlation key. One UUID, one experiment copy.\n\n**YOUR TASK (Path A — try it yourself)**\n\nIndex agentsec_telemetry, sourcetype otel:agentic:json. Filter quoted agentsec.run.id. Do not search index=*. Then name the principal, agent, and tool.\n\n1. Copy the fresh LIVE run.id from Attack Service, or use Investigate specimen for canonical REPLAY.\n2. [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.\n4. Filter quoted `agentsec.run.id`. Execute. Read the fields yourself.\n\nStudio cannot receive a fresh LIVE run.id. That handoff is Search, not a token write.\n\nStarter (paste your LIVE run.id; do not search `index=*`):\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"PASTE-LIVE-RUN-ID\"\n```\n\nNeed help? Scroll to **Hint 1**, then **Hint 2**, then the Path B solution. Do not skip Path A.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I1 question"
+    },
+    "viz_i1_h1": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 1 — Investigation 1\n\nStart with index=agentsec_telemetry sourcetype=otel:agentic:json and the quoted field agentsec.run.id. Paste the LIVE run.id from Attack Service, or use the Investigate specimen REPLAY id.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I1 hint 1"
+    },
+    "viz_i1_h2": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 2 — Investigation 1\n\nQ-MCP-WHO is the governed hunt for principal / agent / tool on control.decision. Count physical events with stats dc(_raw) as n. Do not use stats count by agentsec.run.id.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I1 hint 2"
+    },
+    "viz_i1_sol": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Solution — Investigation 1 Find the run\n\nThis is **Path B**. Path A remains Search with your LIVE run.id.\n\n**SOLUTION SPL** (`Q-MCP-WHO`)\n\nCopy this into Search. Replace `$run_id$` with the LIVE UUID, or leave the token for Investigate specimen REPLAY.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval principal=mvindex(mvdedup('agentsec.principal.id'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval method=mvindex(mvdedup('mcp.method.name'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| table run_id, principal, agent, tool, method, profile, mode\n```\n\n**WHY THESE STAGES**\n\n- **Why control.decision?** Identity of who requested which tool is on the authorization event.\n- **Why not session.id?** AgentSec correlates with run.id.\n- **Why collapse mvindex(mvdedup(...),0)?** JSON body and OTLP attributes duplicate scalars.\n\n**EXPECTED RESULT SHAPE**\n\nOne control.decision identity row per run. LIVE ATTACK (vulnerable) and BASELINE also have mcp.* rows in the copy. Defended RETEST has control.decision and no mcp.started. Canonical REPLAY schema on this volume may be 1.1.0; fresh LIVE after restage is 1.9.0.\n\n**WHAT YOU ARE SEEING**\n\nYou are looking at the indexed copy of one MCP invoke. run.id is the experiment key. tool is what was requested, not what was granted.\n\n**WHAT IT MEANS**\n\nCorrelation starts with run.id. Without it you mix experiments. Rows in Splunk are a copy of telemetry, not an authorization decision.\n\n**WHAT IT DOES NOT MEAN**\n\nIndex presence does not prove completeness, prevention, or that the handler ran. Empty is not SAFE.\n\n**SECURITY CONNECTION**\n\nControl `none on this step — you are locating evidence, not judging CTRL-MCP-001 yet` · invariant `INV-007` · hunt `Q-MCP-WHO`. Splunk does **not** ALLOW or DENY.\n\n**NEXT CHALLENGE**\n\nMCP-I2-FIND-THE-REQUEST\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I1 solution"
+    },
+    "viz_i1_tbl": {
       "type": "splunk.table",
-      "title": "Q-MCP-WHO",
-      "description": "Principal, agent, tool, method, profile, mode.",
+      "title": "Q-MCP-WHO (REPLAY specimen)",
+      "description": "Path B identity row. Fresh LIVE run.id is Search, not this table.",
       "dataSources": {
         "primary": "ds_q_who"
       },
@@ -550,15 +580,55 @@
         "backgroundColor": "#FFFFFF",
         "headerBackgroundColor": "#0B1F33",
         "headerTextColor": "#FFFFFF",
-        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+        "noDataMessage": "Investigate specimen defaults to the BASELINE specimen so this page is not an error state. Custom run.id is available from Search. Zero rows means no matching indexed events for that id. Zero rows is not DENY and is not proof the handler never ran."
       }
     },
-    "viz_hunt_scope": {
+    "viz_i2_q": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Investigation 2 — Find the tool request\n\n**QUESTION**\n\nWhat tool, scope, and resource did the agent request?\n\n**WHAT AM I TRYING TO PROVE?**\n\nSeparate request fields from grant fields. requested_scope is not allowed_scope.\n\n**YOUR TASK (Path A — try it yourself)**\n\nKeep the same run.id. Read gen_ai.tool.name, agentsec.mcp.requested_scope, and argument preview/hash. Do not expect gen_ai.tool.call.arguments to be fully indexed.\n\n1. Copy the fresh LIVE run.id from Attack Service, or use Investigate specimen for canonical REPLAY.\n2. [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.\n4. Filter quoted `agentsec.run.id`. Execute. Read the fields yourself.\n\nStudio cannot receive a fresh LIVE run.id. That handoff is Search, not a token write.\n\nStarter (paste your LIVE run.id; do not search `index=*`):\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"PASTE-LIVE-RUN-ID\"\n```\n\nNeed help? Scroll to **Hint 1**, then **Hint 2**, then the Path B solution. Do not skip Path A.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I2 question"
+    },
+    "viz_i2_h1": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 1 — Investigation 2\n\nQ-MCP-WHO names the tool. Q-MCP-PARAMS shows argument preview and hash. Q-MCP-SCOPE compares requested_scope to coded allowed_scope.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I2 hint 1"
+    },
+    "viz_i2_h2": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 2 — Investigation 2\n\nATTACK and RETEST should request lookup_customer_tier / customer:read / customer_id=cust-001. BASELINE requests lookup_policy / policy:read. The request is not the grant.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I2 hint 2"
+    },
+    "viz_i2_sol": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Solution — Investigation 2 Find the tool request\n\nThis is **Path B**. Path A remains Search with your LIVE run.id.\n\n**SOLUTION SPL** (`Q-MCP-WHO`)\n\nCopy this into Search. Replace `$run_id$` with the LIVE UUID, or leave the token for Investigate specimen REPLAY.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval principal=mvindex(mvdedup('agentsec.principal.id'),0)\n| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval method=mvindex(mvdedup('mcp.method.name'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| table run_id, principal, agent, tool, method, profile, mode\n```\n\n**WHY THESE STAGES**\n\n- **Why control.decision?** Identity of who requested which tool is on the authorization event.\n- **Why not session.id?** AgentSec correlates with run.id.\n- **Why collapse mvindex(mvdedup(...),0)?** JSON body and OTLP attributes duplicate scalars.\n\n**EXPECTED RESULT SHAPE**\n\nATTACK/RETEST: tool lookup_customer_tier. BASELINE: lookup_policy. Scope relation is requested vs allowed, not a grant mutation.\n\n**WHAT YOU ARE SEEING**\n\nThese fields are the request the runtime hashed. They are not a new allow-list.\n\n**WHAT IT MEANS**\n\nREQUEST != GRANT. Seeing a tool name in telemetry does not mean coded_policy granted it.\n\n**WHAT IT DOES NOT MEAN**\n\nA requested_scope value is not authorization. Argument hash is not the raw argument object.\n\n**SECURITY CONNECTION**\n\nControl `CTRL-MCP-001 (you have not read the decision yet)` · invariant `INV-001` · hunt `Q-MCP-WHO`. Splunk does **not** ALLOW or DENY.\n\n**NEXT CHALLENGE**\n\nMCP-I3-AUTHORIZATION-DECISION\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I2 solution"
+    },
+    "viz_i2_tbl_0": {
       "type": "splunk.table",
-      "title": "Q-MCP-SCOPE",
-      "description": "Requested vs coded allowed scope. allowed_scope is not rewritten by fail-open.",
+      "title": "Q-MCP-WHO tool identity (REPLAY)",
+      "description": "Requested tool. Not a grant.",
       "dataSources": {
-        "primary": "ds_q_scope"
+        "primary": "ds_q_who"
       },
       "showProgressBar": true,
       "showLastUpdated": false,
@@ -569,13 +639,13 @@
         "backgroundColor": "#FFFFFF",
         "headerBackgroundColor": "#0B1F33",
         "headerTextColor": "#FFFFFF",
-        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+        "noDataMessage": "Investigate specimen defaults to the BASELINE specimen so this page is not an error state. Custom run.id is available from Search. Zero rows means no matching indexed events for that id. Zero rows is not DENY and is not proof the handler never ran."
       }
     },
-    "viz_hunt_params": {
+    "viz_i2_tbl_1": {
       "type": "splunk.table",
-      "title": "Q-MCP-PARAMS",
-      "description": "Preview + hash only. No gen_ai.tool.call.arguments. Not a secret dump.",
+      "title": "Q-MCP-PARAMS (REPLAY)",
+      "description": "Preview + hash only.",
       "dataSources": {
         "primary": "ds_q_params"
       },
@@ -588,13 +658,131 @@
         "backgroundColor": "#FFFFFF",
         "headerBackgroundColor": "#0B1F33",
         "headerTextColor": "#FFFFFF",
-        "noDataMessage": "No indexed control.decision was found for this run. That is not DENY. It can be a schema failure before authorize, a wrong run.id, or an incomplete copy."
+        "noDataMessage": "Investigate specimen defaults to the BASELINE specimen so this page is not an error state. Custom run.id is available from Search. Zero rows means no matching indexed events for that id. Zero rows is not DENY and is not proof the handler never ran."
       }
     },
-    "viz_hunt_exec": {
+    "viz_i2_tbl_2": {
       "type": "splunk.table",
-      "title": "Q-MCP-EXECUTED",
-      "description": "Q-MCP-EXECUTED. Control `executed` stays false on ALLOW. Read `has_started` and `execution_state` for whether the handler began. Scroll right if needed.",
+      "title": "Q-MCP-SCOPE (REPLAY)",
+      "description": "requested_scope vs coded allowed_scope.",
+      "dataSources": {
+        "primary": "ds_q_scope"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "Investigate specimen defaults to the BASELINE specimen so this page is not an error state. Custom run.id is available from Search. Zero rows means no matching indexed events for that id. Zero rows is not DENY and is not proof the handler never ran."
+      }
+    },
+    "viz_i3_q": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Investigation 3 — Find the authorization decision\n\n**QUESTION**\n\nWhat did CTRL-MCP-001 decide and why?\n\n**WHAT AM I TRYING TO PROVE?**\n\nCTRL-MCP-001 is the tool PDP. Splunk did not make that decision.\n\n**YOUR TASK (Path A — try it yourself)**\n\nFilter event.name=agentsec.control.decision on the same run.id. Read control.id, decision, reason.\n\n1. Copy the fresh LIVE run.id from Attack Service, or use Investigate specimen for canonical REPLAY.\n2. [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.\n4. Filter quoted `agentsec.run.id`. Execute. Read the fields yourself.\n\nStudio cannot receive a fresh LIVE run.id. That handoff is Search, not a token write.\n\nStarter (paste your LIVE run.id; do not search `index=*`):\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"PASTE-LIVE-RUN-ID\"\n```\n\nNeed help? Scroll to **Hint 1**, then **Hint 2**, then the Path B solution. Do not skip Path A.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I3 question"
+    },
+    "viz_i3_h1": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 1 — Investigation 3\n\nThe hunt is Q-MCP-AUTHZ. Restrict to event.name=agentsec.control.decision. Control executed stays false on ALLOW.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I3 hint 1"
+    },
+    "viz_i3_h2": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 2 — Investigation 3\n\nLIVE ATTACK expect ALLOW with a fail-open reason. Defended RETEST expect DENY tool_not_granted. BASELINE expect ALLOW tool_granted.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I3 hint 2"
+    },
+    "viz_i3_sol": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Solution — Investigation 3 Find the authorization decision\n\nThis is **Path B**. Path A remains Search with your LIVE run.id.\n\n**SOLUTION SPL** (`Q-MCP-AUTHZ`)\n\nCopy this into Search. Replace `$run_id$` with the LIVE UUID, or leave the token for Investigate specimen REPLAY.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome\n```\n\n**WHY THESE STAGES**\n\n- **Why event.name=agentsec.control.decision?** That is the PDP copy.\n- **Why executed is false on ALLOW?** That field is the control event, not handler start.\n- Splunk did **not** evaluate CTRL-MCP-001.\n\n**EXPECTED RESULT SHAPE**\n\nControl rows only. BASELINE: ALLOW tool_granted. LIVE ATTACK: ALLOW fail-open. Defended RETEST: DENY tool_not_granted, outcome=prevented.\n\n**WHAT YOU ARE SEEING**\n\ndecision and reason are runtime fields copied into the index. attempted/executed on this event describe the governed handler at decision time.\n\n**WHAT IT MEANS**\n\nAcmeBank enforced CTRL-MCP-001 at acmebank.mcp.authorize before the handler. Splunk observed the copy. ALLOW is not execution.\n\n**WHAT IT DOES NOT MEAN**\n\nDENY by itself does not prove the handler never ran. You still need execution evidence. Splunk is not the enforcement point.\n\n**SECURITY CONNECTION**\n\nControl `CTRL-MCP-001` · invariant `INV-001` · hunt `Q-MCP-AUTHZ`. Splunk does **not** ALLOW or DENY.\n\n**NEXT CHALLENGE**\n\nMCP-I4-DID-HANDLER-START\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I3 solution"
+    },
+    "viz_i3_tbl": {
+      "type": "splunk.table",
+      "title": "Q-MCP-AUTHZ (REPLAY specimen)",
+      "description": "Control.id, decision, reason. Splunk did not make this decision.",
+      "dataSources": {
+        "primary": "ds_q_authz"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "Investigate specimen defaults to the BASELINE specimen so this page is not an error state. Custom run.id is available from Search. Zero rows means no matching indexed events for that id. Zero rows is not DENY and is not proof the handler never ran."
+      }
+    },
+    "viz_i4_q": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Investigation 4 — Did the handler start?\n\n**QUESTION**\n\nIs there execution evidence after the authorization decision?\n\n**WHAT AM I TRYING TO PROVE?**\n\nALLOW != EXECUTION. mcp.started with executed=true means the handler began. Runtime handler count is authoritative for non-execution.\n\n**YOUR TASK (Path A — try it yourself)**\n\nSearch mcp.started / mcp.completed / mcp.failed on this run.id. Read has_started on Q-MCP-EXECUTED. Do not read control executed as handler execution.\n\n1. Copy the fresh LIVE run.id from Attack Service, or use Investigate specimen for canonical REPLAY.\n2. [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.\n4. Filter quoted `agentsec.run.id`. Execute. Read the fields yourself.\n\nStudio cannot receive a fresh LIVE run.id. That handoff is Search, not a token write.\n\nStarter (paste your LIVE run.id; do not search `index=*`):\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"PASTE-LIVE-RUN-ID\"\n```\n\nNeed help? Scroll to **Hint 1**, then **Hint 2**, then the Path B solution. Do not skip Path A.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I4 question"
+    },
+    "viz_i4_h1": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 1 — Investigation 4\n\nQ-MCP-TOOL is mcp.started only. Q-MCP-EXECUTED joins control + mcp.* into execution_state.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I4 hint 1"
+    },
+    "viz_i4_h2": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 2 — Investigation 4\n\nBASELINE and LIVE ATTACK complete copies: mcp.started then mcp.completed, handler 1. Defended RETEST complete copy: zero mcp.started. Zero Splunk rows corroborate local handler_invoke_count; they do not independently prove prevention.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I4 hint 2"
+    },
+    "viz_i4_sol": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Solution — Investigation 4 Did the handler start?\n\nThis is **Path B**. Path A remains Search with your LIVE run.id.\n\n**SOLUTION SPL** (`Q-MCP-EXECUTED`)\n\nCopy this into Search. Replace `$run_id$` with the LIVE UUID, or leave the token for Investigate specimen REPLAY.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state\n```\n\n**WHY THESE STAGES**\n\n- **Why has_started?** It is derived from mcp.started in this copy.\n- **Why control executed stays false?** Do not read it as handler execution.\n- Runtime handler count remains authoritative for non-execution.\n\n**EXPECTED RESULT SHAPE**\n\nBASELINE/ATTACK complete copy: has_started=1, execution_state=mcp.completed. Defended RETEST complete copy: has_started=0, execution_state=no_mcp_execution_event.\n\n**WHAT YOU ARE SEEING**\n\nmcp.started with executed=true means the handler began. mcp.completed is success of a begun call. mcp.failed is execution then error, not DENY.\n\n**WHAT IT MEANS**\n\nPrevention is DENY before invoke plus handler_invoke_count=0. Splunk absence of mcp.started is corroboration only.\n\n**WHAT IT DOES NOT MEAN**\n\nMissing mcp.started is not blocked, SAFE, or prevented if export was incomplete. Do not treat empty Splunk as the control.\n\n**SECURITY CONNECTION**\n\nControl `CTRL-MCP-001` · invariant `INV-001` · hunt `Q-MCP-EXECUTED`. Splunk does **not** ALLOW or DENY.\n\n**NEXT CHALLENGE**\n\nMCP-I5-WHAT-CAN-YOU-PROVE\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I4 solution"
+    },
+    "viz_i4_tbl_0": {
+      "type": "splunk.table",
+      "title": "Q-MCP-EXECUTED (REPLAY specimen)",
+      "description": "has_started is execution evidence in this copy. Empty is not independently prevented.",
       "dataSources": {
         "primary": "ds_q_executed"
       },
@@ -607,13 +795,32 @@
         "backgroundColor": "#FFFFFF",
         "headerBackgroundColor": "#0B1F33",
         "headerTextColor": "#FFFFFF",
-        "noDataMessage": "No indexed MCP execution event was found for this run. That does not automatically mean DENY. ERROR, schema failure, and export loss also look like zero rows."
+        "noDataMessage": "Investigate specimen defaults to the BASELINE specimen so this page is not an error state. Custom run.id is available from Search. Zero rows means no matching indexed events for that id. Zero rows is not DENY and is not proof the handler never ran."
       }
     },
-    "viz_hunt_result": {
+    "viz_i4_tbl_1": {
       "type": "splunk.table",
-      "title": "Q-MCP-RESULT",
-      "description": "Safe result metadata. Empty means no mcp.completed/failed in this copy.",
+      "title": "Q-MCP-TOOL (REPLAY)",
+      "description": "mcp.started rows only.",
+      "dataSources": {
+        "primary": "ds_q_tool"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "Investigate specimen defaults to the BASELINE specimen so this page is not an error state. Custom run.id is available from Search. Zero rows means no matching indexed events for that id. Zero rows is not DENY and is not proof the handler never ran."
+      }
+    },
+    "viz_i4_tbl_2": {
+      "type": "splunk.table",
+      "title": "Q-MCP-RESULT (REPLAY)",
+      "description": "Completed/failed result metadata. Empty is not trusted.",
       "dataSources": {
         "primary": "ds_q_result"
       },
@@ -626,13 +833,13 @@
         "backgroundColor": "#FFFFFF",
         "headerBackgroundColor": "#0B1F33",
         "headerTextColor": "#FFFFFF",
-        "noDataMessage": "No indexed MCP execution event was found for this run. That does not automatically mean DENY. ERROR, schema failure, and export loss also look like zero rows."
+        "noDataMessage": "Investigate specimen defaults to the BASELINE specimen so this page is not an error state. Custom run.id is available from Search. Zero rows means no matching indexed events for that id. Zero rows is not DENY and is not proof the handler never ran."
       }
     },
-    "viz_hunt_trust": {
+    "viz_i4_tbl_3": {
       "type": "splunk.table",
-      "title": "Q-MCP-RESULT-TRUST",
-      "description": "Expect untrusted_data on completed results. Empty is not 'trusted'. Preparatory; not MCP-005.",
+      "title": "Q-MCP-RESULT-TRUST (REPLAY)",
+      "description": "Expect untrusted_data when a result exists.",
       "dataSources": {
         "primary": "ds_q_result_trust"
       },
@@ -645,13 +852,72 @@
         "backgroundColor": "#FFFFFF",
         "headerBackgroundColor": "#0B1F33",
         "headerTextColor": "#FFFFFF",
-        "noDataMessage": "No completed MCP result in this copy. That is not a trust upgrade."
+        "noDataMessage": "Investigate specimen defaults to the BASELINE specimen so this page is not an error state. Custom run.id is available from Search. Zero rows means no matching indexed events for that id. Zero rows is not DENY and is not proof the handler never ran."
+      }
+    },
+    "viz_i5_q": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Investigation 5 — What can you prove?\n\n**QUESTION**\n\nWhich statements are supported by this evidence, corroborated, not proven, or incorrect?\n\n**WHAT AM I TRYING TO PROVE?**\n\nClassify claims. DENY is not proof of non-execution by itself. ATTACK is not an alert. Splunk is not enforcement.\n\n**YOUR TASK (Path A — try it yourself)**\n\nFor each statement, pick: SUPPORTED BY EVIDENCE, CORROBORATED, NOT PROVEN, or INCORRECT. Tie the answer to a field or a pack file.\n\n1. Copy the fresh LIVE run.id from Attack Service, or use Investigate specimen for canonical REPLAY.\n2. [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.\n4. Filter quoted `agentsec.run.id`. Execute. Read the fields yourself.\n\nStudio cannot receive a fresh LIVE run.id. That handoff is Search, not a token write.\n\nStarter (paste your LIVE run.id; do not search `index=*`):\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"PASTE-LIVE-RUN-ID\"\n```\n\nNeed help? Scroll to **Hint 1**, then **Hint 2**, then the Path B solution. Do not skip Path A.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I5 question"
+    },
+    "viz_i5_h1": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 1 — Investigation 5\n\nSUPPORTED needs a runtime or complete indexed field. CORROBORATED is Splunk agreeing with a complete local copy. NOT PROVEN is a gap. INCORRECT contradicts the evidence model.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I5 hint 1"
+    },
+    "viz_i5_h2": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 2 — Investigation 5\n\nRefresh: REQUEST != GRANT; ALLOW != EXECUTION; DENY != automatic proof of non-execution; missing event != blocked; Splunk != enforcement; ATTACK != ALERT; 0 DET-MCP-001 rows != SAFE; HEC success != searchable evidence.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I5 hint 2"
+    },
+    "viz_i5_sol": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Solution — Investigation 5 What can you prove?\n\nThis is **Path B**. Path A remains Search with your LIVE run.id.\n\n**SOLUTION SPL** (`Q-MCP-AFTER-DENY`)\n\nCopy this into Search. Replace `$run_id$` with the LIVE UUID, or leave the token for Investigate specimen REPLAY.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval is_deny=if(event_name=\"agentsec.control.decision\" AND decision=\"DENY\",1,0)\n| eval is_mcp=if(match(event_name,\"^agentsec\\\\.mcp\\\\.\"),1,0)\n| eventstats min(eval(if(is_deny=1,sequence,null()))) as deny_seq, max(is_deny) as has_deny by run_id, tool\n| where has_deny=1 AND is_mcp=1 AND sequence>deny_seq\n| table run_id, tool, deny_seq, sequence, event_name, decision\n```\n\n**WHY THESE STAGES**\n\n- **Why this hunt?** It asks whether mcp.started followed DENY for the same run/tool.\n- **Why zero rows are not a detector?** No notable. Completeness first.\n- DET-MCP-001 is the operational detection of the same invariant, packaged disabled.\n\n**EXPECTED RESULT SHAPE**\n\nClassification exercise. Q-MCP-AFTER-DENY on a complete defended RETEST copy is 0 rows — corroboration, not independent prevention proof. DET-MCP-001 is silent on fail-open ALLOW and on DENY-without-start.\n\n**WHAT YOU ARE SEEING**\n\nQ-MCP-AFTER-DENY asks whether mcp.started followed DENY on the same run/tool. Zero rows on a complete copy means that sequence was not indexed. The DETECT tab positive-control table is SIMULATED.\n\n**WHAT IT MEANS**\n\nYou can prove what the complete evidence says. You cannot promote gaps, HEC 200, Studio rendering, or detector silence into prevention.\n\n**WHAT IT DOES NOT MEAN**\n\nThis workshop does not prove INV-001 for other tools, production IAM, or later MCP labs. Zero detection rows are not a new detector.\n\n**SECURITY CONNECTION**\n\nControl `CTRL-MCP-001` · invariant `INV-001` · hunt `Q-MCP-AFTER-DENY`. Splunk does **not** ALLOW or DENY.\n\n**NEXT CHALLENGE**\n\nMCP-I6-ATTACK-VS-RETEST\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I5 solution"
+    },
+    "viz_i5_tbl": {
+      "type": "splunk.table",
+      "title": "Q-MCP-AFTER-DENY (indexed REPLAY)",
+      "description": "Zero rows on a complete DENY copy is corroboration, not a shipped detector.",
+      "dataSources": {
+        "primary": "ds_q_after_deny"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "Investigate specimen defaults to the BASELINE specimen so this page is not an error state. Custom run.id is available from Search. Zero rows means no matching indexed events for that id. Zero rows is not DENY and is not proof the handler never ran."
       }
     },
     "viz_detect_md": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# DETECT — investigation hunt and one operational detection\n\nNo notable event. No ES notable. No automatic remediation.\n\n**Invariant:** if CTRL-MCP-001 returns DENY for a run/tool, no later `mcp.started` may occur for that same run/tool (`sequence` greater than the DENY).\n\n## HUNT vs DETECTION\n\n- **HUNT** (`Q-MCP-AFTER-DENY` on Hunt run.id): asks whether the violation occurred in this copy. Left table. Validated LIVE specimens: **0** rows. Zero rows is not independent proof the handler never ran.\n- **DETECTION** (`DET-MCP-001`, saved search `AgentSec - MCP Execution After Authorization Deny`): continuously checks the same invariant across the index window. Severity **HIGH** because authorization already denied and execution nevertheless began. Packaged **disabled**. This dashboard does **not** enable it. It did **not** fire on the validated LIVE runs.\n\nDENY alone is not an alert. ALLOW (including labeled fail-open) is not this detection. `mcp.failed` after ALLOW is execution then error, not DENY-then-start. ERROR is not DENY. Splunk detects a copy of a violation; it does not enforce authorization.\n\nRight table: `DET-MCP-001-POSITIVE-CONTROL` — **SIMULATED** `| makeresults` (DENY seq 3, `mcp.started` seq 4). Not indexed. Not an AcmeBank run. Not OBSERVED runtime evidence. Hunt fixture `Q-MCP-AFTER-DENY-POSITIVE-CONTROL` remains in `searches/` and is also SIMULATED.\n",
+        "markdown": "# DETECT — investigation hunt and one operational detection\n\nNo notable event. No ES notable. No automatic remediation.\n\n**Invariant:** if CTRL-MCP-001 returns DENY for a run/tool, no later `mcp.started` may occur for that same run/tool (`sequence` greater than the DENY).\n\n## HUNT vs DETECTION\n\n- **HUNT** (`Q-MCP-AFTER-DENY` on Hunt run.id): asks whether the violation occurred in this copy. Left table. Validated LIVE specimens: **0** rows. Zero rows is not independent proof the handler never ran.\n- **DETECTION** (`DET-MCP-001`, saved search `AgentSec - MCP Execution After Authorization Deny`): continuously checks the same invariant across the index window. Severity **HIGH** because authorization already denied and execution nevertheless began. Packaged **disabled**. This dashboard does **not** enable it. It did **not** fire on the validated LIVE runs.\n\nDENY alone is not an alert. ALLOW (including labeled fail-open) is not this detection. `mcp.failed` after ALLOW is execution then error, not DENY-then-start. ERROR is not DENY. Splunk detects a copy of a violation; it does not enforce authorization.\n\n**ATTACK != ALERT.** A successful LIVE ATTACK on the vulnerable profile is fail-open ALLOW. DET-MCP-001 stays silent. **HUNT != DETECTION.** **CONTEXT != INCIDENT.** **0 detection rows != SAFE.**\n\nRight table: `DET-MCP-001-POSITIVE-CONTROL` — **SIMULATED** `| makeresults` (DENY seq 3, `mcp.started` seq 4). Not indexed. Not an AcmeBank run. Not OBSERVED runtime evidence. Hunt fixture `Q-MCP-AFTER-DENY-POSITIVE-CONTROL` remains in `searches/` and is also SIMULATED.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -699,7 +965,7 @@
     "viz_defend": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# DEFEND\n\n**Control:** CTRL-MCP-001 (`src/agentsec/mcp/authorize.py`). Type `mcp_allowlist`.\n\n**Where it executes:** MCP server, **before** the tool handler.\n\nThis is a **lab allow-list**, not production IAM, not enterprise MCP gateway policy, and not Splunk authorization.\n\n## What it checks\n\n- Server-owned coded policy (`allowed_tools={lookup_policy}`, `allowed_scope=policy:read`). HTTP cannot widen grants.\n- Tool registry: unknown name → **ERROR** (`unknown_tool`), not DENY.\n- Grant check: known but not granted → **DENY** in `defended`.\n- Scope comparison: requested scope vs coded allowed scope.\n- Fail closed for unknown tools and control-evaluation failures (ERROR, no handler).\n- `vulnerable` is an intentional labeled fail-open for the **known-ungranted** tool only.\n\nInspecting a tool result after the handler cannot be DENY of that invoke. Splunk searches do not move the control.\n\n**SPL this step:** none. Re-read HUNT. **Next:** RETEST the same unauthorized request with `defended`.\n",
+        "markdown": "# DEFEND\n\n**Control:** CTRL-MCP-001 (`src/agentsec/mcp/authorize.py`). Type `mcp_allowlist`.\n\n**Where it executes:** MCP server, **before** the tool handler.\n\nThis is a **lab allow-list**, not production IAM, not enterprise MCP gateway policy, and not Splunk authorization.\n\n## What it checks\n\n- Server-owned coded policy (`allowed_tools={lookup_policy}`, `allowed_scope=policy:read`). HTTP cannot widen grants.\n- Tool registry: unknown name → **ERROR** (`unknown_tool`), not DENY.\n- Grant check: known but not granted → **DENY** in `defended`.\n- Scope comparison: requested scope vs coded allowed scope.\n- Fail closed for unknown tools and control-evaluation failures (ERROR, no handler).\n- `vulnerable` is an intentional labeled fail-open for the **known-ungranted** tool only.\n\nInspecting a tool result after the handler cannot be DENY of that invoke. Splunk searches do not move the control.\n\n**Action:** Open Attack Service, read the RETEST prediction, then Launch RETEST (LIVE) with the same request bytes.\n\n[Open Attack Service RETEST](http://127.0.0.1:5001/labs/LAB-MCP-001)\n\n**SPL this step:** none. Re-read HUNT. **Next:** LIVE RETEST the same unauthorized request on the defended experiment.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -709,7 +975,7 @@
     "viz_retest_md": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# RETEST\n\nSame request as ATTACK: `lookup_customer_tier`, scope `customer:read`. Profile **defended**. `testbed.mode=RETEST`.\n\n**Expected:** DENY `tool_not_granted`. Control `attempted=false`, `executed=false`, `outcome=prevented`. Runtime handler count **0**. No `mcp.started`.\n\nValidated reference: `7a1d37b5-d589-4dfd-8322-25ebd0152dbc`.\n\nRuntime handler count is authoritative proof of non-execution. Splunk absence of `mcp.started` is corroboration only, and only on a complete copy.\n\nTables on this tab use the **RETEST** token.\n\nDo not describe `lookup_customer_tier` as malware. The defended result is unauthorized invocation denied.\n",
+        "markdown": "# RETEST\n\nPredict **before** you launch. RETEST uses the **same** `lookup_customer_tier` / `customer:read` / `cust-001` request and a **different** server-owned defense.\n\n[Open Attack Service (Launch RETEST LIVE)](http://127.0.0.1:5001/labs/LAB-MCP-001)\n\n**Expected:** DENY `tool_not_granted`. Control `attempted=false`, `executed=false`, `outcome=prevented`. Runtime handler count **0**. No `mcp.started`.\n\nValidated REPLAY: `7a1d37b5-d589-4dfd-8322-25ebd0152dbc`. Fresh LIVE ids are not this UUID.\n\nRuntime handler count is authoritative proof of non-execution. Splunk absence of `mcp.started` is corroboration only, and only on a complete copy.\n\nTables on this tab use the **RETEST** token.\n\nDo not describe `lookup_customer_tier` as malware. The defended result is unauthorized invocation denied.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -995,7 +1261,7 @@
     "viz_prove": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# PROVE\n\nFive layers. Never merge them into one evidence claim. Never a single PROVEN tile from index presence.\n\n1. **Runtime (authoritative).** Did the handler run? `ToolRegistry` / `handler_invoke_count`. Splunk does not decide this.\n2. **Local evidence.** `artifacts/<run-id>/events.jsonl` sequence and event contract.\n3. **OTLP export.** `export.json` — telemetry was emitted. `otlp.ok` is not Splunk success. Packs keep `splunk.verified=false` until a search ran.\n4. **Splunk indexed.** A copy arrived. Completeness is local count vs `dc(_raw)` for that `run.id`.\n5. **SPL query result.** Analytical interpretation of that copy (Q-MCP-*). Zero rows follow Phase 3C no-data semantics.\n\nStates: COMPLETE / PARTIAL / FAILED / NOT VERIFIED per layer.\n\nRuntime handler count is authoritative proof of non-execution. Splunk absence of `mcp.started` is corroboration only, and only on a complete copy.\n\n## Knowledge check (not scored)\n\nQuestions live in `learning/level_1/LAB-MCP-001/knowledge-check.md`. Sample:\n\n- Why is `lookup_customer_tier` DENY instead of ERROR?\n- Why is an unknown tool ERROR?\n- Does ALLOW prove the tool executed?\n- What proves the handler actually began?\n- Why is `mcp.failed` not prevention?\n- Why can't zero Splunk events alone prove the handler never executed?\n- Why are MCP tool results `untrusted_data`?\n\n## Limitations that still apply\n\n- CTRL-MCP-001 is a lab allow-list, not production IAM.\n- JSON-RPC is in-process, not stdio/HTTP MCP transport.\n- Q-MCP-AFTER-DENY zero rows ≠ independent non-execution.\n- Positive control is **SIMULATED** (`makeresults`).\n- This dashboard is not a detection pack. It does not prove INV-001 by existing.\n- No MCP-003 / MCP-004 / MCP-005 / MCP-006 on this page.\n\nValidated references: BASELINE `163d11e2-e751-4282-9406-19b490542ed4` · ATTACK `5e8f55f3-eb46-47ee-b979-b72d9c9b1f49` · RETEST `7a1d37b5-d589-4dfd-8322-25ebd0152dbc`.\n",
+        "markdown": "# PROVE\n\nFive layers. Never merge them into one evidence claim. Never a single PROVEN tile from index presence.\n\n1. **Runtime (authoritative).** Did the handler run? `ToolRegistry` / `handler_invoke_count`. Splunk does not decide this.\n2. **Local evidence.** `artifacts/<run-id>/events.jsonl` sequence and event contract.\n3. **OTLP export.** `export.json` — telemetry was emitted. `otlp.ok` is not Splunk success. Packs keep `splunk.verified=false` until a search ran.\n4. **Splunk indexed.** A copy arrived. Completeness is local count vs `dc(_raw)` for that `run.id`.\n5. **SPL query result.** Analytical interpretation of that copy (Q-MCP-*). Zero rows follow Phase 3C no-data semantics.\n\nStates: COMPLETE / PARTIAL / FAILED / NOT VERIFIED per layer.\n\nRuntime handler count is authoritative proof of non-execution. Splunk absence of `mcp.started` is corroboration only, and only on a complete copy.\n\n## Knowledge check (not scored)\n\nQuestions live in `learning/level_1/LAB-MCP-001/knowledge-check.md`. Sample:\n\n- Why is `lookup_customer_tier` DENY instead of ERROR?\n- Why is an unknown tool ERROR?\n- Does ALLOW prove the tool executed?\n- What proves the handler actually began?\n- Why is `mcp.failed` not prevention?\n- Why can't zero Splunk events alone prove the handler never executed?\n- Why are MCP tool results `untrusted_data`?\n\n## Connect the concepts\n\nThis lab placed the trust boundary at **tool authorization**. Other AgentSec labs place it elsewhere. The chain stays the same:\n\n```text\nSOURCE → TRUST BOUNDARY → INFLUENCE / REQUEST → AUTHORIZATION → EXECUTION → TELEMETRY → SPLUNK INVESTIGATION\n```\n\n- Prompt / input trust — untrusted text before the LLM (CTRL-INPUT-001)\n- Tool authorization — this lab (CTRL-MCP-001)\n- MCP metadata/catalog — descriptions are data\n- Tool results — untrusted_data, not a new grant\n- RAG context — retrieved text is not authority\n- Persistent memory — untrusted memory is not instruction\n- Identity / delegation — a deputy does not inherit extra grants\n- Goal / instruction integrity — task text is not a policy change\n- Supply chain — a scanner finding is not a runtime ALLOW\n\nThis workshop does not run those labs and does not claim they share this control.\n\n## Limitations that still apply\n\n- CTRL-MCP-001 is a lab allow-list, not production IAM.\n- JSON-RPC is in-process, not stdio/HTTP MCP transport.\n- Q-MCP-AFTER-DENY zero rows ≠ independent non-execution.\n- Positive control is **SIMULATED** (`makeresults`).\n- This dashboard is not a detection pack. It does not prove INV-001 by existing.\n- No MCP-003 / MCP-004 / MCP-005 / MCP-006 on this page.\n\nValidated references: BASELINE `163d11e2-e751-4282-9406-19b490542ed4` · ATTACK `5e8f55f3-eb46-47ee-b979-b72d9c9b1f49` · RETEST `7a1d37b5-d589-4dfd-8322-25ebd0152dbc`.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -1043,15 +1309,12 @@
   },
   "layout": {
     "options": {
-      "submitButton": true,
+      "submitButton": false,
       "submitOnDashboardLoad": true,
       "showTitleAndDescription": true
     },
     "globalInputs": [
-      "input_run_id",
-      "input_baseline_run_id",
-      "input_attack_run_id",
-      "input_retest_run_id"
+      "input_run_id"
     ],
     "tabs": {
       "options": {
@@ -1108,7 +1371,7 @@
           "display": "auto-scale",
           "gutterSize": 8,
           "width": 1440,
-          "height": 1000
+          "height": 1640
         },
         "structure": [
           {
@@ -1118,7 +1381,7 @@
               "x": 0,
               "y": 0,
               "w": 1440,
-              "h": 980
+              "h": 1580
             }
           }
         ]
@@ -1202,7 +1465,7 @@
           "display": "auto-scale",
           "gutterSize": 8,
           "width": 1440,
-          "height": 1100
+          "height": 1320
         },
         "structure": [
           {
@@ -1212,7 +1475,7 @@
               "x": 0,
               "y": 0,
               "w": 1440,
-              "h": 340
+              "h": 560
             }
           },
           {
@@ -1220,7 +1483,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 340,
+              "y": 560,
               "w": 1440,
               "h": 220
             }
@@ -1230,7 +1493,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 560,
+              "y": 780,
               "w": 1440,
               "h": 240
             }
@@ -1240,7 +1503,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 800,
+              "y": 1020,
               "w": 720,
               "h": 280
             }
@@ -1250,7 +1513,7 @@
             "type": "block",
             "position": {
               "x": 720,
-              "y": 800,
+              "y": 1020,
               "w": 720,
               "h": 280
             }
@@ -1313,14 +1576,14 @@
         "type": "grid",
         "options": {
           "backgroundColor": "#F6F8FB",
-          "display": "auto-scale",
+          "display": "fit-to-width",
           "gutterSize": 8,
           "width": 1440,
-          "height": 1120
+          "height": 7428
         },
         "structure": [
           {
-            "item": "viz_hunt_md",
+            "item": "viz_hunt_intro",
             "type": "block",
             "position": {
               "x": 0,
@@ -1330,63 +1593,303 @@
             }
           },
           {
-            "item": "viz_hunt_who",
+            "item": "viz_i1_q",
             "type": "block",
             "position": {
               "x": 0,
-              "y": 280,
-              "w": 720,
-              "h": 260
+              "y": 288,
+              "w": 1440,
+              "h": 300
             }
           },
           {
-            "item": "viz_hunt_scope",
-            "type": "block",
-            "position": {
-              "x": 720,
-              "y": 280,
-              "w": 720,
-              "h": 260
-            }
-          },
-          {
-            "item": "viz_hunt_params",
+            "item": "viz_i1_h1",
             "type": "block",
             "position": {
               "x": 0,
-              "y": 540,
-              "w": 720,
-              "h": 280
+              "y": 588,
+              "w": 1440,
+              "h": 160
             }
           },
           {
-            "item": "viz_hunt_exec",
-            "type": "block",
-            "position": {
-              "x": 720,
-              "y": 540,
-              "w": 720,
-              "h": 280
-            }
-          },
-          {
-            "item": "viz_hunt_result",
+            "item": "viz_i1_h2",
             "type": "block",
             "position": {
               "x": 0,
-              "y": 820,
-              "w": 720,
-              "h": 280
+              "y": 748,
+              "w": 1440,
+              "h": 160
             }
           },
           {
-            "item": "viz_hunt_trust",
+            "item": "viz_i1_sol",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 908,
+              "w": 1440,
+              "h": 500
+            }
+          },
+          {
+            "item": "viz_i1_tbl",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1408,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i2_q",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1708,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i2_h1",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 2008,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i2_h2",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 2168,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i2_sol",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 2328,
+              "w": 1440,
+              "h": 500
+            }
+          },
+          {
+            "item": "viz_i2_tbl_0",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 2828,
+              "w": 480,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i2_tbl_1",
+            "type": "block",
+            "position": {
+              "x": 480,
+              "y": 2828,
+              "w": 480,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i2_tbl_2",
+            "type": "block",
+            "position": {
+              "x": 960,
+              "y": 2828,
+              "w": 480,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i3_q",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 3128,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i3_h1",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 3428,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i3_h2",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 3588,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i3_sol",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 3748,
+              "w": 1440,
+              "h": 500
+            }
+          },
+          {
+            "item": "viz_i3_tbl",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 4248,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i4_q",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 4548,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i4_h1",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 4848,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i4_h2",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 5008,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i4_sol",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 5168,
+              "w": 1440,
+              "h": 500
+            }
+          },
+          {
+            "item": "viz_i4_tbl_0",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 5668,
+              "w": 360,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i4_tbl_1",
+            "type": "block",
+            "position": {
+              "x": 360,
+              "y": 5668,
+              "w": 360,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i4_tbl_2",
             "type": "block",
             "position": {
               "x": 720,
-              "y": 820,
-              "w": 720,
-              "h": 280
+              "y": 5668,
+              "w": 360,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i4_tbl_3",
+            "type": "block",
+            "position": {
+              "x": 1080,
+              "y": 5668,
+              "w": 360,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i5_q",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 5968,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i5_h1",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 6268,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i5_h2",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 6428,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i5_sol",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 6588,
+              "w": 1440,
+              "h": 500
+            }
+          },
+          {
+            "item": "viz_i5_tbl",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 7088,
+              "w": 1440,
+              "h": 300
             }
           }
         ]
@@ -1398,7 +1901,7 @@
           "display": "auto-scale",
           "gutterSize": 8,
           "width": 1440,
-          "height": 840
+          "height": 920
         },
         "structure": [
           {
@@ -1408,7 +1911,7 @@
               "x": 0,
               "y": 0,
               "w": 1440,
-              "h": 420
+              "h": 500
             }
           },
           {
@@ -1416,7 +1919,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 420,
+              "y": 500,
               "w": 720,
               "h": 400
             }
@@ -1426,7 +1929,7 @@
             "type": "block",
             "position": {
               "x": 720,
-              "y": 420,
+              "y": 500,
               "w": 720,
               "h": 400
             }
@@ -1440,7 +1943,7 @@
           "display": "auto-scale",
           "gutterSize": 8,
           "width": 1440,
-          "height": 540
+          "height": 660
         },
         "structure": [
           {
@@ -1450,7 +1953,7 @@
               "x": 0,
               "y": 0,
               "w": 1440,
-              "h": 520
+              "h": 640
             }
           }
         ]
@@ -1462,7 +1965,7 @@
           "display": "auto-scale",
           "gutterSize": 8,
           "width": 1440,
-          "height": 1300
+          "height": 1380
         },
         "structure": [
           {
@@ -1472,7 +1975,7 @@
               "x": 0,
               "y": 0,
               "w": 1440,
-              "h": 300
+              "h": 380
             }
           },
           {
@@ -1480,7 +1983,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 300,
+              "y": 380,
               "w": 1440,
               "h": 220
             }
@@ -1490,7 +1993,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 520,
+              "y": 600,
               "w": 1440,
               "h": 240
             }
@@ -1500,7 +2003,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 760,
+              "y": 840,
               "w": 1440,
               "h": 260
             }
@@ -1510,7 +2013,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 1020,
+              "y": 1100,
               "w": 720,
               "h": 260
             }
@@ -1520,7 +2023,7 @@
             "type": "block",
             "position": {
               "x": 720,
-              "y": 1020,
+              "y": 1100,
               "w": 720,
               "h": 260
             }
@@ -1646,7 +2149,7 @@
           "display": "auto-scale",
           "gutterSize": 8,
           "width": 1440,
-          "height": 1200
+          "height": 1460
         },
         "structure": [
           {
@@ -1656,7 +2159,7 @@
               "x": 0,
               "y": 0,
               "w": 1440,
-              "h": 720
+              "h": 980
             }
           },
           {
@@ -1664,7 +2167,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 720,
+              "y": 980,
               "w": 1440,
               "h": 220
             }
@@ -1674,7 +2177,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 940,
+              "y": 1200,
               "w": 1440,
               "h": 240
             }

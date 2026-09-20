@@ -80,8 +80,8 @@ EMPTY_SEQ = (
     "That is not a security outcome."
 )
 EMPTY_HUNT = (
-    "Hunt write defaults to BASELINE write. Hunt recall defaults to BASELINE recall. "
-    "Replace the pair and Submit to hunt another complete copy. Empty tables are "
+    "Investigate write specimen defaults to BASELINE write. Investigate recall specimen "
+    "defaults to BASELINE recall. Custom run.id is available from Search. Empty tables are "
     "missing indexed rows, not security outcomes."
 )
 ALLOW_NOT_EXEC = (
@@ -116,6 +116,27 @@ def bind_run_id(spl: str, token: str) -> str:
     if "__RUN_ID__" not in spl:
         raise ValueError(f"expected __RUN_ID__ in query for token {token}")
     return spl.replace("__RUN_ID__", f'"${token}$"')
+
+def bind_literal(spl: str, run_id: str) -> str:
+    if "__RUN_ID__" not in spl:
+        raise ValueError("expected __RUN_ID__ in query")
+    return spl.replace("__RUN_ID__", f'"{run_id}"')
+
+
+def bound_run(ref: str) -> str:
+    """Token name stays "$token$"; UUID becomes a quoted literal."""
+    if len(ref) == 36 and ref.count("-") == 4:
+        return f'"{ref}"'
+    return f'"${ref}$"'
+
+
+def bind_memory_literal(spl: str, write_id: str, recall_id: str) -> str:
+    if "__WRITE_RUN_ID__" not in spl or "__RECALL_RUN_ID__" not in spl:
+        raise ValueError("expected __WRITE_RUN_ID__ and __RECALL_RUN_ID__")
+    return spl.replace("__WRITE_RUN_ID__", f'"{write_id}"').replace(
+        "__RECALL_RUN_ID__", f'"{recall_id}"'
+    )
+
 
 
 def bind_memory(spl: str, write_token: str, recall_token: str) -> str:
@@ -196,7 +217,7 @@ def layout(structure: list[dict], height: int) -> dict:
 
 def observe_sequence_spl(token: str) -> str:
     """Studio-only sequence view of already-validated indexed fields. Not a new hunt file."""
-    return f"""index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"="${token}$" ("event.name"=agentsec.memory.written OR "event.name"=agentsec.memory.recalled OR "event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
+    return f"""index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"={bound_run(token)} ("event.name"=agentsec.memory.written OR "event.name"=agentsec.memory.recalled OR "event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
 | eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
 | eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
 | eval event_name=mvindex(mvdedup('event.name'),0)
@@ -228,32 +249,32 @@ def build() -> dict:
     q_authz = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "run_id")
     q_tool = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "run_id")
     q_executed = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "run_id")
-    q_mem_b = bind_memory(
+    q_mem_b = bind_memory_literal(
         load_spl("Q-MEMORY-CONTEXT-AUTHORITY.spl", memory=True),
-        "baseline_write_run_id",
-        "baseline_recall_run_id",
+        BASELINE_WRITE,
+        BASELINE_RECALL,
     )
-    q_mem_a = bind_memory(
+    q_mem_a = bind_memory_literal(
         load_spl("Q-MEMORY-CONTEXT-AUTHORITY.spl", memory=True),
-        "attack_write_run_id",
-        "attack_recall_run_id",
+        ATTACK_WRITE,
+        ATTACK_RECALL,
     )
-    q_mem_r = bind_memory(
+    q_mem_r = bind_memory_literal(
         load_spl("Q-MEMORY-CONTEXT-AUTHORITY.spl", memory=True),
-        "retest_write_run_id",
-        "retest_recall_run_id",
+        RETEST_WRITE,
+        RETEST_RECALL,
     )
-    q_authz_b = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "baseline_recall_run_id")
-    q_authz_a = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "attack_recall_run_id")
-    q_authz_r = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "retest_recall_run_id")
-    q_tool_a = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "attack_recall_run_id")
-    q_tool_r = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "retest_recall_run_id")
-    q_exec_b = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "baseline_recall_run_id")
-    q_exec_a = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "attack_recall_run_id")
-    q_exec_r = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "retest_recall_run_id")
-    q_after_b = bind_run_id(load_spl("Q-MCP-AFTER-DENY.spl"), "baseline_recall_run_id")
-    q_after_a = bind_run_id(load_spl("Q-MCP-AFTER-DENY.spl"), "attack_recall_run_id")
-    q_after_r = bind_run_id(load_spl("Q-MCP-AFTER-DENY.spl"), "retest_recall_run_id")
+    q_authz_b = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), BASELINE_RECALL)
+    q_authz_a = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), ATTACK_RECALL)
+    q_authz_r = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), RETEST_RECALL)
+    q_tool_a = bind_literal(load_spl("Q-MCP-TOOL.spl"), ATTACK_RECALL)
+    q_tool_r = bind_literal(load_spl("Q-MCP-TOOL.spl"), RETEST_RECALL)
+    q_exec_b = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), BASELINE_RECALL)
+    q_exec_a = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), ATTACK_RECALL)
+    q_exec_r = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), RETEST_RECALL)
+    q_after_b = bind_literal(load_spl("Q-MCP-AFTER-DENY.spl"), BASELINE_RECALL)
+    q_after_a = bind_literal(load_spl("Q-MCP-AFTER-DENY.spl"), ATTACK_RECALL)
+    q_after_r = bind_literal(load_spl("Q-MCP-AFTER-DENY.spl"), RETEST_RECALL)
 
     data_sources = dict(
         (
@@ -339,9 +360,11 @@ def build() -> dict:
     add_md(
         "viz_learn",
         f"""
-# LAB-MEMORY-001 Persistent-memory investigation
+# Persistent Memory
 
-**WS-MEMORY-SECURITY** · GUIDED · schema **1.7.0** · INV-003 · CTRL-MEMORY-CONTEXT-001
+Investigate why recalled memory cannot silently become trusted instruction.
+
+**LIVE EVIDENCE** · `LAB-MEMORY-001` · Schema 1.7.0 · CTRL-MEMORY-CONTEXT-001
 
 **What can I prove from the evidence?** Not: was malicious memory detected?
 
@@ -356,7 +379,7 @@ def build() -> dict:
 - SPLUNK != ENFORCEMENT
 - ML != AUTHORIZATION
 
-**LIVE write and recall are different run.id values (copy the full UUID / hash)**
+**LIVE write and recall are different run.id values**
 
 BASELINE WRITE `{BASELINE_WRITE}`
 
@@ -566,7 +589,7 @@ write → later recall → OBSERVE → REQUEST → ALLOW → START → COMPLETE
         f"""
 # OBSERVE
 
-Use **Hunt write** + **Hunt recall** (defaults BASELINE pair). Five planes. Indexed structured fields only. No `_raw`. No full memory body. Hash + bounded preview.
+Use **Investigate write specimen** + **Investigate recall specimen** (defaults BASELINE pair). Five planes. Indexed structured fields only. No `_raw`. No full memory body. Hash + bounded preview.
 
 Write run and recall run are **different** `run.id` values. Persistence lives on the write run. Trust, request, authorization, and execution live on the recall run.
 
@@ -1111,7 +1134,7 @@ No DET-MEMORY. Schema 1.7.0. Phase 12 not started. No A2A. No rug-pull. No vecto
     )
 
     definition = {
-        "title": "LAB-MEMORY-001 Persistent-memory investigation",
+        "title": "Persistent Memory",
         "description": (
             "WS-MEMORY-SECURITY Dashboard Studio workshop. Reuses validated "
             "Q-MEMORY-CONTEXT-AUTHORITY and Q-MCP investigation SPL. Saved search "
@@ -1132,63 +1155,43 @@ No DET-MEMORY. Schema 1.7.0. Phase 12 not started. No A2A. No rug-pull. No vecto
         },
         "inputs": {
             "input_write_run_id": {
-                "type": "input.text",
-                "title": "Hunt write",
-                "options": {"token": "write_run_id", "defaultValue": BASELINE_WRITE},
+                "type": "input.dropdown",
+                "title": "Investigate write specimen",
+                "options": {
+                    "token": "write_run_id",
+                    "defaultValue": BASELINE_WRITE,
+                    "items": [
+                        {"label": "Baseline write — defended / normal", "value": BASELINE_WRITE},
+                        {"label": "Attack write — vulnerable / malicious", "value": ATTACK_WRITE},
+                        {"label": "Retest write — defended / malicious", "value": RETEST_WRITE},
+                    ],
+                },
             },
             "input_run_id": {
-                "type": "input.text",
-                "title": "Hunt recall",
-                "options": {"token": "run_id", "defaultValue": BASELINE_RECALL},
-            },
-            "input_baseline_write_run_id": {
-                "type": "input.text",
-                "title": "BASELINE WRITE",
-                "options": {"token": "baseline_write_run_id", "defaultValue": BASELINE_WRITE},
-            },
-            "input_baseline_recall_run_id": {
-                "type": "input.text",
-                "title": "BASELINE RECALL",
-                "options": {"token": "baseline_recall_run_id", "defaultValue": BASELINE_RECALL},
-            },
-            "input_attack_write_run_id": {
-                "type": "input.text",
-                "title": "ATTACK WRITE",
-                "options": {"token": "attack_write_run_id", "defaultValue": ATTACK_WRITE},
-            },
-            "input_attack_recall_run_id": {
-                "type": "input.text",
-                "title": "ATTACK RECALL",
-                "options": {"token": "attack_recall_run_id", "defaultValue": ATTACK_RECALL},
-            },
-            "input_retest_write_run_id": {
-                "type": "input.text",
-                "title": "RETEST WRITE",
-                "options": {"token": "retest_write_run_id", "defaultValue": RETEST_WRITE},
-            },
-            "input_retest_recall_run_id": {
-                "type": "input.text",
-                "title": "RETEST RECALL",
-                "options": {"token": "retest_recall_run_id", "defaultValue": RETEST_RECALL},
+                "type": "input.dropdown",
+                "title": "Investigate recall specimen",
+                "options": {
+                    "token": "run_id",
+                    "defaultValue": BASELINE_RECALL,
+                    "items": [
+                        {"label": "Baseline recall — defended / normal", "value": BASELINE_RECALL},
+                        {"label": "Attack recall — vulnerable / malicious", "value": ATTACK_RECALL},
+                        {"label": "Retest recall — defended / malicious", "value": RETEST_RECALL},
+                    ],
+                },
             },
         },
         "dataSources": data_sources,
         "visualizations": visualizations,
         "layout": {
             "options": {
-                "submitButton": True,
+                "submitButton": False,
                 "submitOnDashboardLoad": True,
                 "showTitleAndDescription": True,
             },
             "globalInputs": [
                 "input_write_run_id",
                 "input_run_id",
-                "input_baseline_write_run_id",
-                "input_baseline_recall_run_id",
-                "input_attack_write_run_id",
-                "input_attack_recall_run_id",
-                "input_retest_write_run_id",
-                "input_retest_recall_run_id",
             ],
             "tabs": {
                 "options": {"barPosition": "top"},
@@ -1324,8 +1327,8 @@ def write_xml(definition: dict) -> None:
     xml = (
         '<?xml version="1.0" encoding="utf-8"?>\n'
         '<dashboard version="2" theme="light">\n'
-        "  <label>LAB-MEMORY-001 Persistent-memory investigation</label>\n"
-        "  <description>WS-MEMORY-SECURITY. Validated Q-MEMORY-CONTEXT-AUTHORITY plus Q-MCP SPL. DET-MCP-001 packaged disabled. No DET-MEMORY. Splunk does not ALLOW or DENY a tool.</description>\n"
+        "  <label>Persistent Memory</label>\n"
+        "  <description>LIVE Persistent Memory workshop. LAB-MEMORY-001. Splunk does not ALLOW or DENY.</description>\n"
         "  <definition><![CDATA[\n"
         f"{payload}\n"
         "  ]]></definition>\n"

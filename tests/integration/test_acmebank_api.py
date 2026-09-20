@@ -9,6 +9,7 @@ def test_health_and_agent_list(acme_client):
     body = health.get_json()
     assert body["service"] == "acmebank"
     assert body["security.profile"] == "defended"
+    assert body["testbed.mode.override"] is None
 
     agents = acme_client.get("/api/v1/agents")
     ids = [row["agent_id"] for row in agents.get_json()["agents"]]

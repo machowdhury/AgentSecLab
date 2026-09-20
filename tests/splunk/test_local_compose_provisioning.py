@@ -37,3 +37,11 @@ def test_helpers_and_docs_describe_local_vs_external():
     assert "cp -a /tmp/agentsec-app" not in README
     assert "cp -a /tmp/agentsec-app" not in APP_README
     assert "./scripts/lab-up.sh" in README
+
+
+def test_lab_up_refresh_reruns_hec_after_splunk_restart():
+    lab_up = (ROOT / "scripts" / "lab-up.sh").read_text(encoding="utf-8")
+    restart_at = lab_up.index("$COMPOSE restart splunk")
+    hec_at = lab_up.index("splunk_hec_init", restart_at)
+    assert hec_at > restart_at
+    assert "--force-recreate --no-deps splunk_hec_init" in lab_up

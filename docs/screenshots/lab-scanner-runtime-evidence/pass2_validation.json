@@ -15,22 +15,12 @@
   "tabs_missing": [],
   "tokens_found": [
     "run_id",
-    "scan_id",
-    "baseline_run_id",
-    "attack_run_id",
-    "retest_run_id",
-    "normal_scan_id",
-    "malicious_scan_id"
+    "scan_id"
   ],
   "tokens_missing": [],
   "token_values": {
-    "run_id": "d95717ed-ffd2-46c0-a130-9a5d7d539a5d",
-    "scan_id": "b3061c4e-7a81-445c-8fd8-3108dd14c419",
-    "baseline_run_id": "d95717ed-ffd2-46c0-a130-9a5d7d539a5d",
-    "attack_run_id": "a0937bff-31a5-453a-99bf-47d7b5148ce4",
-    "retest_run_id": "23c222ea-6a87-40b7-a3e9-f12a5b572fa1",
-    "normal_scan_id": "b3061c4e-7a81-445c-8fd8-3108dd14c419",
-    "malicious_scan_id": "7ae3ea64-4e7a-40fe-943f-3e582bce5ee8"
+    "run_id": "Baseline \u2014 defended / normal",
+    "scan_id": "Normal scan \u2014 no malicious metadata"
   },
   "screenshots": [
     "docs/screenshots/lab-scanner-runtime-evidence/pass2_overview.png",

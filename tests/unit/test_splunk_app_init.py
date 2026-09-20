@@ -27,6 +27,7 @@ def test_splunk_app_init_copies_to_writable_dest(tmp_path: Path):
     assert not stale.exists()
     assert (dest / "default" / "app.conf").is_file()
     assert (dest / "default" / "indexes.conf").is_file()
+    assert (dest / "default" / "data" / "ui" / "views" / "ws_agentsec_home.xml").is_file()
     assert (dest / "default" / "data" / "ui" / "views" / "ws_lab_pi_001.xml").is_file()
     assert (dest / "default" / "data" / "ui" / "views" / "ws_lab_mcp_001.xml").is_file()
     assert (dest / "default" / "data" / "ui" / "views" / "ws_lab_mcp_003.xml").is_file()
@@ -37,6 +38,7 @@ def test_splunk_app_init_copies_to_writable_dest(tmp_path: Path):
     assert (dest / "default" / "data" / "ui" / "views" / "ws_lab_scanner_runtime_evidence.xml").is_file()
     assert (dest / "default" / "data" / "ui" / "views" / "ws_lab_rag_context.xml").is_file()
     assert (dest / "default" / "data" / "ui" / "views" / "ws_lab_memory_security.xml").is_file()
+    assert (dest / "default" / "data" / "ui" / "views" / "ws_lab_agent_goal_integrity.xml").is_file()
     assert "Staged AgentSec app" in proc.stdout
 
 
@@ -52,4 +54,4 @@ def test_splunk_app_init_fails_when_view_missing(tmp_path: Path):
     env["SPLUNK_APP_DEST"] = str(dest)
     proc = subprocess.run(["/bin/sh", str(APP_INIT)], env=env, capture_output=True, text=True)
     assert proc.returncode != 0
-    assert "ws_lab_pi_001.xml missing" in proc.stdout + proc.stderr
+    assert "ws_agentsec_home.xml missing" in proc.stdout + proc.stderr

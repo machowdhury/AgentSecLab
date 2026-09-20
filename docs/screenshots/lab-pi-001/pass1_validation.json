@@ -14,12 +14,12 @@
   ],
   "tabs_missing": [],
   "tokens_found": [
-    "run_id",
-    "baseline_run_id",
-    "attack_run_id",
-    "retest_run_id"
+    "run_id"
   ],
   "tokens_missing": [],
+  "token_values": {
+    "run_id": "Baseline \u2014 defended / normal"
+  },
   "screenshots": [
     "docs/screenshots/lab-pi-001/pass1_overview.png",
     "docs/screenshots/lab-pi-001/pass1_learn.png",
@@ -31,7 +31,15 @@
     "docs/screenshots/lab-pi-001/pass1_defend.png",
     "docs/screenshots/lab-pi-001/pass1_retest.png",
     "docs/screenshots/lab-pi-001/pass1_compare.png",
-    "docs/screenshots/lab-pi-001/pass1_prove.png"
+    "docs/screenshots/lab-pi-001/pass1_prove.png",
+    "docs/screenshots/lab-pi-001/pass1_w1280_learn.png",
+    "docs/screenshots/lab-pi-001/pass1_w1280_attack.png",
+    "docs/screenshots/lab-pi-001/pass1_w1280_hunt.png",
+    "docs/screenshots/lab-pi-001/pass1_w1280_prove.png",
+    "docs/screenshots/lab-pi-001/pass1_w1024_learn.png",
+    "docs/screenshots/lab-pi-001/pass1_w1024_attack.png",
+    "docs/screenshots/lab-pi-001/pass1_w1024_hunt.png",
+    "docs/screenshots/lab-pi-001/pass1_w1024_prove.png"
   ],
   "label": "pass1"
 }

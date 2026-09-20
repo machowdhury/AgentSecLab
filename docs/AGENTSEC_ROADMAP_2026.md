@@ -350,7 +350,83 @@ Same security question as 8B. Runtime fixture, CTRL-MCP-METADATA-001 OBSERVE, pe
 | **Risk** | Inventing DET-GOAL; treating goal DENY as tool DENY; starting 13E automatically. |
 | **Complexity** | Low–medium (analysis + workshop contract). |
 
-**Do not start Phase 13E automatically.** No Dashboard Studio. No DET-GOAL. No runtime/schema/authz change. No LLM planner. No rug-pull. No A2A.
+**Do not start Phase 13E automatically.** (Historical 13D gate. 13E completed in a dedicated named phase.) No DET-GOAL. No runtime/schema/authz change. No LLM planner. No rug-pull. No A2A.
+
+### Phase 13E — Agent goal / instruction integrity workshop
+
+**Status:** VALIDATED 2026-09-18. View `ws_lab_agent_goal_integrity`. **DETECTION ANALYZED — NO NEW GOAL DETECTOR.** Schema **1.9.0** unchanged. Runtime **UNCHANGED**. **Do not start Phase 14 from this file.** No rug-pull. No A2A. No DET-GOAL. No ML implementation.
+
+| Field | Content |
+|-------|---------|
+| **Security question** | What can a SOC prove from authorized-tool + unauthorized-goal evidence? |
+| **Attack** | GOAL-001 13C LIVE A/B/C (not re-ingested). |
+| **Control** | CTRL-GOAL-INTEGRITY-001; CTRL-MCP-001 sole tool PDP. |
+| **Telemetry** | 1.9.0 as 13C; no schema bump. |
+| **Splunk** | `Q-GOAL-INTEGRITY-AUTHORITY` REUSE. DET-MCP-001 0/0/0 correct, not SAFE. |
+| **Invariant** | INV-002 / INV-006. No INV-009. |
+| **Learning objective** | AUTHORIZED TOOL != AUTHORIZED GOAL. AUTHORIZED TOOL != AUTHORIZED USE OF TOOL. |
+| **Dependencies** | 13D analysis accepted. |
+| **Risk** | Inventing DET-GOAL; claiming MCP blocked RETEST; starting 14 automatically. |
+| **Complexity** | Medium (Studio + UI/KO review). |
+
+**Do not start Phase 14 automatically.** No DET-GOAL. No runtime/schema/authz change. No LLM planner. No rug-pull. No A2A.
+
+### Phase 14A — Attack Simulator + guided investigation architecture
+
+**Status:** DESIGN / RESEARCH / CONTRACT ONLY 2026-09-19. **Not implemented.** Schema **1.9.0** unchanged. Runtime **UNCHANGED**. **Do not start Phase 14B from this file.** No new Studio views. No new SPL. No detectors.
+
+| Field | Content |
+|-------|---------|
+| **Security question** | How does a learner launch an allowlisted specimen and investigate it in Splunk without treating Splunk as enforcement? |
+| **Attack** | Allowlisted catalog (today ATK-002 exists). No arbitrary payloads. |
+| **Control** | Unchanged CTRL-* in runtime. Attack Service remains untrusted. |
+| **Telemetry** | 1.9.0. Evidence states: REQUESTED → … → WAITING_FOR_EVIDENCE → EVIDENCE_READY. HEC 200 ≠ READY. |
+| **Splunk** | Reuse Q-*. Path A Open Search. Path B solution cell. No DET-*. |
+| **Invariant** | Existing INV-*; Splunk ≠ enforcement. |
+| **Learning objective** | UNDERSTAND → PREDICT → launch (if honest) → INVESTIGATE → PROVE → CONNECT. |
+| **Dependencies** | UI/UX remediation PASS. |
+| **Risk** | Studio POST; claiming LIVE RETEST; cloning PortSwigger; inventing Identity Studio. |
+| **Complexity** | Medium (product + platform honesty). |
+
+**Do not start Phase 14B automatically.** Reference lab (not implemented in 14A): LAB-PI-001. MCP-001 is the designated second.
+
+### Phase 14B — Attack Service + first LIVE learner launch
+
+**Status:** IMPLEMENTED + OFFLINE TESTED 2026-09-19. LIVE Splunk is a separate probe. Schema **1.9.0** unchanged. Runtime authorization **UNCHANGED**. **Do not start Phase 14C from this file.** No new Studio views. No new SPL hunts. No detectors.
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Can a learner launch allowlisted PI BASELINE/ATTACK, get a fresh run.id, and hunt it in Search without Studio POST or Splunk enforcement? |
+| **Attack** | Catalog ATK-001 / ATK-002 only. No arbitrary payloads. |
+| **Control** | Unchanged CTRL-INPUT-001. Attack Service remains untrusted. |
+| **Telemetry** | 1.9.0. Evidence states implemented in-memory. HEC 200 ≠ READY. |
+| **Splunk** | Reuse Q-RUN-EVENTS. Starter query + Search URL. No DET-*. |
+| **Invariant** | INV-008. Splunk ≠ enforcement. |
+| **Learning objective** | PREDICT → LAUNCH → copy run.id → Search. |
+| **Dependencies** | 14A DESIGN accepted. |
+| **Risk** | Fake LIVE RETEST; HEC-as-ready; JS token binding. |
+| **Complexity** | Medium (closed contract + honest delay). |
+
+**Do not start Phase 14C automatically.** Guided investigation Path A/B is not implemented in 14B. MCP-001 launcher is not implemented.
+
+### Phase 14C — Guided investigation framework (LAB-PI-001)
+
+**Status:** IMPLEMENTED + OFFLINE TESTED + LIVE SPLUNK MEASURED + UI REVIEWED 2026-09-19. Schema **1.9.0** unchanged. Runtime authorization **UNCHANGED**. **Do not start Phase 14D from this file.** No new Q-* hunts. No detectors. No MCP-001 launch.
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Can a learner investigate a PI run in Splunk (Path A) with an optional solution cell (Path B) without treating Splunk as enforcement? |
+| **Attack** | Unchanged allowlisted ATK-001 / ATK-002. |
+| **Control** | Unchanged CTRL-INPUT-001. |
+| **Telemetry** | 1.9.0 after restage. |
+| **Splunk** | Reuse Q-RUN-EVENTS, Q-CONTROL-DECISION, Q-LLM-EXECUTED, Q-LLM-AFTER-DENY. |
+| **Invariant** | INV-008. Splunk ≠ enforcement. |
+| **Learning objective** | PREDICT → LAUNCH → TRY / HINT / SOLUTION → PROVE → CONNECT. |
+| **Dependencies** | 14B PASS. |
+| **Risk** | Spoiler-only HUNT; JS token binding; fake RETEST. |
+| **Complexity** | Medium (Studio visibility + Search handoff honesty). |
+
+**Do not start Phase 14D automatically.** MCP-001 guided/launch pattern is not this phase.
 
 ---
 
@@ -380,6 +456,7 @@ Planning labels shifted: **9A is scanner architecture (this file), not rug-pull.
 | **12C** | LAB-AGENT-DELEGATION-001 Splunk (**VALIDATED**) | Honest reconstruction after field discovery | Medium | None | Invented fields; DET-A2A sprawl; Q-MCP-DELEGATION overload |
 | **13A** | Goal / instruction integrity DESIGN (**this file**) | Can untrusted instructions redefine the task while a granted tool ALLOWs? (INV-002 / INV-006) | Medium | None in 13A | MCP DENY retest; INV-009 |
 | **13B** | LAB-AGENT-GOAL-INTEGRITY-001 runtime (**IMPLEMENTED + LOCALLY VALIDATED**) | Same question; frozen TaskContract + overlay + CTRL-MCP-001 | Medium | None required | Schema 1.9.0; global grants |
+| **13E** | Goal workshop (**VALIDATED**) | How does a SOC walk task → instruction → goal decision → tool grant → execution? | Low | None | Claiming MCP blocked RETEST; DET-GOAL sprawl |
 | **Identity (was 10A/B)** | INV-005 deepen | **Absorbed into 12A design**; runtime remains 12B | Low–medium | None required | Crypto theater (forbid) |
 | **A2A transport** | Live A2A protocol | Does an Agent Card / A2A message confer more authority than coded? | High | `a2aproject/A2A` 1.0.0; later a2a-scanner | Fake A2A regex; **DEFER** |
 | **12A–D** | RAG chapter (brought forward to **10A/10B**) | See 10A. Do not run a second RAG design track. | — | — | Duplicate labs |
@@ -420,7 +497,21 @@ First research reproductions (not scheduled as product phases):
 
 ## Recommended next phase (exactly one)
 
-**Phase 13D — LAB-AGENT-GOAL-INTEGRITY-001 detection engineering + workshop design: ACCEPT as ANALYSIS. DETECTION ANALYZED — NO NEW DETECTOR. Workshop DESIGNED — NOT IMPLEMENTED. Do not start Phase 13E from this file.**
+**Phase 14E — generalize the learning loop + LAB-MCP-001 second reference: ACCEPT as IMPLEMENTED + LIVE SPLUNK MEASURED + UI REVIEWED. Do not start Phase 15 from this file.** Schema **1.9.0**. No DET-MCP-NEW. Remaining labs not auto-migrated. Reference labs: LAB-PI-001 and LAB-MCP-001. Official MCP pair ATTACK `bf5109de-bcc0-4ca0-9916-cf4b63e77ef4` / RETEST `0cd82b2a-cefe-4fe5-86f3-4751929c3d1f`.
+
+**Phase 14D — LIVE DEFEND / RETEST / COMPARE: ACCEPT as IMPLEMENTED (historical 14D snapshot). Do not start Phase 14E from the 14D file.** Schema **1.9.0**. PI-001 only.
+
+**Phase 14C — Guided investigation framework: ACCEPT as IMPLEMENTED + OFFLINE TESTED + LIVE SPLUNK MEASURED (historical 14C snapshot). Do not start Phase 14D from this file.** Schema **1.9.0**. No detectors. No Studio JS. RETEST not LIVE. Reference lab LAB-PI-001.
+
+**Phase 14B — Attack Service + first LIVE learner launch: ACCEPT as IMPLEMENTED + OFFLINE TESTED (historical 14B snapshot). Implementation of Path A/B is 14C. Do not start Phase 14C from the 14B file.** Schema **1.9.0**. No detectors. No Studio POST. RETEST not LIVE. Reference lab LAB-PI-001.
+
+**Phase 14A — Attack Simulator + guided investigation architecture: ACCEPT as DESIGN ONLY (14A snapshot). Implementation is 14B. Do not start Phase 14B from the 14A file.** No runtime/schema/authz change in 14A. No Studio implementation in 14A. No detectors. Schema **1.9.0**. Reference lab for 14B–14E: LAB-PI-001.
+
+**Pre-Phase-14 UI/UX remediation: ACCEPT as COMPLETE (Pass-2 2026-09-19). Phase 14A is the next named design phase. Do not start Phase 14B from this file.** Schema **1.9.0**. No DET-GOAL.
+
+**Phase 13E — LAB-AGENT-GOAL-INTEGRITY-001 workshop: ACCEPT as VALIDATED. DETECTION ANALYZED — NO NEW DETECTOR. Workshop VALIDATED. Pre-Phase-14 UI/UX remediation is a separate named phase (now COMPLETE). Do not start Phase 14B from this file.**
+
+Historical 13D text (kept): **Phase 13D — LAB-AGENT-GOAL-INTEGRITY-001 detection engineering + workshop design: ACCEPT as ANALYSIS. DETECTION ANALYZED — NO NEW DETECTOR. Workshop DESIGNED — NOT IMPLEMENTED. Do not start Phase 13E from this file.** (13E was completed in a dedicated named phase; this sentence remains as the 13D snapshot contract.)
 
 Historical 13C text (kept): **Phase 13C — LAB-AGENT-GOAL-INTEGRITY-001 Splunk: ACCEPT as VALIDATED. DETECTION ANALYZED — NO NEW DETECTOR. Workshop NOT STARTED. Do not start Phase 13D from this file.** (13D was completed in a dedicated named phase; this sentence remains as the 13C snapshot contract.)
 

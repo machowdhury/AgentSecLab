@@ -82,8 +82,8 @@ EMPTY_SEQ = (
     "That is not a security outcome."
 )
 EMPTY_HUNT = (
-    "Hunt run.id defaults to BASELINE. Replace it and Submit to hunt another complete "
-    "copy. Empty tables are missing indexed rows, not security outcomes."
+    "Investigate specimen defaults to BASELINE. Custom run.id is available from Search. "
+    "Empty tables are missing indexed rows, not security outcomes."
 )
 ALLOW_NOT_EXEC = (
     "ALLOW is the control decision. Tool execution begins at mcp.started. "
@@ -110,6 +110,19 @@ def bind_run_id(spl: str, token: str) -> str:
     if "__RUN_ID__" not in spl:
         raise ValueError(f"expected __RUN_ID__ in query for token {token}")
     return spl.replace("__RUN_ID__", f'"${token}$"')
+
+def bind_literal(spl: str, run_id: str) -> str:
+    if "__RUN_ID__" not in spl:
+        raise ValueError("expected __RUN_ID__ in query")
+    return spl.replace("__RUN_ID__", f'"{run_id}"')
+
+
+def bound_run(ref: str) -> str:
+    """Token name stays "$token$"; UUID becomes a quoted literal."""
+    if len(ref) == 36 and ref.count("-") == 4:
+        return f'"{ref}"'
+    return f'"${ref}$"'
+
 
 
 def block(item: str, x: int, y: int, w: int, h: int) -> dict:
@@ -182,7 +195,7 @@ def layout(structure: list[dict], height: int) -> dict:
 
 def observe_sequence_spl(token: str) -> str:
     """Studio-only sequence view of already-validated indexed fields. Not a new hunt file."""
-    return f"""index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"="${token}$" ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
+    return f"""index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"={bound_run(token)} ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
 | eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
 | eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
 | eval event_name=mvindex(mvdedup('event.name'),0)
@@ -208,20 +221,20 @@ def build() -> dict:
     q_authz = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "run_id")
     q_tool = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "run_id")
     q_executed = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "run_id")
-    q_rag_b = bind_run_id(load_spl("Q-RAG-CONTEXT-AUTHORITY.spl", rag=True), "baseline_run_id")
-    q_rag_a = bind_run_id(load_spl("Q-RAG-CONTEXT-AUTHORITY.spl", rag=True), "attack_run_id")
-    q_rag_r = bind_run_id(load_spl("Q-RAG-CONTEXT-AUTHORITY.spl", rag=True), "retest_run_id")
-    q_authz_b = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "baseline_run_id")
-    q_authz_a = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "attack_run_id")
-    q_authz_r = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "retest_run_id")
-    q_tool_a = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "attack_run_id")
-    q_tool_r = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "retest_run_id")
-    q_exec_b = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "baseline_run_id")
-    q_exec_a = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "attack_run_id")
-    q_exec_r = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "retest_run_id")
-    q_after_b = bind_run_id(load_spl("Q-MCP-AFTER-DENY.spl"), "baseline_run_id")
-    q_after_a = bind_run_id(load_spl("Q-MCP-AFTER-DENY.spl"), "attack_run_id")
-    q_after_r = bind_run_id(load_spl("Q-MCP-AFTER-DENY.spl"), "retest_run_id")
+    q_rag_b = bind_literal(load_spl("Q-RAG-CONTEXT-AUTHORITY.spl", rag=True), BASELINE_ID)
+    q_rag_a = bind_literal(load_spl("Q-RAG-CONTEXT-AUTHORITY.spl", rag=True), ATTACK_ID)
+    q_rag_r = bind_literal(load_spl("Q-RAG-CONTEXT-AUTHORITY.spl", rag=True), RETEST_ID)
+    q_authz_b = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), BASELINE_ID)
+    q_authz_a = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), ATTACK_ID)
+    q_authz_r = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), RETEST_ID)
+    q_tool_a = bind_literal(load_spl("Q-MCP-TOOL.spl"), ATTACK_ID)
+    q_tool_r = bind_literal(load_spl("Q-MCP-TOOL.spl"), RETEST_ID)
+    q_exec_b = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), BASELINE_ID)
+    q_exec_a = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), ATTACK_ID)
+    q_exec_r = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), RETEST_ID)
+    q_after_b = bind_literal(load_spl("Q-MCP-AFTER-DENY.spl"), BASELINE_ID)
+    q_after_a = bind_literal(load_spl("Q-MCP-AFTER-DENY.spl"), ATTACK_ID)
+    q_after_r = bind_literal(load_spl("Q-MCP-AFTER-DENY.spl"), RETEST_ID)
 
     data_sources = dict(
         (
@@ -301,9 +314,11 @@ def build() -> dict:
     add_md(
         "viz_learn",
         f"""
-# LAB-RAG-CONTEXT Retrieved-context investigation
+# RAG / Retrieved Context
 
-**WS-RAG-CONTEXT** · GUIDED · schema **1.6.0** · INV-002 · CTRL-RAG-CONTEXT-001
+Investigate why retrieved documents cannot independently authorize a privileged action.
+
+**LIVE EVIDENCE** · `LAB-RAG-CONTEXT` · Schema 1.6.0 · CTRL-RAG-CONTEXT-001
 
 **What can I prove from the evidence?** Not: did the RAG attack happen?
 
@@ -314,7 +329,7 @@ def build() -> dict:
 - ALLOW != EXECUTION
 - SPLUNK != ENFORCEMENT
 
-**LIVE ids (copy the full UUID / hash)**
+**LIVE evidence identity**
 
 BASELINE `{BASELINE_ID}`
 
@@ -988,7 +1003,7 @@ No DET-RAG. Schema 1.6.0. Phase 11 not started. No embeddings. No A2A. No rug-pu
     )
 
     definition = {
-        "title": "LAB-RAG-CONTEXT Retrieved-context investigation",
+        "title": "RAG / Retrieved Context",
         "description": (
             "WS-RAG-CONTEXT Dashboard Studio workshop. Reuses validated "
             "Q-RAG-CONTEXT-AUTHORITY and Q-MCP investigation SPL. Saved search "
@@ -1009,39 +1024,29 @@ No DET-RAG. Schema 1.6.0. Phase 11 not started. No embeddings. No A2A. No rug-pu
         },
         "inputs": {
             "input_run_id": {
-                "type": "input.text",
-                "title": "Hunt",
-                "options": {"token": "run_id", "defaultValue": BASELINE_ID},
-            },
-            "input_baseline_run_id": {
-                "type": "input.text",
-                "title": "BASELINE",
-                "options": {"token": "baseline_run_id", "defaultValue": BASELINE_ID},
-            },
-            "input_attack_run_id": {
-                "type": "input.text",
-                "title": "ATTACK",
-                "options": {"token": "attack_run_id", "defaultValue": ATTACK_ID},
-            },
-            "input_retest_run_id": {
-                "type": "input.text",
-                "title": "RETEST",
-                "options": {"token": "retest_run_id", "defaultValue": RETEST_ID},
+                "type": "input.dropdown",
+                "title": "Investigate specimen",
+                "options": {
+                    "token": "run_id",
+                    "defaultValue": BASELINE_ID,
+                    "items": [
+                        {"label": "Baseline — defended / normal", "value": BASELINE_ID},
+                        {"label": "Attack — vulnerable / malicious", "value": ATTACK_ID},
+                        {"label": "Retest — defended / malicious", "value": RETEST_ID},
+                    ],
+                },
             },
         },
         "dataSources": data_sources,
         "visualizations": visualizations,
         "layout": {
             "options": {
-                "submitButton": True,
+                "submitButton": False,
                 "submitOnDashboardLoad": True,
                 "showTitleAndDescription": True,
             },
             "globalInputs": [
                 "input_run_id",
-                "input_baseline_run_id",
-                "input_attack_run_id",
-                "input_retest_run_id",
             ],
             "tabs": {
                 "options": {"barPosition": "top"},
@@ -1175,8 +1180,8 @@ def write_xml(definition: dict) -> None:
     xml = (
         '<?xml version="1.0" encoding="utf-8"?>\n'
         '<dashboard version="2" theme="light">\n'
-        "  <label>LAB-RAG-CONTEXT Retrieved-context investigation</label>\n"
-        "  <description>WS-RAG-CONTEXT. Validated Q-RAG-CONTEXT-AUTHORITY plus Q-MCP SPL. DET-MCP-001 packaged disabled. No DET-RAG. Splunk does not ALLOW or DENY a tool.</description>\n"
+        "  <label>RAG / Retrieved Context</label>\n"
+        "  <description>LIVE RAG / Retrieved Context workshop. LAB-RAG-CONTEXT. Splunk does not ALLOW or DENY.</description>\n"
         "  <definition><![CDATA[\n"
         f"{payload}\n"
         "  ]]></definition>\n"

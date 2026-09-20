@@ -21,6 +21,10 @@ if [ ! -f "${SRC}/default/indexes.conf" ]; then
   log "ERROR: ${SRC}/default/indexes.conf missing"
   exit 1
 fi
+if [ ! -f "${SRC}/default/data/ui/views/ws_agentsec_home.xml" ]; then
+  log "ERROR: ${SRC}/default/data/ui/views/ws_agentsec_home.xml missing"
+  exit 1
+fi
 if [ ! -f "${SRC}/default/data/ui/views/ws_lab_pi_001.xml" ]; then
   log "ERROR: ${SRC}/default/data/ui/views/ws_lab_pi_001.xml missing"
   exit 1
@@ -61,6 +65,10 @@ if [ ! -f "${SRC}/default/data/ui/views/ws_lab_memory_security.xml" ]; then
   log "ERROR: ${SRC}/default/data/ui/views/ws_lab_memory_security.xml missing"
   exit 1
 fi
+if [ ! -f "${SRC}/default/data/ui/views/ws_lab_agent_goal_integrity.xml" ]; then
+  log "ERROR: ${SRC}/default/data/ui/views/ws_lab_agent_goal_integrity.xml missing"
+  exit 1
+fi
 
 mkdir -p "$DEST"
 log "Clearing previous staged files in ${DEST}"
@@ -77,6 +85,7 @@ cp -a "${SRC}/." "${DEST}/"
 
 test -f "${DEST}/default/app.conf"
 test -f "${DEST}/default/indexes.conf"
+test -f "${DEST}/default/data/ui/views/ws_agentsec_home.xml"
 test -f "${DEST}/default/data/ui/views/ws_lab_pi_001.xml"
 test -f "${DEST}/default/data/ui/views/ws_lab_mcp_001.xml"
 test -f "${DEST}/default/data/ui/views/ws_lab_mcp_003.xml"
@@ -87,6 +96,7 @@ test -f "${DEST}/default/data/ui/views/ws_lab_mcp_catalog.xml"
 test -f "${DEST}/default/data/ui/views/ws_lab_scanner_runtime_evidence.xml"
 test -f "${DEST}/default/data/ui/views/ws_lab_rag_context.xml"
 test -f "${DEST}/default/data/ui/views/ws_lab_memory_security.xml"
+test -f "${DEST}/default/data/ui/views/ws_lab_agent_goal_integrity.xml"
 test -f "${DEST}/default/data/ui/nav/default.xml"
 
 log "Staged AgentSec app (writable volume). Splunk may chown this copy."

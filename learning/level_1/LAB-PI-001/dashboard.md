@@ -13,14 +13,13 @@ A tabbed GRID workshop that walks LEARN → PROVE using tables bound to the four
 
 ## Tokens
 
-| Token | Purpose | Default |
-|-------|---------|---------|
-| `run_id` | Hunt / OBSERVE / HUNT / DETECT / RETEST | empty (empty table is not all-clear) |
-| `baseline_run_id` | COMPARE left | `b3611d56-0d3f-4b2e-9a51-75ae36628155` |
-| `attack_run_id` | COMPARE middle | `f39fed12-de89-45ba-b684-5b6077942580` |
-| `retest_run_id` | COMPARE right | `bbe75cb8-0190-47d6-86be-5feba58ad5c0` |
+- `run_id` — global Investigate specimen (canonical REPLAY). Default BASELINE id.
 
-The only SPL edit is replacing `__RUN_ID__` with `"$token$"`. `earliest=0` stays. No time picker (it would fight the validated window).
+HUNT is a stacked notebook (Path A question, Hint 1, Hint 2, Path B solution, bound table × six investigations). Studio 10.2 hide/show overlapped Path B onto the question origin, so this lab does **not** use `gi_id` / `reveal` visibility tokens. No custom JavaScript.
+
+Fresh LIVE `run.id` is **not** written into Studio tokens. Use Attack Service Search handoff.
+
+The only SPL edit is replacing `__RUN_ID__` with `"$token$"` or a canonical literal. `earliest=0` stays. No time picker (it would fight the validated window).
 
 ## How to use it
 

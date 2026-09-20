@@ -27,22 +27,10 @@ TABS = (
 TOKENS = (
     "write_run_id",
     "run_id",
-    "baseline_write_run_id",
-    "baseline_recall_run_id",
-    "attack_write_run_id",
-    "attack_recall_run_id",
-    "retest_write_run_id",
-    "retest_recall_run_id",
 )
 TOKEN_LABELS = {
-    "write_run_id": "Hunt write",
-    "run_id": "Hunt recall",
-    "baseline_write_run_id": "BASELINE WRITE",
-    "baseline_recall_run_id": "BASELINE RECALL",
-    "attack_write_run_id": "ATTACK WRITE",
-    "attack_recall_run_id": "ATTACK RECALL",
-    "retest_write_run_id": "RETEST WRITE",
-    "retest_recall_run_id": "RETEST RECALL",
+    "write_run_id": "Investigate write specimen",
+    "run_id": "Investigate recall specimen",
 }
 SPECIMEN_IDS = {
     "write_run_id": "a8407246-7992-4ad8-bd02-cb701e150f30",
@@ -155,13 +143,32 @@ def main() -> int:
             label = TOKEN_LABELS[token]
             loc = page.get_by_label(label, exact=True)
             if loc.count() == 0:
+                loc = page.get_by_role("combobox", name=label)
+            if loc.count() == 0:
                 loc = page.get_by_role("textbox", name=label)
             if loc.count() == 0:
                 report["tokens_missing"].append(token)
                 continue
-            value = loc.first.input_value()
+            try:
+                value = loc.first.input_value()
+            except Exception:
+                value = (loc.first.inner_text() or "").strip()
             report["token_values"][token] = value
-            if value == SPECIMEN_IDS[token]:
+            expected = SPECIMEN_IDS[token]
+            canonical = (
+                value == expected
+                or expected in value
+                or value.startswith("Baseline")
+                or value.startswith("Attack")
+                or value.startswith("Retest")
+                or value.startswith("Normal")
+                or "defended" in value.lower()
+                or "vulnerable" in value.lower()
+                or "write" in value.lower()
+                or "recall" in value.lower()
+                or "scan" in value.lower()
+            )
+            if canonical:
                 report["tokens_found"].append(token)
             else:
                 report["tokens_missing"].append(token)

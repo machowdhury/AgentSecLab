@@ -45,8 +45,8 @@ HALF = 720
 THIRD = 480
 
 EMPTY_HUNT = (
-    "Hunt `run.id` defaults to the BASELINE specimen so this page is not an error "
-    "state. Replace it and Submit to hunt another complete copy. Zero rows means "
+    "Investigate specimen defaults to the BASELINE specimen so this page is not an error "
+    "state. Custom run.id is available from Search. Zero rows means "
     "no matching indexed events for that id. Zero rows is not DENY and is not "
     "proof the handler never ran."
 )
@@ -75,6 +75,19 @@ def bind_run_id(spl: str, token: str) -> str:
     if "__RUN_ID__" not in spl:
         raise ValueError(f"expected __RUN_ID__ in query for token {token}")
     return spl.replace("__RUN_ID__", f'"${token}$"')
+
+def bind_literal(spl: str, run_id: str) -> str:
+    if "__RUN_ID__" not in spl:
+        raise ValueError("expected __RUN_ID__ in query")
+    return spl.replace("__RUN_ID__", f'"{run_id}"')
+
+
+def bound_run(ref: str) -> str:
+    """Token name stays "$token$"; UUID becomes a quoted literal."""
+    if len(ref) == 36 and ref.count("-") == 4:
+        return f'"{ref}"'
+    return f'"${ref}$"'
+
 
 
 def block(item: str, x: int, y: int, w: int, h: int) -> dict:
@@ -146,7 +159,7 @@ def layout(structure: list[dict], height: int) -> dict:
 
 
 def observe_sequence_spl(token: str) -> str:
-    return f"""index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"="${token}$" ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
+    return f"""index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"={bound_run(token)} ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
 | eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
 | eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
 | eval event_name=mvindex(mvdedup('event.name'),0)
@@ -163,7 +176,7 @@ def observe_sequence_spl(token: str) -> str:
 
 
 def what_happened_spl(token: str) -> str:
-    return f"""index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"="${token}$" ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
+    return f"""index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"={bound_run(token)} ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
 | eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
 | eval profile=mvindex(mvdedup('agentsec.security.profile'),0)
 | eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
@@ -203,20 +216,20 @@ def build() -> dict:
     q_tool = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "run_id")
     q_executed = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "run_id")
     q_after = bind_run_id(load_spl("Q-MCP-AFTER-DENY.spl"), "run_id")
-    q_authz_b = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "baseline_run_id")
-    q_authz_a = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "attack_run_id")
-    q_authz_r = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "retest_run_id")
-    q_authz_u = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "unknown_run_id")
-    q_scope_b = bind_run_id(load_spl("Q-MCP-SCOPE.spl"), "baseline_run_id")
-    q_scope_a = bind_run_id(load_spl("Q-MCP-SCOPE.spl"), "attack_run_id")
-    q_scope_r = bind_run_id(load_spl("Q-MCP-SCOPE.spl"), "retest_run_id")
-    q_scope_u = bind_run_id(load_spl("Q-MCP-SCOPE.spl"), "unknown_run_id")
-    q_tool_b = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "baseline_run_id")
-    q_tool_a = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "attack_run_id")
-    q_tool_r = bind_run_id(load_spl("Q-MCP-TOOL.spl"), "retest_run_id")
-    q_exec_b = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "baseline_run_id")
-    q_exec_a = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "attack_run_id")
-    q_exec_r = bind_run_id(load_spl("Q-MCP-EXECUTED.spl"), "retest_run_id")
+    q_authz_b = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), BASELINE_ID)
+    q_authz_a = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), ATTACK_ID)
+    q_authz_r = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), RETEST_ID)
+    q_authz_u = bind_literal(load_spl("Q-MCP-AUTHZ.spl"), UNKNOWN_ID)
+    q_scope_b = bind_literal(load_spl("Q-MCP-SCOPE.spl"), BASELINE_ID)
+    q_scope_a = bind_literal(load_spl("Q-MCP-SCOPE.spl"), ATTACK_ID)
+    q_scope_r = bind_literal(load_spl("Q-MCP-SCOPE.spl"), RETEST_ID)
+    q_scope_u = bind_literal(load_spl("Q-MCP-SCOPE.spl"), UNKNOWN_ID)
+    q_tool_b = bind_literal(load_spl("Q-MCP-TOOL.spl"), BASELINE_ID)
+    q_tool_a = bind_literal(load_spl("Q-MCP-TOOL.spl"), ATTACK_ID)
+    q_tool_r = bind_literal(load_spl("Q-MCP-TOOL.spl"), RETEST_ID)
+    q_exec_b = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), BASELINE_ID)
+    q_exec_a = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), ATTACK_ID)
+    q_exec_r = bind_literal(load_spl("Q-MCP-EXECUTED.spl"), RETEST_ID)
 
     data_sources = dict(
         (
@@ -247,12 +260,12 @@ def build() -> dict:
             search_ds("ds_q_executed_baseline", "Q-MCP-EXECUTED BASELINE", q_exec_b),
             search_ds("ds_q_executed_attack", "Q-MCP-EXECUTED ATTACK", q_exec_a),
             search_ds("ds_q_executed_retest", "Q-MCP-EXECUTED RETEST", q_exec_r),
-            search_ds("ds_what_baseline_id", "What Happened identity BASELINE", what_identity_spl("baseline_run_id")),
-            search_ds("ds_what_baseline_dec", "What Happened decision BASELINE", what_decision_spl("baseline_run_id")),
-            search_ds("ds_what_attack_id", "What Happened identity ATTACK", what_identity_spl("attack_run_id")),
-            search_ds("ds_what_attack_dec", "What Happened decision ATTACK", what_decision_spl("attack_run_id")),
-            search_ds("ds_what_retest_id", "What Happened identity RETEST", what_identity_spl("retest_run_id")),
-            search_ds("ds_what_retest_dec", "What Happened decision RETEST", what_decision_spl("retest_run_id")),
+            search_ds("ds_what_baseline_id", "What Happened identity BASELINE", what_identity_spl(BASELINE_ID)),
+            search_ds("ds_what_baseline_dec", "What Happened decision BASELINE", what_decision_spl(BASELINE_ID)),
+            search_ds("ds_what_attack_id", "What Happened identity ATTACK", what_identity_spl(ATTACK_ID)),
+            search_ds("ds_what_attack_dec", "What Happened decision ATTACK", what_decision_spl(ATTACK_ID)),
+            search_ds("ds_what_retest_id", "What Happened identity RETEST", what_identity_spl(RETEST_ID)),
+            search_ds("ds_what_retest_dec", "What Happened decision RETEST", what_decision_spl(RETEST_ID)),
         )
     )
 
@@ -316,9 +329,11 @@ def build() -> dict:
     add_md(
         "viz_learn",
         f"""
-# LAB-MCP-003 Scope escalation in MCP tool authorization
+# Scope Escalation
 
-**WS-MCP-003** · GUIDED · schema `agentsec.security_event` **1.1.0** · INV-001 · MCP-003 · CTRL-MCP-001
+Investigate why a granted scope is not a license to request a larger one.
+
+**LIVE EVIDENCE** · `LAB-MCP-003` · Schema 1.1.0 · CTRL-MCP-001
 
 Splunk is the hunt workbench. Splunk does **not** ALLOW or DENY a tool. AcmeBank `POST /mcp/invoke` is the enforcement point.
 
@@ -329,9 +344,9 @@ Splunk is the hunt workbench. Splunk does **not** ALLOW or DENY a tool. AcmeBank
 
 In this lab the **tool is granted**. The **excessive scope is not**. Same tool `lookup_policy`, same arguments `policy_id=lending-basics`. Only requested authority changes.
 
-## Validated specimen ids (Phase 4C LIVE)
+## Evidence identity (Phase 4C LIVE)
 
-Copy the full UUID. Token fields may ellipsis; these bullets do not.
+Canonical specimens. Full run.id remains here; HUNT uses Investigate specimen.
 
 - **BASELINE** `{BASELINE_ID}` — defended, `policy:read`, ALLOW `tool_granted`, handler=1, `mcp.completed`
 - **ATTACK** `{ATTACK_ID}` — vulnerable, `policy:restricted:read`, labeled fail-open ALLOW, handler=1
@@ -877,7 +892,7 @@ Validated references: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST
     )
 
     definition = {
-        "title": "LAB-MCP-003 Scope escalation in MCP tool authorization",
+        "title": "Scope Escalation",
         "description": (
             "WS-MCP-003 Dashboard Studio workshop. Reuses validated Q-MCP investigation SPL. "
             "Saved search DET-MCP-001 is packaged disabled; this dashboard does not enable it. "
@@ -897,45 +912,30 @@ Validated references: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST
         },
         "inputs": {
             "input_run_id": {
-                "type": "input.text",
-                "title": "Hunt",
-                "options": {"token": "run_id", "defaultValue": BASELINE_ID},
-            },
-            "input_baseline_run_id": {
-                "type": "input.text",
-                "title": "BASELINE",
-                "options": {"token": "baseline_run_id", "defaultValue": BASELINE_ID},
-            },
-            "input_attack_run_id": {
-                "type": "input.text",
-                "title": "ATTACK",
-                "options": {"token": "attack_run_id", "defaultValue": ATTACK_ID},
-            },
-            "input_retest_run_id": {
-                "type": "input.text",
-                "title": "RETEST",
-                "options": {"token": "retest_run_id", "defaultValue": RETEST_ID},
-            },
-            "input_unknown_run_id": {
-                "type": "input.text",
-                "title": "UNKNOWN",
-                "options": {"token": "unknown_run_id", "defaultValue": UNKNOWN_ID},
+                "type": "input.dropdown",
+                "title": "Investigate specimen",
+                "options": {
+                    "token": "run_id",
+                    "defaultValue": BASELINE_ID,
+                    "items": [
+                        {"label": "Baseline — defended / normal", "value": BASELINE_ID},
+                        {"label": "Attack — vulnerable / malicious", "value": ATTACK_ID},
+                        {"label": "Retest — defended / malicious", "value": RETEST_ID},
+                        {"label": "Unknown — missing security context", "value": UNKNOWN_ID},
+                    ],
+                },
             },
         },
         "dataSources": data_sources,
         "visualizations": visualizations,
         "layout": {
             "options": {
-                "submitButton": True,
+                "submitButton": False,
                 "submitOnDashboardLoad": True,
                 "showTitleAndDescription": True,
             },
             "globalInputs": [
                 "input_run_id",
-                "input_baseline_run_id",
-                "input_attack_run_id",
-                "input_retest_run_id",
-                "input_unknown_run_id",
             ],
             "tabs": {
                 "options": {"barPosition": "top"},
@@ -1075,8 +1075,8 @@ def write_xml(definition: dict) -> None:
     xml = (
         '<?xml version="1.0" encoding="utf-8"?>\n'
         '<dashboard version="2" theme="light">\n'
-        "  <label>LAB-MCP-003 Scope escalation in MCP tool authorization</label>\n"
-        "  <description>WS-MCP-003. Validated Q-MCP SPL. DET-MCP-001 packaged disabled. Not DET-MCP-003. Not a notable-event pack. Splunk does not ALLOW or DENY a tool.</description>\n"
+        "  <label>Scope Escalation</label>\n"
+        "  <description>LIVE Scope Escalation workshop. LAB-MCP-003. Splunk does not ALLOW or DENY.</description>\n"
         "  <definition><![CDATA[\n"
         f"{payload}\n"
         "  ]]></definition>\n"

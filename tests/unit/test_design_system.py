@@ -57,7 +57,7 @@ def test_flask_pages_use_shared_system_and_states():
         assert 'id="main"' in html
         assert 'data-state="READY"' in html
     assert "Submit loan" in ACME
-    assert "Run ATK-002" in ATTACK
+    assert "Launch ATTACK (LIVE)" in ATTACK
     assert "Fire ATK-002" not in ATTACK
     assert "completed_allowed" in ACME
     assert "ALLOW is not execution" in ATTACK

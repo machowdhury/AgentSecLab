@@ -53,16 +53,7 @@ WORKSHOP_TABS = (
     "COMPARE",
     "PROVE",
 )
-REQUIRED_TOKENS = (
-    "write_run_id",
-    "run_id",
-    "baseline_write_run_id",
-    "baseline_recall_run_id",
-    "attack_write_run_id",
-    "attack_recall_run_id",
-    "retest_write_run_id",
-    "retest_recall_run_id",
-)
+REQUIRED_TOKENS = ("write_run_id", "run_id")
 SPECIMEN_IDS = {
     "write_run_id": "a8407246-7992-4ad8-bd02-cb701e150f30",
     "run_id": "914c41ce-5123-49eb-892c-c948295dbc46",
@@ -144,26 +135,26 @@ def test_ten_tabs_and_token_defaults():
     assert tokens == set(REQUIRED_TOKENS)
     for input_id in definition["inputs"]:
         assert input_id in definition["layout"]["globalInputs"]
-    for token, value in SPECIMEN_IDS.items():
+    for token in REQUIRED_TOKENS:
         match = [
             inp for inp in definition["inputs"].values() if inp["options"]["token"] == token
         ]
-        assert match[0]["options"]["defaultValue"] == value
+        assert match[0]["options"]["defaultValue"] == SPECIMEN_IDS[token]
     hunt_recall = [
         inp for inp in definition["inputs"].values() if inp["options"]["token"] == "run_id"
     ][0]
-    assert hunt_recall["title"] == "Hunt recall"
+    assert hunt_recall["title"] == "Investigate recall specimen"
+    hunt_write = [
+        inp for inp in definition["inputs"].values() if inp["options"]["token"] == "write_run_id"
+    ][0]
+    assert hunt_write["title"] == "Investigate write specimen"
     titles = {inp["title"] for inp in definition["inputs"].values()}
     assert titles == {
-        "Hunt write",
-        "Hunt recall",
-        "BASELINE WRITE",
-        "BASELINE RECALL",
-        "ATTACK WRITE",
-        "ATTACK RECALL",
-        "RETEST WRITE",
-        "RETEST RECALL",
+        "Investigate write specimen",
+        "Investigate recall specimen",
     }
+    for inp in definition["inputs"].values():
+        assert inp["type"] == "input.dropdown"
     for layout in definition["layout"]["layoutDefinitions"].values():
         assert layout["type"] == "grid"
         assert layout["options"]["backgroundColor"] == "#F6F8FB"
@@ -185,26 +176,37 @@ def test_search_reuse_bind_only():
             "__RECALL_RUN_ID__", f'"${recall_tok}$"'
         )
 
+    def bind_mem_literal(write_id: str, recall_id: str) -> str:
+        return mem.replace("__WRITE_RUN_ID__", f'"{write_id}"').replace(
+            "__RECALL_RUN_ID__", f'"{recall_id}"'
+        )
+
     expected = {
         "ds_q_mem": bind_mem("write_run_id", "run_id"),
         "ds_q_who": who.replace("__RUN_ID__", '"$run_id$"'),
         "ds_q_authz": authz.replace("__RUN_ID__", '"$run_id$"'),
         "ds_q_tool": tool.replace("__RUN_ID__", '"$run_id$"'),
         "ds_q_executed": executed.replace("__RUN_ID__", '"$run_id$"'),
-        "ds_q_mem_b": bind_mem("baseline_write_run_id", "baseline_recall_run_id"),
-        "ds_q_mem_a": bind_mem("attack_write_run_id", "attack_recall_run_id"),
-        "ds_q_mem_r": bind_mem("retest_write_run_id", "retest_recall_run_id"),
-        "ds_q_authz_b": authz.replace("__RUN_ID__", '"$baseline_recall_run_id$"'),
-        "ds_q_authz_a": authz.replace("__RUN_ID__", '"$attack_recall_run_id$"'),
-        "ds_q_authz_r": authz.replace("__RUN_ID__", '"$retest_recall_run_id$"'),
-        "ds_q_tool_a": tool.replace("__RUN_ID__", '"$attack_recall_run_id$"'),
-        "ds_q_tool_r": tool.replace("__RUN_ID__", '"$retest_recall_run_id$"'),
-        "ds_q_exec_b": executed.replace("__RUN_ID__", '"$baseline_recall_run_id$"'),
-        "ds_q_exec_a": executed.replace("__RUN_ID__", '"$attack_recall_run_id$"'),
-        "ds_q_exec_r": executed.replace("__RUN_ID__", '"$retest_recall_run_id$"'),
-        "ds_q_after_b": after.replace("__RUN_ID__", '"$baseline_recall_run_id$"'),
-        "ds_q_after_a": after.replace("__RUN_ID__", '"$attack_recall_run_id$"'),
-        "ds_q_after_r": after.replace("__RUN_ID__", '"$retest_recall_run_id$"'),
+        "ds_q_mem_b": bind_mem_literal(
+            SPECIMEN_IDS["baseline_write_run_id"], SPECIMEN_IDS["baseline_recall_run_id"]
+        ),
+        "ds_q_mem_a": bind_mem_literal(
+            SPECIMEN_IDS["attack_write_run_id"], SPECIMEN_IDS["attack_recall_run_id"]
+        ),
+        "ds_q_mem_r": bind_mem_literal(
+            SPECIMEN_IDS["retest_write_run_id"], SPECIMEN_IDS["retest_recall_run_id"]
+        ),
+        "ds_q_authz_b": authz.replace("__RUN_ID__", f'"{SPECIMEN_IDS["baseline_recall_run_id"]}"'),
+        "ds_q_authz_a": authz.replace("__RUN_ID__", f'"{SPECIMEN_IDS["attack_recall_run_id"]}"'),
+        "ds_q_authz_r": authz.replace("__RUN_ID__", f'"{SPECIMEN_IDS["retest_recall_run_id"]}"'),
+        "ds_q_tool_a": tool.replace("__RUN_ID__", f'"{SPECIMEN_IDS["attack_recall_run_id"]}"'),
+        "ds_q_tool_r": tool.replace("__RUN_ID__", f'"{SPECIMEN_IDS["retest_recall_run_id"]}"'),
+        "ds_q_exec_b": executed.replace("__RUN_ID__", f'"{SPECIMEN_IDS["baseline_recall_run_id"]}"'),
+        "ds_q_exec_a": executed.replace("__RUN_ID__", f'"{SPECIMEN_IDS["attack_recall_run_id"]}"'),
+        "ds_q_exec_r": executed.replace("__RUN_ID__", f'"{SPECIMEN_IDS["retest_recall_run_id"]}"'),
+        "ds_q_after_b": after.replace("__RUN_ID__", f'"{SPECIMEN_IDS["baseline_recall_run_id"]}"'),
+        "ds_q_after_a": after.replace("__RUN_ID__", f'"{SPECIMEN_IDS["attack_recall_run_id"]}"'),
+        "ds_q_after_r": after.replace("__RUN_ID__", f'"{SPECIMEN_IDS["retest_recall_run_id"]}"'),
     }
     for ds_id, bound in expected.items():
         assert queries[ds_id]["options"]["query"] == bound, ds_id

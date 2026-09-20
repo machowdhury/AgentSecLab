@@ -26,16 +26,14 @@ def test_phase13d_no_new_detector_or_studio():
     assert not list((ROOT / "learning").rglob("DET-GOAL*"))
     assert not list((ROOT / "splunk_app").rglob("*DET-GOAL*"))
     if VIEWS.is_dir():
-        names = {path.name for path in VIEWS.glob("*")}
-        assert "ws_lab_agent_goal_integrity.xml" not in names
+        names = {path.name for path in VIEWS.glob("*goal*")}
+        assert names <= {"ws_lab_agent_goal_integrity.xml"}
         assert "ws_lab_goal.xml" not in names
     saved = (ROOT / "splunk_app" / "agentsec" / "default" / "savedsearches.conf").read_text(
         encoding="utf-8"
     )
     assert "DET-GOAL" not in saved
     assert "Q-GOAL" not in saved
-    assert not (LAB / "workshop.md").exists()
-    assert not (LAB / "dashboard.definition.json").exists()
     extra = ("Q-GOAL-TASK", "Q-GOAL-INSTRUCTION", "Q-GOAL-EXECUTED", "Q-GOAL-DENY")
     for name in extra:
         assert not list(LAB.rglob(f"{name}.*"))

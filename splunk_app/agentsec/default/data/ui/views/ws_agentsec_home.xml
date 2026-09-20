@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="2" theme="light">
+  <label>Home</label>
+  <description>AgentSec landing. Orientation only. Splunk does not ALLOW or DENY.</description>
+  <definition><![CDATA[
+{
+  "title": "Home",
+  "description": "Orientation only. Splunk does not grant or deny authority.",
+  "defaults": {
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "large"
+        }
+      }
+    }
+  },
+  "visualizations": {
+    "viz_hero": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# AgentSec\n\nA learning and SOC evidence range for agentic AI security.\n\nInvestigate what an agent was authorized to do, what it attempted, and what\nactually executed. Splunk is the evidence workbench. Splunk does not grant\nor deny authority.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "HOME"
+    },
+    "viz_path": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Learning path\n\n1. **LEARN** — understand the security boundary\n2. **BASELINE** — record the defended / normal run\n3. **ATTACK** — run a controlled vulnerable scenario\n4. **OBSERVE** — inspect agent telemetry\n5. **HUNT** — reconstruct what happened\n6. **DETECT** — decide whether evidence justifies a detector\n7. **DEFEND** — apply the server-owned control\n8. **RETEST** — same adversarial input, defended path\n9. **COMPARE** — identical input, different control outcome\n10. **PROVE** — answer the question from evidence\n\nEmpty hunt rows are not SAFE. ALLOW is not execution. OBSERVE is not ALLOW.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "HOW TO LEARN"
+    },
+    "viz_attacks": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Attack Labs\n\n**Prompt injection**\n- Direct Prompt Injection\n\n**MCP security**\n- Tool Authorization\n- Scope Escalation\n- Parameter / Resource Authorization\n- Tool Result Trust\n- Confused Deputy\n- Tool Catalog\n\nOpen the matching item from the **Attack Labs** menu.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "ATTACK LABS"
+    },
+    "viz_context": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Context and agent authority\n\n**Context security**\n- RAG / Retrieved Context\n- Persistent Memory\n\n**Agent authority**\n- Goal / Instruction Integrity\n\n**Supply chain**\n- Scanner + Runtime Evidence\n\nIdentity / delegation workshop is not published yet.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "CONTEXT / AUTHORITY"
+    },
+    "viz_soc": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# SOC investigation\n\nEach workshop HUNT tab reuses a validated hunt (for example Q-GOAL-INTEGRITY-AUTHORITY or Q-MCP-AUTHZ).\n\nPick **Investigate specimen** on a workshop. Canonical LIVE BASELINE / ATTACK / RETEST are bound automatically.\n\nDET-MCP-001 is the packaged detector (disabled). Silence is not SAFE. No workshop enables it.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "SOC"
+    },
+    "viz_ref": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Reference\n\n- Schema `agentsec.security_event` **1.9.0**\n- Index `agentsec_telemetry`\n- Sourcetype `otel:agentic:json`\n- One operational detector: DET-MCP-001 (execution after tool DENY)\n- Splunk != enforcement\n- LIVE evidence is not SIMULATED\n- Runtime handler counts are authoritative for execution / non-execution\n\nUse **Search** in the app bar for ad-hoc SPL. Do not treat Home as a directory of LAB-* IDs.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "REFERENCE"
+    }
+  },
+  "layout": {
+    "options": {
+      "submitButton": false,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "layoutDefinitions": {
+      "layout_home": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1100
+        },
+        "structure": [
+          {
+            "item": "viz_hero",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 220
+            }
+          },
+          {
+            "item": "viz_path",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 220,
+              "w": 720,
+              "h": 460
+            }
+          },
+          {
+            "item": "viz_attacks",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 220,
+              "w": 720,
+              "h": 460
+            }
+          },
+          {
+            "item": "viz_context",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 680,
+              "w": 480,
+              "h": 400
+            }
+          },
+          {
+            "item": "viz_soc",
+            "type": "block",
+            "position": {
+              "x": 480,
+              "y": 680,
+              "w": 480,
+              "h": 400
+            }
+          },
+          {
+            "item": "viz_ref",
+            "type": "block",
+            "position": {
+              "x": 960,
+              "y": 680,
+              "w": 480,
+              "h": 400
+            }
+          }
+        ]
+      }
+    },
+    "tabs": {
+      "options": {
+        "barPosition": "top"
+      },
+      "items": [
+        {
+          "layoutId": "layout_home",
+          "label": "HOME"
+        }
+      ]
+    }
+  },
+  "applicationProperties": {
+    "collapseNavigation": false,
+    "downsampleVisualizations": false
+  }
+}
+  ]]></definition>
+</dashboard>
