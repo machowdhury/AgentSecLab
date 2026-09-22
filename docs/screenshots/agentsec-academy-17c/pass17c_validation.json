@@ -1,0 +1,29 @@
+{
+  "label": "pass17c",
+  "viewports": [
+    1440,
+    1280,
+    1024
+  ],
+  "screenshots": [
+    "docs/screenshots/agentsec-academy-17c/pass17c_home_orient_1440.png",
+    "docs/screenshots/agentsec-academy-17c/pass17c_home_1440.png",
+    "docs/screenshots/agentsec-academy-17c/pass17c_home_1280.png",
+    "docs/screenshots/agentsec-academy-17c/pass17c_home_1024.png",
+    "docs/screenshots/agentsec-academy-17c/pass17c_pi_1440.png",
+    "docs/screenshots/agentsec-academy-17c/pass17c_memory_baseline_1440.png",
+    "docs/screenshots/agentsec-academy-17c/pass17c_memory_1440.png",
+    "docs/screenshots/agentsec-academy-17c/pass17c_memory_1280.png",
+    "docs/screenshots/agentsec-academy-17c/pass17c_memory_1024.png",
+    "docs/screenshots/agentsec-academy-17c/pass17c_mastery_purple_1440.png",
+    "docs/screenshots/agentsec-academy-17c/pass17c_mastery_1440.png",
+    "docs/screenshots/agentsec-academy-17c/pass17c_mastery_1280.png",
+    "docs/screenshots/agentsec-academy-17c/pass17c_mastery_1024.png",
+    "docs/screenshots/agentsec-academy-17c/pass17c_attack_1440.png",
+    "docs/screenshots/agentsec-academy-17c/pass17c_attack_1280.png",
+    "docs/screenshots/agentsec-academy-17c/pass17c_attack_1024.png"
+  ],
+  "defects": [
+    "HIGH Attack Service ATLAS id lacks REQUIRES REVALIDATION"
+  ]
+}

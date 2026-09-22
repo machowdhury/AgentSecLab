@@ -322,7 +322,7 @@ Investigate whether data returned by an authorized tool can change later authori
 
 **REPLAY SPECIMEN** · historical evidence · Schema 1.3.0 · CTRL-MCP-RESULT-001
 
-**The tool was authorized and executed correctly.** Can data returned by that tool change what the agent is authorized to do next? **Defended answer: NO.** Results may influence reasoning. Results do not create authority.
+**First hop: the tool was authorized and the handler began.** That is not proof the result is correct, trusted, or safe. Can data returned by that tool change what the agent is authorized to do next? **Defended answer: NO.** Results may influence reasoning. Results do not create authority.
 
 **Canonical specimens (historical)**
 

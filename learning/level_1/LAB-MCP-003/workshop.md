@@ -57,7 +57,7 @@ Scope authorization happens **before** handler execution.
 
 **SPL:** Q-MCP-AUTHZ, Q-MCP-SCOPE, Q-MCP-TOOL, Q-MCP-EXECUTED.
 
-ALLOW is not execution. The control row has `executed=false`. Execution is `mcp.started`.
+ALLOW is not execution. The control row has `executed=false`. Runtime handler count is authoritative. Indexed `mcp.started` corroborates a begun handler on a complete copy.
 
 ---
 

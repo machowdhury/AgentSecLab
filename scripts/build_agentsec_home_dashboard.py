@@ -167,7 +167,7 @@ Workshop tabs still use LEARN · BASELINE · ATTACK · OBSERVE · HUNT · DETECT
 
 **Telemetry** — events the runtime emits (schema 1.9.0). Index `agentsec_telemetry`, sourcetype `otel:agentic:json`.
 
-**Fingerprint** — SHA-256 of the bytes under test. Same fingerprint on ATTACK and RETEST proves equivalent input.
+**Fingerprint** — SHA-256 of the bytes under test for that object (prompt, document, memory body, instruction, or request — whichever the lab names). Matching fingerprints on ATTACK and RETEST support equivalent hashed bytes of that object. They do not prove the same fixture name, hop, grant, or request hash unless those fields are also compared.
 
 **Overlay** — a labeled lab-only fail-open on the vulnerable profile. Not a production IOC. Not a rewritten grant.
 

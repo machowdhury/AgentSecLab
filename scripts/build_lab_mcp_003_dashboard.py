@@ -672,7 +672,7 @@ Inspecting a tool result after the handler cannot be DENY of that invoke. Splunk
 
 Requested `policy:write`. That token is **not** in `lookup_policy` catalog `valid_scopes`.
 
-**Expected:** **ERROR** `unknown_scope`. Runtime handler count **0**. No `mcp.started`.
+**Expected:** **ERROR** `unknown_scope`. Runtime handler count **0** is authoritative. Indexed `mcp.started` absence corroborates a complete copy; it is not independent prevention.
 
 **DENY** means known authority was requested but not granted (`policy:restricted:read`).  
 **ERROR** means the requested scope is not part of the tool's defined scope model (`policy:write`).
@@ -703,7 +703,7 @@ Do not treat this as RETEST. Validated reference: `{UNKNOWN_ID}`.
 
 Same request as ATTACK: `lookup_policy`, requested_scope `policy:restricted:read`, same arguments. Profile **defended**. `testbed.mode=RETEST`.
 
-**Expected:** DENY `scope_not_granted`. Control `attempted=false`, `executed=false`, `outcome=prevented`. Runtime handler count **0**. No `mcp.started`. {GRANT_UNCHANGED}
+**Expected:** DENY `scope_not_granted`. Control `attempted=false`, `executed=false`, `outcome=prevented`. Runtime handler count **0** is authoritative. Indexed `mcp.started` absence corroborates a complete copy; it is not independent prevention. {GRANT_UNCHANGED}
 
 Validated reference: `{RETEST_ID}`.
 

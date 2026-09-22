@@ -161,11 +161,11 @@ SPL_TEACHING = {
     ),
     "Q-GOAL-INTEGRITY-AUTHORITY": (
         "- Looks for CTRL-GOAL-INTEGRITY-001 on the given run.ids.\n"
-        "- Zero rows here means Goal Integrity is not required to explain this packet."
+        "- Zero rows here means CTRL-GOAL-INTEGRITY-001 is NOT PRESENT in this packet. That is instrumented absence, not a ruling that Goal Integrity is irrelevant forever."
     ),
     "Q-AGENT-DELEGATION-AUTHORITY": (
         "- Looks for CTRL-IDENTITY-001 / delegation fields on the given run.ids.\n"
-        "- Zero rows here means Identity/Delegation is not required to explain this packet."
+        "- Zero rows here means CTRL-IDENTITY-001 is NOT PRESENT in this packet. That is instrumented absence, not a ruling that Identity never fails."
     ),
 }
 

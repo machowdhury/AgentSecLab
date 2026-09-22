@@ -795,7 +795,7 @@
     "viz_unknown_md": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# UNKNOWN RESOURCE (not RETEST)\n\nRequested resource.id=does-not-exist. That id is **not** in the lookup_policy catalog.\n\n**Expected:** **ERROR** unknown_resource. Runtime handler count **0**. No mcp.started.\n\n**DENY** means known authority was requested but not granted (executive-restricted).  \n**ERROR** means the requested resource is not part of the tool's defined resource model (does-not-exist).\n\nDo not treat this as RETEST or as ATTACK. Validated reference: `0e4e0051-528d-4bf3-8773-d1fb55a5864f`.\n",
+        "markdown": "# UNKNOWN RESOURCE (not RETEST)\n\nRequested resource.id=does-not-exist. That id is **not** in the lookup_policy catalog.\n\n**Expected:** **ERROR** unknown_resource. Runtime handler count **0** is authoritative. Indexed mcp.started absence corroborates a complete copy; it is not independent prevention.\n\n**DENY** means known authority was requested but not granted (executive-restricted).  \n**ERROR** means the requested resource is not part of the tool's defined resource model (does-not-exist).\n\nDo not treat this as RETEST or as ATTACK. Validated reference: `0e4e0051-528d-4bf3-8773-d1fb55a5864f`.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -853,7 +853,7 @@
     "viz_retest_md": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# RETEST\n\nSame request as ATTACK: lookup_policy, scope policy:read, resource.id executive-restricted. Profile **defended**. testbed.mode=RETEST.\n\n**Expected:** DENY resource_not_granted. Control attempted=false, executed=false, outcome=prevented. Runtime handler count **0**. No mcp.started. allowed_resource.ids stays the coded grant lending-basics. Fail-open ALLOW does not rewrite the grant. The resource was not granted.\n\nValidated reference: `0726a0ff-a551-41a8-bfbb-ab2ceca4c0dd`.\n\nRuntime handler count is authoritative proof of non-execution. Splunk absence of mcp.started is corroboration only, and only on a complete copy.\n\nTables on this tab use the **RETEST** token.\n",
+        "markdown": "# RETEST\n\nSame request as ATTACK: lookup_policy, scope policy:read, resource.id executive-restricted. Profile **defended**. testbed.mode=RETEST.\n\n**Expected:** DENY resource_not_granted. Control attempted=false, executed=false, outcome=prevented. Runtime handler count **0** is authoritative. Indexed mcp.started absence corroborates a complete copy; it is not independent prevention. allowed_resource.ids stays the coded grant lending-basics. Fail-open ALLOW does not rewrite the grant. The resource was not granted.\n\nValidated reference: `0726a0ff-a551-41a8-bfbb-ab2ceca4c0dd`.\n\nRuntime handler count is authoritative proof of non-execution. Splunk absence of mcp.started is corroboration only, and only on a complete copy.\n\nTables on this tab use the **RETEST** token.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"

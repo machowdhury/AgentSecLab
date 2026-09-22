@@ -209,6 +209,10 @@
         <dd><code>{{ lab_id }}</code> — {{ lab_title }}</dd>
         <dt>Technique</dt>
         <dd>{{ technique_name }} (<code>{{ technique_id }}</code>{% if lab_id == "LAB-PI-001" %} / <code>{{ attack.technique_id }}</code>{% endif %})</dd>
+        {% if lab_id == "LAB-PI-001" %}
+        <dt>Framework mapping</dt>
+        <dd>Historical ATLAS id <code>AML.T0054</code> is an educational label only. It REQUIRES REVALIDATION against current MITRE ATLAS. It is not a verified mapping and not proof that this experiment implements that technique as MITRE currently defines it.</dd>
+        {% endif %}
         <dt>Target</dt>
         <dd>{{ target_name }} (this console posts to lab URL <code>{{ target_url }}</code>)</dd>
         <dt>Security configuration</dt>

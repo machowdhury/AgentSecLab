@@ -53,8 +53,9 @@ EMPTY_HUNT = (
     "proof the handler never ran."
 )
 ALLOW_NOT_EXEC = (
-    "ALLOW is the control decision. Tool execution begins at `mcp.started` "
-    "(`executed=true` on that event). Do not read ALLOW as execution. "
+    "ALLOW is the control decision. Runtime handler count is authoritative for "
+    "execution. Indexed `mcp.started` (`executed=true` on that event) corroborates "
+    "that the handler began on a complete copy. Do not read ALLOW as execution. "
     "`mcp.completed` is success of a begun call. `mcp.failed` is execution then "
     "error, not prevention."
 )
@@ -91,7 +92,7 @@ SPL_TEACHING = {
         "- Splunk did **not** evaluate CTRL-MCP-001."
     ),
     "Q-MCP-TOOL": (
-        "- **Why mcp.started only?** That event means the handler began.\n"
+        "- **Why mcp.started only?** That indexed event corroborates that the handler began on a complete copy. Runtime handler count is authoritative.\n"
         "- **Why zero rows are not DENY?** Incomplete export also yields zero rows."
     ),
     "Q-MCP-EXECUTED": (
@@ -586,7 +587,7 @@ Validated reference: `{BASELINE_ID}`.
 
 {ALLOW_NOT_EXEC}
 
-Do not imply ALLOW itself proves execution. Execution is `mcp.started`.
+Do not imply ALLOW itself proves execution. Runtime handler count is authoritative. Indexed `mcp.started` corroborates a begun handler on a complete copy.
 """,
         title="STEP 1 BASELINE",
     )
@@ -887,7 +888,7 @@ Predict **before** you launch. RETEST uses the **same** `lookup_customer_tier` /
 
 [Open Attack Service (Launch RETEST LIVE)]({ATTACK_URL})
 
-**Expected:** DENY `tool_not_granted`. Control `attempted=false`, `executed=false`, `outcome=prevented`. Runtime handler count **0**. No `mcp.started`.
+**Expected:** DENY `tool_not_granted`. Control `attempted=false`, `executed=false`, `outcome=prevented`. Runtime handler count **0** is authoritative. Indexed `mcp.started` absence corroborates a complete copy; it is not independent prevention.
 
 Validated REPLAY: `{RETEST_ID}`. Fresh LIVE ids are not this UUID.
 

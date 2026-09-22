@@ -1,7 +1,41 @@
 # AgentSec Architecture
 
-**Status:** Phase 1A contract. Phase 2A runtime implements the first `/process` slice; see `docs/IMPLEMENTATION_STATUS.md` and `docs/PHASE2A_RUNTIME_VALIDATION.md`.  
-**This document remains the architecture source of truth.**  
+## v1.0 system (canonical)
+
+**Product:** 1.0.0-rc1 · **Schema:** 1.9.0 · **PDP:** lab runtime controls, not Splunk.
+
+```text
+Learner
+    ↓
+Splunk Dashboard Studio Academy  (syllabus, Path A/B, REPLAY tables)
+    ↓
+Attack Service                   (closed JSON: lab_id, specimen_id, mode, execution)
+    ↓
+AcmeBank runtime                 (ExperimentContext server-owned)
+    ↓
+Controls / coded_policy()        (CTRL-INPUT-001, CTRL-MCP-001, RAG/memory/goal/identity)
+    ↓
+OpenTelemetry events
+    ↓
+OTel collector → Splunk HEC → index agentsec_telemetry
+    ↓
+Splunk Search                    (investigation notebook; Q-* hunts)
+```
+
+Also present, **not** separate microservices: RAG fixture retriever, in-process memory, goal/identity evaluation, MCP tool handlers, learning metadata under `learning/`.
+
+**REPLAY** evidence is historical indexed (or pack) specimens bound in Studio. **LIVE** is a fresh Attack Service execution.
+
+Companion v1.0 docs: [SECURITY_BOUNDARY.md](SECURITY_BOUNDARY.md), [LIVE_VS_REPLAY.md](LIVE_VS_REPLAY.md), [AGENTSEC_V1_PRODUCT_BOUNDARY.md](AGENTSEC_V1_PRODUCT_BOUNDARY.md).
+
+The sections below are the original Phase 1A architecture contract kept for provenance. Where they still say MCP/RAG are out of scope for “this slice,” the **v1.0 system diagram above** wins.
+
+---
+
+# AgentSec Architecture (Phase 1A contract)
+
+**Status:** Phase 1A contract (historical). Phase 2A runtime implemented the first `/process` slice; the shipped Academy is documented above. See `docs/IMPLEMENTATION_STATUS.md`.  
+**Event/operation semantics:** `docs/SECURITY_EVENT_MODEL.md` (Phase 1B).  
 **Event, operation, testbed, and evidence-field semantics:** `docs/SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative.  
 **Predecessor:** AgentWatch Range (READ-ONLY). Borrow shapes. Do not copy blindly.
 

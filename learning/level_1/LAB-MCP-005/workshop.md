@@ -33,7 +33,7 @@ The initial tool was authorized and executed. That is not the security failure. 
 
 **How it sits in AgentSec:** After 6B runtime and 6C Splunk. Phase 6D is the Studio view `ws_lab_mcp_005`. No MCP-006.
 
-**Core question:** The tool was authorized and executed correctly. Can data returned by that tool change what the agent is authorized to do next?
+**Core question:** First hop: the tool was authorized and the handler began. That is not proof the result is correct or trusted. Can data returned by that tool change what the agent is authorized to do next?
 
 **Defended answer: NO.** Tool results may influence reasoning. Tool results do not create authority.
 
@@ -79,7 +79,7 @@ A legitimate tool returned useful data. Nothing in the result changed authorizat
 
 **SPL:** Q-MCP-RESULT-AUTHORITY (What Happened), Q-MCP-AUTHZ, Q-MCP-TOOL, Q-MCP-EXECUTED.
 
-ALLOW is not execution. The control row has `executed=false`. Execution is `mcp.started`. Extra RESULT-001 rows on AUTHZ / EXECUTED are expected. Do not hide them.
+ALLOW is not execution. The control row has `executed=false`. Runtime handler count is authoritative. Indexed `mcp.started` corroborates a begun handler on a complete copy. Extra RESULT-001 rows on AUTHZ / EXECUTED are expected. Do not hide them.
 
 ---
 

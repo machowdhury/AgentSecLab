@@ -1,0 +1,632 @@
+{
+  "evidence_class": "MEASURED/OBSERVED RC1 validation \u2014 not official historical REPLAY pairs",
+  "schema_expected": "1.9.0",
+  "rejections": {
+    "profile": {
+      "http": 400,
+      "error_type": "HTTPError",
+      "body": {
+        "detail": "Unknown fields are rejected. Attack Service is not a generic proxy.",
+        "error": "unknown_fields",
+        "error_class": "ERROR",
+        "evidence_state": "ERROR",
+        "execution": "live",
+        "extra_fields": [
+          "profile"
+        ],
+        "lab_id": "LAB-MCP-001",
+        "mode": "ATTACK",
+        "profile": "injected",
+        "specimen_id": "MCP-002"
+      }
+    },
+    "grants": {
+      "http": 400,
+      "error_type": "HTTPError",
+      "body": {
+        "detail": "Unknown fields are rejected. Attack Service is not a generic proxy.",
+        "error": "unknown_fields",
+        "error_class": "ERROR",
+        "evidence_state": "ERROR",
+        "execution": "live",
+        "extra_fields": [
+          "grants"
+        ],
+        "lab_id": "LAB-MCP-001",
+        "mode": "ATTACK",
+        "profile": null,
+        "specimen_id": "MCP-002"
+      }
+    },
+    "allowed_tools": {
+      "http": 400,
+      "error_type": "HTTPError",
+      "body": {
+        "detail": "Unknown fields are rejected. Attack Service is not a generic proxy.",
+        "error": "unknown_fields",
+        "error_class": "ERROR",
+        "evidence_state": "ERROR",
+        "execution": "live",
+        "extra_fields": [
+          "allowed_tools"
+        ],
+        "lab_id": "LAB-MCP-001",
+        "mode": "ATTACK",
+        "profile": null,
+        "specimen_id": "MCP-002"
+      }
+    },
+    "allowed_scope": {
+      "http": 400,
+      "error_type": "HTTPError",
+      "body": {
+        "detail": "Unknown fields are rejected. Attack Service is not a generic proxy.",
+        "error": "unknown_fields",
+        "error_class": "ERROR",
+        "evidence_state": "ERROR",
+        "execution": "live",
+        "extra_fields": [
+          "allowed_scope"
+        ],
+        "lab_id": "LAB-MCP-001",
+        "mode": "ATTACK",
+        "profile": null,
+        "specimen_id": "MCP-002"
+      }
+    },
+    "roles": {
+      "http": 400,
+      "error_type": "HTTPError",
+      "body": {
+        "detail": "Unknown fields are rejected. Attack Service is not a generic proxy.",
+        "error": "unknown_fields",
+        "error_class": "ERROR",
+        "evidence_state": "ERROR",
+        "execution": "live",
+        "extra_fields": [
+          "roles"
+        ],
+        "lab_id": "LAB-MCP-001",
+        "mode": "ATTACK",
+        "profile": null,
+        "specimen_id": "MCP-002"
+      }
+    },
+    "permissions": {
+      "http": 400,
+      "error_type": "HTTPError",
+      "body": {
+        "detail": "Unknown fields are rejected. Attack Service is not a generic proxy.",
+        "error": "unknown_fields",
+        "error_class": "ERROR",
+        "evidence_state": "ERROR",
+        "execution": "live",
+        "extra_fields": [
+          "permissions"
+        ],
+        "lab_id": "LAB-MCP-001",
+        "mode": "ATTACK",
+        "profile": null,
+        "specimen_id": "MCP-002"
+      }
+    },
+    "python": {
+      "http": 400,
+      "error_type": "HTTPError",
+      "body": {
+        "detail": "Unknown fields are rejected. Attack Service is not a generic proxy.",
+        "error": "unknown_fields",
+        "error_class": "ERROR",
+        "evidence_state": "ERROR",
+        "execution": "live",
+        "extra_fields": [
+          "python"
+        ],
+        "lab_id": "LAB-MCP-001",
+        "mode": "ATTACK",
+        "profile": null,
+        "specimen_id": "MCP-002"
+      }
+    },
+    "spl": {
+      "http": 400,
+      "error_type": "HTTPError",
+      "body": {
+        "detail": "Unknown fields are rejected. Attack Service is not a generic proxy.",
+        "error": "unknown_fields",
+        "error_class": "ERROR",
+        "evidence_state": "ERROR",
+        "execution": "live",
+        "extra_fields": [
+          "spl"
+        ],
+        "lab_id": "LAB-MCP-001",
+        "mode": "ATTACK",
+        "profile": null,
+        "specimen_id": "MCP-002"
+      }
+    },
+    "environment": {
+      "http": 400,
+      "error_type": "HTTPError",
+      "body": {
+        "detail": "Unknown fields are rejected. Attack Service is not a generic proxy.",
+        "error": "unknown_fields",
+        "error_class": "ERROR",
+        "evidence_state": "ERROR",
+        "execution": "live",
+        "extra_fields": [
+          "environment"
+        ],
+        "lab_id": "LAB-MCP-001",
+        "mode": "ATTACK",
+        "profile": null,
+        "specimen_id": "MCP-002"
+      }
+    },
+    "payload": {
+      "http": 400,
+      "error_type": "HTTPError",
+      "body": {
+        "detail": "Unknown fields are rejected. Attack Service is not a generic proxy.",
+        "error": "unknown_fields",
+        "error_class": "ERROR",
+        "evidence_state": "ERROR",
+        "execution": "live",
+        "extra_fields": [
+          "payload"
+        ],
+        "lab_id": "LAB-MCP-001",
+        "mode": "ATTACK",
+        "profile": null,
+        "specimen_id": "MCP-002"
+      }
+    },
+    "policy": {
+      "http": 400,
+      "error_type": "HTTPError",
+      "body": {
+        "detail": "Unknown fields are rejected. Attack Service is not a generic proxy.",
+        "error": "unknown_fields",
+        "error_class": "ERROR",
+        "evidence_state": "ERROR",
+        "execution": "live",
+        "extra_fields": [
+          "policy"
+        ],
+        "lab_id": "LAB-MCP-001",
+        "mode": "ATTACK",
+        "profile": null,
+        "specimen_id": "MCP-002"
+      }
+    }
+  },
+  "pairs": [
+    {
+      "lab_id": "LAB-PI-001",
+      "specimen_id": "ATK-002",
+      "attack": {
+        "http": 200,
+        "run_id": "a745d254-3986-4640-9c75-9b9e83e0cf05",
+        "lab_id": "LAB-PI-001",
+        "mode": "ATTACK",
+        "specimen_id": "ATK-002",
+        "experiment_id": "LAB-PI-001:ATTACK",
+        "profile": "vulnerable",
+        "evidence_state": "WAITING_FOR_EVIDENCE",
+        "runtime_status": "COMPLETED",
+        "local_event_count": 22,
+        "input_fingerprint": "sha256:88a1ceab989683389193e0aa5f27e7d5ba34fb64a8dd2b5f4af8e4a6caf4b5a5",
+        "intentionally_vulnerable": true,
+        "handler_invoke_count": null,
+        "runtime_excerpt": {},
+        "search_handoff_ids": {
+          "copy_run_id": "a745d254-3986-4640-9c75-9b9e83e0cf05"
+        }
+      },
+      "retest": {
+        "http": 200,
+        "run_id": "5f092adf-09f2-42f6-b007-b1f4f208857c",
+        "lab_id": "LAB-PI-001",
+        "mode": "RETEST",
+        "specimen_id": "ATK-002",
+        "experiment_id": "LAB-PI-001:RETEST",
+        "profile": "defended",
+        "evidence_state": "WAITING_FOR_EVIDENCE",
+        "runtime_status": "COMPLETED",
+        "local_event_count": 6,
+        "input_fingerprint": "sha256:88a1ceab989683389193e0aa5f27e7d5ba34fb64a8dd2b5f4af8e4a6caf4b5a5",
+        "intentionally_vulnerable": false,
+        "handler_invoke_count": null,
+        "runtime_excerpt": {},
+        "search_handoff_ids": {
+          "copy_run_id": "5f092adf-09f2-42f6-b007-b1f4f208857c"
+        }
+      },
+      "completeness": [
+        {
+          "run_id": "a745d254-3986-4640-9c75-9b9e83e0cf05",
+          "local_event_count": 22,
+          "splunk_dc_raw": "22",
+          "match": true
+        },
+        {
+          "run_id": "5f092adf-09f2-42f6-b007-b1f4f208857c",
+          "local_event_count": 6,
+          "splunk_dc_raw": "6",
+          "match": true
+        }
+      ]
+    },
+    {
+      "lab_id": "LAB-MCP-001",
+      "specimen_id": "MCP-002",
+      "attack": {
+        "http": 200,
+        "run_id": "34f765c9-9d8f-4bf5-8a7a-bf742b5db36b",
+        "lab_id": "LAB-MCP-001",
+        "mode": "ATTACK",
+        "specimen_id": "MCP-002",
+        "experiment_id": "LAB-MCP-001:ATTACK",
+        "profile": "vulnerable",
+        "evidence_state": "WAITING_FOR_EVIDENCE",
+        "runtime_status": "COMPLETED",
+        "local_event_count": 7,
+        "input_fingerprint": "sha256:431e7baaa0e7206b8671e6f81613e16848ccbcaf0f16d90d0e0da4c3b3fcc70d",
+        "intentionally_vulnerable": true,
+        "handler_invoke_count": 1,
+        "runtime_excerpt": {
+          "handler_invoke_count": 1
+        },
+        "search_handoff_ids": {
+          "copy_run_id": "34f765c9-9d8f-4bf5-8a7a-bf742b5db36b"
+        }
+      },
+      "retest": {
+        "http": 200,
+        "run_id": "9fd9d381-c371-42fb-aae1-c5cc9359a762",
+        "lab_id": "LAB-MCP-001",
+        "mode": "RETEST",
+        "specimen_id": "MCP-002",
+        "experiment_id": "LAB-MCP-001:RETEST",
+        "profile": "defended",
+        "evidence_state": "WAITING_FOR_EVIDENCE",
+        "runtime_status": "COMPLETED",
+        "local_event_count": 6,
+        "input_fingerprint": "sha256:431e7baaa0e7206b8671e6f81613e16848ccbcaf0f16d90d0e0da4c3b3fcc70d",
+        "intentionally_vulnerable": false,
+        "handler_invoke_count": 0,
+        "runtime_excerpt": {
+          "handler_invoke_count": 0
+        },
+        "search_handoff_ids": {
+          "copy_run_id": "9fd9d381-c371-42fb-aae1-c5cc9359a762"
+        }
+      },
+      "completeness": [
+        {
+          "run_id": "34f765c9-9d8f-4bf5-8a7a-bf742b5db36b",
+          "local_event_count": 7,
+          "splunk_dc_raw": "7",
+          "match": true
+        },
+        {
+          "run_id": "9fd9d381-c371-42fb-aae1-c5cc9359a762",
+          "local_event_count": 6,
+          "splunk_dc_raw": "6",
+          "match": true
+        }
+      ]
+    },
+    {
+      "lab_id": "LAB-RAG-CONTEXT",
+      "specimen_id": "RAG-001",
+      "attack": {
+        "http": 200,
+        "run_id": "258a8b4d-f3c3-4322-8c58-6aa096368679",
+        "lab_id": "LAB-RAG-CONTEXT",
+        "mode": "ATTACK",
+        "specimen_id": "RAG-001",
+        "experiment_id": "LAB-RAG-CONTEXT:ATTACK",
+        "profile": "vulnerable",
+        "evidence_state": "WAITING_FOR_EVIDENCE",
+        "runtime_status": "COMPLETED",
+        "local_event_count": 10,
+        "input_fingerprint": "sha256:c565f364c7c5fba3cf25d235bb8e2bee7d9433daa9f07d5e097ab6d2a82a97ef",
+        "intentionally_vulnerable": true,
+        "handler_invoke_count": 1,
+        "runtime_excerpt": {
+          "handler_invoke_count": 1
+        },
+        "search_handoff_ids": {
+          "copy_run_id": "258a8b4d-f3c3-4322-8c58-6aa096368679"
+        }
+      },
+      "retest": {
+        "http": 200,
+        "run_id": "d78a13d1-d622-49c1-9e43-addb59831a60",
+        "lab_id": "LAB-RAG-CONTEXT",
+        "mode": "RETEST",
+        "specimen_id": "RAG-001",
+        "experiment_id": "LAB-RAG-CONTEXT:RETEST",
+        "profile": "defended",
+        "evidence_state": "WAITING_FOR_EVIDENCE",
+        "runtime_status": "COMPLETED",
+        "local_event_count": 9,
+        "input_fingerprint": "sha256:c565f364c7c5fba3cf25d235bb8e2bee7d9433daa9f07d5e097ab6d2a82a97ef",
+        "intentionally_vulnerable": false,
+        "handler_invoke_count": 0,
+        "runtime_excerpt": {
+          "handler_invoke_count": 0
+        },
+        "search_handoff_ids": {
+          "copy_run_id": "d78a13d1-d622-49c1-9e43-addb59831a60"
+        }
+      },
+      "completeness": [
+        {
+          "run_id": "258a8b4d-f3c3-4322-8c58-6aa096368679",
+          "local_event_count": 10,
+          "splunk_dc_raw": "10",
+          "match": true
+        },
+        {
+          "run_id": "d78a13d1-d622-49c1-9e43-addb59831a60",
+          "local_event_count": 9,
+          "splunk_dc_raw": "9",
+          "match": true
+        }
+      ]
+    },
+    {
+      "lab_id": "LAB-MEMORY-001",
+      "specimen_id": "MEMORY-001",
+      "attack": {
+        "http": 200,
+        "run_id": "32f211fa-a7be-4e38-8384-00e1289ae6cc",
+        "lab_id": "LAB-MEMORY-001",
+        "mode": "ATTACK",
+        "specimen_id": "MEMORY-001",
+        "experiment_id": "LAB-MEMORY-001:ATTACK",
+        "profile": "vulnerable",
+        "evidence_state": "WAITING_FOR_EVIDENCE",
+        "runtime_status": "COMPLETED",
+        "local_event_count": 11,
+        "input_fingerprint": "sha256:1dc7335c3fd8c54326e36194d783536d944c6d527660eb1bda4a36a9cb5ed1b9",
+        "intentionally_vulnerable": true,
+        "handler_invoke_count": 1,
+        "runtime_excerpt": {
+          "handler_invoke_count": 1
+        },
+        "search_handoff_ids": {
+          "copy_run_id": "32f211fa-a7be-4e38-8384-00e1289ae6cc",
+          "copy_write_run_id": "58884aab-10dd-47ec-8884-cd2e7e5b557d",
+          "copy_recall_run_id": "32f211fa-a7be-4e38-8384-00e1289ae6cc"
+        }
+      },
+      "retest": {
+        "http": 200,
+        "run_id": "d65c2374-27f6-4c38-9475-d59da101deb6",
+        "lab_id": "LAB-MEMORY-001",
+        "mode": "RETEST",
+        "specimen_id": "MEMORY-001",
+        "experiment_id": "LAB-MEMORY-001:RETEST",
+        "profile": "defended",
+        "evidence_state": "WAITING_FOR_EVIDENCE",
+        "runtime_status": "COMPLETED",
+        "local_event_count": 10,
+        "input_fingerprint": "sha256:1dc7335c3fd8c54326e36194d783536d944c6d527660eb1bda4a36a9cb5ed1b9",
+        "intentionally_vulnerable": false,
+        "handler_invoke_count": 0,
+        "runtime_excerpt": {
+          "handler_invoke_count": 0
+        },
+        "search_handoff_ids": {
+          "copy_run_id": "d65c2374-27f6-4c38-9475-d59da101deb6",
+          "copy_write_run_id": "b27f8954-f429-415a-895b-6b2348741ac1",
+          "copy_recall_run_id": "d65c2374-27f6-4c38-9475-d59da101deb6"
+        }
+      },
+      "completeness": [
+        {
+          "run_id": "32f211fa-a7be-4e38-8384-00e1289ae6cc",
+          "local_event_count": 11,
+          "splunk_dc_raw": "11",
+          "match": true
+        },
+        {
+          "run_id": "d65c2374-27f6-4c38-9475-d59da101deb6",
+          "local_event_count": 10,
+          "splunk_dc_raw": "10",
+          "match": true
+        }
+      ]
+    },
+    {
+      "lab_id": "LAB-AGENT-GOAL-INTEGRITY-001",
+      "specimen_id": "GOAL-001",
+      "attack": {
+        "http": 200,
+        "run_id": "fd0b429e-4d94-4ed7-95f5-035e016a20ea",
+        "lab_id": "LAB-AGENT-GOAL-INTEGRITY-001",
+        "mode": "ATTACK",
+        "specimen_id": "GOAL-001",
+        "experiment_id": "LAB-AGENT-GOAL-INTEGRITY-001:ATTACK",
+        "profile": "vulnerable",
+        "evidence_state": "WAITING_FOR_EVIDENCE",
+        "runtime_status": "COMPLETED",
+        "local_event_count": 10,
+        "input_fingerprint": "sha256:15a1c5fa3724419b21b854623c594dba28bf4f357efe39c932084374a8cbe5e2",
+        "intentionally_vulnerable": true,
+        "handler_invoke_count": 1,
+        "runtime_excerpt": {
+          "handler_invoke_count": 1
+        },
+        "search_handoff_ids": {
+          "copy_run_id": "fd0b429e-4d94-4ed7-95f5-035e016a20ea"
+        }
+      },
+      "retest": {
+        "http": 200,
+        "run_id": "88c219b0-f55d-41e4-87f2-5edad692089d",
+        "lab_id": "LAB-AGENT-GOAL-INTEGRITY-001",
+        "mode": "RETEST",
+        "specimen_id": "GOAL-001",
+        "experiment_id": "LAB-AGENT-GOAL-INTEGRITY-001:RETEST",
+        "profile": "defended",
+        "evidence_state": "WAITING_FOR_EVIDENCE",
+        "runtime_status": "COMPLETED",
+        "local_event_count": 10,
+        "input_fingerprint": "sha256:15a1c5fa3724419b21b854623c594dba28bf4f357efe39c932084374a8cbe5e2",
+        "intentionally_vulnerable": false,
+        "handler_invoke_count": 1,
+        "runtime_excerpt": {
+          "handler_invoke_count": 1
+        },
+        "search_handoff_ids": {
+          "copy_run_id": "88c219b0-f55d-41e4-87f2-5edad692089d"
+        }
+      },
+      "completeness": [
+        {
+          "run_id": "fd0b429e-4d94-4ed7-95f5-035e016a20ea",
+          "local_event_count": 10,
+          "splunk_dc_raw": "10",
+          "match": true
+        },
+        {
+          "run_id": "88c219b0-f55d-41e4-87f2-5edad692089d",
+          "local_event_count": 10,
+          "splunk_dc_raw": "10",
+          "match": true
+        }
+      ]
+    },
+    {
+      "lab_id": "LAB-AGENT-DELEGATION-001",
+      "specimen_id": "A2A-001",
+      "attack": {
+        "http": 200,
+        "run_id": "3b4abb78-a8b4-461f-b1bd-1de2d1917824",
+        "lab_id": "LAB-AGENT-DELEGATION-001",
+        "mode": "ATTACK",
+        "specimen_id": "A2A-001",
+        "experiment_id": "LAB-AGENT-DELEGATION-001:ATTACK",
+        "profile": "vulnerable",
+        "evidence_state": "WAITING_FOR_EVIDENCE",
+        "runtime_status": "COMPLETED",
+        "local_event_count": 10,
+        "input_fingerprint": "sha256:56179e463b2faf18c056389ebff32a61e346dd0b4010fb82e8826c4508790dfd",
+        "intentionally_vulnerable": true,
+        "handler_invoke_count": 1,
+        "runtime_excerpt": {
+          "handler_invoke_count": 1
+        },
+        "search_handoff_ids": {
+          "copy_run_id": "3b4abb78-a8b4-461f-b1bd-1de2d1917824"
+        }
+      },
+      "retest": {
+        "http": 200,
+        "run_id": "5f04a205-7715-4b93-800a-66c8799f486b",
+        "lab_id": "LAB-AGENT-DELEGATION-001",
+        "mode": "RETEST",
+        "specimen_id": "A2A-001",
+        "experiment_id": "LAB-AGENT-DELEGATION-001:RETEST",
+        "profile": "defended",
+        "evidence_state": "WAITING_FOR_EVIDENCE",
+        "runtime_status": "COMPLETED",
+        "local_event_count": 9,
+        "input_fingerprint": "sha256:56179e463b2faf18c056389ebff32a61e346dd0b4010fb82e8826c4508790dfd",
+        "intentionally_vulnerable": false,
+        "handler_invoke_count": 0,
+        "runtime_excerpt": {
+          "handler_invoke_count": 0
+        },
+        "search_handoff_ids": {
+          "copy_run_id": "5f04a205-7715-4b93-800a-66c8799f486b"
+        }
+      },
+      "completeness": [
+        {
+          "run_id": "3b4abb78-a8b4-461f-b1bd-1de2d1917824",
+          "local_event_count": 10,
+          "splunk_dc_raw": "10",
+          "match": true
+        },
+        {
+          "run_id": "5f04a205-7715-4b93-800a-66c8799f486b",
+          "local_event_count": 9,
+          "splunk_dc_raw": "9",
+          "match": true
+        }
+      ]
+    },
+    {
+      "lab_id": "LAB-AGENTSEC-CAPSTONE-001",
+      "specimen_id": "CAPSTONE-001",
+      "attack": {
+        "http": 200,
+        "run_id": "0e093312-7fac-4573-9eca-cb059331a843",
+        "lab_id": "LAB-AGENTSEC-CAPSTONE-001",
+        "mode": "ATTACK",
+        "specimen_id": "CAPSTONE-001",
+        "experiment_id": "LAB-AGENTSEC-CAPSTONE-001:ATTACK",
+        "profile": "vulnerable",
+        "evidence_state": "WAITING_FOR_EVIDENCE",
+        "runtime_status": "COMPLETED",
+        "local_event_count": 11,
+        "input_fingerprint": "sha256:c565f364c7c5fba3cf25d235bb8e2bee7d9433daa9f07d5e097ab6d2a82a97ef",
+        "intentionally_vulnerable": true,
+        "handler_invoke_count": 1,
+        "runtime_excerpt": {
+          "handler_invoke_count": 1
+        },
+        "search_handoff_ids": {
+          "copy_run_id": "0e093312-7fac-4573-9eca-cb059331a843",
+          "copy_write_run_id": "c76c82de-b1fb-44d8-ad58-563a9db8c62a",
+          "copy_recall_run_id": "0e093312-7fac-4573-9eca-cb059331a843",
+          "copy_retrieve_run_id": "d8829633-f7ed-429b-b2f1-be78135bffbc"
+        }
+      },
+      "retest": {
+        "http": 200,
+        "run_id": "2995194e-7f66-42e8-987b-63a91a282fcc",
+        "lab_id": "LAB-AGENTSEC-CAPSTONE-001",
+        "mode": "RETEST",
+        "specimen_id": "CAPSTONE-001",
+        "experiment_id": "LAB-AGENTSEC-CAPSTONE-001:RETEST",
+        "profile": "defended",
+        "evidence_state": "WAITING_FOR_EVIDENCE",
+        "runtime_status": "COMPLETED",
+        "local_event_count": 10,
+        "input_fingerprint": "sha256:c565f364c7c5fba3cf25d235bb8e2bee7d9433daa9f07d5e097ab6d2a82a97ef",
+        "intentionally_vulnerable": false,
+        "handler_invoke_count": 0,
+        "runtime_excerpt": {
+          "handler_invoke_count": 0
+        },
+        "search_handoff_ids": {
+          "copy_run_id": "2995194e-7f66-42e8-987b-63a91a282fcc",
+          "copy_write_run_id": "91aaf7de-7b45-4bd4-bacd-05cccb586537",
+          "copy_recall_run_id": "2995194e-7f66-42e8-987b-63a91a282fcc",
+          "copy_retrieve_run_id": "c30e6b98-97c5-4505-9ac0-57b722e876f4"
+        }
+      },
+      "completeness": [
+        {
+          "run_id": "0e093312-7fac-4573-9eca-cb059331a843",
+          "local_event_count": 11,
+          "splunk_dc_raw": "11",
+          "match": true
+        },
+        {
+          "run_id": "2995194e-7f66-42e8-987b-63a91a282fcc",
+          "local_event_count": 10,
+          "splunk_dc_raw": "10",
+          "match": true
+        }
+      ]
+    }
+  ]
+}

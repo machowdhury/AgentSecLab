@@ -684,7 +684,7 @@ Identity / A2A / rug-pull are later. Not this workshop.
         f"""
 # BASELINE
 
-**LIVE** · write defended · recall defended · mode BASELINE · handler **0**
+**REPLAY SPECIMEN** · write defended · recall defended · mode BASELINE · handler **0**
 
 WRITE `{BASELINE_WRITE}`
 
@@ -1156,7 +1156,7 @@ Do **not** label RETEST SAFE. Do **not** claim universal resistance to memory po
 
 **REPLAY SPECIMEN** (canonical Investigate pair)
 
-**LIVE** · write defended · recall defended · mode RETEST · handler **0**
+**REPLAY SPECIMEN** · write defended · recall defended · mode RETEST · handler **0**
 
 WRITE `{RETEST_WRITE}`
 
@@ -1278,7 +1278,7 @@ Do not label SAFE.
         f"""
 # ATTACK
 
-**INTENTIONALLY VULNERABLE LAB PROFILE** · **LIVE**
+**INTENTIONALLY VULNERABLE LAB PROFILE** · **REPLAY SPECIMEN**
 
 - Authz: CTRL-MCP-001 **ALLOW** overlay
 - Execution: mcp.started + mcp.completed (handler **1**)
