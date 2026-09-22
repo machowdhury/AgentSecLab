@@ -79,3 +79,31 @@ def test_attack_target_health_is_same_origin_proxy():
     body = response.get_json()
     assert body["security.profile"] == "defended"
     assert body["service"] == "acmebank"
+
+
+def test_mcp_reference_workbench_is_guided_closed_and_accessible():
+    app = create_attack_app(AcmeBankClient("http://acmebank.example:5000"))
+    app.config["TESTING"] = True
+    client = app.test_client()
+    html = client.get("/labs/LAB-MCP-001").get_data(as_text=True)
+
+    assert 'href="#main"' in html
+    assert "<h1>Tool Authorization</h1>" in html
+    assert "Can the agent invoke a tool outside the authority granted to it?" in html
+    assert ">Principal<" in html and ">Authorization<" in html and ">Execution<" in html
+    assert "Run ATTACK" in html and "Run RETEST" in html
+    assert "Copy Run ID" in html
+    assert 'aria-live="polite"' in html
+    assert "Evidence / Advanced" in html
+    assert "REQUEST ≠ GRANT" in html
+    assert "ALLOW ≠ EXECUTION" in html
+    assert "SPLUNK ≠ ENFORCEMENT" in html
+    assert 'body: JSON.stringify({lab_id: "LAB-MCP-001", specimen_id: specimenId, mode: mode, execution: "live"})' in html
+    assert "allowed_tools:" not in html
+    assert "requested_scope:" not in html
+
+    css = client.get("/static/mcp-workbench.css")
+    assert css.status_code == 200
+    css_text = css.get_data(as_text=True)
+    assert "@media (max-width: 1200px)" in css_text
+    assert "@media (max-width: 900px)" in css_text

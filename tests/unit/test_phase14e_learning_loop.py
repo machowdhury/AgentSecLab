@@ -194,10 +194,13 @@ def test_mcp_attack_page_is_closed_launcher():
     client = app.test_client()
     html = client.get("/labs/LAB-MCP-001").get_data(as_text=True)
     assert "Tool Authorization" in html
-    assert "Launch ATTACK (LIVE)" in html
-    assert "Predict before ATTACK" in html
-    assert "lab_id: \"LAB-MCP-001\"" in html
-    assert "profile:" not in html or "profile: profile" not in html
+    assert "AI Security Experiment Workbench" in html
+    assert "Run ATTACK" in html
+    assert "Run RETEST" in html
+    assert "Security decision chain" in html
+    assert "ATTACK ↔ RETEST" in html
+    assert 'lab_id: "LAB-MCP-001"' in html
+    assert "profile:" not in html
     assert "MCP-002" in html
 
 

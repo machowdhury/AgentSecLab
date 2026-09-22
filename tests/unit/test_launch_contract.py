@@ -2,6 +2,24 @@
 
 from agentsec.launch_contract import AUTHORITY_LIKE_FIELDS, parse_launch_body, parse_launch_json
 
+CHECKPOINT_AUTHORITY_FIELDS = (
+    "profile",
+    "grants",
+    "allowed_tools",
+    "allowed_scope",
+    "roles",
+    "permissions",
+    "python",
+    "spl",
+    "environment",
+    "payload",
+    "policy",
+    "run.id",
+    "security.profile",
+    "control.decision",
+    "operation.executed",
+)
+
 
 def test_valid_attack_row_parses():
     parsed = parse_launch_body(
@@ -30,6 +48,21 @@ def test_unknown_fields_and_authority_injection_are_error_not_deny():
         assert parsed.ok is False
         assert parsed.error_reason == "unknown_fields"
         assert field in parsed.extra_fields
+
+
+def test_checkpoint_authority_fields_are_named_and_rejected():
+    base = {
+        "lab_id": "LAB-MCP-001",
+        "specimen_id": "MCP-002",
+        "mode": "ATTACK",
+        "execution": "live",
+    }
+    for field in CHECKPOINT_AUTHORITY_FIELDS:
+        assert field in AUTHORITY_LIKE_FIELDS
+        parsed = parse_launch_body({**base, field: "injected"})
+        assert parsed.ok is False
+        assert parsed.error_reason == "unknown_fields"
+        assert parsed.extra_fields == (field,)
 
 
 def test_malformed_and_duplicate_json():

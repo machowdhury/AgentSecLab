@@ -15,6 +15,7 @@ from agentsec.lab_manifest import load_lab_manifest, prediction_for
 from agentsec.launch_catalog import RETEST_SUPPORT, allowlist_public_rows, known_lab_ids
 from agentsec.launch_contract import parse_launch_json
 from agentsec.launch_service import LaunchService, error_body
+from agentsec.mcp.policy import coded_policy
 from agentsec.settings import get_settings
 
 logger = logging.getLogger("agentsec.attack")
@@ -288,8 +289,10 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
                 "mode": successor.get("mode"),
                 "href": next_href,
             }
+        mcp_policy = coded_policy()
+        template_name = "attack_mcp.html" if lab_id == LAB_MCP else "attack.html"
         return render_template(
-            "attack.html",
+            template_name,
             attack=ATK_002,
             version=settings.version,
             target_name="AcmeBank",
@@ -312,6 +315,15 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
             technique_id=technique_id,
             expected_defended=expected_defended,
             hunt_hint=hunt_hint,
+            mcp_request={
+                "tool": attack_ctx.tool if attack_ctx else "",
+                "requested_scope": attack_ctx.requested_scope if attack_ctx else "",
+            },
+            mcp_policy={
+                "agent_id": mcp_policy.agent_id,
+                "allowed_tools": ", ".join(sorted(mcp_policy.allowed_tools)),
+                "allowed_scopes": ", ".join(sorted(mcp_policy.allowed_scopes)),
+            },
             is_memory_lab=lab_id == LAB_MEMORY,
             is_goal_lab=lab_id == LAB_GOAL,
             is_identity_lab=lab_id == LAB_IDENTITY,

@@ -48,6 +48,31 @@ Canonical BASELINE / ATTACK / RETEST searches bind literal validated run.id valu
 
 ---
 
+## MCP reference workbench pattern
+
+`LAB-MCP-001` is the post-RC1 reference implementation for a compact experiment workbench. It does **not** authorize automatic propagation to other labs.
+
+Attack Service order:
+
+1. Security question and compact trust context
+2. Closed ATTACK / RETEST controls
+3. Prominent current `run.id`
+4. `PRINCIPAL → AGENT → REQUEST → AUTHORIZATION → EXECUTION → EVIDENCE`
+5. Aligned ATTACK ↔ RETEST comparison
+6. Splunk handoff
+7. `Evidence / Advanced` progressive disclosure
+
+Studio order:
+
+1. **MISSION** — question, boundary, mode, control, evidence source
+2. **INVESTIGATE** — Path A and `WHO → REQUEST → AUTHZ → EXECUTION → EVIDENCE`
+3. **EVIDENCE** — supporting fields and ATTACK ↔ RETEST
+4. **PATH B · ANSWERS** — optional answer material using existing validated Q-* searches
+
+The browser still submits only `lab_id`, `specimen_id`, `mode`, and `execution`. Runtime handler count remains authoritative for MCP non-execution. Splunk absence is corroborative only after completeness is measured.
+
+---
+
 ## Goal Integrity exemplar (do not clone the evidence model)
 
 Distinctions that must remain readable:

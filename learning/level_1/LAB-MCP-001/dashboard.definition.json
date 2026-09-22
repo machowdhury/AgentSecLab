@@ -1300,6 +1300,36 @@
         "headerTextColor": "#FFFFFF",
         "noDataMessage": "No indexed control.decision was found for this run. The dashboard will not invent DENY, executed, or prevented from an empty table."
       }
+    },
+    "viz_workbench_mission": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Mission — Tool Authorization\n\n## Can the agent invoke a tool outside the authority granted to it?\n\n**Mode:** LIVE launch + REPLAY investigation · **Lab:** LAB-MCP-001 · **Control/PDP:** CTRL-MCP-001 in AcmeBank runtime · **Evidence:** OpenTelemetry copy indexed in Splunk.\n\n```text\nPRINCIPAL → AGENT → REQUEST → CTRL-MCP-001 → HANDLER → TELEMETRY → SPLUNK\n```\n\nThe attacker can influence the requested tool, scope, and arguments in the closed specimen. The browser cannot supply profile, grants, policy, or the authorization decision.\n\n**ATTACK expectation:** known-ungranted `lookup_customer_tier` / `customer:read`; labeled vulnerable fail-open ALLOW; runtime handler count 1.\n\n**RETEST expectation:** same request fingerprint; defended DENY `tool_not_granted`; runtime handler count 0.\n\n**REQUEST != GRANT · ALLOW != EXECUTION · SPLUNK != ENFORCEMENT**\n\n[Run the LIVE experiment in Attack Service](http://127.0.0.1:5001/labs/LAB-MCP-001)\n\nCanonical REPLAY specimens remain available in **Investigate specimen**. Fresh LIVE evidence must be investigated in Splunk Search with the fresh run.id.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "MISSION"
+    },
+    "viz_workbench_investigate": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Path A — Investigation story\n\nUse the selected REPLAY specimen below, or open Search and replace `PASTE-LIVE-RUN-ID` with the fresh UUID from Attack Service.\n\n```text\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"PASTE-LIVE-RUN-ID\"\n```\n\nFollow one reasoning path:\n\n1. **WHO** — identify principal, agent, and requested tool.\n2. **REQUEST** — compare requested scope with server-owned allowed scope.\n3. **AUTHZ** — read CTRL-MCP-001 decision and reason.\n4. **EXECUTION** — look for `mcp.started`; use runtime handler count as authoritative for non-execution.\n5. **EVIDENCE** — establish local-count vs Splunk `dc(_raw)` completeness before interpreting absence.\n\n[Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n\n**Hint 1:** keep the same run.id and isolate `event.name=agentsec.control.decision`. Read control id, decision, reason, requested scope, and allowed scope.\n\n**Hint 2:** separately inspect `agentsec.mcp.started`, `agentsec.mcp.completed`, and `agentsec.mcp.failed`. Start is execution evidence; completed is success after start; failed is execution then error.\n\nThe tables below are supporting evidence, not separate missions. Empty is not DENY. HEC health is not evidence completeness.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "PATH A · INVESTIGATE"
+    },
+    "viz_workbench_evidence": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Evidence detail and ATTACK ↔ RETEST\n\nRead control decision separately from handler execution. `ALLOW` does not prove start. `DENY` alone does not prove non-execution. Runtime handler count is authoritative in this lab; indexed `mcp.started` corroborates a complete copy.\n\nThe ATTACK and RETEST panels use canonical REPLAY ids. For a fresh LIVE pair, repeat Path A in Search for both run.ids and verify the input fingerprints match. Fingerprint equality proves only equality of the canonical object represented by that hash.\n\nDET-MCP-001 remains disabled and checks only DENY-then-start. Silence is not SAFE.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "EVIDENCE DETAIL"
     }
   },
   "layout": {
@@ -1317,220 +1347,82 @@
       },
       "items": [
         {
-          "layoutId": "layout_learn",
-          "label": "LEARN"
+          "layoutId": "layout_mission",
+          "label": "MISSION"
         },
         {
-          "layoutId": "layout_baseline",
-          "label": "BASELINE"
+          "layoutId": "layout_investigate",
+          "label": "INVESTIGATE"
         },
         {
-          "layoutId": "layout_attack",
-          "label": "ATTACK"
+          "layoutId": "layout_evidence",
+          "label": "EVIDENCE"
         },
         {
-          "layoutId": "layout_observe",
-          "label": "OBSERVE"
-        },
-        {
-          "layoutId": "layout_hunt",
-          "label": "HUNT"
-        },
-        {
-          "layoutId": "layout_detect",
-          "label": "DETECT"
-        },
-        {
-          "layoutId": "layout_defend",
-          "label": "DEFEND"
-        },
-        {
-          "layoutId": "layout_retest",
-          "label": "RETEST"
-        },
-        {
-          "layoutId": "layout_compare",
-          "label": "COMPARE"
-        },
-        {
-          "layoutId": "layout_prove",
-          "label": "PROVE"
+          "layoutId": "layout_path_b",
+          "label": "PATH B · ANSWERS"
         }
       ]
     },
     "layoutDefinitions": {
-      "layout_learn": {
+      "layout_mission": {
         "type": "grid",
         "options": {
           "backgroundColor": "#F6F8FB",
           "display": "auto-scale",
           "gutterSize": 8,
           "width": 1440,
-          "height": 1640
+          "height": 540
         },
         "structure": [
           {
-            "item": "viz_learn",
+            "item": "viz_workbench_mission",
             "type": "block",
             "position": {
               "x": 0,
               "y": 0,
               "w": 1440,
-              "h": 1580
+              "h": 520
             }
           }
         ]
       },
-      "layout_baseline": {
+      "layout_investigate": {
         "type": "grid",
         "options": {
           "backgroundColor": "#F6F8FB",
           "display": "auto-scale",
           "gutterSize": 8,
           "width": 1440,
-          "height": 1300
+          "height": 1710
         },
         "structure": [
           {
-            "item": "viz_baseline_md",
+            "item": "viz_workbench_investigate",
             "type": "block",
             "position": {
               "x": 0,
               "y": 0,
               "w": 1440,
-              "h": 300
+              "h": 520
             }
           },
           {
-            "item": "viz_baseline_what_id",
-            "type": "block",
-            "position": {
-              "x": 0,
-              "y": 300,
-              "w": 1440,
-              "h": 220
-            }
-          },
-          {
-            "item": "viz_baseline_what_dec",
+            "item": "viz_prove_what_id",
             "type": "block",
             "position": {
               "x": 0,
               "y": 520,
               "w": 1440,
-              "h": 240
+              "h": 230
             }
           },
           {
-            "item": "viz_baseline_authz",
+            "item": "viz_prove_what_dec",
             "type": "block",
             "position": {
               "x": 0,
-              "y": 760,
-              "w": 1440,
-              "h": 260
-            }
-          },
-          {
-            "item": "viz_baseline_tool",
-            "type": "block",
-            "position": {
-              "x": 0,
-              "y": 1020,
-              "w": 720,
-              "h": 260
-            }
-          },
-          {
-            "item": "viz_baseline_exec",
-            "type": "block",
-            "position": {
-              "x": 720,
-              "y": 1020,
-              "w": 720,
-              "h": 260
-            }
-          }
-        ]
-      },
-      "layout_attack": {
-        "type": "grid",
-        "options": {
-          "backgroundColor": "#F6F8FB",
-          "display": "auto-scale",
-          "gutterSize": 8,
-          "width": 1440,
-          "height": 1320
-        },
-        "structure": [
-          {
-            "item": "viz_attack_md",
-            "type": "block",
-            "position": {
-              "x": 0,
-              "y": 0,
-              "w": 1440,
-              "h": 560
-            }
-          },
-          {
-            "item": "viz_attack_what_id",
-            "type": "block",
-            "position": {
-              "x": 0,
-              "y": 560,
-              "w": 1440,
-              "h": 220
-            }
-          },
-          {
-            "item": "viz_attack_what_dec",
-            "type": "block",
-            "position": {
-              "x": 0,
-              "y": 780,
-              "w": 1440,
-              "h": 240
-            }
-          },
-          {
-            "item": "viz_attack_authz",
-            "type": "block",
-            "position": {
-              "x": 0,
-              "y": 1020,
-              "w": 720,
-              "h": 280
-            }
-          },
-          {
-            "item": "viz_attack_exec",
-            "type": "block",
-            "position": {
-              "x": 720,
-              "y": 1020,
-              "w": 720,
-              "h": 280
-            }
-          }
-        ]
-      },
-      "layout_observe": {
-        "type": "grid",
-        "options": {
-          "backgroundColor": "#F6F8FB",
-          "display": "auto-scale",
-          "gutterSize": 8,
-          "width": 1440,
-          "height": 940
-        },
-        "structure": [
-          {
-            "item": "viz_observe_md",
-            "type": "block",
-            "position": {
-              "x": 0,
-              "y": 0,
+              "y": 750,
               "w": 1440,
               "h": 260
             }
@@ -1540,9 +1432,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 260,
+              "y": 1010,
               "w": 1440,
-              "h": 360
+              "h": 380
             }
           },
           {
@@ -1550,7 +1442,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 620,
+              "y": 1390,
               "w": 720,
               "h": 300
             }
@@ -1560,31 +1452,243 @@
             "type": "block",
             "position": {
               "x": 720,
-              "y": 620,
+              "y": 1390,
               "w": 720,
               "h": 300
             }
           }
         ]
       },
-      "layout_hunt": {
+      "layout_evidence": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1720
+        },
+        "structure": [
+          {
+            "item": "viz_workbench_evidence",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 260
+            }
+          },
+          {
+            "item": "viz_attack_what_id",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 260,
+              "w": 720,
+              "h": 240
+            }
+          },
+          {
+            "item": "viz_retest_what_id",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 260,
+              "w": 720,
+              "h": 240
+            }
+          },
+          {
+            "item": "viz_attack_what_dec",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 500,
+              "w": 720,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_retest_what_dec",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 500,
+              "w": 720,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_attack_authz",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 780,
+              "w": 720,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_retest_authz",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 780,
+              "w": 720,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_attack_exec",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1060,
+              "w": 720,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_retest_exec",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 1060,
+              "w": 720,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_detect_live",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1360,
+              "w": 720,
+              "h": 340
+            }
+          },
+          {
+            "item": "viz_detect_sim",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 1360,
+              "w": 720,
+              "h": 340
+            }
+          }
+        ]
+      },
+      "layout_path_b": {
         "type": "grid",
         "options": {
           "backgroundColor": "#F6F8FB",
           "display": "fit-to-width",
           "gutterSize": 8,
           "width": 1440,
-          "height": 7428
+          "height": 23140
         },
         "structure": [
           {
-            "item": "viz_hunt_intro",
+            "item": "viz_learn",
             "type": "block",
             "position": {
               "x": 0,
               "y": 0,
               "w": 1440,
-              "h": 280
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_baseline_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 520,
+              "w": 1440,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_baseline_what_id",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1040,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_baseline_what_dec",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1340,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_baseline_authz",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1640,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_baseline_tool",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1940,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_baseline_exec",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 2240,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_attack_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 2540,
+              "w": 1440,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_observe_md",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 3060,
+              "w": 1440,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_hunt_intro",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 3580,
+              "w": 1440,
+              "h": 520
             }
           },
           {
@@ -1592,9 +1696,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 288,
+              "y": 4100,
               "w": 1440,
-              "h": 300
+              "h": 520
             }
           },
           {
@@ -1602,9 +1706,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 588,
+              "y": 4620,
               "w": 1440,
-              "h": 160
+              "h": 520
             }
           },
           {
@@ -1612,9 +1716,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 748,
+              "y": 5140,
               "w": 1440,
-              "h": 160
+              "h": 520
             }
           },
           {
@@ -1622,9 +1726,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 908,
+              "y": 5660,
               "w": 1440,
-              "h": 500
+              "h": 520
             }
           },
           {
@@ -1632,7 +1736,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 1408,
+              "y": 6180,
               "w": 1440,
               "h": 300
             }
@@ -1642,9 +1746,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 1708,
+              "y": 6480,
               "w": 1440,
-              "h": 300
+              "h": 520
             }
           },
           {
@@ -1652,9 +1756,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 2008,
+              "y": 7000,
               "w": 1440,
-              "h": 160
+              "h": 520
             }
           },
           {
@@ -1662,9 +1766,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 2168,
+              "y": 7520,
               "w": 1440,
-              "h": 160
+              "h": 520
             }
           },
           {
@@ -1672,9 +1776,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 2328,
+              "y": 8040,
               "w": 1440,
-              "h": 500
+              "h": 520
             }
           },
           {
@@ -1682,8 +1786,8 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 2828,
-              "w": 480,
+              "y": 8560,
+              "w": 1440,
               "h": 300
             }
           },
@@ -1691,9 +1795,9 @@
             "item": "viz_i2_tbl_1",
             "type": "block",
             "position": {
-              "x": 480,
-              "y": 2828,
-              "w": 480,
+              "x": 0,
+              "y": 8860,
+              "w": 1440,
               "h": 300
             }
           },
@@ -1701,9 +1805,9 @@
             "item": "viz_i2_tbl_2",
             "type": "block",
             "position": {
-              "x": 960,
-              "y": 2828,
-              "w": 480,
+              "x": 0,
+              "y": 9160,
+              "w": 1440,
               "h": 300
             }
           },
@@ -1712,9 +1816,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 3128,
+              "y": 9460,
               "w": 1440,
-              "h": 300
+              "h": 520
             }
           },
           {
@@ -1722,9 +1826,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 3428,
+              "y": 9980,
               "w": 1440,
-              "h": 160
+              "h": 520
             }
           },
           {
@@ -1732,9 +1836,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 3588,
+              "y": 10500,
               "w": 1440,
-              "h": 160
+              "h": 520
             }
           },
           {
@@ -1742,9 +1846,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 3748,
+              "y": 11020,
               "w": 1440,
-              "h": 500
+              "h": 520
             }
           },
           {
@@ -1752,7 +1856,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 4248,
+              "y": 11540,
               "w": 1440,
               "h": 300
             }
@@ -1762,9 +1866,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 4548,
+              "y": 11840,
               "w": 1440,
-              "h": 300
+              "h": 520
             }
           },
           {
@@ -1772,9 +1876,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 4848,
+              "y": 12360,
               "w": 1440,
-              "h": 160
+              "h": 520
             }
           },
           {
@@ -1782,9 +1886,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 5008,
+              "y": 12880,
               "w": 1440,
-              "h": 160
+              "h": 520
             }
           },
           {
@@ -1792,9 +1896,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 5168,
+              "y": 13400,
               "w": 1440,
-              "h": 500
+              "h": 520
             }
           },
           {
@@ -1802,8 +1906,8 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 5668,
-              "w": 360,
+              "y": 13920,
+              "w": 1440,
               "h": 300
             }
           },
@@ -1811,9 +1915,9 @@
             "item": "viz_i4_tbl_1",
             "type": "block",
             "position": {
-              "x": 360,
-              "y": 5668,
-              "w": 360,
+              "x": 0,
+              "y": 14220,
+              "w": 1440,
               "h": 300
             }
           },
@@ -1821,9 +1925,9 @@
             "item": "viz_i4_tbl_2",
             "type": "block",
             "position": {
-              "x": 720,
-              "y": 5668,
-              "w": 360,
+              "x": 0,
+              "y": 14520,
+              "w": 1440,
               "h": 300
             }
           },
@@ -1831,9 +1935,9 @@
             "item": "viz_i4_tbl_3",
             "type": "block",
             "position": {
-              "x": 1080,
-              "y": 5668,
-              "w": 360,
+              "x": 0,
+              "y": 14820,
+              "w": 1440,
               "h": 300
             }
           },
@@ -1842,9 +1946,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 5968,
+              "y": 15120,
               "w": 1440,
-              "h": 300
+              "h": 520
             }
           },
           {
@@ -1852,9 +1956,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 6268,
+              "y": 15640,
               "w": 1440,
-              "h": 160
+              "h": 520
             }
           },
           {
@@ -1862,9 +1966,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 6428,
+              "y": 16160,
               "w": 1440,
-              "h": 160
+              "h": 520
             }
           },
           {
@@ -1872,9 +1976,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 6588,
+              "y": 16680,
               "w": 1440,
-              "h": 500
+              "h": 520
             }
           },
           {
@@ -1882,125 +1986,39 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 7088,
+              "y": 17200,
               "w": 1440,
               "h": 300
             }
-          }
-        ]
-      },
-      "layout_detect": {
-        "type": "grid",
-        "options": {
-          "backgroundColor": "#F6F8FB",
-          "display": "auto-scale",
-          "gutterSize": 8,
-          "width": 1440,
-          "height": 920
-        },
-        "structure": [
+          },
           {
             "item": "viz_detect_md",
             "type": "block",
             "position": {
               "x": 0,
-              "y": 0,
+              "y": 17500,
               "w": 1440,
-              "h": 500
+              "h": 520
             }
           },
-          {
-            "item": "viz_detect_live",
-            "type": "block",
-            "position": {
-              "x": 0,
-              "y": 500,
-              "w": 720,
-              "h": 400
-            }
-          },
-          {
-            "item": "viz_detect_sim",
-            "type": "block",
-            "position": {
-              "x": 720,
-              "y": 500,
-              "w": 720,
-              "h": 400
-            }
-          }
-        ]
-      },
-      "layout_defend": {
-        "type": "grid",
-        "options": {
-          "backgroundColor": "#F6F8FB",
-          "display": "auto-scale",
-          "gutterSize": 8,
-          "width": 1440,
-          "height": 660
-        },
-        "structure": [
           {
             "item": "viz_defend",
             "type": "block",
             "position": {
               "x": 0,
-              "y": 0,
+              "y": 18020,
               "w": 1440,
-              "h": 640
+              "h": 520
             }
-          }
-        ]
-      },
-      "layout_retest": {
-        "type": "grid",
-        "options": {
-          "backgroundColor": "#F6F8FB",
-          "display": "auto-scale",
-          "gutterSize": 8,
-          "width": 1440,
-          "height": 1380
-        },
-        "structure": [
+          },
           {
             "item": "viz_retest_md",
             "type": "block",
             "position": {
               "x": 0,
-              "y": 0,
+              "y": 18540,
               "w": 1440,
-              "h": 380
-            }
-          },
-          {
-            "item": "viz_retest_what_id",
-            "type": "block",
-            "position": {
-              "x": 0,
-              "y": 380,
-              "w": 1440,
-              "h": 220
-            }
-          },
-          {
-            "item": "viz_retest_what_dec",
-            "type": "block",
-            "position": {
-              "x": 0,
-              "y": 600,
-              "w": 1440,
-              "h": 240
-            }
-          },
-          {
-            "item": "viz_retest_authz",
-            "type": "block",
-            "position": {
-              "x": 0,
-              "y": 840,
-              "w": 1440,
-              "h": 260
+              "h": 520
             }
           },
           {
@@ -2008,41 +2026,19 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 1100,
-              "w": 720,
-              "h": 260
+              "y": 19060,
+              "w": 1440,
+              "h": 300
             }
           },
-          {
-            "item": "viz_retest_exec",
-            "type": "block",
-            "position": {
-              "x": 720,
-              "y": 1100,
-              "w": 720,
-              "h": 260
-            }
-          }
-        ]
-      },
-      "layout_compare": {
-        "type": "grid",
-        "options": {
-          "backgroundColor": "#F6F8FB",
-          "display": "auto-scale",
-          "gutterSize": 8,
-          "width": 1440,
-          "height": 1340
-        },
-        "structure": [
           {
             "item": "viz_compare_md",
             "type": "block",
             "position": {
               "x": 0,
-              "y": 0,
+              "y": 19360,
               "w": 1440,
-              "h": 480
+              "h": 520
             }
           },
           {
@@ -2050,29 +2046,29 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 480,
-              "w": 480,
-              "h": 280
+              "y": 19880,
+              "w": 1440,
+              "h": 300
             }
           },
           {
             "item": "viz_cmp_c_atk",
             "type": "block",
             "position": {
-              "x": 480,
-              "y": 480,
-              "w": 480,
-              "h": 280
+              "x": 0,
+              "y": 20180,
+              "w": 1440,
+              "h": 300
             }
           },
           {
             "item": "viz_cmp_c_rt",
             "type": "block",
             "position": {
-              "x": 960,
-              "y": 480,
-              "w": 480,
-              "h": 280
+              "x": 0,
+              "y": 20480,
+              "w": 1440,
+              "h": 300
             }
           },
           {
@@ -2080,8 +2076,8 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 760,
-              "w": 480,
+              "y": 20780,
+              "w": 1440,
               "h": 300
             }
           },
@@ -2089,9 +2085,9 @@
             "item": "viz_cmp_e_atk",
             "type": "block",
             "position": {
-              "x": 480,
-              "y": 760,
-              "w": 480,
+              "x": 0,
+              "y": 21080,
+              "w": 1440,
               "h": 300
             }
           },
@@ -2099,9 +2095,9 @@
             "item": "viz_cmp_e_rt",
             "type": "block",
             "position": {
-              "x": 960,
-              "y": 760,
-              "w": 480,
+              "x": 0,
+              "y": 21380,
+              "w": 1440,
               "h": 300
             }
           },
@@ -2110,71 +2106,39 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 1060,
-              "w": 480,
-              "h": 260
+              "y": 21680,
+              "w": 1440,
+              "h": 300
             }
           },
           {
             "item": "viz_cmp_t_atk",
             "type": "block",
             "position": {
-              "x": 480,
-              "y": 1060,
-              "w": 480,
-              "h": 260
+              "x": 0,
+              "y": 21980,
+              "w": 1440,
+              "h": 300
             }
           },
           {
             "item": "viz_cmp_t_rt",
             "type": "block",
             "position": {
-              "x": 960,
-              "y": 1060,
-              "w": 480,
-              "h": 260
+              "x": 0,
+              "y": 22280,
+              "w": 1440,
+              "h": 300
             }
-          }
-        ]
-      },
-      "layout_prove": {
-        "type": "grid",
-        "options": {
-          "backgroundColor": "#F6F8FB",
-          "display": "auto-scale",
-          "gutterSize": 8,
-          "width": 1440,
-          "height": 1460
-        },
-        "structure": [
+          },
           {
             "item": "viz_prove",
             "type": "block",
             "position": {
               "x": 0,
-              "y": 0,
+              "y": 22580,
               "w": 1440,
-              "h": 980
-            }
-          },
-          {
-            "item": "viz_prove_what_id",
-            "type": "block",
-            "position": {
-              "x": 0,
-              "y": 980,
-              "w": 1440,
-              "h": 220
-            }
-          },
-          {
-            "item": "viz_prove_what_dec",
-            "type": "block",
-            "position": {
-              "x": 0,
-              "y": 1200,
-              "w": 1440,
-              "h": 240
+              "h": 520
             }
           }
         ]

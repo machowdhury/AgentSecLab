@@ -1109,6 +1109,112 @@ Validated references: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST
         no_data=empty_what,
     )
 
+    add_md(
+        "viz_workbench_mission",
+        f"""
+# Mission — Tool Authorization
+
+## Can the agent invoke a tool outside the authority granted to it?
+
+**Mode:** LIVE launch + REPLAY investigation · **Lab:** LAB-MCP-001 · **Control/PDP:** CTRL-MCP-001 in AcmeBank runtime · **Evidence:** OpenTelemetry copy indexed in Splunk.
+
+```text
+PRINCIPAL → AGENT → REQUEST → CTRL-MCP-001 → HANDLER → TELEMETRY → SPLUNK
+```
+
+The attacker can influence the requested tool, scope, and arguments in the closed specimen. The browser cannot supply profile, grants, policy, or the authorization decision.
+
+**ATTACK expectation:** known-ungranted `lookup_customer_tier` / `customer:read`; labeled vulnerable fail-open ALLOW; runtime handler count 1.
+
+**RETEST expectation:** same request fingerprint; defended DENY `tool_not_granted`; runtime handler count 0.
+
+**REQUEST != GRANT · ALLOW != EXECUTION · SPLUNK != ENFORCEMENT**
+
+[Run the LIVE experiment in Attack Service]({ATTACK_URL})
+
+Canonical REPLAY specimens remain available in **Investigate specimen**. Fresh LIVE evidence must be investigated in Splunk Search with the fresh run.id.
+""",
+        title="MISSION",
+    )
+    add_md(
+        "viz_workbench_investigate",
+        f"""
+# Path A — Investigation story
+
+Use the selected REPLAY specimen below, or open Search and replace `PASTE-LIVE-RUN-ID` with the fresh UUID from Attack Service.
+
+```text
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"="PASTE-LIVE-RUN-ID"
+```
+
+Follow one reasoning path:
+
+1. **WHO** — identify principal, agent, and requested tool.
+2. **REQUEST** — compare requested scope with server-owned allowed scope.
+3. **AUTHZ** — read CTRL-MCP-001 decision and reason.
+4. **EXECUTION** — look for `mcp.started`; use runtime handler count as authoritative for non-execution.
+5. **EVIDENCE** — establish local-count vs Splunk `dc(_raw)` completeness before interpreting absence.
+
+[Open Splunk Search]({SEARCH_URL})
+
+**Hint 1:** keep the same run.id and isolate `event.name=agentsec.control.decision`. Read control id, decision, reason, requested scope, and allowed scope.
+
+**Hint 2:** separately inspect `agentsec.mcp.started`, `agentsec.mcp.completed`, and `agentsec.mcp.failed`. Start is execution evidence; completed is success after start; failed is execution then error.
+
+The tables below are supporting evidence, not separate missions. Empty is not DENY. HEC health is not evidence completeness.
+""",
+        title="PATH A · INVESTIGATE",
+    )
+    add_md(
+        "viz_workbench_evidence",
+        """
+# Evidence detail and ATTACK ↔ RETEST
+
+Read control decision separately from handler execution. `ALLOW` does not prove start. `DENY` alone does not prove non-execution. Runtime handler count is authoritative in this lab; indexed `mcp.started` corroborates a complete copy.
+
+The ATTACK and RETEST panels use canonical REPLAY ids. For a fresh LIVE pair, repeat Path A in Search for both run.ids and verify the input fingerprints match. Fingerprint equality proves only equality of the canonical object represented by that hash.
+
+DET-MCP-001 remains disabled and checks only DENY-then-start. Silence is not SAFE.
+""",
+        title="EVIDENCE DETAIL",
+    )
+
+    mission_structure = [block("viz_workbench_mission", 0, 0, FULL, 520)]
+    investigate_structure = [
+        block("viz_workbench_investigate", 0, 0, FULL, 520),
+        block("viz_prove_what_id", 0, 520, FULL, 230),
+        block("viz_prove_what_dec", 0, 750, FULL, 260),
+        block("viz_observe_seq", 0, 1010, FULL, 380),
+        block("viz_observe_authz", 0, 1390, HALF, 300),
+        block("viz_observe_tool", HALF, 1390, HALF, 300),
+    ]
+    evidence_structure = [
+        block("viz_workbench_evidence", 0, 0, FULL, 260),
+        block("viz_attack_what_id", 0, 260, HALF, 240),
+        block("viz_retest_what_id", HALF, 260, HALF, 240),
+        block("viz_attack_what_dec", 0, 500, HALF, 280),
+        block("viz_retest_what_dec", HALF, 500, HALF, 280),
+        block("viz_attack_authz", 0, 780, HALF, 280),
+        block("viz_retest_authz", HALF, 780, HALF, 280),
+        block("viz_attack_exec", 0, 1060, HALF, 300),
+        block("viz_retest_exec", HALF, 1060, HALF, 300),
+        block("viz_detect_live", 0, 1360, HALF, 340),
+        block("viz_detect_sim", HALF, 1360, HALF, 340),
+    ]
+    primary_ids = {
+        row["item"]
+        for row in mission_structure + investigate_structure + evidence_structure
+    }
+    path_b_structure: list[dict] = []
+    path_b_y = 0
+    for viz_id, viz in visualizations.items():
+        if viz_id in primary_ids:
+            continue
+        is_table = viz["type"] == "splunk.table"
+        height = 300 if is_table else 520
+        path_b_structure.append(block(viz_id, 0, path_b_y, FULL, height))
+        path_b_y += height
+
     definition = {
         "title": "Tool Authorization",
         "description": (
@@ -1157,94 +1263,17 @@ Validated references: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST
             "tabs": {
                 "options": {"barPosition": "top"},
                 "items": [
-                    {"layoutId": "layout_learn", "label": "LEARN"},
-                    {"layoutId": "layout_baseline", "label": "BASELINE"},
-                    {"layoutId": "layout_attack", "label": "ATTACK"},
-                    {"layoutId": "layout_observe", "label": "OBSERVE"},
-                    {"layoutId": "layout_hunt", "label": "HUNT"},
-                    {"layoutId": "layout_detect", "label": "DETECT"},
-                    {"layoutId": "layout_defend", "label": "DEFEND"},
-                    {"layoutId": "layout_retest", "label": "RETEST"},
-                    {"layoutId": "layout_compare", "label": "COMPARE"},
-                    {"layoutId": "layout_prove", "label": "PROVE"},
+                    {"layoutId": "layout_mission", "label": "MISSION"},
+                    {"layoutId": "layout_investigate", "label": "INVESTIGATE"},
+                    {"layoutId": "layout_evidence", "label": "EVIDENCE"},
+                    {"layoutId": "layout_path_b", "label": "PATH B · ANSWERS"},
                 ],
             },
             "layoutDefinitions": {
-                "layout_learn": layout([block("viz_learn", 0, 0, FULL, 1580)], 1640),
-                "layout_baseline": layout(
-                    [
-                        block("viz_baseline_md", 0, 0, FULL, 300),
-                        block("viz_baseline_what_id", 0, 300, FULL, 220),
-                        block("viz_baseline_what_dec", 0, 520, FULL, 240),
-                        block("viz_baseline_authz", 0, 760, FULL, 260),
-                        block("viz_baseline_tool", 0, 1020, HALF, 260),
-                        block("viz_baseline_exec", HALF, 1020, HALF, 260),
-                    ],
-                    1300,
-                ),
-                "layout_attack": layout(
-                    [
-                        block("viz_attack_md", 0, 0, FULL, 560),
-                        block("viz_attack_what_id", 0, 560, FULL, 220),
-                        block("viz_attack_what_dec", 0, 780, FULL, 240),
-                        block("viz_attack_authz", 0, 1020, HALF, 280),
-                        block("viz_attack_exec", HALF, 1020, HALF, 280),
-                    ],
-                    1320,
-                ),
-                "layout_observe": layout(
-                    [
-                        block("viz_observe_md", 0, 0, FULL, 260),
-                        block("viz_observe_seq", 0, 260, FULL, 360),
-                        block("viz_observe_authz", 0, 620, HALF, 300),
-                        block("viz_observe_tool", HALF, 620, HALF, 300),
-                    ],
-                    940,
-                ),
-                "layout_hunt": layout(hunt_structure, y_cursor + 40, display="fit-to-width"),
-                "layout_detect": layout(
-                    [
-                        block("viz_detect_md", 0, 0, FULL, 500),
-                        block("viz_detect_live", 0, 500, HALF, 400),
-                        block("viz_detect_sim", HALF, 500, HALF, 400),
-                    ],
-                    920,
-                ),
-                "layout_defend": layout([block("viz_defend", 0, 0, FULL, 640)], 660),
-                "layout_retest": layout(
-                    [
-                        block("viz_retest_md", 0, 0, FULL, 380),
-                        block("viz_retest_what_id", 0, 380, FULL, 220),
-                        block("viz_retest_what_dec", 0, 600, FULL, 240),
-                        block("viz_retest_authz", 0, 840, FULL, 260),
-                        block("viz_retest_tool", 0, 1100, HALF, 260),
-                        block("viz_retest_exec", HALF, 1100, HALF, 260),
-                    ],
-                    1380,
-                ),
-                "layout_compare": layout(
-                    [
-                        block("viz_compare_md", 0, 0, FULL, 480),
-                        block("viz_cmp_c_base", 0, 480, THIRD, 280),
-                        block("viz_cmp_c_atk", THIRD, 480, THIRD, 280),
-                        block("viz_cmp_c_rt", THIRD * 2, 480, THIRD, 280),
-                        block("viz_cmp_e_base", 0, 760, THIRD, 300),
-                        block("viz_cmp_e_atk", THIRD, 760, THIRD, 300),
-                        block("viz_cmp_e_rt", THIRD * 2, 760, THIRD, 300),
-                        block("viz_cmp_t_base", 0, 1060, THIRD, 260),
-                        block("viz_cmp_t_atk", THIRD, 1060, THIRD, 260),
-                        block("viz_cmp_t_rt", THIRD * 2, 1060, THIRD, 260),
-                    ],
-                    1340,
-                ),
-                "layout_prove": layout(
-                    [
-                        block("viz_prove", 0, 0, FULL, 980),
-                        block("viz_prove_what_id", 0, 980, FULL, 220),
-                        block("viz_prove_what_dec", 0, 1200, FULL, 240),
-                    ],
-                    1460,
-                ),
+                "layout_mission": layout(mission_structure, 540),
+                "layout_investigate": layout(investigate_structure, 1710),
+                "layout_evidence": layout(evidence_structure, 1720),
+                "layout_path_b": layout(path_b_structure, path_b_y + 40, display="fit-to-width"),
             },
         },
         "applicationProperties": {
