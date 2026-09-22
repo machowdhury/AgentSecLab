@@ -74,7 +74,7 @@ def test_does_not_create_det_a2a_or_extra_hunts_or_studio():
     assert not list((ROOT / "learning").rglob("Q-A2A*"))
     studio = ROOT / "splunk_app" / "agentsec" / "default" / "data" / "ui" / "views"
     names = {path.name for path in studio.glob("*")}
-    assert "ws_lab_agent_delegation.xml" not in names
+    assert "ws_lab_agent_delegation.xml" in names  # Phase 15E LIVE workshop
     assert "ws_lab_a2a.xml" not in names
     assert not (DELEGATION.parent / "workshop.md").exists()
     for name in (

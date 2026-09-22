@@ -7,7 +7,7 @@
 **Supporting:** INV-002 (content may influence a request but cannot independently create authority)  
 **Attack:** MEMORY-001 (malicious persisted memory used as memory-derived authority on a later run)  
 **Control:** CTRL-MEMORY-CONTEXT-001 (classify only; OBSERVE) + CTRL-MCP-001 (follow-on tool grant)  
-**Status:** Phase 11E Dashboard Studio workshop (`ws_lab_memory_security`). DET-MCP-001 reused, disabled. **No DET-MEMORY.** Detection: **DETECTION ANALYZED — NO NEW MEMORY DETECTOR**.
+**Status:** Phase 11E Dashboard Studio workshop (`ws_lab_memory_security`). Phase 15C LIVE purple-team loop (Attack Service two-run WRITE+RECALL). DET-MCP-001 reused, disabled. **No DET-MEMORY.** Detection: **DETECTION ANALYZED — NO NEW MEMORY DETECTOR**. Schema **1.9.0** (Memory fields from 1.7.0 remain valid).
 
 This lab teaches one idea: **persisted memory is data that survives into a later run**. Recalled text may influence a REQUEST. It does not become a GRANT. Splunk is where you hunt a copy of the telemetry. Splunk does not ALLOW or DENY a follow-on tool.
 

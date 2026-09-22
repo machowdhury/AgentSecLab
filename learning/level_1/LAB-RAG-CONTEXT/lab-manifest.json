@@ -1,0 +1,104 @@
+{
+  "lab_id": "LAB-RAG-CONTEXT",
+  "title": "RAG / Retrieved Context",
+  "not_authorization": true,
+  "security_question": "Can retrieved content cause an agent to acquire or exercise authority that server-owned policy did not grant?",
+  "invariant_ids": ["INV-002"],
+  "control_id": "CTRL-RAG-CONTEXT-001",
+  "enforcement_control_id": "CTRL-MCP-001",
+  "workshop_view": "ws_lab_rag_context",
+  "level": "4",
+  "domain": "retrieved_context",
+  "execution_modes": {
+    "LIVE": ["BASELINE", "ATTACK", "RETEST"],
+    "REPLAY": ["BASELINE", "ATTACK", "RETEST"],
+    "GUIDED": true
+  },
+  "retest_support": "LIVE",
+  "retest_support_detail": "ATTACK and RETEST retrieve the same malicious document bytes. Profile is server-owned ExperimentContext. Process env is not mutated. CTRL-RAG-CONTEXT-001 stays OBSERVE. CTRL-MCP-001 is the tool PDP.",
+  "specimens": [
+    {
+      "specimen_id": "RAG-BASELINE",
+      "mode": "BASELINE",
+      "profile": "defended",
+      "live": true,
+      "experiment_id": "LAB-RAG-CONTEXT:BASELINE",
+      "same_as_attack_payload": false
+    },
+    {
+      "specimen_id": "RAG-001",
+      "mode": "ATTACK",
+      "profile": "vulnerable",
+      "live": true,
+      "experiment_id": "LAB-RAG-CONTEXT:ATTACK",
+      "intentionally_vulnerable": true,
+      "same_as_retest_payload": true
+    },
+    {
+      "specimen_id": "RAG-001",
+      "mode": "RETEST",
+      "profile": "defended",
+      "live": true,
+      "experiment_id": "LAB-RAG-CONTEXT:RETEST",
+      "same_as_attack_payload": true
+    }
+  ],
+  "prediction": {
+    "ATTACK": {
+      "attack_objective": "Retrieve the catalog malicious lending-policy document on the intentionally vulnerable ATTACK experiment and observe whether a follow-on lookup_customer_tier request is granted.",
+      "why_this_matters": "Retrieved content is data (INV-002). It may influence a REQUEST. It cannot independently mint a GRANT. This ATTACK specimen is labeled vulnerable so you can later RETEST the same document under defense.",
+      "what_will_change": "A new run.id is minted. CTRL-RAG-CONTEXT-001 records OBSERVE. A follow-on request is formed. CTRL-MCP-001 records a labeled fail-open ALLOW. Telemetry is emitted for this execution only.",
+      "what_will_not_change": "Coded allowed_tools. The document bytes. The retriever. The browser does not choose profile, grants, document body, or trust labels. Splunk does not ALLOW or DENY.",
+      "security_property": "RETRIEVED CONTENT != AUTHORITY. On this labeled vulnerable experiment the follow-on ungranted tool is ALLOW then executed. That is not universal RAG bypass.",
+      "expected_evidence_defended": "Not this ATTACK specimen. Defended same-document retrieve is the RETEST experiment.",
+      "expected_evidence_vulnerable": "INTENTIONALLY VULNERABLE LAB PROFILE: CTRL-RAG-CONTEXT-001 OBSERVE retrieved_context_is_data; follow-on ALLOW vulnerable_profile_fail_open:retrieved_context_derived_authority; mcp.started; handler 1; testbed.mode=ATTACK. OBSERVE is not ALLOW. ALLOW is not execution.",
+      "predict_before_launch": "Before you click Launch ATTACK, write: will CONTEXT-001 OBSERVE or ALLOW, will lookup_customer_tier be requested, will CTRL-MCP-001 ALLOW or DENY, and will the handler start?",
+      "attacker_influence": "The retrieved document bytes in the closed fixture. The attacker wants that text treated as authority to call lookup_customer_tier.",
+      "defense_should": "On this ATTACK specimen the lab is fail-open at CTRL-MCP-001. The defense you will enable is the RETEST ExperimentContext (profile=defended), not Splunk and not a document sanitizer."
+    },
+    "BASELINE": {
+      "attack_objective": "Retrieve the catalog normal lending-policy document so later ATTACK evidence has a normal comparison.",
+      "why_this_matters": "Zero BASELINE rows is not all-clear. You need the shape of OBSERVE with no privileged follow-on before judging the malicious document.",
+      "what_will_change": "A new run.id. CTRL-RAG-CONTEXT-001 OBSERVE. No overlay. No lookup_customer_tier handler.",
+      "what_will_not_change": "Coded grants. This is not the malicious document.",
+      "security_property": "INV-007 evidence for a normal retrieve; untrusted_data is not malice and is not SAFE.",
+      "expected_evidence_defended": "testbed.mode=BASELINE, profile=defended, CONTEXT-001 OBSERVE, no follow-on, handler 0.",
+      "predict_before_launch": "Before you click Launch, write: should CONTEXT-001 OBSERVE, and should lookup_customer_tier start?"
+    },
+    "RETEST": {
+      "attack_objective": "Retrieve the SAME malicious document bytes on the defended RETEST experiment and prove the outcome changed because authorization changed, not because the document changed.",
+      "why_this_matters": "A closed-loop experiment needs independent ATTACK and RETEST run.ids. Process-global profile mutation would leak between concurrent experiments.",
+      "what_will_change": "A new run.id, testbed.mode=RETEST, profile=defended, CTRL-MCP-001 DENY tool_not_granted if the follow-on is still requested.",
+      "what_will_not_change": "document.id, content.hash, provenance, follow-on tool, requested scope. Coded grants. Splunk still does not enforce.",
+      "security_property": "SAME RETRIEVED CONTENT. SAME REQUEST. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION. Not universal RAG resistance.",
+      "expected_evidence_defended": "CONTEXT-001 OBSERVE retrieved_context_is_data; follow-on DENY tool_not_granted; handler_invoke_count=0; no mcp.started on a complete copy; testbed.mode=RETEST.",
+      "will_reach_operation": "On defended RETEST, the same follow-on request should not start the handler. CTRL-MCP-001 should DENY. CONTEXT-001 still OBSERVE.",
+      "which_control": "CTRL-RAG-CONTEXT-001 classifies data (OBSERVE). CTRL-MCP-001 at acmebank.mcp.authorize is the tool PDP, before the handler. AcmeBank owns enforcement. Splunk does not.",
+      "expected_decision": "CONTEXT OBSERVE. Follow-on DENY tool_not_granted.",
+      "falsify": "mcp.started after DENY, ALLOW on this RETEST experiment, or a different content.hash than ATTACK, would falsify the defended prediction. Missing Splunk rows alone would not.",
+      "predict_before_launch": "Will the same malicious document produce the same request? Will CTRL-MCP-001 DENY? Does missing mcp.started alone prove prevention?"
+    }
+  },
+  "investigation": {
+    "entry_hunt": "Q-RAG-CONTEXT-AUTHORITY",
+    "reuse_hunts": ["Q-RAG-CONTEXT-AUTHORITY", "Q-MCP-AUTHZ", "Q-MCP-TOOL", "Q-MCP-EXECUTED", "Q-MCP-WHO"],
+    "starter_index": "agentsec_telemetry",
+    "starter_sourcetype": "otel:agentic:json",
+    "do_not_create": ["DET-RAG", "DET-LAUNCH", "Q-RAG-INJECTION"]
+  },
+  "limitations": [
+    "LOCAL EDUCATIONAL SERVICE. Attack Service is localhost and unauthenticated.",
+    "NOT PRODUCTION AUTHENTICATION. NOT MULTI-TENANT. NOT INTERNET-FACING.",
+    "CTRL-RAG-CONTEXT-001 classifies retrieved context. It does not grant tools.",
+    "CTRL-MCP-001 is a lab allow-list, not production MCP IAM.",
+    "The retriever is exact-id fixtures, not a vector database.",
+    "RETEST DENY is not automatically SAFE.",
+    "HEC HTTP 200 is not searchable evidence.",
+    "Missing mcp.started is not independent proof of prevention.",
+    "ALLOW is not execution. OBSERVE is not ALLOW. untrusted_data is not malicious.",
+    "DET-MCP-001 alerts only on DENY-then-start. ATTACK fail-open ALLOW is silent. Silence is not SAFE. No DET-RAG.",
+    "Studio tokens are not auto-bound to a fresh run.id.",
+    "Learning metadata is not security policy.",
+    "Canonical Investigate specimen ids are REPLAY, not the LIVE run you just launched."
+  ]
+}

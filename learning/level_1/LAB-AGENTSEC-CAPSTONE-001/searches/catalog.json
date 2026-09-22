@@ -1,0 +1,56 @@
+{
+  "lab.id": "LAB-AGENTSEC-CAPSTONE-001",
+  "title": "Lending Assistant Investigation — reused hunts (schema 1.9.0)",
+  "schema.name": "agentsec.security_event",
+  "schema.version": "1.9.0",
+  "index": "agentsec_telemetry",
+  "sourcetype": "otel:agentic:json",
+  "retrieve_run_id_token": "__RETRIEVE_RUN_ID__",
+  "write_run_id_token": "__WRITE_RUN_ID__",
+  "recall_run_id_token": "__RECALL_RUN_ID__",
+  "validation_date": "2026-09-20",
+  "new_spl_created": [],
+  "why_no_new_spl": "Existing Q-RAG-CONTEXT-AUTHORITY, Q-MEMORY-CONTEXT-AUTHORITY, Q-MCP-*, Q-RUN-EVENTS, Q-GOAL-INTEGRITY-AUTHORITY, and Q-AGENT-DELEGATION-AUTHORITY answer the cross-domain questions. A Q-CAPSTONE family would hide reuse.",
+  "reuses_queries": [
+    "Q-RUN-EVENTS",
+    "Q-RAG-CONTEXT-AUTHORITY",
+    "Q-MEMORY-CONTEXT-AUTHORITY",
+    "Q-MCP-WHO",
+    "Q-MCP-AUTHZ",
+    "Q-MCP-TOOL",
+    "Q-MCP-EXECUTED",
+    "Q-MCP-AFTER-DENY",
+    "Q-GOAL-INTEGRITY-AUTHORITY",
+    "Q-AGENT-DELEGATION-AUTHORITY"
+  ],
+  "schema_version_note": "No schema bump. Retrieve→write correlation is measured content.hash equality. Write→recall uses agentsec.memory.source_run_id.",
+  "validated_runs": {
+    "BASELINE": {"retrieve": "", "write": "", "recall": ""},
+    "ATTACK": {"retrieve": "", "write": "", "recall": ""},
+    "RETEST": {"retrieve": "", "write": "", "recall": ""}
+  },
+  "validated_hashes": {
+    "BASELINE": "sha256:0fc83ee727c6f33ad87e6ffec8698889de366311a281e4f831fe8c8d30e27f8e",
+    "ATTACK_AND_RETEST": "sha256:c565f364c7c5fba3cf25d235bb8e2bee7d9433daa9f07d5e097ab6d2a82a97ef"
+  },
+  "prohibited_fields": [
+    "session.id",
+    "invocation.id",
+    "full_document",
+    "full_memory",
+    "trusted_memory",
+    "memory_authorized",
+    "rag_authorized"
+  ],
+  "queries": [],
+  "queries_not_created": [
+    {
+      "id": "Q-CAPSTONE",
+      "reason": "Cross-domain reconstruction is answered by existing hunts. A capstone-named hunt would imply a new security domain."
+    },
+    {
+      "id": "DET-CAPSTONE",
+      "reason": "Capstone is reconstruction and security reasoning. DET-MCP-001 remains the only operational detector and may return 0 rows. 0 rows != SAFE."
+    }
+  ]
+}

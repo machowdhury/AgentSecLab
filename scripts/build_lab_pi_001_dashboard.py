@@ -294,7 +294,7 @@ def solution_md(inv: dict, number: int, spl_file: str) -> str:
     return f"""
 # Solution — Investigation {number} {inv["title"]}
 
-This is **Path B**. Path A remains Search with your LIVE run.id.
+This is **Path B — show solution**. Open it only after you tried Path A in Search. It is an answer key, not policy. Splunk does not enforce. Path A remains Search with your LIVE run.id.
 
 **SOLUTION SPL** (`{hunt}`)
 
@@ -404,6 +404,8 @@ def build() -> dict:
     empty_hunt = (
         "Investigate specimen defaults to BASELINE REPLAY. Custom LIVE run.id is Search. "
         "Zero rows is not all-clear and is not DENY. "
+        "If Search returns zero rows after a LIVE launch, wait until Attack Service says "
+        "EVIDENCE READY, then paste the LIVE run.id. Empty is not prevention. "
         "This Splunk volume may not contain a prior specimen id."
     )
     allow_not_exec = (
@@ -418,7 +420,7 @@ def build() -> dict:
 
 Investigate why untrusted user text must not become an authorized LLM instruction.
 
-**LIVE EVIDENCE** · `LAB-PI-001` · Schema **1.9.0** on a restaged runtime · CTRL-INPUT-001
+**LIVE EVIDENCE** · Direct Prompt Injection · Schema **1.9.0** on a restaged runtime · CTRL-INPUT-001
 
 Splunk is the hunt workbench. Splunk does **not** ALLOW or DENY the loan. AcmeBank is the enforcement point.
 
@@ -585,7 +587,7 @@ Two paths. Path A is the default. Path B is an answer key, not a replacement.
 
 **Path A — Try it yourself:** question, starter guidance, [Open Splunk Search]({SEARCH_URL}). Construct the hunt.
 
-**Path B — Show solution:** copyable SPL from existing Q-* hunts, bound REPLAY table, explanation, limitations. Scroll past Hint 1 / Hint 2 when you are ready.
+**Path B — Show solution (optional):** copyable SPL from existing Q-* hunts, bound REPLAY table, explanation, limitations. Open it only after Path A. It is an answer key, not policy.
 
 Investigate specimen is canonical **REPLAY**. Fresh LIVE run.id comes from Attack Service Search handoff. Studio tokens are not auto-bound.
 
@@ -765,7 +767,7 @@ Compare these fields. Label **SAME** or **DIFFERENT** in words, not only by colo
 - AUTHORITATIVE: runtime handler/invocation state
 - CONTROL EVIDENCE: decision + reason on the enforcement path
 - CORROBORATIVE: complete Splunk copy
-- NOT SUFFICIENT ALONE: missing event, DENY string, HEC 200, empty dashboard, pytest
+- NOT SUFFICIENT ALONE: missing event, DENY string, HEC 200, empty dashboard
 
 Path A: Attack Service compare Search handoff (both LIVE ids). Path B: canonical REPLAY tables on this tab. Investigation PI-I7 is this comparison — reuse Q-CONTROL-DECISION and Q-LLM-EXECUTED; do not create a new hunt file.
 
@@ -820,7 +822,7 @@ Do not relabel `{ATTACK_DENY_NOT_RETEST}`.
 Four blocks. Never a single PROVEN tile from index presence.
 
 1. **Runtime (authoritative).** Did AcmeBank invoke Ollama? Splunk does not decide this.
-2. **Local pack.** `artifacts/<run-id>/` — manifest, events.jsonl, request, result, export, limitations.
+2. **Local pack.** The local evidence pack for that run — manifest, events, request, result, export, limitations.
 3. **Export completeness.** `export.json` must not treat `otlp.ok` as Splunk success. Many packs still have `splunk.verified=false`.
 4. **Splunk corroboration.** Indexed events for that `run.id`; sequences match; Q-* as hunted.
 
@@ -854,7 +856,13 @@ Tie every answer to a field, a hop, or a pack file.
 
 ## Connect the concepts
 
-The same discipline applies later to tool authorization, tool results, MCP metadata/catalog, RAG, memory, identity/delegation, and goal integrity. This workshop does not run those labs.
+**YOU JUST LEARNED** — untrusted loan input can influence an agent; CTRL-INPUT-001 is the PDP on this HTTP boundary; Splunk copies the decision.
+
+**THIS CONNECTS TO** — tool requests, which look like influence but still need a grant (next LIVE lab).
+
+**NEXT** — Tool Authorization. Do not skip it. RAG and memory labs assume you already know REQUEST != GRANT.
+
+The same discipline applies later to tool results, catalog metadata, RAG, memory, identity/delegation, and goal integrity. This workshop does not run those labs.
 
 ```text
 SOURCE → TRUST BOUNDARY → INFLUENCE / REQUEST → AUTHORIZATION → EXECUTION → TELEMETRY → SPLUNK INVESTIGATION

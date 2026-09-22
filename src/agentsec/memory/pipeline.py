@@ -73,6 +73,8 @@ class MemoryWriteResult:
     writer_agent_id: str | None = None
     source_run_id: str | None = None
     error_stage: str | None = None
+    experiment_id: str | None = None
+    input_fingerprint: str | None = None
 
 
 @dataclass
@@ -111,6 +113,8 @@ class MemoryRecallResult:
     lookup_customer_tier_handler_count: int = 0
     server_owned_allowed_tools: str = "lookup_policy"
     recalled_snapshot: MemoryRecord | None = None
+    experiment_id: str | None = None
+    input_fingerprint: str | None = None
 
 
 def _duration_ms(started: float) -> int:
@@ -160,6 +164,9 @@ def run_memory_write(
     attack_id: str = MEMORY_ATTACK_ID,
     write_evidence: bool = True,
     write_obj: object | None = None,
+    experiment_id: str | None = None,
+    input_fingerprint: str | None = None,
+    allow_replace_same_fixture: bool = False,
 ) -> MemoryWriteResult:
     settings = settings or get_settings()
     started = time.monotonic()
@@ -196,6 +203,7 @@ def run_memory_write(
                 memory_id,
                 writer_agent_id=MEMORY_AGENT_ID,
                 source_run_id=str(ctx.run_id),
+                allow_replace_same_fixture=allow_replace_same_fixture,
             )
     except Exception:
         record = None
@@ -338,6 +346,7 @@ def run_memory_write(
                 "memory.source_run_id": source_run_id,
                 "mcp.handler.lookup_customer_tier.count": 0,
                 "splunk.verified": False,
+                "experiment_id": experiment_id,
             },
             request_doc={"memory_id": stored_id, "memory.id.hash": content_hash(stored_id)},
             extra_result={
@@ -374,6 +383,8 @@ def run_memory_write(
         writer_agent_id=writer,
         source_run_id=source_run_id,
         error_stage=error_stage,
+        experiment_id=experiment_id,
+        input_fingerprint=input_fingerprint,
     )
 
 
@@ -392,6 +403,8 @@ def run_memory_recall(
     authorize_fn: AuthorizeFn | None = None,
     recalled_override: object | None = None,
     expected_behavior: str | None = None,
+    experiment_id: str | None = None,
+    input_fingerprint: str | None = None,
 ) -> MemoryRecallResult:
     settings = settings or get_settings()
     started = time.monotonic()
@@ -809,6 +822,8 @@ def run_memory_recall(
         lookup_customer_tier_handler_count=lookup_tier_count,
         server_owned_allowed_tools=",".join(sorted(policy_after.allowed_tools)),
         recalled_snapshot=snapshot,
+        experiment_id=experiment_id,
+        input_fingerprint=input_fingerprint,
     )
 
 
@@ -824,6 +839,7 @@ def run_memory_schema_failure(
     error_reason: str,
     extra_fields: tuple[str, ...] = (),
     write_evidence: bool = True,
+    experiment_id: str | None = None,
 ) -> MemoryWriteResult:
     ctx = RunContext.mint(
         user_id=user_id,
@@ -886,6 +902,7 @@ def run_memory_schema_failure(
         actual_behavior=actual,
         attack_id=attack_id,
         error_stage="schema_validation",
+        experiment_id=experiment_id,
     )
 
 
@@ -991,6 +1008,8 @@ def memory_write_result_to_dict(result: MemoryWriteResult) -> dict[str, Any]:
         "memory_provenance": result.memory_provenance,
         "source_run_id": result.source_run_id,
         "lookup_customer_tier_handler_count": 0,
+        "experiment_id": result.experiment_id,
+        "input_fingerprint": result.input_fingerprint,
     }
 
 
@@ -1027,6 +1046,8 @@ def memory_recall_result_to_dict(result: MemoryRecallResult) -> dict[str, Any]:
         "follow_on_reason": result.follow_on_reason,
         "lookup_customer_tier_handler_count": result.lookup_customer_tier_handler_count,
         "server_owned_allowed_tools": result.server_owned_allowed_tools,
+        "experiment_id": result.experiment_id,
+        "input_fingerprint": result.input_fingerprint,
         "hops": [
             {
                 "hop.index": hop.index,

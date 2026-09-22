@@ -310,13 +310,13 @@ def build() -> dict:
 
 Investigate why legitimate tool metadata must not determine the grant.
 
-**LIVE EVIDENCE** · `LAB-MCP-CATALOG` · Schema 1.5.0 · CTRL-MCP-METADATA-001
+**REPLAY SPECIMEN** · historical evidence · Schema 1.5.0 · CTRL-MCP-METADATA-001
 
 **A legitimate tool can still carry untrusted catalog metadata. Metadata may influence a REQUEST. Metadata must not determine the GRANT.**
 
 {META_NOT_AUTHZ}
 
-**Phase 8D LIVE evidence identity**
+**Canonical specimens (historical)**
 
 BASELINE `{BASELINE_ID}`
 
@@ -513,6 +513,19 @@ Use **Hunt run.id** (defaults to BASELINE). Tables are telemetry, not a story. H
         "viz_hunt_md",
         f"""
 # HUNT
+
+**REPLAY workshop.** There is no Attack Service launcher here. This is historical evidence, not a launch you just minted.
+
+**WHY search this?** Reconstruct a canonical experiment in Search. Practice Path A without minting a new run.id.
+
+**Path A — try it yourself:** [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search). Copy a canonical Investigate specimen run.id. Start with `index=agentsec_telemetry sourcetype=otel:agentic:json` and quoted `agentsec.run.id`. Construct the hunt before you treat the tables as the answer. If zero rows, this volume may not contain that specimen. Empty is not DENY.
+
+**Path B — show solution:** the bound tables on this tab are the expected shape for that specimen. Read them after Path A. They are not policy and not LIVE launch evidence.
+
+**YOU SHOULD SEE** control.id, decision, reason, and whether execution events exist.
+**THAT MEANS** this is the expected shape of a historical copy.
+**IT DOES NOT MEAN** Splunk enforced the decision.
+**NEXT** COMPARE ATTACK vs RETEST on the same fields, then PROVE.
 
 **Question:** What catalog metadata did this run observe, how was it classified, and how was any follow-on authorized?
 

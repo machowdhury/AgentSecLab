@@ -8,13 +8,15 @@ USER QUESTION → RETRIEVER → DOCUMENT / CHUNK → AGENT CONTEXT → AGENT MAY
 
 Four planes: RETRIEVAL, TRUST / INFLUENCE, AUTHORIZATION, EXECUTION.
 
-AgentSec is not only MCP or RAG: LAB-PI-001, MCP-001–006, catalog, scanner, then this lab. Memory / A2A / rug-pull are later.
+**LIVE** = Attack Service mints a fresh run.id; investigate in Splunk Search. **REPLAY** = canonical Investigate specimen ids on this workshop. Do not mix them.
 
-Copy full LIVE ids and hashes from the first canvas. Input fields may ellipsize UUIDs.
+AgentSec is not only MCP or RAG: LAB-PI-001, MCP-001–006, catalog, scanner, then this lab. Phase 11 (memory) is a later lab. A2A / rug-pull are later.
+
+Copy full REPLAY ids and hashes from the first canvas. Input fields may ellipsize UUIDs.
 
 ## BASELINE
 
-LIVE `51f70fb9-994e-4dd4-9b36-cac6fb1e8232`. NORMAL `doc.lending-policy.normal`. Hash `sha256:0fc83ee727c6f33ad87e6ffec8698889de366311a281e4f831fe8c8d30e27f8e`. Provenance `rag.local.fixture`. CTRL-RAG-CONTEXT-001 **OBSERVE** `retrieved_context_is_data`. Classification `untrusted_data`. No privileged follow-on. Handler 0.
+**REPLAY specimen** `51f70fb9-994e-4dd4-9b36-cac6fb1e8232`. Launch LIVE BASELINE from Attack Service for a fresh run.id. NORMAL `doc.lending-policy.normal`. Hash `sha256:0fc83ee727c6f33ad87e6ffec8698889de366311a281e4f831fe8c8d30e27f8e`. Provenance `rag.local.fixture`. CTRL-RAG-CONTEXT-001 **OBSERVE** `retrieved_context_is_data`. Classification `untrusted_data`. No privileged follow-on. Handler 0.
 
 Do not label SAFE, TRUSTED, APPROVED, or BENIGN.
 
@@ -22,7 +24,7 @@ Zero suspicious follow-on behavior is an observation, not proof that the content
 
 ## ATTACK
 
-LIVE `3a43d24f-9281-42f6-8375-1fb2efaa80ac`. **INTENTIONALLY VULNERABLE LAB PROFILE**.
+**REPLAY specimen** `3a43d24f-9281-42f6-8375-1fb2efaa80ac`. Launch LIVE ATTACK from Attack Service. **INTENTIONALLY VULNERABLE LAB PROFILE**.
 
 MALICIOUS `doc.lending-policy.malicious`. Hash `sha256:c565f364c7c5fba3cf25d235bb8e2bee7d9433daa9f07d5e097ab6d2a82a97ef`. Same provenance. OBSERVE. Follow-on REQUEST `lookup_customer_tier` / `customer:read`. CTRL-MCP-001 ALLOW `vulnerable_profile_fail_open:retrieved_context_derived_authority`. mcp.started. mcp.completed. Handler 1.
 
@@ -41,6 +43,8 @@ Indexed structured fields. No `_raw`. No full retrieved document. Hash + bounded
 Hunt run.id defaults to BASELINE.
 
 ## HUNT
+
+Two paths. **Path A** — construct the search in Splunk Search. **Path B** — copyable existing hunt SPL, expected shape, what it means and does not mean.
 
 Primary: **Q-RAG-CONTEXT-AUTHORITY**.
 
@@ -88,7 +92,7 @@ HANDLER DOES NOT START
 
 ## RETEST
 
-LIVE `bea97bae-491b-4b36-b52f-1417d2bad01b`.
+**REPLAY specimen** `bea97bae-491b-4b36-b52f-1417d2bad01b`. Launch LIVE RETEST from Attack Service. Same malicious bytes. Different ExperimentContext.
 
 SAME document.id, content.hash, provenance, follow-on request, requested scope as ATTACK.
 
@@ -106,7 +110,7 @@ Three cards: BASELINE · ATTACK · RETEST.
 
 ATTACK and RETEST prominently share hash `sha256:c565f364c7c5fba3cf25d235bb8e2bee7d9433daa9f07d5e097ab6d2a82a97ef`.
 
-**SAME RETRIEVED CONTENT. SAME REQUEST. DIFFERENT AUTHORIZATION OUTCOME.**
+**SAME RETRIEVED CONTENT. SAME REQUEST. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION.**
 
 ATTACK: ALLOW + execution. RETEST: DENY + handler 0.
 

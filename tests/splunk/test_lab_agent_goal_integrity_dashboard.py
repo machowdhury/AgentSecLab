@@ -262,6 +262,10 @@ def test_no_new_detector_and_security_semantics():
     assert "Do not say MCP blocked the attack." in markdown
     assert "Do **not** label this SAFE" in markdown
     assert "PLANE" in markdown or "TASK" in markdown
+    assert "Path A" in markdown
+    assert "LIVE vs REPLAY" in markdown
+    assert "REPLAY specimen" in markdown or "canonical REPLAY" in markdown
+    assert "Attack Service" in markdown
     assert TASK_HASH in markdown
     assert INSTRUCTION_HASH in markdown
     assert PROPOSED_HASH in markdown
@@ -288,7 +292,7 @@ def test_schema_runtime_and_det_unchanged():
     dumped = json.dumps(_definition())
     assert "DET-GOAL" in dumped
     assert "No DET-GOAL" in dumped
-    assert "Phase 14 not started" in dumped
+    assert "Do not start Phase 15E" in dumped
     assert "list_changed" not in PROTOCOL.read_text(encoding="utf-8")
     assert MEMORY_VIEW.is_file()
     memory = MEMORY_VIEW.read_text(encoding="utf-8")

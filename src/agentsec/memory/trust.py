@@ -20,6 +20,7 @@ from agentsec.memory.fixtures import (
     MEMORY_TRUST_LABEL,
     PROVENANCE,
 )
+from agentsec.rag.fixtures import AGENT_NOTE_MARKER
 from agentsec.memory.store import MemoryError, MemoryRecord
 
 MEMORY_CONTROL_ID = "CTRL-MEMORY-CONTEXT-001"
@@ -88,17 +89,19 @@ def interpret_recalled_content(
     *,
     memory_id: str,
 ) -> MemoryFollowOnIntent | None:
-    """Recognize ONLY the controlled memory fixture marker.
+    """Recognize the closed memory marker, or persisted retrieved RAG bytes.
 
     THIS IS INTENTIONALLY VULNERABLE LAB MACHINERY.
 
     Exact substring on the FULL content. Not case-folded. Not Unicode-normalized.
     The follow-on tool is closed: never taken from memory grammar.
     Does not consume a truncated preview.
+    AGENT_NOTE_MARKER is the same closed RAG fixture persisted as memory
+    (LAB-AGENTSEC-CAPSTONE-001). It does not invent a new grant.
     """
     if not isinstance(content, str) or not content:
         return None
-    if AGENT_MEMORY_NOTE_MARKER not in content:
+    if AGENT_MEMORY_NOTE_MARKER not in content and AGENT_NOTE_MARKER not in content:
         return None
     return MemoryFollowOnIntent(
         tool_name=CLOSED_FOLLOW_ON_TOOL,

@@ -6,8 +6,8 @@ from dataclasses import dataclass
 
 from agentsec.memory.fixtures import GRANT_LIKE_FIELDS
 
-ALLOWED_MEMORY_WRITE_FIELDS = frozenset({"memory_id", "user_id"})
-ALLOWED_MEMORY_RECALL_FIELDS = frozenset({"memory_id", "user_id"})
+ALLOWED_MEMORY_WRITE_FIELDS = frozenset({"memory_id", "user_id", "experiment_id"})
+ALLOWED_MEMORY_RECALL_FIELDS = frozenset({"memory_id", "user_id", "experiment_id"})
 
 
 @dataclass(frozen=True)
@@ -15,6 +15,7 @@ class ParsedMemoryRequest:
     ok: bool
     memory_id: str | None
     user_id: str
+    experiment_id: str | None
     error_reason: str
     extra_fields: tuple[str, ...]
 
@@ -33,6 +34,7 @@ def _parse(data: object, allowed: frozenset[str]) -> ParsedMemoryRequest:
             ok=False,
             memory_id=None,
             user_id="unknown",
+            experiment_id=None,
             error_reason="malformed_input",
             extra_fields=(),
         )
@@ -45,8 +47,20 @@ def _parse(data: object, allowed: frozenset[str]) -> ParsedMemoryRequest:
             ok=False,
             memory_id=memory_id,
             user_id=_label_user_id(data.get("user_id")),
+            experiment_id=_optional_experiment_id(data.get("experiment_id")),
             error_reason="unknown_fields",
             extra_fields=tuple(sorted(set(extra + grant_like))),
+        )
+
+    experiment_id, experiment_error = _parse_experiment_id(data)
+    if experiment_error:
+        return ParsedMemoryRequest(
+            ok=False,
+            memory_id=data.get("memory_id") if isinstance(data.get("memory_id"), str) else None,
+            user_id=_label_user_id(data.get("user_id")),
+            experiment_id=None,
+            error_reason=experiment_error,
+            extra_fields=(),
         )
 
     memory_id = data.get("memory_id")
@@ -55,6 +69,7 @@ def _parse(data: object, allowed: frozenset[str]) -> ParsedMemoryRequest:
             ok=False,
             memory_id=None,
             user_id=_label_user_id(data.get("user_id")),
+            experiment_id=experiment_id,
             error_reason="missing_memory_id",
             extra_fields=(),
         )
@@ -65,6 +80,7 @@ def _parse(data: object, allowed: frozenset[str]) -> ParsedMemoryRequest:
             ok=False,
             memory_id=memory_id,
             user_id="unknown",
+            experiment_id=experiment_id,
             error_reason="malformed_input",
             extra_fields=(),
         )
@@ -73,6 +89,7 @@ def _parse(data: object, allowed: frozenset[str]) -> ParsedMemoryRequest:
         ok=True,
         memory_id=memory_id,
         user_id=_label_user_id(user_id),
+        experiment_id=experiment_id,
         error_reason="",
         extra_fields=(),
     )
@@ -82,3 +99,18 @@ def _label_user_id(value: object) -> str:
     if not isinstance(value, str) or not value.strip():
         return "applicant-web"
     return value.strip()[:64]
+
+
+def _optional_experiment_id(value: object) -> str | None:
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
+
+
+def _parse_experiment_id(data: dict) -> tuple[str | None, str]:
+    if "experiment_id" not in data:
+        return None, ""
+    value = data["experiment_id"]
+    if not isinstance(value, str) or not value.strip():
+        return None, "malformed_experiment"
+    return value.strip(), ""

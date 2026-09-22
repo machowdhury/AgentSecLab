@@ -18,9 +18,9 @@ ATTACK and RETEST share the same malicious document hash. Authorization is the d
 
 ## Where does it sit in AgentSec?
 
-After 10D analysis, as the learner-facing workshop. Visual sibling of `ws_lab_mcp_005` and `ws_lab_scanner_runtime_evidence`. Splunk still does not authorize. No DET-RAG. Phase 11 not started.
+After 10D analysis, as the learner-facing workshop. Visual sibling of `ws_lab_mcp_005` and `ws_lab_scanner_runtime_evidence`. Splunk still does not authorize. No DET-RAG. Phase 11 (memory) is a later lab.
 
-AgentSec is not only MCP or RAG: LAB-PI-001, MCP-001–006, catalog, scanner, then this lab.
+AgentSec is not only MCP or RAG: LAB-PI-001, MCP-001–006, catalog, scanner, then this lab. Phase 11 (memory) is a later lab (`LAB-MEMORY-001`), not this RAG LIVE loop.
 
 ## What is the trust boundary?
 

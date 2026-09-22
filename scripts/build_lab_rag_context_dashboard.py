@@ -26,6 +26,9 @@ OUT_XML = (
     / "views"
     / "ws_lab_rag_context.xml"
 )
+INV_PATH = ROOT / "learning" / "level_1" / "LAB-RAG-CONTEXT" / "investigations.json"
+SEARCH_URL = "http://127.0.0.1:8000/en-US/app/search/search"
+ATTACK_URL = "http://127.0.0.1:5001/labs/LAB-RAG-CONTEXT"
 
 BG = "#F6F8FB"
 NAVY = "#0B1F33"
@@ -99,6 +102,178 @@ DATA_NOT_AUTHORITY = (
     "INV-002: retrieved content cannot independently authorize privileged actions. "
     "RETRIEVED CONTENT IS DATA. REQUEST != GRANT. OBSERVE != ALLOW."
 )
+
+SPL_TEACHING = {
+    "Q-RAG-CONTEXT-AUTHORITY": (
+        "- Reconstructs retrieve → classification → follow-on request → MCP decision.\n"
+        "- Document fingerprint is CONTEXT-001 content.hash, not the hop-1 request hash.\n"
+        "- OBSERVE is not ALLOW. Follow-on tool is a REQUEST."
+    ),
+    "Q-MCP-AUTHZ": (
+        "- Control.decision rows only. Hop 0 is CONTEXT-001. Hop 1 is CTRL-MCP-001 when a follow-on exists.\n"
+        "- Splunk did not make the decision."
+    ),
+    "Q-MCP-EXECUTED": (
+        "- Joins control + mcp.* into execution_state.\n"
+        "- Runtime handler count remains authoritative for non-execution."
+    ),
+    "Q-MCP-TOOL": (
+        "- mcp.started rows only. Presence means the handler began."
+    ),
+    "Q-MCP-WHO": (
+        "- Principal / agent / tool identity on control.decision."
+    ),
+}
+
+TABLE_BIND = {
+    "RAG-I1-FIND-RETRIEVED-CONTEXT": [
+        (
+            "ds_q_rag",
+            "Q-RAG-CONTEXT-AUTHORITY (REPLAY specimen)",
+            "Path B retrieve row. Fresh LIVE run.id is Search, not this table.",
+        ),
+        (
+            "ds_q_who",
+            "Q-MCP-WHO (REPLAY)",
+            "Identity row. CONTEXT-001 may appear without mcp.method.name.",
+        ),
+    ],
+    "RAG-I2-TRUST-CLASSIFICATION": [
+        (
+            "ds_q_rag",
+            "Q-RAG-CONTEXT-AUTHORITY trust columns (REPLAY)",
+            "Expect OBSERVE retrieved_context_is_data. untrusted_data is not malice.",
+        )
+    ],
+    "RAG-I3-INFLUENCE": [
+        (
+            "ds_q_rag",
+            "Q-RAG-CONTEXT-AUTHORITY follow-on (REPLAY)",
+            "BASELINE: no follow-on. ATTACK/RETEST: lookup_customer_tier request.",
+        )
+    ],
+    "RAG-I4-WHO-AUTHORIZED": [
+        (
+            "ds_q_authz",
+            "Q-MCP-AUTHZ (REPLAY specimen)",
+            "Hop 0 OBSERVE. Hop 1 is the tool PDP. Splunk did not decide.",
+        )
+    ],
+    "RAG-I5-DID-HANDLER-START": [
+        (
+            "ds_q_executed",
+            "Q-MCP-EXECUTED (REPLAY specimen)",
+            "has_started is execution evidence in this copy. Empty is not independently prevented.",
+        ),
+        (
+            "ds_q_tool",
+            "Q-MCP-TOOL (REPLAY)",
+            "mcp.started rows only.",
+        ),
+    ],
+}
+
+
+def load_hunt_spl(name: str) -> str:
+    rag = RAG_DIR / name
+    if rag.is_file():
+        return rag.read_text(encoding="utf-8").strip()
+    return (SEARCH_DIR / name).read_text(encoding="utf-8").strip()
+
+
+def question_md(inv: dict, number: int, spl_file: str) -> str:
+    del spl_file
+    return f"""
+# Investigation {number} — {inv["title"]}
+
+**QUESTION**
+
+{inv["security_question"]}
+
+**WHAT AM I TRYING TO PROVE?**
+
+{inv["learning_objective"]}
+
+**YOUR TASK (Path A — try it yourself)**
+
+{inv["starter_guidance"]}
+
+1. Copy the fresh LIVE run.id from Attack Service, or use Investigate specimen for canonical REPLAY.
+2. [Open Splunk Search]({SEARCH_URL})
+3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.
+4. Filter quoted `agentsec.run.id`. Execute. Read the fields yourself.
+
+Studio cannot receive a fresh LIVE run.id. That handoff is Search, not a token write.
+
+Starter (paste your LIVE run.id; do not search `index=*`):
+
+```
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"="PASTE-LIVE-RUN-ID"
+```
+
+Need help? Scroll to **Hint 1**, then **Hint 2**, then the Path B solution. Do not skip Path A.
+"""
+
+
+def hint_md(inv: dict, number: int, which: str) -> str:
+    body = inv["hint_1"] if which == "hint_1" else inv["hint_2"]
+    label = "HINT 1" if which == "hint_1" else "HINT 2"
+    return f"""
+# {label} — Investigation {number}
+
+{body}
+
+Path A is still Search. This is not the full solution.
+"""
+
+
+def solution_md(inv: dict, number: int, spl_file: str) -> str:
+    spl = load_hunt_spl(spl_file)
+    bound = spl.replace("__RUN_ID__", '"$run_id$"')
+    hunt = inv["related_hunt"]
+    teach = SPL_TEACHING[hunt]
+    nxt = inv["next_investigation"] or "PROVE — classify what you can actually conclude."
+    return f"""
+# Solution — Investigation {number} {inv["title"]}
+
+This is **Path B — show solution**. Open it only after you tried Path A in Search. It is an answer key, not policy. Splunk does not enforce. Path A remains Search with your LIVE run.id.
+
+**SOLUTION SPL** (`{hunt}`)
+
+Copy this into Search. Replace `$run_id$` with the LIVE UUID, or leave the token for Investigate specimen REPLAY.
+
+```
+{bound}
+```
+
+**WHY THESE STAGES**
+
+{teach}
+
+**EXPECTED RESULT SHAPE**
+
+{inv["expected_result_shape"]}
+
+**WHAT YOU ARE SEEING**
+
+{inv["result_explanation"]}
+
+**WHAT IT MEANS**
+
+{inv["security_interpretation"]}
+
+**WHAT IT DOES NOT MEAN**
+
+{inv["does_not_prove"]}
+
+**SECURITY CONNECTION**
+
+Control `{inv["related_control"]}` · invariant `{inv["related_invariant"]}` · hunt `{hunt}`. Splunk does **not** ALLOW or DENY.
+
+**NEXT CHALLENGE**
+
+{nxt}
+"""
 
 
 def load_spl(name: str, *, rag: bool = False) -> str:
@@ -179,12 +354,12 @@ def search_ds(ds_id: str, name: str, query: str) -> tuple[str, dict]:
     }
 
 
-def layout(structure: list[dict], height: int) -> dict:
+def layout(structure: list[dict], height: int, display: str = "auto-scale") -> dict:
     return {
         "type": "grid",
         "options": {
             "backgroundColor": BG,
-            "display": "auto-scale",
+            "display": display,
             "gutterSize": 8,
             "width": CANVAS_W,
             "height": height,
@@ -316,36 +491,52 @@ def build() -> dict:
         f"""
 # RAG / Retrieved Context
 
-Investigate why retrieved documents cannot independently authorize a privileged action.
+**QUESTION**
 
-**LIVE EVIDENCE** · `LAB-RAG-CONTEXT` · Schema 1.6.0 · CTRL-RAG-CONTEXT-001
+Can retrieved content cause an agent to acquire authority that server-owned policy did not grant?
 
-**What can I prove from the evidence?** Not: did the RAG attack happen?
+**ANSWER THE LAB DEFENDS**
 
-- RETRIEVED CONTENT IS DATA
-- REQUEST != GRANT
-- OBSERVE != ALLOW
-- MALICIOUS-LOOKING CONTENT != AUTHORIZATION BYPASS
-- ALLOW != EXECUTION
-- SPLUNK != ENFORCEMENT
+NO. Retrieved content may influence reasoning and may cause a REQUEST. It cannot mint tools, scopes, resources, identity, delegation, approvals, profiles, or authorization configuration.
 
-**LIVE evidence identity**
+```text
+RETRIEVED CONTENT
+       ↓
+UNTRUSTED DATA
+       ↓
+MAY INFLUENCE REQUEST
+       ↓
+SERVER AUTHORIZATION (CTRL-MCP-001)
+       ↓
+EXECUTION
+```
 
-BASELINE `{BASELINE_ID}`
+**RETRIEVED CONTENT IS DATA**
 
-ATTACK `{ATTACK_ID}`
+**RETRIEVED CONTENT != AUTHORITY**
 
-RETEST `{RETEST_ID}`
+**REQUEST != GRANT** · **OBSERVE != ALLOW** · **ALLOW != EXECUTION** · **SPLUNK != ENFORCEMENT**
 
-NORMAL document `{NORMAL_DOC}`
+A **retriever** returns a **document/chunk** with **provenance** (source identity, not trust). **Trust** here is the label `untrusted_data`. That label is not malice. The document may influence **prompt/context**. **Authorization** is CTRL-MCP-001. **Execution** is handler start. **Telemetry** is the copy you hunt in Splunk.
+
+**LIVE vs REPLAY**
+
+- **LIVE** — Attack Service mints a fresh run.id. Investigate in Splunk Search.
+- **REPLAY** — Investigate specimen below is canonical validated evidence. It is not the LIVE run you just launched.
+
+Schema **1.9.0** emitters. CTRL-RAG-CONTEXT-001 observes. CTRL-MCP-001 grants or denies the tool.
+
+Canonical REPLAY ids: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST `{RETEST_ID}`
+
+NORMAL `{NORMAL_DOC}`
 
 {fingerprint_block(NORMAL_HASH)}
 
-MALICIOUS document `{MALICIOUS_DOC}`
+MALICIOUS `{MALICIOUS_DOC}`
 
 {fingerprint_block(MALICIOUS_HASH)}
 
-Provenance `{PROVENANCE}` is source identity. Provenance is not trust.
+Provenance `{PROVENANCE}` is source identity. Provenance is not trust. Known knowledge base is not authorization.
 """,
         title="LEARN",
     )
@@ -406,9 +597,9 @@ authorization != execution
 
 **This lab: retrieved context (INV-002)**
 
-LAB-PI-001 · MCP-001/003/004/005/006 · catalog · scanner
+Prompt/Input · Tool Authorization · later: Persistent Memory
 
-Memory, A2A, rug-pull are later. Not this workshop.
+Memory and identity workshops exist later in the curriculum. This lesson is RAG only. No embeddings. No A2A transport. No rug-pull.
 """,
         title="PROGRESSION",
     )
@@ -418,7 +609,9 @@ Memory, A2A, rug-pull are later. Not this workshop.
         f"""
 # BASELINE
 
-**LIVE** · profile defended · mode BASELINE · handler **0**
+**REPLAY specimen** · profile defended · mode BASELINE · handler **0**
+
+Launch **LIVE BASELINE** from [Attack Service]({ATTACK_URL}) when you want a fresh run.id. The table below is canonical REPLAY `{BASELINE_ID}`.
 
 NORMAL document `{NORMAL_DOC}`
 
@@ -469,31 +662,29 @@ Validated: `{BASELINE_ID}`
         f"""
 # ATTACK
 
-**INTENTIONALLY VULNERABLE LAB PROFILE** · **LIVE** · mode ATTACK · handler **1**
+**INTENTIONALLY VULNERABLE LAB PROFILE** · mode ATTACK
 
-MALICIOUS document `{MALICIOUS_DOC}`
+**WHY ARE WE LAUNCHING THIS?**
 
-fingerprint `{MALICIOUS_HASH}`
+To see whether malicious retrieved bytes can mint a tool grant. They must not. On this labeled vulnerable experiment, CTRL-MCP-001 fail-opens after the same OBSERVE.
 
-provenance `{PROVENANCE}`
+**WHAT DOES THE ATTACKER CONTROL?**
 
-CTRL-RAG-CONTEXT-001 stays **OBSERVE** `retrieved_context_is_data`
+The closed malicious fixture (`{MALICIOUS_DOC}`). Hash `{MALICIOUS_HASH}`. Not grants, profile, trust labels, or document body via the browser.
 
-Follow-on **REQUEST** `lookup_customer_tier` / `customer:read`
+**WHAT SHOULD HAPPEN IN THE VULNERABLE PROFILE?**
 
-CTRL-MCP-001 **ALLOW** `vulnerable_profile_fail_open:retrieved_context_derived_authority`
+retrieve → CTRL-RAG-CONTEXT-001 **OBSERVE** → REQUEST `lookup_customer_tier` / `customer:read` → CTRL-MCP-001 **ALLOW** `vulnerable_profile_fail_open:retrieved_context_derived_authority` → mcp.started → handler 1
 
-That ALLOW is a labeled lab fail-open. Retrieved text did **not** authorize the operation.
+**PREDICT BEFORE LAUNCH.** Then open Attack Service.
 
-Retrieved content influenced a request. The intentionally vulnerable authorization profile granted it.
+[Launch ATTACK (LIVE)]({ATTACK_URL})
 
-Then: mcp.started · mcp.completed · handler 1
+Copy the fresh run.id. Wait until evidence is searchable. Investigate in Splunk Search. Studio tokens are **not** that LIVE id.
 
-```text
-retrieve → OBSERVE → REQUEST → ALLOW → START → COMPLETE
-```
+Tables on this tab are **REPLAY** canonical evidence (`{ATTACK_ID}`), not the LIVE run.
 
-Validated: `{ATTACK_ID}`
+{DATA_NOT_AUTHORITY}
 """,
         title="STEP 2 ATTACK",
     )
@@ -586,35 +777,83 @@ Labels in text: CONTEXT · HUNT · DETECTION · LIVE · OBSERVE · ALLOW · DENY
     add_md(
         "viz_hunt_md",
         f"""
-# HUNT
+# HUNT — guided investigation
 
-**Question:** What document was retrieved, how was it classified, what follow-on request formed, and was that request authorized or executed?
+Two paths. Path A is the default. Path B is an answer key, not a replacement.
 
-**Primary hunt:** Q-RAG-CONTEXT-AUTHORITY. Reconstruct: document → request → authorization → execution.
+**Path A — Try it yourself:** question, starter guidance, [Open Splunk Search]({SEARCH_URL}). Construct the hunt.
 
-Reuse: Q-MCP-AUTHZ, Q-MCP-TOOL, Q-MCP-EXECUTED.
+**Path B — Show solution (optional):** copyable SPL from existing Q-RAG / Q-MCP hunts, bound REPLAY table, explanation, limitations. Open it only after Path A. It is an answer key, not policy.
 
-Do **not** hunt a regex for AGENT NOTE. Do **not** treat `vulnerable_profile_fail_open:retrieved_context_derived_authority` as a production IOC. That string is a lab overlay reason.
+Investigate specimen is canonical **REPLAY**. Fresh LIVE run.id comes from Attack Service Search handoff. Studio tokens are not auto-bound.
 
-No Q-RAG-INJECTION. No Q-RAG-MALICIOUS. No Q-RAG-POISONED. No DET-RAG.
+Do not search until Attack Service reports **EVIDENCE READY** (or you have measured searchable events). HEC success is not ready.
+
+Primary hunt: **Q-RAG-CONTEXT-AUTHORITY**. Reuse Q-MCP-AUTHZ / Q-MCP-EXECUTED. No Q-RAG-INJECTION. **No DET-RAG.**
+
+Do **not** hunt a regex for AGENT NOTE. Overlay reason is a lab artifact, not a production IOC.
+
+This tab is a **stacked notebook**: Path A, then optional hints, then Path B. Custom browser scripts are not used.
 
 {DATA_NOT_AUTHORITY}
-
-{EMPTY_HUNT}
 """,
         title="STEP 4 HUNT",
     )
-    add_table(
-        "viz_hunt_rag",
-        "ds_q_rag",
-        "Q-RAG-CONTEXT-AUTHORITY (primary RAG hunt)",
-        cap_rag,
-        no_data=EMPTY_RAG,
-    )
-    add_table("viz_hunt_authz", "ds_q_authz", "Q-MCP-AUTHZ", cap_authz, no_data=EMPTY_CONTROL)
-    add_table("viz_hunt_tool", "ds_q_tool", "Q-MCP-TOOL", cap_tool, no_data=EMPTY_TOOL)
-    add_table("viz_hunt_exec", "ds_q_executed", "Q-MCP-EXECUTED", cap_exec, no_data=EMPTY_TOOL)
-    add_table("viz_hunt_who", "ds_q_who", "Q-MCP-WHO", cap_who, no_data=EMPTY_CONTROL)
+
+    inv_doc = json.loads(INV_PATH.read_text(encoding="utf-8"))
+    hunt_investigations = [
+        row for row in inv_doc["investigations"] if row.get("studio_tab", "HUNT") == "HUNT"
+    ]
+    hunt_files = {
+        "Q-RAG-CONTEXT-AUTHORITY": "Q-RAG-CONTEXT-AUTHORITY.spl",
+        "Q-MCP-AUTHZ": "Q-MCP-AUTHZ.spl",
+        "Q-MCP-EXECUTED": "Q-MCP-EXECUTED.spl",
+        "Q-MCP-TOOL": "Q-MCP-TOOL.spl",
+        "Q-MCP-WHO": "Q-MCP-WHO.spl",
+    }
+    hunt_structure = [
+        block("viz_hunt_md", 0, 0, FULL, 400),
+    ]
+    q_h, h1_h, h2_h, sol_h, tbl_h = 300, 160, 160, 520, 300
+    y_cursor = 408
+    for index, inv in enumerate(hunt_investigations, start=1):
+        ident = inv["investigation_id"]
+        hunt_id = inv["related_hunt"]
+        spl_file = hunt_files[hunt_id]
+        q_id = f"viz_i{index}_q"
+        h1_id = f"viz_i{index}_h1"
+        h2_id = f"viz_i{index}_h2"
+        sol_id = f"viz_i{index}_sol"
+        add_md(q_id, question_md(inv, index, spl_file), title=f"I{index} question")
+        add_md(h1_id, hint_md(inv, index, "hint_1"), title=f"I{index} hint 1")
+        add_md(h2_id, hint_md(inv, index, "hint_2"), title=f"I{index} hint 2")
+        add_md(sol_id, solution_md(inv, index, spl_file), title=f"I{index} solution")
+        q_y = y_cursor
+        h1_y = q_y + q_h
+        h2_y = h1_y + h1_h
+        sol_y = h2_y + h2_h
+        tbl_y = sol_y + sol_h
+        hunt_structure.extend(
+            [
+                block(q_id, 0, q_y, FULL, q_h),
+                block(h1_id, 0, h1_y, FULL, h1_h),
+                block(h2_id, 0, h2_y, FULL, h2_h),
+                block(sol_id, 0, sol_y, FULL, sol_h),
+            ]
+        )
+        binds = TABLE_BIND[ident]
+        if len(binds) == 1:
+            ds, title, desc = binds[0]
+            tbl_id = f"viz_i{index}_tbl"
+            add_table(tbl_id, ds, title, desc, no_data=EMPTY_HUNT)
+            hunt_structure.append(block(tbl_id, 0, tbl_y, FULL, tbl_h))
+        else:
+            width = FULL // len(binds)
+            for col, (ds, title, desc) in enumerate(binds):
+                tbl_id = f"viz_i{index}_tbl_{col}"
+                add_table(tbl_id, ds, title, desc, no_data=EMPTY_HUNT)
+                hunt_structure.append(block(tbl_id, col * width, tbl_y, width, tbl_h))
+        y_cursor = tbl_y + tbl_h
 
     add_md(
         "viz_detect_md",
@@ -748,11 +987,13 @@ CTRL-RAG-CONTEXT-001 stays OBSERVE. Classification is not the grant. Splunk does
         """
 # What actually changed the RETEST
 
-Same MALICIOUS document. Same REQUEST. Different security profile.
+Same MALICIOUS document. Same REQUEST. Different **server-owned experiment/authorization configuration**.
+
+What does **not** change: malicious document, document hash, requested tool, requested scope, retriever provenance, Splunk search.
 
 Defended CTRL-MCP-001 DENY `tool_not_granted`. Runtime handler count 0.
 
-Do not claim a content filter or a scanner decided the grant. Do not treat Splunk as independent non-execution proof.
+Do not claim a content filter or a scanner decided the grant. Do not treat Splunk as independent non-execution proof. Do not teach "sanitize the document and the problem is solved."
 """,
         title="INV-002",
     )
@@ -762,7 +1003,9 @@ Do not claim a content filter or a scanner decided the grant. Do not treat Splun
         f"""
 # RETEST
 
-**LIVE** · profile defended · mode RETEST · handler **0**
+**LIVE RETEST** is launched from [Attack Service]({ATTACK_URL}). Same malicious bytes. Different ExperimentContext (defended). Fresh run.id.
+
+Tables on this tab are **REPLAY** `{RETEST_ID}`, not your LIVE id.
 
 SAME document.id `{MALICIOUS_DOC}`
 
@@ -776,19 +1019,15 @@ SAME requested scope `customer:read`
 
 Then: CTRL-MCP-001 **DENY** `tool_not_granted`
 
-no mcp.started on COMPLETE Splunk copy
-
 handler count = **authoritative**
 
 missing indexed start = **corroboration**
 
-Do not treat Splunk as independent non-execution proof.
+Do not claim RETEST makes RAG universally safe. Do not treat Splunk as independent non-execution proof.
 
 ```text
 retrieve → OBSERVE → REQUEST → DENY → no START
 ```
-
-Validated: `{RETEST_ID}`
 """,
         title="STEP 7 RETEST",
     )
@@ -826,11 +1065,9 @@ Validated: `{RETEST_ID}`
         f"""
 # COMPARE
 
-Primary visual proof of the lab.
+**SAME RETRIEVED CONTENT. SAME REQUEST. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION.**
 
-**SAME RETRIEVED CONTENT. SAME REQUEST. DIFFERENT AUTHORIZATION OUTCOME.**
-
-ATTACK and RETEST share:
+ATTACK and RETEST share (document fingerprint, not hop-1 request hash):
 
 - document.id `{MALICIOUS_DOC}`
 - content.hash `{MALICIOUS_HASH}`
@@ -838,11 +1075,11 @@ ATTACK and RETEST share:
 - follow-on tool `lookup_customer_tier`
 - requested scope `customer:read`
 
-ATTACK: ALLOW + execution (handler 1)
+**DIFFERENT:** experiment/profile · CTRL-MCP-001 decision · execution · handler count · run.id
 
-RETEST: DENY + handler 0
+Cards below are **REPLAY** specimens. Compare your LIVE ATTACK vs LIVE RETEST in Splunk Search.
 
-Malicious-looking content is not authorization bypass. Authorization bypass is not automatically successful execution.
+Malicious-looking content is not authorization bypass. Authorization bypass is not automatically successful execution. One RETEST is not universal resistance.
 """,
         title="BEFORE / AFTER",
     )
@@ -851,7 +1088,7 @@ Malicious-looking content is not authorization bypass. Authorization bypass is n
         f"""
 # BASELINE
 
-**Profile:** defended · **Mode:** BASELINE · **LIVE**
+**Profile:** defended · **Mode:** BASELINE · **REPLAY specimen**
 
 - Document: `{NORMAL_DOC}`
 - Fingerprint (full):
@@ -876,7 +1113,7 @@ Validated: `{BASELINE_ID}`
         f"""
 # ATTACK
 
-**INTENTIONALLY VULNERABLE LAB PROFILE** · **LIVE**
+**INTENTIONALLY VULNERABLE LAB PROFILE** · **REPLAY specimen**
 
 - Document: `{MALICIOUS_DOC}`
 - Fingerprint (full):
@@ -900,7 +1137,7 @@ Validated: `{ATTACK_ID}`
         f"""
 # RETEST
 
-**Profile:** defended · **Mode:** RETEST · **LIVE**
+**Profile:** defended · **Mode:** RETEST · **REPLAY specimen**
 
 - Document: `{MALICIOUS_DOC}`
 - Fingerprint (full):
@@ -959,9 +1196,46 @@ RUNTIME  →  LOCAL EVIDENCE  →  OTLP  →  SPLUNK  →  HUNT  →  SECURITY E
 5. **SEARCH.** Q-RAG-CONTEXT-AUTHORITY. Zero rows follow no-data semantics.
 6. **DETECTION.** DET-MCP-001: 0/0/0. Silent is correct. Not SAFE. **NO NEW RAG DETECTOR.**
 
-LIVE A/B/C are OBSERVED/MEASURED. DETECT SIMULATED table is **SIMULATED**.
+LIVE A/B/C **packs** are historical OBSERVED/MEASURED **REPLAY**. Your Attack Service launches are **LIVE** with new run.ids. DETECT SIMULATED table is **SIMULATED**.
 
-Knowledge check (answers in knowledge-check.md):
+**YOU JUST LEARNED** — retrieved content is data. CTRL-RAG-CONTEXT-001 OBSERVE is not a grant. CTRL-MCP-001 is the tool PDP.
+
+**THIS CONNECTS TO** — persistent memory, which can store those same untrusted bytes for a later run.
+
+**NEXT** — Persistent Memory (LIVE).
+
+**WHAT WE CAN PROVE**
+
+- Retrieved content was classified untrusted_data (CONTEXT-001 OBSERVE).
+- Retrieved content influenced a privileged REQUEST on ATTACK/RETEST.
+- CTRL-MCP-001 allowed the ATTACK follow-on on the labeled vulnerable experiment.
+- RETEST handler count 0 for lookup_customer_tier (runtime authoritative).
+- ATTACK and RETEST share document.id and content.hash.
+
+**WHAT WE CAN CORROBORATE**
+
+- Splunk copy of those fields when dc(_raw) matches local count.
+- Absence of mcp.started on a complete RETEST copy.
+
+**WHAT WE CANNOT PROVE**
+
+- Universal RAG resistance.
+- That sanitizing documents would have been the control.
+- Prevention from an empty search alone.
+
+**INCORRECT CLAIMS**
+
+- Treating the SIEM copy as the enforcement point that stopped the tool.
+- Calling the document SAFE or TRUSTED from one RETEST.
+- Equating `untrusted_data` with malice.
+- Treating a known catalog hash as proof of compromise.
+- Treating missing `mcp.started` as independent prevention.
+- Treating DET-MCP-001 zero rows as SAFE.
+- Claiming retrieved content granted the tool.
+
+Authoritative: runtime decision + handler count. Corroborative: Splunk. Splunk is not enforcement.
+
+Knowledge check (answer from evidence on this tab):
 
 1. What document was retrieved?
 2. What was its provenance?
@@ -990,7 +1264,7 @@ NORMAL fingerprint `{NORMAL_HASH}`
 
 MALICIOUS fingerprint `{MALICIOUS_HASH}` (ATTACK and RETEST share this hash)
 
-No DET-RAG. Schema 1.6.0. Phase 11 not started. No embeddings. No A2A. No rug-pull.
+No DET-RAG. Schema 1.9.0 emitters. No embeddings. No A2A transport. No rug-pull. Memory is a later lab, not this workshop.
 """,
         title="PROVE",
     )
@@ -1066,12 +1340,12 @@ No DET-RAG. Schema 1.6.0. Phase 11 not started. No embeddings. No A2A. No rug-pu
             "layoutDefinitions": {
                 "layout_learn": layout(
                     [
-                        block("viz_learn", 0, 0, FULL, 520),
-                        block("viz_learn_flow", 0, 520, THIRD, 500),
-                        block("viz_learn_planes", THIRD, 520, THIRD, 500),
-                        block("viz_learn_ladder", THIRD * 2, 520, THIRD, 500),
+                        block("viz_learn", 0, 0, FULL, 720),
+                        block("viz_learn_flow", 0, 720, THIRD, 500),
+                        block("viz_learn_planes", THIRD, 720, THIRD, 500),
+                        block("viz_learn_ladder", THIRD * 2, 720, THIRD, 500),
                     ],
-                    1040,
+                    1240,
                 ),
                 "layout_baseline": layout(
                     [
@@ -1084,13 +1358,13 @@ No DET-RAG. Schema 1.6.0. Phase 11 not started. No embeddings. No A2A. No rug-pu
                 ),
                 "layout_attack": layout(
                     [
-                        block("viz_attack_md", 0, 0, FULL, 460),
-                        block("viz_attack_rag", 0, 460, FULL, 280),
-                        block("viz_attack_authz", 0, 740, HALF, 260),
-                        block("viz_attack_tool", HALF, 740, HALF, 260),
-                        block("viz_attack_exec", 0, 1000, FULL, 260),
+                        block("viz_attack_md", 0, 0, FULL, 640),
+                        block("viz_attack_rag", 0, 640, FULL, 280),
+                        block("viz_attack_authz", 0, 920, HALF, 260),
+                        block("viz_attack_tool", HALF, 920, HALF, 260),
+                        block("viz_attack_exec", 0, 1180, FULL, 260),
                     ],
-                    1280,
+                    1460,
                 ),
                 "layout_observe": layout(
                     [
@@ -1103,17 +1377,7 @@ No DET-RAG. Schema 1.6.0. Phase 11 not started. No embeddings. No A2A. No rug-pu
                     ],
                     1140,
                 ),
-                "layout_hunt": layout(
-                    [
-                        block("viz_hunt_md", 0, 0, FULL, 340),
-                        block("viz_hunt_rag", 0, 340, FULL, 280),
-                        block("viz_hunt_authz", 0, 620, HALF, 240),
-                        block("viz_hunt_tool", HALF, 620, HALF, 240),
-                        block("viz_hunt_exec", 0, 860, HALF, 240),
-                        block("viz_hunt_who", HALF, 860, HALF, 240),
-                    ],
-                    1120,
-                ),
+                "layout_hunt": layout(hunt_structure, y_cursor + 40, display="fit-to-width"),
                 "layout_detect": layout(
                     [
                         block("viz_detect_md", 0, 0, HALF, 380),
@@ -1129,38 +1393,38 @@ No DET-RAG. Schema 1.6.0. Phase 11 not started. No embeddings. No A2A. No rug-pu
                 "layout_defend": layout(
                     [
                         block("viz_defend", 0, 0, FULL, 480),
-                        block("viz_defend_evidence", 0, 480, FULL, 240),
+                        block("viz_defend_evidence", 0, 480, FULL, 320),
                     ],
-                    740,
+                    820,
                 ),
                 "layout_retest": layout(
                     [
-                        block("viz_retest_md", 0, 0, FULL, 460),
-                        block("viz_retest_rag", 0, 460, FULL, 280),
-                        block("viz_retest_authz", 0, 740, HALF, 260),
-                        block("viz_retest_tool", HALF, 740, HALF, 260),
-                        block("viz_retest_exec", 0, 1000, FULL, 260),
+                        block("viz_retest_md", 0, 0, FULL, 560),
+                        block("viz_retest_rag", 0, 560, FULL, 280),
+                        block("viz_retest_authz", 0, 840, HALF, 260),
+                        block("viz_retest_tool", HALF, 840, HALF, 260),
+                        block("viz_retest_exec", 0, 1100, FULL, 260),
                     ],
-                    1280,
+                    1380,
                 ),
                 "layout_compare": layout(
                     [
-                        block("viz_compare_md", 0, 0, FULL, 320),
-                        block("viz_cmp_card_base", 0, 320, THIRD, 540),
-                        block("viz_cmp_card_atk", THIRD, 320, THIRD, 540),
-                        block("viz_cmp_card_rt", THIRD * 2, 320, THIRD, 540),
-                        block("viz_cmp_base", 0, 860, THIRD, 280),
-                        block("viz_cmp_atk", THIRD, 860, THIRD, 280),
-                        block("viz_cmp_rt", THIRD * 2, 860, THIRD, 280),
+                        block("viz_compare_md", 0, 0, FULL, 400),
+                        block("viz_cmp_card_base", 0, 400, THIRD, 540),
+                        block("viz_cmp_card_atk", THIRD, 400, THIRD, 540),
+                        block("viz_cmp_card_rt", THIRD * 2, 400, THIRD, 540),
+                        block("viz_cmp_base", 0, 960, THIRD, 280),
+                        block("viz_cmp_atk", THIRD, 960, THIRD, 280),
+                        block("viz_cmp_rt", THIRD * 2, 960, THIRD, 280),
                     ],
-                    1160,
+                    1260,
                 ),
                 "layout_prove": layout(
                     [
-                        block("viz_prove", 0, 0, FULL, 760),
-                        block("viz_prove_rag", 0, 760, FULL, 280),
+                        block("viz_prove", 0, 0, FULL, 1200),
+                        block("viz_prove_rag", 0, 1200, FULL, 280),
                     ],
-                    1060,
+                    1500,
                 ),
             },
         },

@@ -320,11 +320,11 @@ def build() -> dict:
 
 Investigate whether data returned by an authorized tool can change later authority.
 
-**LIVE EVIDENCE** · `LAB-MCP-005` · Schema 1.3.0 · CTRL-MCP-RESULT-001
+**REPLAY SPECIMEN** · historical evidence · Schema 1.3.0 · CTRL-MCP-RESULT-001
 
 **The tool was authorized and executed correctly.** Can data returned by that tool change what the agent is authorized to do next? **Defended answer: NO.** Results may influence reasoning. Results do not create authority.
 
-**LIVE evidence identity**
+**Canonical specimens (historical)**
 
 - BASELINE `{BASELINE_ID}`
 - ATTACK `{ATTACK_ID}`
@@ -518,6 +518,19 @@ Minimum fields: run_id, sequence, event.name, hop, control_id, tool, decision, r
         "viz_hunt_md",
         f"""
 # HUNT
+
+**REPLAY workshop.** There is no Attack Service launcher here. This is historical evidence, not a launch you just minted.
+
+**WHY search this?** Reconstruct a canonical experiment in Search. Practice Path A without minting a new run.id.
+
+**Path A — try it yourself:** [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search). Copy a canonical Investigate specimen run.id. Start with `index=agentsec_telemetry sourcetype=otel:agentic:json` and quoted `agentsec.run.id`. Construct the hunt before you treat the tables as the answer. If zero rows, this volume may not contain that specimen. Empty is not DENY.
+
+**Path B — show solution:** the bound tables on this tab are the expected shape for that specimen. Read them after Path A. They are not policy and not LIVE launch evidence.
+
+**YOU SHOULD SEE** control.id, decision, reason, and whether execution events exist.
+**THAT MEANS** this is the expected shape of a historical copy.
+**IT DOES NOT MEAN** Splunk enforced the decision.
+**NEXT** COMPARE ATTACK vs RETEST on the same fields, then PROVE.
 
 **Question:** Did result-derived data influence authorization, and what follow-on decision and execution were indexed?
 
@@ -814,7 +827,7 @@ No `gen_ai.tool.call.id`. This lab uses two **different** tool names plus `run.i
 - Q-MCP-RESULT-FOLLOWON rejected / not published
 - no DET-MCP-005
 
-Knowledge check: learning/level_1/LAB-MCP-005/knowledge-check.md
+Knowledge check: answer from evidence on this tab.
 
 Validated: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST `{RETEST_ID}`.
 """,

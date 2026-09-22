@@ -23,6 +23,8 @@ LEARNER_VIEWS = (
     "ws_lab_rag_context.xml",
     "ws_lab_memory_security.xml",
     "ws_lab_agent_goal_integrity.xml",
+    "ws_lab_agent_delegation.xml",
+    "ws_lab_agentsec_capstone.xml",
 )
 
 
@@ -37,17 +39,27 @@ def test_nav_is_grouped_and_home_is_default():
     nav = NAV.read_text(encoding="utf-8")
     assert 'name="ws_agentsec_home" default="true"' in nav
     for label in (
-        "Attack Labs",
+        "Foundations",
         "Context Security",
-        "Agent Authority",
-        "Supply Chain",
+        "Agent Intent",
+        "Capstone",
     ):
         assert f'<collection label="{label}">' in nav
+    assert "Attack Labs" not in nav
+    assert "Agent Authority" not in nav
+    assert "Supply Chain" not in nav
+    assert nav.index("Foundations") < nav.index("Context Security") < nav.index(
+        "Agent Intent"
+    ) < nav.index("Capstone")
+    assert nav.index("ws_lab_agent_goal_integrity") < nav.index("ws_lab_agentsec_capstone")
+    assert nav.index("ws_lab_agent_delegation") < nav.index("ws_lab_agentsec_capstone")
     assert "<collection label=" in nav
     assert not re.search(r"<view name=\"ws_lab_[^\"]+\" default=", nav)
     # LAB-* ids must not be the visible nav labels; they live in XML descriptions.
     assert "LAB-AGENT-GOAL-INTEGRITY-001" not in nav
     assert "ws_lab_agent_goal_integrity" in nav
+    assert "ws_lab_agent_delegation" in nav
+    assert "LAB-AGENT-DELEGATION-001" not in nav
     assert "<view name=\"search\"" in nav
     assert ">Scope Escalation</view>" in nav
     assert ">Goal / Instruction Integrity</view>" in nav
@@ -90,12 +102,15 @@ def test_xml_labels_are_human_readable():
         "ws_lab_rag_context.xml": "RAG / Retrieved Context",
         "ws_lab_memory_security.xml": "Persistent Memory",
         "ws_lab_agent_goal_integrity.xml": "Goal / Instruction Integrity",
+        "ws_lab_agent_delegation.xml": "Agent Identity / Delegation",
+        "ws_lab_agentsec_capstone.xml": "Lending Assistant Investigation",
         "ws_agentsec_home.xml": "Home",
+        "ws_agentsec_mastery.xml": "Mastery Check",
     }
     for name, label in expected.items():
         xml = (VIEWS / name).read_text(encoding="utf-8")
         assert f"<label>{label}</label>" in xml, name
-        if name != "ws_agentsec_home.xml":
+        if name not in {"ws_agentsec_home.xml", "ws_agentsec_mastery.xml"}:
             assert "LAB-" in xml, name
 
 
@@ -105,7 +120,7 @@ def test_schema_unchanged():
 
 
 def test_no_gfm_tables_in_studio_markdown():
-    for name in LEARNER_VIEWS + ("ws_agentsec_home.xml",):
+    for name in LEARNER_VIEWS + ("ws_agentsec_home.xml", "ws_agentsec_mastery.xml"):
         definition = _definition(name)
         for viz_id, viz in definition["visualizations"].items():
             if viz.get("type") != "splunk.markdown":

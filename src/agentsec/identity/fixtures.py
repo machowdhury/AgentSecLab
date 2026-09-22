@@ -27,6 +27,8 @@ IDENTITY_ATTACK_ID = "A2A-001"
 IDENTITY_WORKFLOW_ENTRY = "/identity/delegate"
 IDENTITY_WORKFLOW_NAME = "identity_delegation_lab"
 IDENTITY_LAB_ID = "LAB-AGENT-DELEGATION-001"
+CLAIM_ID_NORMAL = "identity.claim.normal"
+CLAIM_ID_MALICIOUS = "identity.claim.malicious"
 
 CLAIM_TRUST = "untrusted_claim"
 CLAIM_IS_NOT_GRANT_REASON = "identity_claim_is_not_grant"
@@ -119,3 +121,11 @@ def adversarial_a2a_payload() -> dict[str, object]:
             "claimed_resource": CLOSED_PRIVILEGED_RESOURCE,
         },
     }
+
+
+def claim_payload_for(claim_id: str) -> dict[str, object] | None:
+    if claim_id == CLAIM_ID_NORMAL:
+        return baseline_a2a_payload()
+    if claim_id == CLAIM_ID_MALICIOUS:
+        return adversarial_a2a_payload()
+    return None

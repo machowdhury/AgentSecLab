@@ -1,0 +1,455 @@
+{
+  "title": "Mastery Check",
+  "description": "Learner mastery challenges. Not authorization. Splunk does not grant or deny.",
+  "defaults": {
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "large"
+        }
+      }
+    }
+  },
+  "visualizations": {
+    "viz_intro": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Mastery Check\n\nThis is a **self-assessed reasoning gate**, not a certificate and not a score.\n\nIt answers: can you show, with evidence, that you understand agentic security — not that you can click the next tab.\n\nThere is no percentage. Prefer **NOT ATTEMPTED**, **IN PROGRESS**, **DEMONSTRATED**, or **NEEDS REVIEW**. Nothing is stored. Do not send identity, email, or free-text answers to AgentSec.\n\nAn instructor can say: Complete Same request, different defense without opening Path B.\n\nA self-study learner may still use Hint 1, Hint 2, and Path B.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "WHAT THIS IS"
+    },
+    "viz_how": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# How to work a challenge\n\n1. Read the **security question**.\n2. Stay on **Path A**. Open [Splunk Search](http://127.0.0.1:8000/en-US/app/search/search).\n3. Start with `index=agentsec_telemetry sourcetype=otel:agentic:json` and a quoted `agentsec.run.id` when a specimen is given.\n4. Use Hint 1, then Hint 2, only if you are stuck.\n5. Open Path B after you have a draft answer. Studio 10.2 cannot hide Path B. That is a product limit, not a security gate.\n6. Classify claims: SUPPORTED, CORROBORATED, NOT PROVEN, INCORRECT.\n7. Take the next challenge. Skip FOUNDATIONAL if you already know the vocabulary — go to PRACTITIONER.\n\n**LIVE** means you mint a fresh run.id in [Attack Service](http://127.0.0.1:5001/). **REPLAY** means a canonical specimen already in the index. Never present REPLAY as a launch you just minted.\n\nIf you have not taken the labs yet, start at [Home](http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home) then [Direct Prompt Injection](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_pi_001).\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "PATH A FIRST"
+    },
+    "viz_levels": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Competency labels (internal)\n\n**FOUNDATIONAL** — architecture: who enforces, who observes, how to rewrite indefensible sentences.\n\n**PRACTITIONER** — find a run, reconstruct sequence, name the PDP, separate decision from execution.\n\n**INVESTIGATOR** — compare ATTACK and RETEST. Same request. Different defense. Evidence required.\n\n**ADVANCED** — ALLOW is not the goal. OBSERVE is not authentication. Missing mcp.started is not prevention. Do not collapse every lab into prompt injection.\n\n**PURPLE TEAM** — capstone readout. Prefer a fresh LIVE pair. Official historical ids are REPLAY fallback.\n\nSplunk skills S1–S8 are mapped onto these challenges. They are not extra labs.\n\nThis is **not** industry certification.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "LEVELS"
+    },
+    "viz_MA-F1-WHO-ENFORCES": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Who enforces, who observes?\n\n**FOUNDATIONAL** · evidence **NONE**\n\n**Security question:** Which component can ALLOW or DENY, and which component only copies telemetry?\n\nIn your own words: what is an agent, a tool, MCP in this lab, a trust boundary, and a PDP? Then answer who enforces versus who observes.\n\n**Run ids**\n\nNo run.id. This is a reasoning challenge, not a launch.\n\n**Path A — try it yourself**\n\nOpen Home ORIENT if the words are new. Do not launch anything yet.\n\nYou do not need Splunk Search for this challenge. Answer from reasoning.\n\n**Hint 1**\n\nStudio is the syllabus. Attack Service is a closed launcher. AcmeBank is the runtime. Splunk Search is the notebook.\n\n**Hint 2**\n\nA PDP is the control that authorizes or denies the dangerous operation. Some controls only OBSERVE. Splunk is never the PDP here.\n\n**Path B — show solution**\n\nStudio cannot hide this. Attempt Path A first. Path B is optional.\n\nAcmeBank coded controls enforce. Splunk indexes a copy. An agent is an LLM plus tools, memory, and a task. MCP here is the in-process tool interface. RAG and memory are data planes. run.id correlates one experiment.\n\n**What this supports**\n\n- Splunk does not ALLOW or DENY AgentSec requests.\n\n**What this corroborates**\n\n- (none for this challenge)\n\n**What is not proven**\n\n- That a learner who can define MCP could operate a production MCP mesh.\n\n**Incorrect claims (do not write these)**\n\n- Splunk is the policy decision point.\n- Opening Home START means the control ALLOWED.\n\n**Attacker controlled:** Nothing yet. This challenge has no launch.\n\n**Server owned:** Profile, grants, tools, policy.\n\n**Observability only:** Splunk.\n\n**Next challenge:** Rewrite the indefensible sentence.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "Who enforces, who observes?"
+    },
+    "viz_MA-F2-REWRITE-CLAIMS": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Rewrite the indefensible sentence\n\n**FOUNDATIONAL** · evidence **NONE** · Splunk skill S8\n\n**Security question:** Which of these claims are INCORRECT, and how would you rewrite them?\n\nRewrite each sentence so a SOC peer could defend it: (1) Splunk blocked the attack. (2) The RAG document was trusted. (3) The agent was authenticated. (4) No mcp.started means it did not execute. (5) MCP ALLOW means the goal was approved. (6) The RETEST proves prompt injection is solved.\n\n**Run ids**\n\nNo run.id. This is a reasoning challenge, not a launch.\n\n**Path A — try it yourself**\n\nUse SUPPORTED / CORROBORATED / NOT PROVEN / INCORRECT. Home CHECK has similar claims.\n\nYou do not need Splunk Search for this challenge. Answer from reasoning.\n\n**Hint 1**\n\nDATA != AUTHORITY. IDENTITY CLAIM != AUTHENTICATION. ALLOW != EXECUTION. MISSING EVENT != PREVENTION. RETEST SUCCESS != UNIVERSAL SECURITY.\n\n**Hint 2**\n\nProvenance is not trust. OBSERVE is not ALLOW. HEC 200 is not searchable evidence.\n\n**Path B — show solution**\n\nStudio cannot hide this. Attempt Path A first. Path B is optional.\n\nEach original sentence is INCORRECT. Splunk observed. Provenance != trust. Caller id is a claim. Missing indexed start is corroborative only. Tool grant != authorized goal. One RETEST is one configuration.\n\n**What this supports**\n\n- (none for this challenge)\n\n**What this corroborates**\n\n- (none for this challenge)\n\n**What is not proven**\n\n- Authentication of any agent (not modeled).\n\n**Incorrect claims (do not write these)**\n\n- Splunk blocked the attack.\n- The RAG document was trusted.\n- The agent was authenticated.\n- No mcp.started proves non-execution by itself.\n- MCP ALLOW approved the goal.\n- One RETEST solves prompt injection.\n\n**Attacker controlled:** Nothing in this challenge.\n\n**Server owned:** Policy and grants (unchanged by this exercise).\n\n**Observability only:** Splunk.\n\n**Next challenge:** Find this run without being told the mode.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "Rewrite the indefensible sentence"
+    },
+    "viz_MA-P1-FIND-THE-RUN": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Find this run without being told the mode\n\n**PRACTITIONER** · evidence **REPLAY** · Splunk skill S1\n\n**Security question:** What evidence did this experiment generate, and what kind of experiment was it?\n\nDo not assume BASELINE, ATTACK, or RETEST from the title. Open Search. Find this run.id. Reconstruct sequence. Read testbed.mode and profile from the events. Then say what the evidence is.\n\n**Run ids**\n\n- **specimen:** `f39fed12-de89-45ba-b684-5b6077942580`\n\n**Path A — try it yourself**\n\nindex=agentsec_telemetry sourcetype=otel:agentic:json. Filter a quoted agentsec.run.id. Do not search index=*. This UUID is a canonical REPLAY specimen, not a launch you just minted.\n\n[Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n\n**Hint 1**\n\nSort by agentsec.sequence, not as if _time were authority. Read event.name.\n\n**Hint 2**\n\nLook at agentsec.testbed.mode and agentsec.security.profile on the same events. Mode is a label. Profile is server-owned.\n\n**Path B — show solution**\n\nStudio cannot hide this. Attempt Path A first. Path B is optional.\n\nCopyable existing Q-* hunt. It is an answer key, not policy.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"f39fed12-de89-45ba-b684-5b6077942580\"\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval incident_id=mvindex(mvdedup('agentsec.incident.id'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval schema_version=mvindex(mvdedup('agentsec.schema.version'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval testbed_mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval execution_mode=mvindex(mvdedup('agentsec.execution.mode'),0)\n| eval fidelity=mvindex(mvdedup('agentsec.telemetry.fidelity'),0)\n| eval hop_index=mvindex(mvdedup('agentsec.hop.index'),0)\n| eval agent_id=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval pipeline_outcome=mvindex(mvdedup('agentsec.outcome'),0)\n| eval ts=mvindex(mvdedup('timestamp'),0)\n| eval tid=mvindex(mvdedup('trace_id'),0)\n| eval sid=mvindex(mvdedup('span_id'),0)\n| eval psid=mvindex(mvdedup('parent_span_id'),0)\n| table sequence, ts, event_name, run_id, incident_id, schema_version, profile, testbed_mode, execution_mode, fidelity, hop_index, agent_id, pipeline_outcome, tid, sid, psid\n| sort sequence\n```\n\n**What this supports**\n\n- This specimen is labeled ATTACK on the indexed events when those fields are present.\n\n**What this corroborates**\n\n- Event count on a complete copy matches the local pack for this historical run.\n\n**What is not proven**\n\n- That you minted this UUID today.\n- That the model approved a loan.\n\n**Incorrect claims (do not write these)**\n\n- This UUID is your fresh LIVE launch.\n- Finding rows means Splunk authorized the loan.\n\n**Attacker controlled:** The loan input string (catalog ATK-002 bytes).\n\n**Server owned:** Profile, CTRL-INPUT-001 rules, grants.\n\n**Observability only:** Splunk copy of this historical run.\n\n**Next challenge:** Decision versus execution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "Find this run without being told the mode"
+    },
+    "viz_MA-P2-CONTROL-AND-EXECUTION": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Decision versus execution\n\n**PRACTITIONER** · evidence **REPLAY** · Splunk skill S5\n\n**Security question:** Which control decided, what did it decide, and did the protected operation execute?\n\nOn the same REPLAY run.id: identify the trust boundary, the control id, the decision and reason, whether llm.started exists, and what that does and does not mean. Name the PDP.\n\n**Run ids**\n\n- **specimen:** `f39fed12-de89-45ba-b684-5b6077942580`\n\n**Path A — try it yourself**\n\nSame index/sourcetype/quoted run.id. Filter event.name=agentsec.control.decision, then separately look at llm.started / llm.completed.\n\n[Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n\n**Hint 1**\n\nReuse Q-CONTROL-DECISION and Q-LLM-EXECUTED. Do not invent field names.\n\n**Hint 2**\n\nALLOW is not execution. On this vulnerable ATTACK copy, hop 0 is fail-open ALLOW and llm.* should appear on a complete copy. Runtime LLM invoke count is authoritative.\n\n**Path B — show solution**\n\nStudio cannot hide this. Attempt Path A first. Path B is optional.\n\nCopyable existing Q-* hunt. It is an answer key, not policy.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"f39fed12-de89-45ba-b684-5b6077942580\" \"event.name\"=agentsec.control.decision\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval hop_index=mvindex(mvdedup('agentsec.hop.index'),0)\n| eval agent_id=mvindex(mvdedup('gen_ai.agent.id'),0)\n| eval agent_name=mvindex(mvdedup('gen_ai.agent.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval control_type=mvindex(mvdedup('agentsec.control.type'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval invariants=mvjoin(mvdedup('agentsec.invariant.id{}'), \",\")\n| table sequence, hop_index, agent_id, agent_name, control_id, control_type, decision, reason, profile, attempted, executed, outcome, invariants\n| sort sequence\n```\n\n**What this supports**\n\n- CTRL-INPUT-001 evaluated hop 0 on this specimen.\n\n**What this corroborates**\n\n- Indexed llm.started corroborates execution on a complete copy.\n\n**What is not proven**\n\n- That the model approved the loan.\n- Completeness without local vs dc(_raw).\n\n**Incorrect claims (do not write these)**\n\n- Splunk ALLOWED the generate.\n- ALLOW proves four models ran.\n\n**Attacker controlled:** Loan input string.\n\n**Server owned:** CTRL-INPUT-001, profile=vulnerable on this specimen.\n\n**Observability only:** Splunk.\n\n**Next challenge:** Same request, different defense.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "Decision versus execution"
+    },
+    "viz_MA-I1-ATTACK-RETEST": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Same request, different defense\n\n**INVESTIGATOR** · evidence **REPLAY** · Splunk skill S7\n\n**Security question:** SAME what? DIFFERENT what? Why did the security outcome change?\n\nCompare these two REPLAY run.ids in Search. Identify requested tool, CTRL-MCP-001 decision/reason, and whether execution began. State what remained identical and what changed. Do not call this universal MCP security.\n\n**Run ids**\n\n- **ATTACK:** `5e8f55f3-eb46-47ee-b979-b72d9c9b1f49`\n- **RETEST:** `7a1d37b5-d589-4dfd-8322-25ebd0152dbc`\n\n**Path A — try it yourself**\n\nTwo quoted run.ids. Index agentsec_telemetry sourcetype otel:agentic:json. Q-MCP-AUTHZ then Q-MCP-EXECUTED. These are canonical REPLAY specimens.\n\n[Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n\n**Hint 1**\n\nRequested tool should be lookup_customer_tier on both. That tool is not in coded allowed_tools.\n\n**Hint 2**\n\nATTACK is labeled fail-open ALLOW then handler 1. RETEST is DENY tool_not_granted, handler 0. Same ungranted request. Different server-owned profile/ExperimentContext.\n\n**Path B — show solution**\n\nStudio cannot hide this. Attempt Path A first. Path B is optional.\n\nCopyable existing Q-* hunt. It is an answer key, not policy.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"5e8f55f3-eb46-47ee-b979-b72d9c9b1f49\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome\n```\n\n**What this supports**\n\n- CTRL-MCP-001 is the tool PDP on both specimens.\n\n**What this corroborates**\n\n- Indexed mcp.started on ATTACK / absence on RETEST on complete copies.\n\n**What is not proven**\n\n- Resistance to every tool name.\n- Prevention from empty Splunk alone.\n\n**Incorrect claims (do not write these)**\n\n- Splunk blocked RETEST.\n- ALLOW means the handler ran.\n- Missing mcp.started independently proves prevention.\n\n**Attacker controlled:** The closed ungranted tool request bytes.\n\n**Server owned:** coded_policy allowed_tools, ExperimentContext profile.\n\n**Observability only:** Splunk.\n\n**Next challenge:** MCP ALLOW, but was the goal authorized?.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "Same request, different defense"
+    },
+    "viz_MA-A1-ALLOW-IS-NOT-GOAL": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# MCP ALLOW, but was the goal authorized?\n\n**ADVANCED** · evidence **REPLAY** · Splunk skill S4\n\n**Security question:** CTRL-MCP-001 ALLOW on ATTACK and RETEST. Did that authorize the expanded goal?\n\nOpen Search on both REPLAY ids. Separate CTRL-GOAL-INTEGRITY-001 from CTRL-MCP-001. What was the authoritative task? What did the instruction propose? What executed? RETEST is not an MCP DENY lesson.\n\n**Run ids**\n\n- **ATTACK:** `fd994587-7e1c-4a70-8013-54cb2c85254d`\n- **RETEST:** `605ba7c1-449b-4338-92df-7da3b704b08e`\n\n**Path A — try it yourself**\n\nQ-GOAL-INTEGRITY-AUTHORITY and Q-MCP-AUTHZ. Evidence mode REPLAY.\n\n[Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n\n**Hint 1**\n\nTask summarize_lending_policy_options is server-owned. ATTACK/RETEST proposed extract_full_policy. lookup_policy stays granted.\n\n**Hint 2**\n\nATTACK: GOAL OBSERVE overlay, wrong-goal handler 1. RETEST: GOAL DENY unauthorized_task_expansion, wrong-goal handler 0, in-task handler 1. AUTHORIZED TOOL != AUTHORIZED GOAL.\n\n**Path B — show solution**\n\nStudio cannot hide this. Attempt Path A first. Path B is optional.\n\nCopyable existing Q-* hunt. It is an answer key, not policy.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"fd994587-7e1c-4a70-8013-54cb2c85254d\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval hop=mvindex(mvdedup('agentsec.hop.index'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval task_id=mvindex(mvdedup('agentsec.task.id'),0)\n| eval task_hash=mvindex(mvdedup('agentsec.task.hash'),0)\n| eval task_provenance=mvindex(mvdedup('agentsec.task.provenance'),0)\n| eval instruction_trust=mvindex(mvdedup('agentsec.instruction.trust'),0)\n| eval goal_proposed=mvindex(mvdedup('agentsec.goal.proposed'),0)\n| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)\n| eval content_preview=mvindex(mvdedup('agentsec.content.preview'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval resource_id=mvindex(mvdedup('agentsec.mcp.resource.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval goal_task_id=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_id,null())\n| eval goal_task_hash=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_hash,null())\n| eval goal_task_provenance=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_provenance,null())\n| eval goal_instruction_trust=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",instruction_trust,null())\n| eval goal_proposed_action=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",goal_proposed,null())\n| eval goal_integrity_decision=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",decision,null())\n| eval goal_integrity_reason=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",reason,null())\n| eval goal_snapshot_hash=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",content_hash,null())\n| eval goal_content_preview=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",content_preview,null())\n| eval mcp_tool=if(control_id=\"CTRL-MCP-001\",tool,null())\n| eval mcp_decision=if(control_id=\"CTRL-MCP-001\",decision,null())\n| eval mcp_reason=if(control_id=\"CTRL-MCP-001\",reason,null())\n| eval mcp_requested_scope=if(control_id=\"CTRL-MCP-001\",requested_scope,null())\n| eval mcp_coded_allowed_scope=if(control_id=\"CTRL-MCP-001\",allowed_scope,null())\n| eval mcp_resource_id=if(control_id=\"CTRL-MCP-001\",resource_id,null())\n| eval mcp_content_preview=if(control_id=\"CTRL-MCP-001\",content_preview,null())\n| eval mcp_started=if(event_name=\"agentsec.mcp.started\" AND hop=\"1\",1,0)\n| eval mcp_completed=if(event_name=\"agentsec.mcp.completed\" AND hop=\"1\",1,0)\n| eval mcp_failed=if(event_name=\"agentsec.mcp.failed\" AND hop=\"1\",1,0)\n| eventstats values(goal_task_id) as goal_task_id, values(goal_task_hash) as goal_task_hash, values(goal_task_provenance) as goal_task_provenance, values(goal_instruction_trust) as goal_instruction_trust, values(goal_proposed_action) as goal_proposed_action, values(goal_integrity_decision) as goal_integrity_decision, values(goal_integrity_reason) as goal_integrity_reason, values(goal_snapshot_hash) as goal_snapshot_hash, values(goal_content_preview) as goal_content_preview, values(mcp_tool) as mcp_tool, values(mcp_decision) as mcp_decision, values(mcp_reason) as mcp_reason, values(mcp_requested_scope) as mcp_requested_scope, values(mcp_coded_allowed_scope) as mcp_coded_allowed_scope, values(mcp_resource_id) as mcp_resource_id, values(mcp_content_preview) as mcp_content_preview, max(mcp_started) as has_started, max(mcp_completed) as has_completed, max(mcp_failed) as has_failed, latest(profile) as profile, latest(mode) as mode by run_id\n| eval goal_task_id=mvindex(mvdedup(goal_task_id),0)\n| eval goal_task_hash=mvindex(mvdedup(goal_task_hash),0)\n| eval goal_task_provenance=mvindex(mvdedup(goal_task_provenance),0)\n| eval goal_instruction_trust=mvindex(mvdedup(goal_instruction_trust),0)\n| eval goal_proposed_action=mvindex(mvdedup(goal_proposed_action),0)\n| eval goal_integrity_decision=mvindex(mvdedup(goal_integrity_decision),0)\n| eval goal_integrity_reason=mvindex(mvdedup(goal_integrity_reason),0)\n| eval goal_snapshot_hash=mvindex(mvdedup(goal_snapshot_hash),0)\n| eval goal_content_preview=mvindex(mvdedup(goal_content_preview),0)\n| eval mcp_tool=mvindex(mvdedup(mcp_tool),0)\n| eval mcp_decision=mvindex(mvdedup(mcp_decision),0)\n| eval mcp_reason=mvindex(mvdedup(mcp_reason),0)\n| eval mcp_requested_scope=mvindex(mvdedup(mcp_requested_scope),0)\n| eval mcp_coded_allowed_scope=mvindex(mvdedup(mcp_coded_allowed_scope),0)\n| eval mcp_resource_id=mvindex(mvdedup(mcp_resource_id),0)\n| eval mcp_content_preview=mvindex(mvdedup(mcp_content_preview),0)\n| eval execution_observation=case(has_completed=1,\"mcp.completed_observed\",has_failed=1,\"mcp.failed_observed\",has_started=1,\"mcp.started_observed\",1=1,\"no_indexed_followon_execution_event\")\n| where isnotnull(goal_integrity_decision) AND goal_integrity_decision!=\"\"\n| dedup run_id\n| table run_id, profile, mode, goal_task_id, goal_task_hash, goal_task_provenance, goal_instruction_trust, goal_content_preview, goal_proposed_action, goal_integrity_decision, goal_integrity_reason, goal_snapshot_hash, mcp_content_preview, mcp_tool, mcp_requested_scope, mcp_coded_allowed_scope, mcp_resource_id, mcp_decision, mcp_reason, execution_observation\n```\n\n**What this supports**\n\n- CTRL-MCP-001 ALLOW lookup_policy on both specimens.\n- CTRL-GOAL-INTEGRITY-001 is not the tool PDP.\n\n**What this corroborates**\n\n- Indexed goal decision rows on a complete copy.\n\n**What is not proven**\n\n- Universal goal-integrity security.\n- That Splunk denied extract_full_policy.\n\n**Incorrect claims (do not write these)**\n\n- MCP DENY is the Goal lesson.\n- ALLOW means the expanded goal was approved.\n- untrusted_instruction means malicious.\n\n**Attacker controlled:** Untrusted instruction bytes (same ATTACK/RETEST fingerprint).\n\n**Server owned:** TaskContract, coded lookup_policy grant, goal control.\n\n**Observability only:** Splunk.\n\n**Next challenge:** Identity OBSERVE is not authentication.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "MCP ALLOW, but was the goal authorized?"
+    },
+    "viz_MA-A2-OBSERVE-IS-NOT-AUTHN": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Identity OBSERVE is not authentication\n\n**ADVANCED** · evidence **REPLAY** · Splunk skill S8\n\n**Security question:** CTRL-IDENTITY-001 emitted OBSERVE. Has the caller been authenticated?\n\nSearch both REPLAY ids. What did identity decide? What did CTRL-MCP-001 decide? Was anyone authenticated? Use NOT PROVEN / NOT MODELED where the lab does not model authentication.\n\n**Run ids**\n\n- **ATTACK:** `f846be88-1f9d-4dde-ac80-193c01b47660`\n- **RETEST:** `271695f5-4739-44f2-8bf4-0749d04f4b03`\n\n**Path A — try it yourself**\n\nQ-AGENT-DELEGATION-AUTHORITY then Q-MCP-AUTHZ. REPLAY specimens.\n\n[Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n\n**Hint 1**\n\nIDENTITY CLAIM != AUTHENTICATION. DELEGATION CLAIM != AUTHORIZATION. Caller agent id is data.\n\n**Hint 2**\n\nCTRL-IDENTITY-001 stays OBSERVE identity_claim_is_not_grant on ATTACK and RETEST. The tool PDP is still CTRL-MCP-001 (ALLOW overlay vs DENY).\n\n**Path B — show solution**\n\nStudio cannot hide this. Attempt Path A first. Path B is optional.\n\nCopyable existing Q-* hunt. It is an answer key, not policy.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"f846be88-1f9d-4dde-ac80-193c01b47660\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval hop=mvindex(mvdedup('agentsec.hop.index'),0)\n| eval principal=mvindex(mvdedup('agentsec.principal.id'),0)\n| eval caller=mvindex(mvdedup('agentsec.identity.caller_agent_id'),0)\n| eval callee=mvindex(mvdedup('agentsec.identity.callee_agent_id'),0)\n| eval claimed_scope=mvindex(mvdedup('agentsec.delegation.claimed_scope'),0)\n| eval claim_trust=mvindex(mvdedup('agentsec.identity.claim.trust'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval resource_id=mvindex(mvdedup('agentsec.mcp.resource.id'),0)\n| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval identity_principal=if(control_id=\"CTRL-IDENTITY-001\",principal,null())\n| eval identity_caller=if(control_id=\"CTRL-IDENTITY-001\",caller,null())\n| eval identity_callee=if(control_id=\"CTRL-IDENTITY-001\",callee,null())\n| eval identity_claimed_scope=if(control_id=\"CTRL-IDENTITY-001\",claimed_scope,null())\n| eval identity_claim_trust=if(control_id=\"CTRL-IDENTITY-001\",claim_trust,null())\n| eval identity_decision=if(control_id=\"CTRL-IDENTITY-001\",decision,null())\n| eval identity_reason=if(control_id=\"CTRL-IDENTITY-001\",reason,null())\n| eval identity_claim_hash=if(control_id=\"CTRL-IDENTITY-001\",content_hash,null())\n| eval identity_requested_tool=if(control_id=\"CTRL-IDENTITY-001\",tool,null())\n| eval identity_requested_scope=if(control_id=\"CTRL-IDENTITY-001\",requested_scope,null())\n| eval mcp_tool=if(control_id=\"CTRL-MCP-001\",tool,null())\n| eval mcp_decision=if(control_id=\"CTRL-MCP-001\",decision,null())\n| eval mcp_reason=if(control_id=\"CTRL-MCP-001\",reason,null())\n| eval mcp_requested_scope=if(control_id=\"CTRL-MCP-001\",requested_scope,null())\n| eval mcp_coded_allowed_scope=if(control_id=\"CTRL-MCP-001\",allowed_scope,null())\n| eval mcp_resource_id=if(control_id=\"CTRL-MCP-001\",resource_id,null())\n| eval mcp_started=if(event_name=\"agentsec.mcp.started\" AND hop=\"1\",1,0)\n| eval mcp_completed=if(event_name=\"agentsec.mcp.completed\" AND hop=\"1\",1,0)\n| eval mcp_failed=if(event_name=\"agentsec.mcp.failed\" AND hop=\"1\",1,0)\n| eventstats values(identity_principal) as identity_principal, values(identity_caller) as identity_caller, values(identity_callee) as identity_callee, values(identity_claimed_scope) as identity_claimed_scope, values(identity_claim_trust) as identity_claim_trust, values(identity_decision) as identity_decision, values(identity_reason) as identity_reason, values(identity_claim_hash) as identity_claim_hash, values(identity_requested_tool) as identity_requested_tool, values(identity_requested_scope) as identity_requested_scope, values(mcp_tool) as mcp_tool, values(mcp_decision) as mcp_decision, values(mcp_reason) as mcp_reason, values(mcp_requested_scope) as mcp_requested_scope, values(mcp_coded_allowed_scope) as mcp_coded_allowed_scope, values(mcp_resource_id) as mcp_resource_id, max(mcp_started) as has_started, max(mcp_completed) as has_completed, max(mcp_failed) as has_failed, latest(profile) as profile, latest(mode) as mode by run_id\n| eval identity_principal=mvindex(mvdedup(identity_principal),0)\n| eval identity_caller=mvindex(mvdedup(identity_caller),0)\n| eval identity_callee=mvindex(mvdedup(identity_callee),0)\n| eval identity_claimed_scope=mvindex(mvdedup(identity_claimed_scope),0)\n| eval identity_claim_trust=mvindex(mvdedup(identity_claim_trust),0)\n| eval identity_decision=mvindex(mvdedup(identity_decision),0)\n| eval identity_reason=mvindex(mvdedup(identity_reason),0)\n| eval identity_claim_hash=mvindex(mvdedup(identity_claim_hash),0)\n| eval identity_requested_tool=mvindex(mvdedup(identity_requested_tool),0)\n| eval identity_requested_scope=mvindex(mvdedup(identity_requested_scope),0)\n| eval mcp_tool=mvindex(mvdedup(mcp_tool),0)\n| eval mcp_decision=mvindex(mvdedup(mcp_decision),0)\n| eval mcp_reason=mvindex(mvdedup(mcp_reason),0)\n| eval mcp_requested_scope=mvindex(mvdedup(mcp_requested_scope),0)\n| eval mcp_coded_allowed_scope=mvindex(mvdedup(mcp_coded_allowed_scope),0)\n| eval mcp_resource_id=mvindex(mvdedup(mcp_resource_id),0)\n| eval mcp_resource_observation=if(isnull(mcp_resource_id) OR mcp_resource_id=\"\",\"mcp.resource.id_not_indexed_on_this_control_hop\",mcp_resource_id)\n| eval execution_observation=case(has_completed=1,\"mcp.completed_observed\",has_failed=1,\"mcp.failed_observed\",has_started=1,\"mcp.started_observed\",1=1,\"no_indexed_followon_execution_event\")\n| where isnotnull(identity_decision) AND identity_decision!=\"\"\n| dedup run_id\n| table run_id, profile, mode, identity_principal, identity_caller, identity_callee, identity_claim_trust, identity_claimed_scope, identity_decision, identity_reason, identity_claim_hash, identity_requested_tool, identity_requested_scope, mcp_tool, mcp_requested_scope, mcp_coded_allowed_scope, mcp_resource_observation, mcp_decision, mcp_reason, execution_observation\n```\n\n**What this supports**\n\n- CTRL-IDENTITY-001 OBSERVE on these specimens.\n- CTRL-MCP-001 is the tool PDP.\n\n**What this corroborates**\n\n- Indexed caller/callee claim fields.\n\n**What is not proven**\n\n- That any agent authenticated.\n- Real A2A transport.\n\n**Incorrect claims (do not write these)**\n\n- The caller was authenticated.\n- Identity ALLOWED the tool.\n- Identity failure must explain every tool execution.\n\n**Attacker controlled:** Closed A2A-shaped claim bytes.\n\n**Server owned:** coded grants, identity control OBSERVE semantics.\n\n**Observability only:** Splunk. Identity control is OBSERVE, not a grant engine.\n\n**Next challenge:** Empty mcp.started is not prevention.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "Identity OBSERVE is not authentication"
+    },
+    "viz_MA-A3-MISSING-STARTED": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Empty mcp.started is not prevention\n\n**ADVANCED** · evidence **REPLAY** · Splunk skill S5\n\n**Security question:** This RETEST copy has no mcp.started. Does that alone prove the handler never ran?\n\nSearch the REPLAY RETEST id. Find CTRL-MCP-001 DENY. Note missing mcp.started. Write what is authoritative versus corroborative. Mention completeness.\n\n**Run ids**\n\n- **RETEST:** `7a1d37b5-d589-4dfd-8322-25ebd0152dbc`\n\n**Path A — try it yourself**\n\nQ-MCP-AUTHZ and Q-MCP-EXECUTED. Evidence mode REPLAY.\n\n[Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n\n**Hint 1**\n\nMISSING EVENT != PREVENTION. Empty dashboard is insufficient. HEC 200 is insufficient.\n\n**Hint 2**\n\nRuntime handler_invoke_count = 0 is authoritative non-execution where the lab defines it. Indexed absence corroborates only on a complete copy versus local events.jsonl.\n\n**Path B — show solution**\n\nStudio cannot hide this. Attempt Path A first. Path B is optional.\n\nCopyable existing Q-* hunt. It is an answer key, not policy.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"7a1d37b5-d589-4dfd-8322-25ebd0152dbc\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state\n```\n\n**What this supports**\n\n- CTRL-MCP-001 DENY tool_not_granted on this RETEST specimen.\n\n**What this corroborates**\n\n- No indexed mcp.started on a complete copy.\n\n**What is not proven**\n\n- Prevention from Splunk silence alone.\n- Universal tool-authorization security.\n\n**Incorrect claims (do not write these)**\n\n- No mcp.started proves prevention by itself.\n- Splunk blocked the handler.\n- DET-MCP-001 silence means SAFE.\n\n**Attacker controlled:** Same ungranted tool request as ATTACK.\n\n**Server owned:** defended ExperimentContext, coded_policy.\n\n**Observability only:** Splunk.\n\n**Next challenge:** Do not collapse every incident into prompt injection.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "Empty mcp.started is not prevention"
+    },
+    "viz_MA-X1-CROSS-DOMAIN": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Do not collapse every incident into prompt injection\n\n**ADVANCED** · evidence **NONE** · Splunk skill S8\n\n**Security question:** How does SOURCE → BOUNDARY → INFLUENCE → AUTHORITY → EXECUTION → TELEMETRY → INVESTIGATION → CLAIM apply without treating every lab as the same attack?\n\nFor prompt/input, tool authorization, RAG, memory, goal integrity, identity, and the capstone: name the typical untrusted source, the control that classifies or decides, and whether that control is the tool PDP. Then say what would be a false conclusion if you mixed the labs.\n\n**Run ids**\n\nNo run.id. This is a reasoning challenge, not a launch.\n\n**Path A — try it yourself**\n\nHome PATH + CONNECT blocks on each LIVE lab. No launch required.\n\nYou do not need Splunk Search for this challenge. Answer from reasoning.\n\n**Hint 1**\n\nOnly CTRL-MCP-001 grants tools. CTRL-INPUT-001 is the HTTP input PDP. RAG/memory/identity often OBSERVE. Goal is a different plane than MCP.\n\n**Hint 2**\n\nCapstone retrieve→write→recall can be explained without Goal or Identity event families. 0 rows there != those domains never fail.\n\n**Path B — show solution**\n\nStudio cannot hide this. Attempt Path A first. Path B is optional.\n\nSame chain, different evidence. Input: CTRL-INPUT-001. Tools: CTRL-MCP-001. RAG/memory: data + MCP. Goal: task vs tool. Identity: claim vs grant. Capstone fuses RAG+memory+MCP. False: 'it executed so identity failed' or 'it is all prompt injection.'\n\n**What this supports**\n\n- CTRL-MCP-001 is the sole tool PDP in these labs.\n\n**What this corroborates**\n\n- (none for this challenge)\n\n**What is not proven**\n\n- That every production agent uses this exact control set.\n\n**Incorrect claims (do not write these)**\n\n- Every AgentSec lab is prompt injection.\n- Identity must explain the capstone.\n- Retrieved text granted customer:read.\n\n**Attacker controlled:** Varies by lab; never grants/tools/profile in the browser.\n\n**Server owned:** Policy, grants, fixtures, ExperimentContext.\n\n**Observability only:** Splunk.\n\n**Next challenge:** Lending assistant mastery readout.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "Do not collapse every incident into prompt injection"
+    },
+    "viz_MA-PT1-CAPSTONE-GATE": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Lending assistant mastery readout\n\n**PURPLE TEAM** · evidence **LIVE** · Splunk skill S7\n\n**Security question:** Can you produce an evidence-backed readout of retrieve → persist → later recall → tool authorization without Path B first?\n\nPreferred: launch LIVE ATTACK and RETEST from Attack Service, copy retrieve/write/recall ids, investigate in Search. If you use the official historical ids, label them REPLAY. Produce the 15-point readout on the RUBRIC tab. Do not invent a retrieve-to-write field. Do not invent DET-CAPSTONE.\n\n**Run ids**\n\n- **official REPLAY ATTACK recall:** `2437f64a-fff4-424f-8a83-0f04285662e4`\n- **official REPLAY RETEST recall:** `8d2c016f-cadc-4463-939a-23a183221b3d`\n\n**Path A — try it yourself**\n\nindex/sourcetype plus three quoted run.ids. Q-RUN-EVENTS, Q-RAG-CONTEXT-AUTHORITY, Q-MEMORY-CONTEXT-AUTHORITY, Q-MCP-AUTHZ, Q-MCP-EXECUTED. Path B is a review key on the capstone workshop, not here first.\n\n[Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n\n**Hint 1**\n\nHash equality links retrieve content to what was stored. Recall source_run_id points at the write run. CTRL-MCP-001 is the tool PDP. RAG and memory OBSERVE.\n\n**Hint 2**\n\nATTACK recall: MCP ALLOW overlay, handler 1. RETEST recall: DENY tool_not_granted, handler 0. Goal/Identity 0 rows != those domains never fail. One RETEST != universal RAG/memory resistance.\n\n**Path B — show solution**\n\nStudio cannot hide this. Attempt Path A first. Path B is optional.\n\nCopyable existing Q-* hunt. It is an answer key, not policy.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"2437f64a-fff4-424f-8a83-0f04285662e4\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome\n```\n\n**What this supports**\n\n- CTRL-MCP-001 authorized or denied the follow-on tool.\n\n**What this corroborates**\n\n- Indexed mcp.started on ATTACK complete copy; handler 0 on RETEST is runtime.\n\n**What is not proven**\n\n- Goal or identity caused this packet.\n- Universal resistance after one RETEST.\n- Completeness from HEC 200.\n\n**Incorrect claims (do not write these)**\n\n- The document granted customer:read.\n- Memory granted the tool.\n- Splunk prevented RETEST.\n- Missing Goal events mean Goal never fails.\n\n**Attacker controlled:** Closed retrieved/memory fixture bytes.\n\n**Server owned:** allowed_tools, overlays, document/memory bodies.\n\n**Observability only:** Splunk. RAG/memory controls OBSERVE.\n\n**Next:** use the RUBRIC tab. This is the last challenge.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "Lending assistant mastery readout"
+    },
+    "viz_capstone_readout": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Capstone 15-point readout\n\nProduce this after [Lending Assistant Investigation](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agentsec_capstone) ATTACK and RETEST. Prefer fresh LIVE ids. If you use the official historical recall ids, label them REPLAY.\n\n1. Attack objective\n2. Attacker-controlled input\n3. Server-owned security configuration\n4. Relevant trust boundaries\n5. Relevant controls\n6. Actual PDP\n7. ATTACK authorization\n8. ATTACK execution\n9. RETEST authorization\n10. RETEST execution\n11. What remained identical\n12. What changed\n13. Why the outcome changed\n14. What Splunk proves\n15. What Splunk cannot prove\n\nAnswer key (self-check, not auto-graded): attacker controls retrieved/memory fixture bytes; server owns grants/profile; RAG and memory OBSERVE; CTRL-MCP-001 is the tool PDP; ATTACK overlay ALLOW + handler 1; RETEST DENY tool_not_granted + handler 0; same ungranted request; different ExperimentContext; Splunk copies a complete index; Splunk does not enforce, authenticate, or prove completeness from HEC 200; Goal/Identity 0 rows does not mean those domains never fail; one RETEST is not universal RAG/memory resistance.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "READOUT"
+    },
+    "viz_rubric": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Evidence-based rubric\n\nNo percentage. No leaderboard. Mark yourself NEEDS REVIEW, DEMONSTRATED, or ADVANCED on each dimension after the challenges.\n\n**Trust boundary reasoning**\n\n- NEEDS REVIEW — Mixes data, claims, and grants. Cannot name where untrusted input meets a control.\n- DEMONSTRATED — Names the boundary and what the attacker does not control.\n- ADVANCED — Separates multiple planes (input, context, identity, goal) without collapsing them into prompt injection.\n\n**Authority reasoning**\n\n- NEEDS REVIEW — Treats OBSERVE as ALLOW, claims as authentication, or retrieved text as a grant.\n- DEMONSTRATED — Names the actual PDP and says REQUEST != GRANT.\n- ADVANCED — Explains why a granted tool can still be the wrong goal, and why identity OBSERVE is not authn.\n\n**Splunk investigation**\n\n- NEEDS REVIEW — Searches index=* or pastes Path B first.\n- DEMONSTRATED — Uses quoted run.id, sequence, and event.name in Search.\n- ADVANCED — Chooses the right existing Q-* hunt without treating Studio tables as a fresh LIVE launch.\n\n**Execution reconstruction**\n\n- NEEDS REVIEW — Reads ALLOW as execution or missing rows as prevention.\n- DEMONSTRATED — Cites runtime handler/LLM count as authoritative where the lab defines it; Splunk as corroboration.\n- ADVANCED — States completeness limits (local vs dc(_raw); HEC 200 is not searchable evidence).\n\n**ATTACK / RETEST comparison**\n\n- NEEDS REVIEW — Compares different payloads or calls RETEST universal security.\n- DEMONSTRATED — Same adversarial bytes; different server-owned configuration; different decision/execution.\n- ADVANCED — Names what the experiment still cannot prove.\n\n**Evidence quality**\n\n- NEEDS REVIEW — One field proves the whole outcome. Empty dashboard = SAFE.\n- DEMONSTRATED — Classifies SUPPORTED / CORROBORATED / NOT PROVEN / INCORRECT.\n- ADVANCED — Rewrites false SOC sentences into defensible claims.\n\n**Security communication**\n\n- NEEDS REVIEW — Says Splunk blocked, the agent authenticated, or RAG was trusted.\n- DEMONSTRATED — Uses AgentSec vocabulary without overclaiming.\n- ADVANCED — Explains the same incident to a peer without repository jargon.\n\nUnacceptable sentences to rewrite: \"Splunk blocked the attack.\" \"The agent was authenticated.\" \"The RAG document was trusted.\" \"The memory was safe.\" \"MCP ALLOW means the goal was approved.\" \"No event means it did not execute.\" \"The RETEST proves prompt injection is solved.\"\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "RUBRIC"
+    }
+  },
+  "layout": {
+    "options": {
+      "submitButton": false,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "layoutDefinitions": {
+      "layout_intro": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 900
+        },
+        "structure": [
+          {
+            "item": "viz_intro",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 360
+            }
+          },
+          {
+            "item": "viz_how",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 360,
+              "w": 720,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_levels",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 360,
+              "w": 720,
+              "h": 520
+            }
+          }
+        ]
+      },
+      "layout_foundational": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1300
+        },
+        "structure": [
+          {
+            "item": "viz_MA-F1-WHO-ENFORCES",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 720,
+              "h": 1280
+            }
+          },
+          {
+            "item": "viz_MA-F2-REWRITE-CLAIMS",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 0,
+              "w": 720,
+              "h": 1280
+            }
+          }
+        ]
+      },
+      "layout_practitioner": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1300
+        },
+        "structure": [
+          {
+            "item": "viz_MA-P1-FIND-THE-RUN",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 720,
+              "h": 1280
+            }
+          },
+          {
+            "item": "viz_MA-P2-CONTROL-AND-EXECUTION",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 0,
+              "w": 720,
+              "h": 1280
+            }
+          }
+        ]
+      },
+      "layout_investigator": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1300
+        },
+        "structure": [
+          {
+            "item": "viz_MA-I1-ATTACK-RETEST",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 1280
+            }
+          }
+        ]
+      },
+      "layout_advanced": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 2500
+        },
+        "structure": [
+          {
+            "item": "viz_MA-A1-ALLOW-IS-NOT-GOAL",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 720,
+              "h": 1280
+            }
+          },
+          {
+            "item": "viz_MA-A2-OBSERVE-IS-NOT-AUTHN",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 0,
+              "w": 720,
+              "h": 1280
+            }
+          },
+          {
+            "item": "viz_MA-A3-MISSING-STARTED",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1280,
+              "w": 720,
+              "h": 1200
+            }
+          },
+          {
+            "item": "viz_MA-X1-CROSS-DOMAIN",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 1280,
+              "w": 720,
+              "h": 1200
+            }
+          }
+        ]
+      },
+      "layout_purple": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1940
+        },
+        "structure": [
+          {
+            "item": "viz_MA-PT1-CAPSTONE-GATE",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 1280
+            }
+          },
+          {
+            "item": "viz_capstone_readout",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1280,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_rubric": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1000
+        },
+        "structure": [
+          {
+            "item": "viz_rubric",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 980
+            }
+          }
+        ]
+      }
+    },
+    "tabs": {
+      "options": {
+        "barPosition": "top"
+      },
+      "items": [
+        {
+          "layoutId": "layout_intro",
+          "label": "INTRO"
+        },
+        {
+          "layoutId": "layout_foundational",
+          "label": "FOUNDATIONAL"
+        },
+        {
+          "layoutId": "layout_practitioner",
+          "label": "PRACTITIONER"
+        },
+        {
+          "layoutId": "layout_investigator",
+          "label": "INVESTIGATOR"
+        },
+        {
+          "layoutId": "layout_advanced",
+          "label": "ADVANCED"
+        },
+        {
+          "layoutId": "layout_purple",
+          "label": "PURPLE TEAM"
+        },
+        {
+          "layoutId": "layout_rubric",
+          "label": "RUBRIC"
+        }
+      ]
+    }
+  },
+  "applicationProperties": {
+    "collapseNavigation": false,
+    "downsampleVisualizations": false
+  }
+}

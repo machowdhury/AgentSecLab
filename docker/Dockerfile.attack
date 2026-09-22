@@ -10,9 +10,15 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src/ ./src/
 COPY schemas/ ./schemas/
-RUN mkdir -p /app/learning/level_1/LAB-PI-001 /app/learning/level_1/LAB-MCP-001
+COPY learning/academy/curriculum.json ./learning/academy/curriculum.json
+RUN mkdir -p /app/learning/level_1/LAB-PI-001 /app/learning/level_1/LAB-MCP-001 /app/learning/level_1/LAB-RAG-CONTEXT /app/learning/level_1/LAB-MEMORY-001 /app/learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001 /app/learning/level_1/LAB-AGENT-DELEGATION-001 /app/learning/level_1/LAB-AGENTSEC-CAPSTONE-001
 COPY learning/level_1/LAB-PI-001/lab-manifest.json ./learning/level_1/LAB-PI-001/lab-manifest.json
 COPY learning/level_1/LAB-MCP-001/lab-manifest.json ./learning/level_1/LAB-MCP-001/lab-manifest.json
+COPY learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json ./learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json
+COPY learning/level_1/LAB-MEMORY-001/lab-manifest.json ./learning/level_1/LAB-MEMORY-001/lab-manifest.json
+COPY learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json ./learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json
+COPY learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json ./learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json
+COPY learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json ./learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json
 
 ENV PYTHONPATH=/app/src
 ENV AGENTSEC_SCHEMA_PATH=/app/schemas/security_event.schema.json

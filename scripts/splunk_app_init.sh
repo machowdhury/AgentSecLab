@@ -69,6 +69,18 @@ if [ ! -f "${SRC}/default/data/ui/views/ws_lab_agent_goal_integrity.xml" ]; then
   log "ERROR: ${SRC}/default/data/ui/views/ws_lab_agent_goal_integrity.xml missing"
   exit 1
 fi
+if [ ! -f "${SRC}/default/data/ui/views/ws_lab_agent_delegation.xml" ]; then
+  log "ERROR: ${SRC}/default/data/ui/views/ws_lab_agent_delegation.xml missing"
+  exit 1
+fi
+if [ ! -f "${SRC}/default/data/ui/views/ws_lab_agentsec_capstone.xml" ]; then
+  log "ERROR: ${SRC}/default/data/ui/views/ws_lab_agentsec_capstone.xml missing"
+  exit 1
+fi
+if [ ! -f "${SRC}/default/data/ui/views/ws_agentsec_mastery.xml" ]; then
+  log "ERROR: ${SRC}/default/data/ui/views/ws_agentsec_mastery.xml missing"
+  exit 1
+fi
 
 mkdir -p "$DEST"
 log "Clearing previous staged files in ${DEST}"
@@ -97,6 +109,8 @@ test -f "${DEST}/default/data/ui/views/ws_lab_scanner_runtime_evidence.xml"
 test -f "${DEST}/default/data/ui/views/ws_lab_rag_context.xml"
 test -f "${DEST}/default/data/ui/views/ws_lab_memory_security.xml"
 test -f "${DEST}/default/data/ui/views/ws_lab_agent_goal_integrity.xml"
+test -f "${DEST}/default/data/ui/views/ws_lab_agent_delegation.xml"
+test -f "${DEST}/default/data/ui/views/ws_lab_agentsec_capstone.xml"
 test -f "${DEST}/default/data/ui/nav/default.xml"
 
 log "Staged AgentSec app (writable volume). Splunk may chown this copy."

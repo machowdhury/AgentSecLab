@@ -72,3 +72,30 @@ def test_home_is_orientation_not_a_directory():
     lowered = markdown.lower()
     assert "safe" not in lowered or "not safe" in lowered
     assert "dataSources" not in json.dumps(_definition())
+
+
+def test_home_is_academy_landing_not_stale_directory():
+    definition = _definition()
+    markdown = "\n".join(
+        viz["options"]["markdown"]
+        for viz in definition["visualizations"].values()
+        if viz["type"] == "splunk.markdown"
+    )
+    labels = [item["label"] for item in definition["layout"]["tabs"]["items"]]
+    assert labels == ["START", "ORIENT", "PATH", "SPLUNK"]
+    assert "Start here" in markdown
+    assert "Direct Prompt Injection" in markdown
+    assert "Agent Identity / Delegation" in markdown
+    assert "Lending Assistant Investigation" in markdown
+    assert "LIVE" in markdown
+    assert "REPLAY" in markdown
+    assert "not published" not in markdown.lower()
+    assert "Attack Labs" not in markdown
+    assert "Foundations" in markdown
+    assert "Path A" in markdown
+    assert "Path B" in markdown
+    assert "Mastery Check" in markdown
+    assert "index=agentsec_telemetry" in markdown
+    assert "SUPPORTED" in markdown
+    assert "INCORRECT" in markdown
+    assert "1.9.0" in markdown

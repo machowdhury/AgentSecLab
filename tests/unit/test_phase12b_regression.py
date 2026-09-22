@@ -31,8 +31,8 @@ def test_q_mcp_not_rewritten_for_identity():
 def test_no_identity_studio_or_live_a2a():
     if VIEWS.is_dir():
         names = {path.name for path in VIEWS.glob("*")}
-        assert "ws_lab_agent_delegation.xml" not in names
         assert "ws_lab_a2a.xml" not in names
+        assert "ws_lab_agent_delegation.xml" in names  # Phase 15E
     assert not (ROOT / "src" / "agentsec" / "a2a").exists()
     lab = ROOT / "learning" / "level_1" / "LAB-AGENT-DELEGATION-001"
     assert not (lab / "workshop.md").exists()

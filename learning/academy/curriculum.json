@@ -1,0 +1,123 @@
+{
+  "not_authorization": true,
+  "schema_version": "1.9.0",
+  "start_view": "ws_agentsec_home",
+  "start_lab_id": "LAB-PI-001",
+  "start_lab_title": "Direct Prompt Injection",
+  "mastery_view": "ws_agentsec_mastery",
+  "mastery_title": "Mastery Check",
+  "attack_service_url": "http://127.0.0.1:5001/",
+  "search_url": "http://127.0.0.1:8000/en-US/app/search/search",
+  "nav_collections": [
+    {
+      "label": "Foundations",
+      "views": [
+        "ws_lab_pi_001",
+        "ws_lab_mcp_001",
+        "ws_lab_mcp_003",
+        "ws_lab_mcp_004"
+      ]
+    },
+    {
+      "label": "Context Security",
+      "views": [
+        "ws_lab_rag_context",
+        "ws_lab_memory_security",
+        "ws_lab_mcp_005",
+        "ws_lab_mcp_catalog",
+        "ws_lab_scanner_runtime_evidence"
+      ]
+    },
+    {
+      "label": "Agent Intent",
+      "views": [
+        "ws_lab_agent_goal_integrity",
+        "ws_lab_agent_delegation",
+        "ws_lab_mcp_006"
+      ]
+    },
+    {
+      "label": "Capstone",
+      "views": ["ws_lab_agentsec_capstone"]
+    }
+  ],
+  "levels": [
+    {
+      "id": "L0",
+      "title": "Orientation",
+      "learn": "What AgentSec is, how LIVE experiments work, and what Splunk does not do.",
+      "prerequisites": "Basic cybersecurity. Almost no agentic AI required.",
+      "effort": "30-45 minutes",
+      "exit": "FOUNDATIONAL",
+      "next": "L1",
+      "labs": []
+    },
+    {
+      "id": "L1",
+      "title": "Input and tool authority",
+      "learn": "Untrusted input can influence an agent. A tool request is not a grant.",
+      "prerequisites": "L0 orientation.",
+      "effort": "LIVE 2.5-3 hours. REPLAY grant anatomy +1.5-2 hours.",
+      "exit": "PRACTITIONER",
+      "next": "L2",
+      "labs": [
+        {"lab_id": "LAB-PI-001", "title": "Direct Prompt Injection", "mode": "LIVE", "view": "ws_lab_pi_001"},
+        {"lab_id": "LAB-MCP-001", "title": "Tool Authorization", "mode": "LIVE", "view": "ws_lab_mcp_001"},
+        {"lab_id": "LAB-MCP-003", "title": "Scope Escalation", "mode": "REPLAY", "view": "ws_lab_mcp_003"},
+        {"lab_id": "LAB-MCP-004", "title": "Parameter / Resource Authorization", "mode": "REPLAY", "view": "ws_lab_mcp_004"}
+      ]
+    },
+    {
+      "id": "L2",
+      "title": "Context is data",
+      "learn": "Retrieved content and stored memory can influence a later request. They do not mint grants.",
+      "prerequisites": "L1 LIVE (PI and Tool Authorization).",
+      "effort": "LIVE 3-3.5 hours. REPLAY +2-2.5 hours.",
+      "exit": "INVESTIGATOR (context)",
+      "next": "L3",
+      "labs": [
+        {"lab_id": "LAB-RAG-CONTEXT", "title": "RAG / Retrieved Context", "mode": "LIVE", "view": "ws_lab_rag_context"},
+        {"lab_id": "LAB-MEMORY-001", "title": "Persistent Memory", "mode": "LIVE", "view": "ws_lab_memory_security"},
+        {"lab_id": "LAB-MCP-005", "title": "Tool Result Trust", "mode": "REPLAY", "view": "ws_lab_mcp_005"},
+        {"lab_id": "LAB-MCP-CATALOG", "title": "Tool Catalog", "mode": "REPLAY", "view": "ws_lab_mcp_catalog"},
+        {"lab_id": "LAB-SCANNER-RUNTIME-EVIDENCE", "title": "Scanner + Runtime Evidence", "mode": "REPLAY", "view": "ws_lab_scanner_runtime_evidence"}
+      ]
+    },
+    {
+      "id": "L3",
+      "title": "Intent and identity",
+      "learn": "An authorized tool is not an authorized goal. An identity claim is not authentication.",
+      "prerequisites": "L2 LIVE (RAG and Memory).",
+      "effort": "LIVE 2.5-3 hours. Confused Deputy REPLAY +45-60 minutes.",
+      "exit": "INVESTIGATOR (can rule a domain out)",
+      "next": "L5",
+      "labs": [
+        {"lab_id": "LAB-AGENT-GOAL-INTEGRITY-001", "title": "Goal / Instruction Integrity", "mode": "LIVE", "view": "ws_lab_agent_goal_integrity"},
+        {"lab_id": "LAB-AGENT-DELEGATION-001", "title": "Agent Identity / Delegation", "mode": "LIVE", "view": "ws_lab_agent_delegation"},
+        {"lab_id": "LAB-MCP-006", "title": "Confused Deputy", "mode": "REPLAY", "view": "ws_lab_mcp_006"}
+      ]
+    },
+    {
+      "id": "L4",
+      "title": "Investigation craft",
+      "learn": "Hunt versus detection. Evidence quality. False conclusions. 0 rows is not SAFE.",
+      "prerequisites": "Woven through Path A on L1-L3. Not a separate workshop.",
+      "effort": "Practice on every LIVE Path A.",
+      "exit": "Investigate one LIVE pair without Path B.",
+      "next": "L5",
+      "labs": []
+    },
+    {
+      "id": "L5",
+      "title": "Integrated purple team",
+      "learn": "Reconstruct retrieve, persist, later recall, and tool authorization from evidence. Rule out Goal and Identity when they are not required.",
+      "prerequisites": "L1-L3 LIVE. REPLAY grant and INV-002 workshops recommended.",
+      "effort": "2.5-4 hours",
+      "exit": "ADVANCED / PURPLE TEAM",
+      "next": null,
+      "labs": [
+        {"lab_id": "LAB-AGENTSEC-CAPSTONE-001", "title": "Lending Assistant Investigation", "mode": "LIVE", "view": "ws_lab_agentsec_capstone"}
+      ]
+    }
+  ]
+}

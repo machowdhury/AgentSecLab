@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dashboard version="2" theme="light">
   <label>Home</label>
-  <description>AgentSec landing. Orientation only. Splunk does not ALLOW or DENY.</description>
+  <description>AgentSec academy landing. Start here. Splunk does not ALLOW or DENY.</description>
   <definition><![CDATA[
 {
   "title": "Home",
-  "description": "Orientation only. Splunk does not grant or deny authority.",
+  "description": "Academy landing. Start here. Splunk does not grant or deny authority.",
   "defaults": {
     "visualizations": {
       "splunk.table": {
@@ -27,62 +27,122 @@
     "viz_hero": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# AgentSec\n\nA learning and SOC evidence range for agentic AI security.\n\nInvestigate what an agent was authorized to do, what it attempted, and what\nactually executed. Splunk is the evidence workbench. Splunk does not grant\nor deny authority.\n",
+        "markdown": "# Start here\n\nAgentSec is a **hands-on Agentic Security academy**. You launch controlled attacks against a lab agent, observe real telemetry, and investigate the evidence yourself in Splunk.\n\nSplunk is the notebook. Splunk does **not** grant or deny authority.\n\nThe runtime (AcmeBank) is the enforcement point. Attack Service is a closed launcher. You do not choose grants, tools, or profiles in the browser.\n\n**Primary action:** begin [Direct Prompt Injection](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_pi_001).\n\n**If you already know agents, tools, and RAG:** skip ORIENT prose. Open Direct Prompt Injection, then Attack Service. You still need run.id → Search → control vs execution. Mastery Check is after the labs, not a shortcut around launching.\n\nThen keep this loop: LEARN → PREDICT → LAUNCH → OBSERVE → INVESTIGATE in Search → optional solution → DEFEND → RETEST → COMPARE → PROVE.\n\nAfter the labs, [Mastery Check](http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_mastery) is optional self-assessment. It is not a certificate and not a score.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
       },
-      "title": "HOME"
+      "title": "START LEARNING"
     },
-    "viz_path": {
+    "viz_roles": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# Learning path\n\n1. **LEARN** — understand the security boundary\n2. **BASELINE** — record the defended / normal run\n3. **ATTACK** — run a controlled vulnerable scenario\n4. **OBSERVE** — inspect agent telemetry\n5. **HUNT** — reconstruct what happened\n6. **DETECT** — decide whether evidence justifies a detector\n7. **DEFEND** — apply the server-owned control\n8. **RETEST** — same adversarial input, defended path\n9. **COMPARE** — identical input, different control outcome\n10. **PROVE** — answer the question from evidence\n\nEmpty hunt rows are not SAFE. ALLOW is not execution. OBSERVE is not ALLOW.\n",
+        "markdown": "# How this environment works\n\n**Studio (this app)** — syllabus. Read the mission. Do not treat bound tables as a fresh LIVE launch.\n\n**Attack Service** — [closed launcher](http://127.0.0.1:5001/). LIVE labs only. Server-owned specimens.\n\n**AcmeBank / runtime** — where controls decide ALLOW, DENY, or OBSERVE, and where handlers run or do not run.\n\n**Splunk Search** — [your notebook](http://127.0.0.1:8000/en-US/app/search/search). You type SPL. Path A lives here.\n\nLIVE means you mint a fresh run.id. REPLAY means canonical specimens already in the index. REPLAY is not LIVE. BASELINE is not SAFE.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
       },
-      "title": "HOW TO LEARN"
+      "title": "FOUR ROLES"
     },
-    "viz_attacks": {
+    "viz_modes": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# Attack Labs\n\n**Prompt injection**\n- Direct Prompt Injection\n\n**MCP security**\n- Tool Authorization\n- Scope Escalation\n- Parameter / Resource Authorization\n- Tool Result Trust\n- Confused Deputy\n- Tool Catalog\n\nOpen the matching item from the **Attack Labs** menu.\n",
+        "markdown": "# Words you will use\n\n**BASELINE** — normal / in-task run. Not an all-clear.\n\n**ATTACK** — labeled vulnerable experiment. Success here is not universal vulnerability.\n\n**RETEST** — same adversarial bytes, defended ExperimentContext. One RETEST is not universal security.\n\n**OBSERVE** — classification. Not ALLOW.\n\n**ALLOW / DENY** — control decisions. ALLOW is not execution. DENY is not proof the handler never ran.\n\n**EXECUTION** — the handler or LLM actually started. Runtime counts are authoritative. Indexed `mcp.started` / `llm.started` corroborate a complete copy.\n\n**SUPPORTED / CORROBORATED / NOT PROVEN / INCORRECT** — how you classify claims on PROVE.\n\nWorkshop tabs still use LEARN · BASELINE · ATTACK · OBSERVE · HUNT · DETECT · DEFEND · RETEST · COMPARE · PROVE. HUNT is Path A in Search. DETECT is labeled SIMULATED except the one packaged detector DET-MCP-001 (disabled; DENY-then-start only). Detector silence is not SAFE.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
       },
-      "title": "ATTACK LABS"
+      "title": "LIVE VOCABULARY"
     },
-    "viz_context": {
+    "viz_orient_agent": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# Context and agent authority\n\n**Context security**\n- RAG / Retrieved Context\n- Persistent Memory\n\n**Agent authority**\n- Goal / Instruction Integrity\n\n**Supply chain**\n- Scanner + Runtime Evidence\n\nIdentity / delegation workshop is not published yet.\n",
+        "markdown": "# Agents, tools, and MCP\n\n**LLM** — a model that generates text. It is not a grant engine.\n\n**Agent** — an LLM plus tools, memory, and a task. The security question is what it was authorized to do, what it attempted, and what executed.\n\n**Tool** — a function the agent can request (for example lookup_policy). Requesting a tool is not being granted it.\n\n**MCP** — the lab's tool interface. CTRL-MCP-001 is the tool policy decision point (PDP). JSON-RPC here is in-process, not a production MCP mesh.\n\n**Goal / task** — the authorized purpose. An authorized tool can still be used for an unauthorized purpose.\n\n**Identity / delegation claim** — a statement that authority was handed from A to B. A claim is data. It is not authentication.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
       },
-      "title": "CONTEXT / AUTHORITY"
+      "title": "AGENT BASICS"
     },
-    "viz_soc": {
+    "viz_orient_context": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# SOC investigation\n\nEach workshop HUNT tab reuses a validated hunt (for example Q-GOAL-INTEGRITY-AUTHORITY or Q-MCP-AUTHZ).\n\nPick **Investigate specimen** on a workshop. Canonical LIVE BASELINE / ATTACK / RETEST are bound automatically.\n\nDET-MCP-001 is the packaged detector (disabled). Silence is not SAFE. No workshop enables it.\n",
+        "markdown": "# Context, controls, and evidence\n\n**RAG** — retrieved documents used as context. Retrieved content is data. Provenance is not trust.\n\n**Persistent memory** — state written on one run and recalled later. Stored is not trusted. Recalled is not authorized.\n\n**Trust boundary** — where untrusted input, context, a claim, or a request meets a control.\n\n**Control** — a coded check that records a decision and a reason.\n\n**PDP** — the control that actually authorizes or denies the dangerous operation. Some controls only OBSERVE.\n\n**Telemetry** — events the runtime emits (schema 1.9.0). Index `agentsec_telemetry`, sourcetype `otel:agentic:json`.\n\n**Fingerprint** — SHA-256 of the bytes under test. Same fingerprint on ATTACK and RETEST proves equivalent input.\n\n**Overlay** — a labeled lab-only fail-open on the vulnerable profile. Not a production IOC. Not a rewritten grant.\n\n**source_run_id** — on memory records, the WRITE run that persisted the bytes later recalled.\n\n**Splunk** — a searchable copy of that telemetry. HEC HTTP 200 is not evidence-ready. Missing events are not prevention. Detector silence is not SAFE.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
       },
-      "title": "SOC"
+      "title": "SECURITY BASICS"
     },
-    "viz_ref": {
+    "viz_inequalities": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# Reference\n\n- Schema `agentsec.security_event` **1.9.0**\n- Index `agentsec_telemetry`\n- Sourcetype `otel:agentic:json`\n- One operational detector: DET-MCP-001 (execution after tool DENY)\n- Splunk != enforcement\n- LIVE evidence is not SIMULATED\n- Runtime handler counts are authoritative for execution / non-execution\n\nUse **Search** in the app bar for ad-hoc SPL. Do not treat Home as a directory of LAB-* IDs.\n",
+        "markdown": "# Inequalities you will prove in labs\n\nDo not memorize them as slogans. You will demonstrate each one.\n\n**Start (Foundations):** DATA != AUTHORITY. REQUEST != GRANT. ALLOW != EXECUTION. SPLUNK != ENFORCEMENT. MISSING EVENT != PREVENTION.\n\n**Then (Context):** PROVENANCE != TRUST. STORED != TRUSTED. OBSERVE != ALLOW. REPLAY != LIVE.\n\n**Then (Intent):** AUTHORIZED TOOL != AUTHORIZED GOAL. IDENTITY CLAIM != AUTHENTICATION. DELEGATION CLAIM != AUTHORIZATION.\n\n**Always:** ATTACK SUCCESS != UNIVERSAL VULNERABILITY. RETEST SUCCESS != UNIVERSAL SECURITY. ANOMALY != INCIDENT.\n\nPlain language: untrusted text can change what the agent asks for. Only a coded control can change what it is allowed to do. Splunk watches. Splunk does not block.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
       },
-      "title": "REFERENCE"
+      "title": "WHAT YOU WILL PROVE"
+    },
+    "viz_path_intro": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Curriculum\n\nThis is the learner path. It is not the order the software was built.\n\nYou should always know: where you are, what you are learning, why it matters, and what to do next.\n\nMenus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone**. Then **Mastery Check** (optional). Search stays the notebook.\n\nLIVE labs have Attack Service. REPLAY labs use Investigate specimen plus Search. Do not treat REPLAY as a fresh launch.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "WHERE AM I?"
+    },
+    "viz_path_levels": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Levels\n\n**L0 Orientation (this Home)** — What AgentSec is, how LIVE experiments work, and what Splunk does not do. Exit: FOUNDATIONAL. Next: Foundations.\n\n**L1 Input and tool authority** — Untrusted input can influence an agent. A tool request is not a grant. Effort: LIVE 2.5-3 hours. REPLAY grant anatomy +1.5-2 hours.. Exit: PRACTITIONER.\n\n- **Direct Prompt Injection** — LIVE\n- **Tool Authorization** — LIVE\n- **Scope Escalation** — REPLAY\n- **Parameter / Resource Authorization** — REPLAY\n\n**L2 Context is data** — Retrieved content and stored memory can influence a later request. They do not mint grants. Effort: LIVE 3-3.5 hours. REPLAY +2-2.5 hours.. Exit: INVESTIGATOR (context).\n\n- **RAG / Retrieved Context** — LIVE\n- **Persistent Memory** — LIVE\n- **Tool Result Trust** — REPLAY\n- **Tool Catalog** — REPLAY\n- **Scanner + Runtime Evidence** — REPLAY\n\n**L3 Intent and identity** — An authorized tool is not an authorized goal. An identity claim is not authentication. Effort: LIVE 2.5-3 hours. Confused Deputy REPLAY +45-60 minutes.. Exit: INVESTIGATOR (can rule a domain out).\n\n- **Goal / Instruction Integrity** — LIVE\n- **Agent Identity / Delegation** — LIVE\n- **Confused Deputy** — REPLAY\n\n**L4 Investigation craft** — practiced on every Path A. Not a separate workshop.\n\n**L5 Capstone** — Reconstruct retrieve, persist, later recall, and tool authorization from evidence. Rule out Goal and Identity when they are not required. Effort: 2.5-4 hours. Exit: ADVANCED / PURPLE TEAM.\n\n- **Lending Assistant Investigation** — LIVE\n\nOpen [Lending Assistant Investigation](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agentsec_capstone) only after L1–L3 LIVE. It is graduation, not another random lab.\n\nThen [Mastery Check](http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_mastery) if you want to prove the reasoning without the workshop scaffolding. Skip FOUNDATIONAL if you already know the vocabulary.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "PROGRESSION"
+    },
+    "viz_competency": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# What you should be able to do\n\n**FOUNDATIONAL** — explain DATA != AUTHORITY, REQUEST != GRANT, Splunk != enforcement, without launching.\n\n**PRACTITIONER** — launch a closed LIVE experiment, copy run.id, find the control decision, name the PDP.\n\n**INVESTIGATOR** — reconstruct from Search, separate authoritative runtime counts from Splunk corroboration, compare ATTACK and RETEST.\n\n**ADVANCED / PURPLE TEAM** — investigate the capstone chain and rule out domains the evidence does not require.\n\n[Mastery Check](http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_mastery) uses those labels. There is no certificate and no leaderboard. Viewing a tab is not completion.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "COMPETENCY"
+    },
+    "viz_splunk_boot": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Splunk as notebook\n\nYou do not need all of SPL. You need enough to investigate AgentSec.\n\n1. Open [Splunk Search](http://127.0.0.1:8000/en-US/app/search/search).\n2. Start with `index=agentsec_telemetry sourcetype=otel:agentic:json`.\n3. Filter a quoted `agentsec.run.id`. Do not search `index=*`.\n4. Sort by `agentsec.sequence`, not as if `_time` were authority.\n5. Read `event.name` to see which evidence plane you are on.\n6. Read `agentsec.control.id`, `agentsec.control.decision`, and `agentsec.control.reason`.\n7. Read execution events (`llm.started` or `mcp.started`) separately from ALLOW.\n\n`run.id` correlates one experiment. `sequence` orders it. A control decision is not execution. Completeness is local event count versus `dc(_raw)` on a complete copy.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "BOOTCAMP"
+    },
+    "viz_path_ab": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Path A and Path B\n\n**Path A — try it yourself.** Security question, starting index/sourcetype/run.id, Open Splunk Search, then Hint 1 / Hint 2 if needed. You construct the hunt.\n\n**Path B — show solution.** Copyable SPL from an existing Q-* hunt, expected shape, what it means, what it does not mean. Optional. Not policy.\n\nBeginner labs place Path B after the hints. The capstone treats Path B as a review key. Either way: Search first.\n\nBound Studio tables use Investigate specimen (often official LIVE or REPLAY ids). Fresh Attack Service ids are not auto-written into Studio.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "PATH A / PATH B"
+    },
+    "viz_check": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Check yourself (not scored)\n\nClassify each claim: SUPPORTED, CORROBORATED, NOT PROVEN, or INCORRECT.\n\n- \"The retrieved document granted customer:read.\"\n- \"CTRL-MCP-001 authorized the tool on this ATTACK run.\"\n- \"Splunk prevented the RETEST.\"\n- \"Missing mcp.started proves the handler never ran.\"\n- \"BASELINE means the system is SAFE.\"\n- \"DET-MCP-001 returned 0 rows, so there was no security issue.\"\n- \"One RETEST proves resistance to all RAG and memory attacks.\"\n- \"Caller agent id proves the agent authenticated.\"\n\nWrite why. Then begin [Direct Prompt Injection](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_pi_001) if you have not already. After the labs, [Mastery Check](http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_mastery) is the longer self-assessed gate.\n\nSchema remains **1.9.0**. One packaged detector exists: DET-MCP-001 (disabled, DENY-then-start only). Silence is not SAFE.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "CHECK"
     }
   },
   "layout": {
@@ -92,14 +152,14 @@
       "showTitleAndDescription": true
     },
     "layoutDefinitions": {
-      "layout_home": {
+      "layout_start": {
         "type": "grid",
         "options": {
           "backgroundColor": "#F6F8FB",
           "display": "auto-scale",
           "gutterSize": 8,
           "width": 1440,
-          "height": 1100
+          "height": 840
         },
         "structure": [
           {
@@ -109,57 +169,153 @@
               "x": 0,
               "y": 0,
               "w": 1440,
-              "h": 220
+              "h": 400
             }
           },
           {
-            "item": "viz_path",
+            "item": "viz_roles",
             "type": "block",
             "position": {
               "x": 0,
-              "y": 220,
+              "y": 400,
               "w": 720,
-              "h": 460
+              "h": 420
             }
           },
           {
-            "item": "viz_attacks",
+            "item": "viz_modes",
             "type": "block",
             "position": {
               "x": 720,
-              "y": 220,
+              "y": 400,
               "w": 720,
-              "h": 460
+              "h": 420
             }
-          },
+          }
+        ]
+      },
+      "layout_orient": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 960
+        },
+        "structure": [
           {
-            "item": "viz_context",
+            "item": "viz_orient_agent",
             "type": "block",
             "position": {
               "x": 0,
-              "y": 680,
-              "w": 480,
-              "h": 400
+              "y": 0,
+              "w": 720,
+              "h": 520
             }
           },
           {
-            "item": "viz_soc",
+            "item": "viz_orient_context",
             "type": "block",
             "position": {
-              "x": 480,
-              "y": 680,
-              "w": 480,
-              "h": 400
+              "x": 720,
+              "y": 0,
+              "w": 720,
+              "h": 520
             }
           },
           {
-            "item": "viz_ref",
+            "item": "viz_inequalities",
             "type": "block",
             "position": {
-              "x": 960,
-              "y": 680,
-              "w": 480,
-              "h": 400
+              "x": 0,
+              "y": 520,
+              "w": 1440,
+              "h": 420
+            }
+          }
+        ]
+      },
+      "layout_path": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1460
+        },
+        "structure": [
+          {
+            "item": "viz_path_intro",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_path_levels",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 280,
+              "w": 1440,
+              "h": 780
+            }
+          },
+          {
+            "item": "viz_competency",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1060,
+              "w": 1440,
+              "h": 380
+            }
+          }
+        ]
+      },
+      "layout_splunk": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1060
+        },
+        "structure": [
+          {
+            "item": "viz_splunk_boot",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 720,
+              "h": 560
+            }
+          },
+          {
+            "item": "viz_path_ab",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 0,
+              "w": 720,
+              "h": 560
+            }
+          },
+          {
+            "item": "viz_check",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 560,
+              "w": 1440,
+              "h": 480
             }
           }
         ]
@@ -171,8 +327,20 @@
       },
       "items": [
         {
-          "layoutId": "layout_home",
-          "label": "HOME"
+          "layoutId": "layout_start",
+          "label": "START"
+        },
+        {
+          "layoutId": "layout_orient",
+          "label": "ORIENT"
+        },
+        {
+          "layoutId": "layout_path",
+          "label": "PATH"
+        },
+        {
+          "layoutId": "layout_splunk",
+          "label": "SPLUNK"
         }
       ]
     }

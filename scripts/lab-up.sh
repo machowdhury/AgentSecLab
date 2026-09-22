@@ -118,7 +118,7 @@ if [ "$WAIT_READY" -eq 1 ]; then
       log "Lab is READY."
       log "AcmeBank    http://127.0.0.1:5000"
       log "Attack UI   http://127.0.0.1:5001"
-      log "Splunk      http://127.0.0.1:8000  (app: AgentSec / Home / Attack Labs / Context Security / Agent Authority / Supply Chain)"
+      log "Splunk      http://127.0.0.1:8000  (app: AgentSec / Home / Foundations / Context Security / Agent Intent / Capstone)"
       exit 0
     fi
     log "Not ready yet (attempt ${i}/80). Sleeping 15s..."

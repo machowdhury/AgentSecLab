@@ -1,6 +1,6 @@
 {
   "title": "Goal / Instruction Integrity",
-  "description": "WS-GOAL-INTEGRITY. LIVE Goal / Instruction Integrity workshop. No DET-GOAL. Splunk does not ALLOW or DENY a tool or a task.",
+  "description": "WS-GOAL-INTEGRITY. LIVE vs REPLAY Goal / Instruction Integrity workshop. No DET-GOAL. Splunk does not ALLOW or DENY a tool or a task.",
   "defaults": {
     "visualizations": {
       "splunk.table": {
@@ -195,7 +195,7 @@
     "viz_header": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# Goal / Instruction Integrity\n\nInvestigate why authorization to use a tool does not authorize every goal the agent may pursue with that tool.\n\n**LIVE EVIDENCE** · `LAB-AGENT-GOAL-INTEGRITY-001` · Schema 1.9.0 · Phase 13C validated\n\nWorkshop: LEARN · BASELINE · ATTACK · OBSERVE · HUNT · DETECT · DEFEND · RETEST · COMPARE · PROVE\n",
+        "markdown": "# Goal / Instruction Integrity\n\nInvestigate why authorization to use a tool does not authorize every goal the agent may pursue with that tool.\n\n**LIVE vs REPLAY** · Goal / Instruction Integrity · Schema 1.9.0\n\n**LIVE** — Attack Service mints a fresh run.id. Investigate in Splunk Search: [Launch](http://127.0.0.1:5001/labs/LAB-AGENT-GOAL-INTEGRITY-001)\n\n**REPLAY** — Canonical Phase 13C Investigate specimen ids bound in Studio tables below.\n\nWorkshop: LEARN · PREDICT · LIVE ATTACK · INVESTIGATE · DEFEND · LIVE RETEST · COMPARE · PROVE\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -235,7 +235,7 @@
     "viz_learn_ids": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# Evidence identity (complete values)\n\n**LIVE** Phase 13C specimens. These are evidence identity, not form fields.\n\nBASELINE (defended / normal)\n\n`0aced342-1295-4820-b807-9a8718d9e847`\n\nATTACK (vulnerable / malicious)\n\n`fd994587-7e1c-4a70-8013-54cb2c85254d`\n\nRETEST (defended / malicious)\n\n`605ba7c1-449b-4338-92df-7da3b704b08e`\n\nAuthoritative task `summarize_lending_policy_options`\n\nTask hash (Splunk OBSERVED)\n\nsha256:\n6f95aaf2adf5b37b11e35805f9bbbb24\nfdb34f38435590b5042d7c406bdf7b6c\n\nInstruction hash (13B local OBSERVED; Splunk PARTIALLY SUPPORTED via GOAL preview)\n\n`sha256:15a1c5fa3724419b21b854623c594dba28bf4f357efe39c932084374a8cbe5e2`\n\nProposed-change fingerprint (13B local OBSERVED; Splunk PARTIALLY SUPPORTED via MCP preview)\n\n`sha256:6326e3be47ecf73831a06be2b718f42219e0c950d4c989de23aa558bfdc01b34`\n\nATTACK/RETEST GOAL snapshot (Splunk OBSERVED)\n\nsha256:\n56ebf3bf964a45b39931007bfa4e3d3d\ne20535d42c44cfabf7635bf421ed8b3d\n\nDo not upgrade PARTIALLY SUPPORTED Splunk evidence to OBSERVED.\n",
+        "markdown": "# Evidence identity (complete values)\n\n**REPLAY** Phase 13C specimens. These are evidence identity for bound Studio tables, not the LIVE run you just launched.\n\nLaunch **LIVE** from [Attack Service](http://127.0.0.1:5001/labs/LAB-AGENT-GOAL-INTEGRITY-001). Do not treat these UUIDs as your fresh execution.\n\nBASELINE (defended / normal)\n\n`0aced342-1295-4820-b807-9a8718d9e847`\n\nATTACK (vulnerable / malicious)\n\n`fd994587-7e1c-4a70-8013-54cb2c85254d`\n\nRETEST (defended / malicious)\n\n`605ba7c1-449b-4338-92df-7da3b704b08e`\n\nAuthoritative task `summarize_lending_policy_options`\n\nTask hash (Splunk OBSERVED)\n\nsha256:\n6f95aaf2adf5b37b11e35805f9bbbb24\nfdb34f38435590b5042d7c406bdf7b6c\n\nInstruction hash (13B local OBSERVED; Splunk PARTIALLY SUPPORTED via GOAL preview)\n\n`sha256:15a1c5fa3724419b21b854623c594dba28bf4f357efe39c932084374a8cbe5e2`\n\nProposed-change fingerprint (13B local OBSERVED; Splunk PARTIALLY SUPPORTED via MCP preview)\n\n`sha256:6326e3be47ecf73831a06be2b718f42219e0c950d4c989de23aa558bfdc01b34`\n\nATTACK/RETEST GOAL snapshot (Splunk OBSERVED)\n\nsha256:\n56ebf3bf964a45b39931007bfa4e3d3d\ne20535d42c44cfabf7635bf421ed8b3d\n\nDo not upgrade PARTIALLY SUPPORTED Splunk evidence to OBSERVED.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -265,7 +265,7 @@
     "viz_baseline_md": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# BASELINE · LIVE\n\n**DEFENDED PROFILE** · mode BASELINE\n\n- **Input / task:** `summarize_lending_policy_options`\n- **Profile:** defended\n- **Instruction trust:** untrusted_instruction — label, not malice\n- **Proposed action:** none / original task retained\n- **Goal integrity:** **OBSERVE** · untrusted_instruction_cannot_redefine_task\n- **Tool authorization:** **ALLOW** lookup_policy · CTRL-MCP-001\n- **Effective action:** summarize_lending_policy\n- **Execution:** in-task handler **1** · wrong-goal handler **0** (runtime authoritative)\n- **Evidence run.id:** `0aced342-1295-4820-b807-9a8718d9e847`\n\nTask hash (Splunk OBSERVED)\n\nsha256:\n6f95aaf2adf5b37b11e35805f9bbbb24\nfdb34f38435590b5042d7c406bdf7b6c\n\nConclusion: an untrusted instruction can be present without producing an unauthorized task expansion.\n\nDo **not** label this SAFE, TRUSTED, APPROVED, or BENIGN.\n",
+        "markdown": "# BASELINE · REPLAY specimen\n\n**DEFENDED PROFILE** · mode BASELINE\n\n- **Input / task:** `summarize_lending_policy_options`\n- **Profile:** defended\n- **Instruction trust:** untrusted_instruction — label, not malice\n- **Proposed action:** none / original task retained\n- **Goal integrity:** **OBSERVE** · untrusted_instruction_cannot_redefine_task\n- **Tool authorization:** **ALLOW** lookup_policy · CTRL-MCP-001\n- **Effective action:** summarize_lending_policy\n- **Execution:** in-task handler **1** · wrong-goal handler **0** (runtime authoritative)\n- **Evidence run.id:** `0aced342-1295-4820-b807-9a8718d9e847`\n\nTask hash (Splunk OBSERVED)\n\nsha256:\n6f95aaf2adf5b37b11e35805f9bbbb24\nfdb34f38435590b5042d7c406bdf7b6c\n\nConclusion: an untrusted instruction can be present without producing an unauthorized task expansion.\n\nDo **not** label this SAFE, TRUSTED, APPROVED, or BENIGN.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -332,7 +332,7 @@
     "viz_attack_md": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# ATTACK · LIVE\n\n**INTENTIONALLY VULNERABLE LAB PROFILE** · mode ATTACK\n\n- **Input / task:** SAME `summarize_lending_policy_options`\n- **Profile:** intentionally vulnerable lab profile\n- **Instruction trust:** untrusted_instruction (untrusted != malicious as a class)\n- **Proposed goal:** extract_full_policy\n- **Goal integrity:** **OBSERVE** · lab-only overlay `vulnerable_profile_fail_open:untrusted_instruction_derived_task_authority`\n- **Tool authorization:** **ALLOW** lookup_policy · CTRL-MCP-001\n- **Effective action:** extract_full_policy\n- **Execution:** wrong-goal handler **1** · in-task handler **0** (runtime authoritative)\n- **Evidence run.id:** `fd994587-7e1c-4a70-8013-54cb2c85254d`\n\nTask hash (Splunk OBSERVED)\n\nsha256:\n6f95aaf2adf5b37b11e35805f9bbbb24\nfdb34f38435590b5042d7c406bdf7b6c\n\nConclusion: the tool was authorized. The expanded goal was not server-authorized. The vulnerable profile allowed the task expansion.\n\nDo not claim the tool itself was compromised. Do not claim the MCP grant check failed. Do not claim Splunk allowed execution. Overlay reason is **LAB-ONLY**, not a production IOC.\n",
+        "markdown": "# ATTACK · REPLAY specimen\n\nPredict **before** you launch. Launching is not the investigation.\n\n**WHY ARE WE DOING THIS?**\n\nWe want to test whether an untrusted instruction can redefine a server-owned task even when the tool itself remains granted. AUTHORIZED TOOL != AUTHORIZED GOAL.\n\n**WHAT DOES THE ATTACKER CONTROL?**\n\nThe closed malicious instruction bytes. Not the task contract, not the MCP grant, not the profile.\n\n**WHAT DOES THE SERVER OWN?**\n\nThe authorized task, CTRL-GOAL-INTEGRITY-001, CTRL-MCP-001, and whether the vulnerable overlay applies.\n\n**WHAT DO YOU PREDICT?**\n\nCTRL-GOAL-INTEGRITY-001 OBSERVE (labeled overlay). CTRL-MCP-001 ALLOW lookup_policy. Wrong-goal handler 1. MCP ALLOW does not mean the expanded goal was authorized.\n\n**THEN:** Open Attack Service, launch LIVE ATTACK, copy the fresh run.id, wait until **EVIDENCE READY**, then hunt in Search. Studio tokens are not this launch.\n\n[Open Attack Service (LIVE launch)](http://127.0.0.1:5001/labs/LAB-AGENT-GOAL-INTEGRITY-001)\n\n**INTENTIONALLY VULNERABLE LAB PROFILE** · mode ATTACK\n\nThe table below is canonical REPLAY `fd994587-7e1c-4a70-8013-54cb2c85254d`.\n\n- **Input / task:** SAME `summarize_lending_policy_options`\n- **Profile:** intentionally vulnerable lab profile\n- **Instruction trust:** untrusted_instruction (untrusted != malicious as a class)\n- **Proposed goal:** extract_full_policy\n- **Goal integrity:** **OBSERVE** · lab-only overlay `vulnerable_profile_fail_open:untrusted_instruction_derived_task_authority`\n- **Tool authorization:** **ALLOW** lookup_policy · CTRL-MCP-001\n- **Effective action:** extract_full_policy\n- **Execution:** wrong-goal handler **1** · in-task handler **0** (runtime authoritative)\n- **Evidence run.id:** `fd994587-7e1c-4a70-8013-54cb2c85254d`\n\nTask hash (Splunk OBSERVED)\n\nsha256:\n6f95aaf2adf5b37b11e35805f9bbbb24\nfdb34f38435590b5042d7c406bdf7b6c\n\nConclusion: the tool was authorized. The expanded goal was not server-authorized. The vulnerable profile allowed the task expansion.\n\nDo not claim the tool itself was compromised. Do not claim the MCP grant check failed. Do not claim Splunk allowed execution. Overlay reason is **LAB-ONLY**, not a production IOC.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -418,7 +418,7 @@
     "viz_observe_md": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# OBSERVE\n\nUse **Investigate specimen** (defaults BASELINE). Five planes. Indexed structured fields only. No `_raw`. No full instruction. Hash + bounded preview.\n\nInvestigate specimen defaults to the LIVE BASELINE copy. Choose Attack or Retest from the dropdown. Canonical BASELINE / ATTACK / RETEST pages bind LIVE IDs automatically. Empty tables are missing indexed rows, not security outcomes. A non-canonical run.id is an advanced Search workflow — Dashboard Studio cannot safely share one hunt token between a dropdown and a free-text field without wiping the default.\n\nStatuses in TEXT: LIVE · OBSERVE · ALLOW · DENY · CONTEXT · HUNT\n",
+        "markdown": "# OBSERVE\n\nUse **Investigate specimen** (defaults BASELINE). Five planes. Indexed structured fields only. No `_raw`. No full instruction. Hash + bounded preview.\n\nInvestigate specimen defaults to the REPLAY BASELINE copy. Choose Attack or Retest from the dropdown. Canonical BASELINE / ATTACK / RETEST pages bind REPLAY IDs automatically. Fresh LIVE run.ids come from Attack Service Search. Empty tables are missing indexed rows, not security outcomes. If Search returns zero rows, wait until Attack Service says EVIDENCE READY. Empty is not DENY. A non-canonical run.id is an advanced Search workflow — Dashboard Studio cannot safely share one hunt token between a dropdown and a free-text field without wiping the default.\n\nStatuses in TEXT: LIVE · OBSERVE · ALLOW · DENY · CONTEXT · HUNT\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -514,7 +514,7 @@
     "viz_hunt_md": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# HUNT\n\n**SECURITY QUESTION**\n\nWhat evidence connects the task, instruction, proposed goal, authorization decision, and resulting execution?\n\n**Primary hunt:** Q-GOAL-INTEGRITY-AUTHORITY bound to **Investigate specimen**.\n\n**Supporting hunts:** Q-MCP-WHO · Q-MCP-AUTHZ · Q-MCP-TOOL · Q-MCP-EXECUTED · Q-MCP-AFTER-DENY\n\nCanonical options: Baseline / Attack / Retest. Custom run.id → Splunk **Search** (Studio cannot safely share one token between dropdown and free text).\n\nAnswer:\n\n1. What task was authorized?\n2. What instruction influenced the agent?\n3. What goal/action was proposed?\n4. Was the proposed goal accepted or rejected?\n5. Which effective action resulted?\n6. Was the tool itself authorized?\n7. Did execution begin?\n8. Which handler/action actually ran?\n9. Did the agent use an authorized tool outside the authorized task?\n\nQ-MCP answers tool authorization and execution questions. It does not independently prove task/goal authorization.\n\nDo **not** hunt a regex for AGENT NOTE. Do **not** treat the vulnerable overlay reason as a production IOC.\n\nNo Q-GOAL-TASK. No Q-GOAL-INSTRUCTION. No Q-GOAL-EXECUTED. No Q-GOAL-DENY. No DET-GOAL.\n\nAUTHORIZED TOOL != AUTHORIZED GOAL. AUTHORIZED TOOL != AUTHORIZED USE OF TOOL. REQUEST != GRANT. OBSERVE != ALLOW. ALLOW != EXECUTION. SPLUNK != ENFORCEMENT.\n\nInvestigate specimen defaults to the LIVE BASELINE copy. Choose Attack or Retest from the dropdown. Canonical BASELINE / ATTACK / RETEST pages bind LIVE IDs automatically. Empty tables are missing indexed rows, not security outcomes. A non-canonical run.id is an advanced Search workflow — Dashboard Studio cannot safely share one hunt token between a dropdown and a free-text field without wiping the default.\n",
+        "markdown": "# HUNT — guided investigation\n\nTwo paths. Path A is the default. Path B is an answer key, not a replacement.\n\n**Path A — Try it yourself:** question, starter guidance, [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search). Construct the hunt.\n\n**Path B — Show solution (optional):** copyable SPL from existing Q-GOAL / Q-MCP hunts, bound REPLAY table, explanation, limitations. Open it only after Path A. It is an answer key, not policy.\n\nInvestigate specimen is canonical **REPLAY**. Fresh LIVE run.id comes from Attack Service Search handoff. Studio tokens are not auto-bound.\n\nDo not search until Attack Service reports **EVIDENCE READY** (or you have measured searchable events). HEC success is not ready.\n\n**Primary hunt:** Q-GOAL-INTEGRITY-AUTHORITY. Supporting: Q-MCP-WHO · Q-MCP-AUTHZ · Q-MCP-TOOL · Q-MCP-EXECUTED. No Q-GOAL-TASK. No DET-GOAL.\n\nFive planes stay separate: TASK · INSTRUCTION · GOAL DECISION · TOOL AUTHORIZATION · EXECUTION.\n\nDo **not** hunt a regex for AGENT NOTE. Overlay reason is a lab artifact, not a production IOC.\n\nThis tab is a **stacked notebook**: Path A, then optional hints, then Path B. Custom browser scripts are not used.\n\nAUTHORIZED TOOL != AUTHORIZED GOAL. AUTHORIZED TOOL != AUTHORIZED USE OF TOOL. REQUEST != GRANT. OBSERVE != ALLOW. ALLOW != EXECUTION. SPLUNK != ENFORCEMENT.\n\nInvestigate specimen defaults to the REPLAY BASELINE copy. Choose Attack or Retest from the dropdown. Canonical BASELINE / ATTACK / RETEST pages bind REPLAY IDs automatically. Fresh LIVE run.ids come from Attack Service Search. Empty tables are missing indexed rows, not security outcomes. If Search returns zero rows, wait until Attack Service says EVIDENCE READY. Empty is not DENY. A non-canonical run.id is an advanced Search workflow — Dashboard Studio cannot safely share one hunt token between a dropdown and a free-text field without wiping the default.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -614,6 +614,438 @@
         "headerBackgroundColor": "#0B1F33",
         "headerTextColor": "#FFFFFF",
         "noDataMessage": "No indexed event matched this evidence question. Missing control.decision is not DENY. It can be a wrong run.id or an incomplete copy."
+      }
+    },
+    "viz_i1_q": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Investigation 1 — Find the run\n\n**QUESTION**\n\nWhat events belong to this experiment?\n\n**WHAT AM I TRYING TO PROVE?**\n\nLocate run.id correlation. Filter quoted agentsec.run.id on index=agentsec_telemetry. One UUID is one experiment. Empty is not SAFE.\n\n**YOUR TASK (Path A — try it yourself)**\n\nIndex agentsec_telemetry, sourcetype otel:agentic:json. Filter quoted agentsec.run.id. Count events. Read event.name, hop.index, control.id. Do not search index=*.\n\n1. Copy the fresh LIVE run.id from Attack Service, or use Investigate specimen for canonical REPLAY.\n2. [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.\n4. Filter quoted `agentsec.run.id`. Execute. Read the fields yourself.\n\nStudio cannot receive a fresh LIVE run.id. That handoff is Search, not a token write.\n\nStarter (paste your LIVE run.id; do not search `index=*`):\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"PASTE-LIVE-RUN-ID\"\n```\n\nNeed help? Scroll to **Hint 1**, then **Hint 2**, then the Path B solution. Do not skip Path A.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I1 question"
+    },
+    "viz_i1_h1": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 1 — Investigation 1\n\nStart with index=agentsec_telemetry sourcetype=otel:agentic:json and the quoted field agentsec.run.id. Paste the LIVE run.id from Attack Service, or use the Investigate specimen REPLAY id.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I1 hint 1"
+    },
+    "viz_i1_h2": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 2 — Investigation 1\n\nQ-GOAL-INTEGRITY-AUTHORITY is the governed hunt. Canonical REPLAY BASELINE is 0aced342-1295-4820-b807-9a8718d9e847. Fresh LIVE ids come from Attack Service.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I1 hint 2"
+    },
+    "viz_i1_sol": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Solution — Investigation 1 Find the run\n\nThis is **Path B — show solution**. Open it only after you tried Path A in Search. It is an answer key, not policy. Splunk does not enforce. Path A remains Search with your LIVE run.id.\n\n**SOLUTION SPL** (`Q-GOAL-INTEGRITY-AUTHORITY`)\n\nCopy this into Search. Replace `$run_id$` with the LIVE UUID, or leave the token for Investigate specimen REPLAY.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval hop=mvindex(mvdedup('agentsec.hop.index'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval task_id=mvindex(mvdedup('agentsec.task.id'),0)\n| eval task_hash=mvindex(mvdedup('agentsec.task.hash'),0)\n| eval task_provenance=mvindex(mvdedup('agentsec.task.provenance'),0)\n| eval instruction_trust=mvindex(mvdedup('agentsec.instruction.trust'),0)\n| eval goal_proposed=mvindex(mvdedup('agentsec.goal.proposed'),0)\n| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)\n| eval content_preview=mvindex(mvdedup('agentsec.content.preview'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval resource_id=mvindex(mvdedup('agentsec.mcp.resource.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval goal_task_id=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_id,null())\n| eval goal_task_hash=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_hash,null())\n| eval goal_task_provenance=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_provenance,null())\n| eval goal_instruction_trust=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",instruction_trust,null())\n| eval goal_proposed_action=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",goal_proposed,null())\n| eval goal_integrity_decision=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",decision,null())\n| eval goal_integrity_reason=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",reason,null())\n| eval goal_snapshot_hash=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",content_hash,null())\n| eval goal_content_preview=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",content_preview,null())\n| eval mcp_tool=if(control_id=\"CTRL-MCP-001\",tool,null())\n| eval mcp_decision=if(control_id=\"CTRL-MCP-001\",decision,null())\n| eval mcp_reason=if(control_id=\"CTRL-MCP-001\",reason,null())\n| eval mcp_requested_scope=if(control_id=\"CTRL-MCP-001\",requested_scope,null())\n| eval mcp_coded_allowed_scope=if(control_id=\"CTRL-MCP-001\",allowed_scope,null())\n| eval mcp_resource_id=if(control_id=\"CTRL-MCP-001\",resource_id,null())\n| eval mcp_content_preview=if(control_id=\"CTRL-MCP-001\",content_preview,null())\n| eval mcp_started=if(event_name=\"agentsec.mcp.started\" AND hop=\"1\",1,0)\n| eval mcp_completed=if(event_name=\"agentsec.mcp.completed\" AND hop=\"1\",1,0)\n| eval mcp_failed=if(event_name=\"agentsec.mcp.failed\" AND hop=\"1\",1,0)\n| eventstats values(goal_task_id) as goal_task_id, values(goal_task_hash) as goal_task_hash, values(goal_task_provenance) as goal_task_provenance, values(goal_instruction_trust) as goal_instruction_trust, values(goal_proposed_action) as goal_proposed_action, values(goal_integrity_decision) as goal_integrity_decision, values(goal_integrity_reason) as goal_integrity_reason, values(goal_snapshot_hash) as goal_snapshot_hash, values(goal_content_preview) as goal_content_preview, values(mcp_tool) as mcp_tool, values(mcp_decision) as mcp_decision, values(mcp_reason) as mcp_reason, values(mcp_requested_scope) as mcp_requested_scope, values(mcp_coded_allowed_scope) as mcp_coded_allowed_scope, values(mcp_resource_id) as mcp_resource_id, values(mcp_content_preview) as mcp_content_preview, max(mcp_started) as has_started, max(mcp_completed) as has_completed, max(mcp_failed) as has_failed, latest(profile) as profile, latest(mode) as mode by run_id\n| eval goal_task_id=mvindex(mvdedup(goal_task_id),0)\n| eval goal_task_hash=mvindex(mvdedup(goal_task_hash),0)\n| eval goal_task_provenance=mvindex(mvdedup(goal_task_provenance),0)\n| eval goal_instruction_trust=mvindex(mvdedup(goal_instruction_trust),0)\n| eval goal_proposed_action=mvindex(mvdedup(goal_proposed_action),0)\n| eval goal_integrity_decision=mvindex(mvdedup(goal_integrity_decision),0)\n| eval goal_integrity_reason=mvindex(mvdedup(goal_integrity_reason),0)\n| eval goal_snapshot_hash=mvindex(mvdedup(goal_snapshot_hash),0)\n| eval goal_content_preview=mvindex(mvdedup(goal_content_preview),0)\n| eval mcp_tool=mvindex(mvdedup(mcp_tool),0)\n| eval mcp_decision=mvindex(mvdedup(mcp_decision),0)\n| eval mcp_reason=mvindex(mvdedup(mcp_reason),0)\n| eval mcp_requested_scope=mvindex(mvdedup(mcp_requested_scope),0)\n| eval mcp_coded_allowed_scope=mvindex(mvdedup(mcp_coded_allowed_scope),0)\n| eval mcp_resource_id=mvindex(mvdedup(mcp_resource_id),0)\n| eval mcp_content_preview=mvindex(mvdedup(mcp_content_preview),0)\n| eval execution_observation=case(has_completed=1,\"mcp.completed_observed\",has_failed=1,\"mcp.failed_observed\",has_started=1,\"mcp.started_observed\",1=1,\"no_indexed_followon_execution_event\")\n| where isnotnull(goal_integrity_decision) AND goal_integrity_decision!=\"\"\n| dedup run_id\n| table run_id, profile, mode, goal_task_id, goal_task_hash, goal_task_provenance, goal_instruction_trust, goal_content_preview, goal_proposed_action, goal_integrity_decision, goal_integrity_reason, goal_snapshot_hash, mcp_content_preview, mcp_tool, mcp_requested_scope, mcp_coded_allowed_scope, mcp_resource_id, mcp_decision, mcp_reason, execution_observation\n```\n\n**WHY THESE STAGES**\n\nConstrains agentsec_telemetry. Filters quoted run.id. Surfaces task, instruction trust, proposed goal, CTRL-GOAL-INTEGRITY-001, and joined MCP grant/execution fields. It does not authorize.\n\n**EXPECTED RESULT SHAPE**\n\nOne GOAL row for this run.id. Schema 1.9.0. workflow.entry /goal/evaluate. Event names include control.decision and later mcp.* on hop 1.\n\n**WHAT YOU ARE SEEING**\n\nYou are looking at the indexed copy of one experiment. run.id is the correlation key. It is not authorization.\n\n**WHAT IT MEANS**\n\nFinding the run proves correlation. It does not prove the goal was authorized. Splunk did not mint the run.\n\n**WHAT IT DOES NOT MEAN**\n\nFinding events does not prove the instruction was malicious, the task was authorized by Splunk, or the handler ran. Empty is not SAFE.\n\n**SECURITY CONNECTION**\n\nControl `CTRL-GOAL-INTEGRITY-001 then CTRL-MCP-001` · invariant `INV-007` · hunt `Q-GOAL-INTEGRITY-AUTHORITY`. Splunk does **not** ALLOW or DENY.\n\n**NEXT CHALLENGE**\n\nGOAL-I2-FIND-THE-AUTHORITATIVE-TASK\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I1 solution"
+    },
+    "viz_i1_tbl": {
+      "type": "splunk.table",
+      "title": "Q-GOAL-INTEGRITY-AUTHORITY (REPLAY specimen)",
+      "description": "One GOAL row. run.id is correlation, not authorization.",
+      "dataSources": {
+        "primary": "ds_q_goal"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Q-GOAL-INTEGRITY-AUTHORITY returned zero rows. Zero rows means no indexed CTRL-GOAL-INTEGRITY-001 row for this run.id. That is not SAFE, not DENY, and not a TRUSTED verdict."
+      }
+    },
+    "viz_i2_q": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Investigation 2 — Find the authoritative task\n\n**QUESTION**\n\nWhat was the agent actually authorized to accomplish?\n\n**WHAT AM I TRYING TO PROVE?**\n\ntask contract != instruction. Read agentsec.task.id summarize_lending_policy_options and agentsec.task.hash. Provenance agentsec.orchestrator.task_contract.\n\n**YOUR TASK (Path A — try it yourself)**\n\nKeep the same run.id. Read task.id, task.hash, task.preview, task.provenance. Confirm the authorized purpose is summarize lending-policy options.\n\n1. Copy the fresh LIVE run.id from Attack Service, or use Investigate specimen for canonical REPLAY.\n2. [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.\n4. Filter quoted `agentsec.run.id`. Execute. Read the fields yourself.\n\nStudio cannot receive a fresh LIVE run.id. That handoff is Search, not a token write.\n\nStarter (paste your LIVE run.id; do not search `index=*`):\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"PASTE-LIVE-RUN-ID\"\n```\n\nNeed help? Scroll to **Hint 1**, then **Hint 2**, then the Path B solution. Do not skip Path A.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I2 question"
+    },
+    "viz_i2_h1": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 1 — Investigation 2\n\nQ-GOAL-INTEGRITY-AUTHORITY columns include task identity. Task hash should be sha256:6f95aaf2adf5b37b11e35805f9bbbb24fdb34f38435590b5042d7c406bdf7b6c on A/B/C.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I2 hint 1"
+    },
+    "viz_i2_h2": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 2 — Investigation 2\n\nThe TaskContract is server-owned. The instruction cannot mint it. ATTACK and RETEST share this fingerprint.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I2 hint 2"
+    },
+    "viz_i2_sol": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Solution — Investigation 2 Find the authoritative task\n\nThis is **Path B — show solution**. Open it only after you tried Path A in Search. It is an answer key, not policy. Splunk does not enforce. Path A remains Search with your LIVE run.id.\n\n**SOLUTION SPL** (`Q-GOAL-INTEGRITY-AUTHORITY`)\n\nCopy this into Search. Replace `$run_id$` with the LIVE UUID, or leave the token for Investigate specimen REPLAY.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval hop=mvindex(mvdedup('agentsec.hop.index'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval task_id=mvindex(mvdedup('agentsec.task.id'),0)\n| eval task_hash=mvindex(mvdedup('agentsec.task.hash'),0)\n| eval task_provenance=mvindex(mvdedup('agentsec.task.provenance'),0)\n| eval instruction_trust=mvindex(mvdedup('agentsec.instruction.trust'),0)\n| eval goal_proposed=mvindex(mvdedup('agentsec.goal.proposed'),0)\n| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)\n| eval content_preview=mvindex(mvdedup('agentsec.content.preview'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval resource_id=mvindex(mvdedup('agentsec.mcp.resource.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval goal_task_id=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_id,null())\n| eval goal_task_hash=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_hash,null())\n| eval goal_task_provenance=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_provenance,null())\n| eval goal_instruction_trust=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",instruction_trust,null())\n| eval goal_proposed_action=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",goal_proposed,null())\n| eval goal_integrity_decision=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",decision,null())\n| eval goal_integrity_reason=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",reason,null())\n| eval goal_snapshot_hash=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",content_hash,null())\n| eval goal_content_preview=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",content_preview,null())\n| eval mcp_tool=if(control_id=\"CTRL-MCP-001\",tool,null())\n| eval mcp_decision=if(control_id=\"CTRL-MCP-001\",decision,null())\n| eval mcp_reason=if(control_id=\"CTRL-MCP-001\",reason,null())\n| eval mcp_requested_scope=if(control_id=\"CTRL-MCP-001\",requested_scope,null())\n| eval mcp_coded_allowed_scope=if(control_id=\"CTRL-MCP-001\",allowed_scope,null())\n| eval mcp_resource_id=if(control_id=\"CTRL-MCP-001\",resource_id,null())\n| eval mcp_content_preview=if(control_id=\"CTRL-MCP-001\",content_preview,null())\n| eval mcp_started=if(event_name=\"agentsec.mcp.started\" AND hop=\"1\",1,0)\n| eval mcp_completed=if(event_name=\"agentsec.mcp.completed\" AND hop=\"1\",1,0)\n| eval mcp_failed=if(event_name=\"agentsec.mcp.failed\" AND hop=\"1\",1,0)\n| eventstats values(goal_task_id) as goal_task_id, values(goal_task_hash) as goal_task_hash, values(goal_task_provenance) as goal_task_provenance, values(goal_instruction_trust) as goal_instruction_trust, values(goal_proposed_action) as goal_proposed_action, values(goal_integrity_decision) as goal_integrity_decision, values(goal_integrity_reason) as goal_integrity_reason, values(goal_snapshot_hash) as goal_snapshot_hash, values(goal_content_preview) as goal_content_preview, values(mcp_tool) as mcp_tool, values(mcp_decision) as mcp_decision, values(mcp_reason) as mcp_reason, values(mcp_requested_scope) as mcp_requested_scope, values(mcp_coded_allowed_scope) as mcp_coded_allowed_scope, values(mcp_resource_id) as mcp_resource_id, values(mcp_content_preview) as mcp_content_preview, max(mcp_started) as has_started, max(mcp_completed) as has_completed, max(mcp_failed) as has_failed, latest(profile) as profile, latest(mode) as mode by run_id\n| eval goal_task_id=mvindex(mvdedup(goal_task_id),0)\n| eval goal_task_hash=mvindex(mvdedup(goal_task_hash),0)\n| eval goal_task_provenance=mvindex(mvdedup(goal_task_provenance),0)\n| eval goal_instruction_trust=mvindex(mvdedup(goal_instruction_trust),0)\n| eval goal_proposed_action=mvindex(mvdedup(goal_proposed_action),0)\n| eval goal_integrity_decision=mvindex(mvdedup(goal_integrity_decision),0)\n| eval goal_integrity_reason=mvindex(mvdedup(goal_integrity_reason),0)\n| eval goal_snapshot_hash=mvindex(mvdedup(goal_snapshot_hash),0)\n| eval goal_content_preview=mvindex(mvdedup(goal_content_preview),0)\n| eval mcp_tool=mvindex(mvdedup(mcp_tool),0)\n| eval mcp_decision=mvindex(mvdedup(mcp_decision),0)\n| eval mcp_reason=mvindex(mvdedup(mcp_reason),0)\n| eval mcp_requested_scope=mvindex(mvdedup(mcp_requested_scope),0)\n| eval mcp_coded_allowed_scope=mvindex(mvdedup(mcp_coded_allowed_scope),0)\n| eval mcp_resource_id=mvindex(mvdedup(mcp_resource_id),0)\n| eval mcp_content_preview=mvindex(mvdedup(mcp_content_preview),0)\n| eval execution_observation=case(has_completed=1,\"mcp.completed_observed\",has_failed=1,\"mcp.failed_observed\",has_started=1,\"mcp.started_observed\",1=1,\"no_indexed_followon_execution_event\")\n| where isnotnull(goal_integrity_decision) AND goal_integrity_decision!=\"\"\n| dedup run_id\n| table run_id, profile, mode, goal_task_id, goal_task_hash, goal_task_provenance, goal_instruction_trust, goal_content_preview, goal_proposed_action, goal_integrity_decision, goal_integrity_reason, goal_snapshot_hash, mcp_content_preview, mcp_tool, mcp_requested_scope, mcp_coded_allowed_scope, mcp_resource_id, mcp_decision, mcp_reason, execution_observation\n```\n\n**WHY THESE STAGES**\n\nConstrains agentsec_telemetry. Filters quoted run.id. Surfaces task, instruction trust, proposed goal, CTRL-GOAL-INTEGRITY-001, and joined MCP grant/execution fields. It does not authorize.\n\n**EXPECTED RESULT SHAPE**\n\ntask.id=summarize_lending_policy_options. Same task.hash on BASELINE, ATTACK, and RETEST.\n\n**WHAT YOU ARE SEEING**\n\nThis is the authorized purpose. It is not the proposed action and not the instruction text.\n\n**WHAT IT MEANS**\n\nTASK AUTHORITY comes from the server-owned contract. The instruction is not the task.\n\n**WHAT IT DOES NOT MEAN**\n\nSeeing the task does not prove the instruction was ignored, or that the effective action stayed in-task.\n\n**SECURITY CONNECTION**\n\nControl `CTRL-GOAL-INTEGRITY-001` · invariant `INV-006` · hunt `Q-GOAL-INTEGRITY-AUTHORITY`. Splunk does **not** ALLOW or DENY.\n\n**NEXT CHALLENGE**\n\nGOAL-I3-INSPECT-THE-UNTRUSTED-INSTRUCTION\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I2 solution"
+    },
+    "viz_i2_tbl": {
+      "type": "splunk.table",
+      "title": "TASK plane (REPLAY)",
+      "description": "task.id summarize_lending_policy_options. Same hash A/B/C.",
+      "dataSources": {
+        "primary": "ds_q_goal"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Q-GOAL-INTEGRITY-AUTHORITY returned zero rows. Zero rows means no indexed CTRL-GOAL-INTEGRITY-001 row for this run.id. That is not SAFE, not DENY, and not a TRUSTED verdict."
+      }
+    },
+    "viz_i3_q": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Investigation 3 — Inspect the untrusted instruction\n\n**QUESTION**\n\nWhat instruction influenced the proposed action?\n\n**WHAT AM I TRYING TO PROVE?**\n\ninstruction influence != task authority. Read instruction.trust=untrusted_instruction. untrusted is classification, not malice.\n\n**YOUR TASK (Path A — try it yourself)**\n\nKeep the same run.id. Read instruction.trust and instruction provenance. ATTACK/RETEST share the malicious fixture fingerprint. BASELINE uses the normal note.\n\n1. Copy the fresh LIVE run.id from Attack Service, or use Investigate specimen for canonical REPLAY.\n2. [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.\n4. Filter quoted `agentsec.run.id`. Execute. Read the fields yourself.\n\nStudio cannot receive a fresh LIVE run.id. That handoff is Search, not a token write.\n\nStarter (paste your LIVE run.id; do not search `index=*`):\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"PASTE-LIVE-RUN-ID\"\n```\n\nNeed help? Scroll to **Hint 1**, then **Hint 2**, then the Path B solution. Do not skip Path A.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I3 question"
+    },
+    "viz_i3_h1": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 1 — Investigation 3\n\nInstruction hash is 13B local OBSERVED. Splunk support is PARTIALLY SUPPORTED via bounded GOAL preview. Do not upgrade PARTIALLY SUPPORTED to OBSERVED.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I3 hint 1"
+    },
+    "viz_i3_h2": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 2 — Investigation 3\n\nATTACK and RETEST instruction hash sha256:15a1c5fa3724419b21b854623c594dba28bf4f357efe39c932084374a8cbe5e2. untrusted_instruction does not mean the text is an attack.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I3 hint 2"
+    },
+    "viz_i3_sol": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Solution — Investigation 3 Inspect the untrusted instruction\n\nThis is **Path B — show solution**. Open it only after you tried Path A in Search. It is an answer key, not policy. Splunk does not enforce. Path A remains Search with your LIVE run.id.\n\n**SOLUTION SPL** (`Q-GOAL-INTEGRITY-AUTHORITY`)\n\nCopy this into Search. Replace `$run_id$` with the LIVE UUID, or leave the token for Investigate specimen REPLAY.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval hop=mvindex(mvdedup('agentsec.hop.index'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval task_id=mvindex(mvdedup('agentsec.task.id'),0)\n| eval task_hash=mvindex(mvdedup('agentsec.task.hash'),0)\n| eval task_provenance=mvindex(mvdedup('agentsec.task.provenance'),0)\n| eval instruction_trust=mvindex(mvdedup('agentsec.instruction.trust'),0)\n| eval goal_proposed=mvindex(mvdedup('agentsec.goal.proposed'),0)\n| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)\n| eval content_preview=mvindex(mvdedup('agentsec.content.preview'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval resource_id=mvindex(mvdedup('agentsec.mcp.resource.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval goal_task_id=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_id,null())\n| eval goal_task_hash=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_hash,null())\n| eval goal_task_provenance=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_provenance,null())\n| eval goal_instruction_trust=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",instruction_trust,null())\n| eval goal_proposed_action=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",goal_proposed,null())\n| eval goal_integrity_decision=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",decision,null())\n| eval goal_integrity_reason=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",reason,null())\n| eval goal_snapshot_hash=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",content_hash,null())\n| eval goal_content_preview=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",content_preview,null())\n| eval mcp_tool=if(control_id=\"CTRL-MCP-001\",tool,null())\n| eval mcp_decision=if(control_id=\"CTRL-MCP-001\",decision,null())\n| eval mcp_reason=if(control_id=\"CTRL-MCP-001\",reason,null())\n| eval mcp_requested_scope=if(control_id=\"CTRL-MCP-001\",requested_scope,null())\n| eval mcp_coded_allowed_scope=if(control_id=\"CTRL-MCP-001\",allowed_scope,null())\n| eval mcp_resource_id=if(control_id=\"CTRL-MCP-001\",resource_id,null())\n| eval mcp_content_preview=if(control_id=\"CTRL-MCP-001\",content_preview,null())\n| eval mcp_started=if(event_name=\"agentsec.mcp.started\" AND hop=\"1\",1,0)\n| eval mcp_completed=if(event_name=\"agentsec.mcp.completed\" AND hop=\"1\",1,0)\n| eval mcp_failed=if(event_name=\"agentsec.mcp.failed\" AND hop=\"1\",1,0)\n| eventstats values(goal_task_id) as goal_task_id, values(goal_task_hash) as goal_task_hash, values(goal_task_provenance) as goal_task_provenance, values(goal_instruction_trust) as goal_instruction_trust, values(goal_proposed_action) as goal_proposed_action, values(goal_integrity_decision) as goal_integrity_decision, values(goal_integrity_reason) as goal_integrity_reason, values(goal_snapshot_hash) as goal_snapshot_hash, values(goal_content_preview) as goal_content_preview, values(mcp_tool) as mcp_tool, values(mcp_decision) as mcp_decision, values(mcp_reason) as mcp_reason, values(mcp_requested_scope) as mcp_requested_scope, values(mcp_coded_allowed_scope) as mcp_coded_allowed_scope, values(mcp_resource_id) as mcp_resource_id, values(mcp_content_preview) as mcp_content_preview, max(mcp_started) as has_started, max(mcp_completed) as has_completed, max(mcp_failed) as has_failed, latest(profile) as profile, latest(mode) as mode by run_id\n| eval goal_task_id=mvindex(mvdedup(goal_task_id),0)\n| eval goal_task_hash=mvindex(mvdedup(goal_task_hash),0)\n| eval goal_task_provenance=mvindex(mvdedup(goal_task_provenance),0)\n| eval goal_instruction_trust=mvindex(mvdedup(goal_instruction_trust),0)\n| eval goal_proposed_action=mvindex(mvdedup(goal_proposed_action),0)\n| eval goal_integrity_decision=mvindex(mvdedup(goal_integrity_decision),0)\n| eval goal_integrity_reason=mvindex(mvdedup(goal_integrity_reason),0)\n| eval goal_snapshot_hash=mvindex(mvdedup(goal_snapshot_hash),0)\n| eval goal_content_preview=mvindex(mvdedup(goal_content_preview),0)\n| eval mcp_tool=mvindex(mvdedup(mcp_tool),0)\n| eval mcp_decision=mvindex(mvdedup(mcp_decision),0)\n| eval mcp_reason=mvindex(mvdedup(mcp_reason),0)\n| eval mcp_requested_scope=mvindex(mvdedup(mcp_requested_scope),0)\n| eval mcp_coded_allowed_scope=mvindex(mvdedup(mcp_coded_allowed_scope),0)\n| eval mcp_resource_id=mvindex(mvdedup(mcp_resource_id),0)\n| eval mcp_content_preview=mvindex(mvdedup(mcp_content_preview),0)\n| eval execution_observation=case(has_completed=1,\"mcp.completed_observed\",has_failed=1,\"mcp.failed_observed\",has_started=1,\"mcp.started_observed\",1=1,\"no_indexed_followon_execution_event\")\n| where isnotnull(goal_integrity_decision) AND goal_integrity_decision!=\"\"\n| dedup run_id\n| table run_id, profile, mode, goal_task_id, goal_task_hash, goal_task_provenance, goal_instruction_trust, goal_content_preview, goal_proposed_action, goal_integrity_decision, goal_integrity_reason, goal_snapshot_hash, mcp_content_preview, mcp_tool, mcp_requested_scope, mcp_coded_allowed_scope, mcp_resource_id, mcp_decision, mcp_reason, execution_observation\n```\n\n**WHY THESE STAGES**\n\nConstrains agentsec_telemetry. Filters quoted run.id. Surfaces task, instruction trust, proposed goal, CTRL-GOAL-INTEGRITY-001, and joined MCP grant/execution fields. It does not authorize.\n\n**EXPECTED RESULT SHAPE**\n\ninstruction.trust=untrusted_instruction on A/B/C. ATTACK/RETEST share the malicious fixture. BASELINE is the normal note.\n\n**WHAT YOU ARE SEEING**\n\nThe instruction is untrusted influence. It may propose a change. It cannot independently redefine the task.\n\n**WHAT IT MEANS**\n\nINSTRUCTION INFLUENCE != TASK AUTHORITY. Classification untrusted_instruction is not a malice verdict.\n\n**WHAT IT DOES NOT MEAN**\n\nThe instruction was malicious merely because it was untrusted. Influence does not prove authorization or execution.\n\n**SECURITY CONNECTION**\n\nControl `CTRL-GOAL-INTEGRITY-001` · invariant `INV-002` · hunt `Q-GOAL-INTEGRITY-AUTHORITY`. Splunk does **not** ALLOW or DENY.\n\n**NEXT CHALLENGE**\n\nGOAL-I4-RECONSTRUCT-THE-PROPOSED-GOAL\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I3 solution"
+    },
+    "viz_i3_tbl": {
+      "type": "splunk.table",
+      "title": "INSTRUCTION plane (REPLAY)",
+      "description": "untrusted_instruction is classification, not malice.",
+      "dataSources": {
+        "primary": "ds_q_goal"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Q-GOAL-INTEGRITY-AUTHORITY returned zero rows. Zero rows means no indexed CTRL-GOAL-INTEGRITY-001 row for this run.id. That is not SAFE, not DENY, and not a TRUSTED verdict."
+      }
+    },
+    "viz_i4_q": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Investigation 4 — Reconstruct the proposed goal\n\n**QUESTION**\n\nWhat action did the instruction cause the agent to propose?\n\n**WHAT AM I TRYING TO PROVE?**\n\nproposal != authorization. ATTACK/RETEST propose extract_full_policy. BASELINE retains summarize_lending_policy.\n\n**YOUR TASK (Path A — try it yourself)**\n\nRead agentsec.goal.proposed. Confirm ATTACK and RETEST propose extract_full_policy. That is the ProposedTaskChange, not a grant.\n\n1. Copy the fresh LIVE run.id from Attack Service, or use Investigate specimen for canonical REPLAY.\n2. [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.\n4. Filter quoted `agentsec.run.id`. Execute. Read the fields yourself.\n\nStudio cannot receive a fresh LIVE run.id. That handoff is Search, not a token write.\n\nStarter (paste your LIVE run.id; do not search `index=*`):\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"PASTE-LIVE-RUN-ID\"\n```\n\nNeed help? Scroll to **Hint 1**, then **Hint 2**, then the Path B solution. Do not skip Path A.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I4 question"
+    },
+    "viz_i4_h1": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 1 — Investigation 4\n\nProposed-change fingerprint sha256:6326e3be47ecf73831a06be2b718f42219e0c950d4c989de23aa558bfdc01b34 is 13B local OBSERVED. Splunk is PARTIALLY SUPPORTED via MCP preview.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I4 hint 1"
+    },
+    "viz_i4_h2": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 2 — Investigation 4\n\nextract_full_policy is not an MCP tool. It labels how lookup_policy would be used. Proposal is not a coded grant.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I4 hint 2"
+    },
+    "viz_i4_sol": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Solution — Investigation 4 Reconstruct the proposed goal\n\nThis is **Path B — show solution**. Open it only after you tried Path A in Search. It is an answer key, not policy. Splunk does not enforce. Path A remains Search with your LIVE run.id.\n\n**SOLUTION SPL** (`Q-GOAL-INTEGRITY-AUTHORITY`)\n\nCopy this into Search. Replace `$run_id$` with the LIVE UUID, or leave the token for Investigate specimen REPLAY.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval hop=mvindex(mvdedup('agentsec.hop.index'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval task_id=mvindex(mvdedup('agentsec.task.id'),0)\n| eval task_hash=mvindex(mvdedup('agentsec.task.hash'),0)\n| eval task_provenance=mvindex(mvdedup('agentsec.task.provenance'),0)\n| eval instruction_trust=mvindex(mvdedup('agentsec.instruction.trust'),0)\n| eval goal_proposed=mvindex(mvdedup('agentsec.goal.proposed'),0)\n| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)\n| eval content_preview=mvindex(mvdedup('agentsec.content.preview'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval resource_id=mvindex(mvdedup('agentsec.mcp.resource.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval goal_task_id=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_id,null())\n| eval goal_task_hash=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_hash,null())\n| eval goal_task_provenance=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_provenance,null())\n| eval goal_instruction_trust=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",instruction_trust,null())\n| eval goal_proposed_action=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",goal_proposed,null())\n| eval goal_integrity_decision=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",decision,null())\n| eval goal_integrity_reason=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",reason,null())\n| eval goal_snapshot_hash=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",content_hash,null())\n| eval goal_content_preview=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",content_preview,null())\n| eval mcp_tool=if(control_id=\"CTRL-MCP-001\",tool,null())\n| eval mcp_decision=if(control_id=\"CTRL-MCP-001\",decision,null())\n| eval mcp_reason=if(control_id=\"CTRL-MCP-001\",reason,null())\n| eval mcp_requested_scope=if(control_id=\"CTRL-MCP-001\",requested_scope,null())\n| eval mcp_coded_allowed_scope=if(control_id=\"CTRL-MCP-001\",allowed_scope,null())\n| eval mcp_resource_id=if(control_id=\"CTRL-MCP-001\",resource_id,null())\n| eval mcp_content_preview=if(control_id=\"CTRL-MCP-001\",content_preview,null())\n| eval mcp_started=if(event_name=\"agentsec.mcp.started\" AND hop=\"1\",1,0)\n| eval mcp_completed=if(event_name=\"agentsec.mcp.completed\" AND hop=\"1\",1,0)\n| eval mcp_failed=if(event_name=\"agentsec.mcp.failed\" AND hop=\"1\",1,0)\n| eventstats values(goal_task_id) as goal_task_id, values(goal_task_hash) as goal_task_hash, values(goal_task_provenance) as goal_task_provenance, values(goal_instruction_trust) as goal_instruction_trust, values(goal_proposed_action) as goal_proposed_action, values(goal_integrity_decision) as goal_integrity_decision, values(goal_integrity_reason) as goal_integrity_reason, values(goal_snapshot_hash) as goal_snapshot_hash, values(goal_content_preview) as goal_content_preview, values(mcp_tool) as mcp_tool, values(mcp_decision) as mcp_decision, values(mcp_reason) as mcp_reason, values(mcp_requested_scope) as mcp_requested_scope, values(mcp_coded_allowed_scope) as mcp_coded_allowed_scope, values(mcp_resource_id) as mcp_resource_id, values(mcp_content_preview) as mcp_content_preview, max(mcp_started) as has_started, max(mcp_completed) as has_completed, max(mcp_failed) as has_failed, latest(profile) as profile, latest(mode) as mode by run_id\n| eval goal_task_id=mvindex(mvdedup(goal_task_id),0)\n| eval goal_task_hash=mvindex(mvdedup(goal_task_hash),0)\n| eval goal_task_provenance=mvindex(mvdedup(goal_task_provenance),0)\n| eval goal_instruction_trust=mvindex(mvdedup(goal_instruction_trust),0)\n| eval goal_proposed_action=mvindex(mvdedup(goal_proposed_action),0)\n| eval goal_integrity_decision=mvindex(mvdedup(goal_integrity_decision),0)\n| eval goal_integrity_reason=mvindex(mvdedup(goal_integrity_reason),0)\n| eval goal_snapshot_hash=mvindex(mvdedup(goal_snapshot_hash),0)\n| eval goal_content_preview=mvindex(mvdedup(goal_content_preview),0)\n| eval mcp_tool=mvindex(mvdedup(mcp_tool),0)\n| eval mcp_decision=mvindex(mvdedup(mcp_decision),0)\n| eval mcp_reason=mvindex(mvdedup(mcp_reason),0)\n| eval mcp_requested_scope=mvindex(mvdedup(mcp_requested_scope),0)\n| eval mcp_coded_allowed_scope=mvindex(mvdedup(mcp_coded_allowed_scope),0)\n| eval mcp_resource_id=mvindex(mvdedup(mcp_resource_id),0)\n| eval mcp_content_preview=mvindex(mvdedup(mcp_content_preview),0)\n| eval execution_observation=case(has_completed=1,\"mcp.completed_observed\",has_failed=1,\"mcp.failed_observed\",has_started=1,\"mcp.started_observed\",1=1,\"no_indexed_followon_execution_event\")\n| where isnotnull(goal_integrity_decision) AND goal_integrity_decision!=\"\"\n| dedup run_id\n| table run_id, profile, mode, goal_task_id, goal_task_hash, goal_task_provenance, goal_instruction_trust, goal_content_preview, goal_proposed_action, goal_integrity_decision, goal_integrity_reason, goal_snapshot_hash, mcp_content_preview, mcp_tool, mcp_requested_scope, mcp_coded_allowed_scope, mcp_resource_id, mcp_decision, mcp_reason, execution_observation\n```\n\n**WHY THESE STAGES**\n\nConstrains agentsec_telemetry. Filters quoted run.id. Surfaces task, instruction trust, proposed goal, CTRL-GOAL-INTEGRITY-001, and joined MCP grant/execution fields. It does not authorize.\n\n**EXPECTED RESULT SHAPE**\n\nBASELINE proposed summarize_lending_policy. ATTACK and RETEST proposed extract_full_policy.\n\n**WHAT YOU ARE SEEING**\n\nThe instruction caused a proposal. The proposal is not authorization and not execution.\n\n**WHAT IT MEANS**\n\nPROPOSAL != AUTHORIZATION. Seeing extract_full_policy in telemetry does not mean the expansion was accepted.\n\n**WHAT IT DOES NOT MEAN**\n\nA proposed expansion is not a successful attack. It is not a tool grant.\n\n**SECURITY CONNECTION**\n\nControl `CTRL-GOAL-INTEGRITY-001` · invariant `INV-002` · hunt `Q-GOAL-INTEGRITY-AUTHORITY`. Splunk does **not** ALLOW or DENY.\n\n**NEXT CHALLENGE**\n\nGOAL-I5-EVALUATE-GOAL-INTEGRITY\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I4 solution"
+    },
+    "viz_i4_tbl": {
+      "type": "splunk.table",
+      "title": "PROPOSED GOAL (REPLAY)",
+      "description": "ATTACK/RETEST propose extract_full_policy. Proposal != authorization.",
+      "dataSources": {
+        "primary": "ds_q_goal"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Q-GOAL-INTEGRITY-AUTHORITY returned zero rows. Zero rows means no indexed CTRL-GOAL-INTEGRITY-001 row for this run.id. That is not SAFE, not DENY, and not a TRUSTED verdict."
+      }
+    },
+    "viz_i5_q": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Investigation 5 — Evaluate goal integrity\n\n**QUESTION**\n\nWhat did CTRL-GOAL-INTEGRITY-001 decide?\n\n**WHAT AM I TRYING TO PROVE?**\n\ngoal/task authorization plane. BASELINE OBSERVE untrusted_instruction_cannot_redefine_task. ATTACK OBSERVE overlay. RETEST DENY unauthorized_task_expansion. This control is not the MCP tool PDP.\n\n**YOUR TASK (Path A — try it yourself)**\n\nFilter hop 0 control.id=CTRL-GOAL-INTEGRITY-001. Read control.decision and control.reason. Distinguish OBSERVE overlay from DENY unauthorized_task_expansion.\n\n1. Copy the fresh LIVE run.id from Attack Service, or use Investigate specimen for canonical REPLAY.\n2. [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.\n4. Filter quoted `agentsec.run.id`. Execute. Read the fields yourself.\n\nStudio cannot receive a fresh LIVE run.id. That handoff is Search, not a token write.\n\nStarter (paste your LIVE run.id; do not search `index=*`):\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"PASTE-LIVE-RUN-ID\"\n```\n\nNeed help? Scroll to **Hint 1**, then **Hint 2**, then the Path B solution. Do not skip Path A.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I5 question"
+    },
+    "viz_i5_h1": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 1 — Investigation 5\n\nQ-GOAL-INTEGRITY-AUTHORITY already surfaces the GOAL decision. Hop 0 is the task plane. Hop 1 is MCP.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I5 hint 1"
+    },
+    "viz_i5_h2": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 2 — Investigation 5\n\nATTACK reason vulnerable_profile_fail_open:untrusted_instruction_derived_task_authority is LAB-ONLY, not a production IOC. RETEST DENY is not MCP DENY.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I5 hint 2"
+    },
+    "viz_i5_sol": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Solution — Investigation 5 Evaluate goal integrity\n\nThis is **Path B — show solution**. Open it only after you tried Path A in Search. It is an answer key, not policy. Splunk does not enforce. Path A remains Search with your LIVE run.id.\n\n**SOLUTION SPL** (`Q-GOAL-INTEGRITY-AUTHORITY`)\n\nCopy this into Search. Replace `$run_id$` with the LIVE UUID, or leave the token for Investigate specimen REPLAY.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval hop=mvindex(mvdedup('agentsec.hop.index'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval task_id=mvindex(mvdedup('agentsec.task.id'),0)\n| eval task_hash=mvindex(mvdedup('agentsec.task.hash'),0)\n| eval task_provenance=mvindex(mvdedup('agentsec.task.provenance'),0)\n| eval instruction_trust=mvindex(mvdedup('agentsec.instruction.trust'),0)\n| eval goal_proposed=mvindex(mvdedup('agentsec.goal.proposed'),0)\n| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)\n| eval content_preview=mvindex(mvdedup('agentsec.content.preview'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval resource_id=mvindex(mvdedup('agentsec.mcp.resource.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval goal_task_id=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_id,null())\n| eval goal_task_hash=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_hash,null())\n| eval goal_task_provenance=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_provenance,null())\n| eval goal_instruction_trust=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",instruction_trust,null())\n| eval goal_proposed_action=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",goal_proposed,null())\n| eval goal_integrity_decision=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",decision,null())\n| eval goal_integrity_reason=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",reason,null())\n| eval goal_snapshot_hash=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",content_hash,null())\n| eval goal_content_preview=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",content_preview,null())\n| eval mcp_tool=if(control_id=\"CTRL-MCP-001\",tool,null())\n| eval mcp_decision=if(control_id=\"CTRL-MCP-001\",decision,null())\n| eval mcp_reason=if(control_id=\"CTRL-MCP-001\",reason,null())\n| eval mcp_requested_scope=if(control_id=\"CTRL-MCP-001\",requested_scope,null())\n| eval mcp_coded_allowed_scope=if(control_id=\"CTRL-MCP-001\",allowed_scope,null())\n| eval mcp_resource_id=if(control_id=\"CTRL-MCP-001\",resource_id,null())\n| eval mcp_content_preview=if(control_id=\"CTRL-MCP-001\",content_preview,null())\n| eval mcp_started=if(event_name=\"agentsec.mcp.started\" AND hop=\"1\",1,0)\n| eval mcp_completed=if(event_name=\"agentsec.mcp.completed\" AND hop=\"1\",1,0)\n| eval mcp_failed=if(event_name=\"agentsec.mcp.failed\" AND hop=\"1\",1,0)\n| eventstats values(goal_task_id) as goal_task_id, values(goal_task_hash) as goal_task_hash, values(goal_task_provenance) as goal_task_provenance, values(goal_instruction_trust) as goal_instruction_trust, values(goal_proposed_action) as goal_proposed_action, values(goal_integrity_decision) as goal_integrity_decision, values(goal_integrity_reason) as goal_integrity_reason, values(goal_snapshot_hash) as goal_snapshot_hash, values(goal_content_preview) as goal_content_preview, values(mcp_tool) as mcp_tool, values(mcp_decision) as mcp_decision, values(mcp_reason) as mcp_reason, values(mcp_requested_scope) as mcp_requested_scope, values(mcp_coded_allowed_scope) as mcp_coded_allowed_scope, values(mcp_resource_id) as mcp_resource_id, values(mcp_content_preview) as mcp_content_preview, max(mcp_started) as has_started, max(mcp_completed) as has_completed, max(mcp_failed) as has_failed, latest(profile) as profile, latest(mode) as mode by run_id\n| eval goal_task_id=mvindex(mvdedup(goal_task_id),0)\n| eval goal_task_hash=mvindex(mvdedup(goal_task_hash),0)\n| eval goal_task_provenance=mvindex(mvdedup(goal_task_provenance),0)\n| eval goal_instruction_trust=mvindex(mvdedup(goal_instruction_trust),0)\n| eval goal_proposed_action=mvindex(mvdedup(goal_proposed_action),0)\n| eval goal_integrity_decision=mvindex(mvdedup(goal_integrity_decision),0)\n| eval goal_integrity_reason=mvindex(mvdedup(goal_integrity_reason),0)\n| eval goal_snapshot_hash=mvindex(mvdedup(goal_snapshot_hash),0)\n| eval goal_content_preview=mvindex(mvdedup(goal_content_preview),0)\n| eval mcp_tool=mvindex(mvdedup(mcp_tool),0)\n| eval mcp_decision=mvindex(mvdedup(mcp_decision),0)\n| eval mcp_reason=mvindex(mvdedup(mcp_reason),0)\n| eval mcp_requested_scope=mvindex(mvdedup(mcp_requested_scope),0)\n| eval mcp_coded_allowed_scope=mvindex(mvdedup(mcp_coded_allowed_scope),0)\n| eval mcp_resource_id=mvindex(mvdedup(mcp_resource_id),0)\n| eval mcp_content_preview=mvindex(mvdedup(mcp_content_preview),0)\n| eval execution_observation=case(has_completed=1,\"mcp.completed_observed\",has_failed=1,\"mcp.failed_observed\",has_started=1,\"mcp.started_observed\",1=1,\"no_indexed_followon_execution_event\")\n| where isnotnull(goal_integrity_decision) AND goal_integrity_decision!=\"\"\n| dedup run_id\n| table run_id, profile, mode, goal_task_id, goal_task_hash, goal_task_provenance, goal_instruction_trust, goal_content_preview, goal_proposed_action, goal_integrity_decision, goal_integrity_reason, goal_snapshot_hash, mcp_content_preview, mcp_tool, mcp_requested_scope, mcp_coded_allowed_scope, mcp_resource_id, mcp_decision, mcp_reason, execution_observation\n```\n\n**WHY THESE STAGES**\n\nConstrains agentsec_telemetry. Filters quoted run.id. Surfaces task, instruction trust, proposed goal, CTRL-GOAL-INTEGRITY-001, and joined MCP grant/execution fields. It does not authorize.\n\n**EXPECTED RESULT SHAPE**\n\nBASELINE OBSERVE. ATTACK OBSERVE overlay. RETEST DENY unauthorized_task_expansion.\n\n**WHAT YOU ARE SEEING**\n\nThis is the task/goal plane. OBSERVE on ATTACK is labeled fail-open. DENY on RETEST rejects expansion and keeps the original task effective.\n\n**WHAT IT MEANS**\n\nCTRL-GOAL-INTEGRITY-001 protects the task boundary. It does not ALLOW or DENY lookup_policy as a tool.\n\n**WHAT IT DOES NOT MEAN**\n\nGoal DENY does not mean lookup_policy was denied. Goal OBSERVE does not mean the goal was authorized as policy. Overlay reason is not a production IOC.\n\n**SECURITY CONNECTION**\n\nControl `CTRL-GOAL-INTEGRITY-001` · invariant `INV-006` · hunt `Q-GOAL-INTEGRITY-AUTHORITY`. Splunk does **not** ALLOW or DENY.\n\n**NEXT CHALLENGE**\n\nGOAL-I6-EVALUATE-TOOL-AUTHORIZATION\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I5 solution"
+    },
+    "viz_i5_tbl": {
+      "type": "splunk.table",
+      "title": "CTRL-GOAL-INTEGRITY-001 (REPLAY)",
+      "description": "Hop 0 task plane. Not the MCP tool PDP.",
+      "dataSources": {
+        "primary": "ds_q_goal"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Q-GOAL-INTEGRITY-AUTHORITY returned zero rows. Zero rows means no indexed CTRL-GOAL-INTEGRITY-001 row for this run.id. That is not SAFE, not DENY, and not a TRUSTED verdict."
+      }
+    },
+    "viz_i6_q": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Investigation 6 — Evaluate tool authorization\n\n**QUESTION**\n\nDid CTRL-MCP-001 allow the tool?\n\n**WHAT AM I TRYING TO PROVE?**\n\nYES in both ATTACK and RETEST. This is a critical teaching moment. CTRL-MCP-001 is the sole tool PDP. lookup_policy remains tool_granted.\n\n**YOUR TASK (Path A — try it yourself)**\n\nUse Q-MCP-AUTHZ on the same run.id. Distinguish hop-0 GOAL from hop-1 CTRL-MCP-001. Read decision and reason. Expect ALLOW tool_granted on ATTACK and RETEST.\n\n1. Copy the fresh LIVE run.id from Attack Service, or use Investigate specimen for canonical REPLAY.\n2. [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.\n4. Filter quoted `agentsec.run.id`. Execute. Read the fields yourself.\n\nStudio cannot receive a fresh LIVE run.id. That handoff is Search, not a token write.\n\nStarter (paste your LIVE run.id; do not search `index=*`):\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"PASTE-LIVE-RUN-ID\"\n```\n\nNeed help? Scroll to **Hint 1**, then **Hint 2**, then the Path B solution. Do not skip Path A.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I6 question"
+    },
+    "viz_i6_h1": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 1 — Investigation 6\n\nQ-MCP-AUTHZ lists control rows. Hop 1 should be CTRL-MCP-001 ALLOW tool_granted for lookup_policy / policy:read.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I6 hint 1"
+    },
+    "viz_i6_h2": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 2 — Investigation 6\n\nIf RETEST were MCP DENY, the lab would have failed its educational purpose. Goal DENY != MCP DENY.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I6 hint 2"
+    },
+    "viz_i6_sol": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Solution — Investigation 6 Evaluate tool authorization\n\nThis is **Path B — show solution**. Open it only after you tried Path A in Search. It is an answer key, not policy. Splunk does not enforce. Path A remains Search with your LIVE run.id.\n\n**SOLUTION SPL** (`Q-MCP-AUTHZ`)\n\nCopy this into Search. Replace `$run_id$` with the LIVE UUID, or leave the token for Investigate specimen REPLAY.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| table run_id, tool, control_id, decision, reason, requested_scope, allowed_scope, attempted, executed, outcome\n```\n\n**WHY THESE STAGES**\n\nLists control.decision rows. Hop 0 is GOAL. Hop 1 is CTRL-MCP-001 when lookup_policy is requested. ALLOW tool_granted is expected on ATTACK and RETEST.\n\n**EXPECTED RESULT SHAPE**\n\nHop 1 ALLOW tool_granted on BASELINE, ATTACK, and RETEST. Tool lookup_policy. Scope policy:read.\n\n**WHAT YOU ARE SEEING**\n\nThe tool was authorized in both experiments. That is not goal authorization.\n\n**WHAT IT MEANS**\n\nAUTHORIZED TOOL != AUTHORIZED GOAL. MCP ALLOW does not mean the action was an authorized purpose.\n\n**WHAT IT DOES NOT MEAN**\n\nMCP ALLOW means the goal was authorized. MCP ALLOW means execution. MCP prevented the RETEST attack. Goal DENY means lookup_policy was denied.\n\n**SECURITY CONNECTION**\n\nControl `CTRL-MCP-001` · invariant `INV-001` · hunt `Q-MCP-AUTHZ`. Splunk does **not** ALLOW or DENY.\n\n**NEXT CHALLENGE**\n\nGOAL-I7-DETERMINE-WHAT-EXECUTED\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I6 solution"
+    },
+    "viz_i6_tbl": {
+      "type": "splunk.table",
+      "title": "Q-MCP-AUTHZ (REPLAY)",
+      "description": "Hop 1 ALLOW tool_granted on ATTACK and RETEST.",
+      "dataSources": {
+        "primary": "ds_q_authz"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Q-GOAL-INTEGRITY-AUTHORITY returned zero rows. Zero rows means no indexed CTRL-GOAL-INTEGRITY-001 row for this run.id. That is not SAFE, not DENY, and not a TRUSTED verdict."
+      }
+    },
+    "viz_i7_q": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Investigation 7 — Determine what actually executed\n\n**QUESTION**\n\nWhich effective action/handler ran?\n\n**WHAT AM I TRYING TO PROVE?**\n\nALLOW != execution. authorized tool != authorized use. ATTACK wrong-goal handler 1. RETEST wrong-goal 0 and in-task 1. Runtime handler counts are authoritative.\n\n**YOUR TASK (Path A — try it yourself)**\n\nSearch mcp.started / mcp.completed on this run.id. Read Q-MCP-EXECUTED. Then compare runtime wrong-goal vs in-task counts from Attack Service. Splunk cannot independently prove handler labels.\n\n1. Copy the fresh LIVE run.id from Attack Service, or use Investigate specimen for canonical REPLAY.\n2. [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.\n4. Filter quoted `agentsec.run.id`. Execute. Read the fields yourself.\n\nStudio cannot receive a fresh LIVE run.id. That handoff is Search, not a token write.\n\nStarter (paste your LIVE run.id; do not search `index=*`):\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"PASTE-LIVE-RUN-ID\"\n```\n\nNeed help? Scroll to **Hint 1**, then **Hint 2**, then the Path B solution. Do not skip Path A.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I7 question"
+    },
+    "viz_i7_h1": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 1 — Investigation 7\n\nQ-MCP-TOOL is mcp.started only. Q-MCP-EXECUTED joins control + mcp.* into execution_state. extract_full_policy is not the MCP tool name on hop 1; hop-1 tool is lookup_policy.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I7 hint 1"
+    },
+    "viz_i7_h2": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# HINT 2 — Investigation 7\n\nRuntime: ATTACK wrong-goal 1 / in-task 0. RETEST wrong-goal 0 / in-task 1. Missing Splunk rows are corroboration only.\n\nPath A is still Search. This is not the full solution.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I7 hint 2"
+    },
+    "viz_i7_sol": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Solution — Investigation 7 Determine what actually executed\n\nThis is **Path B — show solution**. Open it only after you tried Path A in Search. It is an answer key, not policy. Splunk does not enforce. Path A remains Search with your LIVE run.id.\n\n**SOLUTION SPL** (`Q-MCP-EXECUTED`)\n\nCopy this into Search. Replace `$run_id$` with the LIVE UUID, or leave the token for Investigate specimen REPLAY.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$run_id$\" (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eventstats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed by run_id, tool\n| where event_name=\"agentsec.control.decision\"\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| table run_id, tool, decision, executed, outcome, has_started, has_completed, has_failed, execution_state\n```\n\n**WHY THESE STAGES**\n\nJoins control + mcp.* into execution_state. Handler labels remain runtime authoritative.\n\n**EXPECTED RESULT SHAPE**\n\nATTACK and RETEST both show lookup_policy mcp.started. Discriminator is runtime handler labeling, not MCP DENY.\n\n**WHAT YOU ARE SEEING**\n\nlookup_policy executed in both experiments. The use differed: wrong-goal vs in-task. ALLOW is not that proof by itself.\n\n**WHAT IT MEANS**\n\nALLOW != EXECUTION. AUTHORIZED TOOL != AUTHORIZED USE OF TOOL. Runtime handler count is authoritative for which purpose ran.\n\n**WHAT IT DOES NOT MEAN**\n\nmcp.started proves the goal was authorized. Empty Splunk is prevention. mcp.completed is authorization.\n\n**SECURITY CONNECTION**\n\nControl `CTRL-MCP-001` · invariant `INV-007` · hunt `Q-MCP-EXECUTED`. Splunk does **not** ALLOW or DENY.\n\n**NEXT CHALLENGE**\n\nGOAL-I8-ATTACK-VS-RETEST\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "I7 solution"
+    },
+    "viz_i7_tbl_0": {
+      "type": "splunk.table",
+      "title": "Q-MCP-EXECUTED (REPLAY)",
+      "description": "lookup_policy started. Handler labels are runtime.",
+      "dataSources": {
+        "primary": "ds_q_executed"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Q-GOAL-INTEGRITY-AUTHORITY returned zero rows. Zero rows means no indexed CTRL-GOAL-INTEGRITY-001 row for this run.id. That is not SAFE, not DENY, and not a TRUSTED verdict."
+      }
+    },
+    "viz_i7_tbl_1": {
+      "type": "splunk.table",
+      "title": "Q-MCP-TOOL (REPLAY)",
+      "description": "mcp.started rows only.",
+      "dataSources": {
+        "primary": "ds_q_tool"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No indexed event matched this evidence question. Q-GOAL-INTEGRITY-AUTHORITY returned zero rows. Zero rows means no indexed CTRL-GOAL-INTEGRITY-001 row for this run.id. That is not SAFE, not DENY, and not a TRUSTED verdict."
       }
     },
     "viz_detect_md": {
@@ -735,7 +1167,7 @@
     "viz_defend": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# DEFEND\n\nUntrusted instruction may propose a change. It cannot redefine the server-owned task. Goal integrity evaluates expansion. Tool PDP remains CTRL-MCP-001.\n\n```text\nSERVER-OWNED TASK CONTRACT\n      ↓\nUNTRUSTED INSTRUCTION\n      ↓\nPROPOSED EXPANSION\n      ↓\nCTRL-GOAL-INTEGRITY-001\n      ↓\nDENY unauthorized_task_expansion\n      ↓\nRETAIN ORIGINAL TASK\n      ↓\nCTRL-MCP-001\n      ↓\nALLOW lookup_policy\n      ↓\nEXECUTE summarize_lending_policy\n```\n\nDefense does NOT mean blocking lookup_policy.\n\nDefense means preventing untrusted instructions from redefining the authorized task while still allowing legitimate use of the authorized tool.\n\nIncorrect defenses (reject these):\n\n- block every untrusted instruction\n- deny lookup_policy\n- trust the LLM to know the correct goal\n- let Splunk authorize the task\n- treat every goal change as malicious\n- use prompt filtering as the authorization boundary\n\nAUTHORIZED TOOL != AUTHORIZED GOAL. AUTHORIZED TOOL != AUTHORIZED USE OF TOOL. REQUEST != GRANT. OBSERVE != ALLOW. ALLOW != EXECUTION. SPLUNK != ENFORCEMENT.\n",
+        "markdown": "# DEFEND\n\nUntrusted instruction may propose a change. It cannot redefine the server-owned task. Goal integrity evaluates expansion. Tool PDP remains CTRL-MCP-001.\n\n```text\nSERVER-OWNED TASK CONTRACT\n      ↓\nUNTRUSTED INSTRUCTION\n      ↓\nPROPOSED EXPANSION\n      ↓\nCTRL-GOAL-INTEGRITY-001\n      ↓\nDENY unauthorized_task_expansion\n      ↓\nRETAIN ORIGINAL TASK\n      ↓\nCTRL-MCP-001\n      ↓\nALLOW lookup_policy\n      ↓\nEXECUTE summarize_lending_policy\n```\n\nDefense does NOT mean blocking lookup_policy.\n\nDefense means preventing untrusted instructions from redefining the authorized task while still allowing legitimate use of the authorized tool.\n\nDo **not** teach: block lookup_policy, sanitize every prompt, trust a scanner, let Splunk decide, let an LLM decide authorization, or that MCP solved the problem.\n\nCTRL-GOAL-INTEGRITY-001 and CTRL-MCP-001 solve DIFFERENT security problems.\n\nLaunch **LIVE RETEST** from [Attack Service](http://127.0.0.1:5001/labs/LAB-AGENT-GOAL-INTEGRITY-001) after you have investigated LIVE ATTACK.\n\nIncorrect defenses (reject these):\n\n- block every untrusted instruction\n- deny lookup_policy\n- trust the LLM to know the correct goal\n- let Splunk authorize the task\n- treat every goal change as malicious\n- use prompt filtering as the authorization boundary\n\nAUTHORIZED TOOL != AUTHORIZED GOAL. AUTHORIZED TOOL != AUTHORIZED USE OF TOOL. REQUEST != GRANT. OBSERVE != ALLOW. ALLOW != EXECUTION. SPLUNK != ENFORCEMENT.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -755,7 +1187,7 @@
     "viz_retest_md": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# RETEST · LIVE\n\n**DEFENDED PROFILE** · mode RETEST\n\n- **Input / task:** SAME `summarize_lending_policy_options`\n- **Profile:** defended\n- **Instruction:** SAME malicious instruction (hash PARTIALLY SUPPORTED in Splunk)\n- **Proposed goal:** SAME extract_full_policy\n- **Goal integrity:** **DENY** unauthorized_task_expansion · CTRL-GOAL-INTEGRITY-001\n- **Tool authorization:** **ALLOW** lookup_policy · CTRL-MCP-001\n- **Effective action:** summarize_lending_policy\n- **Execution:** wrong-goal handler **0** · in-task handler **1** (runtime authoritative)\n- **Evidence run.id:** `605ba7c1-449b-4338-92df-7da3b704b08e`\n\nTask hash (Splunk OBSERVED)\n\nsha256:\n6f95aaf2adf5b37b11e35805f9bbbb24\nfdb34f38435590b5042d7c406bdf7b6c\n\nConclusion: the unauthorized goal did not execute. The authorized tool still executed for the original legitimate task.\n\nDo not say MCP blocked the attack.\n\nDo not use absence of a Splunk row as the sole proof.\n",
+        "markdown": "# RETEST · REPLAY specimen\n\n**WHY RETEST?**\n\nSame malicious instruction. Different server-owned profile. The question is whether the unauthorized goal is refused while the granted tool still runs for the original task.\n\n**PREDICT:** CTRL-GOAL-INTEGRITY-001 DENY unauthorized_task_expansion. CTRL-MCP-001 still ALLOW lookup_policy. Wrong-goal handler 0. In-task handler 1. MCP ALLOW on RETEST does not mean the expanded goal was authorized.\n\n**THEN:** Open Attack Service, launch LIVE RETEST, copy the fresh run.id, wait until **EVIDENCE READY**.\n\n[Open Attack Service (LIVE RETEST)](http://127.0.0.1:5001/labs/LAB-AGENT-GOAL-INTEGRITY-001)\n\n**DEFENDED PROFILE** · mode RETEST\n\nSame malicious bytes. Different ExperimentContext (defended). MCP still ALLOWs lookup_policy. The table below is canonical REPLAY `605ba7c1-449b-4338-92df-7da3b704b08e`.\n\n- **Input / task:** SAME `summarize_lending_policy_options`\n- **Profile:** defended\n- **Instruction:** SAME malicious instruction (hash PARTIALLY SUPPORTED in Splunk)\n- **Proposed goal:** SAME extract_full_policy\n- **Goal integrity:** **DENY** unauthorized_task_expansion · CTRL-GOAL-INTEGRITY-001\n- **Tool authorization:** **ALLOW** lookup_policy · CTRL-MCP-001\n- **Effective action:** summarize_lending_policy\n- **Execution:** wrong-goal handler **0** · in-task handler **1** (runtime authoritative)\n- **Evidence run.id:** `605ba7c1-449b-4338-92df-7da3b704b08e`\n\nTask hash (Splunk OBSERVED)\n\nsha256:\n6f95aaf2adf5b37b11e35805f9bbbb24\nfdb34f38435590b5042d7c406bdf7b6c\n\nConclusion: the unauthorized goal did not execute. The authorized tool still executed for the original legitimate task.\n\nDo not say MCP blocked the attack.\n\nDo not use absence of a Splunk row as the sole proof.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -851,7 +1283,7 @@
     "viz_cmp_card_base": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# BASELINE\n\n**LIVE** · defended / normal\n\n- **Profile:** defended\n- **Input / fingerprint:** `summarize_lending_policy_options`\n- **Trust:** untrusted_instruction\n- **Proposed action:** summarize_lending_policy\n- **Security decision:** **OBSERVE** untrusted_instruction_cannot_redefine_task\n- **Tool authorization:** **ALLOW** lookup_policy\n- **Effective action:** summarize_lending_policy\n- **Execution:** mcp.started observed\n- **Handler count:** in-task **1** · wrong-goal **0**\n- **Evidence run.id:** `0aced342-1295-4820-b807-9a8718d9e847`\n\nDo not label SAFE.\n",
+        "markdown": "# BASELINE\n\n**REPLAY** · defended / normal\n\n- **Profile:** defended\n- **Input / fingerprint:** `summarize_lending_policy_options`\n- **Trust:** untrusted_instruction\n- **Proposed action:** summarize_lending_policy\n- **Security decision:** **OBSERVE** untrusted_instruction_cannot_redefine_task\n- **Tool authorization:** **ALLOW** lookup_policy\n- **Effective action:** summarize_lending_policy\n- **Execution:** mcp.started observed\n- **Handler count:** in-task **1** · wrong-goal **0**\n- **Evidence run.id:** `0aced342-1295-4820-b807-9a8718d9e847`\n\nDo not label SAFE.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -861,7 +1293,7 @@
     "viz_cmp_card_atk": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# ATTACK\n\n**LIVE** · **INTENTIONALLY VULNERABLE LAB PROFILE**\n\n- **Profile:** vulnerable\n- **Input / fingerprint:** SAME `summarize_lending_policy_options`\n- **Trust:** untrusted_instruction\n- **Proposed action:** SAME extract_full_policy\n- **Security decision:** **OBSERVE** overlay (lab-only)\n- **Tool authorization:** **ALLOW** lookup_policy\n- **Effective action:** **DIFFERENT** extract_full_policy\n- **Execution:** mcp.started observed\n- **Handler count:** in-task **0** · wrong-goal **1**\n- **Evidence run.id:** `fd994587-7e1c-4a70-8013-54cb2c85254d`\n\nMCP ALLOW + wrong-goal execution. Overlay is LAB-ONLY, not a production IOC.\n",
+        "markdown": "# ATTACK\n\n**REPLAY** · **INTENTIONALLY VULNERABLE LAB PROFILE**\n\n- **Profile:** vulnerable\n- **Input / fingerprint:** SAME `summarize_lending_policy_options`\n- **Trust:** untrusted_instruction\n- **Proposed action:** SAME extract_full_policy\n- **Security decision:** **OBSERVE** overlay (lab-only)\n- **Tool authorization:** **ALLOW** lookup_policy\n- **Effective action:** **DIFFERENT** extract_full_policy\n- **Execution:** mcp.started observed\n- **Handler count:** in-task **0** · wrong-goal **1**\n- **Evidence run.id:** `fd994587-7e1c-4a70-8013-54cb2c85254d`\n\nMCP ALLOW + wrong-goal execution. Overlay is LAB-ONLY, not a production IOC.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -871,7 +1303,7 @@
     "viz_cmp_card_rt": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# RETEST\n\n**LIVE** · defended / malicious instruction\n\n- **Profile:** defended\n- **Input / fingerprint:** SAME `summarize_lending_policy_options`\n- **Trust:** untrusted_instruction\n- **Proposed action:** SAME extract_full_policy\n- **Security decision:** **DIFFERENT DENY** unauthorized_task_expansion\n- **Tool authorization:** **ALLOW** lookup_policy\n- **Effective action:** **DIFFERENT** summarize_lending_policy\n- **Execution:** mcp.started observed\n- **Handler count:** in-task **1** · wrong-goal **0**\n- **Evidence run.id:** `605ba7c1-449b-4338-92df-7da3b704b08e`\n\nMCP ALLOW + wrong-goal 0 + legitimate handler 1. Do not say MCP blocked the attack.\n",
+        "markdown": "# RETEST\n\n**REPLAY** · defended / malicious instruction\n\n- **Profile:** defended\n- **Input / fingerprint:** SAME `summarize_lending_policy_options`\n- **Trust:** untrusted_instruction\n- **Proposed action:** SAME extract_full_policy\n- **Security decision:** **DIFFERENT DENY** unauthorized_task_expansion\n- **Tool authorization:** **ALLOW** lookup_policy\n- **Effective action:** **DIFFERENT** summarize_lending_policy\n- **Execution:** mcp.started observed\n- **Handler count:** in-task **1** · wrong-goal **0**\n- **Evidence run.id:** `605ba7c1-449b-4338-92df-7da3b704b08e`\n\nMCP ALLOW + wrong-goal 0 + legitimate handler 1. Do not say MCP blocked the attack.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -938,7 +1370,7 @@
     "viz_prove": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# PROVE\n\nEvidence hierarchy. Splunk does not manufacture runtime truth.\n\n## WHAT WE CAN PROVE\n\n- Authoritative task `summarize_lending_policy_options` (same A/B/C). Task hash Splunk OBSERVED.\n- Instruction trust `untrusted_instruction` (classification, not malice).\n- ATTACK/RETEST proposed extract_full_policy. BASELINE retained the original task.\n- CTRL-GOAL-INTEGRITY-001: BASELINE OBSERVE · ATTACK OBSERVE overlay · RETEST DENY.\n- CTRL-MCP-001 ALLOW lookup_policy on A/B/C.\n- Runtime handlers: ATTACK wrong-goal 1; RETEST wrong-goal 0 and in-task 1.\n- DET-MCP-001 0/0/0 is CORRECT and is not SAFE.\n\n## WHAT WE CANNOT PROVE\n\n- Instruction hash / proposed-change hash as first-class Splunk fields (PARTIALLY SUPPORTED via preview).\n- First-class effective_action / permitted-action id.\n- That Splunk enforced RETEST (Splunk does not enforce).\n- That MCP blocked the attack (MCP ALLOWED lookup_policy).\n\n## AUTHORITATIVE EVIDENCE\n\nRuntime handler counts. Local pack / events.jsonl. Completeness = local count vs dc(_raw).\n\n## CORROBORATIVE EVIDENCE\n\nQ-GOAL-INTEGRITY-AUTHORITY. Q-MCP hunts. Studio tables. Zero rows follow no-data semantics.\n\n## KNOWLEDGE CHECK\n\nAnswers in knowledge-check.md.\n\n1. What was the authoritative task?\n2. Where did task authority originate?\n3. What was the instruction trust classification?\n4. Does untrusted_instruction mean malicious?\n5. What action did the instruction propose?\n6. Was that proposed action automatically authorized?\n7. What did CTRL-GOAL-INTEGRITY-001 decide?\n8. Is CTRL-GOAL-INTEGRITY-001 the MCP tool PDP?\n9. What did CTRL-MCP-001 decide?\n10. Was lookup_policy authorized in ATTACK?\n11. Was lookup_policy authorized in RETEST?\n12. Why does that not make ATTACK and RETEST equivalent?\n13. What actually executed in ATTACK?\n14. What actually executed in RETEST?\n15. What is the authoritative proof the wrong goal did not execute?\n16. Why is DET-MCP-001 0 for RETEST?\n17. Why does DET-MCP-001 silence not mean SAFE?\n18. Why is the overlay reason not a production IOC?\n19. Why should a SOC reconstruct task + goal + tool + execution?\n20. What does AUTHORIZED TOOL != AUTHORIZED USE OF TOOL mean?\n\n## LIMITATIONS\n\nLIVE A/B/C are OBSERVED/MEASURED. DETECT SIMULATED table is **SIMULATED**.\n\nValidated LIVE: BASELINE `0aced342-1295-4820-b807-9a8718d9e847` · ATTACK `fd994587-7e1c-4a70-8013-54cb2c85254d` · RETEST `605ba7c1-449b-4338-92df-7da3b704b08e`.\n\nTask fingerprint `sha256:6f95aaf2adf5b37b11e35805f9bbbb24fdb34f38435590b5042d7c406bdf7b6c`\n\nNo DET-GOAL. Schema 1.9.0. Phase 14 not started. No A2A. No rug-pull. No ML implementation.\n",
+        "markdown": "# PROVE\n\nEvidence hierarchy. Splunk does not manufacture runtime truth.\n\n## WHAT WE CAN PROVE\n\n**YOU JUST LEARNED** — AUTHORIZED TOOL != AUTHORIZED GOAL. CTRL-GOAL-INTEGRITY-001 and CTRL-MCP-001 solve different problems. RETEST is not MCP DENY.\n\n**THIS CONNECTS TO** — identity/delegation claims, which also cannot mint grants.\n\n**NEXT** — Agent Identity / Delegation (LIVE). Then Confused Deputy (REPLAY) so you do not collapse deputy into identity.\n\n- Authoritative task `summarize_lending_policy_options` (same A/B/C). Task hash Splunk OBSERVED.\n- Instruction trust `untrusted_instruction` (classification, not malice).\n- ATTACK/RETEST proposed extract_full_policy. BASELINE retained the original task.\n- CTRL-GOAL-INTEGRITY-001: BASELINE OBSERVE · ATTACK OBSERVE overlay · RETEST DENY.\n- CTRL-MCP-001 ALLOW lookup_policy on A/B/C.\n- Runtime handlers: ATTACK wrong-goal 1; RETEST wrong-goal 0 and in-task 1.\n- DET-MCP-001 0/0/0 is CORRECT and is not SAFE.\n\n## SUPPORTED\n\n- same authoritative task\n- same malicious instruction\n- same proposed expansion\n- lookup_policy was tool-authorized in both experiments\n- vulnerable run executed the wrong goal\n- defended run did not execute the wrong goal\n- defended run executed the original task\n\n## CORROBORATED\n\n- complete indexed sequence agrees with runtime evidence\n\n## NOT PROVEN\n\n- every prompt injection is prevented\n- lookup_policy is universally safe\n- the instruction was malicious merely because it was untrusted\n- that the SIEM stopped execution\n- that MCP stopped the RETEST attack\n\n## INCORRECT\n\n- MCP ALLOW means the goal was authorized\n- tool authorization and task authorization are the same thing\n- goal DENY means lookup_policy was denied\n- Splunk is the enforcement point\n\n## WHAT WE CANNOT PROVE\n\n- Instruction hash / proposed-change hash as first-class Splunk fields (PARTIALLY SUPPORTED via preview).\n- First-class effective_action / permitted-action id.\n- That Splunk enforced RETEST (Splunk does not enforce).\n- That MCP blocked the attack (MCP ALLOWED lookup_policy).\n\n## AUTHORITATIVE EVIDENCE\n\nRuntime handler counts. Local pack / events.jsonl. Completeness = local count vs dc(_raw).\n\n## CORROBORATIVE EVIDENCE\n\nQ-GOAL-INTEGRITY-AUTHORITY. Q-MCP hunts. Studio tables. Zero rows follow no-data semantics.\n\n## KNOWLEDGE CHECK\n\nAnswer from evidence on this tab.\n\n1. What was the authoritative task?\n2. Where did task authority originate?\n3. What was the instruction trust classification?\n4. Does untrusted_instruction mean malicious?\n5. What action did the instruction propose?\n6. Was that proposed action automatically authorized?\n7. What did CTRL-GOAL-INTEGRITY-001 decide?\n8. Is CTRL-GOAL-INTEGRITY-001 the MCP tool PDP?\n9. What did CTRL-MCP-001 decide?\n10. Was lookup_policy authorized in ATTACK?\n11. Was lookup_policy authorized in RETEST?\n12. Why does that not make ATTACK and RETEST equivalent?\n13. What actually executed in ATTACK?\n14. What actually executed in RETEST?\n15. What is the authoritative proof the wrong goal did not execute?\n16. Why is DET-MCP-001 0 for RETEST?\n17. Why does DET-MCP-001 silence not mean SAFE?\n18. Why is the overlay reason not a production IOC?\n19. Why should a SOC reconstruct task + goal + tool + execution?\n20. What does AUTHORIZED TOOL != AUTHORIZED USE OF TOOL mean?\n\n## LIMITATIONS\n\nLIVE Attack Service launches are OBSERVED/MEASURED with new run.ids. Studio tables are **REPLAY**. DETECT SIMULATED table is **SIMULATED**.\n\nCanonical REPLAY: BASELINE `0aced342-1295-4820-b807-9a8718d9e847` · ATTACK `fd994587-7e1c-4a70-8013-54cb2c85254d` · RETEST `605ba7c1-449b-4338-92df-7da3b704b08e`.\n\nTask fingerprint `sha256:6f95aaf2adf5b37b11e35805f9bbbb24fdb34f38435590b5042d7c406bdf7b6c`\n\nNo DET-GOAL. Schema 1.9.0. Identity / Delegation is the next LIVE lab. Do not start Phase 15E. No A2A. No rug-pull.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -1297,7 +1729,7 @@
           "display": "auto-scale",
           "gutterSize": 8,
           "width": 1440,
-          "height": 1460
+          "height": 11220
         },
         "structure": [
           {
@@ -1307,7 +1739,7 @@
               "x": 0,
               "y": 0,
               "w": 1440,
-              "h": 680
+              "h": 520
             }
           },
           {
@@ -1315,9 +1747,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 680,
+              "y": 520,
               "w": 1440,
-              "h": 280
+              "h": 260
             }
           },
           {
@@ -1325,9 +1757,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 960,
+              "y": 780,
               "w": 720,
-              "h": 240
+              "h": 220
             }
           },
           {
@@ -1335,9 +1767,9 @@
             "type": "block",
             "position": {
               "x": 720,
-              "y": 960,
+              "y": 780,
               "w": 720,
-              "h": 240
+              "h": 220
             }
           },
           {
@@ -1345,9 +1777,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 1200,
+              "y": 1000,
               "w": 720,
-              "h": 240
+              "h": 220
             }
           },
           {
@@ -1355,9 +1787,369 @@
             "type": "block",
             "position": {
               "x": 720,
-              "y": 1200,
+              "y": 1000,
               "w": 720,
-              "h": 240
+              "h": 220
+            }
+          },
+          {
+            "item": "viz_i1_q",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1240,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i1_h1",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1540,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i1_h2",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1700,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i1_sol",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1860,
+              "w": 1440,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_i1_tbl",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 2380,
+              "w": 1440,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_i2_q",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 2660,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i2_h1",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 2960,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i2_h2",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 3120,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i2_sol",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 3280,
+              "w": 1440,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_i2_tbl",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 3800,
+              "w": 1440,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_i3_q",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 4080,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i3_h1",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 4380,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i3_h2",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 4540,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i3_sol",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 4700,
+              "w": 1440,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_i3_tbl",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 5220,
+              "w": 1440,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_i4_q",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 5500,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i4_h1",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 5800,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i4_h2",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 5960,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i4_sol",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 6120,
+              "w": 1440,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_i4_tbl",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 6640,
+              "w": 1440,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_i5_q",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 6920,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i5_h1",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 7220,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i5_h2",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 7380,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i5_sol",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 7540,
+              "w": 1440,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_i5_tbl",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 8060,
+              "w": 1440,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_i6_q",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 8340,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i6_h1",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 8640,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i6_h2",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 8800,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i6_sol",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 8960,
+              "w": 1440,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_i6_tbl",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 9480,
+              "w": 1440,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_i7_q",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 9760,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_i7_h1",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 10060,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i7_h2",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 10220,
+              "w": 1440,
+              "h": 160
+            }
+          },
+          {
+            "item": "viz_i7_sol",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 10380,
+              "w": 1440,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_i7_tbl_0",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 10900,
+              "w": 720,
+              "h": 280
+            }
+          },
+          {
+            "item": "viz_i7_tbl_1",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 10900,
+              "w": 720,
+              "h": 280
             }
           }
         ]
