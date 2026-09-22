@@ -1,57 +1,130 @@
 # AgentSec Lab
 
-An open agentic AI security learning and SOC experimentation range. Splunk is where you hunt. AcmeBank is where controls run.
+AgentSec is a **hands-on agentic-security learning range**. You run controlled experiments against a vulnerable or defended educational agent, then investigate the evidence in Splunk.
 
-See `docs/IMPLEMENTATION_STATUS.md`. LAB-PI-001 Dashboard Studio: `docs/PHASE2C3_DASHBOARD.md`. Local compose: `docs/LOCAL_DOCKER_LAB.md`.
+Splunk is the investigation workbench. AcmeBank is where authorization and reference controls run. The Attack Service is a closed educational launcher on localhost. Splunk does **not** become the policy decision point because events are indexed there.
 
-For Splunk knowledge-object work, read `.cursor/rules/33-splunk-agent-skills.mdc`, then use `.cursor/skills/splunk-ko-review/SKILL.md`, and consult the applicable official Splunk Agent Skills. For learner-facing UI also read `.cursor/rules/32-ui-design-system.mdc` and run `/ui-review`. For evidence/security reasoning run `/logic-proof`. Inventory: `docs/SPLUNK_KNOWLEDGE_OBJECT_INVENTORY.md`.
+**Release status:** v1.0.0-rc1 candidate (product version). Telemetry schema remains **1.9.0**. This is not a production security product.
 
-## Tests
+## Who is it for
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e ".[test]"
-pytest tests/unit tests/integration tests/security tests/telemetry tests/splunk tests/workshops -q
+Technically capable learners, instructors, SOC analysts, and security architects who want a **local** lab—not a production AI-security product.
+
+## Getting started
+
+Follow [docs/QUICKSTART.md](docs/QUICKSTART.md) (also [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)). Curriculum: [docs/AGENTSEC_RELEASE_LAB_MATRIX.md](docs/AGENTSEC_RELEASE_LAB_MATRIX.md). After start, open Academy Home: http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home
+
+## Why it exists
+
+Agentic systems mix untrusted text, tools, retrieved documents, memory, and delegated work. AgentSec teaches you to reconstruct what happened, name the trust boundary, and distinguish:
+
+- request vs grant
+- classification vs authorization
+- authorization vs execution
+- LIVE evidence vs REPLAY specimens
+- a missing Splunk row vs a blocked action
+
+## What you will learn
+
+A published Academy curriculum: Direct Prompt Injection, MCP tool authorization, RAG/memory context, goal integrity, identity/delegation, REPLAY workshops, an integrated Capstone, and a Mastery Check. Details: [docs/AGENTSEC_RELEASE_LAB_MATRIX.md](docs/AGENTSEC_RELEASE_LAB_MATRIX.md).
+
+## Architecture (actual v1.0)
+
+```text
+Learner
+    ↓
+Splunk Dashboard Studio Academy
+    ↓
+Attack Service (closed launch contract, localhost)
+    ↓
+AcmeBank runtime (controls / PDP)
+    ↓
+OpenTelemetry → collector → Splunk HEC
+    ↓
+Splunk Search / evidence reconstruction
 ```
 
-Stub LLM tests prove DENY-before-call with a spy on the LLM client. They do not prove a live Ollama completion or a Splunk query.
+Full picture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Security limits: [docs/SECURITY_BOUNDARY.md](docs/SECURITY_BOUNDARY.md).
 
-`tests/integration/test_ollama_live.py` uses the real Ollama client and **skips** if the configured model is not reachable. A skip is not a pass.
+## What you need
 
-## LOCAL DOCKER LAB
+Docker (Compose v2), Git, a browser, this repository. Hardware minimums are **NOT BENCHMARKED**. Copy [`.env.example`](.env.example) to `.env` once. Never commit `.env`.
 
-Fully Docker-managed: AcmeBank, Attack UI, Ollama, OTel Collector, Splunk, `agentsec_telemetry`, HEC, AgentSec app, Dashboard Studio `ws_lab_pi_001`.
+See [docs/QUICKSTART.md](docs/QUICKSTART.md) and [docs/AGENTSEC_PREREQUISITES.md](docs/AGENTSEC_PREREQUISITES.md).
+
+## How to start
+
+From the repository root:
 
 ```bash
-cp .env.example .env    # once; never commit .env
-./scripts/lab-up.sh
+./scripts/lab-preflight.sh
+cp .env.example .env          # once; do not commit .env
+./scripts/lab-up.sh           # first Splunk boot can take 10–20 minutes
+./scripts/lab-ready.sh        # SERVICE HEALTH, not searchable evidence
 ```
 
-That is the normal start. It stages the Splunk app into a writable named volume **before** Splunk is healthy. Do not `docker cp` the app. Do not `chown` inside the container.
+After READY:
 
-| Change | Command |
+| URL | What it is |
+|-----|------------|
+| http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home | AgentSec Academy Home (start here) |
+| http://127.0.0.1:5001 | Attack Service (LIVE launch) |
+| http://127.0.0.1:5000/health | AcmeBank health |
+
+Do not publish these ports to untrusted networks. Attack Service is unauthenticated by design.
+
+## Local Docker lab vs External Splunk
+
+The commands above start the **local Docker lab**. **External Splunk** is not started by `lab-up.sh`; you would supply HEC yourself. Details: [docs/LOCAL_DOCKER_LAB.md](docs/LOCAL_DOCKER_LAB.md).
+
+## After startup
+
+1. Open Academy Home. Read ORIENT. Understand **LIVE** vs **REPLAY**.
+2. Open **Direct Prompt Injection**. Predict, then launch ATTACK from Attack Service.
+3. Copy the fresh `run.id`. Investigate in Splunk Search (Path A). Path B is an answer key.
+4. DEFEND / RETEST / COMPARE / PROVE as the lab teaches.
+5. Continue the curriculum to Capstone and Mastery Check.
+
+## LIVE vs REPLAY
+
+**LIVE** means the runtime executed now and minted a new `run.id`. **REPLAY** is a canonical historical specimen used for teaching. A REPLAY dashboard is not proof that you just executed that attack. [docs/LIVE_VS_REPLAY.md](docs/LIVE_VS_REPLAY.md).
+
+## Stop and reset
+
+| Intent | Command |
 |--------|---------|
-| First start / after `docker compose down` | `./scripts/lab-up.sh` |
-| Rebuild AcmeBank / Attack images | `./scripts/lab-up.sh --build` |
-| Edit `splunk_app/agentsec/` while the stack is up | `./scripts/lab-up.sh --refresh-app` |
-| Check READY without starting | `./scripts/lab-ready.sh` |
-| Clean first boot | `docker compose down -v` then `./scripts/lab-up.sh` |
+| Soft stop (keep evidence) | `./scripts/lab-down.sh` |
+| Start again | `./scripts/lab-up.sh` |
+| Rebuild app images | `./scripts/lab-up.sh --build` |
+| Restage Splunk XML | `./scripts/lab-up.sh --refresh-app` |
+| Full reset (destroys volumes) | explicit `docker compose … down -v` — see [docs/OPERATIONS.md](docs/OPERATIONS.md) |
 
-READY means app files, `ws_lab_pi_001`, index, HEC, mesh HEC, and the two Flask health endpoints. A running Splunk process alone is not READY.
+## Troubleshooting
 
-- AcmeBank: http://127.0.0.1:5000
-- Attack UI: http://127.0.0.1:5001
-- Splunk: http://127.0.0.1:8000 (app **AgentSec**)
+[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). A missing Splunk row is not automatically “the attack was blocked.”
 
-Do not publish these ports to the internet. Attack Service is unauthenticated.
+## Security limitations
 
-## EXTERNAL SPLUNK
+AgentSec **intentionally contains vulnerable educational behavior**. It is for controlled local learning. It is not a production gateway, PDP, SIEM content pack, identity platform, or certification program. [docs/KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md).
 
-Not started by `lab-up.sh`. You supply HEC endpoint, token, and index (environment / collector config) and install `splunk_app/agentsec` with **your** Splunk deployment mechanism (UI install, deployment server, cluster bundle, Splunk Cloud app). Do not use the local named-volume init against an external instance.
+## License
 
-Details: `docs/LOCAL_DOCKER_LAB.md`.
+Apache License 2.0. See [LICENSE](LICENSE).
 
-## Not in this lab slice
+## Deeper docs
 
-MCP, A2A, memory attacks, RAG attacks, MLTK, Cisco tools, attack chains, compliance UI, background ticker.
+| Doc | Use |
+|-----|-----|
+| [docs/QUICKSTART.md](docs/QUICKSTART.md) | Linear first run |
+| [docs/AGENTSEC_V1_PRODUCT_BOUNDARY.md](docs/AGENTSEC_V1_PRODUCT_BOUNDARY.md) | What v1.0 is / is not |
+| [docs/INSTRUCTOR_GUIDE.md](docs/INSTRUCTOR_GUIDE.md) | Workshop preparation |
+| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Learner vs developer workflow |
+| [CHANGELOG.md](CHANGELOG.md) | Product changelog |
+| [docs/releases/V1_0_0_RC1_RELEASE_NOTES.md](docs/releases/V1_0_0_RC1_RELEASE_NOTES.md) | RC1 notes |
+| [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) | Historical phase provenance |
+
+Developer tests (optional; not required to learn):
+
+```bash
+uv run --extra test python -m pytest tests -q --tb=line -m "not live_ollama and not live_splunk"
+```

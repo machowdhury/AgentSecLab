@@ -647,6 +647,26 @@ Same security question as 8B. Runtime fixture, CTRL-MCP-METADATA-001 OBSERVE, pe
 
 ---
 
+### Phase 17C — Technical correctness, evidence, and security-claims audit
+
+**Status:** IMPLEMENTED 2026-09-21. Schema **1.9.0** unchanged. Runtime authorization **UNCHANGED**. No new attack domain. No DET-*. No MLTK. No progress backend. Not a certificate. **Do not start Phase 17D from this file.**
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Are AgentSec’s learner-facing technical claims evidence-based and defensible? |
+| **Attack / control** | Unchanged. Existing PDPs and OBSERVE classifiers. |
+| **Telemetry / schema** | 1.9.0 unchanged. `technique_id_for` unchanged. |
+| **Splunk** | Completeness revalidation of official pairs. No new Q-*. |
+| **Invariant** | Existing INV-*; learning metadata ≠ policy; Splunk ≠ enforcement. |
+| **Learning objective** | Name authority, evidence class, and limitation before using a strong verb. |
+| **Dependencies** | 17B fresh-learner PASS + explicit 17C request. |
+| **Risk** | Strengthening claims; remapping ATLAS in emitters; new detectors. |
+| **Complexity** | Medium (audit/copy). |
+
+**STOP after Phase 17C.** Do not start Phase 17D, detectors, MLTK, real A2A, HITL, rug-pull, vector DB, OAuth/OIDC/SPIFFE, or a schema bump from this file.
+
+---
+
 ## NEXT 5 PHASES (after 8B/8C)
 
 Planning labels shifted: **9A is scanner architecture (this file), not rug-pull.** Rug-pull remains NOT STARTED.
@@ -715,6 +735,8 @@ First research reproductions (not scheduled as product phases):
 ## Recommended next phase (exactly one)
 
 **Phase 15B — LAB-RAG-CONTEXT LIVE purple-team loop: ACCEPT as IMPLEMENTED + LIVE SPLUNK MEASURED + UI REVIEWED. Schema 1.9.0. No DET-RAG. Official pair ATTACK `41b1dbf5-f1b6-4cbc-8758-dac83633c89a` / RETEST `403319da-8a8a-4064-97ce-aa1b4234eb1f`.**
+
+**Phase 17C — Technical correctness / evidence / security-claims audit: ACCEPT as IMPLEMENTED (copy corrections + claim ledger). Schema 1.9.0. No new attack, detector, or authorization change. STOP. Do not start Phase 17D from this file.**
 
 **Phase 17B — Fresh learner usability / instructional validation: ACCEPT as IMPLEMENTED (copy-only Academy usability). Schema 1.9.0. No new attack, detector, or authorization change. STOP. Do not start Phase 17C from this file.**
 

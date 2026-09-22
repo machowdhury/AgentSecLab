@@ -105,8 +105,8 @@ def test_learning_metadata_is_not_authorization():
     assert "Splunk" in blob
     goal = by_id["CAP-I12-GOAL-INTEGRITY-REQUIRED"]
     ident = by_id["CAP-I13-IDENTITY-DELEGATION-REQUIRED"]
-    assert "NOT REQUIRED" in goal["expected_result_shape"]
-    assert "NOT REQUIRED" in ident["expected_result_shape"]
+    assert "NOT PRESENT IN THIS PACKET" in goal["expected_result_shape"]
+    assert "NOT PRESENT IN THIS PACKET" in ident["expected_result_shape"]
     assert "limits" in goal["hint_2"].lower() or "instrumented" in goal["security_interpretation"].lower()
 
 

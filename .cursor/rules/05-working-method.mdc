@@ -35,4 +35,4 @@ Do not introduce agents, orchestration frameworks, Kubernetes, or extra models u
 
 Do not silently start the next roadmap phase. After a validated stop condition, STOP until the next named request.
 
-Current validated stop (2026-09-21): Phase 17B fresh learner usability and instructional validation. Do not start Phase 17C, real A2A, OAuth/OIDC, SPIFFE, DET-CAPSTONE, MLTK, a schema bump, a new attack domain, HITL, rug-pull, progress persistence, or certification from this rule.
+Current validated stop (2026-09-21): Phase 17D v1.0 release-candidate readiness. Do not start Phase 18, tag v1.0.0, create a GitHub Release, real A2A, OAuth/OIDC, SPIFFE, DET-CAPSTONE, MLTK, a schema bump, a new attack domain, HITL, rug-pull, progress persistence, or certification from this rule.

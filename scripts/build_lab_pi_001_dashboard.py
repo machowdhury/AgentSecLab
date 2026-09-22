@@ -420,7 +420,7 @@ def build() -> dict:
 
 Investigate why untrusted user text must not become an authorized LLM instruction.
 
-**LIVE EVIDENCE** · Direct Prompt Injection · Schema **1.9.0** on a restaged runtime · CTRL-INPUT-001
+**LIVE EXPERIMENT** vs **REPLAY SPECIMEN** · Direct Prompt Injection · Schema **1.9.0** on a restaged runtime · CTRL-INPUT-001
 
 Splunk is the hunt workbench. Splunk does **not** ALLOW or DENY the loan. AcmeBank is the enforcement point.
 

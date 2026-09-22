@@ -80,7 +80,7 @@ This is legitimate delegation. Execution here does **not** prove authorization b
 
 **SPL:** Q-MCP-DELEGATION (What Happened), Q-MCP-AUTHZ, Q-MCP-WHO, Q-MCP-EXECUTED.
 
-ALLOW is not execution. The control row has `executed=false`. Execution is `mcp.started`. Do not hide extra EXECUTED rows when two control events share a tool.
+ALLOW is not execution. The control row has `executed=false`. Runtime handler count is authoritative. Indexed `mcp.started` corroborates a begun handler on a complete copy. Do not hide extra EXECUTED rows when two control events share a tool.
 
 ---
 

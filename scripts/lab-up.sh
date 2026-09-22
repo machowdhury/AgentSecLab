@@ -18,15 +18,29 @@ for arg in "$@"; do
       cat <<'EOF'
 Usage: ./scripts/lab-up.sh [--build] [--refresh-app] [--no-wait]
 
-Starts the LOCAL Docker lab (AcmeBank, Attack UI, Ollama, collector, Splunk).
+Starts the LOCAL Docker lab (AcmeBank, Attack Service, Ollama, collector, Splunk).
+
+Run from the repository root after copying .env.example to .env.
 
   (no flags)       docker compose up -d, then wait until the lab is READY
-  --build          rebuild AcmeBank / Attack UI images, then up
+  --build          rebuild AcmeBank / Attack Service images from this repository, then up
   --refresh-app    restage splunk_app/agentsec into the named volume and
                    restart Splunk so Dashboard Studio picks up XML changes
   --no-wait        start containers; do not run readiness checks
 
-This is the normal local workflow. Do not copy the Splunk app by hand.
+First Splunk boot can take 10–20 minutes. Later starts are usually faster.
+READY is service health (see ./scripts/lab-ready.sh). It is not proof that a
+run.id is searchable.
+
+After READY:
+  Splunk Academy Home  http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home
+  Attack Service       http://127.0.0.1:5001
+  AcmeBank health      http://127.0.0.1:5000/health
+
+Stop: ./scripts/lab-down.sh
+Preflight: ./scripts/lab-preflight.sh
+
+This is the canonical start. Do not copy the Splunk app by hand.
 
 External Splunk is not started by this script. See docs/LOCAL_DOCKER_LAB.md.
 EOF
@@ -118,7 +132,7 @@ if [ "$WAIT_READY" -eq 1 ]; then
       log "Lab is READY."
       log "AcmeBank    http://127.0.0.1:5000"
       log "Attack UI   http://127.0.0.1:5001"
-      log "Splunk      http://127.0.0.1:8000  (app: AgentSec / Home / Foundations / Context Security / Agent Intent / Capstone)"
+      log "Splunk      http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home"
       exit 0
     fi
     log "Not ready yet (attempt ${i}/80). Sleeping 15s..."

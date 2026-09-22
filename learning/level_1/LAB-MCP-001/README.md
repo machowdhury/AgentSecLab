@@ -19,7 +19,7 @@ After this lab you should be able to:
 1. Explain what JSON-RPC `tools/call` represents in this lab (in-process, not a full remote MCP product).
 2. Distinguish tool **existence** (registered) from **authorization** (granted).
 3. Explain why known-but-ungranted is DENY and unknown is ERROR.
-4. Explain why ALLOW is not execution, why `mcp.started` proves the handler began, and why `mcp.failed` is not prevention.
+4. Explain why ALLOW is not execution, why runtime handler count is authoritative, why indexed `mcp.started` only corroborates a complete copy, and why `mcp.failed` is not prevention.
 5. Explain why the control must run before the handler.
 6. Treat Splunk as evidence, not the authorization layer.
 7. Classify tool results as `untrusted_data`.

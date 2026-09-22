@@ -162,7 +162,8 @@ def handoff_doc(
             "Execute. Inspect retrieve, write, and recall run.ids. "
             "Join retrieved content.hash to memory content.hash. "
             "source_run_id links write to recall. CTRL-MCP-001 is on the recall run. "
-            "Goal and identity event families are not required to explain this incident."
+            "Goal and identity event families are NOT PRESENT in this packet "
+            "(instrumented absence, not a universal ruling-out)."
         )
     else:
         inspect = "Execute. Inspect event.name, control.decision, and llm.* yourself."

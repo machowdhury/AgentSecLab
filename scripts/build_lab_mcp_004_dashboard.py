@@ -724,7 +724,7 @@ Two policy_id keys in one JSON object must not become last-value-wins. AcmeBank 
 
 Requested resource.id=does-not-exist. That id is **not** in the lookup_policy catalog.
 
-**Expected:** **ERROR** unknown_resource. Runtime handler count **0**. No mcp.started.
+**Expected:** **ERROR** unknown_resource. Runtime handler count **0** is authoritative. Indexed mcp.started absence corroborates a complete copy; it is not independent prevention.
 
 **DENY** means known authority was requested but not granted (executive-restricted).  
 **ERROR** means the requested resource is not part of the tool's defined resource model (does-not-exist).
@@ -768,7 +768,7 @@ A string policy_id of executive-restricted is **not** malformed. That path is kn
 
 Same request as ATTACK: lookup_policy, scope policy:read, resource.id executive-restricted. Profile **defended**. testbed.mode=RETEST.
 
-**Expected:** DENY resource_not_granted. Control attempted=false, executed=false, outcome=prevented. Runtime handler count **0**. No mcp.started. {GRANT_UNCHANGED}
+**Expected:** DENY resource_not_granted. Control attempted=false, executed=false, outcome=prevented. Runtime handler count **0** is authoritative. Indexed mcp.started absence corroborates a complete copy; it is not independent prevention. {GRANT_UNCHANGED}
 
 Validated reference: `{RETEST_ID}`.
 

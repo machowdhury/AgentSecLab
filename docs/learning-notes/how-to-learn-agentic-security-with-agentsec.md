@@ -1,7 +1,9 @@
 # How to learn agentic security with AgentSec
 
 **Audience:** the repository owner and future learners.  
-**Status:** teaching note for Phase 15A. Not policy. Not a launcher spec.
+**Status:** HISTORICAL teaching note for Phase 15A (2026-09-19). **Not current.** Attack Service LIVE now includes RAG, Memory, Goal, Identity, and Capstone in addition to PI-001 and MCP-001. Use `docs/learning-notes/learning-agentic-security-with-agentsec.md` and Home PATH. This file is kept as a dated snapshot; do not treat “PI-001 and MCP-001 only” or “Capstone — not built yet” as current product facts.
+
+**Evidence class:** DOCUMENTED (stale vs current academy). Phase 17C audit.
 
 ## WHAT IS IT?
 

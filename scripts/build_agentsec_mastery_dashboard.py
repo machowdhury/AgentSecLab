@@ -92,6 +92,14 @@ def challenge_markdown(row: dict, titles: dict[str, str]) -> str:
             "Copyable existing Q-* hunt. It is an answer key, not policy.\n\n"
             f"```\n{spl}\n```"
         )
+        if row["assessment_id"] == "MA-PT1-CAPSTONE-GATE":
+            path_b_body = (
+                "This AUTHZ query is bound to the official historical **REPLAY** recall UUID. "
+                "It is a fragment of the recall-run tool PDP. It is **not** the 15-point "
+                "readout. Completing Path B is not mastery. Preferred evidence is a fresh "
+                "LIVE retrieve/write/recall triple from Attack Service.\n\n"
+                + path_b_body
+            )
     else:
         path_b_body = row["expected_reasoning"]
     if row["evidence_mode"] == "NONE":

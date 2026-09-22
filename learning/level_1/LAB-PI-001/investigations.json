@@ -11,7 +11,7 @@
     {
       "investigation_id": "PI-I1-FIND-THE-RUN",
       "title": "Find the run",
-      "security_question": "What evidence did this LIVE experiment generate?",
+      "security_question": "What evidence did this experiment copy generate (LIVE launch or REPLAY specimen)?",
       "learning_objective": "Use run.id as the forensic correlation key. One UUID, one experiment copy.",
       "difficulty": "BEGINNER",
       "prerequisites": ["LEARN tab", "a run.id from Attack Service or Investigate specimen"],

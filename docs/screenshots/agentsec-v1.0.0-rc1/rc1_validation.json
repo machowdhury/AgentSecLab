@@ -1,0 +1,44 @@
+{
+  "label": "rc1",
+  "viewports": [
+    1440,
+    1280,
+    1024
+  ],
+  "screenshots": [
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_home_1440.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_home_1280.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_home_1024.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_pi_1440.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_pi_1280.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_pi_1024.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_mcp_1440.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_mcp_1280.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_mcp_1024.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_memory_1440.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_memory_1280.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_memory_1024.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_goal_1440.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_goal_1280.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_goal_1024.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_capstone_1440.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_capstone_1280.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_capstone_1024.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_mastery_1440.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_mastery_1280.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_mastery_1024.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_attack_1440.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_attack_1280.png",
+    "docs/screenshots/agentsec-v1.0.0-rc1/rc1_attack_1024.png"
+  ],
+  "defects": [],
+  "http": {
+    "home": 200,
+    "pi": 200,
+    "mcp": 200,
+    "memory": 200,
+    "goal": 200,
+    "capstone": 200,
+    "mastery": 200
+  }
+}

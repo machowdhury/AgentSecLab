@@ -86,8 +86,9 @@ docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/defa
   docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_agent_goal_integrity.xml'
   docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_agent_delegation.xml'
   docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_agentsec_capstone.xml'
+docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_agentsec_mastery.xml'
 docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/nav/default.xml'
-log "AgentSec app, ws_lab_pi_001.xml, ws_lab_mcp_001.xml, ws_lab_mcp_003.xml, ws_lab_mcp_004.xml, ws_lab_mcp_005.xml, ws_lab_mcp_006.xml, ws_lab_mcp_catalog.xml, ws_lab_scanner_runtime_evidence.xml, and ws_lab_rag_context.xml are present."
+log "AgentSec app files including Home, Capstone, and Mastery Check XML are present."
 
 login_code="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 15 http://127.0.0.1:8000/en-US/account/login || echo 000)"
 if [ "$login_code" != "200" ]; then
@@ -294,6 +295,24 @@ if ! docker exec agentsec_splunk bash -lc 'grep -q "ws_lab_agentsec_capstone\\|L
 fi
 log "Dashboard view ws_lab_agentsec_capstone is available via Splunk REST."
 
+home_view_code="$(
+  docker exec -u splunk -e SPLUNK_PASSWORD="$SPLUNK_PASSWORD" agentsec_splunk bash -lc \
+    'curl -sk -u "admin:${SPLUNK_PASSWORD}" -o /tmp/ws_agentsec_home_view.xml -w "%{http_code}" https://127.0.0.1:8089/servicesNS/nobody/agentsec/data/ui/views/ws_agentsec_home'
+)"
+if [ "$home_view_code" != "200" ]; then
+  fail "view ws_agentsec_home HTTP ${home_view_code}"
+fi
+log "Dashboard view ws_agentsec_home is available via Splunk REST."
+
+mastery_view_code="$(
+  docker exec -u splunk -e SPLUNK_PASSWORD="$SPLUNK_PASSWORD" agentsec_splunk bash -lc \
+    'curl -sk -u "admin:${SPLUNK_PASSWORD}" -o /tmp/ws_agentsec_mastery_view.xml -w "%{http_code}" https://127.0.0.1:8089/servicesNS/nobody/agentsec/data/ui/views/ws_agentsec_mastery'
+)"
+if [ "$mastery_view_code" != "200" ]; then
+  fail "view ws_agentsec_mastery HTTP ${mastery_view_code}"
+fi
+log "Dashboard view ws_agentsec_mastery is available via Splunk REST."
+
 acme_code="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 10 http://127.0.0.1:5000/health || echo 000)"
 atk_code="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 10 http://127.0.0.1:5001/health || echo 000)"
 if [ "$acme_code" != "200" ]; then
@@ -304,6 +323,9 @@ if [ "$atk_code" != "200" ]; then
 fi
 log "AcmeBank and Attack UI health HTTP 200."
 
-log "READY — local Docker lab is provisioned (app, dashboard, index, HEC). No manual cp/chown."
+log "READY — SERVICE HEALTH: containers, Splunk Web, HEC health, Academy views, AcmeBank, Attack Service."
+log "NOT PROVEN: a given run.id is searchable. HEC HTTP 200 is not indexed evidence."
+log "Academy Home: http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home"
+log "Attack Service: http://127.0.0.1:5001"
 unset SPLUNK_PASSWORD HEC_TOKEN
 exit 0

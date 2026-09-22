@@ -238,8 +238,8 @@ def test_capstone_investigations_reuse_existing_hunts_and_are_not_policy():
     assert "DET-CAPSTONE" not in hunts
     by_id = {row["investigation_id"]: row for row in rows}
     assert by_id["CAP-I14-ATTACK-VS-RETEST"]["investigation_kind"] == "paired_run"
-    assert "NOT REQUIRED" in by_id["CAP-I12-GOAL-INTEGRITY-REQUIRED"]["expected_result_shape"]
-    assert "NOT REQUIRED" in by_id["CAP-I13-IDENTITY-DELEGATION-REQUIRED"]["expected_result_shape"]
+    assert "NOT PRESENT IN THIS PACKET" in by_id["CAP-I12-GOAL-INTEGRITY-REQUIRED"]["expected_result_shape"]
+    assert "NOT PRESENT IN THIS PACKET" in by_id["CAP-I13-IDENTITY-DELEGATION-REQUIRED"]["expected_result_shape"]
     assert "INCORRECT" in by_id["CAP-I16-CLASSIFY-PROOF"]["hint_2"]
     assert all(row["starter_guidance"] and row["hint_1"] and row["hint_2"] for row in rows)
 

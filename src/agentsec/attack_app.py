@@ -201,7 +201,10 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
             technique_name = "Unauthorized tool request"
             technique_id = attack_ctx.attack_id
             specimen_label = "Server-owned MCP request (not learner-supplied)"
-            expected_defended = "CTRL-MCP-001 DENY tool_not_granted. Handler count 0. No mcp.started."
+            expected_defended = (
+                "CTRL-MCP-001 DENY tool_not_granted. Runtime handler count 0 is "
+                "authoritative. Indexed mcp.started absence corroborates a complete copy."
+            )
         if lab_id == LAB_RAG and attack_ctx is not None:
             payload_preview = attack_ctx.payload
             technique_name = "Retrieved-context-derived authority"
@@ -237,18 +240,10 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
             specimen_label = "Server-owned adversarial delegation fixture (not learner-supplied)"
             expected_defended = (
                 "CTRL-IDENTITY-001 OBSERVE identity_claim_is_not_grant. "
-                "CTRL-MCP-001 DENY tool_not_granted. lookup_customer_tier handler 0. "
-                "WHO AUTHENTICATED = NOT PROVEN / NOT MODELED."
-            )
-        if lab_id == LAB_IDENTITY and attack_ctx is not None:
-            payload_preview = attack_ctx.payload
-            technique_name = "Adversarial delegation claim / authority amplification"
-            technique_id = attack_ctx.attack_id
-            specimen_label = "Server-owned adversarial A2A-shaped fixture (not learner-supplied)"
-            expected_defended = (
-                "CTRL-IDENTITY-001 OBSERVE identity_claim_is_not_grant. "
                 "Same privileged request. CTRL-MCP-001 DENY tool_not_granted. "
-                "lookup_customer_tier handler 0. No mcp.started."
+                "lookup_customer_tier runtime handler count 0 is authoritative. "
+                "Indexed mcp.started absence corroborates a complete copy. "
+                "WHO AUTHENTICATED = NOT PROVEN / NOT MODELED."
             )
         if lab_id == LAB_CAPSTONE and attack_ctx is not None:
             payload_preview = attack_ctx.payload
@@ -258,7 +253,8 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
             expected_defended = (
                 "Retrieved and recalled content remain data (OBSERVE). "
                 "CTRL-MCP-001 DENY tool_not_granted on the later recall. "
-                "lookup_customer_tier handler 0. No mcp.started."
+                "lookup_customer_tier runtime handler count 0 is authoritative. "
+                "Indexed mcp.started absence corroborates a complete copy."
             )
         if lab_id == LAB_MCP:
             hunt_hint = "Reuse Q-MCP-WHO / Q-MCP-AUTHZ (do not create a detector)."

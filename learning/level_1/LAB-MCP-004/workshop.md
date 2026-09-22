@@ -62,7 +62,7 @@ Arguments identify the requested resource. Arguments do not grant authority.
 
 **SPL:** Q-MCP-AUTHZ, Q-MCP-RESOURCE-AUTHZ, Q-MCP-TOOL, Q-MCP-EXECUTED.
 
-ALLOW is not execution. The control row has `executed=false`. Execution is `mcp.started`.
+ALLOW is not execution. The control row has `executed=false`. Runtime handler count is authoritative. Indexed `mcp.started` corroborates a begun handler on a complete copy.
 
 ---
 

@@ -759,7 +759,7 @@
     "viz_unknown_md": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# UNKNOWN SCOPE (not RETEST)\n\nRequested `policy:write`. That token is **not** in `lookup_policy` catalog `valid_scopes`.\n\n**Expected:** **ERROR** `unknown_scope`. Runtime handler count **0**. No `mcp.started`.\n\n**DENY** means known authority was requested but not granted (`policy:restricted:read`).  \n**ERROR** means the requested scope is not part of the tool's defined scope model (`policy:write`).\n\nDo not treat this as RETEST. Validated reference: `6ce19813-6cb5-4aae-a3a0-aa59386a82dd`.\n",
+        "markdown": "# UNKNOWN SCOPE (not RETEST)\n\nRequested `policy:write`. That token is **not** in `lookup_policy` catalog `valid_scopes`.\n\n**Expected:** **ERROR** `unknown_scope`. Runtime handler count **0** is authoritative. Indexed `mcp.started` absence corroborates a complete copy; it is not independent prevention.\n\n**DENY** means known authority was requested but not granted (`policy:restricted:read`).  \n**ERROR** means the requested scope is not part of the tool's defined scope model (`policy:write`).\n\nDo not treat this as RETEST. Validated reference: `6ce19813-6cb5-4aae-a3a0-aa59386a82dd`.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -807,7 +807,7 @@
     "viz_retest_md": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# RETEST\n\nSame request as ATTACK: `lookup_policy`, requested_scope `policy:restricted:read`, same arguments. Profile **defended**. `testbed.mode=RETEST`.\n\n**Expected:** DENY `scope_not_granted`. Control `attempted=false`, `executed=false`, `outcome=prevented`. Runtime handler count **0**. No `mcp.started`. allowed_scope stays the coded grant policy:read. Fail-open ALLOW does not rewrite the grant. The tool being granted does not mean the requested scope is granted.\n\nValidated reference: `f638fd4f-1c4f-4ab6-8d42-4d03a4f3afd5`.\n\nRuntime handler count is authoritative proof of non-execution. Splunk absence of `mcp.started` is corroboration only, and only on a complete copy.\n\nTables on this tab use the **RETEST** token.\n",
+        "markdown": "# RETEST\n\nSame request as ATTACK: `lookup_policy`, requested_scope `policy:restricted:read`, same arguments. Profile **defended**. `testbed.mode=RETEST`.\n\n**Expected:** DENY `scope_not_granted`. Control `attempted=false`, `executed=false`, `outcome=prevented`. Runtime handler count **0** is authoritative. Indexed `mcp.started` absence corroborates a complete copy; it is not independent prevention. allowed_scope stays the coded grant policy:read. Fail-open ALLOW does not rewrite the grant. The tool being granted does not mean the requested scope is granted.\n\nValidated reference: `f638fd4f-1c4f-4ab6-8d42-4d03a4f3afd5`.\n\nRuntime handler count is authoritative proof of non-execution. Splunk absence of `mcp.started` is corroboration only, and only on a complete copy.\n\nTables on this tab use the **RETEST** token.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
