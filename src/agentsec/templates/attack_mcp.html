@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgentSec — Tool Authorization Workbench</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='mcp-workbench.css') }}">
+</head>
+<body class="workbench-page">
+  <a class="skip-link" href="#main">Skip to experiment</a>
+  <header class="workbench-header">
+    <div class="workbench-header__inner">
+      <div>
+        <p class="brand-kicker">AgentSec · AI Security Experiment Workbench</p>
+        <h1>Tool Authorization</h1>
+      </div>
+      <div class="workbench-meta" aria-label="Experiment status">
+        <span class="mode-badge">LIVE</span>
+        <span id="current-mode">MODE · NOT RUN</span>
+        <span>LAB-MCP-001</span>
+        <span id="runtime-health">RUNTIME · CHECKING</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="workbench">
+    <nav class="workbench-nav" aria-label="Experiment labs">
+      <a href="http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_mcp_001">Academy workshop</a>
+      {% if next_lab %}<span>Next: {{ next_lab.title }} ({{ next_lab.mode }})</span>{% endif %}
+      <a href="/">All LIVE labs</a>
+      <a href="#advanced">Evidence / Advanced</a>
+    </nav>
+
+    <section class="mission" aria-labelledby="security-question">
+      <p class="eyebrow">Security question</p>
+      <h2 id="security-question">Can the agent invoke a tool outside the authority granted to it?</h2>
+      <div class="mission-grid">
+        <div><span>Attacker influence</span><strong>Tool request, scope, arguments</strong></div>
+        <div><span>Requested operation</span><strong><code>{{ mcp_request.tool }}</code></strong></div>
+        <div><span>Requested scope</span><strong><code>{{ mcp_request.requested_scope }}</code></strong></div>
+        <div><span>Server-owned authority</span><strong><code>{{ mcp_policy.allowed_tools }}</code> · <code>{{ mcp_policy.allowed_scopes }}</code></strong></div>
+        <div><span>Policy decision point</span><strong>CTRL-MCP-001 · AcmeBank runtime</strong></div>
+        <div><span>Expected change</span><strong>ATTACK fail-open; RETEST defended</strong></div>
+      </div>
+      <p class="semantic-line"><strong>REQUEST ≠ GRANT</strong><span>ALLOW ≠ EXECUTION</span><span>SPLUNK ≠ ENFORCEMENT</span></p>
+    </section>
+
+    <div class="workbench-grid">
+      <section class="experiment-panel" aria-labelledby="experiment-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Experiment controls</p>
+            <h2 id="experiment-heading">Run the closed specimen</h2>
+          </div>
+          <span class="status" id="ui-status" data-state="READY">READY</span>
+        </div>
+        <p id="status-live" class="status-message" aria-live="polite">Choose ATTACK or RETEST. The browser cannot send profile, grants, tools, scope, or policy.</p>
+
+        <div class="mode-actions" aria-label="LIVE experiment actions">
+          <button class="btn btn-danger" id="fire-attack" type="button" data-mode="ATTACK" data-specimen="{{ specimen_attack }}">
+            Run ATTACK
+            <small>Known-ungranted request · vulnerable profile</small>
+          </button>
+          <button class="btn btn-primary" id="fire-retest" type="button" data-mode="RETEST" data-specimen="{{ specimen_retest }}">
+            Run RETEST
+            <small>Same request · defended profile</small>
+          </button>
+        </div>
+
+        <details class="prediction">
+          <summary>Prediction and falsification</summary>
+          <div class="prediction-grid">
+            <div>
+              <h3>ATTACK</h3>
+              <p>{{ prediction_attack.expected_evidence_vulnerable }}</p>
+            </div>
+            <div>
+              <h3>RETEST</h3>
+              <p>{{ prediction_retest.expected_evidence_defended }}</p>
+              <p><strong>Would falsify:</strong> {{ prediction_retest.falsify }}</p>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="run-panel" aria-labelledby="run-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Investigation artifact</p>
+            <h2 id="run-heading">Current run.id</h2>
+          </div>
+          <span id="run-mode-label">NOT RUN</span>
+        </div>
+        <output id="run-id" class="run-id" aria-live="polite">Launch an experiment to mint a UUID</output>
+        <div class="compact-actions">
+          <button class="btn btn-secondary" id="copy-run-id" type="button" disabled>Copy Run ID</button>
+          <a class="btn btn-secondary" id="open-search" href="http://127.0.0.1:8000/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Investigate in Splunk</a>
+        </div>
+        <p class="run-help" id="copy-feedback" aria-live="polite">run.id correlates this experiment across runtime, local evidence, telemetry, and Splunk.</p>
+      </section>
+    </div>
+
+    <section class="decision-section" aria-labelledby="decision-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Execution story</p>
+          <h2 id="decision-heading">Security decision chain</h2>
+        </div>
+        <p>Runtime facts; no outcome is inferred from color.</p>
+      </div>
+      <ol class="decision-chain">
+        <li><span>Principal</span><strong id="chain-principal">applicant-web</strong><small>lab identifier; not authentication</small></li>
+        <li><span>Agent</span><strong id="chain-agent">{{ mcp_policy.agent_id }}</strong><small>server-owned coded policy</small></li>
+        <li><span>Request</span><strong id="chain-request">{{ mcp_request.tool }}</strong><small id="chain-scope">{{ mcp_request.requested_scope }}</small></li>
+        <li><span>Authorization</span><strong id="chain-decision">NOT MEASURED</strong><small id="chain-reason">CTRL-MCP-001</small></li>
+        <li><span>Execution</span><strong id="chain-execution">NOT MEASURED</strong><small id="chain-handler">handler count not measured</small></li>
+        <li><span>Evidence</span><strong id="chain-evidence">NOT MEASURED</strong><small>Splunk observes; it does not enforce</small></li>
+      </ol>
+    </section>
+
+    <section class="comparison-section" aria-labelledby="comparison-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Controlled comparison</p>
+          <h2 id="comparison-heading">ATTACK ↔ RETEST</h2>
+        </div>
+        <p id="comparison-summary">Run both modes. Missing data is NOT MEASURED, not SAFE.</p>
+      </div>
+      <div class="comparison-table-wrap">
+        <table class="comparison-table">
+          <thead><tr><th scope="col">Evidence</th><th scope="col">ATTACK</th><th scope="col">RETEST</th><th scope="col">Relationship</th></tr></thead>
+          <tbody id="comparison-body">
+            <tr><th scope="row">Status</th><td>Not run</td><td>Not run</td><td>NOT MEASURED</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="next-section" aria-labelledby="next-heading">
+      <div>
+        <p class="eyebrow">Next investigation</p>
+        <h2 id="next-heading">Reconstruct WHO → REQUEST → AUTHZ → EXECUTION → EVIDENCE</h2>
+        <p>Start with the fresh run.id in Splunk Search. Confirm completeness before interpreting an absent event.</p>
+      </div>
+      <a class="btn btn-primary" id="open-search-primary" href="http://127.0.0.1:8000/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Open Splunk Search</a>
+    </section>
+
+    <details class="advanced" id="advanced">
+      <summary>Evidence / Advanced</summary>
+      <div class="advanced-grid">
+        <section>
+          <h2>Closed launch request</h2>
+          <pre id="request-json">{"lab_id":"LAB-MCP-001","specimen_id":"MCP-002","mode":"ATTACK|RETEST","execution":"live"}</pre>
+          <p>Only these four fields cross the browser boundary. Unknown and authority-like fields are rejected as ERROR.</p>
+        </section>
+        <section>
+          <h2>HTTP and runtime</h2>
+          <dl class="facts">
+            <dt>HTTP status</dt><dd id="http-status">NOT MEASURED</dd>
+            <dt>Runtime status</dt><dd id="runtime-status">NOT MEASURED</dd>
+            <dt>Evidence state</dt><dd id="evidence-status">NOT MEASURED</dd>
+            <dt>Schema</dt><dd>1.9.0</dd>
+          </dl>
+        </section>
+        <section class="advanced-wide">
+          <h2>Starter SPL</h2>
+          <textarea id="starter-spl" readonly rows="3" spellcheck="false">Launch a run to generate the run.id search.</textarea>
+          <button class="btn btn-secondary" id="probe-evidence" type="button" disabled>Check evidence readiness</button>
+        </section>
+        <section class="advanced-wide">
+          <h2>Response JSON</h2>
+          <pre id="result-json">No response yet.</pre>
+        </section>
+      </div>
+    </details>
+  </main>
+
+  <script src="{{ url_for('static', filename='agentsec-ui.js') }}"></script>
+  <script>
+    (function () {
+      "use strict";
+      const ui = window.AgentSecUI;
+      const attackButton = document.getElementById("fire-attack");
+      const retestButton = document.getElementById("fire-retest");
+      const statusEl = document.getElementById("ui-status");
+      const statusMessage = document.getElementById("status-live");
+      const copyButton = document.getElementById("copy-run-id");
+      const runOutput = document.getElementById("run-id");
+      const probeButton = document.getElementById("probe-evidence");
+      const last = {ATTACK: null, RETEST: null};
+
+      function hopValue(hop, snake, dotted) {
+        if (!hop) return "";
+        if (hop[snake] !== undefined) return hop[snake];
+        return hop[dotted] !== undefined ? hop[dotted] : "";
+      }
+
+      function firstHop(data) {
+        const hops = data && data.runtime && Array.isArray(data.runtime.hops) ? data.runtime.hops : [];
+        return hops.length ? hops[0] : {};
+      }
+
+      function decision(data) {
+        return String(hopValue(firstHop(data), "control_decision", "control.decision") || "NOT MEASURED");
+      }
+
+      function reason(data) {
+        return String(hopValue(firstHop(data), "control_reason", "control.reason") || "reason not measured");
+      }
+
+      function handlerCount(data) {
+        const value = data && data.runtime ? data.runtime.handler_invoke_count : null;
+        return value === undefined || value === null ? "NOT MEASURED" : String(value);
+      }
+
+      function executionLabel(data) {
+        const count = handlerCount(data);
+        if (count === "NOT MEASURED") return count;
+        return Number(count) > 0 ? "EXECUTED" : "NOT EXECUTED";
+      }
+
+      function evidenceLabel(data) {
+        if (!data) return "NOT MEASURED";
+        return data.evidence_state === "EVIDENCE_READY" ? "EVIDENCE READY" : String(data.evidence_state || "NOT VERIFIED");
+      }
+
+      function relationship(a, b) {
+        if (a === "NOT MEASURED" || b === "NOT MEASURED" || a === "" || b === "") return "NOT MEASURED";
+        return String(a) === String(b) ? "SAME" : "DIFFERENT";
+      }
+
+      function comparisonRow(label, getValue, note) {
+        const a = last.ATTACK ? getValue(last.ATTACK) : "NOT MEASURED";
+        const r = last.RETEST ? getValue(last.RETEST) : "NOT MEASURED";
+        const tr = document.createElement("tr");
+        [label, a, r, relationship(a, r) + (note ? " — " + note : "")].forEach(function (value, index) {
+          const cell = document.createElement(index === 0 ? "th" : "td");
+          if (index === 0) cell.scope = "row";
+          cell.textContent = value;
+          tr.appendChild(cell);
+        });
+        return tr;
+      }
+
+      function renderComparison() {
+        const body = document.getElementById("comparison-body");
+        body.replaceChildren(
+          comparisonRow("Input fingerprint", d => d.input_fingerprint || "NOT MEASURED", "equality covers only the canonical request bytes"),
+          comparisonRow("Requested tool", () => "{{ mcp_request.tool }}"),
+          comparisonRow("Requested scope", () => "{{ mcp_request.requested_scope }}"),
+          comparisonRow("Security profile", d => d.profile || "NOT MEASURED"),
+          comparisonRow("Control", () => "CTRL-MCP-001"),
+          comparisonRow("Decision", decision),
+          comparisonRow("Reason", reason),
+          comparisonRow("Operation executed", executionLabel, "derived from runtime handler count"),
+          comparisonRow("Runtime handler count", handlerCount, "authoritative in this lab"),
+          comparisonRow("Outcome", d => String((firstHop(d).operation_outcome ?? firstHop(d)["operation.outcome"]) || d.runtime?.terminal || "NOT MEASURED")),
+          comparisonRow("Evidence completeness", evidenceLabel),
+          comparisonRow("run.id", d => d.run_id || "NOT MEASURED", "must differ")
+        );
+        if (last.ATTACK && last.RETEST) {
+          const sameFingerprint = relationship(last.ATTACK.input_fingerprint || "", last.RETEST.input_fingerprint || "");
+          document.getElementById("comparison-summary").textContent =
+            sameFingerprint + " INPUT FINGERPRINT. Different run.id is expected. Fingerprint equality proves only canonical request-byte equality.";
+        }
+      }
+
+      function renderResult(mode, httpStatus, data) {
+        const runtime = data.runtime || {};
+        const hop = firstHop(data);
+        const runId = data.run_id || "";
+        last[mode] = data;
+        runOutput.textContent = runId || "No run.id returned";
+        runOutput.dataset.value = runId;
+        copyButton.disabled = !runId;
+        probeButton.disabled = !runId;
+        probeButton.dataset.runId = runId;
+        document.getElementById("run-mode-label").textContent = mode;
+        document.getElementById("current-mode").textContent = "MODE · " + mode;
+        document.getElementById("chain-principal").textContent = hopValue(hop, "principal_id", "agentsec.principal.id") || "applicant-web";
+        document.getElementById("chain-agent").textContent = hopValue(hop, "agent_id", "gen_ai.agent.id") || "{{ mcp_policy.agent_id }}";
+        document.getElementById("chain-decision").textContent = decision(data);
+        document.getElementById("chain-reason").textContent = "CTRL-MCP-001 · " + reason(data);
+        document.getElementById("chain-execution").textContent = executionLabel(data);
+        document.getElementById("chain-handler").textContent = "runtime handler count: " + handlerCount(data);
+        document.getElementById("chain-evidence").textContent = evidenceLabel(data);
+        document.getElementById("http-status").textContent = String(httpStatus);
+        document.getElementById("runtime-status").textContent = String(data.runtime_status || runtime.terminal || "NOT MEASURED");
+        document.getElementById("evidence-status").textContent = evidenceLabel(data);
+        document.getElementById("request-json").textContent = JSON.stringify({
+          lab_id: "LAB-MCP-001", specimen_id: "MCP-002", mode: mode, execution: "live"
+        }, null, 2);
+        document.getElementById("result-json").textContent = JSON.stringify(data, null, 2);
+        if (data.search_handoff) {
+          const url = data.search_handoff.search_url || "http://127.0.0.1:8000/en-US/app/search/search";
+          document.getElementById("open-search").href = url;
+          document.getElementById("open-search-primary").href = url;
+          document.getElementById("starter-spl").value = data.search_handoff.starter_spl || "";
+        }
+        const controlDecision = decision(data);
+        const state = data.error_class === "ERROR" ? "ERROR" :
+          controlDecision === "DENY" ? "DENIED" :
+          data.evidence_state === "EVIDENCE_READY" ? "EVIDENCE READY" : "COMPLETED";
+        const message = data.error_class === "ERROR"
+          ? (data.detail || "Launch failed") + " This is ERROR, not control DENY."
+          : controlDecision + " from runtime; handler count " + handlerCount(data) +
+            "; evidence " + evidenceLabel(data) + ".";
+        ui.applyState(statusEl, statusMessage, state, message);
+        renderComparison();
+      }
+
+      async function launch(mode, specimenId) {
+        if (attackButton.disabled || retestButton.disabled) return;
+        attackButton.disabled = true;
+        retestButton.disabled = true;
+        ui.applyState(statusEl, statusMessage, "RUNNING", "Launching " + mode + ". Duplicate launch controls are disabled.");
+        try {
+          const response = await fetch("/api/launch", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({lab_id: "LAB-MCP-001", specimen_id: specimenId, mode: mode, execution: "live"})
+          });
+          let data;
+          try {
+            data = await response.json();
+          } catch (_error) {
+            data = {error_class: "ERROR", detail: "Response was not JSON."};
+          }
+          renderResult(mode, response.status, data);
+        } catch (_error) {
+          renderResult(mode, 0, {error_class: "ERROR", detail: "The browser did not receive a usable response."});
+        } finally {
+          attackButton.disabled = false;
+          retestButton.disabled = false;
+        }
+      }
+
+      attackButton.addEventListener("click", () => launch("ATTACK", attackButton.dataset.specimen));
+      retestButton.addEventListener("click", () => launch("RETEST", retestButton.dataset.specimen));
+      copyButton.addEventListener("click", async function () {
+        const value = runOutput.dataset.value || "";
+        if (!value) return;
+        let copied = false;
+        try {
+          await navigator.clipboard.writeText(value);
+          copied = true;
+        } catch (_error) {
+          const range = document.createRange();
+          range.selectNodeContents(runOutput);
+          window.getSelection().removeAllRanges();
+          window.getSelection().addRange(range);
+          copied = document.execCommand("copy");
+          window.getSelection().removeAllRanges();
+        }
+        document.getElementById("copy-feedback").textContent =
+          copied ? "Run ID copied. Use it to correlate this experiment." : "Copy failed. Select the visible run.id manually.";
+      });
+      probeButton.addEventListener("click", async function () {
+        const runId = probeButton.dataset.runId;
+        if (!runId) return;
+        ui.applyState(statusEl, statusMessage, "RUNNING", "Checking whether this run.id is searchable in Splunk.");
+        const response = await fetch("/api/launches/" + encodeURIComponent(runId) + "/evidence?timeout_seconds=0");
+        const data = await response.json();
+        document.getElementById("result-json").textContent = JSON.stringify(data, null, 2);
+        const label = data.evidence_state === "EVIDENCE_READY" ? "EVIDENCE READY" : "WAITING FOR SPLUNK";
+        document.getElementById("chain-evidence").textContent = label;
+        document.getElementById("evidence-status").textContent = label;
+        ui.applyState(statusEl, statusMessage, label, label + ". Searchability is not a control verdict.");
+      });
+
+      fetch("/api/target-health").then(r => r.json().then(data => ({ok: r.ok, data: data}))).then(function (result) {
+        document.getElementById("runtime-health").textContent =
+          result.ok && result.data.status === "healthy" ? "RUNTIME · HEALTHY" : "RUNTIME · DEGRADED";
+      }).catch(function () {
+        document.getElementById("runtime-health").textContent = "RUNTIME · UNREACHABLE";
+      });
+    }());
+  </script>
+</body>
+</html>

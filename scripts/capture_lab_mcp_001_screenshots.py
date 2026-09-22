@@ -8,21 +8,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TABS = (
-    "LEARN",
-    "BASELINE",
-    "ATTACK",
-    "OBSERVE",
-    "HUNT",
-    "DETECT",
-    "DEFEND",
-    "RETEST",
-    "COMPARE",
-    "PROVE",
+    "MISSION",
+    "INVESTIGATE",
+    "EVIDENCE",
+    "PATH B · ANSWERS",
 )
 TOKENS = (
     "run_id",
@@ -37,14 +32,9 @@ SPECIMEN_IDS = {
     "retest_run_id": "7a1d37b5-d589-4dfd-8322-25ebd0152dbc",
 }
 TABLE_TABS = {
-    "BASELINE",
-    "ATTACK",
-    "OBSERVE",
-    "HUNT",
-    "DETECT",
-    "RETEST",
-    "COMPARE",
-    "PROVE",
+    "INVESTIGATE",
+    "EVIDENCE",
+    "PATH B · ANSWERS",
 }
 
 
@@ -161,13 +151,14 @@ def main() -> int:
             loc.first.click()
             page.wait_for_timeout(8000 if tab in TABLE_TABS else 2000)
             report["tabs_found"].append(tab)
-            png = out / f"{args.label}_{tab.lower()}.png"
+            tab_slug = re.sub(r"[^a-z0-9]+", "_", tab.lower()).strip("_")
+            png = out / f"{args.label}_{tab_slug}.png"
             page.screenshot(path=str(png), full_page=True)
             report["screenshots"].append(str(png.relative_to(ROOT)))
 
-        for width, suffix in ((1280, "w1280"), (1024, "w1024")):
+        for width, suffix in ((1920, "w1920"), (1280, "w1280"), (1024, "w1024")):
             page.set_viewport_size({"width": width, "height": 1100})
-            for tab in ("LEARN", "ATTACK", "HUNT", "PROVE"):
+            for tab in ("MISSION", "INVESTIGATE", "EVIDENCE"):
                 loc = page.get_by_role("tab", name=tab)
                 if loc.count() == 0:
                     continue

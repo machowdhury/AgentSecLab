@@ -32,16 +32,10 @@ REQUIRED_IDS = (
     "Q-MCP-RESULT-TRUST",
 )
 WORKSHOP_TABS = (
-    "LEARN",
-    "BASELINE",
-    "ATTACK",
-    "OBSERVE",
-    "HUNT",
-    "DETECT",
-    "DEFEND",
-    "RETEST",
-    "COMPARE",
-    "PROVE",
+    "MISSION",
+    "INVESTIGATE",
+    "EVIDENCE",
+    "PATH B · ANSWERS",
 )
 PROHIBITED_FIELDS = (
     "agentsec.event.name",
@@ -317,7 +311,23 @@ def test_hunt_is_stacked_path_a_path_b():
     assert "Path A" in blob
     assert "Path B" in blob
     assert "REQUEST != GRANT" in blob or "tool request is not a tool grant" in blob.lower()
-    hunt_layout = definition["layout"]["layoutDefinitions"]["layout_hunt"]
-    assert hunt_layout["options"]["display"] == "fit-to-width"
+    path_a = definition["layout"]["layoutDefinitions"]["layout_investigate"]
+    path_b = definition["layout"]["layoutDefinitions"]["layout_path_b"]
+    assert path_a["options"]["display"] == "auto-scale"
+    assert path_b["options"]["display"] == "fit-to-width"
+    assert any(row["item"] == "viz_workbench_investigate" for row in path_a["structure"])
+    assert any(row["item"] == "viz_i1_sol" for row in path_b["structure"])
     assert "viz_hunt_md" not in definition["visualizations"]
     assert "ATTACK != ALERT" in blob or "ATTACK != ALERT" in blob.replace("**", "")
+
+
+def test_reference_layout_centers_security_reasoning():
+    definition = _definition()
+    blob = json.dumps(definition)
+    assert "WHO" in blob and "REQUEST" in blob and "AUTHZ" in blob
+    assert "EXECUTION" in blob and "EVIDENCE" in blob
+    assert "REQUEST != GRANT" in blob
+    assert "ALLOW != EXECUTION" in blob
+    assert "SPLUNK != ENFORCEMENT" in blob
+    labels = [row["label"] for row in definition["layout"]["tabs"]["items"]]
+    assert "PATH B · ANSWERS" in labels

@@ -1,0 +1,40 @@
+{
+  "url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_mcp_001",
+  "tabs_found": [
+    "MISSION",
+    "INVESTIGATE",
+    "EVIDENCE",
+    "PATH B \u00b7 ANSWERS"
+  ],
+  "tabs_missing": [],
+  "tokens_found": [
+    "run_id"
+  ],
+  "tokens_missing": [],
+  "token_values": {
+    "run_id": "Baseline \u2014 defended / normal"
+  },
+  "screenshots": [
+    "docs/screenshots/lab-mcp-001/final_overview.png",
+    "docs/screenshots/lab-mcp-001/final_mission.png",
+    "docs/screenshots/lab-mcp-001/final_investigate.png",
+    "docs/screenshots/lab-mcp-001/final_evidence.png",
+    "docs/screenshots/lab-mcp-001/final_path_b_answers.png",
+    "docs/screenshots/lab-mcp-001/final_w1920_mission.png",
+    "docs/screenshots/lab-mcp-001/final_w1920_investigate.png",
+    "docs/screenshots/lab-mcp-001/final_w1920_evidence.png",
+    "docs/screenshots/lab-mcp-001/final_w1280_mission.png",
+    "docs/screenshots/lab-mcp-001/final_w1280_investigate.png",
+    "docs/screenshots/lab-mcp-001/final_w1280_evidence.png",
+    "docs/screenshots/lab-mcp-001/final_w1024_mission.png",
+    "docs/screenshots/lab-mcp-001/final_w1024_investigate.png",
+    "docs/screenshots/lab-mcp-001/final_w1024_evidence.png"
+  ],
+  "label": "final",
+  "tabs_requested": [
+    "MISSION",
+    "INVESTIGATE",
+    "EVIDENCE",
+    "PATH B \u00b7 ANSWERS"
+  ]
+}
