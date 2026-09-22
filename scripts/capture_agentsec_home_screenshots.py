@@ -68,7 +68,7 @@ def main() -> int:
         page.screenshot(path=str(png), full_page=True)
         report["screenshots"].append(str(png.relative_to(ROOT)))
 
-        for menu in ("Attack Labs", "Context Security", "Agent Authority", "Supply Chain"):
+        for menu in ("Foundations", "Context Security", "Agent Intent", "Capstone"):
             loc = page.get_by_text(menu, exact=True)
             if loc.count() == 0:
                 continue

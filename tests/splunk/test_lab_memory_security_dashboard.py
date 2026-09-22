@@ -289,6 +289,12 @@ def test_no_new_detector_and_security_semantics():
     assert MALICIOUS_HASH in markdown
     assert markdown.count(MALICIOUS_HASH) >= 4
     assert "Do **not** label this SAFE" in markdown
+    assert "Path A — Try it yourself" in markdown
+    assert "Path B — Show solution" in markdown
+    assert "LIVE EXPERIMENT" in markdown
+    assert "REPLAY SPECIMEN" in markdown
+    assert "http://127.0.0.1:5001/labs/LAB-MEMORY-001" in markdown
+    assert "MEMORY-I1-FIND-THE-WRITE" in markdown or "Find the write" in markdown
     assert SPECIMEN_IDS["attack_write_run_id"] in markdown
     assert SPECIMEN_IDS["attack_recall_run_id"] in markdown
     assert SPECIMEN_IDS["retest_write_run_id"] in markdown
@@ -312,7 +318,8 @@ def test_schema_runtime_and_det_unchanged():
     dumped = json.dumps(_definition())
     assert "DET-MEMORY" in dumped
     assert "No DET-MEMORY" in dumped
-    assert "Phase 12 not started" in dumped
+    assert "Goal Integrity is a later lab" in dumped
+    assert "Phase 15D not started" not in dumped
     assert "list_changed" not in PROTOCOL.read_text(encoding="utf-8")
     assert RAG_VIEW.is_file()
     rag = RAG_VIEW.read_text(encoding="utf-8")

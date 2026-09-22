@@ -253,4 +253,29 @@ def test_schema_runtime_and_det_unchanged():
     assert "DET-RAG" in dumped
     assert "No DET-RAG" in dumped
     assert "A2A" in dumped
-    assert "Phase 11 not started" in dumped
+    assert "1.9.0" in dumped
+    assert "Phase 11 not started" not in dumped
+
+
+def test_path_a_path_b_and_live_vs_replay():
+    definition = _definition()
+    blob = json.dumps(definition)
+    assert "Path A" in blob
+    assert "Path B" in blob
+    assert "viz_i1_q" in definition["visualizations"]
+    assert "viz_i1_h1" in definition["visualizations"]
+    assert "viz_i1_sol" in definition["visualizations"]
+    hunt_layout = definition["layout"]["layoutDefinitions"]["layout_hunt"]
+    assert hunt_layout["options"]["display"] == "fit-to-width"
+    assert "LIVE vs REPLAY" in blob or "LIVE vs REPLAY" in blob.replace("**", "")
+    assert "REPLAY specimen" in blob
+    assert "SAME RETRIEVED CONTENT. SAME REQUEST. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION." in blob
+    markdown = "\n".join(
+        viz["options"]["markdown"]
+        for viz in definition["visualizations"].values()
+        if viz["type"] == "splunk.markdown"
+    )
+    assert "| Role |" not in markdown
+    assert "| run.id |" not in markdown
+    assert "http://127.0.0.1:5001/labs/LAB-RAG-CONTEXT" in markdown
+    assert "Studio tokens" in markdown or "Studio cannot receive" in markdown

@@ -1,0 +1,102 @@
+{
+  "url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agent_goal_integrity",
+  "tabs_found": [
+    "LEARN",
+    "BASELINE",
+    "ATTACK",
+    "OBSERVE",
+    "HUNT",
+    "DETECT",
+    "DEFEND",
+    "RETEST",
+    "COMPARE",
+    "PROVE"
+  ],
+  "tabs_missing": [],
+  "tokens_found": [
+    "run_id"
+  ],
+  "tokens_missing": [],
+  "token_values": {
+    "run_id": "Baseline \u2014 defended / normal"
+  },
+  "screenshots": [
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_overview.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_learn.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_baseline.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_attack.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_observe.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_hunt.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_detect.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_defend.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_retest.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_compare.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_prove.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1280_learn.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1280_attack.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1280_observe.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1280_hunt.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1280_defend.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1280_retest.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1280_compare.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1280_prove.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1024_learn.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1024_attack.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1024_observe.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1024_hunt.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1024_defend.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1024_retest.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1024_compare.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1024_prove.png",
+    "docs/screenshots/attack-service-goal/pass15d_launcher_1440.png",
+    "docs/screenshots/attack-service-goal/pass15d_launcher_1280.png",
+    "docs/screenshots/attack-service-goal/pass15d_launcher_1024.png",
+    "docs/screenshots/attack-service-goal/pass15d_attack_results_1440.png",
+    "docs/screenshots/attack-service-goal/pass15d_retest_results_1440.png"
+  ],
+  "clipping_screenshots": [
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1280_learn.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1280_attack.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1280_observe.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1280_hunt.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1280_defend.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1280_retest.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1280_compare.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1280_prove.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1024_learn.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1024_attack.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1024_observe.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1024_hunt.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1024_defend.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1024_retest.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1024_compare.png",
+    "docs/screenshots/lab-agent-goal-integrity/pass15d_w1024_prove.png"
+  ],
+  "label": "pass15d",
+  "tabs_requested": [
+    "LEARN",
+    "BASELINE",
+    "ATTACK",
+    "OBSERVE",
+    "HUNT",
+    "DETECT",
+    "DEFEND",
+    "RETEST",
+    "COMPARE",
+    "PROVE"
+  ],
+  "viewports": [
+    1440,
+    1280,
+    1024
+  ],
+  "http": {
+    "attack_1440": 200,
+    "attack_1280": 200,
+    "attack_1024": 200
+  },
+  "attack_service": {
+    "attack_run_id": "a8fc304b-b142-453e-b9dd-18595b4f9043",
+    "retest_run_id": "c7e258c3-4d6e-4e5d-8629-26ae1004a08c"
+  }
+}

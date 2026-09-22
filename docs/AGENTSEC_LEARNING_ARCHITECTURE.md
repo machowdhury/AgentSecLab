@@ -1,6 +1,6 @@
 # AgentSec learning architecture
 
-**Status:** Phase 8A DESIGN. Adjusts the suggested 8-level outline against **implemented** labs.
+**Status:** Phase 8A DESIGN (historical snapshot in this file). **Phase 15A** supersedes the teaching *order* — see `docs/AGENTSEC_CURRICULUM_LEVELS.md` and `docs/PHASE15A_AGENTSEC_CURRICULUM_ARCHITECTURE.md`. **Phase 16A** is the curriculum-integration design snapshot — see `docs/PHASE16A_CURRICULUM_INTEGRATION.md` and `docs/AGENTSEC_LEARNING_LEVELS.md`. **Phase 16B** implements `LAB-AGENTSEC-CAPSTONE-001` — see `docs/PHASE16B_CAPSTONE_RUNTIME_IMPLEMENTATION.md`. **Phase 16C** is the academy audit — see `docs/PHASE16C_AGENTSEC_ACADEMY_AUDIT.md` and `docs/AGENTSEC_CURRICULUM_MAP.md`. **Phase 16D** implements that P0/P1 packaging — see `docs/PHASE16D_ACADEMY_REMEDIATION.md`. **Phase 17A** adds Mastery Check — see `docs/PHASE17A_LEARNER_MASTERY_VALIDATION.md`. **Phase 17B** is fresh-learner usability — see `docs/PHASE17B_FRESH_LEARNER_VALIDATION.md`. Labs listed below remain implemented; they are **not** one completed “Level 1.” 15A/16A/16C do not migrate workshops or launchers. 16D does not add labs. 17A does not add attacks. 17B does not add attacks.
 
 Parents: `docs/AGENTSEC_EXPANSION_ARCHITECTURE.md`, `docs/AGENTSEC_ATTACK_RESEARCH_PIPELINE.md`.
 
@@ -51,7 +51,7 @@ Keep eight levels, but reorder so architecture dependencies are honest.
 
 LEARN → BASELINE → ATTACK → OBSERVE → HUNT → DETECT → DEFEND → RETEST → COMPARE → PROVE
 
-Phase 14A (`docs/PHASE14A_LEARNING_EXPERIENCE_DESIGN.md`) adds instructional beats UNDERSTAND → PREDICT → INVESTIGATE → CONNECT **on top of** this shell. Phase 14E (`docs/PHASE14E_LEARNING_LOOP_GENERALIZATION.md`) promotes the reusable contracts proven by **two** reference labs: LAB-PI-001 (prompt/input trust) and LAB-MCP-001 (tool authorization). Learning metadata is not policy. Remaining labs are **not** auto-migrated.
+Phase 14A (`docs/PHASE14A_LEARNING_EXPERIENCE_DESIGN.md`) adds instructional beats UNDERSTAND → PREDICT → INVESTIGATE → CONNECT **on top of** this shell. Phase 14E (`docs/PHASE14E_LEARNING_LOOP_GENERALIZATION.md`) promotes the reusable contracts proven by **two** reference labs: LAB-PI-001 (prompt/input trust) and LAB-MCP-001 (tool authorization). Learning metadata is not policy. Remaining labs are **not** auto-migrated. Phase 15A records the curriculum journey and migration waves without implementing them. **Do not start Phase 15B from this file.**
 
 UI: `.cursor/rules/32-ui-design-system.mdc` + `/ui-review`  
 Evidence: `/logic-proof`  

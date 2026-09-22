@@ -84,6 +84,11 @@ services:
       - ./artifacts:/app/artifacts
       - ./learning/level_1/LAB-PI-001/lab-manifest.json:/app/learning/level_1/LAB-PI-001/lab-manifest.json:ro
       - ./learning/level_1/LAB-MCP-001/lab-manifest.json:/app/learning/level_1/LAB-MCP-001/lab-manifest.json:ro
+      - ./learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json:/app/learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json:ro
+      - ./learning/level_1/LAB-MEMORY-001/lab-manifest.json:/app/learning/level_1/LAB-MEMORY-001/lab-manifest.json:ro
+      - ./learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json:/app/learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json:ro
+      - ./learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json:/app/learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json:ro
+      - ./learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json:/app/learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json:ro
     environment:
       - AGENTSEC_BIND_HOST=0.0.0.0
       - ATTACK_SERVICE_PORT=5001

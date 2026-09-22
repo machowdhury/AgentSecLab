@@ -310,7 +310,7 @@ def build() -> dict:
 
 Investigate whether a deputy's own authority was actually delegated by this caller.
 
-**LIVE EVIDENCE** · `LAB-MCP-006` · Schema 1.4.0 · INV-001 · CTRL-DELEGATION-001
+**REPLAY SPECIMEN** · historical evidence · Schema 1.4.0 · INV-001 · CTRL-DELEGATION-001
 
 **The deputy may possess authority — but did the caller actually delegate that authority for this operation?**
 
@@ -318,7 +318,7 @@ Investigate whether a deputy's own authority was actually delegated by this call
 
 Not every delegated-agent workflow is a confused-deputy attack. BASELINE is legitimate delegation.
 
-**Phase 7C LIVE evidence identity**
+**Canonical specimens (historical)**
 
 BASELINE `{BASELINE_ID}`
 
@@ -519,6 +519,19 @@ Read IDENTITY, AUTHORITY, CONTROL, EXECUTION as separate facts. Sequence shows h
         "viz_hunt_md",
         f"""
 # HUNT
+
+**REPLAY workshop.** There is no Attack Service launcher here. This is historical evidence, not a launch you just minted.
+
+**WHY search this?** Reconstruct a canonical experiment in Search. Practice Path A without minting a new run.id.
+
+**Path A — try it yourself:** [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search). Copy a canonical Investigate specimen run.id. Start with `index=agentsec_telemetry sourcetype=otel:agentic:json` and quoted `agentsec.run.id`. Construct the hunt before you treat the tables as the answer. If zero rows, this volume may not contain that specimen. Empty is not DENY.
+
+**Path B — show solution:** the bound tables on this tab are the expected shape for that specimen. Read them after Path A. They are not policy and not LIVE launch evidence.
+
+**YOU SHOULD SEE** control.id, decision, reason, and whether execution events exist.
+**THAT MEANS** this is the expected shape of a historical copy.
+**IT DOES NOT MEAN** Splunk enforced the decision.
+**NEXT** COMPARE ATTACK vs RETEST on the same fields, then PROVE.
 
 **Question:** What did CTRL-DELEGATION-001 decide, for which caller/deputy/tool, which authority source was used, and what downstream MCP / execution were indexed?
 
@@ -803,7 +816,7 @@ LIVE A/B/C are OBSERVED/MEASURED. DETECT right table is **SIMULATED**.
 13. Why might DET-MCP-001 remain silent?
 14. What would the SOC hunt next?
 
-Answers: `learning/level_1/LAB-MCP-006/knowledge-check.md`
+Answers: on this tab.
 
 ## Correlation limitation
 

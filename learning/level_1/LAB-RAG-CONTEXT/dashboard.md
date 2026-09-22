@@ -5,7 +5,7 @@
 
 Definition: `dashboard.definition.json` (source) and `splunk_app/agentsec/default/data/ui/views/ws_lab_rag_context.xml` (what Splunk loads). Rebuild both with `python3 scripts/build_lab_rag_context_dashboard.py`.
 
-GRID 1440 / 12. Tokens: Hunt (defaults BASELINE), BASELINE, ATTACK, RETEST.
+GRID 1440 / 12. Token: Investigate specimen (`run_id`, defaults to canonical REPLAY BASELINE). Fresh LIVE run.ids are Splunk Search, not Studio tokens.
 
 Searches reused (bind only): `Q-RAG-CONTEXT-AUTHORITY`, `Q-MCP-WHO`, `Q-MCP-AUTHZ`, `Q-MCP-TOOL`, `Q-MCP-EXECUTED`, `Q-MCP-AFTER-DENY`, `DET-MCP-001-POSITIVE-CONTROL` (SIMULATED). OBSERVE sequence is a Studio view of already-indexed fields, not a new hunt file.
 

@@ -8,8 +8,9 @@ from pathlib import Path
 import requests
 from flask import Flask, jsonify, render_template, request
 
+from agentsec.academy import lab_row, next_lab
 from agentsec.attacks import ATK_002
-from agentsec.experiment_context import LAB_MCP, LAB_PI, lookup_experiment
+from agentsec.experiment_context import LAB_CAPSTONE, LAB_GOAL, LAB_IDENTITY, LAB_MCP, LAB_MEMORY, LAB_PI, LAB_RAG, lookup_experiment
 from agentsec.lab_manifest import load_lab_manifest, prediction_for
 from agentsec.launch_catalog import RETEST_SUPPORT, allowlist_public_rows, known_lab_ids
 from agentsec.launch_contract import parse_launch_json
@@ -58,6 +59,76 @@ class AcmeBankClient:
         try:
             response = requests.post(
                 f"{self.base_url}/mcp/invoke",
+                json=payload,
+                timeout=180,
+            )
+            data = response.json()
+            return response.status_code, data if isinstance(data, dict) else {"error": "non_json"}
+        except requests.RequestException as exc:
+            return 503, {"error": f"cannot reach AcmeBank: {exc}"}
+
+    def rag_retrieve(self, payload: dict) -> tuple[int, dict]:
+        if self._post_fn is not None:
+            return self._post_fn("/rag/retrieve", payload)
+        try:
+            response = requests.post(
+                f"{self.base_url}/rag/retrieve",
+                json=payload,
+                timeout=180,
+            )
+            data = response.json()
+            return response.status_code, data if isinstance(data, dict) else {"error": "non_json"}
+        except requests.RequestException as exc:
+            return 503, {"error": f"cannot reach AcmeBank: {exc}"}
+
+    def memory_write(self, payload: dict) -> tuple[int, dict]:
+        if self._post_fn is not None:
+            return self._post_fn("/memory/write", payload)
+        try:
+            response = requests.post(
+                f"{self.base_url}/memory/write",
+                json=payload,
+                timeout=180,
+            )
+            data = response.json()
+            return response.status_code, data if isinstance(data, dict) else {"error": "non_json"}
+        except requests.RequestException as exc:
+            return 503, {"error": f"cannot reach AcmeBank: {exc}"}
+
+    def memory_recall(self, payload: dict) -> tuple[int, dict]:
+        if self._post_fn is not None:
+            return self._post_fn("/memory/recall", payload)
+        try:
+            response = requests.post(
+                f"{self.base_url}/memory/recall",
+                json=payload,
+                timeout=180,
+            )
+            data = response.json()
+            return response.status_code, data if isinstance(data, dict) else {"error": "non_json"}
+        except requests.RequestException as exc:
+            return 503, {"error": f"cannot reach AcmeBank: {exc}"}
+
+    def goal_evaluate(self, payload: dict) -> tuple[int, dict]:
+        if self._post_fn is not None:
+            return self._post_fn("/goal/evaluate", payload)
+        try:
+            response = requests.post(
+                f"{self.base_url}/goal/evaluate",
+                json=payload,
+                timeout=180,
+            )
+            data = response.json()
+            return response.status_code, data if isinstance(data, dict) else {"error": "non_json"}
+        except requests.RequestException as exc:
+            return 503, {"error": f"cannot reach AcmeBank: {exc}"}
+
+    def identity_delegate(self, payload: dict) -> tuple[int, dict]:
+        if self._post_fn is not None:
+            return self._post_fn("/identity/delegate", payload)
+        try:
+            response = requests.post(
+                f"{self.base_url}/identity/delegate",
                 json=payload,
                 timeout=180,
             )
@@ -124,11 +195,103 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
         technique_name = ATK_002.name
         technique_id = ATK_002.technique_id
         specimen_label = "ATK-002 catalog payload (not learner-supplied)"
+        expected_defended = ATK_002.expected_defended
         if lab_id == LAB_MCP and attack_ctx is not None:
             payload_preview = attack_ctx.payload
             technique_name = "Unauthorized tool request"
             technique_id = attack_ctx.attack_id
             specimen_label = "Server-owned MCP request (not learner-supplied)"
+            expected_defended = "CTRL-MCP-001 DENY tool_not_granted. Handler count 0. No mcp.started."
+        if lab_id == LAB_RAG and attack_ctx is not None:
+            payload_preview = attack_ctx.payload
+            technique_name = "Retrieved-context-derived authority"
+            technique_id = attack_ctx.attack_id
+            specimen_label = "Server-owned malicious RAG fixture (not learner-supplied)"
+            expected_defended = (
+                "CTRL-RAG-CONTEXT-001 OBSERVE. Same follow-on REQUEST. "
+                "CTRL-MCP-001 DENY tool_not_granted. Handler count 0."
+            )
+        if lab_id == LAB_MEMORY and attack_ctx is not None:
+            payload_preview = attack_ctx.payload
+            technique_name = "Memory-derived authority across WRITE then RECALL"
+            technique_id = attack_ctx.attack_id
+            specimen_label = "Server-owned malicious memory fixture (not learner-supplied)"
+            expected_defended = (
+                "WRITE persists untrusted_data. RECALL CTRL-MEMORY-CONTEXT-001 OBSERVE. "
+                "Same follow-on REQUEST. CTRL-MCP-001 DENY tool_not_granted. Handler count 0."
+            )
+        if lab_id == LAB_GOAL and attack_ctx is not None:
+            payload_preview = attack_ctx.payload
+            technique_name = "Untrusted-instruction task expansion"
+            technique_id = attack_ctx.attack_id
+            specimen_label = "Server-owned malicious instruction fixture (not learner-supplied)"
+            expected_defended = (
+                "CTRL-GOAL-INTEGRITY-001 DENY unauthorized_task_expansion. "
+                "Effective summarize_lending_policy. CTRL-MCP-001 ALLOW tool_granted. "
+                "Wrong-goal handler 0. In-task handler 1."
+            )
+        if lab_id == LAB_IDENTITY and attack_ctx is not None:
+            payload_preview = attack_ctx.payload
+            technique_name = "Caller/delegation claim as authority"
+            technique_id = attack_ctx.attack_id
+            specimen_label = "Server-owned adversarial delegation fixture (not learner-supplied)"
+            expected_defended = (
+                "CTRL-IDENTITY-001 OBSERVE identity_claim_is_not_grant. "
+                "CTRL-MCP-001 DENY tool_not_granted. lookup_customer_tier handler 0. "
+                "WHO AUTHENTICATED = NOT PROVEN / NOT MODELED."
+            )
+        if lab_id == LAB_IDENTITY and attack_ctx is not None:
+            payload_preview = attack_ctx.payload
+            technique_name = "Adversarial delegation claim / authority amplification"
+            technique_id = attack_ctx.attack_id
+            specimen_label = "Server-owned adversarial A2A-shaped fixture (not learner-supplied)"
+            expected_defended = (
+                "CTRL-IDENTITY-001 OBSERVE identity_claim_is_not_grant. "
+                "Same privileged request. CTRL-MCP-001 DENY tool_not_granted. "
+                "lookup_customer_tier handler 0. No mcp.started."
+            )
+        if lab_id == LAB_CAPSTONE and attack_ctx is not None:
+            payload_preview = attack_ctx.payload
+            technique_name = "Unexpected customer-tier access in a policy workflow"
+            technique_id = attack_ctx.attack_id
+            specimen_label = "Server-owned closed capstone specimen (not learner-supplied)"
+            expected_defended = (
+                "Retrieved and recalled content remain data (OBSERVE). "
+                "CTRL-MCP-001 DENY tool_not_granted on the later recall. "
+                "lookup_customer_tier handler 0. No mcp.started."
+            )
+        if lab_id == LAB_MCP:
+            hunt_hint = "Reuse Q-MCP-WHO / Q-MCP-AUTHZ (do not create a detector)."
+        elif lab_id == LAB_RAG:
+            hunt_hint = "Reuse Q-RAG-CONTEXT-AUTHORITY and Q-MCP-AUTHZ (do not create DET-RAG)."
+        elif lab_id == LAB_MEMORY:
+            hunt_hint = (
+                "Reuse Q-MEMORY-CONTEXT-AUTHORITY with WRITE and RECALL run.ids. "
+                "Reuse Q-MCP-AUTHZ on the recall run. Do not create DET-MEMORY."
+            )
+        elif lab_id == LAB_GOAL:
+            hunt_hint = "Reuse Q-GOAL-INTEGRITY-AUTHORITY and Q-MCP-AUTHZ (do not create DET-GOAL)."
+        elif lab_id == LAB_IDENTITY:
+            hunt_hint = "Reuse Q-AGENT-DELEGATION-AUTHORITY and Q-MCP-AUTHZ (do not create DET-A2A)."
+        elif lab_id == LAB_CAPSTONE:
+            hunt_hint = (
+                "Reuse Q-RAG-CONTEXT-AUTHORITY on retrieve, Q-MEMORY-CONTEXT-AUTHORITY on write+recall, "
+                "and Q-MCP-AUTHZ on the recall run. Do not create DET-CAPSTONE."
+            )
+        else:
+            hunt_hint = "Reuse Q-RUN-EVENTS (do not create a detector)."
+        academy = lab_row(lab_id) or {}
+        successor = next_lab(lab_id)
+        next_lab_ctx = None
+        if successor is not None:
+            next_href = None
+            if successor.get("mode") == "LIVE":
+                next_href = "/" if successor["lab_id"] == LAB_PI else f"/labs/{successor['lab_id']}"
+            next_lab_ctx = {
+                "title": successor.get("title") or successor["lab_id"],
+                "mode": successor.get("mode"),
+                "href": next_href,
+            }
         return render_template(
             "attack.html",
             attack=ATK_002,
@@ -151,14 +314,22 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
             payload_label=specimen_label,
             technique_name=technique_name,
             technique_id=technique_id,
-            hunt_hint=(
-                "Reuse Q-MCP-WHO / Q-MCP-AUTHZ (do not create a detector)."
-                if lab_id == LAB_MCP
-                else "Reuse Q-RUN-EVENTS (do not create a detector)."
-            ),
+            expected_defended=expected_defended,
+            hunt_hint=hunt_hint,
+            is_memory_lab=lab_id == LAB_MEMORY,
+            is_goal_lab=lab_id == LAB_GOAL,
+            is_identity_lab=lab_id == LAB_IDENTITY,
+            is_capstone_lab=lab_id == LAB_CAPSTONE,
+            academy_level=academy.get("level_title") or "Curriculum",
+            next_lab=next_lab_ctx,
             labs=(
                 {"lab_id": LAB_PI, "title": "Direct Prompt Injection", "href": "/"},
                 {"lab_id": LAB_MCP, "title": "Tool Authorization", "href": "/labs/LAB-MCP-001"},
+                {"lab_id": LAB_RAG, "title": "RAG / Retrieved Context", "href": "/labs/LAB-RAG-CONTEXT"},
+                {"lab_id": LAB_MEMORY, "title": "Persistent Memory", "href": "/labs/LAB-MEMORY-001"},
+                {"lab_id": LAB_GOAL, "title": "Goal / Instruction Integrity", "href": "/labs/LAB-AGENT-GOAL-INTEGRITY-001"},
+                {"lab_id": LAB_IDENTITY, "title": "Agent Identity / Delegation", "href": "/labs/LAB-AGENT-DELEGATION-001"},
+                {"lab_id": LAB_CAPSTONE, "title": "Lending Assistant Investigation", "href": "/labs/LAB-AGENTSEC-CAPSTONE-001"},
             ),
         )
 

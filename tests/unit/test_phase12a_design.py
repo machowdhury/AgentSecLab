@@ -103,7 +103,7 @@ def test_phase12a_schema_runtime_spl_and_studio_unchanged():
     lab = ROOT / "learning" / "level_1" / "LAB-AGENT-DELEGATION-001"
     assert not (lab / "workshop.md").exists()
     assert not list(lab.glob("DET-*"))
-    assert not (VIEWS / "ws_lab_agent_delegation.xml").exists()
+    assert (VIEWS / "ws_lab_agent_delegation.xml").exists()  # Phase 15E LIVE workshop
     assert not (VIEWS / "ws_lab_a2a.xml").exists()
     assert "list_changed" not in PROTOCOL.read_text(encoding="utf-8")
     det = DET.read_text(encoding="utf-8")

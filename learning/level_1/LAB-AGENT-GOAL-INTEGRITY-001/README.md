@@ -6,7 +6,7 @@
 **Invariant:** INV-002 (data cannot independently authorize) and INV-006 (privileged workflow transitions require authorized state)  
 **Attack:** GOAL-001 (authorized tool used for an unauthorized task expansion)  
 **Control:** CTRL-GOAL-INTEGRITY-001 (task integrity) + CTRL-MCP-001 (sole tool PDP)  
-**Status:** Phase 13E Dashboard Studio workshop (`ws_lab_agent_goal_integrity`). DET-MCP-001 reused, disabled. **No DET-GOAL.** Detection: **DETECTION ANALYZED — NO NEW GOAL DETECTOR**.
+**Status:** Phase 15D LIVE purple-team loop on the existing Phase 13E workshop (`ws_lab_agent_goal_integrity`). DET-MCP-001 reused, disabled. **No DET-GOAL.** Detection: **DETECTION ANALYZED — NO NEW GOAL DETECTOR**. Canonical specimen ids below are **REPLAY** (Phase 13C). Fresh LIVE run.ids come from Attack Service.
 
 This lab teaches one idea: **an authorized tool is not an authorized goal**. `lookup_policy` can be granted and still be the wrong use of that tool. Splunk is where you hunt a copy of the telemetry. Splunk does not ALLOW or DENY a tool or a task.
 
@@ -64,9 +64,9 @@ AUTHORITATIVE TASK
  → Splunk (observe only)
 ```
 
-## Validated LIVE specimens (Phase 13C)
+## Canonical REPLAY specimens (Phase 13C)
 
-Do **not** use Phase 13B local IDs.
+These Investigate specimen ids are **REPLAY**. Fresh LIVE run.ids come from Attack Service. Do **not** use Phase 13B local IDs.
 
 - BASELINE `0aced342-1295-4820-b807-9a8718d9e847` — defended, OBSERVE cannot-redefine, MCP ALLOW, in-task 1, wrong-goal 0
 - ATTACK `fd994587-7e1c-4a70-8013-54cb2c85254d` — **INTENTIONALLY VULNERABLE LAB PROFILE**, OBSERVE overlay, MCP ALLOW, extract_full_policy, wrong-goal 1
@@ -94,8 +94,10 @@ Hunt run_id defaults to the BASELINE specimen.
 | `knowledge-check.md` | Questions and answers |
 | `dashboard.md` | How to use `ws_lab_agent_goal_integrity` |
 | `dashboard.definition.json` | Studio source |
+| `lab-manifest.json` | Closed launch metadata (not policy) |
+| `investigations.json` | Path A/B GOAL-I1–I9 (not policy) |
 | `searches/Q-GOAL-INTEGRITY-AUTHORITY.spl` | Primary hunt (13C) |
 
 Rebuild: `python3 scripts/build_lab_agent_goal_integrity_dashboard.py`
 
-No DET-GOAL. Phase 14 not started. No A2A. No rug-pull. No ML implementation.
+No DET-GOAL. Phase 15D LIVE loop. Do not start Phase 15E. No A2A. No rug-pull. No ML implementation.

@@ -26,6 +26,9 @@ OUT_XML = (
     / "views"
     / "ws_lab_memory_security.xml"
 )
+INV_PATH = ROOT / "learning" / "level_1" / "LAB-MEMORY-001" / "investigations.json"
+SEARCH_URL = "http://127.0.0.1:8000/en-US/app/search/search"
+ATTACK_URL = "http://127.0.0.1:5001/labs/LAB-MEMORY-001"
 
 BG = "#F6F8FB"
 NAVY = "#0B1F33"
@@ -80,9 +83,10 @@ EMPTY_SEQ = (
     "That is not a security outcome."
 )
 EMPTY_HUNT = (
-    "Investigate write specimen defaults to BASELINE write. Investigate recall specimen "
-    "defaults to BASELINE recall. Custom run.id is available from Search. Empty tables are "
-    "missing indexed rows, not security outcomes."
+    "No indexed event matched this evidence question. Investigate write specimen "
+    "defaults to BASELINE write. Investigate recall specimen defaults to BASELINE recall. "
+    "Custom run.id is available from Search. Empty tables are missing indexed rows, "
+    "not security outcomes."
 )
 ALLOW_NOT_EXEC = (
     "ALLOW is the control decision. Tool execution begins at mcp.started. "
@@ -99,6 +103,197 @@ DATA_NOT_AUTHORITY = (
     "PERSISTED MEMORY != TRUSTED INSTRUCTION. MEMORY RECALL != AUTHORIZATION. "
     "REQUEST != GRANT. OBSERVE != ALLOW."
 )
+
+SPL_TEACHING = {
+    "Q-MEMORY-CONTEXT-AUTHORITY": (
+        "- Reconstructs WRITE → RECALL → classification → follow-on request → MCP decision.\n"
+        "- Memory fingerprint is content.hash of stored bytes, not the hop-1 request hash.\n"
+        "- source_run_id is the write run. Current run.id is the later recall.\n"
+        "- Preview is not the authoritative fingerprint. OBSERVE is not ALLOW."
+    ),
+    "Q-MCP-AUTHZ": (
+        "- Control.decision rows only. Bind the RECALL run.id. Hop 0 is CONTEXT-001. Hop 1 is CTRL-MCP-001 when a follow-on exists.\n"
+        "- Splunk did not make the decision."
+    ),
+    "Q-MCP-EXECUTED": (
+        "- Joins control + mcp.* into execution_state on the recall run.\n"
+        "- Runtime handler count remains authoritative for non-execution."
+    ),
+    "Q-MCP-TOOL": (
+        "- mcp.started rows only. Presence means the handler began."
+    ),
+    "Q-MCP-WHO": (
+        "- Principal / agent / tool identity on control.decision."
+    ),
+}
+
+TABLE_BIND = {
+    "MEMORY-I1-FIND-THE-WRITE": [
+        (
+            "ds_q_mem",
+            "Q-MEMORY-CONTEXT-AUTHORITY (REPLAY specimen)",
+            "Path B write+recall row. Fresh LIVE write run.id is Search, not this table.",
+        ),
+        (
+            "ds_q_who",
+            "Q-MCP-WHO (REPLAY recall)",
+            "Identity row. Write runs may have no CTRL-MCP-001 hop.",
+        ),
+    ],
+    "MEMORY-I2-FIND-THE-LATER-RECALL": [
+        (
+            "ds_q_mem",
+            "Q-MEMORY-CONTEXT-AUTHORITY cross-run (REPLAY)",
+            "write_run_id vs recall_run_id. source_run_id must equal the write UUID.",
+        )
+    ],
+    "MEMORY-I3-VERIFY-THE-MEMORY-FINGERPRINT": [
+        (
+            "ds_q_mem",
+            "Q-MEMORY-CONTEXT-AUTHORITY fingerprint (REPLAY)",
+            "write_hash must equal recall_hash. Preview is not the fingerprint.",
+        )
+    ],
+    "MEMORY-I4-DETERMINE-TRUST-CLASSIFICATION": [
+        (
+            "ds_q_mem",
+            "Q-MEMORY-CONTEXT-AUTHORITY trust (REPLAY)",
+            "Expect OBSERVE memory_context_is_data. untrusted_data is not malice.",
+        )
+    ],
+    "MEMORY-I5-DID-MEMORY-INFLUENCE-A-REQUEST": [
+        (
+            "ds_q_mem",
+            "Q-MEMORY-CONTEXT-AUTHORITY follow-on (REPLAY)",
+            "BASELINE: no follow-on. ATTACK/RETEST: lookup_customer_tier request.",
+        )
+    ],
+    "MEMORY-I6-WHO-AUTHORIZED-THE-TOOL": [
+        (
+            "ds_q_authz",
+            "Q-MCP-AUTHZ (REPLAY recall)",
+            "Hop 0 OBSERVE. Hop 1 is the tool PDP. Splunk did not decide.",
+        )
+    ],
+    "MEMORY-I7-DID-EXECUTION-OCCUR": [
+        (
+            "ds_q_executed",
+            "Q-MCP-EXECUTED (REPLAY recall)",
+            "has_started is execution evidence in this copy. Empty is not independently prevented.",
+        ),
+        (
+            "ds_q_tool",
+            "Q-MCP-TOOL (REPLAY recall)",
+            "mcp.started rows only.",
+        ),
+    ],
+}
+
+
+def load_hunt_spl(name: str) -> str:
+    memory = MEMORY_DIR / name
+    if memory.is_file():
+        return memory.read_text(encoding="utf-8").strip()
+    return (SEARCH_DIR / name).read_text(encoding="utf-8").strip()
+
+
+def question_md(inv: dict, number: int) -> str:
+    return f"""
+# Investigation {number} — {inv["title"]}
+
+**QUESTION**
+
+{inv["security_question"]}
+
+**WHAT AM I TRYING TO PROVE?**
+
+{inv["learning_objective"]}
+
+**YOUR TASK (Path A — try it yourself)**
+
+{inv["starter_guidance"]}
+
+1. Copy the fresh LIVE WRITE run.id and RECALL run.id from Attack Service, or use Investigate specimen for canonical REPLAY.
+2. [Open Splunk Search]({SEARCH_URL})
+3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.
+4. Filter quoted `agentsec.run.id` for the relevant write and/or recall UUID. Execute. Read the fields yourself.
+
+Studio cannot receive a fresh LIVE run.id. That handoff is Search, not a token write.
+
+Starter (paste your LIVE UUIDs; do not search `index=*`):
+
+```
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 ("agentsec.run.id"="PASTE-WRITE-RUN-ID" OR "agentsec.run.id"="PASTE-RECALL-RUN-ID")
+```
+
+Need help? Scroll to **Hint 1**, then **Hint 2**, then the Path B solution. Do not skip Path A.
+"""
+
+
+def hint_md(inv: dict, number: int, which: str) -> str:
+    body = inv["hint_1"] if which == "hint_1" else inv["hint_2"]
+    label = "HINT 1" if which == "hint_1" else "HINT 2"
+    return f"""
+# {label} — Investigation {number}
+
+{body}
+
+Path A is still Search. This is not the full solution.
+"""
+
+
+def solution_md(inv: dict, number: int) -> str:
+    hunt = inv["related_hunt"]
+    spl = load_hunt_spl(f"{hunt}.spl")
+    if hunt == "Q-MEMORY-CONTEXT-AUTHORITY":
+        bound = spl.replace("__WRITE_RUN_ID__", '"$write_run_id$"').replace(
+            "__RECALL_RUN_ID__", '"$run_id$"'
+        )
+    else:
+        bound = spl.replace("__RUN_ID__", '"$run_id$"')
+    teach = SPL_TEACHING[hunt]
+    nxt = inv["next_investigation"] or "PROVE — classify what you can actually conclude."
+    return f"""
+# Solution — Investigation {number} {inv["title"]}
+
+This is **Path B — show solution**. Open it only after you tried Path A in Search. It is an answer key, not policy. Splunk does not enforce. Path A remains Search with your LIVE write/recall run.ids.
+
+**SOLUTION SPL** (`{hunt}`)
+
+Copy this into Search. Replace tokens with LIVE UUIDs, or leave tokens for Investigate specimen REPLAY.
+
+```
+{bound}
+```
+
+**WHY THESE STAGES**
+
+{teach}
+
+**EXPECTED RESULT SHAPE**
+
+{inv["expected_result_shape"]}
+
+**WHAT YOU ARE SEEING**
+
+{inv["result_explanation"]}
+
+**WHAT IT MEANS**
+
+{inv["security_interpretation"]}
+
+**WHAT IT DOES NOT MEAN**
+
+{inv["does_not_prove"]}
+
+**SECURITY CONNECTION**
+
+Control `{inv["related_control"]}` · invariant `{inv["related_invariant"]}` · hunt `{hunt}`. Splunk does **not** ALLOW or DENY.
+
+**NEXT CHALLENGE**
+
+{nxt}
+"""
 
 
 def fingerprint_block(h: str) -> str:
@@ -364,12 +559,21 @@ def build() -> dict:
 
 Investigate why recalled memory cannot silently become trusted instruction.
 
-**LIVE EVIDENCE** · `LAB-MEMORY-001` · Schema 1.7.0 · CTRL-MEMORY-CONTEXT-001
+**LIVE EXPERIMENT** vs **REPLAY SPECIMEN** · Persistent Memory · Schema **1.9.0** (Memory fields from 1.7.0 remain valid) · CTRL-MEMORY-CONTEXT-001
+
+This lab uses **deterministic in-process memory**. It is not a vector database.
+
+**SHORT-TERM CONTEXT** dies with the run. **PERSISTENT MEMORY** is written, then recalled later.
+
+**MEMORY vs RAG:** RAG retrieves a document during one run. Memory writes in one run and recalls in a later run. `source_run_id` is not the recall `run.id`.
 
 **What can I prove from the evidence?** Not: was malicious memory detected?
 
 - PERSISTED MEMORY != TRUSTED INSTRUCTION
 - MEMORY RECALL != AUTHORIZATION
+- PERSISTED != TRUSTED
+- RECALLED != AUTHORIZED
+- MEMORY INFLUENCE != AUTHORITY
 - REQUEST != GRANT
 - OBSERVE != ALLOW
 - ALLOW != EXECUTION
@@ -379,7 +583,7 @@ Investigate why recalled memory cannot silently become trusted instruction.
 - SPLUNK != ENFORCEMENT
 - ML != AUTHORIZATION
 
-**LIVE write and recall are different run.id values**
+**REPLAY write and recall are different run.id values** (canonical Investigate specimen)
 
 BASELINE WRITE `{BASELINE_WRITE}`
 
@@ -402,6 +606,8 @@ MALICIOUS memory `{MALICIOUS_MEM}`
 {fingerprint_block(MALICIOUS_HASH)}
 
 Provenance `{PROVENANCE}` is source identity. Provenance is not trust.
+
+Fresh LIVE UUIDs come from Attack Service. Never relabel REPLAY ids as LIVE.
 """,
         title="LEARN",
     )
@@ -447,7 +653,7 @@ Stored != trusted. Recalled != approved. Recalled text may influence reasoning. 
 
 5 EXECUTION — mcp.started / completed / failed. Handler count is authoritative.
 
-Do not collapse these into one memory-poisoning event.
+Do not collapse these into one memory-poisoning event. Do not collapse write and recall into one row.
 """,
         title="PLANES",
     )
@@ -466,7 +672,7 @@ WRITE RUN → store → later RECALL RUN → recalled context → request → au
 
 The cross-run relationship is the new concept. These are not the only agentic-security domains.
 
-LAB-PI-001 · MCP-001/003/004/005/006 · catalog · scanner · RAG
+Prompt/Input · Tool Authorization · RAG / Retrieved Context
 
 Identity / A2A / rug-pull are later. Not this workshop.
 """,
@@ -529,7 +735,19 @@ No privileged follow-on was observed in this specimen. That is an observation, n
         f"""
 # ATTACK
 
-**INTENTIONALLY VULNERABLE LAB PROFILE** · **LIVE** · recall profile vulnerable · mode ATTACK · handler **1**
+**INTENTIONALLY VULNERABLE LAB PROFILE** · **LIVE EXPERIMENT** (fresh write/recall UUIDs) vs **REPLAY SPECIMEN** below
+
+Why memory poisoning matters: stored bytes survive into a later run. The effect appears later, not during retrieve-in-this-run like RAG.
+
+What is being written: catalog malicious fixture `{MALICIOUS_MEM}`. The attacker wants later-recalled text treated as authority. The attacker cannot legitimately grant tools, scopes, identity, or approvals.
+
+Predict before launch: will WRITE persist without granting tools? Will CONTEXT-001 OBSERVE? Will lookup_customer_tier be requested? Will CTRL-MCP-001 ALLOW? Will the handler start?
+
+Then launch ATTACK (LIVE) from Attack Service. Hunt authorization and execution on the **RECALL** run.id. Studio tokens are not auto-bound to a fresh LIVE UUID.
+
+[Launch ATTACK (LIVE)]({ATTACK_URL})
+
+**REPLAY SPECIMEN** (canonical Investigate pair, not a fresh LIVE launch)
 
 WRITE `{ATTACK_WRITE}` → persistent malicious fixture `{MALICIOUS_MEM}` → RECALL `{ATTACK_RECALL}`
 
@@ -589,9 +807,16 @@ write → later recall → OBSERVE → REQUEST → ALLOW → START → COMPLETE
         f"""
 # OBSERVE
 
-Use **Investigate write specimen** + **Investigate recall specimen** (defaults BASELINE pair). Five planes. Indexed structured fields only. No `_raw`. No full memory body. Hash + bounded preview.
+Six evidence planes. Indexed structured fields only. No `_raw`. No full memory body. Hash + bounded preview.
 
-Write run and recall run are **different** `run.id` values. Persistence lives on the write run. Trust, request, authorization, and execution live on the recall run.
+1 WRITE — persistence event on the writer run
+2 PERSISTENCE / FINGERPRINT — memory.id, SHA-256, provenance
+3 RECALL — destination run, source_run_id
+4 TRUST / INFLUENCE — OBSERVE, untrusted_data, follow-on REQUEST
+5 AUTHORIZATION — CTRL-MCP-001
+6 EXECUTION — mcp.started / completed. Handler count is authoritative.
+
+Write run and recall run are **different** `run.id` values. Do not collapse them into one row.
 
 {EMPTY_HUNT}
 """,
@@ -602,17 +827,19 @@ Write run and recall run are **different** `run.id` values. Persistence lives on
         """
 # Plane map
 
-**PERSISTENCE** — writer run, memory.id, SHA-256, provenance
+**1 WRITE** — writer run, event.name=agentsec.memory.written
 
-**RECALL / TRUST** — destination run, source_run_id, CTRL-MEMORY-CONTEXT-001 OBSERVE, untrusted_data
+**2 PERSISTENCE / FINGERPRINT** — memory.id, SHA-256, provenance. Preview is not the fingerprint.
 
-**INFLUENCE / REQUEST** — follow-on tool / requested scope
+**3 RECALL** — destination run, source_run_id, event.name=agentsec.memory.recalled
 
-**AUTHORIZATION** — CTRL-MCP-001 ALLOW or DENY, reason, requested vs coded allowed scope
+**4 TRUST / INFLUENCE** — CTRL-MEMORY-CONTEXT-001 OBSERVE, untrusted_data, follow-on tool / scope
 
-**EXECUTION** — mcp.started / completed / failed. Handler count is authoritative.
+**5 AUTHORIZATION** — CTRL-MCP-001 ALLOW or DENY, reason, requested vs coded allowed scope
 
-Labels in text: CONTEXT · HUNT · CONTROL EVIDENCE · EXECUTION EVIDENCE · LIVE · OBSERVE · ALLOW · DENY
+**6 EXECUTION** — mcp.started / completed / failed. Handler count is authoritative.
+
+Labels in text: CONTEXT · HUNT · CONTROL EVIDENCE · EXECUTION EVIDENCE · LIVE · REPLAY · OBSERVE · ALLOW · DENY
 """,
         title="PLANES",
     )
@@ -626,7 +853,7 @@ Labels in text: CONTEXT · HUNT · CONTROL EVIDENCE · EXECUTION EVIDENCE · LIV
     add_table(
         "viz_observe_recall",
         "ds_observe_recall",
-        "PLANES 2–5 — recall-run sequence",
+        "PLANES 3–6 — recall-run sequence",
         cap_seq_recall,
         no_data=EMPTY_SEQ,
     )
@@ -655,21 +882,23 @@ Labels in text: CONTEXT · HUNT · CONTROL EVIDENCE · EXECUTION EVIDENCE · LIV
     add_md(
         "viz_hunt_md",
         f"""
-# HUNT
+# HUNT — guided investigation
 
-**Question:** Which write persisted this memory, which later recall loaded it, how was it classified, and was the follow-on request authorized or executed?
+Two paths. Path A is the default. Path B is an answer key, not a replacement.
 
-**Primary hunt:** Q-MEMORY-CONTEXT-AUTHORITY. Reconstruct: WRITE → RECALL → REQUEST → AUTHORIZATION → EXECUTION.
+**Path A — Try it yourself:** question, starter guidance, [Open Splunk Search]({SEARCH_URL}). Construct the hunt.
 
-Correlation keys that exist: memory.id + content.hash + source_run_id + destination run.id + gen_ai.agent.id + sequence.
+**Path B — Show solution (optional):** copyable SPL from existing Q-MEMORY / Q-MCP hunts, bound REPLAY table, explanation, limitations. Open it only after Path A. It is an answer key, not policy.
 
-Do **not** invent session.id, invocation.id, tenant.id, or tool.call.id.
+Investigate specimen is canonical **REPLAY**. Fresh LIVE write/recall run.ids come from Attack Service Search handoff. Studio tokens are not auto-bound.
 
-Reuse Q-MCP-* against the **recall** run. Write runs have no control.decision.
+Do not search until Attack Service reports **EXPERIMENT READY** (WRITE READY and RECALL READY) or you have measured searchable events. HEC success is not ready. One run searchable is not experiment ready.
 
-Do **not** hunt a regex for AGENT MEMORY NOTE. Do **not** treat `vulnerable_profile_fail_open:memory_derived_authority` as a production IOC. That string is a lab overlay reason.
+Primary hunt: **Q-MEMORY-CONTEXT-AUTHORITY**. Reuse Q-MCP-AUTHZ / Q-MCP-EXECUTED on the recall run. No Q-MEMORY-WRITE. No Q-MEMORY-POISONED. **No DET-MEMORY.**
 
-No Q-MEMORY-WRITE. No Q-MEMORY-POISONED. No DET-MEMORY.
+Do **not** hunt a regex for AGENT MEMORY NOTE. Overlay reason is a lab artifact, not a production IOC.
+
+This tab is a **stacked notebook**: Path A, then optional hints, then Path B. Custom browser scripts are not used.
 
 {DATA_NOT_AUTHORITY}
 
@@ -677,17 +906,52 @@ No Q-MEMORY-WRITE. No Q-MEMORY-POISONED. No DET-MEMORY.
 """,
         title="STEP 4 HUNT",
     )
-    add_table(
-        "viz_hunt_mem",
-        "ds_q_mem",
-        "Q-MEMORY-CONTEXT-AUTHORITY (primary memory hunt)",
-        cap_mem,
-        no_data=EMPTY_MEM,
-    )
-    add_table("viz_hunt_authz", "ds_q_authz", "Q-MCP-AUTHZ (recall)", cap_authz, no_data=EMPTY_CONTROL)
-    add_table("viz_hunt_tool", "ds_q_tool", "Q-MCP-TOOL (recall)", cap_tool, no_data=EMPTY_TOOL)
-    add_table("viz_hunt_exec", "ds_q_executed", "Q-MCP-EXECUTED (recall)", cap_exec, no_data=EMPTY_TOOL)
-    add_table("viz_hunt_who", "ds_q_who", "Q-MCP-WHO (recall)", cap_who, no_data=EMPTY_CONTROL)
+
+    inv_doc = json.loads(INV_PATH.read_text(encoding="utf-8"))
+    hunt_investigations = [
+        row for row in inv_doc["investigations"] if row.get("studio_tab", "HUNT") == "HUNT"
+    ]
+    hunt_structure = [
+        block("viz_hunt_md", 0, 0, FULL, 420),
+    ]
+    q_h, h1_h, h2_h, sol_h, tbl_h = 320, 160, 180, 560, 300
+    y_cursor = 428
+    for index, inv in enumerate(hunt_investigations, start=1):
+        ident = inv["investigation_id"]
+        q_id = f"viz_i{index}_q"
+        h1_id = f"viz_i{index}_h1"
+        h2_id = f"viz_i{index}_h2"
+        sol_id = f"viz_i{index}_sol"
+        add_md(q_id, question_md(inv, index), title=f"I{index} question")
+        add_md(h1_id, hint_md(inv, index, "hint_1"), title=f"I{index} hint 1")
+        add_md(h2_id, hint_md(inv, index, "hint_2"), title=f"I{index} hint 2")
+        add_md(sol_id, solution_md(inv, index), title=f"I{index} solution")
+        q_y = y_cursor
+        h1_y = q_y + q_h
+        h2_y = h1_y + h1_h
+        sol_y = h2_y + h2_h
+        tbl_y = sol_y + sol_h
+        hunt_structure.extend(
+            [
+                block(q_id, 0, q_y, FULL, q_h),
+                block(h1_id, 0, h1_y, FULL, h1_h),
+                block(h2_id, 0, h2_y, FULL, h2_h),
+                block(sol_id, 0, sol_y, FULL, sol_h),
+            ]
+        )
+        binds = TABLE_BIND[ident]
+        if len(binds) == 1:
+            ds, title, desc = binds[0]
+            tbl_id = f"viz_i{index}_tbl"
+            add_table(tbl_id, ds, title, desc, no_data=EMPTY_HUNT)
+            hunt_structure.append(block(tbl_id, 0, tbl_y, FULL, tbl_h))
+        else:
+            width = FULL // len(binds)
+            for col, (ds, title, desc) in enumerate(binds):
+                tbl_id = f"viz_i{index}_tbl_{col}"
+                add_table(tbl_id, ds, title, desc, no_data=EMPTY_HUNT)
+                hunt_structure.append(block(tbl_id, col * width, tbl_y, width, tbl_h))
+        y_cursor = tbl_y + tbl_h
 
     add_md(
         "viz_detect_md",
@@ -884,6 +1148,14 @@ Do not claim a content filter or a scanner decided the grant. Do not treat Splun
         f"""
 # RETEST
 
+**LIVE EXPERIMENT** — launch a real RETEST from Attack Service. Then investigate RETEST WRITE RUN and RETEST RECALL RUN against the corresponding ATTACK pair.
+
+Do **not** label RETEST SAFE. Do **not** claim universal resistance to memory poisoning.
+
+[Open Attack Service — launch RETEST]({ATTACK_URL})
+
+**REPLAY SPECIMEN** (canonical Investigate pair)
+
 **LIVE** · write defended · recall defended · mode RETEST · handler **0**
 
 WRITE `{RETEST_WRITE}`
@@ -952,6 +1224,11 @@ Primary visual proof of the lab.
 
 **SAME MEMORY. SAME REQUEST. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION.**
 
+```text
+ATTACK:  WRITE A → RECALL A → ALLOW → EXECUTE
+RETEST:  WRITE C → RECALL C → DENY  → NO PRIVILEGED EXECUTION
+```
+
 ATTACK and RETEST share:
 
 - memory.id `{MALICIOUS_MEM}`
@@ -960,11 +1237,15 @@ ATTACK and RETEST share:
 - follow-on tool `lookup_customer_tier`
 - requested scope `customer:read`
 
+DIFFERENT: experiment, authorization, execution, handler count, write/recall run.ids
+
 ATTACK: ALLOW + execution (handler 1)
 
 RETEST: DENY + handler 0
 
 Malicious stored bytes are not authorization bypass. Overlay ALLOW is not automatically successful execution.
+
+REPLAY specimens below are canonical Investigate ids. Fresh LIVE pairs come from Attack Service.
 """,
         title="BEFORE / AFTER",
     )
@@ -1082,7 +1363,27 @@ RUNTIME  →  LOCAL EVIDENCE  →  OTLP  →  SPLUNK  →  HUNT  →  SECURITY E
 
 LIVE A/B/C write+recall are OBSERVED/MEASURED. DETECT SIMULATED table is **SIMULATED**.
 
-Knowledge check (answers in knowledge-check.md):
+**LIVE vs REPLAY:** Investigate dropdown ids are REPLAY. Fresh WRITE/RECALL UUIDs from Attack Service are LIVE. Never silently substitute one for the other.
+
+**YOU JUST LEARNED** — STORED != TRUSTED. Recalled memory can influence a later request. CTRL-MEMORY-CONTEXT-001 OBSERVE is not a grant.
+
+**THIS CONNECTS TO** — goal integrity (authorized tool vs authorized purpose) and identity claims (also data).
+
+**NEXT** — Goal / Instruction Integrity (LIVE).
+
+Classify claims:
+
+**SUPPORTED** — The memory was persisted. The later recall used the same fingerprint. The memory was classified untrusted_data. CTRL-MCP-001 allowed the ATTACK request. The RETEST privileged handler did not execute.
+
+**CORROBORATED** — Complete indexed Splunk sequence matching runtime hops.
+
+**NOT PROVEN** — Missing mcp.started proves prevention. HEC acceptance. Empty table. One RETEST proves memory poisoning is solved.
+
+**INCORRECT** — Recalled bytes granted lookup_customer_tier. SIEM blocked the attack. Stored memory is trusted. Splunk is the PDP.
+
+Authoritative: runtime handler count. Control evidence: CTRL-MCP-001 decision. Splunk reconstructed the experiment. Splunk did not enforce the result.
+
+Knowledge check (answer from evidence on this tab):
 
 1. Which run wrote the memory?
 2. Which later run recalled it?
@@ -1121,7 +1422,8 @@ NORMAL fingerprint `{NORMAL_HASH}`
 
 MALICIOUS fingerprint `{MALICIOUS_HASH}` (ATTACK and RETEST share this hash)
 
-No DET-MEMORY. Schema 1.7.0. Phase 12 not started. No A2A. No rug-pull. No vector memory.
+No DET-MEMORY. Schema 1.9.0. Memory fields from 1.7.0 remain valid. Goal Integrity is a later lab. No vector memory. No DET-MEMORY.
+
 """,
         title="PROVE",
     )
@@ -1249,17 +1551,7 @@ No DET-MEMORY. Schema 1.7.0. Phase 12 not started. No A2A. No rug-pull. No vecto
                     ],
                     1400,
                 ),
-                "layout_hunt": layout(
-                    [
-                        block("viz_hunt_md", 0, 0, FULL, 420),
-                        block("viz_hunt_mem", 0, 420, FULL, 280),
-                        block("viz_hunt_authz", 0, 700, HALF, 240),
-                        block("viz_hunt_tool", HALF, 700, HALF, 240),
-                        block("viz_hunt_exec", 0, 940, HALF, 240),
-                        block("viz_hunt_who", HALF, 940, HALF, 240),
-                    ],
-                    1200,
-                ),
+                "layout_hunt": layout(hunt_structure, y_cursor + 40),
                 "layout_detect": layout(
                     [
                         block("viz_detect_md", 0, 0, HALF, 420),

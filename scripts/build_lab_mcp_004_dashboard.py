@@ -351,7 +351,7 @@ def build() -> dict:
 
 Investigate why a granted tool and granted scope do not authorize every resource.
 
-**LIVE EVIDENCE** · `LAB-MCP-004` · Schema 1.2.0 · CTRL-MCP-001
+**REPLAY SPECIMEN** · historical evidence · Schema 1.2.0 · CTRL-MCP-001
 
 Splunk is the hunt workbench. Splunk does **not** ALLOW or DENY a resource. AcmeBank POST /mcp/invoke is the enforcement point.
 
@@ -363,7 +363,7 @@ Splunk is the hunt workbench. Splunk does **not** ALLOW or DENY a resource. Acme
 
 tool authorization is not scope authorization. Scope authorization is not resource authorization. Syntactically valid arguments are not authorized arguments. In this lab the **tool is granted** (lookup_policy) and the **scope is granted** (policy:read). The **resource** may not be.
 
-## Evidence identity (Phase 5C LIVE)
+## Evidence identity
 
 Canonical specimens. Full run.id remains here; HUNT uses Investigate specimen.
 
@@ -598,6 +598,19 @@ Minimum fields: run_id, sequence, event.name, tool, requested_scope, allowed_sco
         f"""
 # HUNT
 
+**REPLAY workshop.** There is no Attack Service launcher here. This is historical evidence, not a launch you just minted.
+
+**WHY search this?** Reconstruct a canonical experiment in Search. Practice Path A without minting a new run.id.
+
+**Path A — try it yourself:** [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search). Copy a canonical Investigate specimen run.id. Start with `index=agentsec_telemetry sourcetype=otel:agentic:json` and quoted `agentsec.run.id`. Construct the hunt before you treat the tables as the answer. If zero rows, this volume may not contain that specimen. Empty is not DENY.
+
+**Path B — show solution:** the bound tables on this tab are the expected shape for that specimen. Read them after Path A. They are not policy and not LIVE launch evidence.
+
+**YOU SHOULD SEE** control.id, decision, reason, and whether execution events exist.
+**THAT MEANS** this is the expected shape of a historical copy.
+**IT DOES NOT MEAN** Splunk enforced the decision.
+**NEXT** COMPARE ATTACK vs RETEST on the same fields, then PROVE.
+
 **Question:** What did CTRL-MCP-001 decide, what resource was requested vs coded, and did execution begin?
 
 **Primary hunt:** Q-MCP-RESOURCE-AUTHZ. Do not invent a duplicate resource query.
@@ -610,7 +623,7 @@ Reuse validated Q-MCP searches. Filter is already agentsec.run.id. Do not hunt s
 
 Zero Q-MCP-TOOL rows does **not** automatically mean DENY.
 
-If Splunk is empty, check artifacts/<run-id>/export.json. Do not conclude DENY.
+If Search returns zero rows, this volume may not contain that specimen. Empty is not DENY.
 
 {EMPTY_HUNT}
 """,
@@ -674,7 +687,7 @@ DET-MCP-001 currently correlates run_id + tool. That is valid for current canoni
         f"""
 # DEFEND
 
-**Control:** CTRL-MCP-001 (src/agentsec/mcp/authorize.py). Same control as LAB-MCP-001 / LAB-MCP-003. No CTRL-MCP-004.
+**Control:** CTRL-MCP-001 (the tool PDP). Same control as Tool Authorization and Scope Escalation. No extra resource control.
 
 **Where it executes:** MCP server, **before** the tool handler.
 
@@ -924,7 +937,7 @@ DET-MCP-001 currently correlates run_id + tool. Valid for one invocation per run
 
 ## Knowledge check (not scored)
 
-Questions live in learning/level_1/LAB-MCP-004/knowledge-check.md. Sample:
+Questions on this tab. Sample:
 
 - Why is executive-restricted not malformed?
 - Why is executive-restricted DENY but does-not-exist ERROR?

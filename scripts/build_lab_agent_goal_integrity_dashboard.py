@@ -44,6 +44,9 @@ TASK_HASH = "sha256:6f95aaf2adf5b37b11e35805f9bbbb24fdb34f38435590b5042d7c406bdf
 INSTRUCTION_HASH = "sha256:15a1c5fa3724419b21b854623c594dba28bf4f357efe39c932084374a8cbe5e2"
 PROPOSED_HASH = "sha256:6326e3be47ecf73831a06be2b718f42219e0c950d4c989de23aa558bfdc01b34"
 GOAL_SNAPSHOT = "sha256:56ebf3bf964a45b39931007bfa4e3d3de20535d42c44cfabf7635bf421ed8b3d"
+ATTACK_URL = "http://127.0.0.1:5001/labs/LAB-AGENT-GOAL-INTEGRITY-001"
+SEARCH_URL = "http://127.0.0.1:8000/en-US/app/search/search"
+INV_PATH = ROOT / "learning" / "level_1" / "LAB-AGENT-GOAL-INTEGRITY-001" / "investigations.json"
 
 CANVAS_W = 1440
 FULL = 1440
@@ -77,10 +80,11 @@ EMPTY_SEQ = (
     "That is not a security outcome."
 )
 EMPTY_HUNT = (
-    "Investigate specimen defaults to the LIVE BASELINE copy. Choose Attack or "
+    "Investigate specimen defaults to the REPLAY BASELINE copy. Choose Attack or "
     "Retest from the dropdown. Canonical BASELINE / ATTACK / RETEST pages bind "
-    "LIVE IDs automatically. Empty tables are missing indexed rows, not security "
-    "outcomes. A non-canonical run.id is an advanced Search workflow — Dashboard "
+    "REPLAY IDs automatically. Fresh LIVE run.ids come from Attack Service Search. Empty tables are missing indexed rows, not security "
+    "outcomes. If Search returns zero rows, wait until Attack Service says EVIDENCE READY. Empty is not DENY. "
+    "A non-canonical run.id is an advanced Search workflow — Dashboard "
     "Studio cannot safely share one hunt token between a dropdown and a free-text "
     "field without wiping the default."
 )
@@ -100,10 +104,139 @@ TOOL_NOT_GOAL = (
 )
 
 
+SPL_TEACHING = {
+    "Q-GOAL-INTEGRITY-AUTHORITY": (
+        "Constrains agentsec_telemetry. Filters quoted run.id. Surfaces task, instruction trust, "
+        "proposed goal, CTRL-GOAL-INTEGRITY-001, and joined MCP grant/execution fields. It does not authorize."
+    ),
+    "Q-MCP-AUTHZ": (
+        "Lists control.decision rows. Hop 0 is GOAL. Hop 1 is CTRL-MCP-001 when lookup_policy is requested. "
+        "ALLOW tool_granted is expected on ATTACK and RETEST."
+    ),
+    "Q-MCP-TOOL": "mcp.started rows only. Start is execution evidence, not authorization.",
+    "Q-MCP-EXECUTED": "Joins control + mcp.* into execution_state. Handler labels remain runtime authoritative.",
+    "Q-MCP-WHO": "Actor, agent, tool, and hop identity. Identity is not a grant.",
+}
+TABLE_BIND = {
+    "GOAL-I1-FIND-THE-RUN": [("ds_q_goal", "Q-GOAL-INTEGRITY-AUTHORITY (REPLAY specimen)", "One GOAL row. run.id is correlation, not authorization.")],
+    "GOAL-I2-FIND-THE-AUTHORITATIVE-TASK": [("ds_q_goal", "TASK plane (REPLAY)", "task.id summarize_lending_policy_options. Same hash A/B/C.")],
+    "GOAL-I3-INSPECT-THE-UNTRUSTED-INSTRUCTION": [("ds_q_goal", "INSTRUCTION plane (REPLAY)", "untrusted_instruction is classification, not malice.")],
+    "GOAL-I4-RECONSTRUCT-THE-PROPOSED-GOAL": [("ds_q_goal", "PROPOSED GOAL (REPLAY)", "ATTACK/RETEST propose extract_full_policy. Proposal != authorization.")],
+    "GOAL-I5-EVALUATE-GOAL-INTEGRITY": [("ds_q_goal", "CTRL-GOAL-INTEGRITY-001 (REPLAY)", "Hop 0 task plane. Not the MCP tool PDP.")],
+    "GOAL-I6-EVALUATE-TOOL-AUTHORIZATION": [("ds_q_authz", "Q-MCP-AUTHZ (REPLAY)", "Hop 1 ALLOW tool_granted on ATTACK and RETEST.")],
+    "GOAL-I7-DETERMINE-WHAT-EXECUTED": [
+        ("ds_q_executed", "Q-MCP-EXECUTED (REPLAY)", "lookup_policy started. Handler labels are runtime."),
+        ("ds_q_tool", "Q-MCP-TOOL (REPLAY)", "mcp.started rows only."),
+    ],
+}
+
+
 def fingerprint_block(h: str) -> str:
     """Split sha256:<64 hex> so Studio markdown can show the full digest in a card."""
     algo, digest = h.split(":", 1)
     return f"{algo}:\n{digest[:32]}\n{digest[32:]}"
+
+
+def load_hunt_spl(name: str) -> str:
+    goal = GOAL_DIR / name
+    if goal.is_file():
+        return goal.read_text(encoding="utf-8").strip()
+    return (SEARCH_DIR / name).read_text(encoding="utf-8").strip()
+
+
+def question_md(inv: dict, number: int) -> str:
+    return f"""
+# Investigation {number} — {inv["title"]}
+
+**QUESTION**
+
+{inv["security_question"]}
+
+**WHAT AM I TRYING TO PROVE?**
+
+{inv["learning_objective"]}
+
+**YOUR TASK (Path A — try it yourself)**
+
+{inv["starter_guidance"]}
+
+1. Copy the fresh LIVE run.id from Attack Service, or use Investigate specimen for canonical REPLAY.
+2. [Open Splunk Search]({SEARCH_URL})
+3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.
+4. Filter quoted `agentsec.run.id`. Execute. Read the fields yourself.
+
+Studio cannot receive a fresh LIVE run.id. That handoff is Search, not a token write.
+
+Starter (paste your LIVE run.id; do not search `index=*`):
+
+```
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"="PASTE-LIVE-RUN-ID"
+```
+
+Need help? Scroll to **Hint 1**, then **Hint 2**, then the Path B solution. Do not skip Path A.
+"""
+
+
+def hint_md(inv: dict, number: int, which: str) -> str:
+    body = inv["hint_1"] if which == "hint_1" else inv["hint_2"]
+    label = "HINT 1" if which == "hint_1" else "HINT 2"
+    return f"""
+# {label} — Investigation {number}
+
+{body}
+
+Path A is still Search. This is not the full solution.
+"""
+
+
+def solution_md(inv: dict, number: int) -> str:
+    hunt = inv["related_hunt"]
+    spl_file = f"{hunt}.spl"
+    spl = load_hunt_spl(spl_file)
+    bound = spl.replace("__RUN_ID__", '"$run_id$"')
+    teach = SPL_TEACHING[hunt]
+    nxt = inv["next_investigation"] or "PROVE — classify what you can actually conclude."
+    return f"""
+# Solution — Investigation {number} {inv["title"]}
+
+This is **Path B — show solution**. Open it only after you tried Path A in Search. It is an answer key, not policy. Splunk does not enforce. Path A remains Search with your LIVE run.id.
+
+**SOLUTION SPL** (`{hunt}`)
+
+Copy this into Search. Replace `$run_id$` with the LIVE UUID, or leave the token for Investigate specimen REPLAY.
+
+```
+{bound}
+```
+
+**WHY THESE STAGES**
+
+{teach}
+
+**EXPECTED RESULT SHAPE**
+
+{inv["expected_result_shape"]}
+
+**WHAT YOU ARE SEEING**
+
+{inv["result_explanation"]}
+
+**WHAT IT MEANS**
+
+{inv["security_interpretation"]}
+
+**WHAT IT DOES NOT MEAN**
+
+{inv["does_not_prove"]}
+
+**SECURITY CONNECTION**
+
+Control `{inv["related_control"]}` · invariant `{inv["related_invariant"]}` · hunt `{hunt}`. Splunk does **not** ALLOW or DENY.
+
+**NEXT CHALLENGE**
+
+{nxt}
+"""
 
 
 def load_spl(name: str, *, goal: bool = False) -> str:
@@ -327,9 +460,13 @@ def build() -> dict:
 
 Investigate why authorization to use a tool does not authorize every goal the agent may pursue with that tool.
 
-**LIVE EVIDENCE** · `LAB-AGENT-GOAL-INTEGRITY-001` · Schema 1.9.0 · Phase 13C validated
+**LIVE vs REPLAY** · Goal / Instruction Integrity · Schema 1.9.0
 
-Workshop: LEARN · BASELINE · ATTACK · OBSERVE · HUNT · DETECT · DEFEND · RETEST · COMPARE · PROVE
+**LIVE** — Attack Service mints a fresh run.id. Investigate in Splunk Search: [Launch]({ATTACK_URL})
+
+**REPLAY** — Canonical Phase 13C Investigate specimen ids bound in Studio tables below.
+
+Workshop: LEARN · PREDICT · LIVE ATTACK · INVESTIGATE · DEFEND · LIVE RETEST · COMPARE · PROVE
 """,
         title="WORKSHOP",
     )
@@ -399,7 +536,9 @@ An LLM must not be treated as an authorization authority.
         f"""
 # Evidence identity (complete values)
 
-**LIVE** Phase 13C specimens. These are evidence identity, not form fields.
+**REPLAY** Phase 13C specimens. These are evidence identity for bound Studio tables, not the LIVE run you just launched.
+
+Launch **LIVE** from [Attack Service]({ATTACK_URL}). Do not treat these UUIDs as your fresh execution.
 
 BASELINE (defended / normal)
 
@@ -475,7 +614,7 @@ Identity Studio / A2A transport / rug-pull / Phase 14 are later. Not this worksh
     add_md(
         "viz_baseline_md",
         f"""
-# BASELINE · LIVE
+# BASELINE · REPLAY specimen
 
 **DEFENDED PROFILE** · mode BASELINE
 
@@ -524,9 +663,33 @@ Do **not** label this SAFE, TRUSTED, APPROVED, or BENIGN.
     add_md(
         "viz_attack_md",
         f"""
-# ATTACK · LIVE
+# ATTACK · REPLAY specimen
+
+Predict **before** you launch. Launching is not the investigation.
+
+**WHY ARE WE DOING THIS?**
+
+We want to test whether an untrusted instruction can redefine a server-owned task even when the tool itself remains granted. AUTHORIZED TOOL != AUTHORIZED GOAL.
+
+**WHAT DOES THE ATTACKER CONTROL?**
+
+The closed malicious instruction bytes. Not the task contract, not the MCP grant, not the profile.
+
+**WHAT DOES THE SERVER OWN?**
+
+The authorized task, CTRL-GOAL-INTEGRITY-001, CTRL-MCP-001, and whether the vulnerable overlay applies.
+
+**WHAT DO YOU PREDICT?**
+
+CTRL-GOAL-INTEGRITY-001 OBSERVE (labeled overlay). CTRL-MCP-001 ALLOW lookup_policy. Wrong-goal handler 1. MCP ALLOW does not mean the expanded goal was authorized.
+
+**THEN:** Open Attack Service, launch LIVE ATTACK, copy the fresh run.id, wait until **EVIDENCE READY**, then hunt in Search. Studio tokens are not this launch.
+
+[Open Attack Service (LIVE launch)]({ATTACK_URL})
 
 **INTENTIONALLY VULNERABLE LAB PROFILE** · mode ATTACK
+
+The table below is canonical REPLAY `{ATTACK}`.
 
 - **Input / task:** SAME `{TASK_ID}`
 - **Profile:** intentionally vulnerable lab profile
@@ -639,35 +802,25 @@ Statuses in TEXT: LIVE · OBSERVE · ALLOW · DENY · CONTEXT · HUNT
     add_md(
         "viz_hunt_md",
         f"""
-# HUNT
+# HUNT — guided investigation
 
-**SECURITY QUESTION**
+Two paths. Path A is the default. Path B is an answer key, not a replacement.
 
-What evidence connects the task, instruction, proposed goal, authorization decision, and resulting execution?
+**Path A — Try it yourself:** question, starter guidance, [Open Splunk Search]({SEARCH_URL}). Construct the hunt.
 
-**Primary hunt:** Q-GOAL-INTEGRITY-AUTHORITY bound to **Investigate specimen**.
+**Path B — Show solution (optional):** copyable SPL from existing Q-GOAL / Q-MCP hunts, bound REPLAY table, explanation, limitations. Open it only after Path A. It is an answer key, not policy.
 
-**Supporting hunts:** Q-MCP-WHO · Q-MCP-AUTHZ · Q-MCP-TOOL · Q-MCP-EXECUTED · Q-MCP-AFTER-DENY
+Investigate specimen is canonical **REPLAY**. Fresh LIVE run.id comes from Attack Service Search handoff. Studio tokens are not auto-bound.
 
-Canonical options: Baseline / Attack / Retest. Custom run.id → Splunk **Search** (Studio cannot safely share one token between dropdown and free text).
+Do not search until Attack Service reports **EVIDENCE READY** (or you have measured searchable events). HEC success is not ready.
 
-Answer:
+**Primary hunt:** Q-GOAL-INTEGRITY-AUTHORITY. Supporting: Q-MCP-WHO · Q-MCP-AUTHZ · Q-MCP-TOOL · Q-MCP-EXECUTED. No Q-GOAL-TASK. No DET-GOAL.
 
-1. What task was authorized?
-2. What instruction influenced the agent?
-3. What goal/action was proposed?
-4. Was the proposed goal accepted or rejected?
-5. Which effective action resulted?
-6. Was the tool itself authorized?
-7. Did execution begin?
-8. Which handler/action actually ran?
-9. Did the agent use an authorized tool outside the authorized task?
+Five planes stay separate: TASK · INSTRUCTION · GOAL DECISION · TOOL AUTHORIZATION · EXECUTION.
 
-Q-MCP answers tool authorization and execution questions. It does not independently prove task/goal authorization.
+Do **not** hunt a regex for AGENT NOTE. Overlay reason is a lab artifact, not a production IOC.
 
-Do **not** hunt a regex for AGENT NOTE. Do **not** treat the vulnerable overlay reason as a production IOC.
-
-No Q-GOAL-TASK. No Q-GOAL-INSTRUCTION. No Q-GOAL-EXECUTED. No Q-GOAL-DENY. No DET-GOAL.
+This tab is a **stacked notebook**: Path A, then optional hints, then Path B. Custom browser scripts are not used.
 
 {TOOL_NOT_GOAL}
 
@@ -686,6 +839,58 @@ No Q-GOAL-TASK. No Q-GOAL-INSTRUCTION. No Q-GOAL-EXECUTED. No Q-GOAL-DENY. No DE
     add_table("viz_hunt_tool", "ds_q_tool", "Q-MCP-TOOL (execution began?)", cap_tool, no_data=EMPTY_TOOL)
     add_table("viz_hunt_exec", "ds_q_executed", "Q-MCP-EXECUTED", cap_exec, no_data=EMPTY_TOOL)
     add_table("viz_hunt_who", "ds_q_who", "Q-MCP-WHO", cap_who, no_data=EMPTY_CONTROL)
+
+    inv_doc = json.loads(INV_PATH.read_text(encoding="utf-8"))
+    hunt_investigations = [
+        row for row in inv_doc["investigations"] if row.get("studio_tab", "HUNT") == "HUNT"
+    ]
+    hunt_structure = [
+        block("viz_hunt_md", 0, 0, FULL, 520),
+        block("viz_hunt_goal", 0, 520, FULL, 260),
+        block("viz_hunt_authz", 0, 780, HALF, 220),
+        block("viz_hunt_tool", HALF, 780, HALF, 220),
+        block("viz_hunt_exec", 0, 1000, HALF, 220),
+        block("viz_hunt_who", HALF, 1000, HALF, 220),
+    ]
+    q_h, h1_h, h2_h, sol_h, tbl_h = 300, 160, 160, 520, 280
+    y_cursor = 1240
+    for index, inv in enumerate(hunt_investigations, start=1):
+        ident = inv["investigation_id"]
+        q_id = f"viz_i{index}_q"
+        h1_id = f"viz_i{index}_h1"
+        h2_id = f"viz_i{index}_h2"
+        sol_id = f"viz_i{index}_sol"
+        add_md(q_id, question_md(inv, index), title=f"I{index} question")
+        add_md(h1_id, hint_md(inv, index, "hint_1"), title=f"I{index} hint 1")
+        add_md(h2_id, hint_md(inv, index, "hint_2"), title=f"I{index} hint 2")
+        add_md(sol_id, solution_md(inv, index), title=f"I{index} solution")
+        q_y = y_cursor
+        h1_y = q_y + q_h
+        h2_y = h1_y + h1_h
+        sol_y = h2_y + h2_h
+        tbl_y = sol_y + sol_h
+        hunt_structure.extend(
+            [
+                block(q_id, 0, q_y, FULL, q_h),
+                block(h1_id, 0, h1_y, FULL, h1_h),
+                block(h2_id, 0, h2_y, FULL, h2_h),
+                block(sol_id, 0, sol_y, FULL, sol_h),
+            ]
+        )
+        binds = TABLE_BIND[ident]
+        if len(binds) == 1:
+            ds, title, desc = binds[0]
+            tbl_id = f"viz_i{index}_tbl"
+            add_table(tbl_id, ds, title, desc, no_data=EMPTY_GOAL)
+            hunt_structure.append(block(tbl_id, 0, tbl_y, FULL, tbl_h))
+        else:
+            width = FULL // len(binds)
+            for col, (ds, title, desc) in enumerate(binds):
+                tbl_id = f"viz_i{index}_tbl_{col}"
+                add_table(tbl_id, ds, title, desc, no_data=EMPTY_GOAL)
+                hunt_structure.append(block(tbl_id, col * width, tbl_y, width, tbl_h))
+        y_cursor = tbl_y + tbl_h
+    hunt_height = y_cursor + 40
 
     add_md(
         "viz_detect_md",
@@ -836,6 +1041,12 @@ Defense does NOT mean blocking lookup_policy.
 
 Defense means preventing untrusted instructions from redefining the authorized task while still allowing legitimate use of the authorized tool.
 
+Do **not** teach: block lookup_policy, sanitize every prompt, trust a scanner, let Splunk decide, let an LLM decide authorization, or that MCP solved the problem.
+
+CTRL-GOAL-INTEGRITY-001 and CTRL-MCP-001 solve DIFFERENT security problems.
+
+Launch **LIVE RETEST** from [Attack Service]({ATTACK_URL}) after you have investigated LIVE ATTACK.
+
 Incorrect defenses (reject these):
 
 - block every untrusted instruction
@@ -866,9 +1077,21 @@ Do not say MCP blocked the attack. MCP ALLOWED lookup_policy in BASELINE, ATTACK
     add_md(
         "viz_retest_md",
         f"""
-# RETEST · LIVE
+# RETEST · REPLAY specimen
+
+**WHY RETEST?**
+
+Same malicious instruction. Different server-owned profile. The question is whether the unauthorized goal is refused while the granted tool still runs for the original task.
+
+**PREDICT:** CTRL-GOAL-INTEGRITY-001 DENY unauthorized_task_expansion. CTRL-MCP-001 still ALLOW lookup_policy. Wrong-goal handler 0. In-task handler 1. MCP ALLOW on RETEST does not mean the expanded goal was authorized.
+
+**THEN:** Open Attack Service, launch LIVE RETEST, copy the fresh run.id, wait until **EVIDENCE READY**.
+
+[Open Attack Service (LIVE RETEST)]({ATTACK_URL})
 
 **DEFENDED PROFILE** · mode RETEST
+
+Same malicious bytes. Different ExperimentContext (defended). MCP still ALLOWs lookup_policy. The table below is canonical REPLAY `{RETEST}`.
 
 - **Input / task:** SAME `{TASK_ID}`
 - **Profile:** defended
@@ -947,7 +1170,7 @@ Task hash (Splunk OBSERVED)
         f"""
 # BASELINE
 
-**LIVE** · defended / normal
+**REPLAY** · defended / normal
 
 - **Profile:** defended
 - **Input / fingerprint:** `{TASK_ID}`
@@ -969,7 +1192,7 @@ Do not label SAFE.
         f"""
 # ATTACK
 
-**LIVE** · **INTENTIONALLY VULNERABLE LAB PROFILE**
+**REPLAY** · **INTENTIONALLY VULNERABLE LAB PROFILE**
 
 - **Profile:** vulnerable
 - **Input / fingerprint:** SAME `{TASK_ID}`
@@ -991,7 +1214,7 @@ MCP ALLOW + wrong-goal execution. Overlay is LAB-ONLY, not a production IOC.
         f"""
 # RETEST
 
-**LIVE** · defended / malicious instruction
+**REPLAY** · defended / malicious instruction
 
 - **Profile:** defended
 - **Input / fingerprint:** SAME `{TASK_ID}`
@@ -1039,6 +1262,12 @@ Evidence hierarchy. Splunk does not manufacture runtime truth.
 
 ## WHAT WE CAN PROVE
 
+**YOU JUST LEARNED** — AUTHORIZED TOOL != AUTHORIZED GOAL. CTRL-GOAL-INTEGRITY-001 and CTRL-MCP-001 solve different problems. RETEST is not MCP DENY.
+
+**THIS CONNECTS TO** — identity/delegation claims, which also cannot mint grants.
+
+**NEXT** — Agent Identity / Delegation (LIVE). Then Confused Deputy (REPLAY) so you do not collapse deputy into identity.
+
 - Authoritative task `{TASK_ID}` (same A/B/C). Task hash Splunk OBSERVED.
 - Instruction trust `untrusted_instruction` (classification, not malice).
 - ATTACK/RETEST proposed extract_full_policy. BASELINE retained the original task.
@@ -1046,6 +1275,35 @@ Evidence hierarchy. Splunk does not manufacture runtime truth.
 - CTRL-MCP-001 ALLOW lookup_policy on A/B/C.
 - Runtime handlers: ATTACK wrong-goal 1; RETEST wrong-goal 0 and in-task 1.
 - DET-MCP-001 0/0/0 is CORRECT and is not SAFE.
+
+## SUPPORTED
+
+- same authoritative task
+- same malicious instruction
+- same proposed expansion
+- lookup_policy was tool-authorized in both experiments
+- vulnerable run executed the wrong goal
+- defended run did not execute the wrong goal
+- defended run executed the original task
+
+## CORROBORATED
+
+- complete indexed sequence agrees with runtime evidence
+
+## NOT PROVEN
+
+- every prompt injection is prevented
+- lookup_policy is universally safe
+- the instruction was malicious merely because it was untrusted
+- that the SIEM stopped execution
+- that MCP stopped the RETEST attack
+
+## INCORRECT
+
+- MCP ALLOW means the goal was authorized
+- tool authorization and task authorization are the same thing
+- goal DENY means lookup_policy was denied
+- Splunk is the enforcement point
 
 ## WHAT WE CANNOT PROVE
 
@@ -1064,7 +1322,7 @@ Q-GOAL-INTEGRITY-AUTHORITY. Q-MCP hunts. Studio tables. Zero rows follow no-data
 
 ## KNOWLEDGE CHECK
 
-Answers in knowledge-check.md.
+Answer from evidence on this tab.
 
 1. What was the authoritative task?
 2. Where did task authority originate?
@@ -1089,13 +1347,13 @@ Answers in knowledge-check.md.
 
 ## LIMITATIONS
 
-LIVE A/B/C are OBSERVED/MEASURED. DETECT SIMULATED table is **SIMULATED**.
+LIVE Attack Service launches are OBSERVED/MEASURED with new run.ids. Studio tables are **REPLAY**. DETECT SIMULATED table is **SIMULATED**.
 
-Validated LIVE: BASELINE `{BASELINE}` · ATTACK `{ATTACK}` · RETEST `{RETEST}`.
+Canonical REPLAY: BASELINE `{BASELINE}` · ATTACK `{ATTACK}` · RETEST `{RETEST}`.
 
 Task fingerprint `{TASK_HASH}`
 
-No DET-GOAL. Schema 1.9.0. Phase 14 not started. No A2A. No rug-pull. No ML implementation.
+No DET-GOAL. Schema 1.9.0. Identity / Delegation is the next LIVE lab. Do not start Phase 15E. No A2A. No rug-pull.
 """,
         title="PROVE",
     )
@@ -1110,7 +1368,7 @@ No DET-GOAL. Schema 1.9.0. Phase 14 not started. No A2A. No rug-pull. No ML impl
     definition = {
         "title": "Goal / Instruction Integrity",
         "description": (
-            "WS-GOAL-INTEGRITY. LIVE Goal / Instruction Integrity workshop. "
+            "WS-GOAL-INTEGRITY. LIVE vs REPLAY Goal / Instruction Integrity workshop. "
             "No DET-GOAL. Splunk does not ALLOW or DENY a tool or a task."
         ),
         "defaults": {
@@ -1209,17 +1467,7 @@ No DET-GOAL. Schema 1.9.0. Phase 14 not started. No A2A. No rug-pull. No ML impl
                     ],
                     1120,
                 ),
-                "layout_hunt": layout(
-                    [
-                        block("viz_hunt_md", 0, 0, FULL, 680),
-                        block("viz_hunt_goal", 0, 680, FULL, 280),
-                        block("viz_hunt_authz", 0, 960, HALF, 240),
-                        block("viz_hunt_tool", HALF, 960, HALF, 240),
-                        block("viz_hunt_exec", 0, 1200, HALF, 240),
-                        block("viz_hunt_who", HALF, 1200, HALF, 240),
-                    ],
-                    1460,
-                ),
+                "layout_hunt": layout(hunt_structure, hunt_height),
                 "layout_detect": layout(
                     [
                         block("viz_detect_md", 0, 0, HALF, 420),
@@ -1288,7 +1536,7 @@ def write_xml(definition: dict) -> None:
         '<?xml version="1.0" encoding="utf-8"?>\n'
         '<dashboard version="2" theme="light">\n'
         "  <label>Goal / Instruction Integrity</label>\n"
-        "  <description>LIVE Goal / Instruction Integrity. LAB-AGENT-GOAL-INTEGRITY-001. Splunk does not ALLOW or DENY.</description>\n"
+        "  <description>LIVE vs REPLAY Goal / Instruction Integrity. LAB-AGENT-GOAL-INTEGRITY-001. Splunk does not ALLOW or DENY.</description>\n"
         "  <definition><![CDATA[\n"
         f"{payload}\n"
         "  ]]></definition>\n"

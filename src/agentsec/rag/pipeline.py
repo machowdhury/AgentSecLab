@@ -78,6 +78,8 @@ class RagRetrieveResult:
     follow_on_reason: str | None = None
     lookup_customer_tier_handler_count: int = 0
     server_owned_allowed_tools: str = "lookup_policy"
+    experiment_id: str | None = None
+    input_fingerprint: str | None = None
 
 
 def _duration_ms(started: float) -> int:
@@ -132,6 +134,9 @@ def run_rag_retrieve(
     retrieve_fn: RetrieveFn | None = None,
     retrieved_override: object | None = None,
     expected_behavior: str | None = None,
+    experiment_id: str | None = None,
+    input_fingerprint: str | None = None,
+    follow_on_enabled: bool = True,
 ) -> RagRetrieveResult:
     settings = settings or get_settings()
     started = time.monotonic()
@@ -230,6 +235,10 @@ def run_rag_retrieve(
             )
             follow_intent = None
             overlay = None
+
+    if not follow_on_enabled:
+        overlay = None
+        follow_intent = None
 
     emitter.control_decision(
         hop_index=0,
@@ -501,6 +510,8 @@ def run_rag_retrieve(
         follow_on_reason=follow_on_reason,
         lookup_customer_tier_handler_count=lookup_tier_count,
         server_owned_allowed_tools=",".join(sorted(policy_after.allowed_tools)),
+        experiment_id=experiment_id,
+        input_fingerprint=input_fingerprint,
     )
 
 
@@ -515,6 +526,7 @@ def run_rag_schema_failure(
     error_reason: str,
     extra_fields: tuple[str, ...] = (),
     write_evidence: bool = True,
+    experiment_id: str | None = None,
 ) -> RagRetrieveResult:
     ctx = RunContext.mint(
         user_id=user_id,
@@ -578,6 +590,7 @@ def run_rag_schema_failure(
         actual_behavior=actual,
         attack_id=attack_id,
         error_stage="schema_validation",
+        experiment_id=experiment_id,
     )
 
 
@@ -613,6 +626,8 @@ def rag_result_to_dict(result: RagRetrieveResult) -> dict[str, Any]:
         "follow_on_reason": result.follow_on_reason,
         "lookup_customer_tier_handler_count": result.lookup_customer_tier_handler_count,
         "server_owned_allowed_tools": result.server_owned_allowed_tools,
+        "experiment_id": result.experiment_id,
+        "input_fingerprint": result.input_fingerprint,
         "hops": [
             {
                 "hop.index": hop.index,

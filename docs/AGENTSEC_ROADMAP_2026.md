@@ -428,6 +428,223 @@ Same security question as 8B. Runtime fixture, CTRL-MCP-METADATA-001 OBSERVE, pe
 
 **Do not start Phase 14D automatically.** MCP-001 guided/launch pattern is not this phase.
 
+### Phase 15B — migrate RAG / context security to the LIVE loop
+
+**Status:** IMPLEMENTED + LIVE SPLUNK MEASURED + UI REVIEWED 2026-09-19. Schema **1.9.0** unchanged. **NO DET-RAG.** **Do not start Phase 15C from this file.** 15A recommended MCP-003/004 as Wave 1; the named 15B request migrated RAG instead.
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Can retrieved content cause an agent to acquire authority that server-owned policy did not grant? |
+| **Attack / control** | RAG-001 malicious fixture. CTRL-RAG-CONTEXT-001 OBSERVE. CTRL-MCP-001 tool PDP. |
+| **Telemetry / schema** | 1.9.0 unchanged. Fingerprint = document `content.hash`. |
+| **Splunk** | Reuse Q-RAG-CONTEXT-AUTHORITY + Q-MCP-*. Path A Search / Path B solution. |
+| **Invariant** | INV-002. OBSERVE != ALLOW. REQUEST != GRANT. Splunk != enforcement. |
+| **Learning objective** | SAME CONTENT. SAME REQUEST. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION. |
+| **Dependencies** | 14E reusable loop; existing LAB-RAG-CONTEXT 10A–10E. |
+| **Risk** | Relabeling REPLAY as LIVE; sanitizer-as-defense; DET-RAG sprawl. |
+| **Complexity** | Medium (reuse 14E; preserve RAG semantics). |
+
+**Do not start Phase 15C automatically.** No Memory LIVE. No Goal/Identity LIVE. No MLTK. No vector DB.
+
+### Phase 15D — migrate goal / instruction integrity to the LIVE loop
+
+**Status:** IMPLEMENTED + LIVE SPLUNK MEASURED + UI REVIEWED 2026-09-20. Schema **1.9.0** unchanged. **NO DET-GOAL.** RETEST is not MCP DENY. Official pair ATTACK `dc1f549f-ea1f-4ac5-bc25-5d7cca5b1fe9` / RETEST `624b4223-510e-4a14-88e2-85f82b32d475`. **Do not start Phase 15E from this file.**
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Can an untrusted instruction redefine a server-owned task even when the tool is granted? |
+| **Attack / control** | GOAL-001 malicious instruction. CTRL-GOAL-INTEGRITY-001. CTRL-MCP-001 still ALLOWs lookup_policy. |
+| **Telemetry / schema** | 1.9.0 unchanged. Fingerprint = instruction `content.hash`. |
+| **Splunk** | Reuse Q-GOAL-INTEGRITY-AUTHORITY + Q-MCP-*. Path A Search / Path B solution. |
+| **Invariant** | INV-002 / INV-006. AUTHORIZED TOOL != AUTHORIZED GOAL. Splunk != enforcement. |
+| **Learning objective** | SAME TASK. SAME INSTRUCTION. SAME PROPOSED GOAL. SAME AUTHORIZED TOOL. DIFFERENT GOAL DECISION. DIFFERENT EFFECTIVE ACTION. |
+| **Dependencies** | 15C reusable loop; existing LAB-AGENT-GOAL-INTEGRITY-001 13A–13E. |
+| **Risk** | Turning RETEST into MCP DENY; relabeling 13C REPLAY as LIVE; DET-GOAL sprawl. |
+| **Complexity** | Medium (single-run like RAG; two authorization planes). |
+
+**Historical 15D snapshot.** Named follow-on 15E is Identity LIVE (below). Do not start real A2A, MLTK, or a schema bump from this 15D file.
+
+### Phase 15E — migrate agent identity / delegation to the LIVE loop
+
+**Status:** IMPLEMENTED + LIVE SPLUNK MEASURED + UI REVIEWED 2026-09-20. Official pair ATTACK `110dd7a6-58b5-472a-ae80-aec76e11bf4e` / RETEST `7e4f74a8-84bf-4d18-abe1-0dcc7f0ab58a`. Schema **1.9.0** unchanged. **NO DET-A2A.** CTRL-IDENTITY-001 remains OBSERVE. CTRL-MCP-001 remains the sole tool PDP. **STOP. Do not implement real A2A, OAuth/OIDC, SPIFFE, DET-A2A, MLTK, or capstone from this file.**
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Can Agent A claim authority was delegated to Agent B and cause Agent B to perform something neither was granted? |
+| **Attack / control** | A2A-001 privileged claim. CTRL-IDENTITY-001 OBSERVE. CTRL-MCP-001 tool PDP. Overlay only on vulnerable ATTACK. |
+| **Telemetry / schema** | 1.9.0 unchanged. Fingerprint = existing A2ADelegationRequest.fingerprint. |
+| **Splunk** | Reuse Q-AGENT-DELEGATION-AUTHORITY + Q-MCP-*. Path A Search / Path B solution. |
+| **Invariant** | INV-001 / INV-002 / INV-005. IDENTITY CLAIM != AUTHENTICATION. DELEGATION CLAIM != AUTHORIZATION. |
+| **Learning objective** | SAME PRINCIPAL. SAME CALLER. SAME CALLEE. SAME CLAIM. SAME REQUEST. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION. |
+| **Dependencies** | 15D reusable loop; existing LAB-AGENT-DELEGATION-001 12A–12C. |
+| **Risk** | Identity ALLOW/DENY; second tool PDP; cryptographic theater; DET-A2A sprawl. |
+| **Complexity** | Medium (RAG-like OBSERVE + MCP DENY on RETEST). |
+
+**STOP.** Do not implement real A2A. Do not add OAuth/OIDC/JWT/SPIFFE. Do not create DET-A2A. Do not bump schema. Do not start capstone.
+
+---
+
+### Phase 15C — migrate agent memory security to the LIVE loop
+
+**Status:** IMPLEMENTED + LIVE SPLUNK MEASURED + UI REVIEWED 2026-09-19. Schema **1.9.0** unchanged. **NO DET-MEMORY.** Two-run WRITE+RECALL. **Do not start Phase 15D from this file.**
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Can persisted agent memory independently authorize a privileged tool on a later run? |
+| **Attack / control** | MEMORY-001 malicious fixture. CTRL-MEMORY-CONTEXT-001 OBSERVE. CTRL-MCP-001 tool PDP. |
+| **Telemetry / schema** | 1.9.0 unchanged. Fingerprint = memory `content.hash`. Two run.ids per experiment. |
+| **Splunk** | Reuse Q-MEMORY-CONTEXT-AUTHORITY + Q-MCP-*. Path A Search / Path B solution. |
+| **Invariant** | INV-003. STORED != TRUSTED. RECALLED != AUTHORIZED. Splunk != enforcement. |
+| **Learning objective** | SAME MEMORY. SAME REQUEST. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION. |
+| **Dependencies** | 15B reusable loop; existing LAB-MEMORY-001 11A–11E. |
+| **Risk** | Collapsing Memory into RAG; relabeling REPLAY as LIVE; DET-MEMORY sprawl. |
+| **Complexity** | Medium-high (cross-run store; serialized in-process memory.id). |
+
+**Do not start Phase 15E automatically.** No Identity LIVE. No MLTK. No vector DB.
+
+---
+
+### Phase 15A — AgentSec curriculum architecture
+
+**Status:** DESIGN / RESEARCH / CURRICULUM ARCHITECTURE ONLY 2026-09-19. **Not implemented.** Schema **1.9.0** unchanged. Runtime authorization **UNCHANGED**. **Do not start Phase 15B from this file.** No lab migration. No new Attack Service launchers. No new Studio views. No new SPL. No detectors.
+
+| Field | Content |
+|-------|---------|
+| **Security question** | How should existing AgentSec domains become a coherent beginner→architect journey? |
+| **Attack / control** | Unchanged. Curriculum does not redefine PDPs. |
+| **Telemetry / schema** | 1.9.0 unchanged. |
+| **Splunk** | Reuse existing Q-* / DET-MCP-001. No new hunts or detectors in 15A. |
+| **Invariant** | Existing INV-*; learning metadata ≠ policy; Splunk ≠ enforcement. |
+| **Learning objective** | Know / do / investigate / explain / defend / prove / avoid per level. |
+| **Dependencies** | 14E PASS (PI-001 + MCP-001 reference loops). |
+| **Risk** | Inferring LIVE from old workshops; collapsing MCP-006 with identity; starting 15B from this file. |
+| **Complexity** | Medium (research / curriculum). |
+| **Recommended 15B wave** | LAB-MCP-003 then LAB-MCP-004 — **not started**. |
+
+**Do not start Phase 15B automatically.**
+
+---
+
+### Phase 16A — Curriculum integration and capstone architecture
+
+**Status:** DESIGN / RESEARCH / CURRICULUM ARCHITECTURE ONLY 2026-09-20. **Not implemented.** Schema **1.9.0** unchanged. Runtime authorization **UNCHANGED**. **Do not start Phase 16B from this file.** No capstone runtime. No new Attack Service launchers. No new Studio views. No new SPL. No detectors. No real A2A.
+
+| Field | Content |
+|-------|---------|
+| **Security question** | If a learner completes AgentSec as implemented, what do they understand, what can they do, what is missing, and how should labs become one curriculum plus a later capstone? |
+| **Attack / control** | Unchanged. Existing PDPs and OBSERVE classifiers. Capstone design reuses RAG + memory + CTRL-MCP-001. |
+| **Telemetry / schema** | 1.9.0 unchanged. |
+| **Splunk** | Reuse existing Q-* / DET-MCP-001. No new hunts or detectors in 16A. |
+| **Invariant** | Existing INV-*; learning metadata ≠ policy; Splunk ≠ enforcement. |
+| **Learning objective** | Cross-domain reasoning model; three-level academy; designed (not built) capstone. |
+| **Dependencies** | 15E PASS (six LIVE domains). |
+| **Risk** | Relabeling REPLAY as LIVE; inventing DET-CAPSTONE; building a giant orchestrator demo. |
+| **Complexity** | Medium (research / curriculum). |
+| **Recommended 16B** | LAB-AGENTSEC-CAPSTONE-001 sequenced reuse — **not started**. |
+
+**Do not start Phase 16B automatically.**
+
+---
+
+### Phase 16B — Integrated capstone runtime and LIVE purple-team loop
+
+**Status:** IMPLEMENTED 2026-09-20. Schema **1.9.0** unchanged. No DET-CAPSTONE. No `/capstone` HTTP route. No real A2A. No OAuth/OIDC/JWT/SPIFFE. No HITL. No MLTK.
+
+| Field | Content |
+|-------|---------|
+| **Security question** | How can untrusted retrieved content persist, later influence a request, and reach a privileged tool — and where does authority enter? |
+| **Attack / control** | RAG OBSERVE + memory OBSERVE + CTRL-MCP-001 sole tool PDP. ATTACK lab overlay. RETEST DENY `tool_not_granted`. |
+| **Telemetry / schema** | 1.9.0 unchanged. Three-run retrieve/write/recall. Hash join + source_run_id. |
+| **Splunk** | Reuse existing Q-*. No Q-CAPSTONE. DET-MCP-001 may be 0 rows. |
+| **Invariant** | INV-001, INV-002, INV-003, INV-007, INV-008. Goal/Identity not required to explain. |
+| **Learning objective** | Cross-domain reconstruction; rule out irrelevant domains; classify proof. |
+| **Dependencies** | 16A design + LIVE RAG/Memory/MCP. |
+| **Risk** | Collapsing three runs; blaming Goal/Identity; treating Splunk as enforcement. |
+| **Complexity** | High (integrated, still one domain chain). |
+
+**STOP after Phase 16B.** Do not start Phase 16C from this file. (Historical 16B snapshot. 16C is a later named audit phase.)
+
+---
+
+### Phase 16C — AgentSec Academy integration audit
+
+**Status:** DESIGN / AUDIT / RESEARCH / VALIDATION ONLY 2026-09-20. **Not an attack implementation.** Schema **1.9.0** unchanged. Runtime authorization **UNCHANGED**. **Do not start Phase 16D from this file.** No new detector. No new launcher. No Home/nav rewrite in 16C. No MLTK. No real A2A.
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Does the repository function as a coherent hands-on Agentic Security Academy, and what remains? |
+| **Attack / control** | Unchanged. Existing PDPs and OBSERVE classifiers. |
+| **Telemetry / schema** | 1.9.0 unchanged. |
+| **Splunk** | Reuse existing Q-* / DET-MCP-001. No new hunts or detectors in 16C. |
+| **Invariant** | Existing INV-*; learning metadata ≠ policy; Splunk ≠ enforcement. |
+| **Learning objective** | Curriculum map, competency/assessment, graduate profile, prioritized academy backlog. |
+| **Dependencies** | 16B PASS (integrated LIVE capstone). |
+| **Risk** | Treating the audit as permission to add labs; rewriting 14E–16B evidence; implementing Home from this file. |
+| **Complexity** | Medium (research / curriculum). |
+| **Recommended 16D** | Academy packaging (Home truth, nav order, Level 0) **if explicitly requested** — not a new domain. |
+
+**Do not start Phase 16D automatically.**
+
+---
+
+### Phase 16D — AgentSec Academy P0/P1 remediation and learning-journey integration
+
+**Status:** IMPLEMENTED 2026-09-21. Schema **1.9.0** unchanged. Runtime authorization **UNCHANGED**. No new attack domain. No DET-*. No MLTK. No real A2A. No OAuth/OIDC/JWT/SPIFFE. **Do not start Phase 17A from this file.**
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Can a practitioner who has never seen this repository start, investigate in Search, and reach the capstone? |
+| **Attack / control** | Unchanged. Existing PDPs and OBSERVE classifiers. |
+| **Telemetry / schema** | 1.9.0 unchanged. |
+| **Splunk** | Reuse existing Q-* / DET-MCP-001. Home bootcamp + Path A/B disclosure only. |
+| **Invariant** | Existing INV-*; learning metadata ≠ policy; Splunk ≠ enforcement. |
+| **Learning objective** | Honest Home, curriculum nav, L0 orientation, predict-before-launch, optional Path B, capstone as graduation. |
+| **Dependencies** | 16C audit + explicit 16D request. |
+| **Risk** | Treating packaging as a new domain; Path B replacing Search; schema bump. |
+| **Complexity** | Medium (curriculum/UI). |
+
+**STOP after Phase 16D.** Do not start Phase 17A, detectors, MLTK, real A2A, or a schema bump from this file.
+
+---
+
+### Phase 17A — Learner assessment and mastery validation
+
+**Status:** IMPLEMENTED 2026-09-21. Schema **1.9.0** unchanged. Runtime authorization **UNCHANGED**. No new attack domain. No DET-*. No MLTK. No progress backend. Not a certificate. **Do not start Phase 17B from this file.**
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Can a learner who did not build AgentSec demonstrate agentic-security reasoning with evidence? |
+| **Attack / control** | Unchanged. Existing PDPs and OBSERVE classifiers. |
+| **Telemetry / schema** | 1.9.0 unchanged. |
+| **Splunk** | Reuse existing Q-*. Mastery Path B copies hunt text; Search remains Path A. |
+| **Invariant** | Existing INV-*; assessment metadata ≠ policy; Splunk ≠ enforcement. |
+| **Learning objective** | FOUNDATIONAL→PURPLE TEAM challenges; ATTACK/RETEST compare; evidence classes; capstone 15-point readout. |
+| **Dependencies** | 16D academy packaging + explicit 17A request. |
+| **Risk** | Trivia quiz; fake certification; assessment choosing grants; Path B replacing Search. |
+| **Complexity** | Medium (curriculum/UI). |
+
+**STOP after Phase 17A.** Do not start Phase 17B, detectors, MLTK, real A2A, HITL, rug-pull, vector DB, OAuth/OIDC/SPIFFE, or a schema bump from this file.
+
+---
+
+### Phase 17B — Fresh learner usability and instructional validation
+
+**Status:** IMPLEMENTED 2026-09-21. Schema **1.9.0** unchanged. Runtime authorization **UNCHANGED**. No new attack domain. No DET-*. No MLTK. No progress backend. Not a certificate. **Do not start Phase 17C from this file.**
+
+| Field | Content |
+|-------|---------|
+| **Security question** | Can a person who did not build AgentSec learn agentic security from the product without repository knowledge? |
+| **Attack / control** | Unchanged. Existing PDPs and OBSERVE classifiers. |
+| **Telemetry / schema** | 1.9.0 unchanged. |
+| **Splunk** | Reuse existing Q-*. Path A remains Search. REPLAY Path B explains output. |
+| **Invariant** | Existing INV-*; learning metadata ≠ policy; Splunk ≠ enforcement. |
+| **Learning objective** | Why-before-click; LIVE vs REPLAY; two-run memory; tool vs goal; claim vs authentication; empty ≠ DENY. |
+| **Dependencies** | 17A Mastery Check + explicit 17B request. |
+| **Risk** | Adding content instead of fixing instruction; REPLAY→LIVE migration; schema bump. |
+| **Complexity** | Medium (curriculum/UI). |
+
+**STOP after Phase 17B.** Do not start Phase 17C, detectors, MLTK, real A2A, HITL, rug-pull, vector DB, OAuth/OIDC/SPIFFE, or a schema bump from this file.
+
 ---
 
 ## NEXT 5 PHASES (after 8B/8C)
@@ -497,7 +714,29 @@ First research reproductions (not scheduled as product phases):
 
 ## Recommended next phase (exactly one)
 
-**Phase 14E — generalize the learning loop + LAB-MCP-001 second reference: ACCEPT as IMPLEMENTED + LIVE SPLUNK MEASURED + UI REVIEWED. Do not start Phase 15 from this file.** Schema **1.9.0**. No DET-MCP-NEW. Remaining labs not auto-migrated. Reference labs: LAB-PI-001 and LAB-MCP-001. Official MCP pair ATTACK `bf5109de-bcc0-4ca0-9916-cf4b63e77ef4` / RETEST `0cd82b2a-cefe-4fe5-86f3-4751929c3d1f`.
+**Phase 15B — LAB-RAG-CONTEXT LIVE purple-team loop: ACCEPT as IMPLEMENTED + LIVE SPLUNK MEASURED + UI REVIEWED. Schema 1.9.0. No DET-RAG. Official pair ATTACK `41b1dbf5-f1b6-4cbc-8758-dac83633c89a` / RETEST `403319da-8a8a-4064-97ce-aa1b4234eb1f`.**
+
+**Phase 17B — Fresh learner usability / instructional validation: ACCEPT as IMPLEMENTED (copy-only Academy usability). Schema 1.9.0. No new attack, detector, or authorization change. STOP. Do not start Phase 17C from this file.**
+
+**Phase 17A — Learner mastery / assessment: ACCEPT as IMPLEMENTED (Mastery Check + assessments.json). Schema 1.9.0. No new attack, detector, or authorization change. STOP. Do not start Phase 17B from this file.**
+
+**Phase 16D — AgentSec Academy P0/P1 packaging: ACCEPT as IMPLEMENTED (Home/nav/orientation/Path A-B/capstone gate). Schema 1.9.0. No new attack, detector, or authorization change. STOP. Do not start Phase 17A from this file.**
+
+**Phase 16C — AgentSec Academy audit: ACCEPT as DESIGN / AUDIT ONLY. Schema 1.9.0. No new attack, detector, or authorization change. OPTION B: academy packaging P0/P1 (Home truth, nav order, orientation) if later explicitly requested. STOP. Do not start Phase 16D from this file.**
+
+**Phase 16B — LAB-AGENTSEC-CAPSTONE-001 LIVE integrated capstone: ACCEPT as IMPLEMENTED + LIVE SPLUNK MEASURED + UI REVIEWED. Schema 1.9.0. No DET-CAPSTONE. Three-run retrieve/write/recall. Official ATTACK recall `2437f64a-fff4-424f-8a83-0f04285662e4` (11=11) / RETEST recall `8d2c016f-cadc-4463-939a-23a183221b3d` (10=10). Fingerprint MATCH. Historical 16B snapshot.**
+
+**Phase 16A — AgentSec curriculum integration, coverage analysis, and capstone architecture: ACCEPT as DESIGN ONLY (historical 16A snapshot). Schema 1.9.0. Six LIVE domains mapped. LAB-AGENTSEC-CAPSTONE-001 designed in 16A, built in 16B. No DET-CAPSTONE. STOP. Do not start Phase 16B from this file.**
+
+**Phase 15E — LAB-AGENT-DELEGATION-001 LIVE purple-team loop: ACCEPT as IMPLEMENTED + LIVE SPLUNK MEASURED + UI REVIEWED. Schema 1.9.0. No DET-A2A. IDENTITY OBSERVE on ATTACK and RETEST. MCP ALLOW overlay vs DENY. Official pair ATTACK `110dd7a6-58b5-472a-ae80-aec76e11bf4e` / RETEST `7e4f74a8-84bf-4d18-abe1-0dcc7f0ab58a`. Historical 15E snapshot.**
+
+**Phase 15D — LAB-AGENT-GOAL-INTEGRITY-001 LIVE purple-team loop: ACCEPT as IMPLEMENTED + LIVE SPLUNK MEASURED + UI REVIEWED. Schema 1.9.0. No DET-GOAL. MCP ALLOW on ATTACK and RETEST. Official pair ATTACK `dc1f549f-ea1f-4ac5-bc25-5d7cca5b1fe9` / RETEST `624b4223-510e-4a14-88e2-85f82b32d475`. Historical 15D snapshot.**
+
+**Phase 15C — LAB-MEMORY-001 LIVE purple-team loop: ACCEPT as IMPLEMENTED + LIVE SPLUNK MEASURED. Schema 1.9.0. No DET-MEMORY. Two-run WRITE+RECALL. Official pair ATTACK write `ad850327-07c8-4b2d-b817-6c1bc964b41c` / recall `e686da75-64c0-41a3-9bde-c932d268ed28`; RETEST write `a3ae94ba-0ffc-4838-912a-c90bef331b16` / recall `87bd07c5-324d-40fb-b3be-797763877095`. Shared in-process memory.id is serialized. Do not start Phase 15D, Identity LIVE, Goal LIVE, or MLTK from this file.** (Historical 15C snapshot. 15D is the named follow-on.)
+
+**Phase 15A — AgentSec curriculum architecture: ACCEPT as DESIGN ONLY (historical 15A snapshot). Recommended wave in 15A was MCP-003 then MCP-004; named 15B executed RAG.** Schema **1.9.0**.
+
+**Phase 14E — generalize the learning loop + LAB-MCP-001 second reference: ACCEPT as IMPLEMENTED + LIVE SPLUNK MEASURED + UI REVIEWED (historical 14E snapshot). Do not start Phase 15 from the 14E file.** Schema **1.9.0**. Remaining labs not auto-migrated. Reference labs: LAB-PI-001 and LAB-MCP-001. Official MCP pair ATTACK `bf5109de-bcc0-4ca0-9916-cf4b63e77ef4` / RETEST `0cd82b2a-cefe-4fe5-86f3-4751929c3d1f`.
 
 **Phase 14D — LIVE DEFEND / RETEST / COMPARE: ACCEPT as IMPLEMENTED (historical 14D snapshot). Do not start Phase 14E from the 14D file.** Schema **1.9.0**. PI-001 only.
 

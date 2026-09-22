@@ -1,0 +1,106 @@
+{
+  "url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_memory_security",
+  "tabs_found": [
+    "LEARN",
+    "BASELINE",
+    "ATTACK",
+    "OBSERVE",
+    "HUNT",
+    "DETECT",
+    "DEFEND",
+    "RETEST",
+    "COMPARE",
+    "PROVE"
+  ],
+  "tabs_missing": [],
+  "tokens_found": [
+    "write_run_id",
+    "run_id"
+  ],
+  "tokens_missing": [],
+  "token_values": {
+    "write_run_id": "Baseline write \u2014 defended / normal",
+    "run_id": "Baseline recall \u2014 defended / normal"
+  },
+  "screenshots": [
+    "docs/screenshots/lab-memory-security/pass3_overview.png",
+    "docs/screenshots/lab-memory-security/pass3_learn.png",
+    "docs/screenshots/lab-memory-security/pass3_baseline.png",
+    "docs/screenshots/lab-memory-security/pass3_attack.png",
+    "docs/screenshots/lab-memory-security/pass3_observe.png",
+    "docs/screenshots/lab-memory-security/pass3_hunt.png",
+    "docs/screenshots/lab-memory-security/pass3_detect.png",
+    "docs/screenshots/lab-memory-security/pass3_defend.png",
+    "docs/screenshots/lab-memory-security/pass3_retest.png",
+    "docs/screenshots/lab-memory-security/pass3_compare.png",
+    "docs/screenshots/lab-memory-security/pass3_prove.png",
+    "docs/screenshots/lab-memory-security/pass3_w1280_learn.png",
+    "docs/screenshots/lab-memory-security/pass3_w1280_attack.png",
+    "docs/screenshots/lab-memory-security/pass3_w1280_observe.png",
+    "docs/screenshots/lab-memory-security/pass3_w1280_hunt.png",
+    "docs/screenshots/lab-memory-security/pass3_w1280_defend.png",
+    "docs/screenshots/lab-memory-security/pass3_w1280_retest.png",
+    "docs/screenshots/lab-memory-security/pass3_w1280_compare.png",
+    "docs/screenshots/lab-memory-security/pass3_w1280_prove.png",
+    "docs/screenshots/lab-memory-security/pass3_w1024_learn.png",
+    "docs/screenshots/lab-memory-security/pass3_w1024_attack.png",
+    "docs/screenshots/lab-memory-security/pass3_w1024_observe.png",
+    "docs/screenshots/lab-memory-security/pass3_w1024_hunt.png",
+    "docs/screenshots/lab-memory-security/pass3_w1024_defend.png",
+    "docs/screenshots/lab-memory-security/pass3_w1024_retest.png",
+    "docs/screenshots/lab-memory-security/pass3_w1024_compare.png",
+    "docs/screenshots/lab-memory-security/pass3_w1024_prove.png",
+    "docs/screenshots/attack-service-memory/pass3_launcher_1440.png",
+    "docs/screenshots/attack-service-memory/pass3_launcher_1280.png",
+    "docs/screenshots/attack-service-memory/pass3_launcher_1024.png",
+    "docs/screenshots/attack-service-memory/pass3_attack_results_1440.png",
+    "docs/screenshots/attack-service-memory/pass3_retest_results_1440.png"
+  ],
+  "clipping_screenshots": [
+    "docs/screenshots/lab-memory-security/pass3_w1280_learn.png",
+    "docs/screenshots/lab-memory-security/pass3_w1280_attack.png",
+    "docs/screenshots/lab-memory-security/pass3_w1280_observe.png",
+    "docs/screenshots/lab-memory-security/pass3_w1280_hunt.png",
+    "docs/screenshots/lab-memory-security/pass3_w1280_defend.png",
+    "docs/screenshots/lab-memory-security/pass3_w1280_retest.png",
+    "docs/screenshots/lab-memory-security/pass3_w1280_compare.png",
+    "docs/screenshots/lab-memory-security/pass3_w1280_prove.png",
+    "docs/screenshots/lab-memory-security/pass3_w1024_learn.png",
+    "docs/screenshots/lab-memory-security/pass3_w1024_attack.png",
+    "docs/screenshots/lab-memory-security/pass3_w1024_observe.png",
+    "docs/screenshots/lab-memory-security/pass3_w1024_hunt.png",
+    "docs/screenshots/lab-memory-security/pass3_w1024_defend.png",
+    "docs/screenshots/lab-memory-security/pass3_w1024_retest.png",
+    "docs/screenshots/lab-memory-security/pass3_w1024_compare.png",
+    "docs/screenshots/lab-memory-security/pass3_w1024_prove.png"
+  ],
+  "label": "pass3",
+  "tabs_requested": [
+    "LEARN",
+    "BASELINE",
+    "ATTACK",
+    "OBSERVE",
+    "HUNT",
+    "DETECT",
+    "DEFEND",
+    "RETEST",
+    "COMPARE",
+    "PROVE"
+  ],
+  "viewports": [
+    1440,
+    1280,
+    1024
+  ],
+  "http": {
+    "attack_1440": 200,
+    "attack_1280": 200,
+    "attack_1024": 200
+  },
+  "attack_service": {
+    "attack_write_run_id": "4109a4b5-ebc5-48bc-990e-1b749a4c59c9",
+    "attack_recall_run_id": "757fae12-1402-41c6-9534-a346b0cc1891",
+    "retest_write_run_id": "c12eab8a-5a2e-4eb3-8b79-6edef541281a",
+    "retest_recall_run_id": "7d0c74ac-27c4-44f7-94aa-ad61f876564e"
+  }
+}

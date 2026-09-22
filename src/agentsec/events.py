@@ -39,6 +39,26 @@ EVENT_PIPELINE_STOPPED = "agentsec.pipeline.stopped"
 EVENT_MEMORY_WRITTEN = "agentsec.memory.written"
 EVENT_MEMORY_RECALLED = "agentsec.memory.recalled"
 
+# Closed 1.9.0 enum. Unknown catalog ids (RAG-BASELINE, CAPSTONE-001, …) are omitted,
+# not invented into a schema bump.
+SCHEMA_ATTACK_IDS = frozenset(
+    {
+        "ATK-001",
+        "ATK-002",
+        "MCP-001",
+        "MCP-002",
+        "MCP-003",
+        "MCP-004",
+        "MCP-005",
+        "MCP-006",
+        "MCP-CATALOG-001",
+        "RAG-001",
+        "MEMORY-001",
+        "A2A-001",
+        "GOAL-001",
+    }
+)
+
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -131,8 +151,9 @@ def _base_event(ctx: RunContext, settings: Settings, span_id: str) -> dict[str, 
         "agentsec.principal.type": "user",
         "agentsec.workflow.entry": ctx.workflow_entry,
         "gen_ai.workflow.name": ctx.workflow_name,
-        "agentsec.attack.id": ctx.attack_id,
     }
+    if ctx.attack_id in SCHEMA_ATTACK_IDS:
+        event["agentsec.attack.id"] = ctx.attack_id
     if ctx.technique_id:
         event["agentsec.technique.id"] = ctx.technique_id
     return event

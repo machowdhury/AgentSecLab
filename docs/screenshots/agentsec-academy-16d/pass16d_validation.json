@@ -1,0 +1,45 @@
+{
+  "label": "pass16d",
+  "viewports": [
+    1440,
+    1280,
+    1024
+  ],
+  "screenshots": [
+    "docs/screenshots/agentsec-academy-16d/pass16d_home_1440.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_home_1280.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_home_1024.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_home_tab_start.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_home_tab_orient.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_home_tab_path.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_home_tab_splunk.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_nav_foundations.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_nav_context_security.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_nav_agent_intent.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_nav_capstone.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_pi_1440.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_pi_hunt_1440.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_pi_prove_1440.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_rag_1440.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_goal_1440.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_capstone_1440.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_capstone_prove_1440.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_attack_1440.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_attack_1280.png",
+    "docs/screenshots/agentsec-academy-16d/pass16d_attack_1024.png"
+  ],
+  "nav_labels": [
+    "Foundations",
+    "Context Security",
+    "Agent Intent",
+    "Capstone"
+  ],
+  "home_tabs": [
+    "START",
+    "ORIENT",
+    "PATH",
+    "SPLUNK"
+  ],
+  "attack_where": true,
+  "defects": []
+}

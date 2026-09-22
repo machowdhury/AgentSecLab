@@ -2,11 +2,11 @@
 
 **Level:** 1  
 **Difficulty:** GUIDED  
-**Schema:** `agentsec.security_event` 1.6.0  
+**Schema:** `agentsec.security_event` 1.9.0 (RAG context fields introduced in 1.6.0; emitters were not bumped for Phase 15B)  
 **Invariant:** INV-002 (Data Cannot Grant Authority)  
 **Attack:** RAG-001 (malicious retrieved document used as retrieved-context-derived authority)  
 **Control:** CTRL-RAG-CONTEXT-001 (classify only; OBSERVE) + CTRL-MCP-001 (follow-on tool grant)  
-**Status:** Phase 10E Dashboard Studio workshop (`ws_lab_rag_context`). DET-MCP-001 reused, disabled. **No DET-RAG.** Detection: **DETECTION ANALYZED — NO NEW RAG DETECTOR**.
+**Status:** Phase 15B LIVE purple-team loop on the existing Phase 10E workshop (`ws_lab_rag_context`). DET-MCP-001 reused, disabled. **No DET-RAG.** Detection: **DETECTION ANALYZED — NO NEW RAG DETECTOR**. Canonical specimen ids below are **REPLAY**. Fresh LIVE run.ids come from Attack Service.
 
 This lab teaches one idea: **retrieved content is data**. A document may influence a REQUEST. It does not become a GRANT. Splunk is where you hunt a copy of the telemetry. Splunk does not ALLOW or DENY a follow-on tool.
 
@@ -63,7 +63,7 @@ USER QUESTION
  → Splunk (observe only)
 ```
 
-## Validated LIVE specimens (Phase 10C)
+## Canonical REPLAY specimens (Phase 10C, still the Investigate specimen ids)
 
 - BASELINE `51f70fb9-994e-4dd4-9b36-cac6fb1e8232` — defended, NORMAL, OBSERVE, no follow-on, handler 0
 - ATTACK `3a43d24f-9281-42f6-8375-1fb2efaa80ac` — vulnerable, MALICIOUS, overlay ALLOW, handler 1

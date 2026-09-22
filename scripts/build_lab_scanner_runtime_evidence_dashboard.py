@@ -332,7 +332,7 @@ def build() -> dict:
 
 Investigate what a scanner finding can and cannot prove about runtime authorization.
 
-**LIVE EVIDENCE** · `LAB-SCANNER-RUNTIME` · Schema 1.5.0
+**REPLAY SPECIMEN** · historical evidence · Schema 1.5.0
 
 **When an external security scanner flags agent/tool metadata, what can the SOC actually conclude from that evidence?**
 
@@ -347,7 +347,7 @@ External security evidence and runtime authorization answer **different question
 - mcp.started != SUCCESS
 - SPLUNK != ENFORCEMENT
 
-**LIVE evidence identity**
+**Canonical specimens (historical)**
 
 BASELINE RUN `{BASELINE_ID}`
 
@@ -633,6 +633,19 @@ Use **Hunt** (defaults to BASELINE) and **Hunt scan** (defaults to NORMAL).
         "viz_hunt_md",
         f"""
 # HUNT
+
+**REPLAY workshop.** There is no Attack Service launcher here. This is historical evidence, not a launch you just minted.
+
+**WHY search this?** Reconstruct a canonical experiment in Search. Practice Path A without minting a new run.id.
+
+**Path A — try it yourself:** [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search). Copy a canonical Investigate specimen run.id. Start from scanner hunts or runtime Q-MCP. Construct the hunt before you treat the tables as the answer. If zero rows, this volume may not contain that specimen. Empty is not DENY.
+
+**Path B — show solution:** the bound tables on this tab are the expected shape. Read them after Path A. SCANNER FINDING != AUTHORIZATION. They are not policy and not LIVE launch evidence.
+
+**YOU SHOULD SEE** scanner evidence beside runtime control/execution fields.
+**THAT MEANS** this is the expected shape of a historical copy.
+**IT DOES NOT MEAN** the scanner authorized or blocked the tool.
+**NEXT** COMPARE ATTACK vs RETEST on the same fields, then PROVE.
 
 Pivot: **scanner → description hash → runtime → authorization → execution**
 

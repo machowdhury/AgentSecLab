@@ -95,3 +95,15 @@ def resolve_memory_testbed_mode(*, settings: Settings) -> str:
     if settings.testbed_mode_override in VALID_TESTBED_MODES:
         return settings.testbed_mode_override
     return "BASELINE"
+
+
+def resolve_goal_testbed_mode(*, settings: Settings) -> str:
+    if settings.testbed_mode_override in VALID_TESTBED_MODES:
+        return settings.testbed_mode_override
+    return "BASELINE"
+
+
+def resolve_identity_testbed_mode(*, settings: Settings) -> str:
+    if settings.testbed_mode_override in VALID_TESTBED_MODES:
+        return settings.testbed_mode_override
+    return "BASELINE"

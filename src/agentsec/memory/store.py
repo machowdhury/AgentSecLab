@@ -13,16 +13,21 @@ from agentsec.memory.fixtures import (
     GRANT_LIKE_FIELDS,
     MALICIOUS_MEMORY,
     MAX_MEMORY_BYTES,
+    MEMORY_ID_CAPSTONE_MALICIOUS,
+    MEMORY_ID_CAPSTONE_NORMAL,
     MEMORY_ID_MALICIOUS,
     MEMORY_ID_NORMAL,
     MEMORY_TRUST_LABEL,
     NORMAL_MEMORY,
     PROVENANCE,
 )
+from agentsec.rag.fixtures import MALICIOUS_DOCUMENT, NORMAL_DOCUMENT
 
 FIXTURES: dict[str, str] = {
     MEMORY_ID_NORMAL: NORMAL_MEMORY,
     MEMORY_ID_MALICIOUS: MALICIOUS_MEMORY,
+    MEMORY_ID_CAPSTONE_NORMAL: NORMAL_DOCUMENT,
+    MEMORY_ID_CAPSTONE_MALICIOUS: MALICIOUS_DOCUMENT,
 }
 
 
@@ -58,15 +63,20 @@ class InProcessMemoryStore:
         *,
         writer_agent_id: str,
         source_run_id: str,
+        allow_replace_same_fixture: bool = False,
     ) -> tuple[MemoryRecord | None, MemoryError | None]:
         if not isinstance(memory_id, str) or not memory_id:
             requested = memory_id if isinstance(memory_id, str) and memory_id else "unknown"
             return None, MemoryError(reason="empty_memory_id", requested_id=requested[:128])
         if memory_id not in FIXTURES:
             return None, MemoryError(reason="unknown_memory_id", requested_id=memory_id[:128])
-        if memory_id in self._records:
-            return None, MemoryError(reason="duplicate_memory_id", requested_id=memory_id)
         content = FIXTURES[memory_id]
+        if memory_id in self._records:
+            if not allow_replace_same_fixture:
+                return None, MemoryError(reason="duplicate_memory_id", requested_id=memory_id)
+            existing = self._records[memory_id]
+            if existing.content != content:
+                return None, MemoryError(reason="duplicate_memory_id", requested_id=memory_id)
         return self._put(
             memory_id=memory_id,
             content=content,

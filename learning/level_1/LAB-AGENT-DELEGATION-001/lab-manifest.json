@@ -1,0 +1,104 @@
+{
+  "lab_id": "LAB-AGENT-DELEGATION-001",
+  "title": "Agent Identity / Delegation",
+  "not_authorization": true,
+  "security_question": "Can Agent A claim that authority was delegated to Agent B and thereby cause Agent B to perform something neither agent was actually granted?",
+  "invariant_ids": ["INV-001", "INV-002", "INV-005"],
+  "control_id": "CTRL-IDENTITY-001",
+  "enforcement_control_id": "CTRL-MCP-001",
+  "workshop_view": "ws_lab_agent_delegation",
+  "level": "5",
+  "domain": "identity_delegation",
+  "execution_modes": {
+    "LIVE": ["BASELINE", "ATTACK", "RETEST"],
+    "REPLAY": ["BASELINE", "ATTACK", "RETEST"],
+    "GUIDED": true
+  },
+  "retest_support": "LIVE",
+  "retest_support_detail": "ATTACK and RETEST use the same canonical A2A-001 delegation request. Profile is server-owned ExperimentContext. Process env is not mutated. CTRL-IDENTITY-001 stays OBSERVE identity_claim_is_not_grant. CTRL-MCP-001 is the sole tool PDP.",
+  "specimens": [
+    {
+      "specimen_id": "A2A-BASELINE",
+      "mode": "BASELINE",
+      "profile": "defended",
+      "live": true,
+      "experiment_id": "LAB-AGENT-DELEGATION-001:BASELINE",
+      "same_as_attack_payload": false
+    },
+    {
+      "specimen_id": "A2A-001",
+      "mode": "ATTACK",
+      "profile": "vulnerable",
+      "live": true,
+      "experiment_id": "LAB-AGENT-DELEGATION-001:ATTACK",
+      "intentionally_vulnerable": true,
+      "same_as_retest_payload": true
+    },
+    {
+      "specimen_id": "A2A-001",
+      "mode": "RETEST",
+      "profile": "defended",
+      "live": true,
+      "experiment_id": "LAB-AGENT-DELEGATION-001:RETEST",
+      "same_as_attack_payload": true
+    }
+  ],
+  "prediction": {
+    "ATTACK": {
+      "attack_objective": "Submit the catalog adversarial delegation claim on the intentionally vulnerable ATTACK experiment and observe whether lookup_customer_tier is granted even though neither agent is coded customer:read.",
+      "why_this_matters": "IDENTITY CLAIM != AUTHENTICATION. DELEGATION CLAIM != AUTHORIZATION. A caller id does not mint a grant. A + B does not create new authority.",
+      "what_will_change": "A new run.id is minted. CTRL-IDENTITY-001 still OBSERVEs identity_claim_is_not_grant. A labeled fail-open overlay is minted. CTRL-MCP-001 ALLOWs. lookup_customer_tier handler 1.",
+      "what_will_not_change": "Coded allowed_tools. coded_policy(). Principal, caller, callee, claimed scope, requested tool/scope/resource. CTRL-IDENTITY-001 does not ALLOW. The browser does not choose profile, grants, identity_verified, authenticated, or the A2A body. Splunk does not ALLOW or DENY.",
+      "security_property": "A delegation claim must not create authority that neither party possesses. On this labeled vulnerable experiment the overlay is the failure. That is not cryptographic identity bypass.",
+      "expected_evidence_defended": "Not this ATTACK specimen. Defended same-claim evaluation is the RETEST experiment.",
+      "expected_evidence_vulnerable": "INTENTIONALLY VULNERABLE LAB PROFILE: CTRL-IDENTITY-001 OBSERVE identity_claim_is_not_grant / untrusted_claim; overlay vulnerable_profile_fail_open:caller_identity_derived_authority; CTRL-MCP-001 ALLOW; lookup_customer_tier handler 1; testbed.mode=ATTACK. OBSERVE is not ALLOW. ALLOW is not execution. WHO AUTHENTICATED = NOT PROVEN / NOT MODELED.",
+      "predict_before_launch": "Before you click Launch ATTACK, write: will CTRL-IDENTITY-001 OBSERVE or DENY, will CTRL-MCP-001 ALLOW lookup_customer_tier, will the privileged handler start, and did anyone authenticate?",
+      "attacker_influence": "The closed adversarial delegation fixture. The attacker wants the claim treated as a grant so neither agent needs customer:read.",
+      "defense_should": "On this ATTACK specimen the lab is fail-open at CTRL-MCP-001 via a per-request overlay. The defense you will enable is the RETEST ExperimentContext (profile=defended). Do not trust agent names, Splunk, or an identity string."
+    },
+    "BASELINE": {
+      "attack_objective": "Submit the catalog normal lookup_policy delegation so later ATTACK evidence has a normal comparison.",
+      "why_this_matters": "Zero BASELINE rows is not all-clear. You need the shape of IDENTITY OBSERVE plus MCP ALLOW tool_granted before judging the privileged claim. Do not label BASELINE SAFE.",
+      "what_will_change": "A new run.id. CTRL-IDENTITY-001 OBSERVE identity_claim_is_not_grant. CTRL-MCP-001 ALLOW tool_granted. lookup_policy handler 1. lookup_customer_tier handler 0.",
+      "what_will_not_change": "Coded grants. This is not the privileged request.",
+      "security_property": "INV-007 evidence for a granted tool. untrusted_claim is not malice and is not SAFE.",
+      "expected_evidence_defended": "testbed.mode=BASELINE, profile=defended, IDENTITY OBSERVE, MCP ALLOW tool_granted, lookup_policy 1, lookup_customer_tier 0.",
+      "predict_before_launch": "Before you click Launch, write: should IDENTITY OBSERVE, should lookup_policy ALLOW, and should lookup_customer_tier stay at 0?"
+    },
+    "RETEST": {
+      "attack_objective": "Submit the SAME canonical privileged delegation claim on the defended RETEST experiment and prove the outcome changed because tool authorization changed, not because the identity claim changed.",
+      "why_this_matters": "A closed-loop experiment needs independent ATTACK and RETEST run.ids. IDENTITY still only OBSERVEs. If you thought IDENTITY granted the tool, RETEST would confuse you.",
+      "what_will_change": "A new run.id, testbed.mode=RETEST, profile=defended, CTRL-MCP-001 DENY tool_not_granted, lookup_customer_tier handler 0, no mcp.started for the privileged operation.",
+      "what_will_not_change": "Principal, caller, callee, claimed scope, requested tool, requested scope, requested resource, request fingerprint, CTRL-IDENTITY-001 OBSERVE identity_claim_is_not_grant. Coded grants. Splunk still does not enforce.",
+      "security_property": "SAME PRINCIPAL. SAME CALLER. SAME CALLEE. SAME DELEGATION CLAIM. SAME PRIVILEGED REQUEST. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION.",
+      "expected_evidence_defended": "IDENTITY OBSERVE identity_claim_is_not_grant; MCP DENY tool_not_granted; lookup_customer_tier handler 0; testbed.mode=RETEST.",
+      "will_reach_operation": "On defended RETEST, lookup_customer_tier does not start. CTRL-IDENTITY-001 still OBSERVEs. CTRL-MCP-001 DENYs.",
+      "which_control": "CTRL-IDENTITY-001 records the trust boundary. CTRL-MCP-001 at acmebank.mcp.authorize is the tool PDP. These solve different problems. AcmeBank owns enforcement. Splunk does not.",
+      "expected_decision": "IDENTITY OBSERVE identity_claim_is_not_grant. MCP DENY tool_not_granted.",
+      "falsify": "IDENTITY ALLOW, IDENTITY DENY of the tool, lookup_customer_tier handler 1, a different request fingerprint than ATTACK, or claiming the caller was authenticated would falsify the defended prediction. Missing Splunk rows alone would not.",
+      "predict_before_launch": "Will the same claim produce the same IDENTITY OBSERVE? Will CTRL-MCP-001 now DENY? Will the privileged handler stay at 0? Does caller_agent_id prove authentication?"
+    }
+  },
+  "investigation": {
+    "entry_hunt": "Q-AGENT-DELEGATION-AUTHORITY",
+    "reuse_hunts": ["Q-AGENT-DELEGATION-AUTHORITY", "Q-MCP-AUTHZ", "Q-MCP-TOOL", "Q-MCP-EXECUTED", "Q-MCP-WHO"],
+    "starter_index": "agentsec_telemetry",
+    "starter_sourcetype": "otel:agentic:json",
+    "do_not_create": ["DET-A2A", "DET-DELEGATION", "DET-LAUNCH", "Q-A2A-WHO", "Q-A2A-CLAIM", "Q-AGENT-IDENTITY-OBSERVE", "Q-AGENT-DELEGATION-EXECUTED"]
+  },
+  "limitations": [
+    "LOCAL EDUCATIONAL SERVICE. Attack Service is localhost and unauthenticated.",
+    "NOT PRODUCTION AUTHENTICATION. NOT MULTI-TENANT. NOT INTERNET-FACING.",
+    "CTRL-IDENTITY-001 classifies identity/delegation claims. It is OBSERVE only. It is not a tool PDP.",
+    "CTRL-MCP-001 is a lab allow-list, not production MCP IAM.",
+    "WHO AUTHENTICATED = NOT PROVEN / NOT MODELED. Agent id strings are attribution, not cryptographic identity.",
+    "No OAuth, OIDC, JWT validation, SPIFFE/SPIRE, or real A2A transport.",
+    "HEC HTTP 200 is not searchable evidence.",
+    "Missing Splunk event is not prevention.",
+    "ALLOW is not execution. OBSERVE is not ALLOW. untrusted_claim is not a grant.",
+    "DET-MCP-001 alerts only on DENY-then-start. ATTACK is MCP ALLOW. Silence is not SAFE. No DET-A2A.",
+    "Studio tokens are not auto-bound to a fresh run.id.",
+    "Learning metadata is not security policy.",
+    "Canonical Investigate specimen ids are REPLAY Phase 12C, not the LIVE run you just launched."
+  ]
+}

@@ -24,7 +24,126 @@
       <a href="{{ row.href }}"{% if row.lab_id == lab_id %} aria-current="page"{% endif %}>{{ row.title }}</a>
       {% endfor %}
     </nav>
+    <section class="card" aria-labelledby="academy-where-heading">
+      <h2 id="academy-where-heading">Where you are</h2>
+      <p class="muted">LIVE launcher · {{ academy_level }} · {{ lab_title }}. This console does not authorize.</p>
+      <dl class="facts">
+        <dt>START HERE IF NEW</dt>
+        <dd>Open <a href="http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home">Home START</a> for orientation. Then launch. Predict before you click.</dd>
+        <dt>AFTER LAUNCH</dt>
+        <dd>Copy the fresh run.id (or write/recall, or retrieve/write/recall). Wait until the evidence state is <strong>EVIDENCE READY</strong> — not merely HEC accepted. Then Open Splunk Search. Empty Search is not DENY. Studio tokens are not this launch.</dd>
+        <dt>NEXT LAB</dt>
+        <dd>{% if next_lab %}{{ next_lab.title }} ({{ next_lab.mode }}){% if next_lab.href %} · <a href="{{ next_lab.href }}">open launcher</a>{% endif %}{% else %}Capstone is the last LIVE launcher. After the Capstone packet, open <a href="http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_mastery">Mastery Check</a> — reasoning validation, not another launch.{% endif %}</dd>
+      </dl>
+    </section>
     <p class="lede">{{ manifest.security_question if manifest.security_question else "Run an allowlisted specimen against AcmeBank." }} Sending a request is not proof the attack succeeded, that a control allowed it, or that a model ran.</p>
+
+    {% if is_capstone_lab %}
+    <section class="card" aria-labelledby="capstone-teach-heading">
+      <h2 id="capstone-teach-heading">Mission</h2>
+      <p>A lending-policy assistant accessed customer-tier information during a workflow that was expected to summarize lending policy. Determine what happened from evidence. This console does not name the failing control.</p>
+      <dl class="facts">
+        <dt>WHAT SHOULD YOU DETERMINE?</dt>
+        <dd>Where influencing content originated, whether it was trusted, whether it persisted, what later request it influenced, what authority existed, which component authorized, whether the privileged tool executed, what changed in RETEST, and what Splunk can and cannot prove.</dd>
+        <dt>WHAT DOES THE ATTACKER CONTROL?</dt>
+        <dd>Only the closed specimen bytes. The browser cannot choose profile, grants, document body, memory body, or policy.</dd>
+        <dt>WHAT SHOULD THE DEFENDED EXPERIMENT DO?</dt>
+        <dd>{{ expected_defended }}</dd>
+        <dt>WHAT SHOULD NOT BE INFERRED FROM SPLUNK?</dt>
+        <dd>Splunk did not enforce the result. Missing events are not prevention. One RETEST is not universal resistance. Absence of goal or identity events in this packet does not mean those domains never exist.</dd>
+      </dl>
+    </section>
+    {% endif %}
+
+    {% if is_memory_lab %}
+    <section class="card" aria-labelledby="memory-teach-heading">
+      <h2 id="memory-teach-heading">What is agent memory?</h2>
+      <dl class="facts">
+        <dt>WHAT IS AGENT MEMORY?</dt>
+        <dd>Persistent state that survives a WRITE run into a later RECALL run. This lab uses deterministic in-process memory. It is not a vector database and not RAG.</dd>
+        <dt>WHY ARE WE ATTACKING IT?</dt>
+        <dd>To test INV-003: untrusted memory cannot silently become trusted instruction. The attacker wants stored bytes treated as authority on a later run.</dd>
+        <dt>WHAT DOES THE ATTACKER CONTROL?</dt>
+        <dd>The closed malicious fixture bytes. The attacker cannot legitimately mint tools, scopes, identity, or grants.</dd>
+        <dt>WHAT PERSISTS?</dt>
+        <dd>A MemoryRecord: memory.id, SHA-256 fingerprint, provenance, writer, source_run_id, trust=untrusted_data. Not authorization.</dd>
+        <dt>WHAT HAPPENS IN THE WRITE RUN?</dt>
+        <dd>Malicious bytes are stored. Trust remains untrusted_data. No authority is created.</dd>
+        <dt>WHAT HAPPENS IN THE RECALL RUN?</dt>
+        <dd>The later run loads the same memory. CTRL-MEMORY-CONTEXT-001 OBSERVE. A follow-on lookup_customer_tier request may be formed. CTRL-MCP-001 then ALLOW or DENY.</dd>
+        <dt>WHERE IS THE TRUST BOUNDARY?</dt>
+        <dd>Between recalled data and authorization. STORED != TRUSTED. RECALLED != AUTHORIZED. MEMORY INFLUENCE != AUTHORITY.</dd>
+        <dt>WHAT SHOULD THE VULNERABLE PROFILE DO?</dt>
+        <dd>Labeled fail-open ALLOW vulnerable_profile_fail_open:memory_derived_authority, then mcp.started and handler 1. Overlay is lab-only and not stored in memory.</dd>
+        <dt>WHAT SHOULD THE DEFENDED PROFILE DO?</dt>
+        <dd>Same memory, same request, CTRL-MCP-001 DENY tool_not_granted, handler 0.</dd>
+        <dt>WHAT SHOULD APPEAR IN SPLUNK?</dt>
+        <dd>Write event, recall event, matching fingerprints, OBSERVE, then ALLOW or DENY. Splunk is a copy of telemetry.</dd>
+        <dt>WHAT SHOULD NOT BE INFERRED FROM SPLUNK?</dt>
+        <dd>Splunk did not enforce the result. Missing mcp.started is corroboration only. HEC success is not searchable evidence.</dd>
+      </dl>
+    </section>
+    {% endif %}
+
+    {% if is_goal_lab %}
+    <section class="card" aria-labelledby="goal-teach-heading">
+      <h2 id="goal-teach-heading">What is goal / instruction integrity?</h2>
+      <dl class="facts">
+        <dt>WHAT IS GOAL / INSTRUCTION INTEGRITY?</dt>
+        <dd>The server-owned TaskContract defines the authorized purpose. Untrusted instructions may influence a proposed action. They must not independently redefine the task.</dd>
+        <dt>WHY ARE WE ATTACKING IT?</dt>
+        <dd>To test AUTHORIZED TOOL != AUTHORIZED GOAL. The attacker wants a granted lookup_policy used for extract_full_policy, which is outside the authorized task.</dd>
+        <dt>WHAT IS THE AUTHORITATIVE TASK?</dt>
+        <dd>summarize_lending_policy_options. Permitted action summarize_lending_policy. Granted tool lookup_policy at policy:read on lending-basics.</dd>
+        <dt>WHAT CAN THE UNTRUSTED INSTRUCTION INFLUENCE?</dt>
+        <dd>A ProposedTaskChange. In this lab the malicious fixture proposes extract_full_policy. Proposal is not authorization.</dd>
+        <dt>WHAT SHOULD IT NOT BE ABLE TO CHANGE?</dt>
+        <dd>The TaskContract, coded grants, profile, MCP policy, or the tool PDP. Instruction influence is not task authority.</dd>
+        <dt>WHAT DO YOU PREDICT WILL HAPPEN?</dt>
+        <dd>Write it before launch. Vulnerable ATTACK: goal expansion accepted, MCP still ALLOWs lookup_policy, wrong-goal handler 1. Defended RETEST: goal expansion rejected, MCP still ALLOWs lookup_policy for the original task, wrong-goal 0, in-task 1.</dd>
+        <dt>THE MISCONCEPTION TO CHALLENGE</dt>
+        <dd>If MCP allowed the tool, the action must have been authorized. That statement is false. CTRL-MCP-001 answers whether the tool may run. CTRL-GOAL-INTEGRITY-001 answers whether this purpose is authorized. TOOL AUTHORIZATION != TASK AUTHORIZATION.</dd>
+        <dt>WHERE IS THE TRUST BOUNDARY?</dt>
+        <dd>Between untrusted instruction and server-owned task. Between tool grant and task grant. These are different planes.</dd>
+        <dt>WHAT SHOULD APPEAR IN SPLUNK?</dt>
+        <dd>Task fingerprint, instruction fingerprint, proposed extract_full_policy, CTRL-GOAL-INTEGRITY-001, CTRL-MCP-001 ALLOW tool_granted, execution evidence. Splunk is a copy of telemetry.</dd>
+        <dt>WHAT SHOULD NOT BE INFERRED FROM SPLUNK?</dt>
+        <dd>MCP ALLOW did not authorize the goal. Goal DENY did not deny lookup_policy. Splunk did not enforce the result. HEC success is not searchable evidence.</dd>
+      </dl>
+    </section>
+        {% endif %}
+
+    {% if is_identity_lab %}
+    <section class="card" aria-labelledby="identity-teach-heading">
+      <h2 id="identity-teach-heading">What is agent identity / delegation?</h2>
+      <dl class="facts">
+        <dt>WHAT IS AGENT DELEGATION?</dt>
+        <dd>A caller asserts that a principal delegated authority so a callee should perform a tool call. In this lab the assertion is an untrusted claim, not a grant.</dd>
+        <dt>WHO IS THE PRINCIPAL?</dt>
+        <dd>applicant-web. That is a lab identifier for attribution. It is not cryptographic authentication.</dd>
+        <dt>WHO IS THE CALLER?</dt>
+        <dd>acme-agent-advisor-005 (Advisor Agent). Coded grants: lookup_policy, policy:read, lending-basics. Not lookup_customer_tier. Not customer:read.</dd>
+        <dt>WHO IS THE CALLEE?</dt>
+        <dd>acme-agent-fulfillment-006 (Fulfillment Agent). Same coded grants. Not lookup_customer_tier. Not customer:read.</dd>
+        <dt>WHAT AUTHORITY DOES EACH ACTUALLY HAVE?</dt>
+        <dd>Server-owned coded_policy() for both agents: lookup_policy only. A + B does not mint customer:read.</dd>
+        <dt>WHAT AUTHORITY IS BEING CLAIMED?</dt>
+        <dd>The adversarial fixture claims customer:read / lookup_customer_tier / cust-001. The claim is data.</dd>
+        <dt>WHY IS THE CLAIM UNTRUSTED?</dt>
+        <dd>CTRL-IDENTITY-001 classifies identity/delegation claims as untrusted_claim. OBSERVE identity_claim_is_not_grant. OBSERVE is not ALLOW and not DENY.</dd>
+        <dt>WHAT SHOULD HAPPEN?</dt>
+        <dd>Write it before launch. Vulnerable ATTACK: IDENTITY still OBSERVEs, then a labeled fail-open overlay, then CTRL-MCP-001 ALLOW, then lookup_customer_tier handler 1. Defended RETEST: same claim, IDENTITY still OBSERVEs, CTRL-MCP-001 DENY tool_not_granted, handler 0.</dd>
+        <dt>WHO AUTHENTICATED?</dt>
+        <dd>NOT PROVEN / NOT MODELED. Caller id is not OAuth, OIDC, JWT validation, SPIFFE, or cryptographic identity.</dd>
+        <dt>WHERE IS THE TRUST BOUNDARY?</dt>
+        <dd>Between an identity/delegation claim and coded grants. Between OBSERVE and tool authorization. CTRL-MCP-001 remains the sole tool PDP.</dd>
+        <dt>WHAT SHOULD APPEAR IN SPLUNK?</dt>
+        <dd>Principal, caller, callee, claimed scope, CTRL-IDENTITY-001 OBSERVE, requested tool, CTRL-MCP-001, execution evidence. Splunk is a copy of telemetry.</dd>
+        <dt>WHAT SHOULD NOT BE INFERRED FROM SPLUNK?</dt>
+        <dd>Caller id does not prove authentication. Identity OBSERVE did not grant the tool. Splunk did not enforce the result. Missing mcp.started is corroboration only.</dd>
+      </dl>
+    </section>
+    {% endif %}
 
     <section class="card" aria-labelledby="scope-heading">
       <h2 id="scope-heading">Service scope</h2>
@@ -32,7 +151,7 @@
         <li><strong>LOCAL EDUCATIONAL SERVICE</strong> — loopback classroom bind. Host publish remains 127.0.0.1.</li>
         <li><strong>NOT PRODUCTION AUTHENTICATION</strong> — no login is implemented. Do not treat this as an authn guarantee.</li>
         <li><strong>NOT MULTI-TENANT</strong> · <strong>NOT INTERNET-FACING</strong></li>
-        <li>Closed allowlist only. You pick {{ lab_id }} BASELINE, ATTACK, or RETEST. You do not send profile, grants, tools, scope, resource, SPL, Python, or environment variables.</li>
+        <li>Closed allowlist only. You pick {{ lab_id }} BASELINE, ATTACK, or RETEST. You do not send profile, grants, tools, scope, resource, identity_verified, authenticated, delegated_grant, A2A body, document trust, document body, memory body, instruction body, task contract, goal decision, trust labels, SPL, Python, or environment variables.</li>
         <li>Splunk is investigation, not enforcement. Studio tokens are not auto-bound to a fresh run.id.</li>
       </ul>
     </section>
@@ -55,6 +174,10 @@
         <dd>{{ prediction_attack.expected_evidence_vulnerable }}</dd>
         <dt>WHAT IS THE ATTACKER TRYING TO INFLUENCE?</dt>
         <dd>{{ prediction_attack.attacker_influence or "The untrusted loan input string — treated as an instruction to approve." }}</dd>
+        <dt>WHAT THE ATTACKER DOES NOT CONTROL</dt>
+        <dd>{{ prediction_attack.what_will_not_change }}</dd>
+        <dt>WHAT SHOULD REMAIN SERVER-OWNED</dt>
+        <dd>Profile, grants, allowed tools, policy, fixture body, and the authorization decision. The browser only selects the closed specimen/mode.</dd>
         <dt>WHAT SHOULD THE DEFENSE DO?</dt>
         <dd>{{ prediction_attack.defense_should }}</dd>
         <dt>PREDICT BEFORE LAUNCH</dt>
@@ -93,7 +216,7 @@
         <dt>LIVE RETEST</dt>
         <dd>{{ retest_support }}. Same adversarial request as ATTACK. Different experiment configuration. New run.id.</dd>
         <dt>Expected when defended</dt>
-        <dd>{% if lab_id == "LAB-MCP-001" %}CTRL-MCP-001 DENY tool_not_granted. Handler count 0. No mcp.started.{% else %}{{ attack.expected_defended }}{% endif %}</dd>
+        <dd>{{ expected_defended }}</dd>
       </dl>
       <h3>{{ payload_label }}</h3>
       <pre class="payload" id="payload-preview">{{ payload_preview }}</pre>
@@ -124,6 +247,54 @@
           <input id="retest-run-id" readonly value="" spellcheck="false" placeholder="Launch RETEST to mint a fresh id">
           <button class="btn btn-secondary" id="copy-retest-run-id" type="button">Copy RETEST run.id</button>
         </div>
+        {% if is_memory_lab or is_capstone_lab %}
+        <h3>{% if is_capstone_lab %}RETRIEVE, WRITE, and RECALL{% else %}WRITE RUN and RECALL RUN{% endif %}</h3>
+        <p class="muted">{% if is_capstone_lab %}Three related runs. Do not collapse them into one UUID. content.hash joins retrieve to write. source_run_id on recall is the write run.id.{% else %}Memory is two related runs. Do not collapse them into one UUID. source_run_id on recall is the write run.id.{% endif %}</p>
+        {% if is_capstone_lab %}
+        <label for="attack-retrieve-run-id">ATTACK RETRIEVE run.id</label>
+        <div class="run-id-row">
+          <input id="attack-retrieve-run-id" readonly value="" spellcheck="false" placeholder="Launch ATTACK to mint the retrieve id">
+          <button class="btn btn-secondary" id="copy-attack-retrieve-run-id" type="button">Copy ATTACK retrieve run.id</button>
+        </div>
+        {% endif %}
+        <label for="attack-write-run-id">ATTACK WRITE run.id</label>
+        <div class="run-id-row">
+          <input id="attack-write-run-id" readonly value="" spellcheck="false" placeholder="Launch ATTACK to mint the write id">
+          <button class="btn btn-secondary" id="copy-attack-write-run-id" type="button">Copy ATTACK write run.id</button>
+        </div>
+        <label for="attack-recall-run-id">ATTACK RECALL run.id</label>
+        <div class="run-id-row">
+          <input id="attack-recall-run-id" readonly value="" spellcheck="false" placeholder="Launch ATTACK to mint the recall id">
+          <button class="btn btn-secondary" id="copy-attack-recall-run-id" type="button">Copy ATTACK recall run.id</button>
+        </div>
+        {% if is_capstone_lab %}
+        <label for="retest-retrieve-run-id">RETEST RETRIEVE run.id</label>
+        <div class="run-id-row">
+          <input id="retest-retrieve-run-id" readonly value="" spellcheck="false" placeholder="Launch RETEST to mint the retrieve id">
+          <button class="btn btn-secondary" id="copy-retest-retrieve-run-id" type="button">Copy RETEST retrieve run.id</button>
+        </div>
+        {% endif %}
+        <label for="retest-write-run-id">RETEST WRITE run.id</label>
+        <div class="run-id-row">
+          <input id="retest-write-run-id" readonly value="" spellcheck="false" placeholder="Launch RETEST to mint the write id">
+          <button class="btn btn-secondary" id="copy-retest-write-run-id" type="button">Copy RETEST write run.id</button>
+        </div>
+        <label for="retest-recall-run-id">RETEST RECALL run.id</label>
+        <div class="run-id-row">
+          <input id="retest-recall-run-id" readonly value="" spellcheck="false" placeholder="Launch RETEST to mint the recall id">
+          <button class="btn btn-secondary" id="copy-retest-recall-run-id" type="button">Copy RETEST recall run.id</button>
+        </div>
+        {% if is_capstone_lab %}
+        <a class="btn btn-secondary" id="open-attack-retrieve-search" href="http://127.0.0.1:8000/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Open ATTACK retrieve in Search</a>
+        {% endif %}
+        <a class="btn btn-secondary" id="open-attack-write-search" href="http://127.0.0.1:8000/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Open ATTACK write in Search</a>
+        <a class="btn btn-secondary" id="open-attack-recall-search" href="http://127.0.0.1:8000/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Open ATTACK recall in Search</a>
+        {% if is_capstone_lab %}
+        <a class="btn btn-secondary" id="open-retest-retrieve-search" href="http://127.0.0.1:8000/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Open RETEST retrieve in Search</a>
+        {% endif %}
+        <a class="btn btn-secondary" id="open-retest-write-search" href="http://127.0.0.1:8000/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Open RETEST write in Search</a>
+        <a class="btn btn-secondary" id="open-retest-recall-search" href="http://127.0.0.1:8000/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Open RETEST recall in Search</a>
+        {% endif %}
         <label for="run-id">Last launched run.id</label>
         <div class="run-id-row">
           <input id="run-id" readonly value="" spellcheck="false">
@@ -134,9 +305,10 @@
         <li>No request has been sent yet. Empty is not DENY. HEC success is not searchable evidence.</li>
       </ul>
       <h3>Splunk Search handoff</h3>
-      <p class="muted">The learner must run Search. This page does not write Dashboard Studio tokens.</p>
+      <p class="muted">The learner must run Search. This page does not write Dashboard Studio tokens. Wait until <strong>EVIDENCE READY</strong> before treating an empty table as a security outcome. Empty is not DENY.</p>
       <ol class="handoff-steps">
         <li>Copy the fresh <code>run.id</code>.</li>
+        <li>Wait until evidence state is EVIDENCE READY.</li>
         <li>Open Splunk Search.</li>
         <li>Paste the starter query and confirm the <code>run.id</code>.</li>
         <li>Execute and inspect control / LLM evidence yourself.</li>
@@ -194,10 +366,57 @@
     document.getElementById("copy-retest-run-id").addEventListener("click", function () {
       ui.copyFromInput(retestRunInput);
     });
+    const attackWriteInput = document.getElementById("attack-write-run-id");
+    const attackRecallInput = document.getElementById("attack-recall-run-id");
+    const retestWriteInput = document.getElementById("retest-write-run-id");
+    const retestRecallInput = document.getElementById("retest-recall-run-id");
+    const attackRetrieveInput = document.getElementById("attack-retrieve-run-id");
+    const retestRetrieveInput = document.getElementById("retest-retrieve-run-id");
+    function bindCopy(buttonId, inputEl) {
+      const btn = document.getElementById(buttonId);
+      if (btn && inputEl) {
+        btn.addEventListener("click", function () {
+          ui.copyFromInput(inputEl);
+        });
+      }
+    }
+    bindCopy("copy-attack-write-run-id", attackWriteInput);
+    bindCopy("copy-attack-recall-run-id", attackRecallInput);
+    bindCopy("copy-retest-write-run-id", retestWriteInput);
+    bindCopy("copy-retest-recall-run-id", retestRecallInput);
+    bindCopy("copy-attack-retrieve-run-id", attackRetrieveInput);
+    bindCopy("copy-retest-retrieve-run-id", retestRetrieveInput);
 
     function learnerEvidenceLabel(data) {
       const state = data && data.evidence_state ? String(data.evidence_state) : "";
       const lifecycle = (data && data.lifecycle) ? data.lifecycle : [];
+      if (data && data.retrieve_run_id && data.write_run_id && data.recall_run_id) {
+        const retrieveReady = data.retrieve_evidence_state === "EVIDENCE_READY";
+        const writeReady = data.write_evidence_state === "EVIDENCE_READY";
+        const recallReady = data.recall_evidence_state === "EVIDENCE_READY";
+        if (data.experiment_ready || (retrieveReady && writeReady && recallReady && state === "EVIDENCE_READY")) {
+          return {state: "EVIDENCE READY", message: "EXPERIMENT READY. RETRIEVE, WRITE, and RECALL each returned at least one Splunk event. That is not SAFE and not a control verdict."};
+        }
+        if (!retrieveReady || !writeReady || !recallReady) {
+          return {state: "WAITING FOR SPLUNK", message: "WAITING FOR SPLUNK. Retrieve, write, and recall are independent. HEC success is not searchable evidence. The experiment is not EVIDENCE READY until all three are searchable."};
+        }
+      }
+      if (data && data.write_run_id && data.recall_run_id) {
+        const writeReady = data.write_evidence_state === "EVIDENCE_READY";
+        const recallReady = data.recall_evidence_state === "EVIDENCE_READY";
+        if (data.experiment_ready || (writeReady && recallReady && state === "EVIDENCE_READY")) {
+          return {state: "EVIDENCE READY", message: "EXPERIMENT READY. WRITE READY and RECALL READY. Both run.ids returned at least one Splunk event. That is not SAFE and not a control verdict."};
+        }
+        if (writeReady && !recallReady) {
+          return {state: "WAITING FOR SPLUNK", message: "WRITE READY. RECALL is not yet searchable. The experiment is not EVIDENCE READY."};
+        }
+        if (recallReady && !writeReady) {
+          return {state: "WAITING FOR SPLUNK", message: "RECALL READY. WRITE is not yet searchable. The experiment is not EVIDENCE READY."};
+        }
+        if (state === "WAITING_FOR_EVIDENCE" || lifecycle.indexOf("WAITING_FOR_EVIDENCE") >= 0) {
+          return {state: "WAITING FOR SPLUNK", message: "WAITING FOR SPLUNK. Write and recall telemetry may have been sent. HEC success is not searchable evidence."};
+        }
+      }
       if (state === "EVIDENCE_READY") {
         return {state: "EVIDENCE READY", message: "EVIDENCE READY. Splunk returned at least one event for this run.id. That is not SAFE and not a control verdict."};
       }
@@ -267,6 +486,79 @@
         if (data.experiment_id) {
           addFact(items, "Experiment", true, String(data.experiment_id) + " (server-owned)");
         }
+        if (data.retrieve_run_id) {
+          addFact(items, "RETRIEVE RUN", true, String(data.retrieve_run_id));
+        }
+        if (data.document_id) {
+          addFact(items, "document.id", true, String(data.document_id));
+        }
+        if (data.write_run_id) {
+          addFact(items, "WRITE RUN", true, String(data.write_run_id));
+        }
+        if (data.recall_run_id) {
+          addFact(items, "RECALL RUN", true, String(data.recall_run_id));
+        }
+        if (data.memory_id) {
+          addFact(items, "memory.id", true, String(data.memory_id));
+        }
+        if (data.retrieve_evidence_state) {
+          addFact(items, "RETRIEVE EVIDENCE", true, String(data.retrieve_evidence_state));
+        }
+        if (data.write_evidence_state) {
+          addFact(items, "WRITE EVIDENCE", true, String(data.write_evidence_state));
+        }
+        if (data.recall_evidence_state) {
+          addFact(items, "RECALL EVIDENCE", true, String(data.recall_evidence_state));
+        }
+        if (data.experiment_ready === true) {
+          addFact(items, "EXPERIMENT READY", true, "Both WRITE and RECALL are searchable. Not SAFE.");
+        }
+        if (runtime.goal_control_decision) {
+          addFact(items, "GOAL INTEGRITY", true, String(runtime.goal_control_decision) + " " + String(runtime.goal_control_reason || "") + ". This is not the MCP tool PDP.");
+        }
+        if (runtime.proposed_action) {
+          addFact(items, "PROPOSED ACTION", true, String(runtime.proposed_action) + ". Proposal is not authorization.");
+        }
+        if (runtime.effective_action) {
+          addFact(items, "EFFECTIVE ACTION", true, String(runtime.effective_action));
+        }
+        if (runtime.identity_control_decision) {
+          addFact(items, "PRINCIPAL", true, String(runtime.principal_id || "") + ". Identifier, not authentication.");
+          addFact(items, "CALLER", true, String(runtime.caller_agent_id || "") + ". Identifier, not a grant.");
+          addFact(items, "CALLEE", true, String(runtime.callee_agent_id || "") + ". Identifier, not a grant.");
+          addFact(items, "WHO AUTHENTICATED", true, String(runtime.who_authenticated || "NOT PROVEN / NOT MODELED"));
+          addFact(items, "IDENTITY CONTROL", true, "CTRL-IDENTITY-001 " + String(runtime.identity_control_decision) + " " + String(runtime.identity_control_reason || "") + ". OBSERVE is not ALLOW.");
+          if (runtime.claim_trust) {
+            addFact(items, "CLAIM TRUST", true, String(runtime.claim_trust) + ". Classification, not malice and not a grant.");
+          }
+          if (runtime.request_fingerprint) {
+            addFact(items, "REQUEST FINGERPRINT", true, String(runtime.request_fingerprint));
+          }
+          if (runtime.lookup_customer_tier_handler_count !== undefined && runtime.lookup_customer_tier_handler_count !== null) {
+            addFact(items, "lookup_customer_tier HANDLER", true, String(runtime.lookup_customer_tier_handler_count) + ". ALLOW is not execution. Runtime count is authoritative.");
+          }
+          if (runtime.lookup_policy_handler_count !== undefined && runtime.lookup_policy_handler_count !== null) {
+            addFact(items, "lookup_policy HANDLER", true, String(runtime.lookup_policy_handler_count));
+          }
+        }
+        if (runtime.follow_on_decision) {
+          const mcpNote = runtime.identity_control_decision
+            ? ". IDENTITY OBSERVE is not ALLOW. ALLOW is not execution. CTRL-MCP-001 is the tool PDP."
+            : (runtime.goal_control_decision ? ". ALLOW is not goal authorization." : ". ALLOW is not execution.");
+          addFact(items, "MCP TOOL DECISION", true, String(runtime.follow_on_decision) + " " + String(runtime.follow_on_reason || "") + mcpNote);
+        }
+        if (runtime.wrong_goal_lookup_policy_count !== undefined && runtime.wrong_goal_lookup_policy_count !== null) {
+          addFact(items, "WRONG-GOAL HANDLER", true, String(runtime.wrong_goal_lookup_policy_count) + ". ALLOW is not execution.");
+        }
+        if (runtime.in_task_lookup_policy_count !== undefined && runtime.in_task_lookup_policy_count !== null) {
+          addFact(items, "IN-TASK HANDLER", true, String(runtime.in_task_lookup_policy_count));
+        }
+        if (runtime.task_fingerprint) {
+          addFact(items, "TASK FINGERPRINT", true, String(runtime.task_fingerprint));
+        }
+        if (runtime.instruction_hash) {
+          addFact(items, "INSTRUCTION FINGERPRINT", true, String(runtime.instruction_hash));
+        }
       }
       factsEl.replaceChildren();
       if (!items.length) {
@@ -332,6 +624,29 @@
         sameOrDifferent(attack.profile, retest.profile),
         String(attack.profile) + " / " + String(attack.experiment_id) + " vs " + String(retest.profile) + " / " + String(retest.experiment_id)
       );
+      const aRt = attack.runtime || {};
+      const rRt = retest.runtime || {};
+      if (aRt.identity_control_decision || rRt.identity_control_decision) {
+        row("PRINCIPAL", sameOrDifferent(aRt.principal_id, rRt.principal_id), String(aRt.principal_id) + " vs " + String(rRt.principal_id) + ". Identifier, not authentication.");
+        row("CALLER", sameOrDifferent(aRt.caller_agent_id, rRt.caller_agent_id), String(aRt.caller_agent_id) + " vs " + String(rRt.caller_agent_id) + ". Identifier, not a grant.");
+        row("CALLEE", sameOrDifferent(aRt.callee_agent_id, rRt.callee_agent_id), String(aRt.callee_agent_id) + " vs " + String(rRt.callee_agent_id) + ". Identifier, not a grant.");
+        row("DELEGATION CLAIM / FINGERPRINT", sameOrDifferent(aRt.request_fingerprint || attack.input_fingerprint, rRt.request_fingerprint || retest.input_fingerprint), String(aRt.request_fingerprint || attack.input_fingerprint || "") + " vs " + String(rRt.request_fingerprint || retest.input_fingerprint || ""));
+        row("WHO AUTHENTICATED", "SAME", "NOT PROVEN / NOT MODELED on both runs. Caller id is not OAuth, OIDC, JWT, or SPIFFE.");
+        row("IDENTITY CONTROL", sameOrDifferent(aRt.identity_control_decision, rRt.identity_control_decision), String(aRt.identity_control_decision) + " vs " + String(rRt.identity_control_decision) + ". OBSERVE is not ALLOW.");
+        row("MCP TOOL", "SAME", "lookup_customer_tier requested. CTRL-MCP-001 is the tool PDP.");
+        row("MCP DECISION", sameOrDifferent(aRt.follow_on_decision, rRt.follow_on_decision), String(aRt.follow_on_decision) + " vs " + String(rRt.follow_on_decision) + ". IDENTITY OBSERVE is not the tool grant.");
+        row("lookup_customer_tier HANDLER", sameOrDifferent(aRt.lookup_customer_tier_handler_count, rRt.lookup_customer_tier_handler_count), String(aRt.lookup_customer_tier_handler_count) + " vs " + String(rRt.lookup_customer_tier_handler_count) + ". Runtime count is authoritative.");
+      } else if (aRt.goal_control_decision || rRt.goal_control_decision) {
+        row("TASK FINGERPRINT", sameOrDifferent(aRt.task_fingerprint, rRt.task_fingerprint), String(aRt.task_fingerprint || "") + " vs " + String(rRt.task_fingerprint || ""));
+        row("INSTRUCTION FINGERPRINT", sameOrDifferent(aRt.instruction_hash || attack.input_fingerprint, rRt.instruction_hash || retest.input_fingerprint), String(aRt.instruction_hash || attack.input_fingerprint || "") + " vs " + String(rRt.instruction_hash || retest.input_fingerprint || ""));
+        row("PROPOSED GOAL", sameOrDifferent(aRt.proposed_action, rRt.proposed_action), String(aRt.proposed_action) + " vs " + String(rRt.proposed_action));
+        row("GOAL INTEGRITY", sameOrDifferent(aRt.goal_control_decision, rRt.goal_control_decision), String(aRt.goal_control_decision) + " vs " + String(rRt.goal_control_decision));
+        row("MCP TOOL", "SAME", "lookup_policy. CTRL-MCP-001 is the tool PDP on both runs.");
+        row("MCP DECISION", sameOrDifferent(aRt.follow_on_decision, rRt.follow_on_decision), String(aRt.follow_on_decision) + " vs " + String(rRt.follow_on_decision) + ". ALLOW is not goal authorization.");
+        row("EFFECTIVE ACTION", sameOrDifferent(aRt.effective_action, rRt.effective_action), String(aRt.effective_action) + " vs " + String(rRt.effective_action));
+        row("WRONG-GOAL HANDLER", sameOrDifferent(aRt.wrong_goal_lookup_policy_count, rRt.wrong_goal_lookup_policy_count), String(aRt.wrong_goal_lookup_policy_count) + " vs " + String(rRt.wrong_goal_lookup_policy_count));
+        row("IN-TASK HANDLER", sameOrDifferent(aRt.in_task_lookup_policy_count, rRt.in_task_lookup_policy_count), String(aRt.in_task_lookup_policy_count) + " vs " + String(rRt.in_task_lookup_policy_count));
+      } else {
       row("CONTROL", "SAME", "CTRL-INPUT-001 evaluates both. Splunk does not.");
       row(
         "DECISION",
@@ -354,12 +669,42 @@
         sameOrDifferent(attack.runtime && attack.runtime.terminal, retest.runtime && retest.runtime.terminal),
         String(attack.runtime && attack.runtime.terminal) + " vs " + String(retest.runtime && retest.runtime.terminal)
       );
+      }
       row("run.id", "DIFFERENT", String(attack.run_id) + " vs " + String(retest.run_id));
+      if (attack.retrieve_run_id && retest.retrieve_run_id) {
+        row("document.id", sameOrDifferent(attack.document_id, retest.document_id), String(attack.document_id) + " vs " + String(retest.document_id));
+        row("RETRIEVE run.id", "DIFFERENT", String(attack.retrieve_run_id) + " vs " + String(retest.retrieve_run_id));
+      }
+      if (attack.write_run_id && retest.write_run_id) {
+        row("memory.id", sameOrDifferent(attack.memory_id, retest.memory_id), String(attack.memory_id) + " vs " + String(retest.memory_id));
+        row("WRITE run.id", "DIFFERENT", String(attack.write_run_id) + " vs " + String(retest.write_run_id));
+        row("RECALL run.id", "DIFFERENT", String(attack.recall_run_id) + " vs " + String(retest.recall_run_id));
+        const aFollow = attack.runtime && attack.runtime.follow_on_decision;
+        const rFollow = retest.runtime && retest.runtime.follow_on_decision;
+        row("FOLLOW-ON AUTHORIZATION", sameOrDifferent(aFollow, rFollow), String(aFollow) + " vs " + String(rFollow));
+        row(
+          "HANDLER COUNT",
+          sameOrDifferent(attack.runtime && attack.runtime.lookup_customer_tier_handler_count, retest.runtime && retest.runtime.lookup_customer_tier_handler_count),
+          String(attack.runtime && attack.runtime.lookup_customer_tier_handler_count) + " vs " + String(retest.runtime && retest.runtime.lookup_customer_tier_handler_count)
+        );
+      }
       const li = document.createElement("li");
       const strong = document.createElement("strong");
       strong.textContent = "WHAT CHANGED?";
       li.appendChild(strong);
-      li.appendChild(document.createTextNode(" — The adversarial input did not change. The server-owned defense configuration changed. The control decision and execution outcome changed. Splunk observed the difference. Splunk did not cause it."));
+      let changed;
+      if (attack.retrieve_run_id && retest.retrieve_run_id) {
+        changed = " — SAME ADVERSARIAL INFLUENCE. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION. Retrieved bytes, content.hash, and memory trust stayed the same. Server-owned ExperimentContext changed. Splunk observed the difference. Splunk did not cause it.";
+      } else if (attack.write_run_id && retest.write_run_id) {
+        changed = " — SAME MEMORY. SAME REQUEST. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION. The malicious bytes did not change. Server-owned ExperimentContext changed. Splunk observed the difference. Splunk did not cause it.";
+      } else if (attack.runtime && attack.runtime.identity_control_decision) {
+        changed = " — SAME IDENTITY CLAIM. SAME DELEGATION CLAIM. SAME PRIVILEGED REQUEST. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION. CTRL-IDENTITY-001 still OBSERVEd. CTRL-MCP-001 changed. Splunk observed the difference. Splunk did not cause it. WHO AUTHENTICATED remains NOT PROVEN.";
+      } else if (attack.runtime && attack.runtime.goal_control_decision) {
+        changed = " — SAME TASK. SAME MALICIOUS INSTRUCTION. SAME PROPOSED GOAL. SAME AUTHORIZED TOOL. DIFFERENT GOAL-INTEGRITY DECISION. DIFFERENT EFFECTIVE ACTION. MCP ALLOW did not authorize the goal. Splunk observed the difference. Splunk did not cause it.";
+      } else {
+        changed = " — The adversarial input did not change. The server-owned defense configuration changed. The control decision and execution outcome changed. Splunk observed the difference. Splunk did not cause it.";
+      }
+      li.appendChild(document.createTextNode(changed));
       compareEl.appendChild(li);
     }
 
@@ -432,14 +777,56 @@
           lastByMode[mode] = data;
           if (mode === "ATTACK") {
             ui.fillRunId(attackRunInput, data.run_id);
+            if (attackWriteInput && data.write_run_id) {
+              ui.fillRunId(attackWriteInput, data.write_run_id);
+            }
+            if (attackRecallInput && data.recall_run_id) {
+              ui.fillRunId(attackRecallInput, data.recall_run_id);
+            }
+            if (attackRetrieveInput && data.retrieve_run_id) {
+              ui.fillRunId(attackRetrieveInput, data.retrieve_run_id);
+            }
             if (data.search_handoff && data.search_handoff.search_url) {
               openAttackSearch.href = data.search_handoff.search_url;
+            }
+            const openAt = document.getElementById("open-attack-retrieve-search");
+            const openAw = document.getElementById("open-attack-write-search");
+            const openAr = document.getElementById("open-attack-recall-search");
+            if (openAt && data.search_handoff && data.search_handoff.retrieve_search_url) {
+              openAt.href = data.search_handoff.retrieve_search_url;
+            }
+            if (openAw && data.search_handoff && data.search_handoff.write_search_url) {
+              openAw.href = data.search_handoff.write_search_url;
+            }
+            if (openAr && data.search_handoff && data.search_handoff.recall_search_url) {
+              openAr.href = data.search_handoff.recall_search_url;
             }
           }
           if (mode === "RETEST") {
             ui.fillRunId(retestRunInput, data.run_id);
+            if (retestWriteInput && data.write_run_id) {
+              ui.fillRunId(retestWriteInput, data.write_run_id);
+            }
+            if (retestRecallInput && data.recall_run_id) {
+              ui.fillRunId(retestRecallInput, data.recall_run_id);
+            }
+            if (retestRetrieveInput && data.retrieve_run_id) {
+              ui.fillRunId(retestRetrieveInput, data.retrieve_run_id);
+            }
             if (data.search_handoff && data.search_handoff.search_url) {
               openRetestSearch.href = data.search_handoff.search_url;
+            }
+            const openRt = document.getElementById("open-retest-retrieve-search");
+            const openRw = document.getElementById("open-retest-write-search");
+            const openRr = document.getElementById("open-retest-recall-search");
+            if (openRt && data.search_handoff && data.search_handoff.retrieve_search_url) {
+              openRt.href = data.search_handoff.retrieve_search_url;
+            }
+            if (openRw && data.search_handoff && data.search_handoff.write_search_url) {
+              openRw.href = data.search_handoff.write_search_url;
+            }
+            if (openRr && data.search_handoff && data.search_handoff.recall_search_url) {
+              openRr.href = data.search_handoff.recall_search_url;
             }
           }
         }

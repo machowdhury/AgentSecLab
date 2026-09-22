@@ -237,7 +237,7 @@ def solution_md(inv: dict, number: int, spl_file: str) -> str:
     return f"""
 # Solution — Investigation {number} {inv["title"]}
 
-This is **Path B**. Path A remains Search with your LIVE run.id.
+This is **Path B — show solution**. Open it only after you tried Path A in Search. It is an answer key, not policy. Splunk does not enforce. Path A remains Search with your LIVE run.id.
 
 **SOLUTION SPL** (`{hunt}`)
 
@@ -742,7 +742,7 @@ Two paths. Path A is the default. Path B is an answer key, not a replacement.
 
 **Path A — Try it yourself:** question, starter guidance, [Open Splunk Search]({SEARCH_URL}). Construct the hunt.
 
-**Path B — Show solution:** copyable SPL from existing Q-MCP hunts, bound REPLAY table, explanation, limitations. Scroll past Hint 1 / Hint 2 when you are ready.
+**Path B — Show solution (optional):** copyable SPL from existing Q-MCP hunts, bound REPLAY table, explanation, limitations. Open it only after Path A. It is an answer key, not policy.
 
 Investigate specimen is canonical **REPLAY**. Fresh LIVE run.id comes from Attack Service Search handoff. Studio tokens are not auto-bound.
 
@@ -852,7 +852,7 @@ Right table: `DET-MCP-001-POSITIVE-CONTROL` — **SIMULATED** `| makeresults` (D
         """
 # DEFEND
 
-**Control:** CTRL-MCP-001 (`src/agentsec/mcp/authorize.py`). Type `mcp_allowlist`.
+**Control:** CTRL-MCP-001 (the tool PDP). Type `mcp_allowlist`.
 
 **Where it executes:** MCP server, **before** the tool handler.
 
@@ -1033,7 +1033,7 @@ Core lesson: same known-ungranted request. Vulnerable → labeled fail-open ALLO
 Five layers. Never merge them into one evidence claim. Never a single PROVEN tile from index presence.
 
 1. **Runtime (authoritative).** Did the handler run? `ToolRegistry` / `handler_invoke_count`. Splunk does not decide this.
-2. **Local evidence.** `artifacts/<run-id>/events.jsonl` sequence and event contract.
+2. **Local evidence.** The local evidence pack for that run (event sequence and event contract).
 3. **OTLP export.** `export.json` — telemetry was emitted. `otlp.ok` is not Splunk success. Packs keep `splunk.verified=false` until a search ran.
 4. **Splunk indexed.** A copy arrived. Completeness is local count vs `dc(_raw)` for that `run.id`.
 5. **SPL query result.** Analytical interpretation of that copy (Q-MCP-*). Zero rows follow Phase 3C no-data semantics.
@@ -1044,7 +1044,7 @@ States: COMPLETE / PARTIAL / FAILED / NOT VERIFIED per layer.
 
 ## Knowledge check (not scored)
 
-Questions live in `learning/level_1/LAB-MCP-001/knowledge-check.md`. Sample:
+Questions on this tab. Sample:
 
 - Why is `lookup_customer_tier` DENY instead of ERROR?
 - Why is an unknown tool ERROR?
@@ -1055,6 +1055,12 @@ Questions live in `learning/level_1/LAB-MCP-001/knowledge-check.md`. Sample:
 - Why are MCP tool results `untrusted_data`?
 
 ## Connect the concepts
+
+**YOU JUST LEARNED** — REQUEST != GRANT. CTRL-MCP-001 is the tool PDP. ALLOW is not execution.
+
+**THIS CONNECTS TO** — grant anatomy (scope and resource, REPLAY) and later retrieved context, which can influence a request without minting a grant.
+
+**NEXT** — Scope Escalation (REPLAY) if you need tool+scope, then RAG / Retrieved Context (LIVE).
 
 This lab placed the trust boundary at **tool authorization**. Other AgentSec labs place it elsewhere. The chain stays the same:
 

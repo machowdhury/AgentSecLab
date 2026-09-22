@@ -84,6 +84,9 @@ class GoalIntegrityResult:
     check_use_consistent: bool
     server_owned_allowed_tools: str
     error_stage: str | None = None
+    experiment_id: str | None = None
+    input_fingerprint: str | None = None
+    instruction_id: str | None = None
 
 
 def _duration_ms(started: float) -> int:
@@ -149,6 +152,10 @@ def run_goal_integrity(
     write_evidence: bool = True,
     frozen_task: TaskContract | None = None,
     frozen_change: ProposedTaskChange | None = None,
+    attack_id: str | None = None,
+    experiment_id: str | None = None,
+    input_fingerprint: str | None = None,
+    instruction_id: str | None = None,
 ) -> GoalIntegrityResult:
     settings = settings or get_settings()
     registry = registry or default_registry()
@@ -166,10 +173,11 @@ def run_goal_integrity(
             parse_stage = parsed.error_stage
 
     principal = change.principal_id if change is not None else "unknown"
+    resolved_attack_id = attack_id or GOAL_ATTACK_ID
     ctx = RunContext.mint(
         user_id=principal,
         testbed_mode=testbed_mode,
-        attack_id=GOAL_ATTACK_ID,
+        attack_id=resolved_attack_id,
         workflow_entry=GOAL_WORKFLOW_ENTRY,
         workflow_name=GOAL_WORKFLOW_NAME,
     )
@@ -280,7 +288,6 @@ def run_goal_integrity(
     policy = goal_agent_policy()
     server = McpServer(registry=registry, policy=policy, authorize_fn=authorize_fn)
     client = McpClient()
-    counts_before_by_tool = dict(registry.invoke_counts)
     overlay = None
     overlay_applied = False
     follow_on_decision = None
@@ -305,7 +312,6 @@ def run_goal_integrity(
             task=task,
             change=change,
             action=action,
-            counts_before_by_tool=counts_before_by_tool,
         )
         hops.append(hop)
         follow_on_decision = hop.control_decision
@@ -315,9 +321,10 @@ def run_goal_integrity(
         )
         policy_unchanged_by_goal_instruction(policy, change)
 
-    lookup_policy_count = registry.invoke_counts.get("lookup_policy", 0) - counts_before_by_tool.get(
-        "lookup_policy", 0
-    )
+    lookup_policy_count = 0
+    follow_hop = hops[-1] if hops and hops[-1].index == 1 else None
+    if follow_hop is not None and follow_hop.handler_invoked and follow_hop.tool_name == "lookup_policy":
+        lookup_policy_count = 1
     wrong_goal_count = 0
     in_task_count = 0
     if lookup_policy_count > 0 and action == CLOSED_EXPANSION_ACTION:
@@ -431,7 +438,7 @@ def run_goal_integrity(
         evidence_dir=evidence_dir,
         expected_behavior=expected,
         actual_behavior=actual,
-        attack_id=GOAL_ATTACK_ID,
+        attack_id=resolved_attack_id,
         goal_control_decision=goal.decision,
         goal_control_reason=goal.reason,
         instruction_trust=INSTRUCTION_TRUST,
@@ -452,6 +459,9 @@ def run_goal_integrity(
         check_use_consistent=check_use_consistent,
         server_owned_allowed_tools=",".join(sorted(policy.allowed_tools)),
         error_stage=goal.error_stage,
+        experiment_id=experiment_id,
+        input_fingerprint=input_fingerprint,
+        instruction_id=instruction_id,
     )
 
 
@@ -465,7 +475,6 @@ def _run_follow_on(
     task: TaskContract,
     change: ProposedTaskChange,
     action: str,
-    counts_before_by_tool: dict[str, int],
 ) -> McpHop:
     hop_started_at = time.monotonic()
     hop_span_id = new_span_id()
@@ -605,9 +614,6 @@ def _run_follow_on(
         duration_ms=_duration_ms(hop_started_at),
         delegator_agent_id=ORCHESTRATOR_AGENT_ID,
     )
-    invoked = registry.invoke_counts.get(change.resulting_tool, 0) > counts_before_by_tool.get(
-        change.resulting_tool, 0
-    )
     return McpHop(
         index=1,
         agent_id=GOAL_AGENT_ID,
@@ -625,7 +631,7 @@ def _run_follow_on(
         mcp_failed=mcp_failed,
         span_id=hop_span_id,
         delegator_agent_id=ORCHESTRATOR_AGENT_ID,
-        handler_invoked=invoked,
+        handler_invoked=executed,
         tool_name=decision.tool_name or change.resulting_tool,
         response=payload,
         mcp_error=mcp_error,
@@ -712,3 +718,160 @@ def write_goal_specimen_pack(
         encoding="utf-8",
     )
     return root
+
+
+def run_goal_schema_failure(
+    *,
+    sink: EventSink,
+    memory: MemorySink,
+    settings: Settings,
+    user_id: str,
+    testbed_mode: str,
+    attack_id: str = GOAL_ATTACK_ID,
+    error_reason: str,
+    extra_fields: tuple[str, ...] = (),
+    write_evidence: bool = True,
+    experiment_id: str | None = None,
+) -> GoalIntegrityResult:
+    ctx = RunContext.mint(
+        user_id=user_id,
+        testbed_mode=testbed_mode,
+        attack_id=attack_id,
+        workflow_entry=GOAL_WORKFLOW_ENTRY,
+        workflow_name=GOAL_WORKFLOW_NAME,
+    )
+    emitter = EventEmitter(ctx, sink.emit, settings)
+    emitter.run_started()
+    message = error_reason
+    if extra_fields:
+        message = f"{error_reason}:{','.join(extra_fields)}"
+    emitter.run_failed(
+        error_type=error_reason,
+        error_stage="schema_validation",
+        error_message=message,
+    )
+    task = authoritative_task_contract()
+    policy = goal_agent_policy()
+    actual = f"schema_validation ERROR ({error_reason}); handler_invokes=0"
+    events = [event for event in memory.events if event.get("agentsec.run.id") == str(ctx.run_id)]
+    export_report = flush_export(sink)
+    evidence_dir = None
+    if write_evidence:
+        bundle = write_evidence_bundle(
+            run_id=str(ctx.run_id),
+            incident_id=ctx.incident_id,
+            settings=settings,
+            events=events,
+            user_input="",
+            hops=[],
+            testbed_mode=testbed_mode,
+            attack_id=attack_id,
+            expected_behavior="ERROR before goal hop; handler never invoked",
+            actual_behavior=actual,
+            llm_call_count=0,
+            blocked=True,
+            terminal="run_failed",
+            export_report=export_report,
+            extra_manifest={"workflow.entry": GOAL_WORKFLOW_ENTRY, "mcp.handler.invoked.count": 0},
+            limitations_items=[
+                "Unknown HTTP fields cannot set identity, grants, profile, task, or control decision.",
+                "Runtime never sets splunk.verified.",
+            ],
+        )
+        evidence_dir = str(bundle)
+    return GoalIntegrityResult(
+        run_id=str(ctx.run_id),
+        incident_id=ctx.incident_id,
+        testbed_mode=testbed_mode,
+        execution_mode=EXECUTION_MODE,
+        telemetry_fidelity=TELEMETRY_FIDELITY,
+        profile=settings.security_profile,
+        blocked=True,
+        block_reason=error_reason,
+        terminal="run_failed",
+        hops=[],
+        events=events,
+        evidence_dir=evidence_dir,
+        expected_behavior="ERROR before goal hop; handler never invoked",
+        actual_behavior=actual,
+        attack_id=attack_id,
+        goal_control_decision="ERROR",
+        goal_control_reason=error_reason,
+        instruction_trust=None,
+        follow_on_decision=None,
+        follow_on_reason=None,
+        frozen_task=task,
+        frozen_change=None,
+        task_fingerprint=task.fingerprint,
+        instruction_hash=None,
+        proposed_fingerprint=None,
+        proposed_action=None,
+        effective_action=None,
+        overlay_applied=False,
+        overlay_run_id=None,
+        lookup_policy_handler_count=0,
+        in_task_lookup_policy_count=0,
+        wrong_goal_lookup_policy_count=0,
+        check_use_consistent=True,
+        server_owned_allowed_tools=",".join(sorted(policy.allowed_tools)),
+        error_stage="schema_validation",
+        experiment_id=experiment_id,
+    )
+
+
+def goal_result_to_dict(result: GoalIntegrityResult) -> dict[str, Any]:
+    return {
+        "run_id": result.run_id,
+        "incident_id": result.incident_id,
+        "testbed_mode": result.testbed_mode,
+        "execution_mode": result.execution_mode,
+        "telemetry_fidelity": result.telemetry_fidelity,
+        "profile": result.profile,
+        "blocked": result.blocked,
+        "block_reason": result.block_reason,
+        "terminal": result.terminal,
+        "expected_behavior": result.expected_behavior,
+        "actual_behavior": result.actual_behavior,
+        "attack_id": result.attack_id,
+        "evidence_dir": result.evidence_dir,
+        "schema_name": SCHEMA_NAME,
+        "schema_version": SCHEMA_VERSION,
+        "error_stage": result.error_stage,
+        "goal_control_decision": result.goal_control_decision,
+        "goal_control_reason": result.goal_control_reason,
+        "instruction_trust": result.instruction_trust,
+        "follow_on_decision": result.follow_on_decision,
+        "follow_on_reason": result.follow_on_reason,
+        "task_fingerprint": result.task_fingerprint,
+        "instruction_hash": result.instruction_hash,
+        "proposed_fingerprint": result.proposed_fingerprint,
+        "proposed_action": result.proposed_action,
+        "effective_action": result.effective_action,
+        "overlay_applied": result.overlay_applied,
+        "handler_invoke_count": result.lookup_policy_handler_count,
+        "lookup_policy_handler_count": result.lookup_policy_handler_count,
+        "in_task_lookup_policy_count": result.in_task_lookup_policy_count,
+        "wrong_goal_lookup_policy_count": result.wrong_goal_lookup_policy_count,
+        "check_use_consistent": result.check_use_consistent,
+        "server_owned_allowed_tools": result.server_owned_allowed_tools,
+        "experiment_id": result.experiment_id,
+        "input_fingerprint": result.input_fingerprint,
+        "instruction_id": result.instruction_id,
+        "hops": [
+            {
+                "hop.index": hop.index,
+                "agent_id": hop.agent_id,
+                "control.decision": hop.control_decision,
+                "control.reason": hop.control_reason,
+                "operation.attempted": hop.operation_attempted,
+                "operation.executed": hop.operation_executed,
+                "operation.outcome": hop.operation_outcome,
+                "mcp.started": hop.mcp_started,
+                "mcp.completed": hop.mcp_completed,
+                "mcp.failed": hop.mcp_failed,
+                "handler.invoked": hop.handler_invoked,
+                "tool.name": hop.tool_name,
+            }
+            for hop in result.hops
+        ],
+    }

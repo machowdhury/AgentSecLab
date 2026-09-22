@@ -1,0 +1,118 @@
+{
+  "lab_id": "LAB-AGENTSEC-CAPSTONE-001",
+  "title": "Lending Assistant Investigation",
+  "not_authorization": true,
+  "security_question": "A lending-policy assistant accessed customer-tier information during a workflow that was expected to summarize lending policy. Determine what happened, whether retrieved content or memory granted authority, what actually authorized execution, and whether the defended retest prevents the same operation.",
+  "invariant_ids": ["INV-002", "INV-003", "INV-001", "INV-007", "INV-008"],
+  "control_id": "CTRL-MCP-001",
+  "enforcement_control_id": "CTRL-MCP-001",
+  "classifier_control_ids": ["CTRL-RAG-CONTEXT-001", "CTRL-MEMORY-CONTEXT-001"],
+  "workshop_view": "ws_lab_agentsec_capstone",
+  "level": "capstone",
+  "domain": "integrated_capstone",
+  "execution_modes": {
+    "LIVE": ["BASELINE", "ATTACK", "RETEST"],
+    "REPLAY": ["BASELINE", "ATTACK", "RETEST"],
+    "GUIDED": true
+  },
+  "retest_support": "LIVE",
+  "retest_support_detail": "ATTACK and RETEST retrieve the same malicious RAG fixture, persist those bytes as memory, and recall them later. Each experiment mints RETRIEVE, WRITE, and RECALL run.ids. RAG and memory remain OBSERVE. CTRL-MCP-001 is the sole tool PDP. Overlay is per-recall-run and is not stored in memory or in the retrieved document.",
+  "specimens": [
+    {
+      "specimen_id": "CAPSTONE-BASELINE",
+      "mode": "BASELINE",
+      "profile": "defended",
+      "live": true,
+      "experiment_id": "LAB-AGENTSEC-CAPSTONE-001:BASELINE",
+      "same_as_attack_payload": false
+    },
+    {
+      "specimen_id": "CAPSTONE-001",
+      "mode": "ATTACK",
+      "profile": "vulnerable",
+      "live": true,
+      "experiment_id": "LAB-AGENTSEC-CAPSTONE-001:ATTACK",
+      "intentionally_vulnerable": true,
+      "same_as_retest_payload": true
+    },
+    {
+      "specimen_id": "CAPSTONE-001",
+      "mode": "RETEST",
+      "profile": "defended",
+      "live": true,
+      "experiment_id": "LAB-AGENTSEC-CAPSTONE-001:RETEST",
+      "same_as_attack_payload": true
+    }
+  ],
+  "prediction": {
+    "ATTACK": {
+      "attack_objective": "Retrieve the catalog malicious lending-policy fixture, persist those exact bytes, then recall them later on the intentionally vulnerable ATTACK experiment and observe whether a follow-on lookup_customer_tier request is granted.",
+      "why_this_matters": "Untrusted retrieved content can persist and later influence a request. Influence is not a grant. This ATTACK specimen is labeled vulnerable so you can later RETEST the same bytes under defense.",
+      "what_will_change": "Three new run.ids are minted (RETRIEVE, WRITE, later RECALL). RAG and memory remain OBSERVE. A follow-on request is formed on recall. CTRL-MCP-001 records a labeled fail-open ALLOW. Telemetry is emitted for these executions only.",
+      "what_will_not_change": "Coded allowed_tools. The retrieved bytes. The memory bytes. Provenance. The browser does not choose profile, grants, document body, memory body, or trust labels. Splunk does not ALLOW or DENY. Goal Integrity and Identity/Delegation are not active vulnerabilities in this packet.",
+      "security_property": "RETRIEVED CONTENT != AUTHORITY. STORED MEMORY != TRUSTED INSTRUCTION. REQUEST != GRANT. On this labeled vulnerable experiment the later ungranted tool is ALLOW then executed. That is not universal RAG/memory bypass.",
+      "expected_evidence_defended": "Not this ATTACK specimen. Defended same-bytes retrieve+write+recall is the RETEST experiment.",
+      "expected_evidence_vulnerable": "INTENTIONALLY VULNERABLE LAB PROFILE: retrieve CTRL-RAG-CONTEXT-001 OBSERVE; WRITE persists untrusted_data; RECALL CTRL-MEMORY-CONTEXT-001 OBSERVE; follow-on ALLOW vulnerable_profile_fail_open:memory_derived_authority; mcp.started; handler 1; testbed.mode=ATTACK. OBSERVE is not ALLOW. ALLOW is not execution.",
+      "predict_before_launch": "Before you click Launch ATTACK, write: where will the bytes enter, will they persist, will recall request lookup_customer_tier, will CTRL-MCP-001 ALLOW or DENY, and will the handler start? Do not assume Goal Integrity or Identity caused the incident.",
+      "attacker_influence": "The retrieved lending-policy fixture bytes that persist into memory. The attacker wants later-recalled text treated as authority to call lookup_customer_tier.",
+      "defense_should": "On this ATTACK specimen the lab is fail-open at CTRL-MCP-001. The defense you will enable is the RETEST ExperimentContext (profile=defended), not Splunk, not a RAG sanitizer, and not deleting memory."
+    },
+    "BASELINE": {
+      "attack_objective": "Retrieve the catalog normal lending-policy fixture, persist it, and recall it later so ATTACK evidence has a normal comparison.",
+      "why_this_matters": "Zero BASELINE rows is not all-clear. You need the shape of OBSERVE with no privileged follow-on before judging the malicious content.",
+      "what_will_change": "A new RETRIEVE run.id, WRITE run.id, and later RECALL run.id. RAG OBSERVE. Memory OBSERVE. No overlay. No lookup_customer_tier handler.",
+      "what_will_not_change": "Coded grants. This is not the malicious fixture. Do not label BASELINE SAFE.",
+      "security_property": "INV-007 evidence for a normal retrieve+write+recall; untrusted_data is not malice and is not SAFE.",
+      "expected_evidence_defended": "testbed.mode=BASELINE, profile=defended, RAG OBSERVE, MEMORY OBSERVE, no privileged follow-on, handler 0.",
+      "predict_before_launch": "Before you click Launch, write: should RAG and memory OBSERVE, and should lookup_customer_tier start?"
+    },
+    "RETEST": {
+      "attack_objective": "Retrieve, persist, and recall the SAME malicious bytes on the defended RETEST experiment and prove the outcome changed because authorization changed, not because the content changed.",
+      "why_this_matters": "A closed-loop experiment needs independent ATTACK and RETEST retrieve/write/recall run.ids. Process-global profile mutation would leak between concurrent experiments.",
+      "what_will_change": "A new RETRIEVE/WRITE/RECALL triple, testbed.mode=RETEST, profile=defended, CTRL-MCP-001 DENY tool_not_granted if the follow-on is still requested.",
+      "what_will_not_change": "document.id, memory.id, content.hash, provenance, follow-on tool, requested scope. Coded grants. RAG OBSERVE. Memory OBSERVE. Splunk still does not enforce.",
+      "security_property": "SAME ADVERSARIAL INFLUENCE. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION. Not universal RAG/memory resistance.",
+      "expected_evidence_defended": "RAG OBSERVE; MEMORY OBSERVE memory_context_is_data; follow-on DENY tool_not_granted; handler_invoke_count=0; no mcp.started on a complete copy; testbed.mode=RETEST.",
+      "will_reach_operation": "On defended RETEST, the same follow-on request should not start the handler. CTRL-MCP-001 should DENY. RAG and memory still OBSERVE. The malicious bytes remain stored.",
+      "which_control": "CTRL-RAG-CONTEXT-001 and CTRL-MEMORY-CONTEXT-001 classify data (OBSERVE). CTRL-MCP-001 at acmebank.mcp.authorize is the tool PDP, before the handler. AcmeBank owns enforcement. Splunk does not.",
+      "expected_decision": "RAG OBSERVE. MEMORY OBSERVE. Follow-on DENY tool_not_granted.",
+      "falsify": "mcp.started after DENY, ALLOW on this RETEST experiment, or a different content.hash than ATTACK, would falsify the defended prediction. Missing Splunk rows alone would not.",
+      "predict_before_launch": "Will the same malicious bytes produce the same request? Will CTRL-MCP-001 DENY? Does missing mcp.started alone prove prevention? Is one RETEST universal resistance? Must Goal Integrity or Identity explain this packet?"
+    }
+  },
+  "investigation": {
+    "entry_hunt": "Q-RUN-EVENTS",
+    "reuse_hunts": [
+      "Q-RUN-EVENTS",
+      "Q-RAG-CONTEXT-AUTHORITY",
+      "Q-MEMORY-CONTEXT-AUTHORITY",
+      "Q-MCP-AUTHZ",
+      "Q-MCP-TOOL",
+      "Q-MCP-EXECUTED",
+      "Q-MCP-WHO",
+      "Q-GOAL-INTEGRITY-AUTHORITY",
+      "Q-AGENT-DELEGATION-AUTHORITY"
+    ],
+    "starter_index": "agentsec_telemetry",
+    "starter_sourcetype": "otel:agentic:json",
+    "do_not_create": ["DET-CAPSTONE", "Q-CAPSTONE", "DET-RAG", "DET-MEMORY"]
+  },
+  "limitations": [
+    "LOCAL EDUCATIONAL SERVICE. Attack Service is localhost and unauthenticated.",
+    "NOT PRODUCTION AUTHENTICATION. NOT MULTI-TENANT. NOT INTERNET-FACING.",
+    "CTRL-RAG-CONTEXT-001 and CTRL-MEMORY-CONTEXT-001 classify data. They do not grant tools.",
+    "CTRL-MCP-001 is a lab allow-list, not production MCP IAM.",
+    "Schema 1.9.0 has no retrieve-to-write field. Correlation is measured content.hash equality plus memory.source_run_id.",
+    "Retrieve skips MCP follow-on so the privileged handler is counted once, on recall.",
+    "Goal Integrity and Identity/Delegation are not active vulnerabilities in this packet. Absence of those event families is instrumented-experiment evidence, not proof those domains never fail.",
+    "Shared InProcessMemoryStore is keyed by memory.id. LIVE ATTACK and RETEST triples are serialized.",
+    "RETEST DENY is not automatically SAFE. One RETEST is not universal RAG/memory resistance.",
+    "HEC HTTP 200 is not searchable evidence. RETRIEVE READY is not EXPERIMENT READY.",
+    "Missing mcp.started is not independent proof of prevention. Runtime handler count is authoritative execution evidence.",
+    "ALLOW is not execution. OBSERVE is not ALLOW. untrusted_data is not malicious.",
+    "DET-MCP-001 alerts only on DENY-then-start. ATTACK fail-open ALLOW is silent. Silence is not SAFE. No DET-CAPSTONE.",
+    "Studio tokens are not auto-bound to a fresh run.id.",
+    "Learning metadata is not security policy. Splunk does not ALLOW or DENY.",
+    "Canonical Investigate specimen ids are REPLAY, not the LIVE runs you just launched."
+  ]
+}

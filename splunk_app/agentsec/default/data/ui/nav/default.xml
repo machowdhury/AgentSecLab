@@ -1,23 +1,26 @@
 <nav search_view="search" color="0B1F33">
   <view name="ws_agentsec_home" default="true">Home</view>
-  <collection label="Attack Labs">
+  <collection label="Foundations">
     <view name="ws_lab_pi_001">Direct Prompt Injection</view>
     <view name="ws_lab_mcp_001">Tool Authorization</view>
     <view name="ws_lab_mcp_003">Scope Escalation</view>
     <view name="ws_lab_mcp_004">Parameter / Resource Authorization</view>
-    <view name="ws_lab_mcp_005">Tool Result Trust</view>
-    <view name="ws_lab_mcp_006">Confused Deputy</view>
-    <view name="ws_lab_mcp_catalog">Tool Catalog</view>
   </collection>
   <collection label="Context Security">
     <view name="ws_lab_rag_context">RAG / Retrieved Context</view>
     <view name="ws_lab_memory_security">Persistent Memory</view>
-  </collection>
-  <collection label="Agent Authority">
-    <view name="ws_lab_agent_goal_integrity">Goal / Instruction Integrity</view>
-  </collection>
-  <collection label="Supply Chain">
+    <view name="ws_lab_mcp_005">Tool Result Trust</view>
+    <view name="ws_lab_mcp_catalog">Tool Catalog</view>
     <view name="ws_lab_scanner_runtime_evidence">Scanner + Runtime Evidence</view>
   </collection>
+  <collection label="Agent Intent">
+    <view name="ws_lab_agent_goal_integrity">Goal / Instruction Integrity</view>
+    <view name="ws_lab_agent_delegation">Agent Identity / Delegation</view>
+    <view name="ws_lab_mcp_006">Confused Deputy</view>
+  </collection>
+  <collection label="Capstone">
+    <view name="ws_lab_agentsec_capstone">Lending Assistant Investigation</view>
+  </collection>
+  <view name="ws_agentsec_mastery">Mastery Check</view>
   <view name="search">Search</view>
 </nav>

@@ -75,6 +75,9 @@ class IdentityDelegationResult:
     principal_id: str
     error_stage: str | None = None
     check_use_consistent: bool = False
+    experiment_id: str | None = None
+    input_fingerprint: str | None = None
+    claim_id: str | None = None
 
 
 def _duration_ms(started: float) -> int:
@@ -130,6 +133,10 @@ def run_identity_delegation(
     authorize_fn: AuthorizeFn | None = None,
     write_evidence: bool = True,
     frozen_request: A2ADelegationRequest | None = None,
+    attack_id: str | None = None,
+    experiment_id: str | None = None,
+    input_fingerprint: str | None = None,
+    claim_id: str | None = None,
 ) -> IdentityDelegationResult:
     settings = settings or get_settings()
     registry = registry or default_registry()
@@ -147,10 +154,11 @@ def run_identity_delegation(
             if parsed.extra_fields and parsed.error_reason == "unknown_fields":
                 parse_error = f"{parsed.error_reason}:{','.join(parsed.extra_fields)}"
 
+    resolved_attack_id = attack_id or IDENTITY_ATTACK_ID
     ctx = RunContext.mint(
         user_id=request.principal_id if request is not None else "unknown",
         testbed_mode=testbed_mode,
-        attack_id=IDENTITY_ATTACK_ID,
+        attack_id=resolved_attack_id,
         workflow_entry=IDENTITY_WORKFLOW_ENTRY,
         workflow_name=IDENTITY_WORKFLOW_NAME,
     )
@@ -338,7 +346,7 @@ def run_identity_delegation(
             user_input=json.dumps(request_doc, sort_keys=True),
             hops=hops,
             testbed_mode=testbed_mode,
-            attack_id=IDENTITY_ATTACK_ID,
+            attack_id=resolved_attack_id,
             expected_behavior=expected,
             actual_behavior=actual,
             llm_call_count=0,
@@ -348,6 +356,8 @@ def run_identity_delegation(
             extra_manifest={
                 "workflow.entry": IDENTITY_WORKFLOW_ENTRY,
                 "schema.version": SCHEMA_VERSION,
+                "experiment.id": experiment_id,
+                "claim.id": claim_id,
                 "principal.id": request.principal_id if request is not None else None,
                 "identity.caller_agent_id": request.caller_agent_id if request is not None else None,
                 "identity.callee_agent_id": request.callee_agent_id if request is not None else None,
@@ -387,7 +397,7 @@ def run_identity_delegation(
                 "No HTTP A2A, OAuth, OIDC, JWT validation, SPIFFE/SPIRE, or Agent Card service in this slice.",
                 "splunk.verified=false. Splunk is not verified in this runtime slice. DET-MCP-001 is unchanged.",
                 "Schema 1.9.0 has no session.id, tenant.id, gen_ai.tool.call.id, or token fields.",
-                "No Splunk SPL, Dashboard Studio, DET-A2A, DET-DELEGATION, or live A2A transport in this slice.",
+                "Studio, if present, is REPLAY syllabus. LIVE investigation is Splunk Search. No DET-A2A.",
             ],
         )
         evidence_dir = str(bundle)
@@ -407,7 +417,7 @@ def run_identity_delegation(
         evidence_dir=evidence_dir,
         expected_behavior=expected,
         actual_behavior=actual,
-        attack_id=IDENTITY_ATTACK_ID,
+        attack_id=resolved_attack_id,
         identity_control_decision=identity.decision,
         identity_control_reason=identity.reason,
         claim_trust=identity.claim_trust,
@@ -425,6 +435,9 @@ def run_identity_delegation(
         principal_id=request.principal_id if request is not None else "unknown",
         error_stage=error_stage,
         check_use_consistent=check_use_consistent,
+        experiment_id=experiment_id,
+        input_fingerprint=input_fingerprint or (request.fingerprint if request is not None else None),
+        claim_id=claim_id,
     )
 
 
@@ -684,3 +697,158 @@ def write_identity_specimen_pack(
         encoding="utf-8",
     )
     return root
+
+
+def run_identity_schema_failure(
+    *,
+    sink: EventSink,
+    memory: MemorySink,
+    settings: Settings,
+    user_id: str,
+    testbed_mode: str,
+    attack_id: str = IDENTITY_ATTACK_ID,
+    error_reason: str,
+    extra_fields: tuple[str, ...] = (),
+    write_evidence: bool = True,
+    experiment_id: str | None = None,
+    claim_id: str | None = None,
+) -> IdentityDelegationResult:
+    ctx = RunContext.mint(
+        user_id=user_id,
+        testbed_mode=testbed_mode,
+        attack_id=attack_id,
+        workflow_entry=IDENTITY_WORKFLOW_ENTRY,
+        workflow_name=IDENTITY_WORKFLOW_NAME,
+    )
+    emitter = EventEmitter(ctx, sink.emit, settings)
+    emitter.run_started()
+    message = error_reason
+    if extra_fields:
+        message = f"{error_reason}:{','.join(extra_fields)}"
+    emitter.run_failed(
+        error_type=error_reason,
+        error_stage="schema_validation",
+        error_message=message,
+    )
+    policy = identity_agent_policy(CALLEE_AGENT_ID)
+    actual = f"schema_validation ERROR ({error_reason}); handler_invokes=0"
+    events = [event for event in memory.events if event.get("agentsec.run.id") == str(ctx.run_id)]
+    export_report = flush_export(sink)
+    evidence_dir = None
+    if write_evidence:
+        bundle = write_evidence_bundle(
+            run_id=str(ctx.run_id),
+            incident_id=ctx.incident_id,
+            settings=settings,
+            events=events,
+            user_input="",
+            hops=[],
+            testbed_mode=testbed_mode,
+            attack_id=attack_id,
+            expected_behavior="ERROR before identity hop; handler never invoked",
+            actual_behavior=actual,
+            llm_call_count=0,
+            blocked=True,
+            terminal="run_failed",
+            export_report=export_report,
+            extra_manifest={"workflow.entry": IDENTITY_WORKFLOW_ENTRY, "mcp.handler.invoked.count": 0},
+            limitations_items=[
+                "Unknown HTTP fields cannot set identity, grants, profile, or control decision.",
+                "WHO AUTHENTICATED is not modeled. Identity strings are attribution, not cryptographic proof.",
+                "Runtime never sets splunk.verified.",
+            ],
+        )
+        evidence_dir = str(bundle)
+    return IdentityDelegationResult(
+        run_id=str(ctx.run_id),
+        incident_id=ctx.incident_id,
+        testbed_mode=testbed_mode,
+        execution_mode=EXECUTION_MODE,
+        telemetry_fidelity=TELEMETRY_FIDELITY,
+        profile=settings.security_profile,
+        blocked=True,
+        block_reason=error_reason,
+        terminal="run_failed",
+        hops=[],
+        events=events,
+        evidence_dir=evidence_dir,
+        expected_behavior="ERROR before identity hop; handler never invoked",
+        actual_behavior=actual,
+        attack_id=attack_id,
+        identity_control_decision="ERROR",
+        identity_control_reason=error_reason,
+        claim_trust=None,
+        follow_on_decision=None,
+        follow_on_reason=None,
+        frozen_request=None,
+        request_fingerprint=None,
+        overlay_applied=False,
+        overlay_run_id=None,
+        lookup_policy_handler_count=0,
+        lookup_customer_tier_handler_count=0,
+        server_owned_allowed_tools=",".join(sorted(policy.allowed_tools)),
+        caller_agent_id=CALLER_AGENT_ID,
+        callee_agent_id=CALLEE_AGENT_ID,
+        principal_id=user_id,
+        error_stage="schema_validation",
+        check_use_consistent=True,
+        experiment_id=experiment_id,
+        claim_id=claim_id,
+    )
+
+
+def identity_result_to_dict(result: IdentityDelegationResult) -> dict[str, Any]:
+    return {
+        "run_id": result.run_id,
+        "incident_id": result.incident_id,
+        "testbed_mode": result.testbed_mode,
+        "execution_mode": result.execution_mode,
+        "telemetry_fidelity": result.telemetry_fidelity,
+        "profile": result.profile,
+        "blocked": result.blocked,
+        "block_reason": result.block_reason,
+        "terminal": result.terminal,
+        "expected_behavior": result.expected_behavior,
+        "actual_behavior": result.actual_behavior,
+        "attack_id": result.attack_id,
+        "evidence_dir": result.evidence_dir,
+        "schema_name": SCHEMA_NAME,
+        "schema_version": SCHEMA_VERSION,
+        "error_stage": result.error_stage,
+        "identity_control_decision": result.identity_control_decision,
+        "identity_control_reason": result.identity_control_reason,
+        "claim_trust": result.claim_trust,
+        "follow_on_decision": result.follow_on_decision,
+        "follow_on_reason": result.follow_on_reason,
+        "request_fingerprint": result.request_fingerprint,
+        "overlay_applied": result.overlay_applied,
+        "handler_invoke_count": result.lookup_policy_handler_count + result.lookup_customer_tier_handler_count,
+        "lookup_policy_handler_count": result.lookup_policy_handler_count,
+        "lookup_customer_tier_handler_count": result.lookup_customer_tier_handler_count,
+        "check_use_consistent": result.check_use_consistent,
+        "server_owned_allowed_tools": result.server_owned_allowed_tools,
+        "caller_agent_id": result.caller_agent_id,
+        "callee_agent_id": result.callee_agent_id,
+        "principal_id": result.principal_id,
+        "experiment_id": result.experiment_id,
+        "input_fingerprint": result.input_fingerprint,
+        "claim_id": result.claim_id,
+        "who_authenticated": "NOT PROVEN / NOT MODELED",
+        "hops": [
+            {
+                "hop.index": hop.index,
+                "agent_id": hop.agent_id,
+                "control.decision": hop.control_decision,
+                "control.reason": hop.control_reason,
+                "operation.attempted": hop.operation_attempted,
+                "operation.executed": hop.operation_executed,
+                "operation.outcome": hop.operation_outcome,
+                "mcp.started": hop.mcp_started,
+                "mcp.completed": hop.mcp_completed,
+                "mcp.failed": hop.mcp_failed,
+                "handler.invoked": hop.handler_invoked,
+                "tool.name": hop.tool_name,
+            }
+            for hop in result.hops
+        ],
+    }
