@@ -31,16 +31,10 @@ AUTHZ = ROOT / "src" / "agentsec" / "mcp" / "authorize.py"
 DET = SEARCH_DIR / "DET-MCP-001.spl"
 
 WORKSHOP_TABS = (
-    "LEARN",
-    "BASELINE",
-    "ATTACK",
-    "OBSERVE",
-    "HUNT",
-    "DETECT",
-    "DEFEND",
-    "RETEST",
-    "COMPARE",
-    "PROVE",
+    "MISSION",
+    "INVESTIGATE",
+    "EVIDENCE",
+    "PATH B · ANSWERS",
 )
 REQUIRED_TOKENS = ("run_id",)
 SPECIMEN_IDS = {
@@ -109,7 +103,7 @@ def test_files_and_nav_exist():
     assert "LAB-RAG-CONTEXT" in xml
 
 
-def test_ten_tabs_and_token_defaults():
+def test_workbench_tabs_and_token_defaults():
     definition = _definition()
     labels = [item["label"] for item in definition["layout"]["tabs"]["items"]]
     assert labels == list(WORKSHOP_TABS)
@@ -265,8 +259,11 @@ def test_path_a_path_b_and_live_vs_replay():
     assert "viz_i1_q" in definition["visualizations"]
     assert "viz_i1_h1" in definition["visualizations"]
     assert "viz_i1_sol" in definition["visualizations"]
-    hunt_layout = definition["layout"]["layoutDefinitions"]["layout_hunt"]
-    assert hunt_layout["options"]["display"] == "fit-to-width"
+    investigate_layout = definition["layout"]["layoutDefinitions"]["layout_investigate"]
+    assert investigate_layout["options"]["display"] == "fit-to-width"
+    assert "viz_workbench_investigate" in {
+        item["item"] for item in investigate_layout["structure"]
+    }
     assert "LIVE vs REPLAY" in blob or "LIVE vs REPLAY" in blob.replace("**", "")
     assert "REPLAY specimen" in blob
     assert "SAME RETRIEVED CONTENT. SAME REQUEST. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION." in blob

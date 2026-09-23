@@ -16,6 +16,20 @@ from agentsec.launch_catalog import RETEST_SUPPORT, allowlist_public_rows, known
 from agentsec.launch_contract import parse_launch_json
 from agentsec.launch_service import LaunchService, error_body
 from agentsec.mcp.policy import coded_policy
+from agentsec.memory.fixtures import (
+    CLOSED_FOLLOW_ON_SCOPE as MEMORY_FOLLOW_ON_SCOPE,
+    CLOSED_FOLLOW_ON_TOOL as MEMORY_FOLLOW_ON_TOOL,
+    MEMORY_ID_MALICIOUS,
+    MEMORY_TRUST_LABEL,
+    PROVENANCE as MEMORY_PROVENANCE,
+)
+from agentsec.rag.fixtures import (
+    CLOSED_FOLLOW_ON_SCOPE as RAG_FOLLOW_ON_SCOPE,
+    CLOSED_FOLLOW_ON_TOOL as RAG_FOLLOW_ON_TOOL,
+    CONTEXT_TRUST_LABEL,
+    DOCUMENT_ID_MALICIOUS,
+    PROVENANCE as RAG_PROVENANCE,
+)
 from agentsec.settings import get_settings
 
 logger = logging.getLogger("agentsec.attack")
@@ -170,6 +184,11 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
             }
         )
 
+    @app.get("/favicon.ico")
+    def favicon():
+        # The workbench has no product icon yet; avoid a noisy browser 4xx.
+        return "", 204
+
     @app.get("/")
     def index():
         return _lab_page("LAB-PI-001")
@@ -290,7 +309,62 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
                 "href": next_href,
             }
         mcp_policy = coded_policy()
-        template_name = "attack_mcp.html" if lab_id == LAB_MCP else "attack.html"
+        context_workbench = None
+        if lab_id == LAB_RAG:
+            context_workbench = {
+                "kind": "rag",
+                "title": "RAG / Retrieved Context",
+                "workshop_url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_rag_context",
+                "security_question": manifest.get("security_question"),
+                "attacker_influence": "Closed retrieved document bytes",
+                "artifact_label": "Retrieved document",
+                "artifact_id": DOCUMENT_ID_MALICIOUS,
+                "provenance": RAG_PROVENANCE,
+                "trust_label": CONTEXT_TRUST_LABEL,
+                "context_control": "CTRL-RAG-CONTEXT-001 · OBSERVE",
+                "enforcement_control": "CTRL-MCP-001 · tool PDP",
+                "follow_on_tool": RAG_FOLLOW_ON_TOOL,
+                "follow_on_scope": RAG_FOLLOW_ON_SCOPE,
+                "hunt_id": "Q-RAG-CONTEXT-AUTHORITY",
+                "expected_attack": "Context OBSERVE; labeled fail-open MCP ALLOW; handler 1",
+                "expected_retest": "Same bytes and request; MCP DENY tool_not_granted; handler 0",
+                "semantic_lines": (
+                    "RETRIEVED ≠ TRUSTED",
+                    "PROVENANCE ≠ AUTHORITY",
+                    "OBSERVE ≠ ALLOW",
+                    "ALLOW ≠ EXECUTION",
+                ),
+            }
+        elif lab_id == LAB_MEMORY:
+            context_workbench = {
+                "kind": "memory",
+                "title": "Persistent Memory",
+                "workshop_url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_memory_security",
+                "security_question": manifest.get("security_question"),
+                "attacker_influence": "Closed bytes persisted before a later recall",
+                "artifact_label": "Persisted memory",
+                "artifact_id": MEMORY_ID_MALICIOUS,
+                "provenance": MEMORY_PROVENANCE,
+                "trust_label": MEMORY_TRUST_LABEL,
+                "context_control": "CTRL-MEMORY-CONTEXT-001 · OBSERVE",
+                "enforcement_control": "CTRL-MCP-001 · tool PDP",
+                "follow_on_tool": MEMORY_FOLLOW_ON_TOOL,
+                "follow_on_scope": MEMORY_FOLLOW_ON_SCOPE,
+                "hunt_id": "Q-MEMORY-CONTEXT-AUTHORITY",
+                "expected_attack": "WRITE then RECALL; memory OBSERVE; MCP ALLOW; handler 1",
+                "expected_retest": "Same bytes and request; MCP DENY tool_not_granted; handler 0",
+                "semantic_lines": (
+                    "STORED ≠ TRUSTED",
+                    "RECALLED ≠ AUTHORIZED",
+                    "OBSERVE ≠ ALLOW",
+                    "ALLOW ≠ EXECUTION",
+                ),
+            }
+        template_name = (
+            "attack_mcp.html"
+            if lab_id == LAB_MCP
+            else ("attack_context.html" if context_workbench is not None else "attack.html")
+        )
         return render_template(
             template_name,
             attack=ATK_002,
@@ -324,6 +398,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
                 "allowed_tools": ", ".join(sorted(mcp_policy.allowed_tools)),
                 "allowed_scopes": ", ".join(sorted(mcp_policy.allowed_scopes)),
             },
+            context_workbench=context_workbench,
             is_memory_lab=lab_id == LAB_MEMORY,
             is_goal_lab=lab_id == LAB_GOAL,
             is_identity_lab=lab_id == LAB_IDENTITY,

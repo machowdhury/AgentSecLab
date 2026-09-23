@@ -1,0 +1,67 @@
+{
+  "url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_memory_security",
+  "tabs_found": [
+    "MISSION",
+    "INVESTIGATE",
+    "EVIDENCE",
+    "PATH B \u00b7 ANSWERS"
+  ],
+  "tabs_missing": [],
+  "tokens_found": [
+    "write_run_id",
+    "run_id"
+  ],
+  "tokens_missing": [],
+  "token_values": {
+    "write_run_id": "Baseline write \u2014 defended / normal",
+    "run_id": "Baseline recall \u2014 defended / normal"
+  },
+  "screenshots": [
+    "docs/screenshots/lab-memory-security/final_overview.png",
+    "docs/screenshots/lab-memory-security/final_mission.png",
+    "docs/screenshots/lab-memory-security/final_investigate.png",
+    "docs/screenshots/lab-memory-security/final_evidence.png",
+    "docs/screenshots/lab-memory-security/final_path_b_answers.png",
+    "docs/screenshots/lab-memory-security/final_w1920_mission.png",
+    "docs/screenshots/lab-memory-security/final_w1920_investigate.png",
+    "docs/screenshots/lab-memory-security/final_w1920_evidence.png",
+    "docs/screenshots/lab-memory-security/final_w1920_path_b_answers.png",
+    "docs/screenshots/lab-memory-security/final_w1280_mission.png",
+    "docs/screenshots/lab-memory-security/final_w1280_investigate.png",
+    "docs/screenshots/lab-memory-security/final_w1280_evidence.png",
+    "docs/screenshots/lab-memory-security/final_w1280_path_b_answers.png",
+    "docs/screenshots/lab-memory-security/final_w1024_mission.png",
+    "docs/screenshots/lab-memory-security/final_w1024_investigate.png",
+    "docs/screenshots/lab-memory-security/final_w1024_evidence.png",
+    "docs/screenshots/lab-memory-security/final_w1024_path_b_answers.png"
+  ],
+  "clipping_screenshots": [
+    "docs/screenshots/lab-memory-security/final_w1920_mission.png",
+    "docs/screenshots/lab-memory-security/final_w1920_investigate.png",
+    "docs/screenshots/lab-memory-security/final_w1920_evidence.png",
+    "docs/screenshots/lab-memory-security/final_w1920_path_b_answers.png",
+    "docs/screenshots/lab-memory-security/final_w1280_mission.png",
+    "docs/screenshots/lab-memory-security/final_w1280_investigate.png",
+    "docs/screenshots/lab-memory-security/final_w1280_evidence.png",
+    "docs/screenshots/lab-memory-security/final_w1280_path_b_answers.png",
+    "docs/screenshots/lab-memory-security/final_w1024_mission.png",
+    "docs/screenshots/lab-memory-security/final_w1024_investigate.png",
+    "docs/screenshots/lab-memory-security/final_w1024_evidence.png",
+    "docs/screenshots/lab-memory-security/final_w1024_path_b_answers.png"
+  ],
+  "label": "final",
+  "tabs_requested": [
+    "MISSION",
+    "INVESTIGATE",
+    "EVIDENCE",
+    "PATH B \u00b7 ANSWERS"
+  ],
+  "viewports": [
+    1920,
+    1440,
+    1280,
+    1024
+  ],
+  "http": {},
+  "attack_service": {}
+}

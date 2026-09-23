@@ -1276,6 +1276,95 @@ No DET-RAG. Schema 1.9.0 emitters. No embeddings. No A2A transport. No rug-pull.
         no_data=EMPTY_RAG,
     )
 
+    add_md(
+        "viz_workbench_mission",
+        f"""
+# MISSION · RETRIEVED CONTEXT
+
+## Can retrieved untrusted context influence agent behavior without becoming authority?
+
+**Specimen selector:** choose the server-owned run.id above. The canonical ATTACK and RETEST use the same malicious document bytes (`{MALICIOUS_HASH}`).
+
+**SOURCE → RETRIEVAL → CONTEXT → CTRL-RAG-CONTEXT-001 OBSERVE → AGENT EFFECT → CTRL-MCP-001 AUTHORIZATION → EXECUTION EVIDENCE**
+
+`RETRIEVED != TRUSTED` · `PROVENANCE != AUTHORITY` · `OBSERVE != ALLOW` · `ALLOW != EXECUTION`
+
+Attack Service launches. AcmeBank/runtime decides. Splunk investigates emitted evidence; it does not authorize or block the operation.
+""",
+        title="MISSION",
+    )
+    add_md(
+        "viz_workbench_investigate",
+        """
+# INVESTIGATE · PATH A
+
+## Question
+
+Where did the untrusted context enter, what effect followed, and did the requested tool actually execute?
+
+## Starting search
+
+```spl
+index=agentsec_telemetry run.id="$run_id$"
+```
+
+## Progressive hints
+
+1. Find the RAG retrieval and `rag.context.evaluated` evidence first.
+2. Distinguish the context control's OBSERVE from CTRL-MCP-001's authorization decision.
+3. Use `mcp.started`, `mcp.completed` / `mcp.failed`, and operation outcome together. A decision alone does not establish execution.
+
+Open Splunk Search when you are ready to modify the starting search. Path B contains the validated answer searches.
+""",
+        title="INVESTIGATE · PATH A",
+    )
+    add_md(
+        "viz_workbench_evidence",
+        """
+# EVIDENCE
+
+Read the selected run in order: **SOURCE → RETRIEVAL → CONTEXT → CONTROL → EFFECT → EXECUTION**.
+
+The RAG control classifies retrieved context as data and emits OBSERVE. It is not the tool PDP. CTRL-MCP-001 makes the later tool-authorization decision, and runtime MCP/operation events establish what executed.
+
+Splunk corroborates indexed runtime evidence. An empty table is missing evidence, not proof of prevention. Fingerprint equality applies only to the canonical retrieved document bytes.
+""",
+        title="EVIDENCE",
+    )
+
+    mission_ids = ["viz_workbench_mission"]
+    investigate_ids = ["viz_workbench_investigate"] + [
+        viz_id
+        for viz_id in visualizations
+        if viz_id.startswith("viz_i")
+        and (viz_id.endswith("_q") or viz_id.endswith("_h1") or viz_id.endswith("_h2"))
+    ]
+    evidence_ids = [
+        "viz_workbench_evidence",
+        "viz_observe_seq",
+        "viz_observe_rag",
+        "viz_observe_authz",
+        "viz_observe_exec",
+        "viz_cmp_card_atk",
+        "viz_cmp_card_rt",
+    ]
+    allocated = set(mission_ids + investigate_ids + evidence_ids)
+    answer_ids = [viz_id for viz_id in visualizations if viz_id not in allocated]
+
+    def stacked(ids: list[str], markdown_height: int = 420, table_height: int = 300) -> tuple[list[dict], int]:
+        structure: list[dict] = []
+        y = 0
+        for viz_id in ids:
+            height = markdown_height if visualizations[viz_id]["type"] == "splunk.markdown" else table_height
+            structure.append(block(viz_id, 0, y, FULL, height))
+            y += height
+        return structure, y + 20
+
+    mission_structure, mission_height = stacked(mission_ids, markdown_height=420)
+    investigate_structure, investigate_height = stacked(investigate_ids, markdown_height=330)
+    evidence_structure, evidence_height = stacked(evidence_ids, markdown_height=300)
+    answers_structure, answers_height = stacked(answer_ids, markdown_height=520)
+
     definition = {
         "title": "RAG / Retrieved Context",
         "description": (
@@ -1325,107 +1414,19 @@ No DET-RAG. Schema 1.9.0 emitters. No embeddings. No A2A transport. No rug-pull.
             "tabs": {
                 "options": {"barPosition": "top"},
                 "items": [
-                    {"layoutId": "layout_learn", "label": "LEARN"},
-                    {"layoutId": "layout_baseline", "label": "BASELINE"},
-                    {"layoutId": "layout_attack", "label": "ATTACK"},
-                    {"layoutId": "layout_observe", "label": "OBSERVE"},
-                    {"layoutId": "layout_hunt", "label": "HUNT"},
-                    {"layoutId": "layout_detect", "label": "DETECT"},
-                    {"layoutId": "layout_defend", "label": "DEFEND"},
-                    {"layoutId": "layout_retest", "label": "RETEST"},
-                    {"layoutId": "layout_compare", "label": "COMPARE"},
-                    {"layoutId": "layout_prove", "label": "PROVE"},
+                    {"layoutId": "layout_mission", "label": "MISSION"},
+                    {"layoutId": "layout_investigate", "label": "INVESTIGATE"},
+                    {"layoutId": "layout_evidence", "label": "EVIDENCE"},
+                    {"layoutId": "layout_answers", "label": "PATH B · ANSWERS"},
                 ],
             },
             "layoutDefinitions": {
-                "layout_learn": layout(
-                    [
-                        block("viz_learn", 0, 0, FULL, 720),
-                        block("viz_learn_flow", 0, 720, THIRD, 500),
-                        block("viz_learn_planes", THIRD, 720, THIRD, 500),
-                        block("viz_learn_ladder", THIRD * 2, 720, THIRD, 500),
-                    ],
-                    1240,
+                "layout_mission": layout(mission_structure, mission_height, display="fit-to-width"),
+                "layout_investigate": layout(
+                    investigate_structure, investigate_height, display="fit-to-width"
                 ),
-                "layout_baseline": layout(
-                    [
-                        block("viz_baseline_md", 0, 0, FULL, 400),
-                        block("viz_baseline_rag", 0, 400, FULL, 280),
-                        block("viz_baseline_authz", 0, 680, HALF, 260),
-                        block("viz_baseline_exec", HALF, 680, HALF, 260),
-                    ],
-                    960,
-                ),
-                "layout_attack": layout(
-                    [
-                        block("viz_attack_md", 0, 0, FULL, 640),
-                        block("viz_attack_rag", 0, 640, FULL, 280),
-                        block("viz_attack_authz", 0, 920, HALF, 260),
-                        block("viz_attack_tool", HALF, 920, HALF, 260),
-                        block("viz_attack_exec", 0, 1180, FULL, 260),
-                    ],
-                    1460,
-                ),
-                "layout_observe": layout(
-                    [
-                        block("viz_observe_md", 0, 0, HALF, 220),
-                        block("viz_observe_planes", HALF, 0, HALF, 220),
-                        block("viz_observe_seq", 0, 220, FULL, 360),
-                        block("viz_observe_rag", 0, 580, FULL, 280),
-                        block("viz_observe_authz", 0, 860, HALF, 260),
-                        block("viz_observe_exec", HALF, 860, HALF, 260),
-                    ],
-                    1140,
-                ),
-                "layout_hunt": layout(hunt_structure, y_cursor + 40, display="fit-to-width"),
-                "layout_detect": layout(
-                    [
-                        block("viz_detect_md", 0, 0, HALF, 380),
-                        block("viz_detect_class", HALF, 0, HALF, 380),
-                        block("viz_detect_b", 0, 380, THIRD, 280),
-                        block("viz_detect_a", THIRD, 380, THIRD, 280),
-                        block("viz_detect_r", THIRD * 2, 380, THIRD, 280),
-                        block("viz_detect_sim", 0, 660, HALF, 280),
-                        block("viz_detect_future", HALF, 660, HALF, 280),
-                    ],
-                    960,
-                ),
-                "layout_defend": layout(
-                    [
-                        block("viz_defend", 0, 0, FULL, 480),
-                        block("viz_defend_evidence", 0, 480, FULL, 320),
-                    ],
-                    820,
-                ),
-                "layout_retest": layout(
-                    [
-                        block("viz_retest_md", 0, 0, FULL, 560),
-                        block("viz_retest_rag", 0, 560, FULL, 280),
-                        block("viz_retest_authz", 0, 840, HALF, 260),
-                        block("viz_retest_tool", HALF, 840, HALF, 260),
-                        block("viz_retest_exec", 0, 1100, FULL, 260),
-                    ],
-                    1380,
-                ),
-                "layout_compare": layout(
-                    [
-                        block("viz_compare_md", 0, 0, FULL, 400),
-                        block("viz_cmp_card_base", 0, 400, THIRD, 540),
-                        block("viz_cmp_card_atk", THIRD, 400, THIRD, 540),
-                        block("viz_cmp_card_rt", THIRD * 2, 400, THIRD, 540),
-                        block("viz_cmp_base", 0, 960, THIRD, 280),
-                        block("viz_cmp_atk", THIRD, 960, THIRD, 280),
-                        block("viz_cmp_rt", THIRD * 2, 960, THIRD, 280),
-                    ],
-                    1260,
-                ),
-                "layout_prove": layout(
-                    [
-                        block("viz_prove", 0, 0, FULL, 1200),
-                        block("viz_prove_rag", 0, 1200, FULL, 280),
-                    ],
-                    1500,
-                ),
+                "layout_evidence": layout(evidence_structure, evidence_height, display="fit-to-width"),
+                "layout_answers": layout(answers_structure, answers_height, display="fit-to-width"),
             },
         },
         "applicationProperties": {

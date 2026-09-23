@@ -13,16 +13,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TABS = (
-    "LEARN",
-    "BASELINE",
-    "ATTACK",
-    "OBSERVE",
-    "HUNT",
-    "DETECT",
-    "DEFEND",
-    "RETEST",
-    "COMPARE",
-    "PROVE",
+    "MISSION",
+    "INVESTIGATE",
+    "EVIDENCE",
+    "PATH B · ANSWERS",
 )
 TOKENS = (
     "write_run_id",
@@ -42,27 +36,9 @@ SPECIMEN_IDS = {
     "retest_write_run_id": "060a0a72-ceb5-4b99-8330-98de81d8ae5e",
     "retest_recall_run_id": "5d5b9d1b-092d-4ddb-8422-4092d289cd49",
 }
-TABLE_TABS = {
-    "BASELINE",
-    "ATTACK",
-    "OBSERVE",
-    "HUNT",
-    "DETECT",
-    "RETEST",
-    "COMPARE",
-    "PROVE",
-}
-REQUIRED_TABS = (
-    "LEARN",
-    "ATTACK",
-    "OBSERVE",
-    "HUNT",
-    "DEFEND",
-    "RETEST",
-    "COMPARE",
-    "PROVE",
-)
-WIDTHS = (1440, 1280, 1024)
+TABLE_TABS = {"INVESTIGATE", "EVIDENCE", "PATH B · ANSWERS"}
+REQUIRED_TABS = TABS
+WIDTHS = (1920, 1440, 1280, 1024)
 
 
 def load_env_value(key: str) -> str:
@@ -98,7 +74,7 @@ def main() -> int:
     parser.add_argument(
         "--tabs",
         default="",
-        help="Comma-separated tab names to capture (default: all 10)",
+        help="Comma-separated tab names to capture (default: all four)",
     )
     args = parser.parse_args()
     out = Path(args.out)
@@ -191,7 +167,8 @@ def main() -> int:
                 continue
             page.wait_for_timeout(12000 if tab in TABLE_TABS else 2000)
             report["tabs_found"].append(tab)
-            png = out / f"{args.label}_{tab.lower()}.png"
+            slug = tab.lower().replace(" · ", "_").replace(" ", "_")
+            png = out / f"{args.label}_{slug}.png"
             page.screenshot(path=str(png), full_page=True)
             report["screenshots"].append(str(png.relative_to(ROOT)))
 
@@ -199,70 +176,19 @@ def main() -> int:
         page.screenshot(path=str(overview), full_page=False)
         report["screenshots"].insert(0, str(overview.relative_to(ROOT)))
 
-        for width in (1280, 1024):
+        for width in (1920, 1280, 1024):
             page.set_viewport_size({"width": width, "height": 1100})
             page.wait_for_timeout(1000)
             for tab in REQUIRED_TABS:
                 if not click_tab(page, tab):
                     continue
                 page.wait_for_timeout(4000 if tab in TABLE_TABS else 1500)
-                png = out / f"{args.label}_w{width}_{tab.lower()}.png"
+                slug = tab.lower().replace(" · ", "_").replace(" ", "_")
+                png = out / f"{args.label}_w{width}_{slug}.png"
                 page.screenshot(path=str(png), full_page=True)
                 rel = str(png.relative_to(ROOT))
                 report["clipping_screenshots"].append(rel)
                 report["screenshots"].append(rel)
-
-        atk_dir = ROOT / "docs" / "screenshots" / "attack-service-memory"
-        atk_dir.mkdir(parents=True, exist_ok=True)
-        for width in WIDTHS:
-            page.set_viewport_size({"width": width, "height": 1100})
-            resp = page.goto(
-                "http://127.0.0.1:5001/labs/LAB-MEMORY-001",
-                wait_until="domcontentloaded",
-            )
-            report["http"][f"attack_{width}"] = int(resp.status) if resp is not None else 0
-            page.wait_for_timeout(1200)
-            png = atk_dir / f"{args.label}_launcher_{width}.png"
-            page.screenshot(path=str(png), full_page=True)
-            report["screenshots"].append(str(png.relative_to(ROOT)))
-
-        page.set_viewport_size({"width": 1440, "height": 1100})
-        page.goto(
-            "http://127.0.0.1:5001/labs/LAB-MEMORY-001",
-            wait_until="domcontentloaded",
-        )
-        page.wait_for_selector("#fire-attack")
-        page.locator("#fire-attack").click()
-        page.wait_for_function(
-            "() => document.getElementById('attack-write-run-id').value.length > 10",
-            timeout=180000,
-        )
-        page.wait_for_timeout(1500)
-        png = atk_dir / f"{args.label}_attack_results_1440.png"
-        page.screenshot(path=str(png), full_page=True)
-        report["screenshots"].append(str(png.relative_to(ROOT)))
-        report["attack_service"]["attack_write_run_id"] = page.locator(
-            "#attack-write-run-id"
-        ).input_value()
-        report["attack_service"]["attack_recall_run_id"] = page.locator(
-            "#attack-recall-run-id"
-        ).input_value()
-
-        page.locator("#fire-retest").click()
-        page.wait_for_function(
-            "() => document.getElementById('retest-write-run-id').value.length > 10",
-            timeout=180000,
-        )
-        page.wait_for_timeout(1500)
-        png = atk_dir / f"{args.label}_retest_results_1440.png"
-        page.screenshot(path=str(png), full_page=True)
-        report["screenshots"].append(str(png.relative_to(ROOT)))
-        report["attack_service"]["retest_write_run_id"] = page.locator(
-            "#retest-write-run-id"
-        ).input_value()
-        report["attack_service"]["retest_recall_run_id"] = page.locator(
-            "#retest-recall-run-id"
-        ).input_value()
 
         browser.close()
 
