@@ -1,7 +1,7 @@
 # AgentSec Workshop UI Standard
 
 **Status:** Required for new LEARN → PROVE workshops unless a documented semantic reason requires deviation.  
-**Date:** 2026-09-18  
+**Date:** 2026-09-23
 **Do not copy Goal Integrity evidence planes onto RAG, Memory, Scanner, Identity, or MCP.**
 
 Reuse visual grammar. Preserve each domain’s controls and evidence.
@@ -70,6 +70,39 @@ Studio order:
 4. **PATH B · ANSWERS** — optional answer material using existing validated Q-* searches
 
 The browser still submits only `lab_id`, `specimen_id`, `mode`, and `execution`. Runtime handler count remains authoritative for MCP non-execution. Splunk absence is corroborative only after completeness is measured.
+
+---
+
+## Context Security specialization
+
+The compact workbench grammar generalizes to RAG and Persistent Memory, but the MCP evidence chain does not.
+
+Shared Attack Service grammar:
+
+1. Domain security question
+2. Attacker influence and server-owned facts
+3. Closed ATTACK / RETEST controls
+4. Prominent server-owned correlation IDs
+5. Domain-specific evidence chain
+6. Precise ATTACK ↔ RETEST comparison
+7. Splunk handoff
+8. `Evidence / Advanced`
+
+RAG uses:
+
+`SOURCE → RETRIEVAL → CONTEXT → CONTEXT CONTROL → AGENT EFFECT → TOOL AUTHORIZATION → EXECUTION → EVIDENCE`
+
+It must keep `RETRIEVED != TRUSTED`, `PROVENANCE != AUTHORITY`, and context OBSERVE separate from later MCP authorization.
+
+Persistent Memory uses:
+
+`WRITE RUN → PERSIST → RECALL RUN → source_run_id → MEMORY CONTROL → INFLUENCED REQUEST → TOOL AUTHORIZATION → EXECUTION`
+
+It must make time and cross-run causality visible. The primary RECALL count must not absorb sibling WRITE events.
+
+For the reviewed RAG and Memory Studio workshops, the compact order is MISSION, INVESTIGATE, EVIDENCE, and PATH B · ANSWERS. Path A remains primary. Existing validated Q-* SPL is reused unchanged. Legacy LEARN→PROVE detail may remain in Path B, but it must not dominate the initial investigation.
+
+Fingerprint equality is always scoped to the exact hashed object. It never means the entire experiment is identical.
 
 ---
 

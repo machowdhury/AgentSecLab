@@ -13,16 +13,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TABS = (
-    "LEARN",
-    "BASELINE",
-    "ATTACK",
-    "OBSERVE",
-    "HUNT",
-    "DETECT",
-    "DEFEND",
-    "RETEST",
-    "COMPARE",
-    "PROVE",
+    "MISSION",
+    "INVESTIGATE",
+    "EVIDENCE",
+    "PATH B · ANSWERS",
 )
 TOKENS = (
     "run_id",
@@ -36,17 +30,9 @@ SPECIMEN_IDS = {
     "attack_run_id": "3a43d24f-9281-42f6-8375-1fb2efaa80ac",
     "retest_run_id": "bea97bae-491b-4b36-b52f-1417d2bad01b",
 }
-TABLE_TABS = {
-    "BASELINE",
-    "ATTACK",
-    "OBSERVE",
-    "HUNT",
-    "DETECT",
-    "RETEST",
-    "COMPARE",
-    "PROVE",
-}
-CLIP_TABS = ("LEARN", "COMPARE", "DETECT")
+TABLE_TABS = {"INVESTIGATE", "EVIDENCE", "PATH B · ANSWERS"}
+CLIP_TABS = TABS
+WIDTHS = (1920, 1440, 1280, 1024)
 
 
 def load_env_value(key: str) -> str:
@@ -82,7 +68,7 @@ def main() -> int:
     parser.add_argument(
         "--tabs",
         default="",
-        help="Comma-separated tab names to capture (default: all 10)",
+        help="Comma-separated tab names to capture (default: all four)",
     )
     args = parser.parse_args()
     out = Path(args.out)
@@ -114,7 +100,7 @@ def main() -> int:
         "clipping_screenshots": [],
         "label": args.label,
         "tabs_requested": list(tabs),
-        "viewports": [1440, 1024, 768],
+        "viewports": list(WIDTHS),
     }
 
     with sync_playwright() as p:
@@ -173,7 +159,8 @@ def main() -> int:
                 continue
             page.wait_for_timeout(12000 if tab in TABLE_TABS else 2000)
             report["tabs_found"].append(tab)
-            png = out / f"{args.label}_{tab.lower()}.png"
+            slug = tab.lower().replace(" · ", "_").replace(" ", "_")
+            png = out / f"{args.label}_{slug}.png"
             page.screenshot(path=str(png), full_page=True)
             report["screenshots"].append(str(png.relative_to(ROOT)))
 
@@ -181,14 +168,15 @@ def main() -> int:
         page.screenshot(path=str(overview), full_page=False)
         report["screenshots"].insert(0, str(overview.relative_to(ROOT)))
 
-        for width in (1024, 768):
+        for width in (1920, 1280, 1024):
             page.set_viewport_size({"width": width, "height": 1100})
             page.wait_for_timeout(1000)
             for tab in CLIP_TABS:
                 if not click_tab(page, tab):
                     continue
                 page.wait_for_timeout(4000 if tab in TABLE_TABS else 1500)
-                png = out / f"{args.label}_w{width}_{tab.lower()}.png"
+                slug = tab.lower().replace(" · ", "_").replace(" ", "_")
+                png = out / f"{args.label}_w{width}_{slug}.png"
                 page.screenshot(path=str(png), full_page=True)
                 rel = str(png.relative_to(ROOT))
                 report["clipping_screenshots"].append(rel)

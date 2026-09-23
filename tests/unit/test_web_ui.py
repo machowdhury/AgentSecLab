@@ -81,6 +81,13 @@ def test_attack_target_health_is_same_origin_proxy():
     assert body["service"] == "acmebank"
 
 
+def test_attack_service_favicon_probe_is_quiet():
+    app = create_attack_app(AcmeBankClient("http://acmebank.example:5000"))
+    app.config["TESTING"] = True
+    response = app.test_client().get("/favicon.ico")
+    assert response.status_code == 204
+
+
 def test_mcp_reference_workbench_is_guided_closed_and_accessible():
     app = create_attack_app(AcmeBankClient("http://acmebank.example:5000"))
     app.config["TESTING"] = True
@@ -107,3 +114,39 @@ def test_mcp_reference_workbench_is_guided_closed_and_accessible():
     css_text = css.get_data(as_text=True)
     assert "@media (max-width: 1200px)" in css_text
     assert "@media (max-width: 900px)" in css_text
+
+
+def test_context_workbenches_preserve_domain_semantics_and_closed_launch():
+    app = create_attack_app(AcmeBankClient("http://acmebank.example:5000"))
+    app.config["TESTING"] = True
+    client = app.test_client()
+
+    rag = client.get("/labs/LAB-RAG-CONTEXT").get_data(as_text=True)
+    assert "RAG / Retrieved Context" in rag
+    assert "RETRIEVED ≠ TRUSTED" in rag
+    assert "PROVENANCE ≠ AUTHORITY" in rag
+    assert ">Source<" in rag and ">Retrieval<" in rag and ">Context control<" in rag
+    assert "CTRL-RAG-CONTEXT-001 · OBSERVE" in rag
+    assert "CTRL-MCP-001 · tool PDP" in rag
+    assert "Fingerprint equality applies only" in rag
+
+    memory = client.get("/labs/LAB-MEMORY-001").get_data(as_text=True)
+    assert "STORED ≠ TRUSTED" in memory
+    assert "RECALLED ≠ AUTHORIZED" in memory
+    assert ">WRITE RUN<" in memory and ">RECALL RUN<" in memory
+    assert ">source_run_id<" in memory
+    assert "Primary experiment run" in memory
+    assert "Local primary event count" in memory
+
+    for html in (rag, memory):
+        assert 'href="#main"' in html
+        assert 'aria-live="polite"' in html
+        assert "Launch ATTACK (LIVE)" in html
+        assert "Launch RETEST (LIVE)" in html
+        assert "Copy Run ID" in html
+        assert "Evidence / Advanced" in html
+        assert "OBSERVE ≠ ALLOW" in html
+        assert "ALLOW ≠ EXECUTION" in html
+        assert "body: JSON.stringify({lab_id: labId, specimen_id: specimenId, mode, execution: \"live\"})" in html
+        assert "allowed_tools: " not in html
+        assert "allowed_scope: " not in html

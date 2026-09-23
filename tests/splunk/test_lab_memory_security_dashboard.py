@@ -42,16 +42,10 @@ RAG_VIEW = (
 )
 
 WORKSHOP_TABS = (
-    "LEARN",
-    "BASELINE",
-    "ATTACK",
-    "OBSERVE",
-    "HUNT",
-    "DETECT",
-    "DEFEND",
-    "RETEST",
-    "COMPARE",
-    "PROVE",
+    "MISSION",
+    "INVESTIGATE",
+    "EVIDENCE",
+    "PATH B · ANSWERS",
 )
 REQUIRED_TOKENS = ("write_run_id", "run_id")
 SPECIMEN_IDS = {
@@ -127,7 +121,7 @@ def test_files_and_nav_exist():
     assert "LAB-MEMORY-001" in xml
 
 
-def test_ten_tabs_and_token_defaults():
+def test_workbench_tabs_and_token_defaults():
     definition = _definition()
     labels = [item["label"] for item in definition["layout"]["tabs"]["items"]]
     assert labels == list(WORKSHOP_TABS)

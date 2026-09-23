@@ -1435,6 +1435,96 @@ No DET-MEMORY. Schema 1.9.0. Memory fields from 1.7.0 remain valid. Goal Integri
         no_data=EMPTY_MEM,
     )
 
+    add_md(
+        "viz_workbench_mission",
+        f"""
+# MISSION · PERSISTENT MEMORY
+
+## Can previously stored untrusted memory influence a later agent action without becoming trusted authority?
+
+**Specimen selectors:** choose the server-owned WRITE and RECALL run IDs above. ATTACK and RETEST persist the same malicious bytes (`{MALICIOUS_HASH}`), but each experiment has a distinct run pair.
+
+**WRITE RUN → PERSIST → RECALL RUN → source_run_id → CTRL-MEMORY-CONTEXT-001 OBSERVE → INFLUENCED REQUEST → CTRL-MCP-001 AUTHORIZATION → EXECUTION**
+
+`STORED != TRUSTED` · `RECALLED != AUTHORIZED` · `OBSERVE != ALLOW` · `ALLOW != EXECUTION`
+
+Attack Service launches. AcmeBank/runtime decides. Splunk investigates emitted evidence; it does not authorize or block the operation.
+""",
+        title="MISSION",
+    )
+    add_md(
+        "viz_workbench_investigate",
+        """
+# INVESTIGATE · PATH A
+
+## Question
+
+What was written earlier, how did the same object return later, and did the resulting tool request execute?
+
+## Starting search
+
+```spl
+index=agentsec_telemetry (run.id="$write_run_id$" OR run.id="$run_id$")
+```
+
+## Progressive hints
+
+1. Separate the WRITE run from the later RECALL run; do not combine their event counts.
+2. Use `memory.id`, `content_hash`, and `source_run_id` to establish the cross-run relationship.
+3. Distinguish memory OBSERVE from CTRL-MCP-001 authorization, then use MCP completion/failure and operation outcome for execution.
+
+Open Splunk Search when you are ready to modify the starting search. Path B contains the validated answer searches.
+""",
+        title="INVESTIGATE · PATH A",
+    )
+    add_md(
+        "viz_workbench_evidence",
+        """
+# EVIDENCE
+
+Read the selected pair in order: **WRITE → PERSIST → RECALL → SOURCE LINK → CONTROL → REQUEST → AUTHORIZATION → EXECUTION**.
+
+`source_run_id` on recall links the recalled record to the WRITE run. The memory control emits OBSERVE; it is not the tool PDP. CTRL-MCP-001 makes the later authorization decision, and runtime MCP/operation events establish what executed.
+
+Splunk corroborates indexed evidence. Keep WRITE and RECALL counts separate. An empty table is missing evidence, not proof of prevention. Fingerprint equality applies only to the canonical persisted bytes.
+""",
+        title="EVIDENCE",
+    )
+
+    mission_ids = ["viz_workbench_mission"]
+    investigate_ids = ["viz_workbench_investigate"] + [
+        viz_id
+        for viz_id in visualizations
+        if viz_id.startswith("viz_i")
+        and (viz_id.endswith("_q") or viz_id.endswith("_h1") or viz_id.endswith("_h2"))
+    ]
+    evidence_ids = [
+        "viz_workbench_evidence",
+        "viz_observe_write",
+        "viz_observe_recall",
+        "viz_observe_mem",
+        "viz_observe_authz",
+        "viz_observe_exec",
+        "viz_cmp_card_atk",
+        "viz_cmp_card_rt",
+    ]
+    allocated = set(mission_ids + investigate_ids + evidence_ids)
+    answer_ids = [viz_id for viz_id in visualizations if viz_id not in allocated]
+
+    def stacked(ids: list[str], markdown_height: int = 420, table_height: int = 300) -> tuple[list[dict], int]:
+        structure: list[dict] = []
+        y = 0
+        for viz_id in ids:
+            height = markdown_height if visualizations[viz_id]["type"] == "splunk.markdown" else table_height
+            structure.append(block(viz_id, 0, y, FULL, height))
+            y += height
+        return structure, y + 20
+
+    mission_structure, mission_height = stacked(mission_ids, markdown_height=420)
+    investigate_structure, investigate_height = stacked(investigate_ids, markdown_height=330)
+    evidence_structure, evidence_height = stacked(evidence_ids, markdown_height=300)
+    answers_structure, answers_height = stacked(answer_ids, markdown_height=520)
+
     definition = {
         "title": "Persistent Memory",
         "description": (
@@ -1498,109 +1588,17 @@ No DET-MEMORY. Schema 1.9.0. Memory fields from 1.7.0 remain valid. Goal Integri
             "tabs": {
                 "options": {"barPosition": "top"},
                 "items": [
-                    {"layoutId": "layout_learn", "label": "LEARN"},
-                    {"layoutId": "layout_baseline", "label": "BASELINE"},
-                    {"layoutId": "layout_attack", "label": "ATTACK"},
-                    {"layoutId": "layout_observe", "label": "OBSERVE"},
-                    {"layoutId": "layout_hunt", "label": "HUNT"},
-                    {"layoutId": "layout_detect", "label": "DETECT"},
-                    {"layoutId": "layout_defend", "label": "DEFEND"},
-                    {"layoutId": "layout_retest", "label": "RETEST"},
-                    {"layoutId": "layout_compare", "label": "COMPARE"},
-                    {"layoutId": "layout_prove", "label": "PROVE"},
+                    {"layoutId": "layout_mission", "label": "MISSION"},
+                    {"layoutId": "layout_investigate", "label": "INVESTIGATE"},
+                    {"layoutId": "layout_evidence", "label": "EVIDENCE"},
+                    {"layoutId": "layout_answers", "label": "PATH B · ANSWERS"},
                 ],
             },
             "layoutDefinitions": {
-                "layout_learn": layout(
-                    [
-                        block("viz_learn_flow", 0, 0, FULL, 380),
-                        block("viz_learn", 0, 380, FULL, 520),
-                        block("viz_learn_planes", 0, 900, HALF, 400),
-                        block("viz_learn_vs", HALF, 900, HALF, 400),
-                    ],
-                    1320,
-                ),
-                "layout_baseline": layout(
-                    [
-                        block("viz_baseline_md", 0, 0, FULL, 460),
-                        block("viz_baseline_mem", 0, 460, FULL, 280),
-                        block("viz_baseline_authz", 0, 740, HALF, 260),
-                        block("viz_baseline_exec", HALF, 740, HALF, 260),
-                    ],
-                    1020,
-                ),
-                "layout_attack": layout(
-                    [
-                        block("viz_attack_md", 0, 0, FULL, 560),
-                        block("viz_attack_mem", 0, 560, FULL, 280),
-                        block("viz_attack_authz", 0, 840, HALF, 260),
-                        block("viz_attack_tool", HALF, 840, HALF, 260),
-                        block("viz_attack_exec", 0, 1100, FULL, 260),
-                    ],
-                    1380,
-                ),
-                "layout_observe": layout(
-                    [
-                        block("viz_observe_md", 0, 0, HALF, 280),
-                        block("viz_observe_planes", HALF, 0, HALF, 280),
-                        block("viz_observe_write", 0, 280, FULL, 280),
-                        block("viz_observe_recall", 0, 560, FULL, 280),
-                        block("viz_observe_mem", 0, 840, FULL, 280),
-                        block("viz_observe_authz", 0, 1120, HALF, 260),
-                        block("viz_observe_exec", HALF, 1120, HALF, 260),
-                    ],
-                    1400,
-                ),
-                "layout_hunt": layout(hunt_structure, y_cursor + 40),
-                "layout_detect": layout(
-                    [
-                        block("viz_detect_md", 0, 0, HALF, 420),
-                        block("viz_detect_class", HALF, 0, HALF, 420),
-                        block("viz_detect_b", 0, 420, THIRD, 280),
-                        block("viz_detect_a", THIRD, 420, THIRD, 280),
-                        block("viz_detect_r", THIRD * 2, 420, THIRD, 280),
-                        block("viz_detect_sim", 0, 700, HALF, 280),
-                        block("viz_detect_future", HALF, 700, HALF, 280),
-                        block("viz_detect_gaps", 0, 980, FULL, 320),
-                    ],
-                    1320,
-                ),
-                "layout_defend": layout(
-                    [
-                        block("viz_defend", 0, 0, FULL, 620),
-                        block("viz_defend_evidence", 0, 620, FULL, 240),
-                    ],
-                    880,
-                ),
-                "layout_retest": layout(
-                    [
-                        block("viz_retest_md", 0, 0, FULL, 560),
-                        block("viz_retest_mem", 0, 560, FULL, 280),
-                        block("viz_retest_authz", 0, 840, HALF, 260),
-                        block("viz_retest_tool", HALF, 840, HALF, 260),
-                        block("viz_retest_exec", 0, 1100, FULL, 260),
-                    ],
-                    1380,
-                ),
-                "layout_compare": layout(
-                    [
-                        block("viz_compare_md", 0, 0, FULL, 300),
-                        block("viz_cmp_card_base", 0, 300, THIRD, 780),
-                        block("viz_cmp_card_atk", THIRD, 300, THIRD, 780),
-                        block("viz_cmp_card_rt", THIRD * 2, 300, THIRD, 780),
-                        block("viz_cmp_base", 0, 1080, THIRD, 280),
-                        block("viz_cmp_atk", THIRD, 1080, THIRD, 280),
-                        block("viz_cmp_rt", THIRD * 2, 1080, THIRD, 280),
-                    ],
-                    1380,
-                ),
-                "layout_prove": layout(
-                    [
-                        block("viz_prove", 0, 0, FULL, 1100),
-                        block("viz_prove_mem", 0, 1100, FULL, 280),
-                    ],
-                    1400,
-                ),
+                "layout_mission": layout(mission_structure, mission_height),
+                "layout_investigate": layout(investigate_structure, investigate_height),
+                "layout_evidence": layout(evidence_structure, evidence_height),
+                "layout_answers": layout(answers_structure, answers_height),
             },
         },
         "applicationProperties": {
