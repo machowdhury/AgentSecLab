@@ -1,0 +1,120 @@
+{
+  "labs": {
+    "mcp": {
+      "lab_id": "LAB-MCP-001",
+      "checks": {
+        "1440": {
+          "http": 200,
+          "no_horizontal_overflow": true,
+          "initial_hierarchy": true,
+          "comparison": true,
+          "advanced": true,
+          "focus_outline": "solid 2px"
+        },
+        "1024": {
+          "http": 200,
+          "no_horizontal_overflow": true,
+          "initial_hierarchy": true,
+          "comparison": true,
+          "advanced": true,
+          "focus_outline": "solid 2px"
+        }
+      },
+      "console_errors": [],
+      "page_errors": []
+    },
+    "rag": {
+      "lab_id": "LAB-RAG-CONTEXT",
+      "checks": {
+        "1440": {
+          "http": 200,
+          "no_horizontal_overflow": true,
+          "initial_hierarchy": true,
+          "comparison": true,
+          "advanced": true,
+          "focus_outline": "solid 2px"
+        },
+        "1024": {
+          "http": 200,
+          "no_horizontal_overflow": true,
+          "initial_hierarchy": true,
+          "comparison": true,
+          "advanced": true,
+          "focus_outline": "solid 2px"
+        }
+      },
+      "console_errors": [],
+      "page_errors": []
+    },
+    "memory": {
+      "lab_id": "LAB-MEMORY-001",
+      "checks": {
+        "1440": {
+          "http": 200,
+          "no_horizontal_overflow": true,
+          "initial_hierarchy": true,
+          "comparison": true,
+          "advanced": true,
+          "focus_outline": "solid 2px"
+        },
+        "1024": {
+          "http": 200,
+          "no_horizontal_overflow": true,
+          "initial_hierarchy": true,
+          "comparison": true,
+          "advanced": true,
+          "focus_outline": "solid 2px"
+        }
+      },
+      "console_errors": [],
+      "page_errors": []
+    },
+    "goal": {
+      "lab_id": "LAB-AGENT-GOAL-INTEGRITY-001",
+      "checks": {
+        "1440": {
+          "http": 200,
+          "no_horizontal_overflow": true,
+          "initial_hierarchy": true,
+          "comparison": true,
+          "advanced": true,
+          "focus_outline": "solid 2px"
+        },
+        "1024": {
+          "http": 200,
+          "no_horizontal_overflow": true,
+          "initial_hierarchy": true,
+          "comparison": true,
+          "advanced": true,
+          "focus_outline": "solid 2px"
+        }
+      },
+      "console_errors": [],
+      "page_errors": []
+    },
+    "identity": {
+      "lab_id": "LAB-AGENT-DELEGATION-001",
+      "checks": {
+        "1440": {
+          "http": 200,
+          "no_horizontal_overflow": true,
+          "initial_hierarchy": true,
+          "comparison": true,
+          "advanced": true,
+          "focus_outline": "solid 2px"
+        },
+        "1024": {
+          "http": 200,
+          "no_horizontal_overflow": true,
+          "initial_hierarchy": true,
+          "comparison": true,
+          "advanced": true,
+          "focus_outline": "solid 2px"
+        }
+      },
+      "console_errors": [],
+      "page_errors": []
+    }
+  },
+  "failures": []
+}

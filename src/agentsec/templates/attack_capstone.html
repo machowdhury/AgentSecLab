@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgentSec — {{ capstone_workbench.title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='agentsec-workbench.css') }}">
+</head>
+<body class="workbench-page capstone-workbench">
+  <a class="skip-link" href="#main">Skip to investigation</a>
+  <header class="workbench-header">
+    <div class="workbench-header__inner">
+      <div>
+        <p class="brand-kicker">AgentSec · Capstone Security Investigation</p>
+        <h1>{{ capstone_workbench.title }}</h1>
+      </div>
+      <div class="workbench-meta" aria-label="Experiment status">
+        <span class="mode-badge">LIVE</span>
+        <span id="current-mode">MODE · NOT RUN</span>
+        <span>{{ lab_id }}</span>
+        <span>SCHEMA · 1.9.0</span>
+        <span id="runtime-health">RUNTIME · CHECKING</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="workbench">
+    <nav class="workbench-nav" aria-label="Investigation links">
+      <a href="{{ capstone_workbench.workshop_url }}">Splunk workshop</a>
+      <a href="#evidence-map">Evidence map</a>
+      <a href="#proof">Proof</a>
+      <a href="#advanced">Evidence / Advanced</a>
+    </nav>
+
+    <section class="mission" aria-labelledby="security-question">
+      <p class="eyebrow">Mission · investigate before concluding</p>
+      <h2 id="security-question">{{ capstone_workbench.security_question }}</h2>
+      <div class="context-facts">
+        <div><span>Incident</span><strong>Lending-policy workflow reached customer-tier access</strong></div>
+        <div><span>Attacker influence</span><strong>{{ capstone_workbench.attacker_influence }}</strong></div>
+        <div><span>Outcome at stake</span><strong>{{ capstone_workbench.sensitive_outcome }}</strong></div>
+        <div><span>Boundary 1</span><strong>Retrieved data → persistent context</strong></div>
+        <div><span>Boundary 2</span><strong>Recalled influence → authority request</strong></div>
+        <div><span>Start here</span><strong>Run ATTACK, copy the primary RECALL run ID, then investigate</strong></div>
+      </div>
+      <p class="semantic-line">
+        <strong>INFLUENCE ≠ AUTHORITY</strong>
+        <strong>REQUEST ≠ GRANT</strong>
+        <strong>ALLOW ≠ EXECUTION</strong>
+        <strong>SPLUNK ≠ ENFORCEMENT</strong>
+      </p>
+    </section>
+
+    <section id="evidence-map" class="decision-section" aria-labelledby="map-heading">
+      <div class="section-heading">
+        <div><p class="eyebrow">Evidence map</p><h2 id="map-heading">Which evidence answers which question?</h2></div>
+        <p>The categories guide the investigation. They do not identify the root cause.</p>
+      </div>
+      <ol class="context-chain" aria-label="Capstone evidence categories">
+        <li><span>Source</span><strong>Origin and bytes</strong></li>
+        <li><span>Retrieval</span><strong>Context entry</strong></li>
+        <li><span>Persistence</span><strong>Cross-run state</strong></li>
+        <li><span>Recall</span><strong>Later influence</strong></li>
+        <li><span>Intent</span><strong>Requested action</strong></li>
+        <li><span>Authority</span><strong>Control decision</strong></li>
+        <li><span>Execution</span><strong>Runtime count</strong></li>
+        <li><span>Evidence</span><strong>Local + Splunk</strong></li>
+      </ol>
+    </section>
+
+    <div class="workbench-grid">
+      <section class="experiment-panel" aria-labelledby="experiment-heading">
+        <div class="section-heading">
+          <div><p class="eyebrow">Step 1 · run ATTACK</p><h2 id="experiment-heading">Investigate before RETEST</h2></div>
+          <p>The browser chooses only a closed specimen and mode. Security state remains server-owned.</p>
+        </div>
+        <div class="mode-actions">
+          <button id="attack-button" class="btn btn-danger" type="button" data-specimen="{{ specimen_attack }}">
+            Launch ATTACK (LIVE)
+            <small>Mint a fresh retrieve / write / recall packet</small>
+          </button>
+          <button id="retest-button" class="btn btn-secondary" type="button" data-specimen="{{ specimen_retest }}">
+            Launch RETEST (LIVE)
+            <small>Use after forming an ATTACK hypothesis</small>
+          </button>
+        </div>
+        <details class="prediction">
+          <summary>Investigation prompts</summary>
+          <div class="prediction-grid">
+            <div>
+              <h3>ATTACK hypothesis</h3>
+              <p>What influenced the request? Where should authority enter? What runtime evidence would prove execution?</p>
+            </div>
+            <div>
+              <h3>RETEST hypothesis</h3>
+              <p>What should stay identical? Which server-owned fact could change the sensitive outcome?</p>
+            </div>
+          </div>
+        </details>
+        <p id="launch-status" class="status-message" role="status" aria-live="polite">Ready. Run ATTACK first. Launching is not the investigation.</p>
+      </section>
+
+      <aside class="run-panel" aria-labelledby="run-heading">
+        <p class="eyebrow">Primary correlation</p>
+        <h2 id="run-heading">RECALL run.id</h2>
+        <code id="primary-run-id" class="run-id">Not launched</code>
+        <div class="compact-actions">
+          <button class="btn btn-secondary" type="button" data-copy-target="primary-run-id">Copy primary run ID</button>
+          <button id="open-search" class="btn btn-secondary" type="button" disabled>Open workshop</button>
+        </div>
+        <p class="run-help">The primary launch ID identifies the later RECALL and authorization run. RETRIEVE and WRITE are correlated siblings.</p>
+      </aside>
+    </div>
+
+    <section class="decision-section" aria-labelledby="correlation-heading">
+      <div class="section-heading">
+        <div><p class="eyebrow">Multi-run packet</p><h2 id="correlation-heading">What each ID identifies</h2></div>
+        <p>Do not collapse three related runs into one UUID.</p>
+      </div>
+      <div class="correlation-grid">
+        <div><span>RETRIEVE run · context entry</span><code id="retrieve-run-id">NOT RUN</code><button type="button" data-copy-target="retrieve-run-id">Copy</button></div>
+        <div><span>WRITE run · persisted bytes</span><code id="write-run-id">NOT RUN</code><button type="button" data-copy-target="write-run-id">Copy</button></div>
+        <div><span>RECALL run · request / decision / execution</span><code id="recall-run-id">NOT RUN</code><button type="button" data-copy-target="recall-run-id">Copy</button></div>
+        <div><span>source_run_id · WRITE→RECALL link</span><code id="source-run-id">NOT RUN</code><button type="button" data-copy-target="source-run-id">Copy</button></div>
+      </div>
+    </section>
+
+    <section class="decision-section" aria-labelledby="chain-heading">
+      <div class="section-heading">
+        <div><p class="eyebrow">Causal reconstruction</p><h2 id="chain-heading">Follow supported links only</h2></div>
+        <p id="chain-help">Run an experiment to populate the measured chain.</p>
+      </div>
+      <ol class="context-chain" aria-label="Measured Capstone causal chain">
+        <li><span>Source</span><strong id="chain-source">NOT RUN</strong></li>
+        <li><span>Retrieve</span><strong id="chain-retrieve">NOT RUN</strong></li>
+        <li><span>Persist</span><strong id="chain-persist">NOT RUN</strong></li>
+        <li><span>Recall</span><strong id="chain-recall">NOT RUN</strong></li>
+        <li><span>Request</span><strong id="chain-request">NOT RUN</strong></li>
+        <li><span>PDP</span><strong id="chain-control">NOT RUN</strong></li>
+        <li><span>Execution</span><strong id="chain-execution">NOT MEASURED</strong></li>
+        <li><span>Evidence</span><strong id="chain-evidence">NOT RUN</strong></li>
+      </ol>
+    </section>
+
+    <section class="run-results" aria-labelledby="result-heading">
+      <div class="section-heading">
+        <div><p class="eyebrow">Measured packet</p><h2 id="result-heading">Influence · intent · authority · execution</h2></div>
+        <p>These are different questions. A generic attack-success label would hide the security model.</p>
+      </div>
+      <dl class="result-facts">
+        <div><dt>Influence</dt><dd id="result-influence">NOT RUN</dd></div>
+        <div><dt>Intent</dt><dd id="result-intent">NOT RUN</dd></div>
+        <div><dt>Authority</dt><dd id="result-authority">NOT RUN</dd></div>
+        <div><dt>Execution</dt><dd id="result-execution">NOT MEASURED</dd></div>
+        <div><dt>RAG control</dt><dd id="result-rag-control">NOT RUN</dd></div>
+        <div><dt>Memory control</dt><dd id="result-memory-control">NOT RUN</dd></div>
+        <div><dt>Tool control</dt><dd id="result-tool-control">NOT RUN</dd></div>
+        <div><dt>Sensitive outcome</dt><dd id="result-outcome">NOT MEASURED</dd></div>
+      </dl>
+      <div class="assurance-strip">
+        <div data-assurance="established"><span>ESTABLISHED IN LAB</span><strong id="established-facts">Fixture IDs, control outputs, and runtime counts appear after launch</strong></div>
+        <div data-assurance="not-modeled"><span>NOT PRESENT IN THIS PACKET</span><strong>Goal Integrity and Identity/Delegation event families</strong></div>
+        <div data-assurance="not-modeled"><span>NOT MODELED</span><strong>Cryptographic authentication, OAuth/OIDC, signed delegation, production IAM</strong></div>
+      </div>
+    </section>
+
+    <section id="proof" class="comparison-section" aria-labelledby="proof-heading">
+      <div class="section-heading">
+        <div><p class="eyebrow">ATTACK ↔ RETEST proof</p><h2 id="proof-heading">Compare causal differences</h2></div>
+        <p id="comparison-status">Run ATTACK and RETEST to compare measured evidence.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">Proof question</th><th scope="col">ATTACK</th><th scope="col">RETEST</th></tr></thead>
+          <tbody id="comparison-body">
+            <tr><th scope="row">Exact document-byte fingerprint</th><td>NOT RUN</td><td>NOT RUN</td></tr>
+            <tr><th scope="row">Server-owned security state</th><td>NOT RUN</td><td>NOT RUN</td></tr>
+            <tr><th scope="row">Control difference</th><td>NOT RUN</td><td>NOT RUN</td></tr>
+            <tr><th scope="row">Execution difference</th><td>NOT MEASURED</td><td>NOT MEASURED</td></tr>
+            <tr><th scope="row">Sensitive outcome</th><td>NOT MEASURED</td><td>NOT MEASURED</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="next-section">
+      <div>
+        <p class="eyebrow">Step 2 · investigate</p>
+        <h2>Form a hypothesis, then reconstruct in Splunk</h2>
+        <p>Begin with the three server-owned run IDs. Splunk corroborates emitted evidence; it did not authorize or execute the tool.</p>
+        <p>Capstone is the last LIVE launcher. After proving the packet, continue to <a href="http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_mastery">Mastery Check</a> for reasoning validation, not another launch.</p>
+      </div>
+      <a class="btn btn-primary" href="{{ capstone_workbench.workshop_url }}">Open Splunk workshop</a>
+    </section>
+
+    <details id="advanced" class="advanced">
+      <summary>Evidence / Advanced</summary>
+      <div class="advanced-grid">
+        <section>
+          <h2>ATTACK response</h2>
+          <p>Raw Attack Service response, including HTTP/runtime state, fingerprints, counts, and search handoff.</p>
+          <pre id="attack-response">Not run</pre>
+        </section>
+        <section>
+          <h2>RETEST response</h2>
+          <p>Raw Attack Service response. Compare fields; do not infer whole-experiment identity from one hash.</p>
+          <pre id="retest-response">Not run</pre>
+        </section>
+        <section class="advanced-wide">
+          <h2>Evidence limits</h2>
+          <p>Runtime handler count is authoritative for execution. Splunk `mcp.started` is corroboration on a complete copy. HEC acceptance is not completeness. Missing telemetry is not prevention. One deterministic RETEST does not prove universal effectiveness.</p>
+        </section>
+      </div>
+    </details>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+      const labId = {{ lab_id|tojson }};
+      const workshopUrl = {{ capstone_workbench.workshop_url|tojson }};
+      const requestedTool = {{ capstone_workbench.requested_tool|tojson }};
+      const requestedScope = {{ capstone_workbench.requested_scope|tojson }};
+      const requestedResource = "cust-001";
+      const results = {ATTACK: null, RETEST: null};
+      const status = document.getElementById("launch-status");
+      const openSearch = document.getElementById("open-search");
+
+      const text = (id, value) => {
+        const node = document.getElementById(id);
+        if (node) node.textContent = value === undefined || value === null || value === "" ? "NOT MEASURED" : String(value);
+      };
+      const recall = result => (result && result.runtime) || {};
+      const retrieve = result => (result && result.retrieve_runtime) || {};
+      const write = result => (result && result.write_runtime) || {};
+      const handlerCount = result => recall(result).lookup_customer_tier_handler_count ?? recall(result).handler_invoke_count;
+      const operationState = result => {
+        const count = handlerCount(result);
+        if (count === undefined || count === null) return "NOT MEASURED";
+        return Number(count) > 0 ? "EXECUTED · handler " + count : "NOT EXECUTED · handler 0";
+      };
+      const outcomeState = result => Number(handlerCount(result)) > 0
+        ? "CUSTOMER-TIER ACCESS OCCURRED"
+        : "CUSTOMER-TIER ACCESS NOT EXECUTED";
+      const safe = value => String(value ?? "NOT MEASURED").replace(/[&<>"']/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[character]));
+      const row = (label, attack, retest) => `<tr><th scope="row">${safe(label)}</th><td>${safe(attack)}</td><td>${safe(retest)}</td></tr>`;
+
+      async function copyText(id) {
+        const value = document.getElementById(id)?.textContent || "";
+        if (!value || value === "NOT RUN" || value === "Not launched") return;
+        try {
+          await navigator.clipboard.writeText(value);
+          status.textContent = "Copied " + id.replaceAll("-", " ") + ".";
+        } catch (_error) {
+          status.textContent = "Copy unavailable. Select the visible ID manually.";
+        }
+      }
+      document.querySelectorAll("[data-copy-target]").forEach(button => {
+        button.addEventListener("click", () => copyText(button.dataset.copyTarget));
+      });
+
+      function render(result, mode) {
+        const rr = recall(result);
+        const rg = retrieve(result);
+        const wr = write(result);
+        results[mode] = result;
+        text("current-mode", "MODE · " + mode);
+        text("primary-run-id", result.recall_run_id || result.run_id);
+        text("retrieve-run-id", result.retrieve_run_id);
+        text("write-run-id", result.write_run_id);
+        text("recall-run-id", result.recall_run_id || result.run_id);
+        text("source-run-id", rr.source_run_id);
+        openSearch.disabled = false;
+
+        text("chain-source", result.document_id + " · untrusted_data");
+        text("chain-retrieve", rg.context_control_decision + " · " + rg.context_control_reason);
+        text("chain-persist", result.memory_id + " · exact bytes");
+        text("chain-recall", rr.memory_control_decision + " · " + rr.memory_control_reason);
+        text("chain-request", requestedTool + " · " + requestedScope);
+        text("chain-control", (rr.follow_on_control_id || "CTRL-MCP-001") + " · " + (rr.follow_on_decision || "NOT MEASURED"));
+        text("chain-execution", operationState(result));
+        text("chain-evidence", "LOCAL " + result.local_event_count_retrieve + " / " + result.local_event_count_write + " / " + result.local_event_count_recall);
+        text("chain-help", "Measured " + mode + " chain. Splunk remains a downstream evidence copy.");
+
+        text("result-influence", result.document_id + " → " + result.memory_id);
+        text("result-intent", requestedTool + " · " + requestedScope + " · " + requestedResource);
+        text("result-authority", (rr.follow_on_decision || "NOT MEASURED") + " · " + (rr.follow_on_reason || "reason not measured"));
+        text("result-execution", operationState(result));
+        text("result-rag-control", "CTRL-RAG-CONTEXT-001 · " + (rg.context_control_decision || "NOT MEASURED"));
+        text("result-memory-control", "CTRL-MEMORY-CONTEXT-001 · " + (rr.memory_control_decision || "NOT MEASURED"));
+        text("result-tool-control", "CTRL-MCP-001 · " + (rr.follow_on_decision || "NOT MEASURED"));
+        text("result-outcome", outcomeState(result));
+        text("established-facts", "Document " + result.document_id + "; memory " + result.memory_id + "; runtime handler " + (handlerCount(result) ?? "NOT MEASURED"));
+        text(mode === "ATTACK" ? "attack-response" : "retest-response", JSON.stringify(result, null, 2));
+        renderComparison();
+      }
+
+      function renderComparison() {
+        const attack = results.ATTACK;
+        const retest = results.RETEST;
+        if (!attack || !retest) return;
+        const a = recall(attack);
+        const r = recall(retest);
+        const sameHash = Boolean(attack.input_fingerprint && attack.input_fingerprint === retest.input_fingerprint);
+        text("comparison-status", sameHash
+          ? "Exact document bytes MATCH. Security state, decision, execution, and outcome must still be compared."
+          : "Exact document-byte equality was not established.");
+        document.getElementById("comparison-body").innerHTML =
+          row("Exact document-byte fingerprint", attack.input_fingerprint, retest.input_fingerprint) +
+          row("Requested operation", requestedTool + " · " + requestedScope + " · " + requestedResource, requestedTool + " · " + requestedScope + " · " + requestedResource) +
+          row("RAG / memory observations", retrieve(attack).context_control_decision + " / " + a.memory_control_decision, retrieve(retest).context_control_decision + " / " + r.memory_control_decision) +
+          row("Server-owned security state", attack.profile, retest.profile) +
+          row("Tool control result", a.follow_on_decision + " · " + a.follow_on_reason, r.follow_on_decision + " · " + r.follow_on_reason) +
+          row("Operation-specific execution", operationState(attack), operationState(retest)) +
+          row("Sensitive outcome", outcomeState(attack), outcomeState(retest)) +
+          row("Primary RECALL run.id", attack.recall_run_id, retest.recall_run_id) +
+          row("Local events · retrieve / write / recall", attack.local_event_count_retrieve + " / " + attack.local_event_count_write + " / " + attack.local_event_count_recall, retest.local_event_count_retrieve + " / " + retest.local_event_count_write + " / " + retest.local_event_count_recall);
+      }
+
+      async function launch(mode, specimenId) {
+        status.textContent = "Launching " + mode + " across RETRIEVE, WRITE, and RECALL…";
+        document.getElementById("attack-button").disabled = true;
+        document.getElementById("retest-button").disabled = true;
+        try {
+          const response = await fetch("/api/launch", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({lab_id: labId, specimen_id: specimenId, mode, execution: "live"})
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.detail || data.error || "HTTP " + response.status);
+          render(data, mode);
+          status.textContent = mode + " complete. Runtime evidence is measured; investigate the Splunk copy separately.";
+        } catch (error) {
+          status.textContent = "ERROR · runtime or dependency failure · " + error.message;
+          text("current-mode", "MODE · ERROR");
+          text("result-authority", "ERROR · no policy conclusion");
+          text("result-execution", "NOT MEASURED");
+          text("result-outcome", "NOT PROVEN");
+        } finally {
+          document.getElementById("attack-button").disabled = false;
+          document.getElementById("retest-button").disabled = false;
+        }
+      }
+
+      document.getElementById("attack-button").addEventListener("click", event => launch("ATTACK", event.currentTarget.dataset.specimen));
+      document.getElementById("retest-button").addEventListener("click", event => launch("RETEST", event.currentTarget.dataset.specimen));
+      openSearch.addEventListener("click", () => window.open(workshopUrl, "_blank", "noopener"));
+      fetch("/api/target-health")
+        .then(response => text("runtime-health", response.ok ? "RUNTIME · READY" : "RUNTIME · ERROR"))
+        .catch(() => text("runtime-health", "RUNTIME · ERROR"));
+    })();
+  </script>
+</body>
+</html>

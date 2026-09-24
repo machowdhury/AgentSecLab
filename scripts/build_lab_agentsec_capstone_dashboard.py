@@ -761,7 +761,7 @@ Path B is a review key here. Reconstruct in Search first.
 
 **How to work**
 
-1. Read ARCHITECTURE. Write a prediction in the cards below before you treat ATTACK as solved.
+1. Read MISSION. Write a prediction in the cards below before you treat ATTACK as solved.
 2. Launch LIVE from [Attack Service]({ATTACK_URL}) when you want fresh retrieve / write / recall run.ids.
 3. Hunt in [Splunk Search]({SEARCH_URL}). Studio dropdowns default to the official LIVE pair. Fresh launches mint new ids you copy into Search.
 4. Fresh LIVE ids come from Attack Service Search. They are not written into these dropdowns.
@@ -801,6 +801,87 @@ Studio does not launch the experiment. Attack Service does not sit in the author
 {INFLUENCE_NOT_AUTHORITY}
 """,
         title="LIMITS",
+    )
+    add_md(
+        "viz_path_a",
+        f"""
+# INVESTIGATE · PATH A
+
+Use the three specimen selectors as a known evidence packet, or copy fresh LIVE IDs from [Attack Service]({ATTACK_URL}) into [Splunk Search]({SEARCH_URL}). Studio does not launch the experiment and cannot receive fresh IDs automatically.
+
+## Question 1 — Influence
+
+Where did the untrusted bytes originate, and did the exact bytes persist into a later run?
+
+Starting search: constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`, then inspect the RETRIEVE and WRITE run IDs.
+
+Hint 1: begin with the RAG and memory event families.
+Hint 2: compare exact `content.hash` values; preview text is not the fingerprint.
+
+## Question 2 — Intent
+
+What security-sensitive operation was requested after recall?
+
+Starting search: move to the RECALL run ID and inspect tool, scope, and resource request fields.
+
+Hint 1: a request can exist without a grant.
+Hint 2: use the MCP request/control event family; do not infer intent from the lab title.
+
+## Question 3 — Authority
+
+What authority was requested, what authority was coded, and which control evaluated the difference?
+
+Starting search: compare requested and allowed scope on control-decision rows.
+
+Hint 1: the RAG and memory controls classify context.
+Hint 2: identify the control on the tool-decision hop.
+
+## Question 4 — Execution
+
+What actually executed?
+
+Starting search: look for operation-specific `mcp.started`, `mcp.completed`, or `mcp.failed` evidence on the RECALL run.
+
+Hint 1: ALLOW is not execution.
+Hint 2: runtime handler count is authoritative; indexed starts corroborate a complete copy.
+
+## Question 5 — Outcome
+
+Was customer-tier access actually performed, and which evidence supports that conclusion?
+
+Separate the security-sensitive outcome from the presence of retrieval, persistence, or recall activity.
+
+## Question 6 — Control effectiveness
+
+What remained identical between ATTACK and RETEST, and which server-owned difference explains the changed outcome?
+
+Hint 1: label the exact object covered by each fingerprint.
+Hint 2: compare security profile, tool-control result, operation-specific execution, and outcome.
+
+Write a hypothesis before opening **PATH B · ANSWERS**.
+""",
+        title="QUESTION → STARTING SEARCH → HINTS",
+    )
+    add_md(
+        "viz_evidence_guide",
+        """
+# EVIDENCE
+
+Use the selected RETRIEVE, WRITE, and RECALL packet to test your hypothesis.
+
+**SOURCE / CONTEXT** — document identity, exact-byte fingerprint, provenance, and RAG classification.
+
+**MEMORY** — persisted-byte fingerprint, later recall, and `source_run_id`.
+
+**REQUEST / AUTHORITY** — requested tool, scope, resource, coded authority, control ID, decision, and reason.
+
+**EXECUTION / OUTCOME** — operation-specific start/completion evidence. Runtime handler count remains authoritative outside Studio.
+
+**DOMAIN ELIMINATION** — Goal and Identity hunts may return zero rows for this packet. That is instrumented absence, not proof those domains never fail.
+
+No table on this tab authorizes or prevents an operation. Empty results are not DENY, SAFE, or prevention.
+""",
+        title="EVIDENCE MAP",
     )
 
     add_md(
@@ -1824,98 +1905,70 @@ Schema **1.9.0**. No retrieve-to-write field. Fresh LIVE ids come from Attack Se
                 "options": {"barPosition": "top"},
                 "items": [
                     {"layoutId": "layout_mission", "label": "MISSION"},
-                    {"layoutId": "layout_architecture", "label": "ARCHITECTURE"},
-                    {"layoutId": "layout_attack", "label": "ATTACK"},
                     {"layoutId": "layout_investigate", "label": "INVESTIGATE"},
-                    {"layoutId": "layout_trace", "label": "TRACE"},
-                    {"layoutId": "layout_authority", "label": "AUTHORITY"},
-                    {"layoutId": "layout_defend", "label": "DEFEND"},
-                    {"layoutId": "layout_retest", "label": "RETEST"},
-                    {"layoutId": "layout_compare", "label": "COMPARE"},
-                    {"layoutId": "layout_prove", "label": "PROVE"},
+                    {"layoutId": "layout_evidence", "label": "EVIDENCE"},
+                    {"layoutId": "layout_path_b", "label": "PATH B · ANSWERS"},
                 ],
             },
             "layoutDefinitions": {
                 "layout_mission": layout(
                     [
-                        block("viz_mission", 0, 0, FULL, 560),
-                        block("viz_mission_limits", 0, 560, FULL, 420),
-                        block("viz_predict_attack", 0, 980, HALF, 560),
-                        block("viz_predict_retest", HALF, 980, HALF, 560),
+                        block("viz_mission", 0, 0, FULL, 540),
+                        block("viz_mission_limits", 0, 540, FULL, 400),
+                        block("viz_predict_attack", 0, 940, HALF, 520),
+                        block("viz_predict_retest", HALF, 940, HALF, 520),
                     ],
-                    1560,
+                    1480,
                 ),
-                "layout_architecture": layout(
+                "layout_investigate": layout(
                     [
-                        block("viz_arch", 0, 0, FULL, 720),
-                        block("viz_arch_planes", 0, 720, FULL, 420),
+                        block("viz_path_a", 0, 0, FULL, 2500),
                     ],
-                    1160,
+                    2520,
                 ),
-                "layout_attack": layout(
+                "layout_evidence": layout(
                     [
-                        block("viz_attack_md", 0, 0, FULL, 560),
-                        block("viz_attack_rag", 0, 560, FULL, 260),
-                        block("viz_attack_mem", 0, 820, FULL, 260),
-                        block("viz_attack_authz", 0, 1080, THIRD, 260),
-                        block("viz_attack_exec", THIRD, 1080, THIRD, 260),
-                        block("viz_attack_tool", THIRD * 2, 1080, THIRD, 260),
+                        block("viz_evidence_guide", 0, 0, FULL, 560),
+                        block("viz_prove_seq", 0, 560, FULL, 300),
+                        block("viz_trace_rag", 0, 860, HALF, 280),
+                        block("viz_trace_mem", HALF, 860, HALF, 280),
+                        block("viz_auth_who", 0, 1140, THIRD, 280),
+                        block("viz_auth_authz", THIRD, 1140, THIRD, 280),
+                        block("viz_auth_exec", THIRD * 2, 1140, THIRD, 280),
+                        block("viz_auth_params", 0, 1420, 360, 260),
+                        block("viz_auth_scope", 360, 1420, 360, 260),
+                        block("viz_auth_result", 720, 1420, 360, 260),
+                        block("viz_auth_result_trust", 1080, 1420, 360, 260),
+                        block("viz_prove_run", 0, 1680, FULL, 280),
+                        block("viz_prove_goal", 0, 1960, HALF, 260),
+                        block("viz_prove_ident", HALF, 1960, HALF, 260),
+                        block("viz_prove_after", 0, 2220, FULL, 260),
                     ],
-                    1360,
+                    2500,
                 ),
-                "layout_investigate": layout(investigate_structure, inv_y + 40),
-                "layout_trace": layout(trace_structure, trace_y + 40),
-                "layout_authority": layout(authority_structure, auth_y + 40),
-                "layout_defend": layout(
+                "layout_path_b": layout(
                     [
-                        block("viz_defend", 0, 0, FULL, 720),
-                        block("viz_defend_evidence", 0, 720, FULL, 420),
+                        block("viz_arch", 0, 0, FULL, 700),
+                        block("viz_arch_planes", 0, 700, FULL, 400),
+                        block("viz_inv_1_sol", 0, 1100, FULL, 520),
+                        block("viz_tr_3_sol", 0, 1620, FULL, 480),
+                        block("viz_tr_5_sol", 0, 2100, FULL, 480),
+                        block("viz_au_8_sol", 0, 2580, FULL, 500),
+                        block("viz_au_9_sol", 0, 3080, FULL, 500),
+                        block("viz_au_11_sol", 0, 3580, FULL, 500),
+                        block("viz_attack_md", 0, 4080, HALF, 700),
+                        block("viz_retest_md", HALF, 4080, HALF, 700),
+                        block("viz_defend", 0, 4780, FULL, 720),
+                        block("viz_compare_md", 0, 5500, FULL, 300),
+                        block("viz_cmp_card_base", 0, 5800, THIRD, 820),
+                        block("viz_cmp_card_atk", THIRD, 5800, THIRD, 820),
+                        block("viz_cmp_card_rt", THIRD * 2, 5800, THIRD, 820),
+                        block("viz_prove", 0, 6620, FULL, 1420),
+                        block("viz_prove_after_a", 0, 8040, HALF, 260),
+                        block("viz_prove_after_r", HALF, 8040, HALF, 260),
+                        block("viz_prove_sim", 0, 8300, FULL, 260),
                     ],
-                    1160,
-                ),
-                "layout_retest": layout(
-                    [
-                        block("viz_retest_md", 0, 0, FULL, 560),
-                        block("viz_retest_rag", 0, 560, FULL, 260),
-                        block("viz_retest_mem", 0, 820, FULL, 260),
-                        block("viz_retest_authz", 0, 1080, HALF, 260),
-                        block("viz_retest_exec", HALF, 1080, HALF, 260),
-                        block("viz_retest_tool", 0, 1340, FULL, 260),
-                    ],
-                    1620,
-                ),
-                "layout_compare": layout(
-                    [
-                        block("viz_compare_md", 0, 0, FULL, 280),
-                        block("viz_cmp_card_base", 0, 280, THIRD, 820),
-                        block("viz_cmp_card_atk", THIRD, 280, THIRD, 820),
-                        block("viz_cmp_card_rt", THIRD * 2, 280, THIRD, 820),
-                        block("viz_cmp_rag_b", 0, 1100, THIRD, 240),
-                        block("viz_cmp_rag_a", THIRD, 1100, THIRD, 240),
-                        block("viz_cmp_rag_r", THIRD * 2, 1100, THIRD, 240),
-                        block("viz_cmp_mem_b", 0, 1340, THIRD, 240),
-                        block("viz_cmp_mem_a", THIRD, 1340, THIRD, 240),
-                        block("viz_cmp_mem_r", THIRD * 2, 1340, THIRD, 240),
-                        block("viz_cmp_authz_b", 0, 1580, THIRD, 240),
-                        block("viz_cmp_authz_a", THIRD, 1580, THIRD, 240),
-                        block("viz_cmp_authz_r", THIRD * 2, 1580, THIRD, 240),
-                        block("viz_cmp_exec_b", 0, 1820, FULL, 240),
-                    ],
-                    2080,
-                ),
-                "layout_prove": layout(
-                    [
-                        block("viz_prove", 0, 0, FULL, 1400),
-                        block("viz_prove_seq", 0, 1400, FULL, 260),
-                        block("viz_prove_after_a", 0, 1660, HALF, 240),
-                        block("viz_prove_after_r", HALF, 1660, HALF, 240),
-                        block("viz_prove_sim", 0, 1900, FULL, 240),
-                        block("viz_prove_run", 0, 2140, FULL, 240),
-                        block("viz_prove_goal", 0, 2380, HALF, 240),
-                        block("viz_prove_ident", HALF, 2380, HALF, 240),
-                        block("viz_prove_after", 0, 2620, FULL, 240),
-                    ],
-                    2880,
+                    8580,
                 ),
             },
         },
@@ -1953,15 +2006,9 @@ def validate_definition(definition: dict) -> None:
     labels = [item["label"] for item in definition["layout"]["tabs"]["items"]]
     expected = [
         "MISSION",
-        "ARCHITECTURE",
-        "ATTACK",
         "INVESTIGATE",
-        "TRACE",
-        "AUTHORITY",
-        "DEFEND",
-        "RETEST",
-        "COMPARE",
-        "PROVE",
+        "EVIDENCE",
+        "PATH B · ANSWERS",
     ]
     if labels != expected:
         raise ValueError(f"tab labels {labels} != {expected}")

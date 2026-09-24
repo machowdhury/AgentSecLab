@@ -14,15 +14,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 TABS = (
     "MISSION",
-    "ARCHITECTURE",
-    "ATTACK",
     "INVESTIGATE",
-    "TRACE",
-    "AUTHORITY",
-    "DEFEND",
-    "RETEST",
-    "COMPARE",
-    "PROVE",
+    "EVIDENCE",
+    "PATH B · ANSWERS",
 )
 TOKENS = (
     "retrieve_run_id",
@@ -49,27 +43,16 @@ SPECIMEN_IDS = {
     "retest_recall_run_id": "8d2c016f-cadc-4463-939a-23a183221b3d",
 }
 TABLE_TABS = {
-    "ATTACK",
-    "INVESTIGATE",
-    "TRACE",
-    "AUTHORITY",
-    "RETEST",
-    "COMPARE",
-    "PROVE",
+    "EVIDENCE",
+    "PATH B · ANSWERS",
 }
-CLIP_TABS = ("MISSION", "ARCHITECTURE", "COMPARE")
 REQUIRED_TABS = (
     "MISSION",
-    "ARCHITECTURE",
-    "ATTACK",
     "INVESTIGATE",
-    "AUTHORITY",
-    "DEFEND",
-    "RETEST",
-    "COMPARE",
-    "PROVE",
+    "EVIDENCE",
+    "PATH B · ANSWERS",
 )
-WIDTHS = (1440, 1280, 1024)
+WIDTHS = (1920, 1440, 1280, 1024)
 
 
 def load_env_value(key: str) -> str:
@@ -150,11 +133,38 @@ def main() -> int:
         "viewports": list(WIDTHS),
         "http": {},
         "attack_service": {},
+        "attack_console_errors": [],
+        "attack_page_errors": [],
+        "attack_overflow": {},
+        "focus": {},
+        "studio_console_errors": [],
+        "studio_page_errors": [],
     }
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        chrome = Path("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+        browser = p.chromium.launch(
+            headless=True,
+            executable_path=str(chrome) if chrome.is_file() else None,
+        )
         page = browser.new_page(viewport={"width": 1440, "height": 1100})
+        phase = {"name": "attack"}
+        page.on(
+            "console",
+            lambda message: report[
+                "attack_console_errors"
+                if phase["name"] == "attack"
+                else "studio_console_errors"
+            ].append(message.text)
+            if message.type == "error"
+            else None,
+        )
+        page.on(
+            "pageerror",
+            lambda error: report[
+                "attack_page_errors" if phase["name"] == "attack" else "studio_page_errors"
+            ].append(str(error)),
+        )
         atk_dir = ROOT / "docs" / "screenshots" / "attack-service-capstone"
         atk_dir.mkdir(parents=True, exist_ok=True)
         if not args.skip_launch:
@@ -166,19 +176,28 @@ def main() -> int:
                 )
                 report["http"][f"attack_{width}"] = int(resp.status) if resp is not None else 0
                 page.wait_for_timeout(1200)
-                png = atk_dir / f"{args.label}_launcher_{width}.png"
-                page.screenshot(path=str(png), full_page=True)
+                report["attack_overflow"][str(width)] = page.evaluate(
+                    "document.documentElement.scrollWidth <= window.innerWidth"
+                )
+                png = atk_dir / f"{args.label}_initial_{width}.png"
+                page.screenshot(path=str(png), full_page=False)
                 report["screenshots"].append(str(png.relative_to(ROOT)))
             page.set_viewport_size({"width": 1440, "height": 1100})
             page.goto(
                 "http://127.0.0.1:5001/labs/LAB-AGENTSEC-CAPSTONE-001",
                 wait_until="networkidle",
             )
-            page.wait_for_selector("#fire-attack")
+            page.locator("#attack-button").focus()
+            report["focus"]["attack_button_outline"] = page.locator(
+                "#attack-button"
+            ).evaluate(
+                "(node) => { const s=getComputedStyle(node); return `${s.outlineStyle} ${s.outlineWidth}`; }"
+            )
+            page.wait_for_selector("#attack-button")
             page.wait_for_timeout(800)
-            page.locator("#fire-attack").click()
+            page.locator("#attack-button").click()
             page.wait_for_function(
-                "() => (document.getElementById('attack-run-id') && document.getElementById('attack-run-id').value.length > 10)",
+                "() => document.getElementById('primary-run-id').textContent.length > 10",
                 timeout=180000,
             )
             page.wait_for_timeout(1500)
@@ -186,17 +205,17 @@ def main() -> int:
             page.screenshot(path=str(png), full_page=True)
             report["screenshots"].append(str(png.relative_to(ROOT)))
             report["attack_service"]["attack_retrieve_run_id"] = page.locator(
-                "#attack-retrieve-run-id"
-            ).input_value()
+                "#retrieve-run-id"
+            ).inner_text()
             report["attack_service"]["attack_write_run_id"] = page.locator(
-                "#attack-write-run-id"
-            ).input_value()
+                "#write-run-id"
+            ).inner_text()
             report["attack_service"]["attack_recall_run_id"] = page.locator(
-                "#attack-recall-run-id"
-            ).input_value()
-            page.locator("#fire-retest").click()
+                "#recall-run-id"
+            ).inner_text()
+            page.locator("#retest-button").click()
             page.wait_for_function(
-                "() => (document.getElementById('retest-run-id') && document.getElementById('retest-run-id').value.length > 10)",
+                "() => document.getElementById('current-mode').textContent.includes('RETEST')",
                 timeout=180000,
             )
             page.wait_for_timeout(1500)
@@ -204,15 +223,51 @@ def main() -> int:
             page.screenshot(path=str(png), full_page=True)
             report["screenshots"].append(str(png.relative_to(ROOT)))
             report["attack_service"]["retest_retrieve_run_id"] = page.locator(
-                "#retest-retrieve-run-id"
-            ).input_value()
+                "#retrieve-run-id"
+            ).inner_text()
             report["attack_service"]["retest_write_run_id"] = page.locator(
-                "#retest-write-run-id"
-            ).input_value()
+                "#write-run-id"
+            ).inner_text()
             report["attack_service"]["retest_recall_run_id"] = page.locator(
-                "#retest-recall-run-id"
-            ).input_value()
+                "#recall-run-id"
+            ).inner_text()
+            page.locator("#advanced").evaluate("(node) => node.open = true")
+            page.wait_for_timeout(300)
+            png = atk_dir / f"{args.label}_advanced_1440.png"
+            page.screenshot(path=str(png), full_page=True)
+            report["screenshots"].append(str(png.relative_to(ROOT)))
+            page.evaluate("document.body.style.zoom = '200%'")
+            page.set_viewport_size({"width": 1440, "height": 1100})
+            page.wait_for_timeout(300)
+            png = atk_dir / f"{args.label}_zoom200.png"
+            page.screenshot(path=str(png), full_page=False)
+            report["screenshots"].append(str(png.relative_to(ROOT)))
+            page.evaluate("document.body.style.zoom = '100%'")
+
+            error_page = browser.new_page(viewport={"width": 1440, "height": 1100})
+            error_page.route(
+                "**/api/launch",
+                lambda route: route.fulfill(
+                    status=503,
+                    content_type="application/json",
+                    body='{"error":"simulated_dependency_failure"}',
+                ),
+            )
+            error_page.goto(
+                "http://127.0.0.1:5001/labs/LAB-AGENTSEC-CAPSTONE-001",
+                wait_until="networkidle",
+            )
+            error_page.locator("#attack-button").click()
+            error_page.wait_for_function(
+                "() => document.getElementById('current-mode').textContent.includes('ERROR')"
+            )
+            png = atk_dir / f"{args.label}_simulated_error.png"
+            error_page.screenshot(path=str(png), full_page=False)
+            report["screenshots"].append(str(png.relative_to(ROOT)))
+            report["attack_service"]["error_state"] = "SIMULATED ERROR STATE"
+            error_page.close()
         if not args.only_launch:
+            phase["name"] = "studio"
             page.goto("http://127.0.0.1:8000/en-US/account/login", wait_until="domcontentloaded")
             page.locator("input[name='username']").fill("admin")
             page.locator("input[name='password']").fill(password)
@@ -265,18 +320,15 @@ def main() -> int:
                     continue
                 page.wait_for_timeout(12000 if tab in TABLE_TABS else 2000)
                 report["tabs_found"].append(tab)
-                png = out / f"{args.label}_{tab.lower()}.png"
+                slug = tab.lower().replace(" · ", "_").replace(" ", "_")
+                png = out / f"{args.label}_{slug}.png"
                 page.screenshot(path=str(png), full_page=True)
                 report["screenshots"].append(str(png.relative_to(ROOT)))
 
-            overview = out / f"{args.label}_overview.png"
-            page.screenshot(path=str(overview), full_page=False)
-            report["screenshots"].insert(0, str(overview.relative_to(ROOT)))
-
-            for width in (1280, 1024):
+            for width in (1024,):
                 page.set_viewport_size({"width": width, "height": 1100})
                 page.wait_for_timeout(1000)
-                for tab in REQUIRED_TABS:
+                for tab in ("MISSION", "INVESTIGATE"):
                     if not click_tab(page, tab):
                         continue
                     page.wait_for_timeout(4000 if tab in TABLE_TABS else 1500)
@@ -305,6 +357,12 @@ def main() -> int:
                     "clipping_screenshots",
                     "http",
                     "attack_service",
+                    "attack_console_errors",
+                    "attack_page_errors",
+                    "attack_overflow",
+                    "focus",
+                    "studio_console_errors",
+                    "studio_page_errors",
                 )
             },
             indent=2,

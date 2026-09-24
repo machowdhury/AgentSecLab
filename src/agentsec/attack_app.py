@@ -39,6 +39,7 @@ from agentsec.mcp.policy import coded_policy
 from agentsec.memory.fixtures import (
     CLOSED_FOLLOW_ON_SCOPE as MEMORY_FOLLOW_ON_SCOPE,
     CLOSED_FOLLOW_ON_TOOL as MEMORY_FOLLOW_ON_TOOL,
+    MEMORY_ID_CAPSTONE_MALICIOUS,
     MEMORY_ID_MALICIOUS,
     MEMORY_TRUST_LABEL,
     PROVENANCE as MEMORY_PROVENANCE,
@@ -432,13 +433,39 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
                     "WHO AUTHENTICATED = NOT PROVEN / NOT MODELED",
                 ),
             }
+        capstone_workbench = None
+        if lab_id == LAB_CAPSTONE:
+            capstone_workbench = {
+                "title": "Lending Assistant Investigation",
+                "workshop_url": (
+                    "http://127.0.0.1:8000/en-US/app/agentsec/"
+                    "ws_lab_agentsec_capstone"
+                ),
+                "security_question": manifest.get("security_question"),
+                "attacker_influence": "Closed untrusted lending-policy document bytes",
+                "sensitive_outcome": (
+                    "Customer-tier information for cust-001 may be accessed"
+                ),
+                "document_id": DOCUMENT_ID_MALICIOUS,
+                "memory_id": MEMORY_ID_CAPSTONE_MALICIOUS,
+                "requested_tool": RAG_FOLLOW_ON_TOOL,
+                "requested_scope": RAG_FOLLOW_ON_SCOPE,
+            }
         template_name = (
             "attack_mcp.html"
             if lab_id == LAB_MCP
             else (
                 "attack_context.html"
                 if context_workbench is not None
-                else ("attack_authority.html" if authority_workbench is not None else "attack.html")
+                else (
+                    "attack_authority.html"
+                    if authority_workbench is not None
+                    else (
+                        "attack_capstone.html"
+                        if capstone_workbench is not None
+                        else "attack.html"
+                    )
+                )
             )
         )
         return render_template(
@@ -476,6 +503,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
             },
             context_workbench=context_workbench,
             authority_workbench=authority_workbench,
+            capstone_workbench=capstone_workbench,
             is_memory_lab=lab_id == LAB_MEMORY,
             is_goal_lab=lab_id == LAB_GOAL,
             is_identity_lab=lab_id == LAB_IDENTITY,
