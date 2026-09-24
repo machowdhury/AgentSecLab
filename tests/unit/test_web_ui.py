@@ -109,7 +109,7 @@ def test_mcp_reference_workbench_is_guided_closed_and_accessible():
     assert "allowed_tools:" not in html
     assert "requested_scope:" not in html
 
-    css = client.get("/static/mcp-workbench.css")
+    css = client.get("/static/agentsec-workbench.css")
     assert css.status_code == 200
     css_text = css.get_data(as_text=True)
     assert "@media (max-width: 1200px)" in css_text
@@ -150,3 +150,34 @@ def test_context_workbenches_preserve_domain_semantics_and_closed_launch():
         assert "body: JSON.stringify({lab_id: labId, specimen_id: specimenId, mode, execution: \"live\"})" in html
         assert "allowed_tools: " not in html
         assert "allowed_scope: " not in html
+
+
+def test_goal_and_identity_workbenches_preserve_distinct_authority_semantics():
+    app = create_attack_app(AcmeBankClient("http://acmebank.example:5000"))
+    app.config["TESTING"] = True
+    client = app.test_client()
+
+    goal = client.get("/labs/LAB-AGENT-GOAL-INTEGRITY-001").get_data(as_text=True)
+    assert "GOAL / INSTRUCTION ≠ AUTHORITY" in goal
+    assert "AUTHORIZED TOOL ≠ AUTHORIZED GOAL" in goal
+    assert ">Supporting action<" in goal and ">Prohibited objective<" in goal
+    assert "wrong-goal count is authoritative" in goal
+    assert "Total lookup_policy handlers" in goal
+
+    identity = client.get("/labs/LAB-AGENT-DELEGATION-001").get_data(as_text=True)
+    assert "IDENTITY CLAIM ≠ AUTHENTICATION" in identity
+    assert "DELEGATION CLAIM ≠ AUTHORIZATION" in identity
+    assert "CLAIMED" in identity
+    assert "ESTABLISHED IN LAB" in identity
+    assert "NOT MODELED" in identity
+    assert "OBSERVE is not authorization" in identity
+
+    for html in (goal, identity):
+        assert 'href="#main"' in html
+        assert 'aria-live="polite"' in html
+        assert "Launch ATTACK (LIVE)" in html
+        assert "Launch RETEST (LIVE)" in html
+        assert "Copy Run ID" in html
+        assert "Evidence / Advanced" in html
+        assert "runtime or dependency failure" in html
+        assert 'body: JSON.stringify({lab_id: labId, specimen_id: specimenId, mode, execution: "live"})' in html

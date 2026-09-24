@@ -11,6 +11,26 @@ from flask import Flask, jsonify, render_template, request
 from agentsec.academy import lab_row, next_lab
 from agentsec.attacks import ATK_002
 from agentsec.experiment_context import LAB_CAPSTONE, LAB_GOAL, LAB_IDENTITY, LAB_MCP, LAB_MEMORY, LAB_PI, LAB_RAG, lookup_experiment
+from agentsec.goal.fixtures import (
+    CLOSED_EXPANSION_ACTION,
+    PERMITTED_ACTION,
+    PERMITTED_RESOURCE,
+    PERMITTED_SCOPE,
+    PERMITTED_TOOL,
+    TASK_ID,
+    TASK_OBJECTIVE,
+)
+from agentsec.identity.fixtures import (
+    BASELINE_SCOPE as IDENTITY_CODED_SCOPE,
+    BASELINE_TOOL as IDENTITY_CODED_TOOL,
+    CALLEE_AGENT_ID,
+    CALLER_AGENT_ID,
+    CLAIM_TRUST,
+    CLOSED_PRIVILEGED_RESOURCE,
+    CLOSED_PRIVILEGED_SCOPE,
+    CLOSED_PRIVILEGED_TOOL,
+    PRINCIPAL_ID as IDENTITY_PRINCIPAL_ID,
+)
 from agentsec.lab_manifest import load_lab_manifest, prediction_for
 from agentsec.launch_catalog import RETEST_SUPPORT, allowlist_public_rows, known_lab_ids
 from agentsec.launch_contract import parse_launch_json
@@ -310,6 +330,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
             }
         mcp_policy = coded_policy()
         context_workbench = None
+        authority_workbench = None
         if lab_id == LAB_RAG:
             context_workbench = {
                 "kind": "rag",
@@ -360,10 +381,65 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
                     "ALLOW ≠ EXECUTION",
                 ),
             }
+        elif lab_id == LAB_GOAL:
+            authority_workbench = {
+                "kind": "goal",
+                "title": "Goal / Instruction Integrity",
+                "workshop_url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agent_goal_integrity",
+                "security_question": manifest.get("security_question"),
+                "attacker_influence": "Closed untrusted instruction fixture",
+                "server_fact_label": "Server-owned task",
+                "server_fact": f"{TASK_ID} · {TASK_OBJECTIVE}",
+                "authority_label": "Granted authority",
+                "authority": f"{PERMITTED_TOOL} · {PERMITTED_SCOPE} · {PERMITTED_RESOURCE}",
+                "request_label": "Proposed objective",
+                "request": CLOSED_EXPANSION_ACTION,
+                "observer_control": "CTRL-GOAL-INTEGRITY-001 · goal boundary",
+                "pdp_control": "CTRL-MCP-001 · tool PDP",
+                "permitted_action": PERMITTED_ACTION,
+                "prohibited_action": CLOSED_EXPANSION_ACTION,
+                "hunt_id": "Q-GOAL-INTEGRITY-AUTHORITY",
+                "expected_attack": "Goal OBSERVE; wrong-goal lookup executes once",
+                "expected_retest": "Goal DENY expansion; permitted lookup executes once",
+                "semantic_lines": (
+                    "GOAL / INSTRUCTION ≠ AUTHORITY",
+                    "AUTHORIZED TOOL ≠ AUTHORIZED GOAL",
+                    "ANY EXECUTION ≠ OBJECTIVE ACHIEVED",
+                ),
+            }
+        elif lab_id == LAB_IDENTITY:
+            authority_workbench = {
+                "kind": "identity",
+                "title": "Agent Identity / Delegation",
+                "workshop_url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agent_delegation",
+                "security_question": manifest.get("security_question"),
+                "attacker_influence": "Closed untrusted identity and delegation claim",
+                "server_fact_label": "Claimed actors",
+                "server_fact": f"{IDENTITY_PRINCIPAL_ID} · {CALLER_AGENT_ID} → {CALLEE_AGENT_ID}",
+                "authority_label": "Established coded authority",
+                "authority": f"{IDENTITY_CODED_TOOL} · {IDENTITY_CODED_SCOPE}; privileged claim is not granted",
+                "request_label": "Claimed / requested authority",
+                "request": f"{CLOSED_PRIVILEGED_TOOL} · {CLOSED_PRIVILEGED_SCOPE} · {CLOSED_PRIVILEGED_RESOURCE}",
+                "observer_control": "CTRL-IDENTITY-001 · OBSERVE",
+                "pdp_control": "CTRL-MCP-001 · tool PDP",
+                "claim_trust": CLAIM_TRUST,
+                "hunt_id": "Q-AGENT-DELEGATION-AUTHORITY",
+                "expected_attack": "Identity OBSERVE; labeled fail-open MCP ALLOW; handler 1",
+                "expected_retest": "Same claim; MCP DENY tool_not_granted; handler 0",
+                "semantic_lines": (
+                    "IDENTITY CLAIM ≠ AUTHENTICATION",
+                    "DELEGATION CLAIM ≠ AUTHORIZATION",
+                    "WHO AUTHENTICATED = NOT PROVEN / NOT MODELED",
+                ),
+            }
         template_name = (
             "attack_mcp.html"
             if lab_id == LAB_MCP
-            else ("attack_context.html" if context_workbench is not None else "attack.html")
+            else (
+                "attack_context.html"
+                if context_workbench is not None
+                else ("attack_authority.html" if authority_workbench is not None else "attack.html")
+            )
         )
         return render_template(
             template_name,
@@ -399,6 +475,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
                 "allowed_scopes": ", ".join(sorted(mcp_policy.allowed_scopes)),
             },
             context_workbench=context_workbench,
+            authority_workbench=authority_workbench,
             is_memory_lab=lab_id == LAB_MEMORY,
             is_goal_lab=lab_id == LAB_GOAL,
             is_identity_lab=lab_id == LAB_IDENTITY,

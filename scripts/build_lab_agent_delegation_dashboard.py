@@ -1474,6 +1474,128 @@ No DET-A2A. Schema 1.9.0 emitters. No OAuth. No OIDC. No SPIFFE. No real A2A tra
             "downsampleVisualizations": False,
         },
     }
+    add_md(
+        "viz_ws_mission",
+        f"""
+# MISSION · IDENTITY / DELEGATION AUTHORITY
+
+**Question:** What identity and delegation are merely claimed, what authority is evaluated, and what authentication is not modeled?
+
+Selected specimen: `$run_id$` · canonical **REPLAY** until replaced with a fresh LIVE run.id in Splunk Search.
+
+```text
+CLAIM → DELEGATION → CLAIM CLASSIFICATION → PRIVILEGED REQUEST → TOOL AUTHORIZATION → EXECUTION
+```
+
+**CLAIMED:** principal `{PRINCIPAL}` · caller `{CALLER}` · callee `{CALLEE}` · delegation request
+
+**ESTABLISHED IN LAB:** closed request fingerprint · coded policy · control decisions · handler count
+
+**NOT MODELED:** cryptographic authentication · OAuth/OIDC · signed delegation · production A2A identity
+
+[Launch a fresh LIVE experiment]({ATTACK_URL})
+""",
+        title="MISSION",
+    )
+    add_md(
+        "viz_ws_investigate",
+        f"""
+# INVESTIGATE · PATH A
+
+Establish claim provenance, requested authority, the control that decides authority, and what actually executed.
+
+**Starting search**
+
+```spl
+index=agentsec_telemetry run.id="$run_id$"
+| sort 0 agentsec.sequence
+```
+
+Use the questions and progressive hints below. Do not treat identity strings as authentication or CTRL-IDENTITY-001 OBSERVE as tool authorization.
+
+[Open Splunk Search]({SEARCH_URL})
+""",
+        title="PATH A · QUESTION AND STARTING SEARCH",
+    )
+    add_md(
+        "viz_ws_evidence",
+        """
+# EVIDENCE · CLAIM, AUTHORITY, EXECUTION
+
+```text
+CLAIMED PRINCIPAL / CALLER / CALLEE
+        → untrusted delegation claim
+        → CTRL-IDENTITY-001 OBSERVE
+        → lookup_customer_tier request
+        → CTRL-MCP-001 ALLOW or DENY
+        → runtime handler count
+```
+
+The identity control classifies the claim. CTRL-MCP-001 is the tool PDP. Runtime handler count is authoritative for execution; a complete Splunk copy corroborates it.
+
+**WHO AUTHENTICATED = NOT PROVEN / NOT MODELED**
+""",
+        title="EVIDENCE",
+    )
+    add_md(
+        "viz_ws_answers",
+        """
+# PATH B · ANSWERS
+
+Optional review after Path A. Existing validated SPL, expected shapes, interpretation, comparisons, proof limits, and REPLAY specimens follow.
+
+An identity claim is not authentication. A delegation claim is not authorization. Splunk is not either control and missing telemetry is not prevention.
+""",
+        title="PATH B · ANSWERS",
+    )
+
+    mission_ids = ["viz_ws_mission"]
+    investigate_ids = ["viz_ws_investigate"] + [
+        viz_id
+        for viz_id in visualizations
+        if viz_id.startswith("viz_i") and viz_id.endswith(("_q", "_h1", "_h2"))
+    ]
+    evidence_ids = ["viz_ws_evidence"] + [
+        viz_id for viz_id in visualizations if viz_id.startswith("viz_i") and "_tbl" in viz_id
+    ]
+    used = set(mission_ids + investigate_ids + evidence_ids + ["viz_ws_answers"])
+    answer_ids = ["viz_ws_answers"] + [viz_id for viz_id in visualizations if viz_id not in used]
+
+    def stacked(ids: list[str]) -> dict:
+        structure = []
+        y = 0
+        for viz_id in ids:
+            if visualizations[viz_id]["type"] == "splunk.table":
+                height = 300
+            elif viz_id == "viz_ws_mission":
+                height = 360
+            elif viz_id in {"viz_ws_investigate", "viz_ws_evidence"}:
+                height = 340
+            elif viz_id.startswith("viz_i") and viz_id.endswith(("_h1", "_h2")):
+                height = 220
+            elif viz_id.startswith("viz_i") and viz_id.endswith("_q"):
+                height = 380
+            else:
+                height = 620
+            structure.append(block(viz_id, 0, y, FULL, height))
+            y += height
+        return layout(structure, y + 20, display="fit-to-width")
+
+    definition["layout"]["tabs"] = {
+        "options": {"barPosition": "top"},
+        "items": [
+            {"layoutId": "layout_mission", "label": "MISSION"},
+            {"layoutId": "layout_investigate", "label": "INVESTIGATE"},
+            {"layoutId": "layout_evidence", "label": "EVIDENCE"},
+            {"layoutId": "layout_answers", "label": "PATH B · ANSWERS"},
+        ],
+    }
+    definition["layout"]["layoutDefinitions"] = {
+        "layout_mission": stacked(mission_ids),
+        "layout_investigate": stacked(investigate_ids),
+        "layout_evidence": stacked(evidence_ids),
+        "layout_answers": stacked(answer_ids),
+    }
     _ = (TEAL, SECONDARY, BORDER, EMPTY_EVENT)
     return definition
 
