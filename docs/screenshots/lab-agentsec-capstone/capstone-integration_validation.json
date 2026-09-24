@@ -1,0 +1,87 @@
+{
+  "url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agentsec_capstone",
+  "tabs_found": [
+    "MISSION",
+    "INVESTIGATE",
+    "EVIDENCE",
+    "PATH B \u00b7 ANSWERS"
+  ],
+  "tabs_missing": [],
+  "tokens_found": [
+    "retrieve_run_id",
+    "write_run_id",
+    "run_id"
+  ],
+  "tokens_missing": [],
+  "token_values": {
+    "retrieve_run_id": "Baseline retrieve \u2014 defended / normal",
+    "write_run_id": "Baseline write \u2014 defended / normal",
+    "run_id": "Baseline recall \u2014 defended / normal"
+  },
+  "screenshots": [
+    "docs/screenshots/attack-service-capstone/capstone-integration_initial_1920.png",
+    "docs/screenshots/attack-service-capstone/capstone-integration_initial_1440.png",
+    "docs/screenshots/attack-service-capstone/capstone-integration_initial_1280.png",
+    "docs/screenshots/attack-service-capstone/capstone-integration_initial_1024.png",
+    "docs/screenshots/attack-service-capstone/capstone-integration_attack_results_1440.png",
+    "docs/screenshots/attack-service-capstone/capstone-integration_retest_results_1440.png",
+    "docs/screenshots/attack-service-capstone/capstone-integration_advanced_1440.png",
+    "docs/screenshots/attack-service-capstone/capstone-integration_zoom200.png",
+    "docs/screenshots/attack-service-capstone/capstone-integration_simulated_error.png",
+    "docs/screenshots/lab-agentsec-capstone/capstone-integration_mission.png",
+    "docs/screenshots/lab-agentsec-capstone/capstone-integration_investigate.png",
+    "docs/screenshots/lab-agentsec-capstone/capstone-integration_evidence.png",
+    "docs/screenshots/lab-agentsec-capstone/capstone-integration_path b \u00b7 answers.png",
+    "docs/screenshots/lab-agentsec-capstone/capstone-integration_w1024_mission.png",
+    "docs/screenshots/lab-agentsec-capstone/capstone-integration_w1024_investigate.png"
+  ],
+  "clipping_screenshots": [
+    "docs/screenshots/lab-agentsec-capstone/capstone-integration_w1024_mission.png",
+    "docs/screenshots/lab-agentsec-capstone/capstone-integration_w1024_investigate.png"
+  ],
+  "label": "capstone-integration",
+  "tabs_requested": [
+    "MISSION",
+    "INVESTIGATE",
+    "EVIDENCE",
+    "PATH B \u00b7 ANSWERS"
+  ],
+  "viewports": [
+    1920,
+    1440,
+    1280,
+    1024
+  ],
+  "http": {
+    "attack_1920": 200,
+    "attack_1440": 200,
+    "attack_1280": 200,
+    "attack_1024": 200
+  },
+  "attack_service": {
+    "attack_retrieve_run_id": "98c160d8-e54e-4af4-962f-fc48dcb194a0",
+    "attack_write_run_id": "f75a7e0c-beb4-4273-af96-ef120f033c01",
+    "attack_recall_run_id": "6cf91471-96a0-4505-9e67-fca41f6af2af",
+    "retest_retrieve_run_id": "c8e886e5-6de5-4362-ac0c-b9f6d2cca5ab",
+    "retest_write_run_id": "c71fd015-bebf-4298-8f4d-918797029478",
+    "retest_recall_run_id": "16bfb73c-0fdb-4aab-881a-99efa34fd049",
+    "error_state": "SIMULATED ERROR STATE"
+  },
+  "attack_console_errors": [],
+  "attack_page_errors": [],
+  "attack_overflow": {
+    "1920": true,
+    "1440": true,
+    "1280": true,
+    "1024": true
+  },
+  "focus": {
+    "attack_button_outline": "solid 2px"
+  },
+  "studio_console_errors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "studio_page_errors": []
+}

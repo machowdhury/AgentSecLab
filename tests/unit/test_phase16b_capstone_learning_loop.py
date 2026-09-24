@@ -97,8 +97,8 @@ def test_learning_metadata_is_not_authorization():
     assert "Q-AGENT-DELEGATION-AUTHORITY" in hunts
     by_id = {row["investigation_id"]: row for row in rows}
     assert by_id["CAP-I14-ATTACK-VS-RETEST"]["investigation_kind"] == "paired_run"
-    assert by_id["CAP-I14-ATTACK-VS-RETEST"]["studio_tab"] == "COMPARE"
-    assert by_id["CAP-I16-CLASSIFY-PROOF"]["studio_tab"] == "PROVE"
+    assert by_id["CAP-I14-ATTACK-VS-RETEST"]["studio_tab"] == "EVIDENCE"
+    assert by_id["CAP-I16-CLASSIFY-PROOF"]["studio_tab"] == "PATH B · ANSWERS"
     prove = by_id["CAP-I16-CLASSIFY-PROOF"]
     blob = prove["hint_2"] + prove["security_interpretation"]
     assert "INCORRECT" in blob
@@ -353,16 +353,19 @@ def test_capstone_attack_page_is_closed_launcher():
     assert "RAG Memory MCP Authorization Failure" not in html
     assert "Launch ATTACK (LIVE)" in html
     assert "Launch RETEST (LIVE)" in html
-    assert "Predict before ATTACK" in html
-    assert 'lab_id: "LAB-AGENTSEC-CAPSTONE-001"' in html
+    assert "Run ATTACK first" in html
+    assert 'const labId = "LAB-AGENTSEC-CAPSTONE-001"' in html
     assert CAPSTONE_ATTACK_ID in html
     assert "CTRL-MCP-001" in html
-    assert "Q-RAG-CONTEXT-AUTHORITY" in html
-    assert "ATTACK RETRIEVE run.id" in html
-    assert "Copy ATTACK retrieve run.id" in html
-    assert "Do not create DET-CAPSTONE" in html
-    assert "let changed" in html
-    assert "SAME ADVERSARIAL INFLUENCE" in html
+    assert "Influence · intent · authority · execution" in html
+    assert "RETRIEVE run · context entry" in html
+    assert "WRITE run · persisted bytes" in html
+    assert "RECALL run · request / decision / execution" in html
+    assert "source_run_id · WRITE→RECALL link" in html
+    assert "Goal Integrity and Identity/Delegation event families" in html
+    assert "Cryptographic authentication, OAuth/OIDC" in html
+    assert "ERROR · runtime or dependency failure" in html
+    assert "body: JSON.stringify({lab_id: labId, specimen_id: specimenId, mode, execution: \"live\"})" in html
     bank = (ROOT / "src" / "agentsec" / "bank_app.py").read_text(encoding="utf-8")
     assert '@app.post("/capstone' not in bank
     assert '@app.post("/a2a' not in bank

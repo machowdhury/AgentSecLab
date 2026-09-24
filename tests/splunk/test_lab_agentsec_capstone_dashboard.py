@@ -27,15 +27,9 @@ BUILDER = ROOT / "scripts" / "build_lab_agentsec_capstone_dashboard.py"
 
 WORKSHOP_TABS = (
     "MISSION",
-    "ARCHITECTURE",
-    "ATTACK",
     "INVESTIGATE",
-    "TRACE",
-    "AUTHORITY",
-    "DEFEND",
-    "RETEST",
-    "COMPARE",
-    "PROVE",
+    "EVIDENCE",
+    "PATH B · ANSWERS",
 )
 REQUIRED_TOKENS = ("retrieve_run_id", "write_run_id", "run_id")
 
@@ -105,6 +99,9 @@ def test_teaching_claims():
     assert "CTRL-MCP-001" in md
     assert "Path A" in md
     assert "Path B" in md
+    assert "Question 1 — Influence" in md
+    assert "Question 6 — Control effectiveness" in md
+    assert "Write a hypothesis before opening" in md
     assert "SUPPORTED" in md
     assert "INCORRECT" in md
     assert "enforcement" in lowered
