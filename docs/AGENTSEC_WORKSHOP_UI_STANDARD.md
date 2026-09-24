@@ -1,7 +1,7 @@
 # AgentSec Workshop UI Standard
 
 **Status:** Required for new LEARN → PROVE workshops unless a documented semantic reason requires deviation.  
-**Date:** 2026-09-23
+**Date:** 2026-09-24
 **Do not copy Goal Integrity evidence planes onto RAG, Memory, Scanner, Identity, or MCP.**
 
 Reuse visual grammar. Preserve each domain’s controls and evidence.
@@ -118,6 +118,28 @@ ALLOW != EXECUTION
 SPLUNK != ENFORCEMENT
 
 Defense does not mean block `lookup_policy`.
+
+Goal workbenches must report execution by security meaning, not only by total handler count. Show the permitted supporting operation and prohibited objective separately. A defended RETEST may execute a permitted operation; that fact is not automatically a defense failure.
+
+Recommended chain:
+
+`GOAL → PROPOSED ACTION → GOAL CONTROL → EFFECTIVE ACTION → TOOL AUTHORIZATION → OPERATION-SPECIFIC EXECUTION → EVIDENCE`
+
+---
+
+## Identity / Delegation specialization
+
+Identity strings and delegation fields need explicit assurance labels:
+
+- **CLAIMED** — principal, caller, callee, and delegation supplied by the closed request fixture
+- **ESTABLISHED IN LAB** — exact fixture/fingerprint, coded policy, control output, and runtime count
+- **NOT MODELED** — cryptographic authentication, signed delegation, OAuth/OIDC, mTLS/PKI, or production workload identity
+
+Do not style a claim as though it were authenticated. Keep `CTRL-IDENTITY-001 OBSERVE` separate from the tool PDP:
+
+`CLAIM → DELEGATION → CLAIM CONTROL → REQUEST → TOOL AUTHORIZATION → EXECUTION → EVIDENCE`
+
+The default viewport must expose `IDENTITY CLAIM != AUTHENTICATION`, `DELEGATION CLAIM != AUTHORIZATION`, and any authentication gap.
 
 ---
 

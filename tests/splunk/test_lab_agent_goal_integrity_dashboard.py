@@ -42,16 +42,10 @@ MEMORY_VIEW = (
 )
 
 WORKSHOP_TABS = (
-    "LEARN",
-    "BASELINE",
-    "ATTACK",
-    "OBSERVE",
-    "HUNT",
-    "DETECT",
-    "DEFEND",
-    "RETEST",
-    "COMPARE",
-    "PROVE",
+    "MISSION",
+    "INVESTIGATE",
+    "EVIDENCE",
+    "PATH B · ANSWERS",
 )
 REQUIRED_TOKENS = ("run_id",)
 SPECIMEN_IDS = {
@@ -131,7 +125,7 @@ def test_files_and_nav_exist():
     assert "LAB-AGENT-GOAL-INTEGRITY-001" in xml
 
 
-def test_ten_tabs_and_token_defaults():
+def test_workshop_path_tabs_and_token_defaults():
     definition = _definition()
     labels = [item["label"] for item in definition["layout"]["tabs"]["items"]]
     assert labels == list(WORKSHOP_TABS)

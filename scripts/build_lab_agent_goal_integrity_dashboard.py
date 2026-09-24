@@ -1524,6 +1524,125 @@ No DET-GOAL. Schema 1.9.0. Identity / Delegation is the next LIVE lab. Do not st
             "downsampleVisualizations": False,
         },
     }
+    add_md(
+        "viz_ws_mission",
+        f"""
+# MISSION · GOAL / INSTRUCTION INTEGRITY
+
+**Question:** Did the prohibited `extract_full_policy` objective execute, even if the permitted `lookup_policy` supporting operation did?
+
+Selected specimen: `$run_id$` · canonical **REPLAY** until replaced with a fresh LIVE run.id in Splunk Search.
+
+```text
+GOAL → PROPOSED ACTION → GOAL CONTROL → EFFECTIVE ACTION → TOOL CONTROL → OPERATION-SPECIFIC EXECUTION
+```
+
+**AUTHORIZED TOOL != AUTHORIZED GOAL**
+
+ATTACK is expected to execute one wrong-goal lookup. RETEST is expected to execute one in-task lookup and zero wrong-goal lookups. Any handler execution alone is not a defense failure.
+
+[Launch a fresh LIVE experiment]({ATTACK_URL})
+""",
+        title="MISSION",
+    )
+    add_md(
+        "viz_ws_investigate",
+        f"""
+# INVESTIGATE · PATH A
+
+Start with the selected run and establish **what executed**, not merely whether any handler ran.
+
+**Starting search**
+
+```spl
+index=agentsec_telemetry run.id="$run_id$"
+| sort 0 agentsec.sequence
+```
+
+Use the questions and progressive hints below. Keep Goal control and MCP authorization separate. Build the search before opening PATH B.
+
+[Open Splunk Search]({SEARCH_URL})
+""",
+        title="PATH A · QUESTION AND STARTING SEARCH",
+    )
+    add_md(
+        "viz_ws_evidence",
+        """
+# EVIDENCE · OPERATION-SPECIFIC RUNTIME STORY
+
+Read the selected-run tables as:
+
+```text
+SERVER GOAL → PROPOSED OBJECTIVE → CTRL-GOAL-INTEGRITY-001
+            → EFFECTIVE ACTION → CTRL-MCP-001 → lookup_policy
+            → in-task count / wrong-goal count
+```
+
+The defended result may include one permitted `lookup_policy` execution. The security question is whether the **wrong-goal count** is zero. Runtime counts are authoritative; a complete Splunk copy corroborates them.
+""",
+        title="EVIDENCE",
+    )
+    add_md(
+        "viz_ws_answers",
+        """
+# PATH B · ANSWERS
+
+Optional review after Path A. Existing validated SPL, expected result shapes, interpretation, detection context, comparisons, proof limits, and REPLAY specimens follow.
+
+Splunk did not enforce the Goal or MCP decision. Missing telemetry is not prevention. Goal DENY does not mean the granted supporting tool was denied.
+""",
+        title="PATH B · ANSWERS",
+    )
+
+    mission_ids = ["viz_ws_mission"]
+    investigate_ids = ["viz_ws_investigate"] + [
+        viz_id
+        for viz_id in visualizations
+        if viz_id.startswith("viz_i") and viz_id.endswith(("_q", "_h1", "_h2"))
+    ]
+    evidence_ids = ["viz_ws_evidence", "viz_hunt_goal", "viz_hunt_authz", "viz_hunt_tool", "viz_hunt_exec", "viz_hunt_who"] + [
+        viz_id for viz_id in visualizations if viz_id.startswith("viz_i") and "_tbl" in viz_id
+    ]
+    used = set(mission_ids + investigate_ids + evidence_ids + ["viz_ws_answers"])
+    answer_ids = ["viz_ws_answers"] + [viz_id for viz_id in visualizations if viz_id not in used]
+
+    def stacked(ids: list[str]) -> dict:
+        structure = []
+        y = 0
+        for viz_id in ids:
+            if visualizations[viz_id]["type"] == "splunk.table":
+                height = 300
+            elif viz_id == "viz_ws_mission":
+                height = 360
+            elif viz_id in {"viz_ws_investigate", "viz_ws_evidence"}:
+                height = 340
+            elif viz_id.startswith("viz_i") and viz_id.endswith(("_h1", "_h2")):
+                height = 220
+            elif viz_id.startswith("viz_i") and viz_id.endswith("_q"):
+                height = 380
+            else:
+                height = 620
+            structure.append(block(viz_id, 0, y, FULL, height))
+            y += height
+        stacked_layout = layout(structure, y + 20)
+        stacked_layout["options"]["display"] = "fit-to-width"
+        return stacked_layout
+
+    definition["layout"]["tabs"] = {
+        "options": {"barPosition": "top"},
+        "items": [
+            {"layoutId": "layout_mission", "label": "MISSION"},
+            {"layoutId": "layout_investigate", "label": "INVESTIGATE"},
+            {"layoutId": "layout_evidence", "label": "EVIDENCE"},
+            {"layoutId": "layout_answers", "label": "PATH B · ANSWERS"},
+        ],
+    }
+    definition["layout"]["layoutDefinitions"] = {
+        "layout_mission": stacked(mission_ids),
+        "layout_investigate": stacked(investigate_ids),
+        "layout_evidence": stacked(evidence_ids),
+        "layout_answers": stacked(answer_ids),
+    }
     _ = (TEAL, SECONDARY, BORDER, EMPTY_EVENT)
     return definition
 

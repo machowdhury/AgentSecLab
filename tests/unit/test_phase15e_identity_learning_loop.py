@@ -267,16 +267,17 @@ def test_identity_attack_page_is_closed_launcher():
     assert "Agent Identity / Delegation" in html
     assert "Launch ATTACK (LIVE)" in html
     assert "Launch RETEST (LIVE)" in html
-    assert "Predict before ATTACK" in html
-    assert 'lab_id: "LAB-AGENT-DELEGATION-001"' in html
+    assert "Prediction and falsification" in html
+    assert 'const labId = "LAB-AGENT-DELEGATION-001"' in html
     assert "A2A-001" in html
     assert "CTRL-IDENTITY-001" in html
     assert "Q-AGENT-DELEGATION-AUTHORITY" in html
-    assert "WHAT IS AGENT DELEGATION?" in html
     assert "WHO AUTHENTICATED" in html
     assert "NOT PROVEN / NOT MODELED" in html
-    assert "SAME IDENTITY CLAIM. SAME DELEGATION CLAIM. SAME PRIVILEGED REQUEST." in html
-    assert "lookup_customer_tier HANDLER" in html
+    assert "IDENTITY CLAIM ≠ AUTHENTICATION" in html
+    assert "DELEGATION CLAIM ≠ AUTHORIZATION" in html
+    assert "CLAIMED" in html
+    assert "ESTABLISHED IN LAB" in html
 
 
 def test_direct_identity_delegate_without_experiment_id_keeps_auto_mode(acme_client):

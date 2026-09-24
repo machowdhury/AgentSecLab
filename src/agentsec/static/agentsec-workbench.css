@@ -1,4 +1,4 @@
-/* Shared AgentSec experiment-workbench primitives, introduced by LAB-MCP-001. */
+/* Shared AgentSec security-experiment workbench primitives. */
 
 .workbench-page {
   --max-width: 1480px;
@@ -723,6 +723,51 @@
   color: var(--chrome-navy);
 }
 
+/* Goal-integrity and identity-authority extensions. */
+.assurance-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .65rem;
+  margin-top: .8rem;
+}
+
+.assurance-strip > div {
+  min-width: 0;
+  padding: .65rem .75rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent-teal);
+  border-radius: 4px;
+  background: var(--bg-page);
+}
+
+.assurance-strip [data-assurance="claimed"] {
+  border-left-color: #a56700;
+}
+
+.assurance-strip [data-assurance="not-modeled"] {
+  border-left-color: #687685;
+}
+
+.assurance-strip span {
+  display: block;
+  color: var(--text-secondary);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+.assurance-strip strong {
+  display: block;
+  margin-top: .2rem;
+  color: var(--chrome-navy);
+  font-size: .84rem;
+  overflow-wrap: anywhere;
+}
+
+.authority-chain strong {
+  line-height: 1.35;
+}
+
 @media (max-width: 1200px) {
   .context-facts {
     grid-template-columns: repeat(3, 1fr);
@@ -755,7 +800,8 @@
   .context-facts,
   .context-chain,
   .correlation-grid,
-  .result-facts {
+  .result-facts,
+  .assurance-strip {
     grid-template-columns: 1fr;
   }
 

@@ -1,0 +1,56 @@
+{
+  "url": "http://127.0.0.1:5001/labs/LAB-MCP-001",
+  "label": "goal-identity-regression",
+  "screenshots": [
+    "docs/screenshots/mcp-reference-workbench/goal-identity-regression_attack_initial_1920.png",
+    "docs/screenshots/mcp-reference-workbench/goal-identity-regression_attack_initial_1440.png",
+    "docs/screenshots/mcp-reference-workbench/goal-identity-regression_attack_initial_1280.png",
+    "docs/screenshots/mcp-reference-workbench/goal-identity-regression_attack_initial_1024.png",
+    "docs/screenshots/mcp-reference-workbench/goal-identity-regression_attack_zoom200.png",
+    "docs/screenshots/mcp-reference-workbench/goal-identity-regression_attack_pair_1440.png",
+    "docs/screenshots/mcp-reference-workbench/goal-identity-regression_attack_advanced_1440.png"
+  ],
+  "viewports": {
+    "1920": {
+      "scrollWidth": 1920,
+      "clientWidth": 1920,
+      "overflow": false
+    },
+    "1440": {
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "overflow": false
+    },
+    "1280": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "overflow": false
+    },
+    "1024": {
+      "scrollWidth": 1024,
+      "clientWidth": 1024,
+      "overflow": false
+    }
+  },
+  "console_errors": [],
+  "page_errors": [],
+  "keyboard": {
+    "first_focus": "Skip to experiment",
+    "second_focus": "Academy workshop",
+    "visible_focus_rule": true
+  },
+  "zoom_200": {
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflow": false
+  },
+  "live": {
+    "run": true,
+    "attack_run_id": "d6fd26c1-a96c-4c6a-a49c-d21951022679",
+    "retest_run_id": "d8444320-d236-49b3-8b49-7af1ed88bc23",
+    "copy_feedback": "Run ID copied. Use it to correlate this experiment.",
+    "comparison_rows": 12,
+    "advanced_response_contains_retest": true,
+    "advanced_request_is_closed_contract": true
+  }
+}

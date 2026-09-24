@@ -1,0 +1,109 @@
+{
+  "tabs": [
+    "MISSION",
+    "INVESTIGATE",
+    "EVIDENCE",
+    "PATH B \u00b7 ANSWERS"
+  ],
+  "widths": [
+    1920,
+    1440,
+    1280,
+    1024
+  ],
+  "workshops": {
+    "goal": {
+      "url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agent_goal_integrity",
+      "tabs_found": [
+        "MISSION",
+        "INVESTIGATE",
+        "EVIDENCE",
+        "PATH B \u00b7 ANSWERS"
+      ],
+      "tabs_missing": [],
+      "screenshots": [
+        "docs/screenshots/authority-studio-workshops/final_goal_mission_1440.png",
+        "docs/screenshots/authority-studio-workshops/final_goal_investigate_1440.png",
+        "docs/screenshots/authority-studio-workshops/final_goal_evidence_1440.png",
+        "docs/screenshots/authority-studio-workshops/final_goal_path_b_path_answers_1440.png",
+        "docs/screenshots/authority-studio-workshops/final_goal_mission_w1920.png",
+        "docs/screenshots/authority-studio-workshops/final_goal_mission_w1440.png",
+        "docs/screenshots/authority-studio-workshops/final_goal_mission_w1280.png",
+        "docs/screenshots/authority-studio-workshops/final_goal_mission_w1024.png"
+      ],
+      "overflow": {
+        "1920": true,
+        "1440": true,
+        "1280": true,
+        "1024": true
+      },
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "known_platform_404s": [
+        {
+          "status": 404,
+          "url": "http://127.0.0.1:8000/en-US/splunkd/__raw/services/configs/conf-limits/structured_data_service?output_mode=json"
+        },
+        {
+          "status": 404,
+          "url": "http://127.0.0.1:8000/en-US/splunkd/__raw/servicesNS/admin/agentsec/static/appLogo.png"
+        },
+        {
+          "status": 404,
+          "url": "http://127.0.0.1:8000/en-US/splunkd/__raw/services/server/scs/tenantinfo?output_mode=json"
+        }
+      ],
+      "unexpected_http_errors": []
+    },
+    "identity": {
+      "url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agent_delegation",
+      "tabs_found": [
+        "MISSION",
+        "INVESTIGATE",
+        "EVIDENCE",
+        "PATH B \u00b7 ANSWERS"
+      ],
+      "tabs_missing": [],
+      "screenshots": [
+        "docs/screenshots/authority-studio-workshops/final_identity_mission_1440.png",
+        "docs/screenshots/authority-studio-workshops/final_identity_investigate_1440.png",
+        "docs/screenshots/authority-studio-workshops/final_identity_evidence_1440.png",
+        "docs/screenshots/authority-studio-workshops/final_identity_path_b_path_answers_1440.png",
+        "docs/screenshots/authority-studio-workshops/final_identity_mission_w1920.png",
+        "docs/screenshots/authority-studio-workshops/final_identity_mission_w1440.png",
+        "docs/screenshots/authority-studio-workshops/final_identity_mission_w1280.png",
+        "docs/screenshots/authority-studio-workshops/final_identity_mission_w1024.png"
+      ],
+      "overflow": {
+        "1920": true,
+        "1440": true,
+        "1280": true,
+        "1024": true
+      },
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "known_platform_404s": [
+        {
+          "status": 404,
+          "url": "http://127.0.0.1:8000/en-US/splunkd/__raw/services/configs/conf-limits/structured_data_service?output_mode=json"
+        },
+        {
+          "status": 404,
+          "url": "http://127.0.0.1:8000/en-US/splunkd/__raw/servicesNS/admin/agentsec/static/appLogo.png"
+        },
+        {
+          "status": 404,
+          "url": "http://127.0.0.1:8000/en-US/splunkd/__raw/services/server/scs/tenantinfo?output_mode=json"
+        }
+      ],
+      "unexpected_http_errors": []
+    }
+  },
+  "failures": []
+}

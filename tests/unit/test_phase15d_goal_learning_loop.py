@@ -262,14 +262,15 @@ def test_goal_attack_page_is_closed_launcher():
     assert "Goal / Instruction Integrity" in html
     assert "Launch ATTACK (LIVE)" in html
     assert "Launch RETEST (LIVE)" in html
-    assert "Predict before ATTACK" in html
-    assert 'lab_id: "LAB-AGENT-GOAL-INTEGRITY-001"' in html
+    assert "Prediction and falsification" in html
+    assert 'const labId = "LAB-AGENT-GOAL-INTEGRITY-001"' in html
     assert "GOAL-001" in html
     assert "CTRL-GOAL-INTEGRITY-001" in html
     assert "Q-GOAL-INTEGRITY-AUTHORITY" in html
-    assert "WHAT IS GOAL / INSTRUCTION INTEGRITY?" in html
-    assert "AUTHORIZED TOOL != AUTHORIZED GOAL" in html
-    assert "If MCP allowed the tool" in html
+    assert "GOAL / INSTRUCTION ≠ AUTHORITY" in html
+    assert "AUTHORIZED TOOL ≠ AUTHORIZED GOAL" in html
+    assert "Supporting action" in html
+    assert "Prohibited objective" in html
 
 
 def test_direct_goal_evaluate_without_experiment_id_keeps_auto_mode(acme_client):

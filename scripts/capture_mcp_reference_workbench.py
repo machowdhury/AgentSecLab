@@ -52,7 +52,11 @@ def main() -> int:
     }
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        chrome = Path("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+        launch_options = {"headless": True}
+        if chrome.is_file():
+            launch_options["executable_path"] = str(chrome)
+        browser = p.chromium.launch(**launch_options)
         context = browser.new_context(viewport={"width": 1440, "height": 1000})
         page = context.new_page()
         page.on("console", lambda message: report["console_errors"].append(message.text) if message.type == "error" else None)

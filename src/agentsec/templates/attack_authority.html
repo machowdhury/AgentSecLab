@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgentSec — {{ authority_workbench.title }} Workbench</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='agentsec-workbench.css') }}">
+</head>
+<body class="workbench-page authority-workbench authority-workbench--{{ authority_workbench.kind }}">
+  <a class="skip-link" href="#main">Skip to experiment</a>
+  <header class="workbench-header">
+    <div class="workbench-header__inner">
+      <div>
+        <p class="brand-kicker">AgentSec · AI Security Experiment Workbench</p>
+        <h1>{{ authority_workbench.title }}</h1>
+      </div>
+      <div class="workbench-meta" aria-label="Experiment status">
+        <span class="mode-badge">LIVE</span>
+        <span id="current-mode">MODE · NOT RUN</span>
+        <span>{{ lab_id }}</span>
+        <span id="runtime-health">RUNTIME · CHECKING</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="workbench">
+    <nav class="workbench-nav" aria-label="Experiment links">
+      <a href="{{ authority_workbench.workshop_url }}">Academy workshop</a>
+      {% if next_lab %}<span>Next: {{ next_lab.title }} ({{ next_lab.mode }})</span>{% endif %}
+      <a href="/">All LIVE labs</a>
+      <a href="#advanced">Evidence / Advanced</a>
+    </nav>
+
+    <section class="mission" aria-labelledby="security-question">
+      <p class="eyebrow">Security question</p>
+      <h2 id="security-question">{{ authority_workbench.security_question }}</h2>
+      <div class="context-facts authority-facts">
+        <div><span>Attacker influence</span><strong>{{ authority_workbench.attacker_influence }}</strong></div>
+        <div><span>{{ authority_workbench.server_fact_label }}</span><strong>{{ authority_workbench.server_fact }}</strong></div>
+        <div><span>{{ authority_workbench.authority_label }}</span><strong>{{ authority_workbench.authority }}</strong></div>
+        <div><span>{{ authority_workbench.request_label }}</span><strong><code>{{ authority_workbench.request }}</code></strong></div>
+        <div><span>Integrity / claim control</span><strong>{{ authority_workbench.observer_control }}</strong></div>
+        <div><span>Operation authority</span><strong>{{ authority_workbench.pdp_control }}</strong></div>
+      </div>
+      {% if authority_workbench.kind == "identity" %}
+      <div class="assurance-strip" aria-label="Identity assurance model">
+        <div data-assurance="claimed"><span>CLAIMED</span><strong>principal · caller · callee · delegation</strong></div>
+        <div data-assurance="established"><span>ESTABLISHED IN LAB</span><strong>closed fixture · coded policy · runtime decisions</strong></div>
+        <div data-assurance="not-modeled"><span>NOT MODELED</span><strong>cryptographic authentication · signed delegation · OAuth/OIDC</strong></div>
+      </div>
+      {% endif %}
+      <p class="semantic-line">
+        {% for line in authority_workbench.semantic_lines %}<strong>{{ line }}</strong>{% endfor %}
+      </p>
+    </section>
+
+    <div class="workbench-grid">
+      <section class="experiment-panel" aria-labelledby="experiment-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Run the experiment</p>
+            <h2 id="experiment-heading">Same closed input · different runtime profile</h2>
+          </div>
+          <p>The browser selects only a specimen and mode. Claims, authority, profile, controls, and IDs remain server-owned.</p>
+        </div>
+        <div class="mode-actions">
+          <button id="attack-button" class="btn btn-danger" type="button" data-specimen="{{ specimen_attack }}">
+            Launch ATTACK (LIVE)
+            <small>{{ authority_workbench.expected_attack }}</small>
+          </button>
+          <button id="retest-button" class="btn btn-primary" type="button" data-specimen="{{ specimen_retest }}">
+            Launch RETEST (LIVE)
+            <small>{{ authority_workbench.expected_retest }}</small>
+          </button>
+        </div>
+        <details class="prediction">
+          <summary>Prediction and falsification</summary>
+          <div class="prediction-grid">
+            <div><h3>ATTACK prediction</h3><p>{{ authority_workbench.expected_attack }}</p></div>
+            <div><h3>RETEST prediction</h3><p>{{ authority_workbench.expected_retest }}</p></div>
+          </div>
+        </details>
+        <p id="launch-status" class="status-message" role="status" aria-live="polite">Choose ATTACK or RETEST. Each launch creates a fresh server-owned run.id.</p>
+      </section>
+
+      <aside class="run-panel" aria-labelledby="run-heading">
+        <p class="eyebrow">Primary experiment correlation</p>
+        <h2 id="run-heading">run.id</h2>
+        <code id="primary-run-id" class="run-id">Not launched</code>
+        <div class="compact-actions">
+          <button class="btn btn-secondary" type="button" data-copy-target="primary-run-id">Copy Run ID</button>
+          <a class="btn btn-secondary" href="{{ authority_workbench.workshop_url }}">Investigate in Splunk</a>
+        </div>
+        <p class="run-help">This server-owned ID correlates controls, operation-specific execution, local evidence, and the Splunk copy.</p>
+      </aside>
+    </div>
+
+    {% if authority_workbench.kind == "goal" %}
+    <section class="decision-section" aria-labelledby="chain-heading">
+      <div class="section-heading">
+        <div><p class="eyebrow">Goal-integrity evidence story</p><h2 id="chain-heading">Objective and individual execution are separate facts</h2></div>
+        <p>A permitted supporting lookup can execute while the prohibited objective remains unexecuted.</p>
+      </div>
+      <ol class="context-chain authority-chain" aria-label="Goal integrity evidence chain">
+        <li><span>Server goal</span><strong>{{ authority_workbench.permitted_action }}</strong></li>
+        <li><span>Proposed change</span><strong id="chain-proposed">{{ authority_workbench.prohibited_action }}</strong></li>
+        <li><span>Goal control</span><strong id="chain-integrity">NOT RUN</strong></li>
+        <li><span>Effective action</span><strong id="chain-effective">NOT RUN</strong></li>
+        <li><span>Tool authorization</span><strong id="chain-authz">NOT RUN</strong></li>
+        <li><span>Supporting action</span><strong id="chain-permitted">NOT MEASURED</strong></li>
+        <li><span>Prohibited objective</span><strong id="chain-prohibited">NOT MEASURED</strong></li>
+        <li><span>Evidence</span><strong id="chain-evidence">NOT RUN</strong></li>
+      </ol>
+    </section>
+    {% else %}
+    <section class="decision-section" aria-labelledby="chain-heading">
+      <div class="section-heading">
+        <div><p class="eyebrow">Identity-authority evidence story</p><h2 id="chain-heading">Claims enter as data; coded policy decides tool authority</h2></div>
+        <p>CTRL-IDENTITY-001 observes claim trust. It does not authenticate an actor or authorize the tool.</p>
+      </div>
+      <ol class="context-chain authority-chain" aria-label="Identity and delegation evidence chain">
+        <li><span>Principal claim</span><strong id="chain-principal">CLAIMED</strong></li>
+        <li><span>Caller → callee</span><strong id="chain-agents">CLAIMED</strong></li>
+        <li><span>Delegation</span><strong>{{ authority_workbench.request }}</strong></li>
+        <li><span>Claim control</span><strong id="chain-integrity">NOT RUN</strong></li>
+        <li><span>Privileged request</span><strong>{{ authority_workbench.request }}</strong></li>
+        <li><span>Tool authorization</span><strong id="chain-authz">NOT RUN</strong></li>
+        <li><span>Execution</span><strong id="chain-execution">NOT MEASURED</strong></li>
+        <li><span>Assurance</span><strong id="chain-assurance">NOT PROVEN / NOT MODELED</strong></li>
+      </ol>
+    </section>
+    {% endif %}
+
+    <section class="run-results" aria-labelledby="result-heading">
+      <div class="section-heading">
+        <div><p class="eyebrow">Measured runtime result</p><h2 id="result-heading">Control and operation-specific execution</h2></div>
+        <p>Control decisions and execution are reported separately. Splunk corroboration is a later investigation.</p>
+      </div>
+      <dl class="result-facts">
+        <div><dt>Mode</dt><dd id="result-mode">NOT RUN</dd></div>
+        <div><dt>{{ "Goal control" if authority_workbench.kind == "goal" else "Identity claim control" }}</dt><dd id="result-integrity">NOT RUN</dd></div>
+        <div><dt>Tool authorization</dt><dd id="result-authz">NOT RUN</dd></div>
+        <div><dt>{{ "Effective action" if authority_workbench.kind == "goal" else "Authorization reason" }}</dt><dd id="result-effective">NOT RUN</dd></div>
+        <div><dt>{{ "Supporting operation" if authority_workbench.kind == "goal" else "Privileged operation" }}</dt><dd id="result-permitted">NOT MEASURED</dd></div>
+        <div><dt>{{ "Prohibited objective" if authority_workbench.kind == "goal" else "Authentication status" }}</dt><dd id="result-prohibited">NOT MEASURED</dd></div>
+        <div><dt>Local primary events</dt><dd id="result-events">NOT MEASURED</dd></div>
+        <div><dt>Input fingerprint</dt><dd id="result-fingerprint">NOT RUN</dd></div>
+      </dl>
+    </section>
+
+    <section class="comparison-section" aria-labelledby="comparison-heading">
+      <div class="section-heading">
+        <div><p class="eyebrow">ATTACK ↔ RETEST</p><h2 id="comparison-heading">Compare controls with execution by operation</h2></div>
+        <p id="comparison-status">Run both modes. Fingerprint equality covers only the canonical input object.</p>
+      </div>
+      <div class="comparison-table-wrap">
+        <table class="comparison-table">
+          <thead><tr><th scope="col">Evidence</th><th scope="col">ATTACK</th><th scope="col">RETEST</th><th scope="col">Relationship</th></tr></thead>
+          <tbody id="comparison-body"><tr><th scope="row">Status</th><td>NOT RUN</td><td>NOT RUN</td><td>NOT MEASURED</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="next-section">
+      <div>
+        <p class="eyebrow">Investigate</p>
+        <h2>{{ "GOAL → OPERATION → CONTROL → EXECUTION" if authority_workbench.kind == "goal" else "CLAIM → DELEGATION → AUTHORITY → EXECUTION" }}</h2>
+        <p>Begin with the fresh run.id, then use <code>{{ authority_workbench.hunt_id }}</code>. Missing telemetry is not prevention, and Splunk is not enforcement.</p>
+      </div>
+      <a class="btn btn-primary" href="{{ authority_workbench.workshop_url }}">Open Academy workshop</a>
+    </section>
+
+    <details id="advanced" class="advanced">
+      <summary>Evidence / Advanced</summary>
+      <div class="advanced-grid">
+        <section><h2>Closed launch contract</h2><pre>{"lab_id":"{{ lab_id }}","specimen_id":"{{ specimen_attack }}","mode":"ATTACK|RETEST","execution":"live"}</pre><p>Unknown and authority-like browser fields are rejected as ERROR.</p></section>
+        <section><h2>Evidence limits</h2><p>Schema 1.9.0. Runtime counts establish handler execution. Searchable Splunk events corroborate a complete copy; they do not enforce.</p></section>
+        <section><h2>ATTACK response</h2><pre id="attack-response">Not run</pre></section>
+        <section><h2>RETEST response</h2><pre id="retest-response">Not run</pre></section>
+      </div>
+    </details>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+      const labId = {{ lab_id|tojson }};
+      const kind = {{ authority_workbench.kind|tojson }};
+      const requestLabel = {{ authority_workbench.request|tojson }};
+      const results = {ATTACK: null, RETEST: null};
+      const status = document.getElementById("launch-status");
+      const attackButton = document.getElementById("attack-button");
+      const retestButton = document.getElementById("retest-button");
+
+      const runtime = result => (result && result.runtime) || {};
+      const text = (id, value) => {
+        const node = document.getElementById(id);
+        if (node) node.textContent = value === undefined || value === null || value === "" ? "NOT MEASURED" : String(value);
+      };
+      const countState = count => count === undefined || count === null
+        ? "NOT MEASURED"
+        : (Number(count) > 0 ? "EXECUTED · handler " + count : "NOT EXECUTED · handler 0");
+      const objectiveState = result => {
+        const count = runtime(result).wrong_goal_lookup_policy_count;
+        return count === undefined || count === null ? "NOT MEASURED" : (Number(count) > 0 ? "ACHIEVED · wrong-goal handler " + count : "PREVENTED · wrong-goal handler 0");
+      };
+      const operationState = result => countState(runtime(result).lookup_customer_tier_handler_count);
+      const integrityDecision = result => {
+        const rt = runtime(result);
+        return kind === "goal"
+          ? (rt.goal_control_decision || "NOT MEASURED") + " · " + (rt.goal_control_reason || "reason not measured")
+          : (rt.identity_control_decision || "NOT MEASURED") + " · " + (rt.identity_control_reason || "reason not measured");
+      };
+      const authzDecision = result => {
+        const rt = runtime(result);
+        return (rt.follow_on_decision || "NOT MEASURED") + " · " + (rt.follow_on_reason || "reason not measured");
+      };
+
+      document.querySelectorAll("[data-copy-target]").forEach(button => button.addEventListener("click", async () => {
+        const value = document.getElementById(button.dataset.copyTarget)?.textContent || "";
+        if (!value || value === "Not launched") return;
+        try {
+          await navigator.clipboard.writeText(value);
+          status.textContent = "Copied server-owned run.id.";
+        } catch (_error) {
+          status.textContent = "Copy unavailable. Select the visible run.id manually.";
+        }
+      }));
+
+      function render(result, mode) {
+        const rt = runtime(result);
+        results[mode] = result;
+        text("current-mode", "MODE · " + mode);
+        text("primary-run-id", result.run_id);
+        text("result-mode", mode + " · " + (rt.profile || "profile not measured"));
+        text("result-integrity", integrityDecision(result));
+        text("result-authz", authzDecision(result));
+        text("result-events", result.local_event_count);
+        text("result-fingerprint", result.input_fingerprint || rt.request_fingerprint || rt.instruction_hash);
+        text("chain-integrity", integrityDecision(result));
+        text("chain-authz", authzDecision(result));
+        text("chain-evidence", result.local_event_count === undefined ? "LOCAL COUNT NOT MEASURED" : "LOCAL EVENTS · " + result.local_event_count);
+
+        if (kind === "goal") {
+          text("result-effective", rt.effective_action);
+          text("result-permitted", countState(rt.in_task_lookup_policy_count));
+          text("result-prohibited", objectiveState(result));
+          text("chain-proposed", rt.proposed_action);
+          text("chain-effective", rt.effective_action);
+          text("chain-permitted", countState(rt.in_task_lookup_policy_count));
+          text("chain-prohibited", objectiveState(result));
+        } else {
+          text("result-effective", rt.follow_on_reason);
+          text("result-permitted", operationState(result));
+          text("result-prohibited", rt.who_authenticated || "NOT PROVEN / NOT MODELED");
+          text("chain-principal", (rt.principal_id || "NOT MEASURED") + " · CLAIMED");
+          text("chain-agents", (rt.caller_agent_id || "NOT MEASURED") + " → " + (rt.callee_agent_id || "NOT MEASURED") + " · CLAIMED");
+          text("chain-execution", operationState(result));
+          text("chain-assurance", rt.who_authenticated || "NOT PROVEN / NOT MODELED");
+        }
+        text(mode === "ATTACK" ? "attack-response" : "retest-response", JSON.stringify(result, null, 2));
+        renderComparison();
+      }
+
+      function relation(a, r) {
+        if (a === "NOT MEASURED" || r === "NOT MEASURED") return "NOT MEASURED";
+        return String(a) === String(r) ? "SAME" : "DIFFERENT";
+      }
+      function row(label, getValue, note) {
+        const a = results.ATTACK ? getValue(results.ATTACK) : "NOT MEASURED";
+        const r = results.RETEST ? getValue(results.RETEST) : "NOT MEASURED";
+        const tr = document.createElement("tr");
+        [label, a, r, relation(a, r) + (note ? " — " + note : "")].forEach((value, index) => {
+          const cell = document.createElement(index === 0 ? "th" : "td");
+          if (index === 0) cell.scope = "row";
+          cell.textContent = value;
+          tr.appendChild(cell);
+        });
+        return tr;
+      }
+      function renderComparison() {
+        const body = document.getElementById("comparison-body");
+        const common = [
+          row("run.id", d => d.run_id || "NOT MEASURED", "must differ"),
+          row("Input fingerprint", d => d.input_fingerprint || "NOT MEASURED", "equality covers only canonical input"),
+          row("Security profile", d => runtime(d).profile || "NOT MEASURED")
+        ];
+        const domain = kind === "goal" ? [
+          row("Task fingerprint", d => runtime(d).task_fingerprint || "NOT MEASURED"),
+          row("Proposed-change fingerprint", d => runtime(d).proposed_fingerprint || "NOT MEASURED"),
+          row("Proposed objective", d => runtime(d).proposed_action || "NOT MEASURED"),
+          row("Goal control", integrityDecision),
+          row("Effective action", d => runtime(d).effective_action || "NOT MEASURED"),
+          row("Tool authorization", authzDecision),
+          row("Supporting operation", d => countState(runtime(d).in_task_lookup_policy_count), "permitted action"),
+          row("Prohibited objective", objectiveState, "wrong-goal count is authoritative"),
+          row("Total lookup_policy handlers", d => runtime(d).lookup_policy_handler_count ?? "NOT MEASURED", "total alone is insufficient")
+        ] : [
+          row("Principal claim", d => (runtime(d).principal_id || "NOT MEASURED") + " · CLAIMED"),
+          row("Caller claim", d => (runtime(d).caller_agent_id || "NOT MEASURED") + " · CLAIMED"),
+          row("Callee claim", d => (runtime(d).callee_agent_id || "NOT MEASURED") + " · CLAIMED"),
+          row("Claim / request", () => requestLabel),
+          row("Claim trust", d => runtime(d).claim_trust || "NOT MEASURED"),
+          row("Identity control", integrityDecision, "OBSERVE is not authorization"),
+          row("Tool authorization", authzDecision),
+          row("Privileged operation", operationState, "runtime count is authoritative"),
+          row("Authentication evidence", d => runtime(d).who_authenticated || "NOT PROVEN / NOT MODELED")
+        ];
+        body.replaceChildren(...common, ...domain, row("Local primary event count", d => d.local_event_count ?? "NOT MEASURED"));
+        if (results.ATTACK && results.RETEST) {
+          const same = results.ATTACK.input_fingerprint === results.RETEST.input_fingerprint;
+          text("comparison-status", same
+            ? "MATCH: canonical input is identical. Profiles, decisions, run IDs, and outcomes remain separate facts."
+            : "DIFFERENT or NOT MEASURED: canonical input equality was not established.");
+        }
+      }
+
+      async function launch(mode, specimenId) {
+        status.textContent = "Launching " + mode + "…";
+        attackButton.disabled = true;
+        retestButton.disabled = true;
+        try {
+          const response = await fetch("/api/launch", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({lab_id: labId, specimen_id: specimenId, mode, execution: "live"})
+          });
+          let data;
+          try { data = await response.json(); } catch (_error) { data = {detail: "Response was not JSON."}; }
+          if (!response.ok) throw new Error(data.detail || data.error || "HTTP " + response.status);
+          render(data, mode);
+          status.textContent = mode + " complete. Runtime facts are shown below; investigate Splunk separately.";
+        } catch (error) {
+          status.textContent = "ERROR · runtime or dependency failure · " + error.message;
+          text("result-mode", "ERROR");
+        } finally {
+          attackButton.disabled = false;
+          retestButton.disabled = false;
+        }
+      }
+
+      attackButton.addEventListener("click", event => launch("ATTACK", event.currentTarget.dataset.specimen));
+      retestButton.addEventListener("click", event => launch("RETEST", event.currentTarget.dataset.specimen));
+      fetch("/api/target-health")
+        .then(response => response.json().then(data => ({ok: response.ok, data})))
+        .then(result => text("runtime-health", result.ok ? "RUNTIME · READY" : "RUNTIME · ERROR"))
+        .catch(() => text("runtime-health", "RUNTIME · ERROR"));
+    })();
+  </script>
+</body>
+</html>
