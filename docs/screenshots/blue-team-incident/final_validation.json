@@ -1,0 +1,142 @@
+{
+  "classification": {
+    "rendering": "OBSERVED",
+    "accessibility": "PARTIAL",
+    "screen_reader": "NOT TESTED",
+    "dependency_error_injection": "NOT TESTED"
+  },
+  "tabs": [
+    {
+      "name": "INCIDENT",
+      "visible": true,
+      "has_no_evidence_guidance": null
+    },
+    {
+      "name": "INVESTIGATE",
+      "visible": true,
+      "has_no_evidence_guidance": null
+    },
+    {
+      "name": "EVIDENCE \u00b7 WORKBENCH",
+      "visible": true,
+      "has_no_evidence_guidance": true
+    },
+    {
+      "name": "PATH B \u00b7 ANSWERS",
+      "visible": true,
+      "has_no_evidence_guidance": null
+    }
+  ],
+  "widths": {
+    "1920": {
+      "horizontal_overflow": false
+    },
+    "1440": {
+      "horizontal_overflow": false
+    },
+    "1280": {
+      "horizontal_overflow": false
+    },
+    "1024": {
+      "horizontal_overflow": false
+    }
+  },
+  "zoom_200": {
+    "physical_width_equivalent": 1024,
+    "effective_css_width": 512,
+    "method": "responsive reflow equivalent",
+    "horizontal_overflow": true,
+    "overflow_sources": [
+      {
+        "tag": "BODY",
+        "id": "",
+        "className": "",
+        "left": 0,
+        "right": 960,
+        "width": 960
+      },
+      {
+        "tag": "DIV",
+        "id": "layout-header-container",
+        "className": "splunk-bar-shown app-bar-shown",
+        "left": 0,
+        "right": 960,
+        "width": 960
+      },
+      {
+        "tag": "HEADER",
+        "id": "",
+        "className": "",
+        "left": 0,
+        "right": 960,
+        "width": 960
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "className": "view---layout---dev---3Pzai",
+        "left": 0,
+        "right": 960,
+        "width": 960
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "className": "navBar---layout---dev---3gUds",
+        "left": 0,
+        "right": 960,
+        "width": 960
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "className": "navRight---layout---dev---CN04j nav---layout---dev---3VPuY",
+        "left": 328,
+        "right": 960,
+        "width": 632
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "className": "view---layout---dev---2qFFG",
+        "left": 810,
+        "right": 960,
+        "width": 150
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "className": "view---layout---dev---1zrJY",
+        "left": 0,
+        "right": 960,
+        "width": 960
+      }
+    ]
+  },
+  "keyboard": {
+    "focus_before": "INCIDENT",
+    "focus_after_arrow_right": "INVESTIGATE",
+    "focused_tab_style": {
+      "outline": "rgb(0, 110, 170) none 3px",
+      "boxShadow": "none"
+    }
+  },
+  "academy_home": {
+    "incident_listed": true,
+    "blue_team_level_listed": true,
+    "capstone_last_live": true
+  },
+  "copy_controls": "NOT APPLICABLE \u2014 no custom copy widget; native table text remains selectable",
+  "error_states": "OBSERVED textual NO EVIDENCE / dependency guidance; outage injection NOT TESTED",
+  "screenshots": [
+    "docs/screenshots/blue-team-incident/final_incident.png",
+    "docs/screenshots/blue-team-incident/final_investigate.png",
+    "docs/screenshots/blue-team-incident/final_evidence_workbench.png",
+    "docs/screenshots/blue-team-incident/final_path_b_answers.png",
+    "docs/screenshots/blue-team-incident/final_w1920_incident.png",
+    "docs/screenshots/blue-team-incident/final_w1440_incident.png",
+    "docs/screenshots/blue-team-incident/final_w1280_incident.png",
+    "docs/screenshots/blue-team-incident/final_w1024_incident.png",
+    "docs/screenshots/blue-team-incident/final_w1024_zoom200_incident.png"
+  ]
+}

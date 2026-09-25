@@ -1,6 +1,6 @@
 # AgentSec learning architecture
 
-**Status:** Phase 8A DESIGN (historical snapshot in this file). **Phase 15A** supersedes the teaching *order* — see `docs/AGENTSEC_CURRICULUM_LEVELS.md` and `docs/PHASE15A_AGENTSEC_CURRICULUM_ARCHITECTURE.md`. **Phase 16A** is the curriculum-integration design snapshot — see `docs/PHASE16A_CURRICULUM_INTEGRATION.md` and `docs/AGENTSEC_LEARNING_LEVELS.md`. **Phase 16B** implements `LAB-AGENTSEC-CAPSTONE-001` — see `docs/PHASE16B_CAPSTONE_RUNTIME_IMPLEMENTATION.md`. **Phase 16C** is the academy audit — see `docs/PHASE16C_AGENTSEC_ACADEMY_AUDIT.md` and `docs/AGENTSEC_CURRICULUM_MAP.md`. **Phase 16D** implements that P0/P1 packaging — see `docs/PHASE16D_ACADEMY_REMEDIATION.md`. **Phase 17A** adds Mastery Check — see `docs/PHASE17A_LEARNER_MASTERY_VALIDATION.md`. **Phase 17B** is fresh-learner usability — see `docs/PHASE17B_FRESH_LEARNER_VALIDATION.md`. **Phase 17C** is technical-correctness audit — see `docs/PHASE17C_TECHNICAL_CORRECTNESS_AUDIT.md`. Labs listed below remain implemented; they are **not** one completed “Level 1.” 15A/16A/16C do not migrate workshops or launchers. 16D does not add labs. 17A does not add attacks. 17B does not add attacks. 17C does not add attacks.
+**Status:** Phase 8A DESIGN (historical snapshot in this file). **Phase 15A** supersedes the teaching *order* — see `docs/AGENTSEC_CURRICULUM_LEVELS.md` and `docs/PHASE15A_AGENTSEC_CURRICULUM_ARCHITECTURE.md`. **Phase 16A** is the curriculum-integration design snapshot — see `docs/PHASE16A_CURRICULUM_INTEGRATION.md` and `docs/AGENTSEC_LEARNING_LEVELS.md`. **Phase 16B** implements `LAB-AGENTSEC-CAPSTONE-001` — see `docs/PHASE16B_CAPSTONE_RUNTIME_IMPLEMENTATION.md`. **Phase 16C** is the academy audit — see `docs/PHASE16C_AGENTSEC_ACADEMY_AUDIT.md` and `docs/AGENTSEC_CURRICULUM_MAP.md`. **Phase 16D** implements that P0/P1 packaging — see `docs/PHASE16D_ACADEMY_REMEDIATION.md`. **Phase 17A** adds Mastery Check — see `docs/PHASE17A_LEARNER_MASTERY_VALIDATION.md`. **Phase 17B** is fresh-learner usability — see `docs/PHASE17B_FRESH_LEARNER_VALIDATION.md`. **Phase 17C** is technical-correctness audit — see `docs/PHASE17C_TECHNICAL_CORRECTNESS_AUDIT.md`. The post-Capstone blue-team level is documented in `docs/BLUE_TEAM_INVESTIGATION_AND_THREAT_HUNTING.md`; it reuses validated evidence and adds no attack or detector.
 
 Parents: `docs/AGENTSEC_EXPANSION_ARCHITECTURE.md`, `docs/AGENTSEC_ATTACK_RESEARCH_PIPELINE.md`.
 
@@ -23,6 +23,7 @@ The suggested “Level 1 = prompt injection + MCP authorization” is **already 
 | LAB-RAG-CONTEXT | Retrieved-context / indirect PI (INV-002) | `ws_lab_rag_context` |
 | LAB-MEMORY-001 | Persistent memory / INV-003 | `ws_lab_memory_security` |
 | LAB-AGENT-GOAL-INTEGRITY-001 | Goal / instruction integrity (INV-002 / INV-006) | `ws_lab_agent_goal_integrity` |
+| LAB-BLUE-TEAM-INCIDENT-001 | Unknown-incident hypothesis, timeline, hunt, evidence ledger, and reporting | `ws_lab_blue_team_incident` |
 
 Result trust is **not** waiting for a future “knowledge” level. Do not re-teach MCP-005 as if it were new.
 

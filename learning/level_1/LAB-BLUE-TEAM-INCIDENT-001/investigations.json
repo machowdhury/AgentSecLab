@@ -1,0 +1,82 @@
+{
+  "schema": "agentsec.blue_team_investigation.v1",
+  "lab_id": "LAB-BLUE-TEAM-INCIDENT-001",
+  "incident_id": "AI-2026-001",
+  "evidence_mode": "REPLAY",
+  "not_authorization": true,
+  "answer_gating": "PEDAGOGICAL",
+  "progress_persistence": false,
+  "levels": [
+    {
+      "id": "GUIDED_ANALYST",
+      "audience": "Beginner analyst",
+      "starting_evidence": "Incident window 2026-09-20T19:37:40Z through 2026-09-20T19:38:00Z and Q-INCIDENT-CANDIDATES",
+      "disclosure": "Suggested SPL and evidence questions; no conclusion."
+    },
+    {
+      "id": "INVESTIGATOR",
+      "audience": "Intermediate SOC practitioner",
+      "starting_evidence": "Incident description and approximate time window",
+      "disclosure": "Evidence-source hints only; construct SPL."
+    },
+    {
+      "id": "THREAT_HUNTER",
+      "audience": "Experienced practitioner",
+      "starting_evidence": "A privileged tool may have been requested outside its intended task",
+      "disclosure": "No run.id; define the hypothesis, evidence needed, search, pivots, contradictions, and limitations."
+    }
+  ],
+  "hints": [
+    {
+      "id": "HINT_1",
+      "text": "Start with tool-control decisions in the incident window. A request is not execution."
+    },
+    {
+      "id": "HINT_2",
+      "text": "Pivot from each candidate run.id to event.name and agentsec.sequence. Keep authorization and mcp.* evidence separate."
+    },
+    {
+      "id": "HINT_3",
+      "text": "Inspect memory.id, source_run_id, and content.hash. Equality and correlation do not establish direct causality."
+    },
+    {
+      "id": "HINT_4",
+      "text": "Use Q-INCIDENT-CANDIDATES, then bind Q-INCIDENT-TIMELINE to each candidate. Compare with Q-INCIDENT-COMPARE only after recording a hypothesis."
+    }
+  ],
+  "required_artifacts": [
+    "hypothesis",
+    "search_strategy",
+    "timeline",
+    "evidence_ledger",
+    "control_analysis",
+    "support_or_refute",
+    "revised_hypothesis",
+    "conclusion",
+    "evidence_gaps",
+    "recommendations",
+    "technical_summary",
+    "executive_summary",
+    "threat_model"
+  ],
+  "canonical_runs": {
+    "attack": {
+      "retrieve": "2a248113-7436-46a7-9b1d-0243489ac000",
+      "write": "348c8f18-fdfb-4501-ad8a-3f1bcda64c34",
+      "recall": "2437f64a-fff4-424f-8a83-0f04285662e4"
+    },
+    "retest": {
+      "retrieve": "f9015037-651d-4207-ac57-4f3ea1abc673",
+      "write": "3f8d6305-2d3b-4988-9e65-dc99b7ac10de",
+      "recall": "8d2c016f-cadc-4463-939a-23a183221b3d"
+    },
+    "benign_comparison": "db514fd8-dbf4-49f3-a2cb-6bd2bfe92987"
+  },
+  "unsupported_links": {
+    "retrieve_output_to_write": "NOT MODELED",
+    "authentication": "NOT MODELED",
+    "human_approval": "NOT MODELED",
+    "external_evidence_to_runtime": "NOT OBSERVED",
+    "universal_retest_resistance": "NOT PROVEN"
+  }
+}

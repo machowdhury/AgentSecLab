@@ -1,0 +1,19 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 ("agentsec.run.id"=__ATTACK_RUN_ID__ OR "agentsec.run.id"=__RETEST_RUN_ID__) ("event.name"=agentsec.memory.recalled OR "event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval memory_id=mvindex(mvdedup('agentsec.memory.id'),0)
+| eval source_run_id=mvindex(mvdedup('agentsec.memory.source_run_id'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
+| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)
+| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| eval is_started=if(event_name="agentsec.mcp.started",1,0)
+| eval is_completed=if(event_name="agentsec.mcp.completed",1,0)
+| eval is_failed=if(event_name="agentsec.mcp.failed",1,0)
+| stats values(memory_id) as memory_ids values(source_run_id) as source_run_ids values(tool) as tools values(control_id) as controls values(decision) as decisions values(reason) as reasons values(content_hash) as hashes values(profile) as profiles values(mode) as modes max(is_started) as has_started max(is_completed) as has_completed max(is_failed) as has_failed by run_id
+| eval execution_state=case(has_completed=1,"mcp.completed",has_failed=1,"mcp.failed",has_started=1,"mcp.started",1=1,"no_indexed_followon_execution_event")
+| table run_id, modes, profiles, memory_ids, source_run_ids, tools, controls, decisions, reasons, hashes, has_started, has_completed, has_failed, execution_state
+| sort modes
