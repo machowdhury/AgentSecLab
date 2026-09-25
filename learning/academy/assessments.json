@@ -7,6 +7,22 @@
   "not_certification": true,
   "search_url": "http://127.0.0.1:8000/en-US/app/search/search",
   "instructor_prompt": "Complete Same request, different defense without opening Path B.",
+  "blue_team_competencies": {
+    "lab_id": "LAB-BLUE-TEAM-INCIDENT-001",
+    "tracking": "SELF_ASSESSED / NO PERSISTENCE / NOT CERTIFICATION",
+    "dimensions": [
+      "SEARCH",
+      "CORRELATE",
+      "RECONSTRUCT",
+      "HYPOTHESIZE",
+      "VALIDATE",
+      "CHALLENGE",
+      "DETECT",
+      "REPORT",
+      "THREAT MODEL"
+    ],
+    "evidence_required": "Completed hypothesis, SPL strategy, timeline, evidence ledger, revised conclusion, report, and threat-model bridge."
+  },
   "rubric": {
     "dimensions": [
       {

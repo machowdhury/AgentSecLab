@@ -40,6 +40,10 @@
     {
       "label": "Capstone",
       "views": ["ws_lab_agentsec_capstone"]
+    },
+    {
+      "label": "Blue Team",
+      "views": ["ws_lab_blue_team_incident"]
     }
   ],
   "levels": [
@@ -116,9 +120,21 @@
       "prerequisites": "L1-L3 LIVE. REPLAY grant and INV-002 workshops recommended.",
       "effort": "2.5-4 hours",
       "exit": "ADVANCED / PURPLE TEAM",
-      "next": null,
+      "next": "L6",
       "labs": [
         {"lab_id": "LAB-AGENTSEC-CAPSTONE-001", "title": "Lending Assistant Investigation", "mode": "LIVE", "view": "ws_lab_agentsec_capstone"}
+      ]
+    },
+    {
+      "id": "L6",
+      "title": "Blue-team investigation and threat hunting",
+      "learn": "Reason from incomplete evidence: hypothesize, search, reconstruct, challenge, conclude, report, and state uncertainty.",
+      "prerequisites": "L5 Capstone. Complete the incident without using Path B first.",
+      "effort": "REPLAY 2.5-4 hours",
+      "exit": "BLUE-TEAM INVESTIGATOR",
+      "next": null,
+      "labs": [
+        {"lab_id": "LAB-BLUE-TEAM-INCIDENT-001", "title": "AcmeBank Incident AI-2026-001", "mode": "REPLAY", "view": "ws_lab_blue_team_incident"}
       ]
     }
   ]

@@ -6,6 +6,8 @@
 
 **Phase 16B:** `LAB-AGENTSEC-CAPSTONE-001` (Lending Assistant Investigation) is implemented as the integrated LIVE capstone. Studio `ws_lab_agentsec_capstone`. Attack Service YES. This 15A file remains a dated inventory snapshot; current coverage is the 16B implementation docs. No new capstone detector.
 
+**Blue-team update:** `LAB-BLUE-TEAM-INCIDENT-001` is a post-Capstone REPLAY investigation over the validated Capstone packet. Studio `ws_lab_blue_team_incident`. Attack Service NO. No new attack or detector. See `docs/BLUE_TEAM_INVESTIGATION_AND_THREAT_HUNTING.md`.
+
 Classifications are not inferred from roadmap prose alone. Cross-check: `learning/level_1/`, `src/agentsec/`, `splunk_app/…/views/`, `src/agentsec/experiment_context.py`, `src/agentsec/launch_catalog.py`, `learning/**/searches/*.spl`, `docs/IMPLEMENTATION_STATUS.md` proof columns.
 
 Legend: **IMPLEMENTED** / **DESIGNED** / **LIVE VALIDATED** / **REPLAY** / **SIMULATED** / **PARTIAL** / **NOT IMPLEMENTED** / **NOT APPLICABLE**.

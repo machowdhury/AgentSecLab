@@ -2,6 +2,7 @@
 
 **Status:** DESIGN (Phase 15A; **16A update**: RAG, memory, goal, and identity are LIVE Attack Service labs). **16C update:** capstone is LIVE (`LAB-AGENTSEC-CAPSTONE-001`); the “Capstone not implemented” heading below is historical 15A/16A text. **16D:** Home SPLUNK bootcamp + LIVE Path B disclosure + REPLAY HUNT Path A banners. Still not an access-control gate.  
 **17A:** S1–S8 are assessed on Mastery Check (`docs/AGENTSEC_SPLUNK_INVESTIGATION_ASSESSMENT.md`). No new hunts.  
+**Blue-team update:** `LAB-BLUE-TEAM-INCIDENT-001` adds a post-Capstone REPLAY hunt: bounded candidate discovery, hypothesis-led timeline reconstruction, ATTACK/RETEST/BASELINE comparison, evidence ledger, and reporting. Three new Q-* searches are live-validated; no detector is created.
 Path A (Search) and Path B (solution SPL) are **learning UX**, not access control. Do not implement artificial security gates.  
 Historical line: **Do not start Phase 16B from this file.** 16B already shipped. **Do not start Phase 16D from this file.**
 
@@ -23,6 +24,7 @@ The learner should eventually investigate without Path B. Each stage: what they 
 | Identity / delegation | Q-AGENT-DELEGATION-AUTHORITY | caller/callee, claim, IDENTITY OBSERVE, MCP | claim vs grant | OBSERVE + MCP ALLOW or DENY | claim ≠ authn | caller id authenticated |
 | Goal vs tool | Q-GOAL + Q-MCP | task, proposed, effective, MCP ALLOW | two planes | GOAL DENY + MCP ALLOW on RETEST | tool ≠ goal | MCP DENY is the Goal lesson |
 | Capstone | Q-RUN-EVENTS on three ids, then Q-RAG, Q-MEMORY, Q-MCP, Q-GOAL, Q-IDENT | retrieve/write/recall ids, hashes | campaign reconstruction | 16B shape 5+5+11 / 5+5+10 | fused chain; Goal/Identity 0 rows ≠ those domains never fail | one run.id; inventing a new detector |
+| Blue-team incident | bounded window, candidates, self-selected pivots, baseline | time, run.id, sequence, control, mcp.*, source_run_id, hash | hypothesis-led hunt without transaction | candidate runs, timelines, support/refute ledger | bounded conclusion with uncertainty | anomaly = attack; correlation = causation |
 
 **Capstone Path B (16C OBSERVED):** solution SPL is on the INVESTIGATE/TRACE/AUTHORITY tabs after hints. Pedagogy still wants Path A first; product does not delay Path B behind a review gate. DESIGN a disclosure later; do not implement in 16C.
 
@@ -72,13 +74,15 @@ If every lab only teaches `index=... run.id=...`, the learner never becomes an i
 
 **Path B:** Search independently first; solution after review.
 
-### Capstone (Level 8–9, not implemented)
+### Blue-team investigation (post-Capstone, implemented)
 
-- Mixed agent incident; domain **not** named in the prompt.
-- Hunt vs detection recommendation with existing DET-MCP-001 as the only operational detector pattern.
-- No immediate solution SPL; evidence pack + hints; solution in review.
+- Incident domain and final result are **not** named in the prompt.
+- Guided Analyst, Investigator, and Threat Hunter use the same REPLAY dataset.
+- Learner creates a hypothesis, discovers candidate runs, reconstructs timelines, challenges one explanation, and records gaps.
+- Expected BASELINE tool execution supplies false-positive analysis: `MATCH != MALICIOUS`.
+- Known incident → observable → candidate SPL is taught without creating a saved search.
 
-**Path B:** After completion/review only.
+**Path B:** Separate review-key tab after four progressive hints. This is pedagogical gating; Studio does not persist completion state.
 
 ---
 

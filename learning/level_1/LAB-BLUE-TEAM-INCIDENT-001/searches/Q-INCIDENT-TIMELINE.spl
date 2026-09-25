@@ -1,0 +1,17 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"=__RUN_ID__
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
+| eval ts=mvindex(mvdedup('timestamp'),0)
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
+| eval memory_id=mvindex(mvdedup('agentsec.memory.id'),0)
+| eval source_run_id=mvindex(mvdedup('agentsec.memory.source_run_id'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)
+| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)
+| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)
+| eval outcome=mvindex(mvdedup('agentsec.outcome'),0)
+| table sequence, ts, event_name, run_id, memory_id, source_run_id, control_id, decision, reason, tool, requested_scope, allowed_scope, content_hash, outcome
+| sort sequence

@@ -43,6 +43,7 @@ PI_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_pi_001"
 SEARCH_URL = "http://127.0.0.1:8000/en-US/app/search/search"
 ATTACK_URL = "http://127.0.0.1:5001/"
 CAPSTONE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agentsec_capstone"
+BLUE_TEAM_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_blue_team_incident"
 MASTERY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_mastery"
 
 
@@ -68,6 +69,7 @@ def build() -> dict:
     l2 = _mode_line(levels["L2"]["labs"])
     l3 = _mode_line(levels["L3"]["labs"])
     l5 = _mode_line(levels["L5"]["labs"])
+    l6 = _mode_line(levels["L6"]["labs"])
 
     add_md(
         "viz_hero",
@@ -206,7 +208,7 @@ This is the learner path. It is not the order the software was built.
 
 You should always know: where you are, what you are learning, why it matters, and what to do next.
 
-Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone**. Then **Mastery Check** (optional). Search stays the notebook.
+Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone** → **Blue Team**. Then **Mastery Check** (optional). Search stays the notebook.
 
 LIVE labs have Attack Service. REPLAY labs use Investigate specimen plus Search. Do not treat REPLAY as a fresh launch.
 """,
@@ -239,6 +241,12 @@ LIVE labs have Attack Service. REPLAY labs use Investigate specimen plus Search.
 
 Open [Lending Assistant Investigation]({CAPSTONE_URL}) only after L1–L3 LIVE. It is graduation, not another random lab.
 
+**L6 Blue-team investigation** — {levels['L6']['learn']} Effort: {levels['L6']['effort']}. Exit: {levels['L6']['exit']}.
+
+{l6}
+
+Open [AcmeBank Incident AI-2026-001]({BLUE_TEAM_URL}) after the Capstone. It is a REPLAY investigation: develop and challenge a hypothesis, reconstruct evidence, and report uncertainty. Capstone remains the last LIVE launcher.
+
 Then [Mastery Check]({MASTERY_URL}) if you want to prove the reasoning without the workshop scaffolding. Skip FOUNDATIONAL if you already know the vocabulary.
 """,
         title="PROGRESSION",
@@ -255,6 +263,8 @@ Then [Mastery Check]({MASTERY_URL}) if you want to prove the reasoning without t
 **INVESTIGATOR** — reconstruct from Search, separate authoritative runtime counts from Splunk corroboration, compare ATTACK and RETEST.
 
 **ADVANCED / PURPLE TEAM** — investigate the capstone chain and rule out domains the evidence does not require.
+
+**BLUE-TEAM INVESTIGATOR** — hunt without a supplied run ID, reconstruct a timeline, challenge a hypothesis, write an evidence ledger, and communicate bounded conclusions.
 
 [Mastery Check]({MASTERY_URL}) uses those labels. There is no certificate and no leaderboard. Viewing a tab is not completion.
 """,
