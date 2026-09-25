@@ -3,6 +3,7 @@
 **Status:** DESIGN (Phase 15A; **16A update**: RAG, memory, goal, and identity are LIVE Attack Service labs). **16C update:** capstone is LIVE (`LAB-AGENTSEC-CAPSTONE-001`); the “Capstone not implemented” heading below is historical 15A/16A text. **16D:** Home SPLUNK bootcamp + LIVE Path B disclosure + REPLAY HUNT Path A banners. Still not an access-control gate.  
 **17A:** S1–S8 are assessed on Mastery Check (`docs/AGENTSEC_SPLUNK_INVESTIGATION_ASSESSMENT.md`). No new hunts.  
 **Blue-team update:** `LAB-BLUE-TEAM-INCIDENT-001` adds a post-Capstone REPLAY hunt: bounded candidate discovery, hypothesis-led timeline reconstruction, ATTACK/RETEST/BASELINE comparison, evidence ledger, and reporting. Three new Q-* searches are live-validated; no detector is created.
+**Security-architecture update:** `LAB-THREAT-MODELING-001` reuses the Blue-Team observability model to ask what events, identities, decisions, invocations, outcomes, correlation, and provenance an architecture requires. It adds no SPL, saved search, detector, or meaningless live-Splunk test.
 Path A (Search) and Path B (solution SPL) are **learning UX**, not access control. Do not implement artificial security gates.  
 Historical line: **Do not start Phase 16B from this file.** 16B already shipped. **Do not start Phase 16D from this file.**
 

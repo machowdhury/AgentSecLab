@@ -8,6 +8,8 @@
 
 **Blue-team update:** `LAB-BLUE-TEAM-INCIDENT-001` is a post-Capstone REPLAY investigation over the validated Capstone packet. Studio `ws_lab_blue_team_incident`. Attack Service NO. No new attack or detector. See `docs/BLUE_TEAM_INVESTIGATION_AND_THREAT_HUNTING.md`.
 
+**Security-architecture update:** `LAB-THREAT-MODELING-001` is a post-Blue-Team REPLAY / ARCHITECTURE workbench over documented AgentSec components and evidence. Studio `ws_lab_threat_modeling`. Attack Service NO. No new attack, detector, runtime control, or schema field.
+
 Classifications are not inferred from roadmap prose alone. Cross-check: `learning/level_1/`, `src/agentsec/`, `splunk_app/…/views/`, `src/agentsec/experiment_context.py`, `src/agentsec/launch_catalog.py`, `learning/**/searches/*.spl`, `docs/IMPLEMENTATION_STATUS.md` proof columns.
 
 Legend: **IMPLEMENTED** / **DESIGNED** / **LIVE VALIDATED** / **REPLAY** / **SIMULATED** / **PARTIAL** / **NOT IMPLEMENTED** / **NOT APPLICABLE**.

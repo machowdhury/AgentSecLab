@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="2" theme="light">
+  <label>Threat Modeling and Security Architecture</label>
+  <description>REPLAY architecture workbench. Reasoning assistance, not compliance.</description>
+  <definition><![CDATA[
+{
+  "title": "Threat Modeling & Security Architecture",
+  "description": "LAB-THREAT-MODELING-001 REPLAY architecture workbench. Reasoning assistance, not compliance.",
+  "defaults": {
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "large"
+        }
+      }
+    }
+  },
+  "inputs": {},
+  "visualizations": {
+    "viz_mission": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# AcmeBank Agentic Customer Operations Platform\n\nYou are the security architect. Determine what matters, how the bounded system works, where trust and authority change, what can go wrong, where controls belong, what evidence is needed, and what risk remains.\n\nThis is a **REPLAY workshop / ARCHITECTURE** exercise. It creates no attack, control, detector, identity system, risk score, or compliance result.\n\n**Path A:** write your first system purpose and three critical assets before opening PATH B · REVIEW. Path B is a review key, not policy.\n\nRuntime schema **1.9.0** · ExternalEvidence contract **1.0.0**.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "MISSION"
+    },
+    "viz_method": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Canonical method\n\nUNDERSTAND SYSTEM → IDENTIFY ASSETS → IDENTIFY ACTORS → MAP COMPONENTS → MAP DATA FLOWS → DRAW TRUST BOUNDARIES → IDENTIFY AUTHORITY → IDENTIFY ATTACK SURFACE → ENUMERATE THREATS → MAP CONTROLS → IDENTIFY TELEMETRY → TEST ASSUMPTIONS → IDENTIFY GAPS → RESIDUAL RISK\n\nDo not automate away the reasoning. A catalog suggests questions; it does not complete a threat model.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "METHOD"
+    },
+    "viz_invariants": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Reasoning invariants\n\n- OBSERVATION != ENFORCEMENT\n- AUTHENTICATION != AUTHORIZATION\n- AUTHORIZATION != EXECUTION\n- EXECUTION != OUTCOME\n- DETECTION != PREVENTION\n- CORRELATION != CAUSATION\n- SCANNER FINDING != EXPLOITATION\n- EVALUATION PASS != SAFE\n- ABSENCE OF EVIDENCE != EVIDENCE OF ABSENCE\n- INFLUENCE != AUTHORITY\n- CONTROL IMPLEMENTED != RISK ELIMINATED\n\nCTRL-MCP-001 remains the tool PDP. Splunk is downstream. External evidence is adjacent.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "DO NOT COLLAPSE THESE"
+    },
+    "viz_system": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Bounded architecture\n\n```text\nHUMAN USER\n    │ request / claimed user id       [TB-01]\n    ▼\nACMEBANK APP → AGENT / ORCHESTRATOR → MODEL SERVICE\n                   │       │\n          RAG ─────┤       ├──── MEMORY\n          [TB-02]  │       │     [TB-03]\n                   ▼\n          MCP + CTRL-MCP-001          [TB-04 AUTHORITY]\n                   │ allow ticket\n                   ▼\n              TOOL REGISTRY\n                   │                  [TB-05]\n                   ▼\n        FIXTURE-BACKED BANK RECORDS\n\nAPP → OTEL → SPLUNK                   [TB-06 OBSERVATION]\nSCANNER / GARAK → SPLUNK              [TB-07 ADJACENT EVIDENCE]\n```\n\nThe model, RAG, and memory can influence a request. They do not mint authority. A boundary marks changed assumptions; crossing it is not proof of compromise.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "SYSTEM · FLOWS · BOUNDARIES"
+    },
+    "viz_assets": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Select assets that matter\n\nConsider customer records; prompts, retrieved documents, and memory; tool/scope/resource grants; coded policy and allow-ticket integrity; lending workflow; service availability; telemetry, provenance, and investigation artifacts.\n\nFor each selected asset state its owner, security property, and business consequence. Assets include **data, authority, systems, business workflows, and security evidence**.\n\n# Identify actors without anthropomorphism\n\nHuman user · administrator · untrusted-input supplier · agent/orchestration software · model dependency · MCP server · tool handler · security analyst.\n\nAn agent can be an architectural actor without being a human or cryptographically authenticated identity.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "ASSETS · ACTORS"
+    },
+    "viz_flows": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Trace each important flow\n\nFor each source → process/store → decision → action → destination ask:\n\n- What data moves, who supplied it, and is it sensitive?\n- Is it trusted or persisted?\n- Can it influence a decision?\n- Can it trigger authority?\n- Where is it logged and correlated?\n- Where could it leak?\n\nStart with one flow: user request → context construction → tool request → CTRL-MCP-001 decision → allow ticket → handler → fixture-backed record. Then map telemetry separately.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "DATA-FLOW WORKSHEET"
+    },
+    "viz_authority": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Authority is first-class\n\nFor every agent/tool relationship: WHAT can be requested? WHO requests? WHO authorizes? WHAT policy, scope, credential, and downstream authority exist? Can authority be delegated or escalated?\n\nIn this lab:\n\n- Requester: agent/orchestrator.\n- Requested objects: tool, scope, resource.\n- Authorizer: CTRL-MCP-001 at `McpServer.authorize`.\n- Policy: coded exact membership.\n- Execution gate: opaque allow ticket minted only after ALLOW.\n- Downstream: fixture-backed lab action.\n- Authentication: **NOT MODELED**.\n- Human approval: **NOT MODELED**.\n- Cryptographic delegation: **NOT MODELED**.\n\nMissing architectural capabilities are findings, not invitations to draw fictional components.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "AUTHORITY MAP"
+    },
+    "viz_analyze": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Threat → control → evidence\n\nFor each threat bind:\n\n**asset → actor/source → boundary/flow → precondition → influence or authority → consequence → existing control → control placement → telemetry → evidence gap → residual risk**\n\nClassify controls where useful as preventive, detective, corrective, or recovery — and always as **OBSERVE** or **ENFORCE**.\n\nPrompt filter: influence control. CTRL-MCP-001: authorization control. Splunk: observation/investigation. Scanner: assessment evidence.\n\nA good control in the wrong place may not mitigate the threat.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "ANALYSIS WORKBENCH"
+    },
+    "viz_telemetry": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# If it happened, how would we know?\n\nSpecify event, source, timestamp, identity claim, request, decision, invocation, completion, outcome, correlation identifier, and provenance where appropriate.\n\nThen state what each event can and cannot prove. An ALLOW event does not prove invocation. `mcp.started` does not prove completion. A completion does not independently prove the expected business outcome.\n\nUse exact gap labels: **NOT LOGGED · NOT MODELED · NOT OBSERVED · NOT CORRELATED · NOT CRYPTOGRAPHICALLY ESTABLISHED · NOT PROVEN**.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "OBSERVABILITY · EVIDENCE GAPS"
+    },
+    "viz_levels": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# One architecture, three levels\n\n**GUIDED** — architecture, prompts, examples, and four progressive hints. No completed threat list or final strategy.\n\n**PRACTITIONER** — architecture, objectives, artifact template, minimal hints. You prioritize threats.\n\n**ARCHITECT CHALLENGE** — business description, architecture, and constraints. Draft before opening the catalog or review.\n\nHints: (1) purpose and assets; (2) trace one flow and mark trust changes; (3) separate influence from authority and name enforcement; (4) bind threat to control placement, telemetry, gap, and residual risk.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "PROGRESSIVE SCAFFOLDING"
+    },
+    "viz_challenge": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Required architecture review\n\nProduce: system purpose · critical assets · actors/components · data flows · trust boundaries · authority map · attack surface · defensible top threats · existing/missing controls · telemetry · evidence gaps · residual risks · prioritized recommendations.\n\nNo arbitrary Top 10. No numerical risk score. Test assumptions against repository evidence.\n\nCommunicate three times:\n\n- **Engineering:** what technically changes and where.\n- **SOC:** what must be observed, correlated, hunted, and investigated.\n- **Leadership:** material risk, control strategy, and residual uncertainty.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "ARCHITECT CHALLENGE"
+    },
+    "viz_frameworks": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# EDUCATIONAL MAPPING\n\nUse different lenses, not interchangeable checklists:\n\n- **OWASP Top 10 for Agentic Applications 2026:** application and agentic-risk lens.\n- **MITRE ATLAS:** adversarial behavior and technique lens; official collection observed as 2026.05.\n- **CSA MAESTRO v2:** agentic-system architectural threat-modeling lens.\n- **NIST AI RMF 1.0 + NIST AI 600-1:** voluntary risk-management and governance lens.\n\n**This is not certification. This is not compliance validation. This is not complete framework coverage.**\n\nSpecific AgentSec-to-framework identifiers remain **NEEDS_EXTERNAL_VALIDATION** unless individually verified against the current official source.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "FRAMEWORK LENSES"
+    },
+    "viz_review": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Path B — bounded reference analysis\n\nOpen only after drafting purpose, assets, one complete data flow, three boundaries, an authority map, and at least three threats.\n\nA defensible model identifies customer records, authority grants, policy/ticket integrity, business workflow, and evidence as important assets. It distinguishes untrusted input/context/memory **influence** from tool **authority**. It places authorization at CTRL-MCP-001 before handler invocation, treats Splunk as downstream observation, and keeps scanner/evaluation evidence adjacent.\n\nLikely threat prompts include context or memory manipulation, goal manipulation, excessive authority/tool abuse, identity/delegation claim abuse, data exposure, dependency/supply-chain risk, observability gaps, and security-evidence overclaim. This list is not a completed prioritization.\n\nMaterial gaps include authentication, human approval, and cryptographic delegation being NOT MODELED. Universal control effectiveness is NOT PROVEN. Fixture-backed downstream behavior does not establish production banking impact.\n\nResidual risk remains because correct authorization does not validate every model output, eliminate dependency failure, guarantee telemetry completeness, or establish a real principal.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "REFERENCE — NOT AN AUTOMATIC MODEL"
+    },
+    "viz_transfer": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Durable principle transfer\n\nMCP authorization maps conceptually to API authorization middleware, cloud IAM, network policy, Kubernetes admission policy, and database privileges: the syntax differs, but authority should be explicitly evaluated near the action.\n\nRAG and memory boundaries resemble document ingestion, message queues, caches, and data pipelines: provenance helps, but data cannot self-authorize.\n\nTelemetry and response transfer to traditional SOC practice: preserve attribution, decision, execution, outcome, correlation, and evidence integrity.\n\nSubmit the reusable template as an architecture review, not a compliance assessment.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "TRANSFER · FINISH"
+    }
+  },
+  "layout": {
+    "options": {
+      "submitButton": false,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "layoutDefinitions": {
+      "layout_foundations": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 910
+        },
+        "structure": [
+          {
+            "item": "viz_mission",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 430
+            }
+          },
+          {
+            "item": "viz_method",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 430,
+              "w": 720,
+              "h": 460
+            }
+          },
+          {
+            "item": "viz_invariants",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 430,
+              "w": 720,
+              "h": 460
+            }
+          }
+        ]
+      },
+      "layout_system": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1980
+        },
+        "structure": [
+          {
+            "item": "viz_system",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 720
+            }
+          },
+          {
+            "item": "viz_assets",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 720,
+              "w": 720,
+              "h": 620
+            }
+          },
+          {
+            "item": "viz_flows",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 720,
+              "w": 720,
+              "h": 620
+            }
+          },
+          {
+            "item": "viz_authority",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1340,
+              "w": 1440,
+              "h": 620
+            }
+          }
+        ]
+      },
+      "layout_model": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1100
+        },
+        "structure": [
+          {
+            "item": "viz_analyze",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 720,
+              "h": 600
+            }
+          },
+          {
+            "item": "viz_telemetry",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 0,
+              "w": 720,
+              "h": 600
+            }
+          },
+          {
+            "item": "viz_levels",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 600,
+              "w": 1440,
+              "h": 480
+            }
+          }
+        ]
+      },
+      "layout_challenge": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1260
+        },
+        "structure": [
+          {
+            "item": "viz_challenge",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 620
+            }
+          },
+          {
+            "item": "viz_frameworks",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 620,
+              "w": 1440,
+              "h": 620
+            }
+          }
+        ]
+      },
+      "layout_review": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1420
+        },
+        "structure": [
+          {
+            "item": "viz_review",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 880
+            }
+          },
+          {
+            "item": "viz_transfer",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 880,
+              "w": 1440,
+              "h": 520
+            }
+          }
+        ]
+      }
+    },
+    "tabs": {
+      "options": {
+        "barPosition": "top"
+      },
+      "items": [
+        {
+          "layoutId": "layout_foundations",
+          "label": "FOUNDATIONS"
+        },
+        {
+          "layoutId": "layout_system",
+          "label": "SYSTEM · ARCHITECTURE"
+        },
+        {
+          "layoutId": "layout_model",
+          "label": "MODEL · ANALYZE"
+        },
+        {
+          "layoutId": "layout_challenge",
+          "label": "ARCHITECT CHALLENGE"
+        },
+        {
+          "layoutId": "layout_review",
+          "label": "PATH B · REVIEW"
+        }
+      ]
+    }
+  },
+  "applicationProperties": {
+    "collapseNavigation": false,
+    "downsampleVisualizations": false
+  }
+}
+  ]]></definition>
+</dashboard>

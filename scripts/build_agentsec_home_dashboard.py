@@ -44,6 +44,7 @@ SEARCH_URL = "http://127.0.0.1:8000/en-US/app/search/search"
 ATTACK_URL = "http://127.0.0.1:5001/"
 CAPSTONE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agentsec_capstone"
 BLUE_TEAM_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_blue_team_incident"
+THREAT_MODEL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_threat_modeling"
 MASTERY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_mastery"
 
 
@@ -70,6 +71,7 @@ def build() -> dict:
     l3 = _mode_line(levels["L3"]["labs"])
     l5 = _mode_line(levels["L5"]["labs"])
     l6 = _mode_line(levels["L6"]["labs"])
+    l7 = _mode_line(levels["L7"]["labs"])
 
     add_md(
         "viz_hero",
@@ -208,7 +210,7 @@ This is the learner path. It is not the order the software was built.
 
 You should always know: where you are, what you are learning, why it matters, and what to do next.
 
-Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone** → **Blue Team**. Then **Mastery Check** (optional). Search stays the notebook.
+Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone** → **Blue Team** → **Security Architecture**. Then **Mastery Check** (optional). Search stays the notebook.
 
 LIVE labs have Attack Service. REPLAY labs use Investigate specimen plus Search. Do not treat REPLAY as a fresh launch.
 """,
@@ -247,6 +249,12 @@ Open [Lending Assistant Investigation]({CAPSTONE_URL}) only after L1–L3 LIVE. 
 
 Open [AcmeBank Incident AI-2026-001]({BLUE_TEAM_URL}) after the Capstone. It is a REPLAY investigation: develop and challenge a hypothesis, reconstruct evidence, and report uncertainty. Capstone remains the last LIVE launcher.
 
+**L7 Threat modeling and security architecture** — {levels['L7']['learn']} Effort: {levels['L7']['effort']}. Exit: {levels['L7']['exit']}.
+
+{l7}
+
+Open [Threat Modeling & Security Architecture]({THREAT_MODEL_URL}) after Blue Team. It is a REPLAY / ARCHITECTURE workbench: model assets, flows, trust, authority, threats, controls, evidence gaps, and residual risk. It creates no new attack or runtime control.
+
 Then [Mastery Check]({MASTERY_URL}) if you want to prove the reasoning without the workshop scaffolding. Skip FOUNDATIONAL if you already know the vocabulary.
 """,
         title="PROGRESSION",
@@ -265,6 +273,8 @@ Then [Mastery Check]({MASTERY_URL}) if you want to prove the reasoning without t
 **ADVANCED / PURPLE TEAM** — investigate the capstone chain and rule out domains the evidence does not require.
 
 **BLUE-TEAM INVESTIGATOR** — hunt without a supplied run ID, reconstruct a timeline, challenge a hypothesis, write an evidence ledger, and communicate bounded conclusions.
+
+**SECURITY ARCHITECT** — model an unfamiliar agentic architecture, place controls at the relevant boundary, design observability, and state evidence gaps and residual risk.
 
 [Mastery Check]({MASTERY_URL}) uses those labels. There is no certificate and no leaderboard. Viewing a tab is not completion.
 """,

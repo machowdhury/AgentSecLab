@@ -1,0 +1,400 @@
+{
+  "schema": "agentsec.educational_architecture.v1",
+  "lab_id": "LAB-THREAT-MODELING-001",
+  "scenario": "AcmeBank Agentic Customer Operations Platform",
+  "not_authorization": true,
+  "not_compliance": true,
+  "runtime_schema": "1.9.0",
+  "external_evidence_contract": "1.0.0",
+  "purpose": "Help a customer-operations user summarize lending policy and perform only explicitly authorized supporting lookups.",
+  "model_boundaries": {
+    "authentication": "NOT MODELED",
+    "human_approval": "NOT MODELED",
+    "cryptographic_delegation": "NOT MODELED",
+    "real_a2a_transport": "NOT MODELED",
+    "production_iam": "NOT MODELED",
+    "generic_attack_graph": "NOT MODELED"
+  },
+  "actors": [
+    {
+      "id": "ACT-USER",
+      "name": "Human customer-operations user",
+      "kind": "HUMAN",
+      "status": "PARTIALLY MODELED",
+      "evidence": [
+        "src/agentsec/bank_app.py:create_app/process_loan",
+        "src/agentsec/request_contract.py:parse_process_body"
+      ],
+      "limit": "A user identifier is request data; authentication is NOT MODELED."
+    },
+    {
+      "id": "ACT-ADMIN",
+      "name": "Lab administrator",
+      "kind": "HUMAN",
+      "status": "DECLARED ONLY",
+      "evidence": [
+        "src/agentsec/settings.py:Settings"
+      ],
+      "limit": "No production administrator identity or privileged session model exists."
+    },
+    {
+      "id": "ACT-ATTACKER",
+      "name": "Untrusted-input supplier",
+      "kind": "THREAT ACTOR",
+      "status": "MODELED BY CONTROLLED FIXTURES",
+      "evidence": [
+        "src/agentsec/rag/fixtures.py",
+        "src/agentsec/memory/fixtures.py",
+        "src/agentsec/experiment_context.py:ExperimentContext"
+      ],
+      "limit": "The browser cannot choose grants, profiles, arbitrary tools, or policy."
+    },
+    {
+      "id": "ACT-AGENT",
+      "name": "Agent / orchestration software",
+      "kind": "SOFTWARE ACTOR",
+      "status": "IMPLEMENTED",
+      "evidence": [
+        "src/agentsec/agents.py:PIPELINE_ORDER",
+        "src/agentsec/pipeline.py:run_loan_pipeline"
+      ],
+      "limit": "Architectural actor does not imply a human or cryptographically authenticated identity."
+    },
+    {
+      "id": "ACT-MODEL",
+      "name": "Ollama-hosted language model",
+      "kind": "SOFTWARE DEPENDENCY",
+      "status": "IMPLEMENTED",
+      "evidence": [
+        "src/agentsec/llm.py:OllamaClient",
+        "src/agentsec/bank_app.py:build_runtime"
+      ],
+      "limit": "Model output is not policy or fact."
+    },
+    {
+      "id": "ACT-MCP",
+      "name": "In-process MCP server",
+      "kind": "SOFTWARE ACTOR",
+      "status": "IMPLEMENTED",
+      "evidence": [
+        "src/agentsec/mcp/server.py:McpServer",
+        "src/agentsec/mcp/authorize.py:authorize_tool"
+      ],
+      "limit": "This is an educational in-process interface, not a production MCP network deployment."
+    },
+    {
+      "id": "ACT-TOOL",
+      "name": "Registered tool handler",
+      "kind": "SOFTWARE ACTOR",
+      "status": "IMPLEMENTED",
+      "evidence": [
+        "src/agentsec/mcp/registry.py:ToolRegistry",
+        "src/agentsec/mcp/tools.py:TOOL_SPECS"
+      ],
+      "limit": "Handler invocation begins only after an allow ticket."
+    },
+    {
+      "id": "ACT-ANALYST",
+      "name": "Security analyst / architect",
+      "kind": "HUMAN",
+      "status": "LEARNING ROLE",
+      "evidence": [
+        "learning/academy/curriculum.json:L6",
+        "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/workshop.md"
+      ],
+      "limit": "The analyst observes and recommends; Splunk does not become the runtime PDP."
+    }
+  ],
+  "components": [
+    {
+      "id": "CMP-APP",
+      "name": "AcmeBank Flask application",
+      "status": "IMPLEMENTED",
+      "evidence": ["src/agentsec/bank_app.py:create_app"]
+    },
+    {
+      "id": "CMP-ORCH",
+      "name": "Agent pipeline / orchestrator",
+      "status": "IMPLEMENTED",
+      "evidence": [
+        "src/agentsec/pipeline.py:run_loan_pipeline",
+        "src/agentsec/agents.py:PIPELINE_ORDER"
+      ]
+    },
+    {
+      "id": "CMP-MODEL",
+      "name": "Ollama model service",
+      "status": "IMPLEMENTED DEPENDENCY",
+      "evidence": ["src/agentsec/llm.py:OllamaClient"]
+    },
+    {
+      "id": "CMP-RAG",
+      "name": "Exact-ID local RAG retriever",
+      "status": "IMPLEMENTED",
+      "evidence": ["src/agentsec/rag/retriever.py:retrieve"]
+    },
+    {
+      "id": "CMP-MEMORY",
+      "name": "Process-local memory store",
+      "status": "IMPLEMENTED",
+      "evidence": ["src/agentsec/memory/store.py:InProcessMemoryStore"]
+    },
+    {
+      "id": "CMP-MCP",
+      "name": "In-process MCP server and CTRL-MCP-001",
+      "status": "IMPLEMENTED",
+      "evidence": [
+        "src/agentsec/mcp/server.py:McpServer.authorize",
+        "src/agentsec/mcp/authorize.py:authorize_tool"
+      ]
+    },
+    {
+      "id": "CMP-TOOLS",
+      "name": "Tool registry",
+      "status": "IMPLEMENTED",
+      "evidence": ["src/agentsec/mcp/registry.py:ToolRegistry"]
+    },
+    {
+      "id": "CMP-DOWNSTREAM",
+      "name": "Fixture-backed banking records",
+      "status": "LAB-SIMULATED",
+      "evidence": ["src/agentsec/mcp/tools.py:TOOL_SPECS"]
+    },
+    {
+      "id": "CMP-TELEMETRY",
+      "name": "OpenTelemetry export path",
+      "status": "IMPLEMENTED",
+      "evidence": [
+        "src/agentsec/telemetry.py:OtlpSink",
+        "docker/otel-collector-config.yaml"
+      ]
+    },
+    {
+      "id": "CMP-SPLUNK",
+      "name": "Splunk investigation workbench",
+      "status": "IMPLEMENTED / DOWNSTREAM",
+      "evidence": [
+        "splunk_app/agentsec/default/data/ui/nav/default.xml",
+        "docs/BLUE_TEAM_LIVE_SPLUNK_VALIDATION.md"
+      ]
+    },
+    {
+      "id": "CMP-EXTERNAL",
+      "name": "Cisco scanner and garak evidence adapters",
+      "status": "IMPLEMENTED / ADJACENT",
+      "evidence": [
+        "src/agentsec/external_evidence/cisco.py",
+        "src/agentsec/external_evidence/garak.py",
+        "src/agentsec/external_evidence/contract.py:ExternalEvidence"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "AST-CUSTOMER",
+      "category": "DATA",
+      "name": "Customer and banking records",
+      "reason": "Unauthorized disclosure or modification can affect customers and business operations."
+    },
+    {
+      "id": "AST-CONTEXT",
+      "category": "DATA",
+      "name": "Prompts, retrieved documents, and memory",
+      "reason": "These inputs can influence agent behavior and may contain sensitive or adversarial content."
+    },
+    {
+      "id": "AST-AUTHORITY",
+      "category": "AUTHORITY",
+      "name": "Tool, scope, and resource grants",
+      "reason": "Authority determines which security-sensitive actions can occur."
+    },
+    {
+      "id": "AST-POLICY",
+      "category": "SYSTEM",
+      "name": "Coded policy and allow-ticket integrity",
+      "reason": "A policy or ticket failure can convert influence into unauthorized execution."
+    },
+    {
+      "id": "AST-WORKFLOW",
+      "category": "BUSINESS",
+      "name": "Lending-policy workflow and decisions",
+      "reason": "Wrong-goal or excessive-action behavior can create material business impact."
+    },
+    {
+      "id": "AST-EVIDENCE",
+      "category": "SECURITY EVIDENCE",
+      "name": "Telemetry, provenance, decisions, and investigation artifacts",
+      "reason": "Incomplete or misleading evidence prevents reliable reconstruction and response."
+    },
+    {
+      "id": "AST-AVAILABILITY",
+      "category": "BUSINESS",
+      "name": "Service and model availability",
+      "reason": "Dependency failure can interrupt operations and create incomplete evidence."
+    }
+  ],
+  "data_flows": [
+    {
+      "id": "DF-01",
+      "source": "ACT-USER",
+      "destination": "CMP-APP",
+      "data": "HTTP request, task input, claimed user identifier",
+      "trust": "UNTRUSTED INPUT",
+      "persisted": false,
+      "authority_effect": "Cannot grant tools",
+      "telemetry": "run, input-control, and pipeline events"
+    },
+    {
+      "id": "DF-02",
+      "source": "CMP-ORCH",
+      "destination": "CMP-MODEL",
+      "data": "Prompt/context and model request",
+      "trust": "MIXED CONTEXT",
+      "persisted": false,
+      "authority_effect": "Model output is not authorization",
+      "telemetry": "llm.started/completed/failed"
+    },
+    {
+      "id": "DF-03",
+      "source": "CMP-RAG",
+      "destination": "CMP-ORCH",
+      "data": "Retrieved fixture document",
+      "trust": "UNTRUSTED DATA",
+      "persisted": false,
+      "authority_effect": "Influence only; no grant",
+      "telemetry": "document ID, provenance, content hash, RAG control"
+    },
+    {
+      "id": "DF-04",
+      "source": "CMP-ORCH",
+      "destination": "CMP-MEMORY",
+      "data": "Memory write and later recall",
+      "trust": "UNTRUSTED DATA",
+      "persisted": true,
+      "authority_effect": "Persistence does not create authority",
+      "telemetry": "memory ID, source run ID, hash, memory control"
+    },
+    {
+      "id": "DF-05",
+      "source": "CMP-ORCH",
+      "destination": "CMP-MCP",
+      "data": "Tool name, arguments, requested scope and resource",
+      "trust": "REQUEST / NOT A GRANT",
+      "persisted": false,
+      "authority_effect": "CTRL-MCP-001 decides",
+      "telemetry": "request fields, decision, reason, allowed scope"
+    },
+    {
+      "id": "DF-06",
+      "source": "CMP-MCP",
+      "destination": "CMP-TOOLS",
+      "data": "Opaque allow ticket",
+      "trust": "AUTHORIZED CAPABILITY",
+      "persisted": false,
+      "authority_effect": "Required before handler invocation",
+      "telemetry": "mcp.started/completed/failed and invocation count"
+    },
+    {
+      "id": "DF-07",
+      "source": "CMP-TOOLS",
+      "destination": "CMP-DOWNSTREAM",
+      "data": "Authorized resource lookup",
+      "trust": "GOVERNED ACTION",
+      "persisted": false,
+      "authority_effect": "Downstream effect is bounded by tool/resource policy",
+      "telemetry": "operation result and outcome"
+    },
+    {
+      "id": "DF-08",
+      "source": "CMP-APP",
+      "destination": "CMP-TELEMETRY",
+      "data": "Runtime security events",
+      "trust": "OBSERVATION COPY",
+      "persisted": true,
+      "authority_effect": "No enforcement",
+      "telemetry": "schema 1.9.0 events"
+    },
+    {
+      "id": "DF-09",
+      "source": "CMP-TELEMETRY",
+      "destination": "CMP-SPLUNK",
+      "data": "Exported event copies",
+      "trust": "DOWNSTREAM EVIDENCE",
+      "persisted": true,
+      "authority_effect": "No enforcement",
+      "telemetry": "indexed runtime events"
+    },
+    {
+      "id": "DF-10",
+      "source": "CMP-EXTERNAL",
+      "destination": "CMP-SPLUNK",
+      "data": "Scanner findings and adversarial evaluations",
+      "trust": "ADJACENT EXTERNAL EVIDENCE",
+      "persisted": true,
+      "authority_effect": "Must not influence CTRL-MCP-001",
+      "telemetry": "ExternalEvidence 1.0.0"
+    }
+  ],
+  "trust_boundaries": [
+    {
+      "id": "TB-01",
+      "name": "HTTP input boundary",
+      "between": ["ACT-USER", "CMP-APP"],
+      "question": "What untrusted request data enters, and which input control evaluates it?"
+    },
+    {
+      "id": "TB-02",
+      "name": "Retrieved-context boundary",
+      "between": ["CMP-RAG", "CMP-ORCH"],
+      "question": "How are provenance and trust recorded without treating content as authority?"
+    },
+    {
+      "id": "TB-03",
+      "name": "Persistent-memory boundary",
+      "between": ["CMP-ORCH", "CMP-MEMORY"],
+      "question": "Can stored untrusted data influence later runs, and how is that link observed?"
+    },
+    {
+      "id": "TB-04",
+      "name": "Tool authority boundary",
+      "between": ["CMP-ORCH", "CMP-MCP"],
+      "question": "Who authorizes the requested tool, scope, and resource before execution?"
+    },
+    {
+      "id": "TB-05",
+      "name": "Downstream system boundary",
+      "between": ["CMP-TOOLS", "CMP-DOWNSTREAM"],
+      "question": "What business data or action becomes reachable after authorization?"
+    },
+    {
+      "id": "TB-06",
+      "name": "Observability boundary",
+      "between": ["CMP-APP", "CMP-SPLUNK"],
+      "question": "Which emitted events become searchable, and what completeness can be proven?"
+    },
+    {
+      "id": "TB-07",
+      "name": "External-evidence boundary",
+      "between": ["CMP-EXTERNAL", "CMP-SPLUNK"],
+      "question": "How can assessment evidence inform investigation without becoming runtime authority?"
+    }
+  ],
+  "authority": {
+    "requester": "Agent / orchestration software",
+    "requested_objects": ["tool", "scope", "resource"],
+    "authorizer": "CTRL-MCP-001 in McpServer.authorize",
+    "policy": "coded_policy() exact membership",
+    "execution_gate": "McpServer.execute requires an opaque allow ticket minted after ALLOW",
+    "downstream_authority": "Fixture-backed tool action only",
+    "delegation": "Claim-shaped educational fields; cryptographic delegation NOT MODELED",
+    "authentication": "NOT MODELED",
+    "human_approval": "NOT MODELED",
+    "evidence": [
+      "src/agentsec/mcp/policy.py:coded_policy",
+      "src/agentsec/mcp/authorize.py:authorize_tool",
+      "src/agentsec/mcp/server.py:McpServer.authorize",
+      "src/agentsec/mcp/server.py:McpServer.execute",
+      "tests/security/test_mcp_authorization.py"
+    ]
+  }
+}

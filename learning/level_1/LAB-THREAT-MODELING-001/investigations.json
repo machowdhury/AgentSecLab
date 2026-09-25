@@ -1,0 +1,92 @@
+{
+  "schema": "agentsec.threat_model_learning.v1",
+  "lab_id": "LAB-THREAT-MODELING-001",
+  "challenge": "AcmeBank Agentic Customer Operations Platform",
+  "evidence_mode": "REPLAY / ARCHITECTURE",
+  "not_authorization": true,
+  "not_compliance": true,
+  "answer_gating": "PEDAGOGICAL",
+  "progress_persistence": false,
+  "methodology": [
+    "UNDERSTAND SYSTEM",
+    "IDENTIFY ASSETS",
+    "IDENTIFY ACTORS",
+    "MAP COMPONENTS",
+    "MAP DATA FLOWS",
+    "DRAW TRUST BOUNDARIES",
+    "IDENTIFY AUTHORITY",
+    "IDENTIFY ATTACK SURFACE",
+    "ENUMERATE THREATS",
+    "MAP CONTROLS",
+    "IDENTIFY TELEMETRY",
+    "TEST ASSUMPTIONS",
+    "IDENTIFY GAPS",
+    "RESIDUAL RISK"
+  ],
+  "levels": [
+    {
+      "id": "GUIDED",
+      "audience": "Beginner security learner",
+      "provided": ["architecture", "examples", "prompts", "four progressive hints"],
+      "withheld": ["completed threat list", "final control strategy", "residual-risk conclusion"]
+    },
+    {
+      "id": "PRACTITIONER",
+      "audience": "Security practitioner",
+      "provided": ["architecture", "business objectives", "artifact template", "minimal hints"],
+      "withheld": ["recommended threat priority", "answer model"]
+    },
+    {
+      "id": "ARCHITECT_CHALLENGE",
+      "audience": "Security architect",
+      "provided": ["business description", "architecture", "constraints"],
+      "withheld": ["threat catalog until learner draft", "Path B reference analysis"]
+    }
+  ],
+  "hints": [
+    {
+      "id": "HINT_1",
+      "text": "Start with purpose and assets. Select only assets whose compromise would matter to this bounded scenario."
+    },
+    {
+      "id": "HINT_2",
+      "text": "Trace one important flow from source to destination. Mark every place where trust or authority changes."
+    },
+    {
+      "id": "HINT_3",
+      "text": "Separate what can influence the agent from what can exercise authority. Name the actual enforcement point."
+    },
+    {
+      "id": "HINT_4",
+      "text": "For each threat, bind asset → boundary → control placement → telemetry → gap → residual risk. Use NOT MODELED or NOT PROVEN when required."
+    }
+  ],
+  "required_artifacts": [
+    "system purpose",
+    "critical assets",
+    "actors",
+    "components",
+    "data flows",
+    "trust boundaries",
+    "authority map",
+    "attack surface",
+    "defensible top threats",
+    "existing controls",
+    "missing controls",
+    "telemetry requirements",
+    "evidence gaps",
+    "residual risks",
+    "recommendations",
+    "engineering communication",
+    "SOC communication",
+    "executive communication"
+  ],
+  "known_gaps": {
+    "authentication": "NOT MODELED",
+    "human_approval": "NOT MODELED",
+    "cryptographic_delegation": "NOT MODELED",
+    "privacy_assessment": "NOT MODELED / FUTURE PHASE",
+    "framework_identifier_mapping": "NEEDS_EXTERNAL_VALIDATION",
+    "universal_control_effectiveness": "NOT PROVEN"
+  }
+}

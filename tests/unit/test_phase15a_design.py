@@ -53,6 +53,7 @@ INVENTORIED_LABS = frozenset(
         "LAB-AGENT-GOAL-INTEGRITY-001",
         "LAB-AGENTSEC-CAPSTONE-001",
         "LAB-BLUE-TEAM-INCIDENT-001",
+        "LAB-THREAT-MODELING-001",
     }
 )
 
@@ -74,6 +75,7 @@ PUBLISHED_VIEWS = frozenset(
         "ws_lab_external_evaluation_garak.xml",
         "ws_lab_agentsec_capstone.xml",
         "ws_lab_blue_team_incident.xml",
+        "ws_lab_threat_modeling.xml",
         "ws_agentsec_mastery.xml",
     }
 )

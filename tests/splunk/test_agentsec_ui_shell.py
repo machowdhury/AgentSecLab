@@ -27,6 +27,7 @@ LEARNER_VIEWS = (
     "ws_lab_agent_delegation.xml",
     "ws_lab_agentsec_capstone.xml",
     "ws_lab_blue_team_incident.xml",
+    "ws_lab_threat_modeling.xml",
 )
 
 
@@ -46,6 +47,7 @@ def test_nav_is_grouped_and_home_is_default():
         "Agent Intent",
         "Capstone",
         "Blue Team",
+        "Security Architecture",
     ):
         assert f'<collection label="{label}">' in nav
     assert "Attack Labs" not in nav
@@ -57,6 +59,7 @@ def test_nav_is_grouped_and_home_is_default():
     assert nav.index("ws_lab_agent_goal_integrity") < nav.index("ws_lab_agentsec_capstone")
     assert nav.index("ws_lab_agent_delegation") < nav.index("ws_lab_agentsec_capstone")
     assert nav.index("ws_lab_agentsec_capstone") < nav.index("ws_lab_blue_team_incident")
+    assert nav.index("ws_lab_blue_team_incident") < nav.index("ws_lab_threat_modeling")
     assert "<collection label=" in nav
     assert not re.search(r"<view name=\"ws_lab_[^\"]+\" default=", nav)
     # LAB-* ids must not be the visible nav labels; they live in XML descriptions.
@@ -110,6 +113,7 @@ def test_xml_labels_are_human_readable():
         "ws_lab_agent_delegation.xml": "Agent Identity / Delegation",
         "ws_lab_agentsec_capstone.xml": "Lending Assistant Investigation",
         "ws_lab_blue_team_incident.xml": "AcmeBank Incident AI-2026-001",
+        "ws_lab_threat_modeling.xml": "Threat Modeling and Security Architecture",
         "ws_agentsec_home.xml": "Home",
         "ws_agentsec_mastery.xml": "Mastery Check",
     }

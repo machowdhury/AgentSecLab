@@ -1,0 +1,206 @@
+{
+  "schema": "agentsec.educational_threat_catalog.v1",
+  "lab_id": "LAB-THREAT-MODELING-001",
+  "catalog_role": "REASONING PROMPTS / NOT A COMPLETED THREAT MODEL",
+  "not_compliance": true,
+  "threats": [
+    {
+      "id": "TM-T01",
+      "category": "PROMPT / CONTEXT MANIPULATION",
+      "question": "Can untrusted user or retrieved content alter the agent's requested behavior?",
+      "assets": ["AST-WORKFLOW", "AST-CONTEXT"],
+      "boundaries": ["TB-01", "TB-02"],
+      "existing_controls": [
+        {
+          "id": "CTRL-INPUT-001",
+          "class": "PREVENTIVE / ENFORCE",
+          "placement": "HTTP input boundary",
+          "evidence": "src/agentsec/pipeline.py:run_loan_pipeline"
+        },
+        {
+          "id": "CTRL-RAG-CONTEXT-001",
+          "class": "OBSERVE",
+          "placement": "Retrieved-context boundary",
+          "evidence": "src/agentsec/rag/pipeline.py:run_rag_retrieve"
+        }
+      ],
+      "telemetry_required": ["input hash", "document ID", "provenance", "control decision", "follow-on request"],
+      "gap": "Semantic resistance outside controlled fixtures is NOT PROVEN.",
+      "residual_risk": "Influence can remain even when authority is correctly denied."
+    },
+    {
+      "id": "TM-T02",
+      "category": "MEMORY POISONING",
+      "question": "Can untrusted stored content influence a later run?",
+      "assets": ["AST-CONTEXT", "AST-WORKFLOW"],
+      "boundaries": ["TB-03"],
+      "existing_controls": [
+        {
+          "id": "CTRL-MEMORY-CONTEXT-001",
+          "class": "OBSERVE",
+          "placement": "Memory recall path",
+          "evidence": "src/agentsec/memory/pipeline.py:run_memory_recall"
+        },
+        {
+          "id": "MEMORY-STORE-VALIDATION",
+          "class": "PREVENTIVE / ENFORCE",
+          "placement": "Memory write",
+          "evidence": "src/agentsec/memory/store.py:InProcessMemoryStore.write"
+        }
+      ],
+      "telemetry_required": ["memory ID", "writer", "source run ID", "content hash", "recall decision"],
+      "gap": "Production persistence, retention, deletion, and tenant isolation are NOT MODELED.",
+      "residual_risk": "A valid stored object can still contain influential untrusted data."
+    },
+    {
+      "id": "TM-T03",
+      "category": "GOAL MANIPULATION",
+      "question": "Can an instruction expand the authorized business purpose while using an allowed tool?",
+      "assets": ["AST-WORKFLOW", "AST-AUTHORITY"],
+      "boundaries": ["TB-01", "TB-04"],
+      "existing_controls": [
+        {
+          "id": "CTRL-GOAL-INTEGRITY-001",
+          "class": "PREVENTIVE / ENFORCE IN DEFENDED EXPERIMENT",
+          "placement": "Before wrong-goal execution",
+          "evidence": "src/agentsec/goal/pipeline.py:run_goal_integrity"
+        }
+      ],
+      "telemetry_required": ["authoritative task", "proposed task", "effective task", "goal decision", "tool decision"],
+      "gap": "Open-ended goal semantics beyond the deterministic lab are NOT PROVEN.",
+      "residual_risk": "A correctly authorized tool can still be used toward a poorly specified legitimate goal."
+    },
+    {
+      "id": "TM-T04",
+      "category": "EXCESSIVE AUTHORITY / TOOL ABUSE",
+      "question": "Can the agent request or execute a tool, scope, or resource beyond coded authority?",
+      "assets": ["AST-AUTHORITY", "AST-CUSTOMER", "AST-POLICY"],
+      "boundaries": ["TB-04", "TB-05"],
+      "existing_controls": [
+        {
+          "id": "CTRL-MCP-001",
+          "class": "PREVENTIVE / ENFORCE",
+          "placement": "MCP server before handler",
+          "evidence": "src/agentsec/mcp/authorize.py:authorize_tool"
+        },
+        {
+          "id": "ALLOW-TICKET",
+          "class": "PREVENTIVE / ENFORCE",
+          "placement": "MCP execution gate",
+          "evidence": "src/agentsec/mcp/server.py:McpServer.execute"
+        }
+      ],
+      "telemetry_required": ["requester claim", "tool", "scope", "resource", "decision", "reason", "invocation", "completion", "outcome"],
+      "gap": "Production downstream credentials and row-level authorization are NOT MODELED.",
+      "residual_risk": "An allowed operation may still expose more business data than intended if policy is overbroad."
+    },
+    {
+      "id": "TM-T05",
+      "category": "IDENTITY SPOOFING / DELEGATION ABUSE",
+      "question": "Can identity or delegation claims be mistaken for authenticated or delegated authority?",
+      "assets": ["AST-AUTHORITY", "AST-POLICY"],
+      "boundaries": ["TB-04"],
+      "existing_controls": [
+        {
+          "id": "CTRL-IDENTITY-001",
+          "class": "OBSERVE",
+          "placement": "Claim interpretation",
+          "evidence": "src/agentsec/identity/pipeline.py:run_identity_delegation"
+        },
+        {
+          "id": "CTRL-MCP-001",
+          "class": "PREVENTIVE / ENFORCE",
+          "placement": "Tool authority boundary",
+          "evidence": "src/agentsec/mcp/authorize.py:authorize_tool"
+        }
+      ],
+      "telemetry_required": ["principal claim", "caller", "callee", "delegator", "authority source", "tool decision"],
+      "gap": "Authentication, OAuth/OIDC, workload identity, and cryptographic delegation are NOT MODELED.",
+      "residual_risk": "Claim fields provide attribution context but cannot establish who authenticated."
+    },
+    {
+      "id": "TM-T06",
+      "category": "SENSITIVE-DATA EXPOSURE",
+      "question": "Can prompts, context, memory, tool results, or telemetry disclose customer or business data?",
+      "assets": ["AST-CUSTOMER", "AST-CONTEXT", "AST-EVIDENCE"],
+      "boundaries": ["TB-02", "TB-03", "TB-05", "TB-06"],
+      "existing_controls": [
+        {
+          "id": "BOUNDED-PREVIEW",
+          "class": "PREVENTIVE / DATA MINIMIZATION",
+          "placement": "Telemetry creation",
+          "evidence": "src/agentsec/events.py"
+        }
+      ],
+      "telemetry_required": ["data class", "source", "destination", "preview policy", "result hash", "access decision"],
+      "gap": "A privacy impact assessment, retention policy, DLP, and production customer-data model are NOT MODELED.",
+      "residual_risk": "Observability itself can become a sensitive-data store."
+    },
+    {
+      "id": "TM-T07",
+      "category": "SUPPLY-CHAIN / EXTERNAL DEPENDENCY",
+      "question": "Can a model, package, tool description, external service, or security tool provide misleading or compromised input?",
+      "assets": ["AST-WORKFLOW", "AST-POLICY", "AST-AVAILABILITY"],
+      "boundaries": ["TB-02", "TB-07"],
+      "existing_controls": [
+        {
+          "id": "CATALOG-VALIDATION",
+          "class": "PREVENTIVE / OBSERVE",
+          "placement": "Tool catalog boundary",
+          "evidence": "src/agentsec/mcp/metadata_trust.py"
+        },
+        {
+          "id": "EXTERNAL-EVIDENCE-CONTRACT",
+          "class": "ASSESSMENT EVIDENCE",
+          "placement": "External evidence normalization",
+          "evidence": "src/agentsec/external_evidence/contract.py:ExternalEvidence"
+        }
+      ],
+      "telemetry_required": ["component version", "artifact hash", "producer", "native result", "raw evidence reference"],
+      "gap": "AI-BOM, package provenance, and production supplier assurance are NOT MODELED.",
+      "residual_risk": "A clean scan or passing evaluation does not establish safety."
+    },
+    {
+      "id": "TM-T08",
+      "category": "OBSERVABILITY / EVIDENCE GAP",
+      "question": "Could a security-sensitive action occur without enough evidence to reconstruct it?",
+      "assets": ["AST-EVIDENCE", "AST-WORKFLOW"],
+      "boundaries": ["TB-06"],
+      "existing_controls": [
+        {
+          "id": "INV-007-TELEMETRY",
+          "class": "DETECTIVE / OBSERVE",
+          "placement": "Runtime event emitters",
+          "evidence": "src/agentsec/events.py"
+        },
+        {
+          "id": "SPLUNK",
+          "class": "DETECTIVE / INVESTIGATION",
+          "placement": "Downstream",
+          "evidence": "docs/BLUE_TEAM_LIVE_SPLUNK_VALIDATION.md"
+        }
+      ],
+      "telemetry_required": ["event", "source", "timestamp", "request", "decision", "invocation", "completion", "outcome", "run ID", "provenance"],
+      "gap": "Missing events can reflect export, ingestion, extraction, or instrumentation failure.",
+      "residual_risk": "Complete indexed rows still do not provide cryptographic non-repudiation."
+    },
+    {
+      "id": "TM-T09",
+      "category": "SECURITY-EVIDENCE OVERCLAIM",
+      "question": "Can scanner findings, evaluation results, detections, or correlations be mistaken for exploitation, prevention, or causation?",
+      "assets": ["AST-EVIDENCE", "AST-WORKFLOW"],
+      "boundaries": ["TB-06", "TB-07"],
+      "existing_controls": [
+        {
+          "id": "EVIDENCE-PLANE-SEPARATION",
+          "class": "CORRECTIVE / REASONING",
+          "placement": "Learning and investigation layer",
+          "evidence": "docs/BLUE_TEAM_INVESTIGATION_AND_THREAT_HUNTING.md"
+        }
+      ],
+      "telemetry_required": ["producer", "evidence class", "correlation method", "correlation value", "runtime decision", "runtime outcome"],
+      "gap": "Correlation may remain unavailable or non-causal.",
+      "residual_risk": "Analysts can still overstate what valid evidence proves."
+    }
+  ]
+}

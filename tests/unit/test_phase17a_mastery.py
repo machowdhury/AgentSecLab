@@ -242,7 +242,7 @@ def test_home_and_nav_expose_mastery_without_new_collection():
     curriculum = load_curriculum()
     assert curriculum["mastery_view"] == "ws_agentsec_mastery"
     assert curriculum["mastery_title"] == "Mastery Check"
-    assert curriculum["nav_collections"][-1]["label"] == "Blue Team"
+    assert curriculum["nav_collections"][-1]["label"] == "Security Architecture"
     home_xml = (VIEWS / "ws_agentsec_home.xml").read_text(encoding="utf-8")
     assert "Mastery Check" in home_xml
     assert "ws_agentsec_mastery" in home_xml
