@@ -53,6 +53,8 @@ Measured three distinct rows:
 - provider `cisco-ai-defense`
 - tool `cisco-ai-mcp-scanner` version `4.8.4`
 - class `finding`
+- subject type `mcp.catalog.snapshot`
+- subject IDs `NORMAL`, `MALICIOUS`, and `lookup_policy` as appropriate
 - timestamps `2026-09-16T05:36:53Z` / `2026-09-16T05:36:55Z`
 - one native `HIGH`, one zero-finding scan, one completed malicious scan
 - raw ref `raw/scanner-output.json`
@@ -61,8 +63,10 @@ Measured three distinct rows:
 - correlation values equal the canonical description SHA-256 values
 
 The indexed Cisco HEC shape omits `external.evidence_id`; `scan_id` plus
-`event.name` identifies these scan/finding rows. It also omits unknown subject
-fields on this pack rather than inventing them.
+`event.name` identifies these scan/finding rows. Its contract representation
+uses flat `external.subject_type` / `external.subject_id` keys, unlike garak’s
+nested `external.subject.type` / `external.subject.id`; the validation queries
+the actual current representations rather than pretending they are identical.
 
 ## garak evaluation plane
 
