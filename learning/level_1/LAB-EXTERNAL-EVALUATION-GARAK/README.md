@@ -2,7 +2,7 @@
 
 **Tool:** garak 0.17.0, integrated—not built—by AgentSec
 **Official project:** https://github.com/NVIDIA/garak
-**License:** Apache-2.0
+**License metadata:** repository pin records Apache-2.0; current upstream text is `NEEDS_EXTERNAL_VALIDATION`
 **Evidence class:** `evaluation`
 **Sourcetype:** `agentsec:external:evaluation`
 **Runtime schema:** 1.9.0 — unchanged

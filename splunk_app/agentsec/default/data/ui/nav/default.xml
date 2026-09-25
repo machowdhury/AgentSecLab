@@ -12,6 +12,7 @@
     <view name="ws_lab_mcp_005">Tool Result Trust</view>
     <view name="ws_lab_mcp_catalog">Tool Catalog</view>
     <view name="ws_lab_scanner_runtime_evidence">Scanner + Runtime Evidence</view>
+    <view name="ws_lab_external_evaluation_garak">External Security Toolbox</view>
   </collection>
   <collection label="Agent Intent">
     <view name="ws_lab_agent_goal_integrity">Goal / Instruction Integrity</view>

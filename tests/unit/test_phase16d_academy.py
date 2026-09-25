@@ -54,6 +54,7 @@ REPLAY_VIEWS = (
     "ws_lab_mcp_006.xml",
     "ws_lab_mcp_catalog.xml",
     "ws_lab_scanner_runtime_evidence.xml",
+    "ws_lab_external_evaluation_garak.xml",
 )
 
 PHASE16D_DOCS = (
@@ -101,6 +102,9 @@ def test_curriculum_is_learning_metadata_not_policy():
     assert lab_row("LAB-PI-001")["level_id"] == "L1"
     assert next_lab("LAB-PI-001")["lab_id"] == "LAB-MCP-001"
     assert previous_lab("LAB-PI-001") is None
+    assert next_lab("LAB-SCANNER-RUNTIME-EVIDENCE")["lab_id"] == "LAB-EXTERNAL-EVALUATION-GARAK"
+    assert previous_lab("LAB-EXTERNAL-EVALUATION-GARAK")["lab_id"] == "LAB-SCANNER-RUNTIME-EVIDENCE"
+    assert next_lab("LAB-EXTERNAL-EVALUATION-GARAK")["lab_id"] == "LAB-AGENT-GOAL-INTEGRITY-001"
     assert next_lab("LAB-AGENTSEC-CAPSTONE-001") is None
     assert previous_lab("LAB-AGENTSEC-CAPSTONE-001")["lab_id"] == "LAB-MCP-006"
 

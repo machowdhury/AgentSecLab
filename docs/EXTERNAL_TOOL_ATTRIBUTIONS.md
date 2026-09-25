@@ -3,6 +3,21 @@
 AgentSec is an independent learning range. Inclusion here does not imply
 affiliation, sponsorship, certification, or endorsement by an external project.
 
+## Cisco mcp-scanner
+
+| Field | Attribution |
+|---|---|
+| TOOL | Cisco AI Defense MCP Scanner (`cisco-ai-mcp-scanner`) |
+| OFFICIAL REPOSITORY (PIN METADATA) | https://github.com/cisco-ai-defense/mcp-scanner |
+| CLASSIFICATION | STATIC / CATALOG SECURITY FINDING |
+| VERSION PINNED | 4.8.4 |
+| HOW AGENTSEC USES IT | Runs a bounded local static YARA scan over an exported teaching catalog, preserves native output, normalizes class `finding`, and sends pack-derived events to Splunk |
+| BUILT BY AGENTSEC | ExternalEvidence contract, adapter, pack/HEC integration, searches, and learning content |
+| INTEGRATED BY AGENTSEC | The pinned external scanner CLI and its native output |
+| TAUGHT / REFERENCED BY AGENTSEC | Upstream project identity, analyzer behavior, native result fields, and license metadata |
+| LIMITATIONS | Static result for defined catalog bytes and analyzer configuration; not exploitation, authorization, execution, causality, or safety |
+| EXTERNAL STATUS | `NEEDS_EXTERNAL_VALIDATION` for current upstream license and native JSON format stability |
+
 ## garak
 
 | Field | Attribution |
@@ -11,7 +26,7 @@ affiliation, sponsorship, certification, or endorsement by an external project.
 | PROJECT | garak — Generative AI Red-teaming & Assessment Kit / “the LLM vulnerability scanner” |
 | OFFICIAL REPOSITORY | https://github.com/NVIDIA/garak |
 | VERSION TESTED | 0.17.0 |
-| LICENSE | Apache License 2.0 — https://github.com/NVIDIA/garak/blob/main/LICENSE |
+| LICENSE | Repository metadata records Apache-2.0; current upstream license remains `NEEDS_EXTERNAL_VALIDATION` |
 | PURPOSE | Probe generative-AI systems and evaluate model responses with garak’s native probes and detectors |
 | HOW AGENTSEC USES IT | Runs one bounded probe against a local Ollama model, preserves the native JSONL report, normalizes one `evaluation` record, and sends that record to Splunk for investigation |
 | INTEGRATION CLASS | External adversarial evaluation |
