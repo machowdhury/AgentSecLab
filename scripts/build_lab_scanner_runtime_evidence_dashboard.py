@@ -332,20 +332,55 @@ def build() -> dict:
 
 Investigate what a scanner finding can and cannot prove about runtime authorization.
 
-**REPLAY SPECIMEN** · historical evidence · Schema 1.5.0
+**REPLAY SPECIMEN** · historical evidence · Runtime schema 1.9.0 (workshop originated under 1.5.0)
 
 **When an external security scanner flags agent/tool metadata, what can the SOC actually conclude from that evidence?**
 
 External security evidence and runtime authorization answer **different questions**. Scanner evidence informs investigation. Scanner evidence does **not** feed CTRL-MCP-001.
 
+Cisco mcp-scanner is the first **external evidence adapter**. It is not a new control.
+
+```text
+Independent tool (mcp-scanner)
+      ↓
+Cisco adapter
+      ↓
+Normalized ExternalEvidence (class=finding)
+      ↓
+Evidence pack + HEC
+      ↓
+Splunk sourcetype agentsec:scanner:finding
+      ↓
+Hash join: description_sha256 ↔ content.hash
+```
+
+Producer label on the event remains `OBSERVED_SCANNER`. Contract class is `finding`. FINDING != AUTHORIZATION.
+
 - SCANNER FINDING != AUTHORIZATION DECISION
+- SCANNER HIGH != DENY
 - SCANNER HIGH != HIGH-SEVERITY INCIDENT
+- SCANNER LOW != ALLOW
 - ZERO FINDINGS != SAFE
+- HASH MATCH = compared canonical content matched (not same request or decision)
 - METADATA OBSERVED != AUTHORIZED
 - REQUEST != GRANT
 - ALLOW != EXECUTION
 - mcp.started != SUCCESS
-- SPLUNK != ENFORCEMENT
+- EXTERNAL TOOL != PDP
+- SPLUNK != ENFORCEMENT / SPLUNK != PDP
+
+Answer these from the tables:
+
+1. What did mcp-scanner report?
+2. What artifact did it inspect?
+3. What evidence class is this?
+4. How is it correlated with runtime evidence?
+5. What does the hash match establish?
+6. Did the scanner authorize anything?
+7. Which control actually made the authorization decision?
+8. What runtime execution occurred?
+9. What does Splunk prove?
+10. What remains unproven?
 
 **Canonical specimens (historical)**
 
@@ -366,7 +401,8 @@ MALICIOUS hash `{MALICIOUS_HASH}`
 ```text
 MCP catalog
     |
-    +----> Cisco mcp-scanner ----> Artifact Evidence  (PLANE 1)
+    +----> Cisco adapter ----> External finding (PLANE 1)
+    |      (mcp-scanner raw → ExternalEvidence → pack → HEC)
     |
     +----> Agent runtime
                |
@@ -390,9 +426,9 @@ This workshop is not a second catalog-poisoning runtime. LAB-MCP-CATALOG taught 
 
 **Questions:** What artifact was scanned? Did the scan execute? Were findings produced? What was the native severity? What description SHA-256 was scanned?
 
-**Evidence class:** OBSERVED_SCANNER
+**Evidence class:** producer `OBSERVED_SCANNER` · contract `finding`
 
-A finding is not an exploit. Native HIGH is not incident HIGH.
+A finding is not an exploit. Native HIGH is not incident HIGH. SCANNER HIGH != DENY.
 """,
         title="PLANE 1",
     )

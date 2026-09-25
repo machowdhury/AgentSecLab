@@ -4,10 +4,11 @@ Do not collapse planes. Do not treat empty Splunk tables as security outcomes.
 
 ## PLANE 1 — Artifact evidence
 
-**Source:** Cisco mcp-scanner static YARA, sourcetype `agentsec:scanner:finding`  
-**Class:** OBSERVED_SCANNER (Phase 9B packs; Phase 9C ingest MEASURED)
+**Source:** Cisco mcp-scanner static YARA via the Cisco external-evidence adapter, sourcetype `agentsec:scanner:finding`  
+**Producer class:** OBSERVED_SCANNER (Phase 9B packs; Phase 9C ingest MEASURED)  
+**Contract class:** finding (external evidence 1.0.0; not an authorization result)
 
-Questions: What artifact was scanned? Did the scan execute? Were findings produced? What was the native severity? What description SHA-256 was scanned?
+Questions: What artifact was scanned? Did the scan execute? Were findings produced? What was the native severity? What description SHA-256 was scanned? How is this correlated (`hash_join`)? Did the scanner authorize anything (no)?
 
 NORMAL `b3061c4e-7a81-445c-8fd8-3108dd14c419`: scan executed, finding_count=0.  
 MALICIOUS `7ae3ea64-4e7a-40fe-943f-3e582bce5ee8`: scan executed, finding_count=1, native HIGH, PROMPT INJECTION.

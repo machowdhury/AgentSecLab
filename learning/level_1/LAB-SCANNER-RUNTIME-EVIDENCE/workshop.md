@@ -9,7 +9,30 @@ Phase 9E: how does a SOC combine scanner and runtime evidence to investigate it?
 
 Three planes. Scanner evidence informs investigation. Scanner evidence does not feed CTRL-MCP-001.
 
-External security evidence and runtime authorization answer different questions.
+This lab is **REPLAY**: canonical Phase 9B packs plus historical runtime copies. It is not live runtime scanning.
+
+Cisco `mcp-scanner` is an **external evidence adapter**. Pipeline:
+
+```text
+mcp-scanner raw output → Cisco adapter → ExternalEvidence (finding) → pack → HEC → Splunk
+```
+
+Producer class on the indexed event is `OBSERVED_SCANNER` (honesty label). Contract `evidence_class` is `finding`. Correlation method is `hash_join` on `description_sha256` / `content.hash`. Hash match means the compared canonical content matched. It does not prove the same process, request, execution, or decision.
+
+CTRL-MCP-001 remains the tool PDP. FINDING != AUTHORIZATION. SCANNER HIGH != DENY. ZERO FINDINGS != SAFE. EXTERNAL TOOL != PDP. SPLUNK != PDP.
+
+Learner questions:
+
+1. What did mcp-scanner report?
+2. What artifact did it inspect?
+3. What evidence class is this?
+4. How is it correlated with runtime evidence?
+5. What does the hash match establish?
+6. Did the scanner authorize anything?
+7. Which control actually made the authorization decision?
+8. What runtime execution occurred?
+9. What does Splunk prove?
+10. What remains unproven?
 
 Copy full LIVE ids from the first canvas. Input fields may ellipsize UUIDs.
 
