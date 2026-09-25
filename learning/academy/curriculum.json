@@ -48,6 +48,10 @@
     {
       "label": "Security Architecture",
       "views": ["ws_lab_threat_modeling"]
+    },
+    {
+      "label": "Privacy & Data Governance",
+      "views": ["ws_lab_privacy_data_governance"]
     }
   ],
   "levels": [
@@ -148,9 +152,21 @@
       "prerequisites": "L6 Blue-Team Investigation. Draft before opening Path B.",
       "effort": "REPLAY / ARCHITECTURE 3-5 hours",
       "exit": "SECURITY ARCHITECT",
-      "next": null,
+      "next": "L8",
       "labs": [
         {"lab_id": "LAB-THREAT-MODELING-001", "title": "AcmeBank Agentic Customer Operations Platform", "mode": "REPLAY", "view": "ws_lab_threat_modeling"}
+      ]
+    },
+    {
+      "id": "L8",
+      "title": "Privacy, data protection and agentic data governance",
+      "learn": "Trace what data an agent can see, infer, remember, disclose, send, persist, retrieve, log, and expose; distinguish authorized action from appropriate data use.",
+      "prerequisites": "L7 Threat Modeling & Security Architecture. Investigate before opening Path B.",
+      "effort": "REPLAY / PRIVACY INVESTIGATION 3-5 hours",
+      "exit": "PRIVACY-AWARE SECURITY ARCHITECT",
+      "next": null,
+      "labs": [
+        {"lab_id": "LAB-PRIVACY-DATA-GOVERNANCE-001", "title": "AcmeBank Incident PRIV-2026-001", "mode": "REPLAY", "view": "ws_lab_privacy_data_governance"}
       ]
     }
   ]

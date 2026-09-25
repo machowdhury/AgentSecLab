@@ -1,0 +1,97 @@
+{
+  "schema": "agentsec.privacy_learning.v1",
+  "lab_id": "LAB-PRIVACY-DATA-GOVERNANCE-001",
+  "incident_id": "PRIV-2026-001",
+  "synthetic_only": true,
+  "task": "Confirm the synthetic customer's preferred support contact channel.",
+  "required_fields": [
+    "customer_id",
+    "preferred_channel"
+  ],
+  "full_record": {
+    "account_balance_band": "synthetic-medium",
+    "customer_id": "cust-synthetic-001",
+    "email": "ava.customer@example.invalid",
+    "internal_case_note": "synthetic-only fee inquiry",
+    "postal_address": "10 Example Lane, Testville",
+    "preferred_channel": "email"
+  },
+  "minimized_record": {
+    "customer_id": "cust-synthetic-001",
+    "preferred_channel": "email"
+  },
+  "classification": [
+    {
+      "field": "customer_id",
+      "category": "PERSONAL / IDENTIFIER",
+      "scenario_sensitivity": "SYNTHETIC IDENTIFIER",
+      "required": true,
+      "reason": "Select the fixture-backed support subject."
+    },
+    {
+      "field": "preferred_channel",
+      "category": "PERSONAL / PREFERENCE",
+      "scenario_sensitivity": "SYNTHETIC PERSONAL DATA",
+      "required": true,
+      "reason": "The bounded task asks for the contact channel."
+    },
+    {
+      "field": "email",
+      "category": "PERSONAL / CONTACT",
+      "scenario_sensitivity": "SYNTHETIC PERSONAL DATA",
+      "required": false,
+      "reason": "The task asks for channel type, not the address."
+    },
+    {
+      "field": "postal_address",
+      "category": "PERSONAL / CONTACT",
+      "scenario_sensitivity": "SYNTHETIC PERSONAL DATA",
+      "required": false,
+      "reason": "Not needed to confirm an email channel."
+    },
+    {
+      "field": "account_balance_band",
+      "category": "FINANCIAL",
+      "scenario_sensitivity": "SYNTHETIC FINANCIAL DATA",
+      "required": false,
+      "reason": "Unrelated to contact-channel confirmation."
+    },
+    {
+      "field": "internal_case_note",
+      "category": "BUSINESS CONFIDENTIAL",
+      "scenario_sensitivity": "SYNTHETIC INTERNAL DATA",
+      "required": false,
+      "reason": "Unrelated internal context."
+    }
+  ],
+  "lifecycle": [
+    {"stage": "COLLECT", "status": "FIXTURE-BACKED", "evidence": "data-map.json"},
+    {"stage": "INGEST", "status": "MODELED", "evidence": "record_json tool argument"},
+    {"stage": "CLASSIFY", "status": "LEARNER TASK", "evidence": "classification prompts"},
+    {"stage": "USE", "status": "MODELED", "evidence": "prepare_support_contact handler"},
+    {"stage": "RETRIEVE", "status": "NOT MODELED IN INCIDENT", "evidence": null},
+    {"stage": "INFER", "status": "EDUCATIONAL EXERCISE ONLY", "evidence": "inference prompt"},
+    {"stage": "ACT", "status": "MODELED", "evidence": "authorized fixture handler"},
+    {"stage": "STORE / REMEMBER", "status": "NOT MODELED IN INCIDENT", "evidence": null},
+    {"stage": "LOG", "status": "MODELED", "evidence": "content preview and hash"},
+    {"stage": "SHARE", "status": "FIXTURE-BACKED TOOL BOUNDARY", "evidence": "received_fields"},
+    {"stage": "RETAIN", "status": "NOT MODELED", "evidence": null},
+    {"stage": "DELETE", "status": "NOT MODELED", "evidence": null}
+  ],
+  "trace": [
+    "SYNTHETIC FIXTURE",
+    "TOOL ARGUMENT",
+    "CTRL-MCP-001",
+    "FIXTURE-BACKED TOOL",
+    "RESULT",
+    "TELEMETRY",
+    "SPLUNK COPY"
+  ],
+  "not_in_incident_trace": {
+    "model_context": "NOT MODELED",
+    "rag": "NOT MODELED",
+    "memory": "NOT MODELED",
+    "external_service": "NOT MODELED",
+    "production_database": "NOT MODELED"
+  }
+}

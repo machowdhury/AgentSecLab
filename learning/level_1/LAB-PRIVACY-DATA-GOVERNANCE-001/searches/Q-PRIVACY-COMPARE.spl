@@ -1,0 +1,13 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 ("agentsec.run.id"=__FULL_RUN_ID__ OR "agentsec.run.id"=__MINIMIZED_RUN_ID__) ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.completed)
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| eval decision=if('event.name'="agentsec.control.decision",'agentsec.control.decision',null())
+| eval reason=if('event.name'="agentsec.control.decision",'agentsec.control.reason',null())
+| eval request_preview=if('event.name'="agentsec.control.decision",'agentsec.content.preview',null())
+| eval request_hash=if('event.name'="agentsec.control.decision",'agentsec.content.hash',null())
+| eval completion_preview=if('event.name'="agentsec.mcp.completed",'agentsec.content.preview',null())
+| eval completed=if('event.name'="agentsec.mcp.completed",1,0)
+| stats values(mode) AS mode values(decision) AS decision values(reason) AS reason values(request_preview) AS request_preview values(request_hash) AS request_hash max(completed) AS completed values(completion_preview) AS completion_preview BY run_id
+| eval additional_field_marker=if(match(request_preview,"account_balance_band"),"OBSERVED IN PREVIEW","NOT OBSERVED IN PREVIEW")
+| table mode, run_id, decision, reason, completed, additional_field_marker, request_preview, request_hash, completion_preview
+| sort 0 mode

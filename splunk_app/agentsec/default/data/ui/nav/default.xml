@@ -28,6 +28,9 @@
   <collection label="Security Architecture">
     <view name="ws_lab_threat_modeling">Threat Modeling</view>
   </collection>
+  <collection label="Privacy &amp; Data Governance">
+    <view name="ws_lab_privacy_data_governance">Privacy Investigation</view>
+  </collection>
   <view name="ws_agentsec_mastery">Mastery Check</view>
   <view name="search">Search</view>
 </nav>

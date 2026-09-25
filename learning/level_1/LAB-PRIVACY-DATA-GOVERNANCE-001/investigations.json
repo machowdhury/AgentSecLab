@@ -1,0 +1,91 @@
+{
+  "schema": "agentsec.privacy_investigation.v1",
+  "lab_id": "LAB-PRIVACY-DATA-GOVERNANCE-001",
+  "incident_id": "PRIV-2026-001",
+  "not_authorization": true,
+  "not_compliance": true,
+  "answer_gating": "PEDAGOGICAL",
+  "progress_persistence": false,
+  "levels": [
+    {
+      "id": "GUIDED",
+      "provided": [
+        "incident description",
+        "task purpose",
+        "data categories",
+        "candidate search",
+        "four progressive hints"
+      ],
+      "withheld": [
+        "unnecessary-field conclusion",
+        "completed evidence ledger",
+        "recommended control strategy"
+      ]
+    },
+    {
+      "id": "INVESTIGATE",
+      "provided": [
+        "incident description",
+        "approximate lab identifier",
+        "search objective"
+      ],
+      "withheld": [
+        "run identifiers",
+        "comparison result",
+        "final privacy conclusion"
+      ]
+    },
+    {
+      "id": "CHALLENGE",
+      "provided": [
+        "business purpose",
+        "architecture",
+        "incomplete evidence"
+      ],
+      "withheld": [
+        "required-field set",
+        "Path B reference analysis"
+      ]
+    }
+  ],
+  "hints": [
+    {
+      "id": "HINT_1",
+      "text": "Write the business purpose before inspecting the record. Purpose determines which fields may be necessary."
+    },
+    {
+      "id": "HINT_2",
+      "text": "Find CTRL-MCP-001 decisions for this lab, then inspect execution and data evidence separately."
+    },
+    {
+      "id": "HINT_3",
+      "text": "Compare agentsec.content.preview and content.hash across candidate runs. A preview is a bounded telemetry copy, not the complete original."
+    },
+    {
+      "id": "HINT_4",
+      "text": "Use Q-PRIVACY-CANDIDATES, bind Q-PRIVACY-TRACE to each run, then use Q-PRIVACY-COMPARE only after recording your conclusion."
+    }
+  ],
+  "failure_states": {
+    "empty_search": "NO EVIDENCE FOUND — not SAFE",
+    "missing_correlation": "NOT CORRELATED",
+    "missing_memory_event": "EXPECTED — memory is NOT MODELED in this incident",
+    "missing_downstream_event": "NOT OBSERVED — completion cannot be established from ALLOW alone",
+    "splunk_unavailable": "DOWNSTREAM EVIDENCE UNAVAILABLE — runtime result does not become SAFE",
+    "malformed_fixture": "REJECTED BEFORE EXECUTION",
+    "provider_retention": "NOT MODELED"
+  },
+  "required_outputs": [
+    "data inventory",
+    "lifecycle map",
+    "data trace",
+    "privacy evidence ledger",
+    "privacy threat model",
+    "minimization decision",
+    "control placement",
+    "residual risk",
+    "engineering communication",
+    "operations communication",
+    "leadership communication"
+  ]
+}

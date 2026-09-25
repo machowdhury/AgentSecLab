@@ -45,6 +45,7 @@ ATTACK_URL = "http://127.0.0.1:5001/"
 CAPSTONE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agentsec_capstone"
 BLUE_TEAM_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_blue_team_incident"
 THREAT_MODEL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_threat_modeling"
+PRIVACY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_privacy_data_governance"
 MASTERY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_mastery"
 
 
@@ -72,6 +73,7 @@ def build() -> dict:
     l5 = _mode_line(levels["L5"]["labs"])
     l6 = _mode_line(levels["L6"]["labs"])
     l7 = _mode_line(levels["L7"]["labs"])
+    l8 = _mode_line(levels["L8"]["labs"])
 
     add_md(
         "viz_hero",
@@ -210,7 +212,7 @@ This is the learner path. It is not the order the software was built.
 
 You should always know: where you are, what you are learning, why it matters, and what to do next.
 
-Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone** → **Blue Team** → **Security Architecture**. Then **Mastery Check** (optional). Search stays the notebook.
+Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone** → **Blue Team** → **Security Architecture** → **Privacy & Data Governance**. Then **Mastery Check** (optional). Search stays the notebook.
 
 LIVE labs have Attack Service. REPLAY labs use Investigate specimen plus Search. Do not treat REPLAY as a fresh launch.
 """,
@@ -255,6 +257,12 @@ Open [AcmeBank Incident AI-2026-001]({BLUE_TEAM_URL}) after the Capstone. It is 
 
 Open [Threat Modeling & Security Architecture]({THREAT_MODEL_URL}) after Blue Team. It is a REPLAY / ARCHITECTURE workbench: model assets, flows, trust, authority, threats, controls, evidence gaps, and residual risk. It creates no new attack or runtime control.
 
+**L8 Privacy, data protection and agentic data governance** — {levels['L8']['learn']} Effort: {levels['L8']['effort']}. Exit: {levels['L8']['exit']}.
+
+{l8}
+
+Open [AcmeBank Incident PRIV-2026-001]({PRIVACY_URL}) after L7. It is a synthetic REPLAY privacy investigation: trace data, minimize it, separate tool authorization from appropriate data use, and state what remains unknown.
+
 Then [Mastery Check]({MASTERY_URL}) if you want to prove the reasoning without the workshop scaffolding. Skip FOUNDATIONAL if you already know the vocabulary.
 """,
         title="PROGRESSION",
@@ -275,6 +283,8 @@ Then [Mastery Check]({MASTERY_URL}) if you want to prove the reasoning without t
 **BLUE-TEAM INVESTIGATOR** — hunt without a supplied run ID, reconstruct a timeline, challenge a hypothesis, write an evidence ledger, and communicate bounded conclusions.
 
 **SECURITY ARCHITECT** — model an unfamiliar agentic architecture, place controls at the relevant boundary, design observability, and state evidence gaps and residual risk.
+
+**PRIVACY-AWARE SECURITY ARCHITECT** — inventory and trace data, minimize it by purpose, investigate telemetry exposure, and distinguish authorized action from appropriate data handling.
 
 [Mastery Check]({MASTERY_URL}) uses those labels. There is no certificate and no leaderboard. Viewing a tab is not completion.
 """,

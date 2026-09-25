@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="2" theme="light">
+  <label>Privacy and Data Governance</label>
+  <description>L8 synthetic privacy investigation workbench.</description>
+  <definition><![CDATA[
+{
+  "title": "Privacy, Data Protection & Agentic Data Governance",
+  "description": "L8 REPLAY privacy workbench. Synthetic evidence; not compliance or legal advice.",
+  "defaults": {
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "large"
+        }
+      }
+    }
+  },
+  "inputs": {},
+  "visualizations": {
+    "viz_foundations": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# PRIV-2026-001 · synthetic privacy incident\n\nLab: **LAB-PRIVACY-DATA-GOVERNANCE-001**\n\nAn authorized customer-support task appears to have supplied more customer information than required.\n\n**AUTHORIZED ACTION != AUTHORIZED DATA USE**\n\nMODEL ACCESS != NEED TO KNOW · RETRIEVABLE != APPROPRIATE TO RETRIEVE · MEMORIZED != APPROPRIATE TO RETAIN · LOGGED != APPROPRIATE TO STORE · ENCRYPTED != PRIVACY-SAFE.\n\nThis is a **REPLAY workshop** and fixture-backed learning exercise. It is not policy. **This is not a breach claim.** It is not legal advice, a DLP product, compliance validation, or certification. Runtime schema **1.9.0** and ExternalEvidence **1.0.0** remain unchanged.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "FOUNDATIONS"
+    },
+    "viz_lifecycle": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Canonical lifecycle\n\nCOLLECT → INGEST → CLASSIFY → USE → RETRIEVE → INFER → ACT → STORE / REMEMBER → LOG → SHARE → RETAIN → DELETE\n\nNot every stage exists. In this incident RAG, model context, memory, external providers, retention behavior, and deletion are **NOT MODELED**. Do not fabricate missing stages.\n\nInventory relevant personal, financial, authentication/security, business-confidential, AI-context, and security-evidence data according to this scenario.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "DATA LIFECYCLE · INVENTORY"
+    },
+    "viz_map": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Map the data before judging it\n\nTask: confirm a synthetic customer's preferred support-contact channel.\n\nFor each flow ask: WHAT DATA? FROM WHERE? TO WHERE? WHY? WHO CAN SEE IT? IS IT REQUIRED? TRANSFORMED? PERSISTED? LOGGED? DOES IT CROSS A BOUNDARY?\n\n```text\nSYNTHETIC FIXTURE → TOOL ARGUMENT → CTRL-MCP-001 → FIXTURE TOOL\n                                            │\n                                            └→ TELEMETRY → SPLUNK COPY\n```\n\nCTRL-MCP-001 authorizes the tool. It does not establish that every argument field is appropriate.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "DATA MAP"
+    },
+    "viz_privacy_domains": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Apply the concepts without inventing incident facts\n\n**RAG:** retrieval authorization is separate from tool authorization. Over-broad or cross-context retrieval can expose sensitive content. CTRL-MCP-001 does not control retrieval here.\n\n**Memory:** distinguish WRITE, PERSIST, RECALL, REUSE. Privacy/retention failure is not identical to memory poisoning.\n\n**Prompt:** ask what personal, confidential, secret, retrieved, or historical data actually needs to enter model context.\n\n**Inference:** separately harmless inputs may support a sensitive inference; universal inference detection is not claimed.\n\nFor this incident these paths are architectural questions, not observed events.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "RAG · MEMORY · PROMPT · INFERENCE"
+    },
+    "viz_trace": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Path A · investigate before comparing\n\n1. Discover candidates with `Q-PRIVACY-CANDIDATES`.\n2. Bind `Q-PRIVACY-TRACE` to a candidate run.\n3. Sort by `agentsec.sequence`; separate request, decision, invocation, completion, outcome, and telemetry.\n4. Record each claim, evidence, data, boundary, confidence, and missing evidence.\n\nCanonical full-record specimen: `d27562be-3bb9-4643-ab88-5100173426a5`\nCanonical minimized specimen: `46f030ad-8b62-40d0-9c0e-fd4206b7bc47`\n\nThese are **MEASURED historical copies**, not a launch you just minted. If Splunk returns no rows: **NO EVIDENCE FOUND — not SAFE**.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "TRACE · SPLUNK"
+    },
+    "viz_hints": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Progressive hints\n\n**Hint 1:** Write the task purpose first; purpose determines necessity.\n\n**Hint 2:** Find CTRL-MCP-001 decisions, then inspect execution and data evidence separately.\n\n**Hint 3:** Compare `agentsec.content.preview` and content hashes. A preview is a bounded telemetry copy and itself illustrates logging exposure.\n\n**Hint 4:** Use candidate → trace → compare only after recording your initial conclusion.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "GUIDED → INVESTIGATE → CHALLENGE"
+    },
+    "viz_minimize": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Minimization challenge\n\nSelect the minimum fields needed to confirm the preferred **channel type**:\n\n`customer_id` · `preferred_channel` · `email` · `postal_address` · `account_balance_band` · `internal_case_note`\n\nExplain each inclusion and exclusion. Cosmetic hiding is not minimization: the excluded fields must not enter the tool argument or its telemetry copy.\n\nRedaction can reduce exposure, but it does not establish purpose, prevent inference, guarantee deletion, or repair over-broad retrieval.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "MINIMIZE"
+    },
+    "viz_observability": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# How much should we log?\n\nBalance investigative value against sensitivity, retention, access, minimization, redaction, provenance, and correlation. More telemetry may improve investigation: telemetry while increasing exposure is a privacy design failure.\n\nSecrets, credentials, and tokens should not enter ordinary model context or telemetry. All examples here are synthetic; `example.invalid` cannot identify a real customer.\n\nSpecify event, source, timestamp, identity claim, request, decision, invocation, completion, outcome, correlation identifier, and provenance—without copying unnecessary content.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "TELEMETRY VS PRIVACY"
+    },
+    "viz_threat_model": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Privacy threat model\n\nFor each concern bind:\n\n**ASSET → SOURCE → PROCESSOR → BOUNDARY → PURPOSE → EXPOSURE → PERSISTENCE → CONTROL → TELEMETRY → RESIDUAL RISK**\n\nConsider input minimization, retrieval/memory scoping, argument filtering, secret exclusion, redaction, access control, retention, telemetry access, deletion, and monitoring. Place each control where it can affect the data flow.\n\nAuthentication, human approval, cryptographic delegation, provider retention, secure deletion, and production tenant isolation are **NOT MODELED**.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "THREAT MODEL · CONTROL DESIGN"
+    },
+    "viz_design": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Privacy by design\n\nBefore deployment ask: What data do we need and why? Where does it go? Who can see it? How long is it needed? What is logged? How can we investigate without over-collecting? What happens when it is no longer needed?\n\nProduce three bounded explanations:\n\n- **Engineering:** technical change and control placement.\n- **SOC / Privacy Operations:** monitoring, access, retention, and investigation.\n- **Leadership:** information exposed or potentially exposed, affected process, what is proven, uncertainty, and recommendation.\n\nAvoid unsupported breach language and fake risk scores.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "DESIGN · COMMUNICATE"
+    },
+    "viz_frameworks": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# EDUCATIONAL MAPPING\n\nNIST Privacy Framework 1.0 is the current final framework used here; PF 1.1 remains an Initial Public Draft. NIST AI RMF 1.0 supplies AI risk context. Current OWASP agentic/application guidance supplies data-exposure questions.\n\n**This is not compliance validation. This is not legal determination. This is not certification. This is not complete framework coverage.**\n\nUnverified identifier-level mappings remain **NEEDS_EXTERNAL_VALIDATION**.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "FRAMEWORK CONTEXT"
+    },
+    "viz_review": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Path B · bounded reference analysis\n\nOpen after recording purpose, required fields, trace, and evidence ledger.\n\nThe bounded task requires `customer_id` and `preferred_channel`. The full specimen additionally supplied synthetic email, postal address, balance band, and internal case note. The minimized specimen excluded those fields.\n\nBoth runs received CTRL-MCP-001 **ALLOW / tool_granted**, invoked the same fixture-backed handler once, completed, and produced seven distinct correlated event payloads in live Splunk. Duplicate indexed rows were observed after local app restaging and are not additional runtime actions. Therefore authorization and expected execution stayed constant while data supplied to the tool and copied into telemetry changed.\n\nThis proves the bounded specimen comparison—not production exposure, provider handling, retention, deletion, RAG or memory behavior, universal control effectiveness, or a breach.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "REFERENCE ANALYSIS"
+    },
+    "viz_finish": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Residual risk and finish\n\n`ALLOW + MINIMIZED DATA + EXPECTED EXECUTION` is preferable here to `ALLOW + EXCESSIVE DATA + EXPECTED EXECUTION`, but minimization does not eliminate risk.\n\nRecord remaining exposure, monitoring and response requirements, access to telemetry, retention/deletion uncertainty, and assumptions.\n\nComplete the reusable evidence-ledger, privacy-threat-model, and incident-report templates. Screen-reader validation remains **PARTIAL** unless independently tested.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "PATH B · REVIEW"
+    }
+  },
+  "layout": {
+    "options": {
+      "submitButton": false,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "layoutDefinitions": {
+      "layout_foundations": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1020
+        },
+        "structure": [
+          {
+            "item": "viz_foundations",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_lifecycle",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 520,
+              "w": 1440,
+              "h": 480
+            }
+          }
+        ]
+      },
+      "layout_map": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 640
+        },
+        "structure": [
+          {
+            "item": "viz_map",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 720,
+              "h": 620
+            }
+          },
+          {
+            "item": "viz_privacy_domains",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 0,
+              "w": 720,
+              "h": 620
+            }
+          }
+        ]
+      },
+      "layout_trace": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 640
+        },
+        "structure": [
+          {
+            "item": "viz_trace",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 720,
+              "h": 620
+            }
+          },
+          {
+            "item": "viz_hints",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 0,
+              "w": 720,
+              "h": 620
+            }
+          }
+        ]
+      },
+      "layout_investigate": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 640
+        },
+        "structure": [
+          {
+            "item": "viz_observability",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 620
+            }
+          }
+        ]
+      },
+      "layout_minimize": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 640
+        },
+        "structure": [
+          {
+            "item": "viz_minimize",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 620
+            }
+          }
+        ]
+      },
+      "layout_model": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 700
+        },
+        "structure": [
+          {
+            "item": "viz_threat_model",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 680
+            }
+          }
+        ]
+      },
+      "layout_design": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 700
+        },
+        "structure": [
+          {
+            "item": "viz_design",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 720,
+              "h": 680
+            }
+          },
+          {
+            "item": "viz_frameworks",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 0,
+              "w": 720,
+              "h": 680
+            }
+          }
+        ]
+      },
+      "layout_review": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1280
+        },
+        "structure": [
+          {
+            "item": "viz_review",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 760
+            }
+          },
+          {
+            "item": "viz_finish",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 760,
+              "w": 1440,
+              "h": 500
+            }
+          }
+        ]
+      }
+    },
+    "tabs": {
+      "options": {
+        "barPosition": "top"
+      },
+      "items": [
+        {
+          "layoutId": "layout_foundations",
+          "label": "FOUNDATIONS"
+        },
+        {
+          "layoutId": "layout_map",
+          "label": "DATA MAP"
+        },
+        {
+          "layoutId": "layout_trace",
+          "label": "TRACE"
+        },
+        {
+          "layoutId": "layout_investigate",
+          "label": "INVESTIGATE"
+        },
+        {
+          "layoutId": "layout_minimize",
+          "label": "MINIMIZE"
+        },
+        {
+          "layoutId": "layout_model",
+          "label": "THREAT MODEL"
+        },
+        {
+          "layoutId": "layout_design",
+          "label": "DESIGN"
+        },
+        {
+          "layoutId": "layout_review",
+          "label": "PATH B · REVIEW"
+        }
+      ]
+    }
+  },
+  "applicationProperties": {
+    "collapseNavigation": false,
+    "downsampleVisualizations": false
+  }
+}
+  ]]></definition>
+</dashboard>

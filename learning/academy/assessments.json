@@ -41,6 +41,23 @@
     ],
     "evidence_required": "Completed threat-model artifact with architecture summary, selected assets, actors, flows, boundaries, authority, prioritized threats, controls and placement, telemetry, gaps, residual risks, recommendations, and three audience-specific explanations."
   },
+  "privacy_data_governance_competencies": {
+    "lab_id": "LAB-PRIVACY-DATA-GOVERNANCE-001",
+    "tracking": "SELF_ASSESSED / NO PERSISTENCE / NOT CERTIFICATION",
+    "dimensions": [
+      "INVENTORY DATA",
+      "TRACE DATA FLOWS",
+      "CLASSIFY BY SCENARIO",
+      "MINIMIZE DATA",
+      "SEPARATE AUTHORIZATION FROM DATA USE",
+      "INVESTIGATE TELEMETRY",
+      "STATE PRIVACY EVIDENCE GAPS",
+      "PLACE DATA CONTROLS",
+      "EXPLAIN RESIDUAL RISK",
+      "COMMUNICATE"
+    ],
+    "evidence_required": "Completed data inventory, lifecycle and trace, minimization decision, privacy evidence ledger, privacy threat model, control strategy, residual-risk statement, and three audience-specific explanations."
+  },
   "rubric": {
     "dimensions": [
       {

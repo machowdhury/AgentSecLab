@@ -1,0 +1,102 @@
+{
+  "classification": {
+    "rendering": "OBSERVED",
+    "accessibility": "PARTIAL",
+    "screen_reader": "NOT TESTED"
+  },
+  "tabs": [
+    {
+      "name": "FOUNDATIONS",
+      "visible": true
+    },
+    {
+      "name": "DATA MAP",
+      "visible": true
+    },
+    {
+      "name": "TRACE",
+      "visible": true
+    },
+    {
+      "name": "INVESTIGATE",
+      "visible": true
+    },
+    {
+      "name": "MINIMIZE",
+      "visible": true
+    },
+    {
+      "name": "THREAT MODEL",
+      "visible": true
+    },
+    {
+      "name": "DESIGN",
+      "visible": true
+    },
+    {
+      "name": "PATH B \u00b7 REVIEW",
+      "visible": true
+    }
+  ],
+  "widths": {
+    "1920": {
+      "horizontal_overflow": false
+    },
+    "1440": {
+      "horizontal_overflow": false
+    },
+    "1280": {
+      "horizontal_overflow": false
+    },
+    "1024": {
+      "horizontal_overflow": false
+    }
+  },
+  "zoom_200": {
+    "physical_width_equivalent": 1024,
+    "effective_css_width": 512,
+    "method": "responsive reflow equivalent",
+    "horizontal_overflow": true
+  },
+  "keyboard": {
+    "focus_before": "FOUNDATIONS",
+    "focus_after_arrow_right": "DATA MAP",
+    "focused_tab_style": {
+      "outline": "rgb(0, 110, 170) none 3px",
+      "boxShadow": "rgb(255, 255, 255) 0px 0px 1px 1px inset, rgb(0, 110, 170) 0px 0px 0px 3px inset"
+    }
+  },
+  "answer_gating": {
+    "answer_absent_before_review": true,
+    "answer_present_in_review": true
+  },
+  "academy_home": {
+    "level_8": true,
+    "incident": true,
+    "capstone_last_live": true
+  },
+  "synthetic_labeling": {
+    "synthetic_visible": true,
+    "not_breach_claim": true
+  },
+  "copy_controls": "native selectable markdown; no custom copy widget",
+  "failure_states": {
+    "no_evidence_found": true,
+    "never_safe": true
+  },
+  "screenshots": [
+    "docs/screenshots/privacy-data-governance/final_foundations.png",
+    "docs/screenshots/privacy-data-governance/final_data_map.png",
+    "docs/screenshots/privacy-data-governance/final_trace.png",
+    "docs/screenshots/privacy-data-governance/final_investigate.png",
+    "docs/screenshots/privacy-data-governance/final_minimize.png",
+    "docs/screenshots/privacy-data-governance/final_threat_model.png",
+    "docs/screenshots/privacy-data-governance/final_design.png",
+    "docs/screenshots/privacy-data-governance/final_path_b_review.png",
+    "docs/screenshots/privacy-data-governance/final_w1920_foundations.png",
+    "docs/screenshots/privacy-data-governance/final_w1440_foundations.png",
+    "docs/screenshots/privacy-data-governance/final_w1280_foundations.png",
+    "docs/screenshots/privacy-data-governance/final_w1024_foundations.png",
+    "docs/screenshots/privacy-data-governance/final_w1024_zoom200_foundations.png"
+  ]
+}

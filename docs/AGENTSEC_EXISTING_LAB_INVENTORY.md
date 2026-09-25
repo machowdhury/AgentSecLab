@@ -10,6 +10,8 @@
 
 **Security-architecture update:** `LAB-THREAT-MODELING-001` is a post-Blue-Team REPLAY / ARCHITECTURE workbench over documented AgentSec components and evidence. Studio `ws_lab_threat_modeling`. Attack Service NO. No new attack, detector, runtime control, or schema field.
 
+**Privacy update:** `LAB-PRIVACY-DATA-GOVERNANCE-001` is a post-L7 synthetic REPLAY investigation comparing excessive and minimized tool arguments while CTRL-MCP-001 ALLOW and expected execution remain constant. Studio `ws_lab_privacy_data_governance`. Attack Service NO. No DLP, detector, new PDP, contract, or schema field.
+
 Classifications are not inferred from roadmap prose alone. Cross-check: `learning/level_1/`, `src/agentsec/`, `splunk_app/…/views/`, `src/agentsec/experiment_context.py`, `src/agentsec/launch_catalog.py`, `learning/**/searches/*.spl`, `docs/IMPLEMENTATION_STATUS.md` proof columns.
 
 Legend: **IMPLEMENTED** / **DESIGNED** / **LIVE VALIDATED** / **REPLAY** / **SIMULATED** / **PARTIAL** / **NOT IMPLEMENTED** / **NOT APPLICABLE**.
