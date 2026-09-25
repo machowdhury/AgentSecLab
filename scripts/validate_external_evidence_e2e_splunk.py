@@ -53,8 +53,8 @@ index=agentsec_telemetry source={SOURCE} sourcetype=agentsec:scanner:finding ear
        provider=mvindex(mvdedup('external.provider'),0),
        tool=mvindex(mvdedup('external.tool'),0),
        tool_version=mvindex(mvdedup('external.tool_version'),0),
-       subject_type=mvindex(mvdedup('external.subject.type'),0),
-       subject_id=mvindex(mvdedup('external.subject.id'),0),
+       subject_type=mvindex(mvdedup('external.subject_type'),0),
+       subject_id=mvindex(mvdedup('external.subject_id'),0),
        raw_ref=mvindex(mvdedup('external.raw_evidence_ref'),0),
        raw_sha256=mvindex(mvdedup('external.raw_evidence_sha256'),0),
        correlation_method=mvindex(mvdedup('correlation.method'),0),
@@ -123,6 +123,8 @@ def validate_results(results: dict[str, str]) -> None:
     assert {row["evidence_class"] for row in cisco} == {"finding"}
     assert {row["producer"] for row in cisco} == {"OBSERVED_SCANNER"}
     assert {row["tool_version"] for row in cisco} == {"4.8.4"}
+    assert {row["subject_type"] for row in cisco} == {"mcp.catalog.snapshot"}
+    assert {row["subject_id"] for row in cisco} == {"NORMAL", "MALICIOUS", "lookup_policy"}
     assert {row["correlation_method"] for row in cisco} == {"hash_join"}
     assert all(row["timestamp"] and row["raw_ref"] and row["raw_sha256"] for row in cisco)
 
