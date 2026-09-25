@@ -12,7 +12,7 @@ The Capstone should evaluate whether a learner can reconstruct how untrusted inf
 
 - Canonical runtime semantics and three-run correlation are already exposed.
 - Existing Studio searches reuse validated RAG, Memory, MCP, Goal, and Identity hunts.
-- Runtime handler count is correctly distinguished from Splunk corroboration.
+- ToolRegistry invocation count is process-local invocation-begin evidence; successful completion requires `mcp.completed` plus a successful hop/outcome. Splunk remains downstream corroboration.
 - No Capstone detector or schema extension exists.
 - Existing content repeatedly preserves OBSERVE != ALLOW and Splunk != enforcement.
 

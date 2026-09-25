@@ -60,11 +60,12 @@
       <ol class="context-chain" aria-label="Capstone evidence categories">
         <li><span>Source</span><strong>Origin and bytes</strong></li>
         <li><span>Retrieval</span><strong>Context entry</strong></li>
-        <li><span>Persistence</span><strong>Cross-run state</strong></li>
+        <li><span>Persistence</span><strong>Fixture-equivalent bytes · hash verified</strong></li>
         <li><span>Recall</span><strong>Later influence</strong></li>
         <li><span>Intent</span><strong>Requested action</strong></li>
         <li><span>Authority</span><strong>Control decision</strong></li>
-        <li><span>Execution</span><strong>Runtime count</strong></li>
+        <li><span>Invocation</span><strong>ToolRegistry count</strong></li>
+        <li><span>Completion</span><strong>mcp.completed / mcp.failed</strong></li>
         <li><span>Evidence</span><strong>Local + Splunk</strong></li>
       </ol>
     </section>
@@ -106,7 +107,7 @@
         <h2 id="run-heading">RECALL run.id</h2>
         <code id="primary-run-id" class="run-id">Not launched</code>
         <div class="compact-actions">
-          <button class="btn btn-secondary" type="button" data-copy-target="primary-run-id">Copy primary run ID</button>
+          <button class="btn btn-secondary" type="button" data-copy-target="primary-run-id" data-copy-label="Primary RECALL run ID">Copy Primary Run ID</button>
           <button id="open-search" class="btn btn-secondary" type="button" disabled>Open workshop</button>
         </div>
         <p class="run-help">The primary launch ID identifies the later RECALL and authorization run. RETRIEVE and WRITE are correlated siblings.</p>
@@ -119,10 +120,10 @@
         <p>Do not collapse three related runs into one UUID.</p>
       </div>
       <div class="correlation-grid">
-        <div><span>RETRIEVE run · context entry</span><code id="retrieve-run-id">NOT RUN</code><button type="button" data-copy-target="retrieve-run-id">Copy</button></div>
-        <div><span>WRITE run · persisted bytes</span><code id="write-run-id">NOT RUN</code><button type="button" data-copy-target="write-run-id">Copy</button></div>
-        <div><span>RECALL run · request / decision / execution</span><code id="recall-run-id">NOT RUN</code><button type="button" data-copy-target="recall-run-id">Copy</button></div>
-        <div><span>source_run_id · WRITE→RECALL link</span><code id="source-run-id">NOT RUN</code><button type="button" data-copy-target="source-run-id">Copy</button></div>
+        <div><span>RETRIEVE run · context entry</span><code id="retrieve-run-id">NOT RUN</code><button type="button" data-copy-target="retrieve-run-id" data-copy-label="RETRIEVE run ID">Copy Retrieve Run ID</button></div>
+        <div><span>WRITE run · fixture-equivalent persistence</span><code id="write-run-id">NOT RUN</code><button type="button" data-copy-target="write-run-id" data-copy-label="WRITE run ID">Copy Write Run ID</button></div>
+        <div><span>RECALL run · request / decision / runtime</span><code id="recall-run-id">NOT RUN</code><button type="button" data-copy-target="recall-run-id" data-copy-label="RECALL run ID">Copy Recall Run ID</button></div>
+        <div><span>source_run_id · WRITE→RECALL link</span><code id="source-run-id">NOT RUN</code><button type="button" data-copy-target="source-run-id" data-copy-label="source WRITE run ID">Copy Source Run ID</button></div>
       </div>
     </section>
 
@@ -138,21 +139,23 @@
         <li><span>Recall</span><strong id="chain-recall">NOT RUN</strong></li>
         <li><span>Request</span><strong id="chain-request">NOT RUN</strong></li>
         <li><span>PDP</span><strong id="chain-control">NOT RUN</strong></li>
-        <li><span>Execution</span><strong id="chain-execution">NOT MEASURED</strong></li>
+        <li><span>Invocation</span><strong id="chain-invocation">NOT MEASURED</strong></li>
+        <li><span>Completion</span><strong id="chain-completion">NOT MEASURED</strong></li>
         <li><span>Evidence</span><strong id="chain-evidence">NOT RUN</strong></li>
       </ol>
     </section>
 
     <section class="run-results" aria-labelledby="result-heading">
       <div class="section-heading">
-        <div><p class="eyebrow">Measured packet</p><h2 id="result-heading">Influence · intent · authority · execution</h2></div>
+        <div><p class="eyebrow">Measured packet</p><h2 id="result-heading">Influence · intent · authority · invocation · completion · outcome</h2></div>
         <p>These are different questions. A generic attack-success label would hide the security model.</p>
       </div>
       <dl class="result-facts">
         <div><dt>Influence</dt><dd id="result-influence">NOT RUN</dd></div>
         <div><dt>Intent</dt><dd id="result-intent">NOT RUN</dd></div>
         <div><dt>Authority</dt><dd id="result-authority">NOT RUN</dd></div>
-        <div><dt>Execution</dt><dd id="result-execution">NOT MEASURED</dd></div>
+        <div><dt>Invocation</dt><dd id="result-invocation">NOT MEASURED</dd></div>
+        <div><dt>Completion</dt><dd id="result-completion">NOT MEASURED</dd></div>
         <div><dt>RAG control</dt><dd id="result-rag-control">NOT RUN</dd></div>
         <div><dt>Memory control</dt><dd id="result-memory-control">NOT RUN</dd></div>
         <div><dt>Tool control</dt><dd id="result-tool-control">NOT RUN</dd></div>
@@ -177,7 +180,8 @@
             <tr><th scope="row">Exact document-byte fingerprint</th><td>NOT RUN</td><td>NOT RUN</td></tr>
             <tr><th scope="row">Server-owned security state</th><td>NOT RUN</td><td>NOT RUN</td></tr>
             <tr><th scope="row">Control difference</th><td>NOT RUN</td><td>NOT RUN</td></tr>
-            <tr><th scope="row">Execution difference</th><td>NOT MEASURED</td><td>NOT MEASURED</td></tr>
+            <tr><th scope="row">Invocation difference</th><td>NOT MEASURED</td><td>NOT MEASURED</td></tr>
+            <tr><th scope="row">Completion difference</th><td>NOT MEASURED</td><td>NOT MEASURED</td></tr>
             <tr><th scope="row">Sensitive outcome</th><td>NOT MEASURED</td><td>NOT MEASURED</td></tr>
           </tbody>
         </table>
@@ -209,7 +213,7 @@
         </section>
         <section class="advanced-wide">
           <h2>Evidence limits</h2>
-          <p>Runtime handler count is authoritative for execution. Splunk `mcp.started` is corroboration on a complete copy. HEC acceptance is not completeness. Missing telemetry is not prevention. One deterministic RETEST does not prove universal effectiveness.</p>
+          <p>REQUEST ≠ ALLOW ≠ INVOKED ≠ COMPLETED ≠ OUTCOME. The process-local ToolRegistry count proves invocation began, not successful completion. `mcp.completed` plus a successful hop/outcome supports completion; `mcp.failed` records failure after invocation. HEC state is transport health, not completeness. Missing telemetry is not prevention. One deterministic RETEST does not prove universal effectiveness.</p>
         </section>
       </div>
     </details>
@@ -235,14 +239,26 @@
       const retrieve = result => (result && result.retrieve_runtime) || {};
       const write = result => (result && result.write_runtime) || {};
       const handlerCount = result => recall(result).lookup_customer_tier_handler_count ?? recall(result).handler_invoke_count;
-      const operationState = result => {
+      const toolHop = result => (recall(result).hops || []).find(hop => Number(hop["hop.index"]) === 1) || {};
+      const invocationState = result => {
         const count = handlerCount(result);
         if (count === undefined || count === null) return "NOT MEASURED";
-        return Number(count) > 0 ? "EXECUTED · handler " + count : "NOT EXECUTED · handler 0";
+        return Number(count) > 0 ? "INVOKED · ToolRegistry count " + count : "NOT INVOKED · ToolRegistry count 0";
       };
-      const outcomeState = result => Number(handlerCount(result)) > 0
-        ? "CUSTOMER-TIER ACCESS OCCURRED"
-        : "CUSTOMER-TIER ACCESS NOT EXECUTED";
+      const completionState = result => {
+        const hop = toolHop(result);
+        if (hop["mcp.completed"]) return "COMPLETED · mcp.completed · " + (hop["operation.outcome"] || "success");
+        if (hop["mcp.failed"]) return "FAILED · mcp.failed · " + (hop["operation.outcome"] || "error");
+        if (recall(result).follow_on_decision === "DENY" && Number(handlerCount(result)) === 0) return "NOT STARTED AFTER DENY";
+        return "NOT MEASURED";
+      };
+      const outcomeState = result => {
+        const hop = toolHop(result);
+        if (hop["mcp.completed"] && hop["operation.outcome"] === "success") return "CUSTOMER-TIER ACCESS OCCURRED";
+        if (recall(result).follow_on_decision === "DENY" && Number(handlerCount(result)) === 0) return "CUSTOMER-TIER ACCESS NOT INVOKED";
+        if (hop["mcp.failed"]) return "CUSTOMER-TIER OUTCOME NOT ESTABLISHED · invocation failed";
+        return "NOT PROVEN";
+      };
       const safe = value => String(value ?? "NOT MEASURED").replace(/[&<>"']/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[character]));
       const row = (label, attack, retest) => `<tr><th scope="row">${safe(label)}</th><td>${safe(attack)}</td><td>${safe(retest)}</td></tr>`;
 
@@ -251,7 +267,7 @@
         if (!value || value === "NOT RUN" || value === "Not launched") return;
         try {
           await navigator.clipboard.writeText(value);
-          status.textContent = "Copied " + id.replaceAll("-", " ") + ".";
+          status.textContent = "Copied " + (document.querySelector(`[data-copy-target="${id}"]`)?.dataset.copyLabel || id.replaceAll("-", " ")) + ".";
         } catch (_error) {
           status.textContent = "Copy unavailable. Select the visible ID manually.";
         }
@@ -275,23 +291,25 @@
 
         text("chain-source", result.document_id + " · untrusted_data");
         text("chain-retrieve", rg.context_control_decision + " · " + rg.context_control_reason);
-        text("chain-persist", result.memory_id + " · exact bytes");
+        text("chain-persist", result.memory_id + " · fixture-equivalent bytes · hash verified");
         text("chain-recall", rr.memory_control_decision + " · " + rr.memory_control_reason);
         text("chain-request", requestedTool + " · " + requestedScope);
         text("chain-control", (rr.follow_on_control_id || "CTRL-MCP-001") + " · " + (rr.follow_on_decision || "NOT MEASURED"));
-        text("chain-execution", operationState(result));
+        text("chain-invocation", invocationState(result));
+        text("chain-completion", completionState(result));
         text("chain-evidence", "LOCAL " + result.local_event_count_retrieve + " / " + result.local_event_count_write + " / " + result.local_event_count_recall);
         text("chain-help", "Measured " + mode + " chain. Splunk remains a downstream evidence copy.");
 
         text("result-influence", result.document_id + " → " + result.memory_id);
         text("result-intent", requestedTool + " · " + requestedScope + " · " + requestedResource);
         text("result-authority", (rr.follow_on_decision || "NOT MEASURED") + " · " + (rr.follow_on_reason || "reason not measured"));
-        text("result-execution", operationState(result));
+        text("result-invocation", invocationState(result));
+        text("result-completion", completionState(result));
         text("result-rag-control", "CTRL-RAG-CONTEXT-001 · " + (rg.context_control_decision || "NOT MEASURED"));
         text("result-memory-control", "CTRL-MEMORY-CONTEXT-001 · " + (rr.memory_control_decision || "NOT MEASURED"));
         text("result-tool-control", "CTRL-MCP-001 · " + (rr.follow_on_decision || "NOT MEASURED"));
         text("result-outcome", outcomeState(result));
-        text("established-facts", "Document " + result.document_id + "; memory " + result.memory_id + "; runtime handler " + (handlerCount(result) ?? "NOT MEASURED"));
+        text("established-facts", "Document " + result.document_id + "; memory " + result.memory_id + "; ToolRegistry invocation count " + (handlerCount(result) ?? "NOT MEASURED") + "; " + completionState(result));
         text(mode === "ATTACK" ? "attack-response" : "retest-response", JSON.stringify(result, null, 2));
         renderComparison();
       }
@@ -312,7 +330,8 @@
           row("RAG / memory observations", retrieve(attack).context_control_decision + " / " + a.memory_control_decision, retrieve(retest).context_control_decision + " / " + r.memory_control_decision) +
           row("Server-owned security state", attack.profile, retest.profile) +
           row("Tool control result", a.follow_on_decision + " · " + a.follow_on_reason, r.follow_on_decision + " · " + r.follow_on_reason) +
-          row("Operation-specific execution", operationState(attack), operationState(retest)) +
+          row("ToolRegistry invocation", invocationState(attack), invocationState(retest)) +
+          row("Runtime completion", completionState(attack), completionState(retest)) +
           row("Sensitive outcome", outcomeState(attack), outcomeState(retest)) +
           row("Primary RECALL run.id", attack.recall_run_id, retest.recall_run_id) +
           row("Local events · retrieve / write / recall", attack.local_event_count_retrieve + " / " + attack.local_event_count_write + " / " + attack.local_event_count_recall, retest.local_event_count_retrieve + " / " + retest.local_event_count_write + " / " + retest.local_event_count_recall);
@@ -336,7 +355,8 @@
           status.textContent = "ERROR · runtime or dependency failure · " + error.message;
           text("current-mode", "MODE · ERROR");
           text("result-authority", "ERROR · no policy conclusion");
-          text("result-execution", "NOT MEASURED");
+          text("result-invocation", "NOT MEASURED");
+          text("result-completion", "NOT MEASURED");
           text("result-outcome", "NOT PROVEN");
         } finally {
           document.getElementById("attack-button").disabled = false;

@@ -151,6 +151,23 @@ Hunt SPL files stay validated. UI binding is substitution only.
 
 ---
 
+## Runtime evidence levels
+
+Where a workshop discusses a governed operation, keep these states distinct:
+
+- **REQUESTED** — request/tool fields exist.
+- **AUTHORIZED** — the PDP returned ALLOW.
+- **INVOKED** — the runtime entered the ToolRegistry invocation path; a process-local invocation count may establish this.
+- **COMPLETED** — `mcp.completed` and a successful hop/outcome exist.
+- **FAILED** — `mcp.failed` and an error hop/outcome exist after invocation.
+- **OUTCOME** — the application-specific security-sensitive result is supported by result evidence.
+
+`REQUESTED != AUTHORIZED != INVOKED != COMPLETED != OUTCOME`.
+
+An invocation count that increments before the handler body does not by itself prove successful completion. An authorization event's `attempted` / `executed` values are event-local unless a query explicitly reconstructs later runtime events.
+
+---
+
 ## Phase 14A overlay (DESIGN — not implemented)
 
 Do not add Studio views in 14A. When a later phase implements guided investigation, keep this shell and add copy only:
