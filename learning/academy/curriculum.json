@@ -25,7 +25,8 @@
         "ws_lab_memory_security",
         "ws_lab_mcp_005",
         "ws_lab_mcp_catalog",
-        "ws_lab_scanner_runtime_evidence"
+        "ws_lab_scanner_runtime_evidence",
+        "ws_lab_external_evaluation_garak"
       ]
     },
     {
@@ -69,10 +70,10 @@
     },
     {
       "id": "L2",
-      "title": "Context is data",
-      "learn": "Retrieved content and stored memory can influence a later request. They do not mint grants.",
+      "title": "Context and evidence are data",
+      "learn": "Retrieved content, stored memory, scanner findings, and model evaluations can inform investigation. They do not mint grants.",
       "prerequisites": "L1 LIVE (PI and Tool Authorization).",
-      "effort": "LIVE 3-3.5 hours. REPLAY +2-2.5 hours.",
+      "effort": "LIVE 3-3.5 hours. REPLAY +3-3.5 hours.",
       "exit": "INVESTIGATOR (context)",
       "next": "L3",
       "labs": [
@@ -80,7 +81,8 @@
         {"lab_id": "LAB-MEMORY-001", "title": "Persistent Memory", "mode": "LIVE", "view": "ws_lab_memory_security"},
         {"lab_id": "LAB-MCP-005", "title": "Tool Result Trust", "mode": "REPLAY", "view": "ws_lab_mcp_005"},
         {"lab_id": "LAB-MCP-CATALOG", "title": "Tool Catalog", "mode": "REPLAY", "view": "ws_lab_mcp_catalog"},
-        {"lab_id": "LAB-SCANNER-RUNTIME-EVIDENCE", "title": "Scanner + Runtime Evidence", "mode": "REPLAY", "view": "ws_lab_scanner_runtime_evidence"}
+        {"lab_id": "LAB-SCANNER-RUNTIME-EVIDENCE", "title": "Scanner + Runtime Evidence", "mode": "REPLAY", "view": "ws_lab_scanner_runtime_evidence"},
+        {"lab_id": "LAB-EXTERNAL-EVALUATION-GARAK", "title": "External Security Toolbox", "mode": "REPLAY", "view": "ws_lab_external_evaluation_garak"}
       ]
     },
     {

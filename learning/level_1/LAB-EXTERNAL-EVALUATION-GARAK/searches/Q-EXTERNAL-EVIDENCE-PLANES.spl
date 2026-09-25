@@ -5,9 +5,15 @@ index=agentsec_telemetry earliest=0
 | eval evidence_plane=case(
     sourcetype=="agentsec:scanner:finding","STATIC FINDING",
     sourcetype=="agentsec:external:evaluation","ADVERSARIAL EVALUATION",
-    sourcetype=="otel:agentic:json" AND 'event.name'=="agentsec.control.decision","AUTHORIZATION",
-    sourcetype=="otel:agentic:json" AND like('event.name',"agentsec.mcp.%"),"OUTCOME / EXECUTION",
-    sourcetype=="otel:agentic:json","RUNTIME TELEMETRY",
+    sourcetype=="otel:agentic:json","RUNTIME",
     true(),"OTHER")
-| stats count, values(sourcetype) as sourcetypes by evidence_plane
+| eval external_class=mvindex(mvdedup('external.evidence_class'),0)
+| eval correlation_method=mvindex(mvdedup('correlation.method'),0)
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| stats count, dc(_raw) as distinct_raw_events,
+        values(sourcetype) as sourcetypes,
+        values(event_name) as event_names,
+        values(external_class) as external_classes,
+        values(correlation_method) as correlation_methods
+        by evidence_plane
 | sort evidence_plane

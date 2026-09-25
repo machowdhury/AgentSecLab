@@ -34,6 +34,7 @@ MCP005_XML = VIEWS / "ws_lab_mcp_005.xml"
 MCP006_XML = VIEWS / "ws_lab_mcp_006.xml"
 CATALOG_XML = VIEWS / "ws_lab_mcp_catalog.xml"
 SCANNER_XML = VIEWS / "ws_lab_scanner_runtime_evidence.xml"
+EXTERNAL_TOOLBOX_XML = VIEWS / "ws_lab_external_evaluation_garak.xml"
 
 REPLAY_VIEWS = (
     MCP003_XML,
@@ -42,6 +43,7 @@ REPLAY_VIEWS = (
     MCP006_XML,
     CATALOG_XML,
     SCANNER_XML,
+    EXTERNAL_TOOLBOX_XML,
 )
 
 PHASE17B_DOCS = (

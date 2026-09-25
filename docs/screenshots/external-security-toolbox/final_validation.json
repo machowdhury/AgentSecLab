@@ -1,0 +1,58 @@
+{
+  "url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_external_evaluation_garak",
+  "classification": {
+    "rendering": "OBSERVED",
+    "zoom": "PARTIAL",
+    "screen_reader": "NOT PROVEN",
+    "error_state": "PARTIAL"
+  },
+  "tabs": [
+    "TOOLBOX",
+    "GUIDED",
+    "INVESTIGATE",
+    "CHALLENGE"
+  ],
+  "academy_home": {
+    "external_toolbox_listed": true,
+    "scanner_lesson_listed": true
+  },
+  "widths": {
+    "1920": {
+      "horizontal_overflow": false
+    },
+    "1440": {
+      "horizontal_overflow": false
+    },
+    "1280": {
+      "horizontal_overflow": false
+    },
+    "1024": {
+      "horizontal_overflow": false
+    }
+  },
+  "zoom_200": {
+    "width": 1024,
+    "horizontal_overflow": true
+  },
+  "keyboard": {
+    "focus_before": "TOOLBOX",
+    "focus_after_arrow_right": "GUIDED",
+    "focused_tab_style": {
+      "outline": "rgb(0, 110, 170) none 3px",
+      "boxShadow": "none"
+    }
+  },
+  "copy_controls": "NOT APPLICABLE \u2014 REPLAY view has no runtime identifier to copy",
+  "error_state": "TESTED in repository noDataMessage contracts; dependency outage was not injected into Splunk Web during this capture",
+  "screenshots": [
+    "docs/screenshots/external-security-toolbox/final_toolbox.png",
+    "docs/screenshots/external-security-toolbox/final_guided.png",
+    "docs/screenshots/external-security-toolbox/final_investigate.png",
+    "docs/screenshots/external-security-toolbox/final_challenge.png",
+    "docs/screenshots/external-security-toolbox/final_w1920_toolbox.png",
+    "docs/screenshots/external-security-toolbox/final_w1440_toolbox.png",
+    "docs/screenshots/external-security-toolbox/final_w1280_toolbox.png",
+    "docs/screenshots/external-security-toolbox/final_w1024_toolbox.png",
+    "docs/screenshots/external-security-toolbox/final_w1024_zoom200_toolbox.png"
+  ]
+}

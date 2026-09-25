@@ -1,9 +1,9 @@
-# External security evidence layer (P0)
+# External security evidence layer
 
 **Status:** IMPLEMENTED for Cisco mcp-scanner static findings and garak adversarial evaluations.
 **Runtime schema:** 1.9.0 — unchanged.  
 **External contract:** 1.0.0 — independent.  
-**Sourcetype:** `agentsec:scanner:finding` preserved.
+**Sourcetypes:** `agentsec:scanner:finding` and `agentsec:external:evaluation`.
 
 This is not a second PDP. External findings do not enter CTRL-MCP-001.
 
@@ -114,10 +114,15 @@ Unknown values are omitted. Committed packs use pack-relative `input/tools.json`
 
 | Claim | Class |
 |-------|--------|
-| Adapter mapping and unit tests | MEASURED |
-| Canonical pack raw SHA-256 vs file | MEASURED |
-| MCP modules do not import ExternalEvidence | MEASURED (AST) |
-| Live mcp-scanner re-run on this host | NOT PROVEN in P0 |
-| Splunk re-ingest of new nested fields | NOT PROVEN in P0 (additive HEC; prior 9C ingest MEASURED without nested `external.*`) |
-| garak adapter and bounded local evaluation | MEASURED in P1A |
+| Adapter mapping and unit tests | TESTED |
+| Canonical pack raw SHA-256 vs file | TESTED |
+| MCP modules do not import ExternalEvidence | TESTED (AST) |
+| Canonical Cisco and garak pack → HEC → indexed searchable fields | E2E VERIFIED on 2026-09-24; see `docs/EXTERNAL_EVIDENCE_E2E_ACADEMY_VALIDATION.md` |
+| Exact `Q-EXTERNAL-EVIDENCE-PLANES.spl` execution | E2E VERIFIED on 2026-09-24 |
+| Live mcp-scanner CLI re-run during the E2E phase | NOT PROVEN; canonical pack events were used |
+| Fresh garak/Ollama execution during the E2E phase | NOT PROVEN; canonical native report was used |
 | AI-BOM / other vendors | NOT MODELED |
+
+The Academy publishes `External Security Toolbox` as a REPLAY investigation.
+Curriculum registration and a dashboard do not independently prove external
+tool execution; they expose the E2E-validated indexed evidence and its limits.

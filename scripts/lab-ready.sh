@@ -81,6 +81,7 @@ docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/defa
 docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_mcp_006.xml'
 docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_mcp_catalog.xml'
 docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_scanner_runtime_evidence.xml'
+docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_external_evaluation_garak.xml'
   docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_rag_context.xml'
   docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_memory_security.xml'
   docker exec agentsec_splunk bash -lc 'test -f /opt/splunk/etc/apps/agentsec/default/data/ui/views/ws_lab_agent_goal_integrity.xml'
@@ -234,6 +235,18 @@ if ! docker exec agentsec_splunk bash -lc 'grep -q "ws_lab_scanner_runtime_evide
   fail "view payload did not mention LAB-SCANNER-RUNTIME / ws_lab_scanner_runtime_evidence"
 fi
 log "Dashboard view ws_lab_scanner_runtime_evidence is available via Splunk REST."
+
+external_toolbox_view_code="$(
+  docker exec -u splunk -e SPLUNK_PASSWORD="$SPLUNK_PASSWORD" agentsec_splunk bash -lc \
+    'curl -sk -u "admin:${SPLUNK_PASSWORD}" -o /tmp/ws_lab_external_evaluation_garak_view.xml -w "%{http_code}" https://127.0.0.1:8089/servicesNS/nobody/agentsec/data/ui/views/ws_lab_external_evaluation_garak'
+)"
+if [ "$external_toolbox_view_code" != "200" ]; then
+  fail "view ws_lab_external_evaluation_garak HTTP ${external_toolbox_view_code}"
+fi
+if ! docker exec agentsec_splunk bash -lc 'grep -q "ws_lab_external_evaluation_garak\|LAB-EXTERNAL-EVALUATION-GARAK" /tmp/ws_lab_external_evaluation_garak_view.xml'; then
+  fail "view payload did not mention LAB-EXTERNAL-EVALUATION-GARAK / ws_lab_external_evaluation_garak"
+fi
+log "Dashboard view ws_lab_external_evaluation_garak is available via Splunk REST."
 
 rag_view_code="$(
   docker exec -u splunk -e SPLUNK_PASSWORD="$SPLUNK_PASSWORD" agentsec_splunk bash -lc \

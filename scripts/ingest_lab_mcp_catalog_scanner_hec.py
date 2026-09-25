@@ -68,7 +68,7 @@ def splunk_search(spl: str) -> str:
     )
     if proc.returncode != 0:
         sys.stderr.write(proc.stderr[-800:] if proc.stderr else "splunk search failed\n")
-        raise SystemExit(proc.returncode)
+        raise RuntimeError("Splunk search unavailable or failed")
     lines = [ln for ln in (proc.stdout or "").splitlines() if ln and not ln.startswith("WARNING:")]
     return "\n".join(lines)
 
@@ -78,7 +78,7 @@ def existing_raw_count(scan_id: str) -> int | None:
         csv_text = splunk_search(
             f'index={INDEX_NAME} sourcetype={SOURCETYPE} earliest=0 scan_id={scan_id} | stats dc(_raw) as n'
         )
-    except SystemExit:
+    except RuntimeError:
         return None
     rows = [ln for ln in csv_text.splitlines() if ln]
     if len(rows) < 2:
@@ -109,6 +109,8 @@ def post_hec(payload: dict) -> int:
             return int(response.status)
     except urllib.error.HTTPError as exc:
         return int(exc.code)
+    except urllib.error.URLError as exc:
+        raise RuntimeError("HEC unavailable; no evidence was submitted") from exc
 
 
 def main() -> None:

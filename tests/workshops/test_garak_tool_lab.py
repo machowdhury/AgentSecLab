@@ -75,11 +75,33 @@ def test_semantics_attribution_and_framework_honesty():
         "MITRE ATLAS",
         "MAESTRO",
         "NIST AI RMF",
+        "NEEDS_EXTERNAL_VALIDATION",
     ):
         assert claim.lower() in text.lower()
     assert "https://github.com/NVIDIA/garak" in text
     assert "Apache-2.0" in text
     assert "compliance mappings" in text
+
+
+def test_knowledge_check_covers_evidence_discipline_and_threat_model():
+    text = (LAB / "knowledge-check.md").read_text(encoding="utf-8")
+    for concept in (
+        "Cisco mcp-scanner",
+        "scanner severity HIGH",
+        "zero scanner findings",
+        "ALLOW",
+        "execution start",
+        "successful completion",
+        "NO EVIDENCE FOUND",
+        "ASSET",
+        "ACTOR",
+        "ENTRY POINT",
+        "TRUST BOUNDARY",
+        "CONTROL",
+        "OBSERVABILITY",
+        "RESIDUAL RISK",
+    ):
+        assert concept.lower() in text.lower()
 
 
 def test_searches_preserve_evidence_planes():

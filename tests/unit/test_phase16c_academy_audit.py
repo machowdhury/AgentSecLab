@@ -52,6 +52,7 @@ PUBLISHED_VIEWS = frozenset(
         "ws_lab_agent_goal_integrity.xml",
         "ws_lab_agent_delegation.xml",
         "ws_lab_scanner_runtime_evidence.xml",
+        "ws_lab_external_evaluation_garak.xml",
         "ws_lab_agentsec_capstone.xml",
         "ws_agentsec_mastery.xml",
     }

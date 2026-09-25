@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="2" theme="light">
+  <label>External Security Toolbox</label>
+  <description>LAB-EXTERNAL-EVALUATION-GARAK · REPLAY · External evidence is not authorization; Splunk is not the PDP.</description>
+  <definition><![CDATA[
+{
+  "title": "External Security Toolbox",
+  "description": "Replay investigation of Cisco static findings, garak evaluations, and separate AgentSec runtime telemetry. Splunk is not the PDP.",
+  "defaults": {
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "large"
+        }
+      }
+    }
+  },
+  "inputs": {},
+  "dataSources": {
+    "ds_cisco_who": {
+      "type": "ds.search",
+      "name": "Q-SCANNER-WHO malicious specimen",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=agentsec:scanner:finding earliest=0 scan_id=\"7ae3ea64-4e7a-40fe-943f-3e582bce5ee8\" \"event.name\"=agentsec.scanner.scan\n| eval scan_id=mvindex(mvdedup(scan_id),0)\n| eval scanner_name=mvindex(mvdedup('scanner.name'),0)\n| eval scanner_version=mvindex(mvdedup('scanner.version'),0)\n| eval scanner_repository=mvindex(mvdedup('scanner.repository'),0)\n| eval scanner_commit=mvindex(mvdedup('scanner.commit'),0)\n| eval scanner_wheel_sha256=mvindex(mvdedup('scanner.wheel_sha256'),0)\n| eval adapter_version=mvindex(mvdedup('provenance.adapter_version'),0)\n| eval static_scan=mvindex(mvdedup('execution.static_scan'),0)\n| eval target_executed=mvindex(mvdedup('execution.target_executed'),0)\n| eval network_required=mvindex(mvdedup('execution.network_required'),0)\n| eval llm_used=mvindex(mvdedup('execution.llm_used'),0)\n| eval evidence_class=mvindex(mvdedup(evidence_class),0)\n| table scan_id, evidence_class, scanner_name, scanner_version, scanner_repository, scanner_commit, scanner_wheel_sha256, adapter_version, static_scan, target_executed, network_required, llm_used"
+      }
+    },
+    "ds_cisco_finding": {
+      "type": "ds.search",
+      "name": "Q-SCANNER-FINDINGS malicious specimen",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=agentsec:scanner:finding earliest=0 scan_id=\"7ae3ea64-4e7a-40fe-943f-3e582bce5ee8\"\n| eval scan_id=mvindex(mvdedup(scan_id),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval finding_count=mvindex(mvdedup('scan.finding_count'),0)\n| eval classification=mvindex(mvdedup('scan.classification'),0)\n| eval native_rule_id=mvindex(mvdedup('finding.native_rule_id'),0)\n| eval native_category=mvindex(mvdedup('finding.native_category'),0)\n| eval native_severity=mvindex(mvdedup('finding.native_severity'),0)\n| eval title=mvindex(mvdedup('finding.title'),0)\n| eval tool_name=mvindex(mvdedup('finding.tool_name'),0)\n| eval analyzer=mvindex(mvdedup('finding.analyzer'),0)\n| eval finding_state=case(event_name=\"agentsec.scanner.scan\" AND finding_count=0,\"scan_executed_zero_findings\",event_name=\"agentsec.scanner.scan\" AND finding_count>0,\"scan_executed_with_findings\",event_name=\"agentsec.scanner.finding\",\"finding_present\",1=1,\"unknown\")\n| table scan_id, event_name, finding_state, finding_count, classification, native_rule_id, native_category, native_severity, title, tool_name, analyzer"
+      }
+    },
+    "ds_garak": {
+      "type": "ds.search",
+      "name": "Q-GARAK-EVALUATION",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=agentsec:external:evaluation earliest=0\n| eval evidence_id=mvindex(mvdedup('external.evidence_id'),0)\n| eval evidence_class=mvindex(mvdedup('external.evidence_class'),0)\n| eval producer=mvindex(mvdedup('external.producer_class'),0)\n| eval provider=mvindex(mvdedup('external.provider'),0)\n| eval tool=mvindex(mvdedup('external.tool'),0)\n| eval tool_version=mvindex(mvdedup('external.tool_version'),0)\n| eval target_type=mvindex(mvdedup('external.subject.type'),0)\n| eval model=mvindex(mvdedup('external.subject.id'),0)\n| eval native_result=mvindex(mvdedup('evaluation.native_result'),0)\n| eval probe=mvindex(mvdedup('evaluation.probe'),0)\n| eval detector=mvindex(mvdedup('evaluation.detector'),0)\n| eval passed=mvindex(mvdedup('evaluation.passed'),0)\n| eval fails=mvindex(mvdedup('evaluation.fails'),0)\n| eval total_evaluated=mvindex(mvdedup('evaluation.total_evaluated'),0)\n| eval raw_ref=mvindex(mvdedup('external.raw_evidence_ref'),0)\n| eval raw_sha256=mvindex(mvdedup('external.raw_evidence_sha256'),0)\n| eval correlation_method=mvindex(mvdedup('correlation.method'),0)\n| eval correlation_value=mvindex(mvdedup('correlation.value'),0)\n| table _time, evidence_id, producer, provider, evidence_class, tool, tool_version,\n        target_type, model, native_result, probe, detector, passed, fails,\n        total_evaluated, raw_ref, raw_sha256, correlation_method, correlation_value"
+      }
+    },
+    "ds_planes": {
+      "type": "ds.search",
+      "name": "Q-EXTERNAL-EVIDENCE-PLANES",
+      "options": {
+        "query": "index=agentsec_telemetry earliest=0\n    (sourcetype=agentsec:scanner:finding OR\n     sourcetype=agentsec:external:evaluation OR\n     sourcetype=otel:agentic:json)\n| eval evidence_plane=case(\n    sourcetype==\"agentsec:scanner:finding\",\"STATIC FINDING\",\n    sourcetype==\"agentsec:external:evaluation\",\"ADVERSARIAL EVALUATION\",\n    sourcetype==\"otel:agentic:json\",\"RUNTIME\",\n    true(),\"OTHER\")\n| eval external_class=mvindex(mvdedup('external.evidence_class'),0)\n| eval correlation_method=mvindex(mvdedup('correlation.method'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| stats count, dc(_raw) as distinct_raw_events,\n        values(sourcetype) as sourcetypes,\n        values(event_name) as event_names,\n        values(external_class) as external_classes,\n        values(correlation_method) as correlation_methods\n        by evidence_plane\n| sort evidence_plane"
+      }
+    }
+  },
+  "visualizations": {
+    "viz_toolbox": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# External Security Toolbox\n\nTwo independent tools answer two different security questions. This is a bounded\nlearning toolbox—not a marketplace, endorsement, certification, or product catalog.\n\n**BUILT BY AGENTSEC** — ExternalEvidence 1.0.0, adapters, HEC serialization,\ninvestigation searches, and this learning experience.\n\n**INTEGRATED BY AGENTSEC** — pinned local Cisco mcp-scanner and garak workflows.\n\n**TAUGHT / REFERENCED BY AGENTSEC** — upstream tool behavior, native results,\nproject names, probes, detectors, and licenses. Upstream questions remain\n`NEEDS_EXTERNAL_VALIDATION`.\n\n[Review Cisco finding first](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_scanner_runtime_evidence) · [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n\n```text\nRUNTIME EVENT != SCANNER FINDING != ADVERSARIAL EVALUATION\nFINDING != AUTHORIZATION\nEVALUATION != AUTHORIZATION\nSPLUNK != PDP\nCORRELATION != CAUSATION\n```\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "TOOLBOX"
+    },
+    "viz_cisco": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Cisco mcp-scanner\n\n**Classification:** STATIC / CATALOG SECURITY FINDING\n\nIt statically inspects the exported MCP tool catalog with the pinned YARA\nanalyzer. AgentSec preserves native output, emits class `finding`, and indexes\nit as `agentsec:scanner:finding`.\n\n**Upstream attribution:** repository pin metadata identifies\n[cisco-ai-defense/mcp-scanner](https://github.com/cisco-ai-defense/mcp-scanner).\nCurrent upstream details remain `NEEDS_EXTERNAL_VALIDATION`.\n\n**It establishes:** this configured scan examined these catalog bytes and\nreported its native result.\n\n**It does not establish:** exploitation, authorization, execution, causality,\nor safety. `HIGH != DENY`. `ZERO FINDINGS != SAFE`.\n\n**Correlation:** SHA-256 over the UTF-8 tool-description bytes is compared with\nruntime `content.hash`. A match proves only that defined byte relationship.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "STATIC FINDING"
+    },
+    "viz_garak_intro": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# garak\n\n**Classification:** ADVERSARIAL MODEL EVALUATION\n\ngarak probes a model and evaluates the response with a native detector.\nAgentSec preserves JSONL, emits class `evaluation`, and indexes it as\n`agentsec:external:evaluation`.\n\n**Upstream attribution:** repository pin metadata identifies\n[NVIDIA/garak](https://github.com/NVIDIA/garak). Current upstream details\nremain `NEEDS_EXTERNAL_VALIDATION`.\n\n**It establishes:** one response was evaluated under the recorded model,\nprobe, detector, seed, and configuration.\n\n**It does not establish:** universal safety, compromise, tool execution, or\nauthorization. `PASS != SAFE`. `FAIL != EXPLOIT CONFIRMED`.\n\n**Correlation:** native run + probe + detector + model identify the evaluation.\nNo `agentsec.run.id` or catalog hash is manufactured.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "ADVERSARIAL EVALUATION"
+    },
+    "viz_guided": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# GUIDED — WHY → WHAT → WHERE IT FITS\n\n**WHY:** use independent evidence to challenge assumptions and increase\nassurance within tested conditions.\n\n**WHAT:** compare a static catalog finding, an adversarial model evaluation,\nand runtime telemetry without merging them.\n\n**WHERE:** external tools normalize to ExternalEvidence, then HEC sends them to\nSplunk. CTRL-MCP-001 remains the separate tool PDP.\n\n**PREDICT:** before reading rows, decide which source can prove authorization,\nwhich can prove execution began, and whether native HIGH or PASS can answer either.\n\n**RUN / REPLAY:** this REPLAY workshop uses canonical historical evidence\ngenerated by the real pack builders. It is not a fresh scanner or garak run.\n\n**READ NATIVE RESULT → NORMALIZE → INGEST:** trace the native result into the\nnormalized contract, then verify the indexed fields and provenance before\ncorrelating anything.\n\nCisco scan `7ae3ea64-4e7a-40fe-943f-3e582bce5ee8`\n\ngarak evidence `aeb05718-1364-4143-8248-71dd6f27b07b|dan.Dan_11_0|dan.DAN`\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "GUIDED"
+    },
+    "viz_cisco_who": {
+      "type": "splunk.table",
+      "title": "READ NATIVE CONTEXT — Cisco",
+      "description": "Confirm tool/version, scan execution, and count. Scan execution is not authorization.",
+      "dataSources": {
+        "primary": "ds_cisco_who"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "NO EVIDENCE FOUND. Check Splunk availability, HEC ingestion, time range, sourcetype, and evidence identifier. Zero rows is not SAFE, not DENY, not prevention, and not proof that no evaluation or finding exists."
+      }
+    },
+    "viz_cisco_finding": {
+      "type": "splunk.table",
+      "title": "NORMALIZE — Cisco finding",
+      "description": "Read native severity/category and finding state. HIGH is not DENY or exploit proof.",
+      "dataSources": {
+        "primary": "ds_cisco_finding"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "NO EVIDENCE FOUND. Check Splunk availability, HEC ingestion, time range, sourcetype, and evidence identifier. Zero rows is not SAFE, not DENY, not prevention, and not proof that no evaluation or finding exists."
+      }
+    },
+    "viz_garak": {
+      "type": "splunk.table",
+      "title": "READ + NORMALIZE — garak evaluation",
+      "description": "Trace result, model, probe, detector, evidence ID, raw reference/hash, and identity tuple.",
+      "dataSources": {
+        "primary": "ds_garak"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "NO EVIDENCE FOUND. Check Splunk availability, HEC ingestion, time range, sourcetype, and evidence identifier. Zero rows is not SAFE, not DENY, not prevention, and not proof that no evaluation or finding exists."
+      }
+    },
+    "viz_investigate": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# INVESTIGATE — INGEST → SEARCH → CORRELATE\n\n**Path A — try it yourself:** [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search). Run\n`Q-GARAK-EVALUATION.spl`, then `Q-EXTERNAL-EVIDENCE-PLANES.spl`. For Cisco,\nstart with `scan_id=\"7ae3ea64-4e7a-40fe-943f-3e582bce5ee8\"`.\n\nQuestions:\n\n1. Which sourcetype carries each source?\n2. What native result is preserved?\n3. Can you trace the indexed row to raw evidence by path and SHA-256?\n4. Which correlation method is used, and what exact relationship does it support?\n5. Which runtime fields are intentionally absent from external evidence?\n\n**Path B — show solution:** the tables below are the expected shape. Read them\nonly after Path A. They are an answer key, not policy; Splunk does not enforce.\n\nNo row means **NO EVIDENCE FOUND**, not SAFE. Diagnose Splunk, HEC, pack,\nidentifier, sourcetype, and time-range failures before making a claim.\nEmpty is not DENY, prevention, or proof that nothing occurred.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "INVESTIGATE"
+    },
+    "viz_planes": {
+      "type": "splunk.table",
+      "title": "Q-EXTERNAL-EVIDENCE-PLANES",
+      "description": "Compare RUNTIME, STATIC FINDING, and ADVERSARIAL EVALUATION. Adjacency is not causality.",
+      "dataSources": {
+        "primary": "ds_planes"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "NO EVIDENCE FOUND. Check Splunk availability, HEC ingestion, time range, sourcetype, and evidence identifier. Zero rows is not SAFE, not DENY, not prevention, and not proof that no evaluation or finding exists."
+      }
+    },
+    "viz_challenge": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# CHALLENGE THE EVIDENCE\n\nFor each row answer:\n\n**What does it establish?** State only the observed tool/result/provenance fact.\n\n**What does it suggest?** Identify a hypothesis worth further investigation.\n\n**What does it NOT establish?** Separate authorization, execution, completion,\nimpact, safety, and causality.\n\n**What additional evidence is required?** Ask for PDP decision/reason,\n`mcp.started`, completion/failure, handler evidence, impact, broader negative\ntesting, and independent validation as appropriate.\n\nReason carefully:\n\n- scanner severity HIGH does not prove exploitation;\n- scanner finding_count 0 does not prove safety;\n- evaluation FAIL does not prove compromise;\n- evaluation PASS does not establish universal safety;\n- control.decision ALLOW does not prove execution;\n- execution.started does not prove successful completion.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "CHALLENGE"
+    },
+    "viz_fundamentals": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# SECURITY FUNDAMENTALS\n\n**Evidence quality and provenance:** preserve the native result, source,\nversion, timestamp, raw reference, and digest.\n\n**Trust and authorization:** content and tool output are data. They do not mint\nauthority. Least privilege remains a coded policy concern.\n\n**Execution and validation:** distinguish request, grant, start, completion,\nfailure, and impact.\n\n**Negative testing and assurance:** tests increase confidence only within the\nmeasured conditions. Defense in depth combines evaluation, preventive controls,\ntelemetry, investigation, and retesting.\n\n**Correlation and causality:** shared identifiers or hashes support a named\nrelationship. They do not create a causal chain.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "TRANSFERABLE CONCEPTS"
+    },
+    "viz_threat": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# THREAT-MODELING BRIDGE\n\n**ASSET** — What model behavior, catalog integrity, authority, or data matters?\n\n**ACTOR** — Who can influence the catalog, probe input, model response, or request?\n\n**ENTRY POINT** — Where can untrusted text or metadata enter?\n\n**TRUST BOUNDARY** — Where does data meet the model, adapter, PDP, or tool?\n\n**CONTROL** — Which coded control should govern the dangerous action?\n\n**OBSERVABILITY** — Which evidence would establish request, decision, start,\ncompletion, failure, or impact?\n\n**RESIDUAL RISK** — What remains after this specific scan, evaluation, and control?\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "THREAT MODEL"
+    },
+    "viz_frameworks": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# FRAMEWORK CONTEXT — EDUCATIONAL MAPPING\n\nThe specimen carries an upstream `owasp:llm01` tag. OWASP, MITRE ATLAS,\nMAESTRO, and NIST AI RMF can provide educational vocabulary for adversarial\ninput, trust boundaries, testing, and assurance.\n\nThese references are **NEEDS_EXTERNAL_VALIDATION**. They are not compliance,\ncertification, complete coverage, or validated framework mappings.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "EDUCATIONAL MAPPING"
+    },
+    "viz_check": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# EXPLAIN / KNOWLEDGE CHECK\n\n1. Why are Cisco and garak different evidence classes?\n2. What exact bytes support the Cisco hash relationship?\n3. Why is garak identity correlation not an AgentSec runtime chain?\n4. What does PASS establish here? What does it not establish?\n5. Which component authorizes AgentSec MCP tools?\n6. What evidence separates ALLOW from execution and completion?\n7. What does NO EVIDENCE FOUND require you to check?\n8. Fill in ASSET, ACTOR, ENTRY POINT, TRUST BOUNDARY, CONTROL,\n   OBSERVABILITY, and RESIDUAL RISK.\n\nReturn to [Academy Home](http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home) after answering in your own words.\nViewing this tab is not stored completion and is not certification.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "EXPLAIN"
+    }
+  },
+  "layout": {
+    "options": {
+      "submitButton": false,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "globalInputs": [],
+    "tabs": {
+      "options": {
+        "barPosition": "top"
+      },
+      "items": [
+        {
+          "layoutId": "layout_toolbox",
+          "label": "TOOLBOX"
+        },
+        {
+          "layoutId": "layout_guided",
+          "label": "GUIDED"
+        },
+        {
+          "layoutId": "layout_investigate",
+          "label": "INVESTIGATE"
+        },
+        {
+          "layoutId": "layout_challenge",
+          "label": "CHALLENGE"
+        }
+      ]
+    },
+    "layoutDefinitions": {
+      "layout_toolbox": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 920
+        },
+        "structure": [
+          {
+            "item": "viz_toolbox",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 440
+            }
+          },
+          {
+            "item": "viz_cisco",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 440,
+              "w": 720,
+              "h": 460
+            }
+          },
+          {
+            "item": "viz_garak_intro",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 440,
+              "w": 720,
+              "h": 460
+            }
+          }
+        ]
+      },
+      "layout_guided": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1100
+        },
+        "structure": [
+          {
+            "item": "viz_guided",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 420
+            }
+          },
+          {
+            "item": "viz_cisco_who",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 420,
+              "w": 720,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_cisco_finding",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 420,
+              "w": 720,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_garak",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 720,
+              "w": 1440,
+              "h": 360
+            }
+          }
+        ]
+      },
+      "layout_investigate": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 920
+        },
+        "structure": [
+          {
+            "item": "viz_investigate",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_planes",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 520,
+              "w": 1440,
+              "h": 380
+            }
+          }
+        ]
+      },
+      "layout_challenge": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1320
+        },
+        "structure": [
+          {
+            "item": "viz_challenge",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 480
+            }
+          },
+          {
+            "item": "viz_fundamentals",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 480,
+              "w": 720,
+              "h": 460
+            }
+          },
+          {
+            "item": "viz_threat",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 480,
+              "w": 720,
+              "h": 460
+            }
+          },
+          {
+            "item": "viz_frameworks",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 940,
+              "w": 480,
+              "h": 360
+            }
+          },
+          {
+            "item": "viz_check",
+            "type": "block",
+            "position": {
+              "x": 480,
+              "y": 940,
+              "w": 960,
+              "h": 360
+            }
+          }
+        ]
+      }
+    }
+  },
+  "applicationProperties": {
+    "collapseNavigation": false,
+    "downsampleVisualizations": false
+  }
+}
+  ]]></definition>
+</dashboard>

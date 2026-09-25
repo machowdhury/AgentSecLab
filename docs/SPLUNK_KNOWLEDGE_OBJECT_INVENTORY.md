@@ -6,7 +6,7 @@
 
 Governance: `docs/SPLUNK_ENGINEERING_GOVERNANCE.md`. Rule: `.cursor/rules/33-splunk-agent-skills.mdc`. Review skill: `.cursor/skills/splunk-ko-review/SKILL.md`.
 
-Index: `agentsec_telemetry`. Sourcetypes: `otel:agentic:json` (runtime schema 1.9.0; prior 1.8.0 / 1.7.0 events remain valid historical copies), `agentsec:scanner:finding` (scanner evidence, not security_event). App: `agentsec`.
+Index: `agentsec_telemetry`. Sourcetypes: `otel:agentic:json` (runtime schema 1.9.0; prior 1.8.0 / 1.7.0 events remain valid historical copies), `agentsec:scanner:finding` (static scanner evidence), and `agentsec:external:evaluation` (adversarial evaluation evidence). External sourcetypes are not `security_event` and do not authorize. App: `agentsec`.
 
 Q-MCP investigation searches are **schema-version agnostic** (no `schema.version=` filter). Catalog `schema.version` values are documentation metadata for the lab that first published the file.
 
@@ -135,6 +135,17 @@ Field contract: `docs/SCANNER_SPLUNK_FIELD_CONTRACT.md`. Search contract: `docs/
 
 ---
 
+## External evaluation searches
+
+| NAME | TYPE | LAB | QUESTION ANSWERED | SOURCE FILE | VALIDATION STATUS | DASHBOARD CONSUMER | DETECTION/HUNT | SCHEMA VERSION DEPENDENCY | NOTES |
+|------|------|-----|-------------------|-------------|-------------------|--------------------|----------------|---------------------------|-------|
+| Q-GARAK-EVALUATION | INVESTIGATION SEARCH | LAB-EXTERNAL-EVALUATION-GARAK | What bounded adversarial evaluation and provenance were indexed? | `learning/level_1/LAB-EXTERNAL-EVALUATION-GARAK/searches/Q-GARAK-EVALUATION.spl` | LIVE VALIDATED 2026-09-24 | YES (`ws_lab_external_evaluation_garak`) | HUNT | N/A (external evaluation sourcetype) | PASS != SAFE; no AgentSec run ID |
+| Q-EXTERNAL-EVIDENCE-PLANES | INVESTIGATION SEARCH | LAB-EXTERNAL-EVALUATION-GARAK | Which runtime, static-finding, and adversarial-evaluation evidence planes are present? | `learning/level_1/LAB-EXTERNAL-EVALUATION-GARAK/searches/Q-EXTERNAL-EVIDENCE-PLANES.spl` | LIVE VALIDATED 2026-09-24 | YES (`ws_lab_external_evaluation_garak`) | HUNT | Runtime 1.9.0 plus independent ExternalEvidence 1.0.0 | Groups sourcetypes; does not assert causality |
+
+Field/live contract: `docs/EXTERNAL_EVIDENCE_E2E_ACADEMY_VALIDATION.md`.
+
+---
+
 ## DET-MCP-001
 
 | NAME | TYPE | LAB | QUESTION ANSWERED | SOURCE FILE | VALIDATION STATUS | DASHBOARD CONSUMER | DETECTION/HUNT | SCHEMA VERSION DEPENDENCY | NOTES |
@@ -168,6 +179,7 @@ Saved search name: `AgentSec - MCP Execution After Authorization Deny`.
 | ws_lab_mcp_006 | DASHBOARD | LAB-MCP-006 | Confused-deputy workshop | `.../ws_lab_mcp_006.xml` | VALIDATED | — | consumes Q-MCP + DELEGATION | Agnostic | No DET-MCP-006 |
 | ws_lab_mcp_catalog | DASHBOARD | LAB-MCP-CATALOG | Tool-description / catalog-metadata workshop | `.../ws_lab_mcp_catalog.xml` | VALIDATED (8E) | — | consumes Q-MCP + CATALOG-AUTHORITY | Agnostic | No DET-MCP-CATALOG. Rebuild: `scripts/build_lab_mcp_catalog_dashboard.py` |
 | ws_lab_scanner_runtime_evidence | DASHBOARD | LAB-SCANNER-RUNTIME-EVIDENCE | Combine scanner + runtime evidence without collapsing planes | `.../ws_lab_scanner_runtime_evidence.xml` | VALIDATED (9E) | — | consumes Q-SCANNER + Q-MCP + CATALOG-AUTHORITY | Agnostic | No DET-SCANNER. No DET-MCP-CATALOG. Rebuild: `scripts/build_lab_scanner_runtime_evidence_dashboard.py` |
+| ws_lab_external_evaluation_garak | DASHBOARD | LAB-EXTERNAL-EVALUATION-GARAK | Compare static findings, adversarial evaluations, and runtime telemetry without implying causality | `.../ws_lab_external_evaluation_garak.xml` | TESTED; live SPL validated 2026-09-24; browser review pending | — | consumes Q-SCANNER + Q-GARAK-EVALUATION + Q-EXTERNAL-EVIDENCE-PLANES | Runtime 1.9.0 / external 1.0.0 | No detector. REPLAY. Rebuild: `scripts/build_lab_external_evaluation_garak_dashboard.py` |
 | ws_lab_rag_context | DASHBOARD | LAB-RAG-CONTEXT | Reconstruct retrieved-context investigation without collapsing planes | `.../ws_lab_rag_context.xml` | VALIDATED (10E) | — | consumes Q-RAG-CONTEXT-AUTHORITY + Q-MCP | Agnostic | No DET-RAG. Rebuild: `scripts/build_lab_rag_context_dashboard.py` |
 | ws_lab_memory_security | DASHBOARD | LAB-MEMORY-001 | Reconstruct write→later recall investigation without collapsing five planes | `.../ws_lab_memory_security.xml` | VALIDATED (11E) | — | consumes Q-MEMORY-CONTEXT-AUTHORITY + Q-MCP | Agnostic | No DET-MEMORY. Hunt write + Hunt recall tokens. Rebuild: `scripts/build_lab_memory_security_dashboard.py` |
 | ws_lab_agent_goal_integrity | DASHBOARD | LAB-AGENT-GOAL-INTEGRITY-001 | Reconstruct task → instruction → goal decision → tool authz → execution without collapsing five planes | `.../ws_lab_agent_goal_integrity.xml` | VALIDATED (13E) | — | consumes Q-GOAL-INTEGRITY-AUTHORITY + Q-MCP | Agnostic | No DET-GOAL. Hunt Investigate specimen defaults to BASELINE. Rebuild: `scripts/build_lab_agent_goal_integrity_dashboard.py` |

@@ -44,11 +44,33 @@ Retrieved content is data. Provenance != trust. CTRL-RAG-CONTEXT-001 OBSERVE != 
 
 WRITE persists bytes. RECALL is a later run. `source_run_id` is the writer. Hunt authorization and execution on the RECALL run.id. Same fingerprint proves the same bytes. Memory is not RAG.
 
-## Journey 5 — Goal / Instruction Integrity
+## Journey 5 — External Security Evidence (REPLAY)
+
+Scanner + Runtime Evidence teaches static Cisco catalog findings and the
+description-hash relationship. External Security Toolbox then introduces garak
+adversarial model evaluation and the identity tuple. The learner runs the
+multi-plane SPL, challenges what each result establishes, and completes a
+bounded threat model. Neither external source influences CTRL-MCP-001.
+
+This path is:
+
+```text
+Academy Home
+→ Scanner + Runtime Evidence
+→ External Security Toolbox
+→ Splunk investigation
+→ knowledge check
+→ return to Home / continue to Agent Intent
+```
+
+No completion state is persisted. A curriculum row is learning metadata, not
+proof that either upstream tool ran.
+
+## Journey 6 — Goal / Instruction Integrity
 
 AUTHORIZED TOOL != AUTHORIZED GOAL. CTRL-MCP-001 ALLOW on ATTACK **and** RETEST does not mean both goals were authorized. Hop 0 is goal integrity; hop 1 is the tool grant.
 
-## Journey 6 — Identity / Delegation
+## Journey 7 — Identity / Delegation
 
 IDENTITY CLAIM != AUTHENTICATION. CALLER ID != GRANT. WHO AUTHENTICATED is not modeled. No OAuth, OIDC, JWT, or SPIFFE in this lab.
 
