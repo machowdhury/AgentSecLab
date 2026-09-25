@@ -31,7 +31,7 @@ from agentsec.mcp.metadata_trust import (
     MetadataTrustDecision,
     evaluate_metadata_trust_safe,
 )
-from agentsec.mcp.policy import MCP_AGENT_ID, MCP_AGENT_NAME, coded_policy
+from agentsec.mcp.policy import MCP_AGENT_ID, MCP_AGENT_NAME, McpPolicy, coded_policy
 from agentsec.mcp.registry import ToolRegistry, default_registry
 from agentsec.mcp.result_trust import (
     MCP005_FAIL_OPEN_REASON,
@@ -235,6 +235,7 @@ def run_mcp_invoke(
     attack_id: str,
     write_evidence: bool = True,
     registry: ToolRegistry | None = None,
+    policy: McpPolicy | None = None,
     authorize_fn: AuthorizeFn | None = None,
     expected_behavior: str | None = None,
     catalog_snapshot: dict[str, Any] | None = None,
@@ -244,7 +245,7 @@ def run_mcp_invoke(
     settings = settings or get_settings()
     started = time.monotonic()
     registry = registry or default_registry()
-    policy_before = coded_policy()
+    policy_before = policy or coded_policy()
     server = McpServer(registry=registry, policy=policy_before, authorize_fn=authorize_fn)
     client = McpClient()
 
@@ -684,7 +685,7 @@ def run_mcp_invoke(
     lookup_tier_count = registry.invoke_counts.get("lookup_customer_tier", 0) - counts_before_by_tool.get(
         "lookup_customer_tier", 0
     )
-    policy_after = coded_policy()
+    policy_after = policy_before if policy is not None else coded_policy()
     if policy_after.allowed_tools != policy_before.allowed_tools:
         raise RuntimeError("MCP-005 blocker: coded allowed_tools mutated")
     if policy_after.allowed_scopes != policy_before.allowed_scopes:

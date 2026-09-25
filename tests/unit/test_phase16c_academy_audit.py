@@ -56,6 +56,7 @@ PUBLISHED_VIEWS = frozenset(
         "ws_lab_agentsec_capstone.xml",
         "ws_lab_blue_team_incident.xml",
         "ws_lab_threat_modeling.xml",
+        "ws_lab_privacy_data_governance.xml",
         "ws_agentsec_mastery.xml",
     }
 )

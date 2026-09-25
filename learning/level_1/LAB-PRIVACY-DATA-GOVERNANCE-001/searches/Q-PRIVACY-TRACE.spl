@@ -1,0 +1,14 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"=__RUN_ID__
+| eval sequence=mvindex(mvdedup('agentsec.sequence'),0)
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval boundary=mvindex(mvdedup('agentsec.trust_boundary'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
+| eval data_preview=mvindex(mvdedup('agentsec.content.preview'),0)
+| eval data_hash=mvindex(mvdedup('agentsec.content.hash'),0)
+| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)
+| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)
+| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)
+| table sequence, _time, event_name, boundary, tool, decision, reason, data_preview, data_hash, attempted, executed, outcome
+| sort 0 sequence

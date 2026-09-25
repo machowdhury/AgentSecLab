@@ -1,0 +1,10 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.lab.id"="LAB-PRIVACY-DATA-GOVERNANCE-001" "event.name"=agentsec.control.decision "agentsec.control.id"="CTRL-MCP-001"
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
+| eval data_preview=mvindex(mvdedup('agentsec.content.preview'),0)
+| eval data_hash=mvindex(mvdedup('agentsec.content.hash'),0)
+| table _time, run_id, mode, tool, decision, reason, data_preview, data_hash
+| sort 0 _time
