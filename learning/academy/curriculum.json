@@ -56,6 +56,10 @@
     {
       "label": "Integrated Incident",
       "views": ["ws_lab_multi_stage_incident"]
+    },
+    {
+      "label": "Advanced Capstone",
+      "views": ["ws_lab_advanced_capstone"]
     }
   ],
   "levels": [
@@ -180,9 +184,21 @@
       "prerequisites": "L6-L8 investigation, architecture, and privacy reasoning. Draft before opening Path B.",
       "effort": "REPLAY / INTEGRATED INCIDENT 4-6 hours",
       "exit": "AGENTIC INCIDENT RESPONDER / SECURITY ARCHITECT",
-      "next": null,
+      "next": "L10",
       "labs": [
         {"lab_id": "LAB-MULTI-STAGE-INCIDENT-001", "title": "Acme Bank Incident AGENT-2026-009", "mode": "REPLAY", "view": "ws_lab_multi_stage_incident"}
+      ]
+    },
+    {
+      "id": "L10",
+      "title": "Advanced capstone and mastery",
+      "learn": "Independently investigate an unfamiliar bounded agentic incident: architecture, threat model, evidence, authorization, execution, data, controls, detection, hunt, and audience-specific communication.",
+      "prerequisites": "L6-L9 investigation, architecture, privacy, and integrated incident reasoning. Draft before opening Path B.",
+      "effort": "REPLAY / MASTERY CAPSTONE 4-6 hours",
+      "exit": "INDEPENDENT AGENTIC SECURITY INVESTIGATOR",
+      "next": null,
+      "labs": [
+        {"lab_id": "LAB-ADVANCED-CAPSTONE-MASTERY-001", "title": "Acme Bank Capstone MASTER-2026-001", "mode": "REPLAY", "view": "ws_lab_advanced_capstone"}
       ]
     }
   ]

@@ -34,6 +34,9 @@
   <collection label="Integrated Incident">
     <view name="ws_lab_multi_stage_incident">AGENT-2026-009</view>
   </collection>
+  <collection label="Advanced Capstone">
+    <view name="ws_lab_advanced_capstone">MASTER-2026-001</view>
+  </collection>
   <view name="ws_agentsec_mastery">Mastery Check</view>
   <view name="search">Search</view>
 </nav>

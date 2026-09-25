@@ -1,0 +1,9 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.control.id"=CTRL-GOAL-INTEGRITY-001
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval ts=mvindex(mvdedup('timestamp'),0)
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
+| eval proposed=mvindex(mvdedup('agentsec.goal.proposed'),0)
+| stats dc(_raw) AS distinct_events count AS indexed_rows min(ts) AS first max(ts) AS last values(mode) AS modes values(decision) AS decisions values(reason) AS reasons values(proposed) AS proposed BY run_id
+| sort 0 first

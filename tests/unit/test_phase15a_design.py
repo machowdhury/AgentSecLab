@@ -56,6 +56,7 @@ INVENTORIED_LABS = frozenset(
         "LAB-THREAT-MODELING-001",
         "LAB-PRIVACY-DATA-GOVERNANCE-001",
         "LAB-MULTI-STAGE-INCIDENT-001",
+        "LAB-ADVANCED-CAPSTONE-MASTERY-001",
     }
 )
 
@@ -80,6 +81,7 @@ PUBLISHED_VIEWS = frozenset(
         "ws_lab_threat_modeling.xml",
         "ws_lab_privacy_data_governance.xml",
         "ws_lab_multi_stage_incident.xml",
+        "ws_lab_advanced_capstone.xml",
         "ws_agentsec_mastery.xml",
     }
 )

@@ -1,0 +1,3 @@
+index=agentsec_telemetry (sourcetype=agentsec:scanner:finding OR sourcetype=agentsec:external:evaluation) earliest=0
+| stats dc(_raw) AS distinct_events count AS indexed_rows BY sourcetype
+| sort 0 sourcetype

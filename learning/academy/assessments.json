@@ -78,6 +78,34 @@
     ],
     "evidence_required": "Completed AGENT-2026-009 artifact with initial/revised hypothesis, candidates, timeline, evidence graph/ledger, control and data-impact analysis, response, retest, detection candidate, hunt, model updates, residual risk, and three audience reports."
   },
+  "advanced_capstone_competencies": {
+    "lab_id": "LAB-ADVANCED-CAPSTONE-MASTERY-001",
+    "tracking": "SELF_ASSESSED / NO PERSISTENCE / NOT CERTIFICATION",
+    "states": [
+      "DEMONSTRATED",
+      "PARTIALLY DEMONSTRATED",
+      "NOT YET DEMONSTRATED",
+      "NOT ASSESSED"
+    ],
+    "dimensions": [
+      "SYSTEM UNDERSTANDING",
+      "THREAT MODELING",
+      "SPLUNK INVESTIGATION",
+      "CORRELATION",
+      "EVIDENCE REASONING",
+      "AUTHORIZATION REASONING",
+      "EXECUTION REASONING",
+      "DATA / PRIVACY ANALYSIS",
+      "EXTERNAL EVIDENCE",
+      "CONTROL DESIGN",
+      "DETECTION ENGINEERING",
+      "THREAT HUNTING",
+      "INCIDENT RESPONSE",
+      "ARCHITECTURE",
+      "COMMUNICATION"
+    ],
+    "evidence_required": "Completed MASTER-2026-001 artifact showing architecture before search, a revised threat model, SPL that discovered run identifiers, a rejected false lead, separated authorization and execution, a NOT PROVEN gap, a placed control, an uninstalled detection candidate, a hunt that does not start from a known run identifier, and bounded SOC, engineering, and executive notes."
+  },
   "rubric": {
     "dimensions": [
       {

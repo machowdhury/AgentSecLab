@@ -14,6 +14,8 @@
 
 **L9 integration update:** `LAB-MULTI-STAGE-INCIDENT-001` is a post-L8 REPLAY investigation over the validated Capstone ATTACK/RETEST packet. Studio `ws_lab_multi_stage_incident`. Attack Service NO. It adds a bounded incident evidence graph, false lead, control/response analysis, candidate detection and hunt exercises; no new attack, detector, PDP, contract, or schema field.
 
+**L10 mastery update:** `LAB-ADVANCED-CAPSTONE-MASTERY-001` is a post-L9 REPLAY mastery investigation, incident MASTER-2026-001. Studio `ws_lab_advanced_capstone`. Attack Service NO. It reuses the validated goal-integrity lending-policy packet and adjacent scanner/garak evidence. It does not reuse AGENT-2026-009 and adds no attack, scanner, detector, PDP, contract, or schema field.
+
 Classifications are not inferred from roadmap prose alone. Cross-check: `learning/level_1/`, `src/agentsec/`, `splunk_app/…/views/`, `src/agentsec/experiment_context.py`, `src/agentsec/launch_catalog.py`, `learning/**/searches/*.spl`, `docs/IMPLEMENTATION_STATUS.md` proof columns.
 
 Legend: **IMPLEMENTED** / **DESIGNED** / **LIVE VALIDATED** / **REPLAY** / **SIMULATED** / **PARTIAL** / **NOT IMPLEMENTED** / **NOT APPLICABLE**.
