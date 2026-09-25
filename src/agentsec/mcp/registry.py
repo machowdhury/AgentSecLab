@@ -1,4 +1,4 @@
-"""Spy-capable tool registry. Invocation count is authoritative for execution."""
+"""Spy-capable tool registry with process-local invocation-begin counts."""
 
 from __future__ import annotations
 

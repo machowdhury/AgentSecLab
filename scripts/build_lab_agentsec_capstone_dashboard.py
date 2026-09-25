@@ -90,8 +90,9 @@ EMPTY_CONTROL = (
 )
 EMPTY_TOOL = (
     "No indexed event matched this evidence question. Missing mcp.started is "
-    "not automatically DENY, blocked, or prevented. Runtime handler count "
-    "remains authoritative. Zero rows is not SAFE."
+    "not automatically DENY, blocked, or prevented. The process-local "
+    "ToolRegistry count measures invocation begin; completion requires "
+    "mcp.completed and a successful outcome. Zero rows is not SAFE."
 )
 EMPTY_AFTER = (
     "DET-MCP-001 / Q-MCP-AFTER-DENY look for DENY then later mcp.started. "
@@ -102,8 +103,8 @@ EMPTY_SEQ = (
     "That is not a security outcome, not SAFE, and not prevention."
 )
 EMPTY_HUNT = (
-    "Investigate retrieve / write / recall specimen defaults to the official "
-    "LIVE BASELINE triple. Choose Attack or Retest from the dropdowns. Fresh "
+    "Investigate retrieve / write / recall selectors default to the published "
+    "BASELINE specimen triple. Choose ATTACK or RETEST from the dropdowns. Fresh "
     "LIVE run.ids come from Attack Service Search, not a token write. Empty "
     "tables are missing indexed rows, not security outcomes. Zero rows is not "
     "SAFE and not prevention."
@@ -114,18 +115,23 @@ EMPTY_ABSENT = (
     "prevention, and not proof the domain never fails."
 )
 ALLOW_NOT_EXEC = (
-    "ALLOW is the control decision. Tool execution begins at mcp.started. "
-    "Do not read ALLOW as execution. mcp.completed is success of a begun call. "
-    "mcp.failed is execution then error, not prevention."
+    "Q-MCP-AUTHZ reads event-local control.decision fields. Its executed=false "
+    "means the authorization event itself is not execution evidence; it does "
+    "not reconstruct later events. Do not read ALLOW as invocation or "
+    "completion. Q-MCP-TOOL shows mcp.started. Q-MCP-EXECUTED reconstructs "
+    "mcp.started / completed / failed."
 )
 RUNTIME_AUTH = (
-    "Runtime handler count is authoritative proof of execution or non-execution. "
-    "Missing indexed mcp.started is corroboration only, and only on a complete "
-    "copy. Splunk does not prove prevention."
+    "The process-local ToolRegistry count proves invocation began, not successful "
+    "completion. mcp.completed plus a successful hop/outcome supports completion; "
+    "mcp.failed records failure after invocation. A zero per-run count supports "
+    "non-invocation on this governed path; missing indexed mcp.started is "
+    "corroboration only on a complete copy. Splunk does not prove prevention."
 )
 INFLUENCE_NOT_AUTHORITY = (
     "RETRIEVED CONTENT != AUTHORITY. STORED MEMORY != TRUSTED INSTRUCTION. "
-    "REQUEST != GRANT. OBSERVE != ALLOW. ALLOW != EXECUTION. SPLUNK != ENFORCEMENT."
+    "REQUEST != ALLOW != INVOKED != COMPLETED != OUTCOME. "
+    "OBSERVE != ALLOW. SPLUNK != ENFORCEMENT."
 )
 
 SPL_TEACHING = {
@@ -142,7 +148,8 @@ SPL_TEACHING = {
     "Q-MEMORY-CONTEXT-AUTHORITY": (
         "- Reconstructs WRITE → later RECALL → classification → follow-on request.\n"
         "- Bind BOTH write and recall run.id. source_run_id is the write UUID.\n"
-        "- Hash equality joins retrieve to write. Preview is not the fingerprint."
+        "- The store loads fixture-equivalent bytes; hash equality joins retrieve "
+        "to write but does not prove a direct data-flow copy. Preview is not the fingerprint."
     ),
     "Q-MCP-WHO": (
         "- Principal / agent / tool identity on control.decision for the RECALL run.\n"
@@ -150,14 +157,17 @@ SPL_TEACHING = {
     ),
     "Q-MCP-AUTHZ": (
         "- Control.decision rows on the RECALL run. Hop 0 may be a classifier.\n"
-        "- Hop 1 CTRL-MCP-001 is the tool PDP. Splunk did not make the decision."
+        "- Hop 1 CTRL-MCP-001 is the tool PDP. Splunk did not make the decision.\n"
+        "- attempted/executed are event-local on control.decision; use Q-MCP-TOOL "
+        "or Q-MCP-EXECUTED for later invocation/completion evidence."
     ),
     "Q-MCP-TOOL": (
         "- mcp.started rows only on the RECALL run. Presence means the handler began."
     ),
     "Q-MCP-EXECUTED": (
         "- Joins control + mcp.* into execution_state on the RECALL run.\n"
-        "- Runtime handler count remains authoritative for non-execution."
+        "- ToolRegistry count establishes invocation begin; mcp.completed / "
+        "mcp.failed distinguish completion from failure."
     ),
     "Q-GOAL-INTEGRITY-AUTHORITY": (
         "- Looks for CTRL-GOAL-INTEGRITY-001 on the given run.ids.\n"
@@ -266,7 +276,8 @@ TABLE_BIND = {
         (
             "ds_q_executed",
             "Q-MCP-EXECUTED (recall specimen)",
-            "has_started is copy evidence. Runtime handler count remains authoritative.",
+            "has_started is indexed invocation evidence. ToolRegistry count measures "
+            "invocation begin; has_completed / has_failed distinguish the terminal state.",
         ),
         (
             "ds_q_tool",
@@ -412,7 +423,7 @@ def question_md(inv: dict, number: int) -> str:
 
 {inv["starter_guidance"]}
 
-1. Copy the fresh LIVE retrieve, write, and recall run.ids from Attack Service, or use Investigate specimen for the official LIVE triple.
+1. Copy one labeled fresh LIVE retrieve / write / recall triple from Attack Service, or use one published BASELINE, ATTACK, or RETEST specimen triple from the selectors.
 2. [Open Splunk Search]({SEARCH_URL})
 3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.
 4. Filter quoted `agentsec.run.id` for the relevant UUID. Do not collapse three related runs into one id.
@@ -690,13 +701,15 @@ def build() -> dict:
         "classification, not a grant. Capstone retrieve skips privileged follow-on."
     )
     cap_mem = (
-        "Q-MEMORY-CONTEXT-AUTHORITY on WRITE + RECALL. Reconstructs persist, "
+        "Q-MEMORY-CONTEXT-AUTHORITY on WRITE + RECALL. Reconstructs fixture-equivalent persistence, "
         "later recall, SHA-256, trust, follow-on request, and indexed execution "
-        "observation. Bind both run.ids. Hash equality is the retrieve-to-write join."
+        "observation. Bind both run.ids. Hash equality is the retrieve-to-write "
+        "equality join; it does not prove a direct copy."
     )
     cap_authz = (
         "Q-MCP-AUTHZ on the RECALL run. Classifier OBSERVE is not a grant. "
-        "CTRL-MCP-001 is the tool PDP. Splunk did not decide."
+        "CTRL-MCP-001 is the tool PDP. attempted/executed are event-local to the "
+        "authorization event, not reconstructed execution. Splunk did not decide."
     )
     cap_exec = (
         "Q-MCP-EXECUTED on the RECALL run. Read has_started and execution_state. "
@@ -751,11 +764,13 @@ Path B is a review key here. Reconstruct in Search first.
 
 - Origin — which bytes entered, and on which retrieve run
 - Trust — how those bytes were classified
-- Persistence — whether they were written into memory
+- Persistence — whether the store loaded fixture-equivalent bytes with the same canonical hash
 - Later request — whether a later recall shaped a privileged tool request
 - Authority — what coded policy actually granted
 - Decision — which control recorded ALLOW, DENY, or OBSERVE
-- Execution — whether the privileged handler ran
+- Invocation — whether ToolRegistry entered the handler invocation path
+- Completion — whether runtime emitted mcp.completed or mcp.failed
+- Outcome — whether the security-sensitive result occurred
 - RETEST change — what stayed the same and what changed
 - Splunk limits — what reconstructed telemetry cannot prove
 
@@ -763,7 +778,7 @@ Path B is a review key here. Reconstruct in Search first.
 
 1. Read MISSION. Write a prediction in the cards below before you treat ATTACK as solved.
 2. Launch LIVE from [Attack Service]({ATTACK_URL}) when you want fresh retrieve / write / recall run.ids.
-3. Hunt in [Splunk Search]({SEARCH_URL}). Studio dropdowns default to the official LIVE pair. Fresh launches mint new ids you copy into Search.
+3. Hunt in [Splunk Search]({SEARCH_URL}). Studio dropdowns default to the published BASELINE specimen triple. Fresh launches mint new ids you copy into Search.
 4. Fresh LIVE ids come from Attack Service Search. They are not written into these dropdowns.
 
 `LAB-AGENTSEC-CAPSTONE-001` · Schema **1.9.0** · three run.ids per experiment
@@ -783,12 +798,12 @@ Do not assume every previous lab vulnerability occurred here.
 
 - REQUEST != GRANT
 - OBSERVE != ALLOW
-- ALLOW != EXECUTION
+- REQUEST != ALLOW != INVOKED != COMPLETED != OUTCOME
 - MISSING EVENT != PREVENTION
 - ZERO ROWS != SAFE
 - SPLUNK != ENFORCEMENT
 
-Investigate specimen dropdowns default to the official LIVE BASELINE triple.
+Investigate specimen dropdowns default to the published BASELINE specimen triple.
 
 BASELINE retrieve `{BASELINE_RETRIEVE}`
 
@@ -811,7 +826,7 @@ Use the three specimen selectors as a known evidence packet, or copy fresh LIVE 
 
 ## Question 1 — Influence
 
-Where did the untrusted bytes originate, and did the exact bytes persist into a later run?
+Where did the untrusted bytes originate, and did the store load fixture-equivalent bytes with the same canonical hash for a later run?
 
 Starting search: constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`, then inspect the RETRIEVE and WRITE run IDs.
 
@@ -843,7 +858,7 @@ What actually executed?
 Starting search: look for operation-specific `mcp.started`, `mcp.completed`, or `mcp.failed` evidence on the RECALL run.
 
 Hint 1: ALLOW is not execution.
-Hint 2: runtime handler count is authoritative; indexed starts corroborate a complete copy.
+Hint 2: ToolRegistry count measures invocation begin. Use mcp.completed or mcp.failed and the hop outcome to distinguish completion from failure.
 
 ## Question 5 — Outcome
 
@@ -871,11 +886,11 @@ Use the selected RETRIEVE, WRITE, and RECALL packet to test your hypothesis.
 
 **SOURCE / CONTEXT** — document identity, exact-byte fingerprint, provenance, and RAG classification.
 
-**MEMORY** — persisted-byte fingerprint, later recall, and `source_run_id`.
+**MEMORY** — fixture-equivalent persisted-byte fingerprint, later recall, and `source_run_id`. Hash equality does not prove a direct retrieve-output → persist copy.
 
 **REQUEST / AUTHORITY** — requested tool, scope, resource, coded authority, control ID, decision, and reason.
 
-**EXECUTION / OUTCOME** — operation-specific start/completion evidence. Runtime handler count remains authoritative outside Studio.
+**INVOCATION / COMPLETION / OUTCOME** — ToolRegistry invocation count, mcp.started, mcp.completed / mcp.failed, hop outcome, and the security-sensitive result are separate evidence levels.
 
 **DOMAIN ELIMINATION** — Goal and Identity hunts may return zero rows for this packet. That is instrumented absence, not proof those domains never fail.
 
@@ -909,12 +924,12 @@ Telemetry leaves each stage toward Splunk. Splunk is not a step between CTRL-MCP
 - Memory Store / Later Recall → memory.id, source_run_id, write/recall hash, CTRL-MEMORY-CONTEXT-001
 - Agent Request → gen_ai.tool.name, requested_scope, resource
 - CTRL-MCP-001 → control.decision, reason, allowed_scope
-- Tool → mcp.started / completed / failed, runtime handler count
+- Tool → ToolRegistry invocation count, mcp.started / completed / failed, hop outcome
 - Splunk → reconstructed, searchable copy of those fields
 
 **Splunk is evidence, not inline enforcement.**
 
-Splunk does not ALLOW or DENY. Splunk does not sit between CTRL-MCP-001 and the handler. HEC acceptance is not searchable evidence.
+Splunk does not ALLOW or DENY. Splunk does not sit between CTRL-MCP-001 and the handler. HEC state is transport health, not searchable-event completeness.
 """,
         title="PATH",
     )
@@ -925,13 +940,13 @@ Splunk does not ALLOW or DENY. Splunk does not sit between CTRL-MCP-001 and the 
 
 **RAG Context** classifies retrieved bytes as data. It does not mint `customer:read`.
 
-**Memory Store** persists bytes for a later run. Stored is not trusted. Recalled is not authorized.
+**Memory Store** loads fixture-equivalent bytes for a later run and records the canonical hash. Hash equality establishes equality of compared bytes; it does not prove a direct retrieve-output → persist copy. Stored is not trusted. Recalled is not authorized.
 
 **Agent Request** can be shaped by recalled text. A request is not a grant.
 
 **CTRL-MCP-001** is the tool authorization decision. That is where coded policy is evaluated.
 
-**Tool / handler** is execution. Runtime handler count is authoritative.
+**Tool / handler** has distinct states: requested, authorized, invoked, completed or failed, then application outcome. ToolRegistry count proves invocation began, not successful completion.
 
 **Splunk** reconstructs the copy. It does not change the decision.
 
@@ -1013,7 +1028,7 @@ Coded grants, profile, overlay eligibility, and whether CTRL-MCP-001 ALLOW or DE
 
 **WHAT DO YOU PREDICT?**
 
-Retrieve OBSERVE. Write then later recall OBSERVE. Follow-on lookup_customer_tier requested. Vulnerable CTRL-MCP-001 ALLOW. Privileged handler 1. OBSERVE did not authorize. Recalled memory did not grant the tool.
+Retrieve OBSERVE. Write then later recall OBSERVE. Follow-on lookup_customer_tier requested. Vulnerable CTRL-MCP-001 ALLOW. ToolRegistry invocation count 1, followed by mcp.completed and a successful outcome. OBSERVE did not authorize. Recalled memory did not grant the tool.
 
 **THEN:** Open Attack Service, launch LIVE ATTACK, copy retrieve / write / recall run.ids, wait until **EVIDENCE READY**, then hunt in Search.
 
@@ -1021,7 +1036,7 @@ Retrieve OBSERVE. Write then later recall OBSERVE. Follow-on lookup_customer_tie
 
 **INTENTIONALLY VULNERABLE LAB PROFILE**
 
-Tables below default to the official LIVE ATTACK triple. Fresh launches mint new ids you copy into Search.
+Tables below default to the published ATTACK specimen triple. Fresh LIVE launches mint new ids you copy into Search.
 
 **What this specimen does**
 
@@ -1029,7 +1044,8 @@ Tables below default to the official LIVE ATTACK triple. Fresh launches mint new
 - Memory **OBSERVE** `memory_context_is_data` on write `{ATTACK_WRITE}` / recall `{ATTACK_RECALL}`
 - Follow-on **REQUEST** `lookup_customer_tier` / `customer:read`
 - CTRL-MCP-001 **ALLOW** labeled fail-open on this recall run only
-- Privileged handler **1**
+- ToolRegistry invocation count **1**
+- Runtime **mcp.completed** with successful outcome
 
 document `{MALICIOUS_DOC}` · memory `{MALICIOUS_MEM}`
 
@@ -1038,7 +1054,7 @@ document `{MALICIOUS_DOC}` · memory `{MALICIOUS_MEM}`
 The retrieved document did not grant `customer:read`. The memory record did not grant `lookup_customer_tier`. The labeled fail-open is a lab overlay, not a mutation of coded policy, and not a production IOC.
 
 ```text
-retrieve OBSERVE → write → later recall OBSERVE → REQUEST → ALLOW → handler 1
+retrieve OBSERVE → write → later recall OBSERVE → REQUEST → ALLOW → INVOKED → COMPLETED → OUTCOME
 ```
 """,
         title="INTENTIONALLY VULNERABLE",
@@ -1092,7 +1108,7 @@ Two paths. Path A is the default. Path B is an answer key, not policy.
 
 This tab covers CAP-I1, CAP-I2, CAP-I12, and CAP-I13.
 
-Investigate specimen dropdowns default to the official LIVE triple. Fresh LIVE retrieve / write / recall run.ids come from Attack Service Search. Studio tokens are not auto-bound.
+Investigate specimen dropdowns default to the published BASELINE specimen triple. Select a complete published ATTACK or RETEST triple, or copy a complete fresh LIVE triple from Attack Service into Search. Studio tokens are not auto-bound.
 
 Do not search `index=*`. Do not invent a retrieve-to-write field. Schema remains 1.9.0.
 
@@ -1110,11 +1126,11 @@ No Q-CAPSTONE. No DET-CAPSTONE.
         f"""
 # TRACE
 
-SOURCE → PROVENANCE → TRUST → PERSISTENCE → LATER RECALL → INFLUENCE → REQUEST
+SOURCE → PROVENANCE → TRUST → FIXTURE-EQUIVALENT PERSISTENCE → LATER RECALL → INFLUENCE → REQUEST
 
 CAP-I3 through CAP-I7. Path A first. Path B is the answer key.
 
-Hash equality joins retrieve to write. `source_run_id` joins write to recall. Do not invent a schema field.
+The store loads fixture-equivalent bytes. Hash equality joins retrieve to write but does not prove a direct retrieve-output → persist copy. `source_run_id` joins write to recall. Do not invent a schema field.
 
 Tables below bind Investigate retrieve specimen and Investigate write / recall specimen.
 
@@ -1142,11 +1158,11 @@ Tables below bind Investigate retrieve specimen and Investigate write / recall s
         f"""
 # AUTHORITY
 
-Coded grants. CTRL-MCP-001 decision. Handler count.
+Coded grants. CTRL-MCP-001 decision. Invocation. Completion or failure. Outcome.
 
 CAP-I8 through CAP-I11. Path A first. Path B is the answer key.
 
-OBSERVE != ALLOW. ALLOW != EXECUTION. REQUEST != GRANT.
+OBSERVE != ALLOW. REQUEST != ALLOW != INVOKED != COMPLETED != OUTCOME.
 
 Tables bind Investigate recall specimen.
 
@@ -1341,12 +1357,12 @@ Defense is not a content wipe. Keep the same adversarial bytes. Change authoriza
 
 **What actually changes**
 
-Remove the lab overlay. Keep the same retrieved bytes and the same stored bytes.
+Remove the lab overlay. Keep the same retrieved fixture and the same fixture-equivalent stored bytes, verified by the canonical hash.
 
 - RAG stays **OBSERVE**
 - Memory stays **OBSERVE**
 - CTRL-MCP-001 **DENY** `tool_not_granted`
-- Privileged handler **0**
+- ToolRegistry invocation count **0**
 
 ```text
 SAME malicious retrieve
@@ -1397,24 +1413,24 @@ DIFFERENT ExperimentContext (defended). DIFFERENT CTRL-MCP-001 decision. DIFFERE
         f"""
 # RETEST
 
-**DEFENDED PROFILE** · same adversarial hash · handler **0**
+**DEFENDED PROFILE** · same adversarial hash · invocation count **0**
 
-Launch LIVE RETEST from [Attack Service]({ATTACK_URL}). Tables below default to the official LIVE RETEST triple. Fresh launches mint new ids.
+Launch LIVE RETEST from [Attack Service]({ATTACK_URL}). Tables below default to the published RETEST specimen triple. Fresh LIVE launches mint new ids.
 
 - RAG **OBSERVE** on retrieve `{RETEST_RETRIEVE}`
 - Memory **OBSERVE** on write `{RETEST_WRITE}` / recall `{RETEST_RECALL}`
 - SAME request `lookup_customer_tier` / `customer:read`
 - CTRL-MCP-001 **DENY** `tool_not_granted`
-- Privileged handler **0**
+- ToolRegistry invocation count **0**
 
 SAME fingerprint as ATTACK
 
 {fingerprint_block(MALICIOUS_HASH)}
 
-Runtime handler count is authoritative for non-execution. Missing indexed `mcp.started` is corroboration on a complete copy. Do not treat Splunk as independent prevention proof.
+The per-run ToolRegistry invocation count is **0**, so this governed path did not enter the handler. Missing indexed `mcp.started` corroborates non-invocation only on a complete copy. Do not treat Splunk as independent prevention proof.
 
 ```text
-retrieve OBSERVE → write → later recall OBSERVE → REQUEST → DENY → handler 0
+retrieve OBSERVE → write → later recall OBSERVE → REQUEST → DENY → NOT INVOKED
 ```
 
 Do not label RETEST SAFE. Do not claim universal RAG/memory resistance.
@@ -1467,12 +1483,12 @@ Do not label RETEST SAFE. Do not claim universal RAG/memory resistance.
 Lists below are the proof. Color is not the proof.
 
 ```text
-BASELINE:  normal bytes → OBSERVE → no privileged follow-on → handler 0
-ATTACK:    malicious bytes → OBSERVE → REQUEST → ALLOW → handler 1
-RETEST:    SAME malicious bytes → OBSERVE → REQUEST → DENY → handler 0
+BASELINE:  normal bytes → OBSERVE → no privileged follow-on → invocation 0
+ATTACK:    malicious bytes → OBSERVE → REQUEST → ALLOW → invoked → completed → outcome
+RETEST:    SAME malicious bytes → OBSERVE → REQUEST → DENY → invocation 0
 ```
 
-Cards default to the official LIVE pair. Fresh LIVE triples come from Attack Service Search.
+Cards default to the published ATTACK/RETEST specimen pair. Fresh LIVE triples come from Attack Service Search.
 """,
         title="PRIMARY STATEMENT",
     )
@@ -1481,7 +1497,7 @@ Cards default to the official LIVE pair. Fresh LIVE triples come from Attack Ser
         f"""
 # BASELINE
 
-**defended · normal fixture · handler 0**
+**defended · normal fixture · invocation count 0**
 
 **SAME as the other modes**
 
@@ -1497,7 +1513,7 @@ Cards default to the official LIVE pair. Fresh LIVE triples come from Attack Ser
 - memory `{NORMAL_MEM}`
 - no privileged `lookup_customer_tier` follow-on
 - no labeled fail-open
-- handler **0**
+- ToolRegistry invocation count **0**
 
 Fingerprint
 
@@ -1518,7 +1534,7 @@ Do not label SAFE.
         f"""
 # ATTACK
 
-**INTENTIONALLY VULNERABLE LAB PROFILE · handler 1**
+**INTENTIONALLY VULNERABLE LAB PROFILE · invocation count 1 · completed**
 
 **SAME as RETEST**
 
@@ -1538,7 +1554,8 @@ Do not label SAFE.
 - ExperimentContext: vulnerable
 - CTRL-MCP-001 **ALLOW** labeled fail-open
 - mcp.started / completed on a complete copy
-- privileged handler **1**
+- ToolRegistry invocation count **1**
+- mcp.completed with successful outcome
 - run.ids are a different triple
 
 Official LIVE retrieve `{ATTACK_RETRIEVE}`
@@ -1556,7 +1573,7 @@ The bytes did not grant the tool.
         f"""
 # RETEST
 
-**defended · SAME malicious bytes · handler 0**
+**defended · SAME malicious bytes · invocation count 0**
 
 **SAME as ATTACK**
 
@@ -1575,7 +1592,7 @@ The bytes did not grant the tool.
 - ExperimentContext: defended
 - CTRL-MCP-001 **DENY** `tool_not_granted`
 - no privileged handler start
-- privileged handler **0**
+- ToolRegistry invocation count **0**
 - run.ids are a different triple
 
 Official LIVE retrieve `{RETEST_RETRIEVE}`
@@ -1684,9 +1701,11 @@ Classify each claim. Do not upgrade expected results into measured LIVE results.
 
 **Splunk prevented the attack.** — INCORRECT
 
-**The privileged handler executed during ATTACK.** — SUPPORTED when runtime handler count is 1. Indexed `mcp.started` is CORROBORATED on a complete copy.
+**The privileged handler was invoked during ATTACK.** — SUPPORTED when the ToolRegistry invocation count is 1. Indexed `mcp.started` corroborates invocation on a complete copy.
 
-**The privileged handler did not execute during RETEST.** — SUPPORTED when runtime handler count is 0. Missing `mcp.started` is corroboration only.
+**The privileged handler was not invoked during RETEST.** — SUPPORTED when the per-run ToolRegistry invocation count is 0. Missing `mcp.started` is corroboration only.
+
+**The ATTACK invocation completed successfully.** — SUPPORTED when runtime emits `mcp.completed`, no `mcp.failed`, and the hop outcome is success. The invocation count alone does not prove this.
 
 **RETEST proves the application is secure against all RAG/memory attacks.** — INCORRECT
 

@@ -357,11 +357,20 @@ def test_capstone_attack_page_is_closed_launcher():
     assert 'const labId = "LAB-AGENTSEC-CAPSTONE-001"' in html
     assert CAPSTONE_ATTACK_ID in html
     assert "CTRL-MCP-001" in html
-    assert "Influence · intent · authority · execution" in html
+    assert "Influence · intent · authority · invocation · completion · outcome" in html
     assert "RETRIEVE run · context entry" in html
-    assert "WRITE run · persisted bytes" in html
-    assert "RECALL run · request / decision / execution" in html
+    assert "WRITE run · fixture-equivalent persistence" in html
+    assert "RECALL run · request / decision / runtime" in html
     assert "source_run_id · WRITE→RECALL link" in html
+    assert "Copy Primary Run ID" in html
+    assert "Copy Retrieve Run ID" in html
+    assert "Copy Write Run ID" in html
+    assert "Copy Recall Run ID" in html
+    assert "Copy Source Run ID" in html
+    assert "ToolRegistry count proves invocation began, not successful completion" in html
+    assert "mcp.completed" in html
+    assert "mcp.failed" in html
+    assert "fixture-equivalent bytes · hash verified" in html
     assert "Goal Integrity and Identity/Delegation event families" in html
     assert "Cryptographic authentication, OAuth/OIDC" in html
     assert "ERROR · runtime or dependency failure" in html

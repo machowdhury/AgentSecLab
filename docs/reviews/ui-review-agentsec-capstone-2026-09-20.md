@@ -12,7 +12,7 @@ Studio tabs found: MISSION, ARCHITECTURE, ATTACK, INVESTIGATE, TRACE, AUTHORITY,
 - SPLUNK ARCHITECT — GRID, bound existing Q-* hunts, no Q-CAPSTONE, DET-MCP-001 SIMULATED labeled, tokens exist.
 - SOC ANALYST — Path A question first; starter index/sourcetype; copyable Path B SPL.
 - UX DESIGNER — mission-first; numbered architecture; COMPARE in words not only color.
-- TECHNICAL INSTRUCTOR — OBSERVE ≠ ALLOW; handler count authoritative; Splunk does not DENY; Goal/Identity 0 rows ≠ “did not happen.”
+- TECHNICAL INSTRUCTOR — OBSERVE ≠ ALLOW; ToolRegistry count proves invocation begin rather than completion; Splunk does not DENY; Goal/Identity 0 rows ≠ “did not happen.”
 
 ## Findings after pass16b restage
 

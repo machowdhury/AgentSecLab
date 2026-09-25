@@ -14,7 +14,7 @@ Attack Service:
 - ATTACK is the primary first action; RETEST remains available without an architectural rewrite
 - an evidence map separates source, retrieval, persistence, recall, intent, authority, execution, and evidence
 - RETRIEVE, WRITE, RECALL, and `source_run_id` explain what each ID identifies
-- post-run facts separate INFLUENCE, INTENT, AUTHORITY, and EXECUTION
+- post-run facts separate INFLUENCE, INTENT, AUTHORITY, INVOCATION, COMPLETION, and OUTCOME
 - comparison groups same bytes, changed server-owned profile, changed control result, changed execution, and changed outcome
 - raw responses remain behind Evidence / Advanced
 - ERROR remains distinct from DENY
@@ -32,7 +32,7 @@ Without opening Path B, a technically capable learner can derive:
 
 1. what incident is under investigation
 2. where the untrusted bytes entered
-3. that exact bytes persisted into a later run
+3. that the store loaded fixture-equivalent bytes with the same canonical hash into a later run (not a direct retrieve-output copy)
 4. what privileged operation was requested
 5. that context controls only OBSERVE
 6. where tool authority was evaluated

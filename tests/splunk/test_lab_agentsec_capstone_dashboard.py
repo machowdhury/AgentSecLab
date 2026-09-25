@@ -105,3 +105,25 @@ def test_teaching_claims():
     assert "SUPPORTED" in md
     assert "INCORRECT" in md
     assert "enforcement" in lowered
+    assert "fixture-equivalent" in lowered
+    assert "ToolRegistry count proves invocation began" in md
+    assert "event-local control.decision fields" in md
+    assert "published BASELINE specimen triple" in md
+    assert "official LIVE triple" not in md
+
+
+def test_mission_does_not_leak_capstone_answers():
+    definition = _definition()
+    blocks = definition["layout"]["layoutDefinitions"]["layout_mission"]["structure"]
+    mission_ids = {block["item"] for block in blocks}
+    mission = "\n".join(
+        definition["visualizations"][viz_id]["options"]["markdown"]
+        for viz_id in mission_ids
+        if definition["visualizations"][viz_id].get("type") == "splunk.markdown"
+    )
+    assert "vulnerable_profile_fail_open" not in mission
+    assert "tool_not_granted" not in mission
+    assert "Privileged handler 1" not in mission
+    assert "ToolRegistry invocation count 1" not in mission
+    assert "CTRL-MCP-001 **ALLOW**" not in mission
+    assert "CTRL-MCP-001 **DENY**" not in mission

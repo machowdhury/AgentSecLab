@@ -21,10 +21,10 @@ Individual labs isolate one boundary. The Capstone checks whether those distinct
 Each ATTACK or RETEST launch creates three correlated runs:
 
 1. **RETRIEVE** — the RAG pipeline loads a closed document and `CTRL-RAG-CONTEXT-001` records `OBSERVE`.
-2. **WRITE** — the exact document bytes are persisted as a memory record.
+2. **WRITE** — the memory store loads fixture-equivalent bytes and records the same canonical SHA-256 hash. Hash equality establishes equality of the compared bytes; it does not prove a direct retrieve-output → persist copy.
 3. **RECALL** — a later run recalls the bytes, `CTRL-MEMORY-CONTEXT-001` records `OBSERVE`, and a closed interpreter forms a `lookup_customer_tier` request.
 
-`CTRL-MCP-001` then evaluates the request. The vulnerable ATTACK profile applies an explicit lab fail-open overlay. The defended RETEST uses coded authority and denies the ungranted tool. The ToolRegistry handler count measures execution.
+`CTRL-MCP-001` then evaluates the request. The vulnerable ATTACK profile applies an explicit lab fail-open overlay. The defended RETEST uses coded authority and denies the ungranted tool. The process-local ToolRegistry count measures invocation begin. `mcp.completed` or `mcp.failed` plus the hop/outcome distinguishes completion from failure.
 
 The primary `run_id` is the RECALL run. The RETRIEVE and WRITE IDs are siblings. Recall `source_run_id` links to WRITE. Exact `content.hash` equality links RETRIEVE to WRITE because schema 1.9.0 has no direct retrieve-to-write field.
 
@@ -39,7 +39,7 @@ The Splunk workshop mirrors that progression with MISSION, INVESTIGATE, EVIDENCE
 ## What is the trust boundary?
 
 - retrieved bytes entering agent context
-- retrieved bytes becoming persistent memory
+- the memory store loading fixture-equivalent bytes and recording hash equality
 - recalled data influencing a later request
 - a tool request crossing into the MCP PDP
 - an authorization result crossing into ToolRegistry execution
@@ -55,7 +55,8 @@ Only the allowlisted malicious document bytes in this experiment. The browser ca
 
 - treating RAG or memory OBSERVE as a grant
 - treating `lookup_customer_tier` request fields as proof of execution
-- treating ALLOW as handler invocation
+- treating ALLOW as handler invocation or successful completion
+- treating a ToolRegistry invocation count as proof of completion
 - treating missing `mcp.started` as proof of prevention
 - merging three run IDs into one
 - claiming a matching content hash makes whole experiments identical
@@ -70,7 +71,8 @@ Dependency/runtime failures are ERROR, not DENY.
 - memory ID, write/recall hash, source run ID, trust, control ID, decision, reason
 - requested tool, scope, and resource
 - MCP control ID, decision, reason, and allowed scope
-- operation-specific `mcp.started`, completed, or failed evidence
+- ToolRegistry invocation count and operation-specific `mcp.started`, `mcp.completed`, or `mcp.failed` evidence
+- hop/outcome evidence for successful completion or failure
 - profile, mode, schema, sequence, and run IDs
 - local event counts for RETRIEVE, WRITE, and RECALL
 
@@ -78,7 +80,7 @@ Dependency/runtime failures are ERROR, not DENY.
 
 Existing validated Q-* hunts reconstruct each evidence plane. No Q-CAPSTONE or DET-CAPSTONE is added. Path A starts from questions and progressive hints. Path B reveals validated SPL, expected result shape, interpretation, and limitations.
 
-Splunk corroborates emitted evidence when local and indexed counts match. HEC acceptance alone is not completeness.
+Splunk corroborates emitted evidence when local and indexed counts match. `hec.ok` is transport/health state only; neither HEC acceptance nor failure establishes searchable-event completeness.
 
 ## What control could change the result?
 
@@ -92,10 +94,10 @@ Deterministic tests assert:
 
 - three distinct run IDs per launch
 - RECALL is primary
-- exact hash continuity
+- canonical hash equality across independently loaded closed fixtures
 - `source_run_id == write_run_id`
-- ATTACK MCP ALLOW and handler count 1
-- RETEST MCP DENY and handler count 0
+- ATTACK MCP ALLOW, ToolRegistry invocation count 1, `mcp.completed`, and successful outcome
+- RETEST MCP DENY, ToolRegistry invocation count 0, and no governed invocation
 - coded policy does not gain `lookup_customer_tier`
 - Goal and Identity control fields remain absent
 - the browser launch contract cannot submit authority
@@ -120,7 +122,7 @@ Fresh LIVE runs and local-versus-Splunk counts are required to measure the deplo
 4. Which controls only OBSERVE?
 5. Which control is the tool PDP?
 6. Why does ALLOW not prove execution?
-7. What changes between ATTACK and RETEST?
-8. What remains identical?
+7. Why does invocation count not prove successful completion?
+8. What changes between ATTACK and RETEST?
 9. What can Splunk corroborate, and what can it not prove?
 10. Why are Goal and Identity not part of this incident's active causal chain?

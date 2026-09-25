@@ -10,7 +10,7 @@ Untrusted retrieved and persisted data may influence a later request, but it can
 
 ## Actual causal chain
 
-`closed RAG document → RETRIEVE → CTRL-RAG-CONTEXT-001 OBSERVE → WRITE exact bytes → later RECALL → CTRL-MEMORY-CONTEXT-001 OBSERVE → lookup_customer_tier request → CTRL-MCP-001 → handler → local telemetry → Splunk copy`
+`closed RAG document → RETRIEVE → CTRL-RAG-CONTEXT-001 OBSERVE → WRITE fixture-equivalent bytes + verify hash equality → later RECALL → CTRL-MEMORY-CONTEXT-001 OBSERVE → lookup_customer_tier request → CTRL-MCP-001 → ToolRegistry invocation → completion/failure → outcome → local telemetry → Splunk copy`
 
 Goal Integrity and Identity/Delegation are not active causal stages in this packet. Their event-family absence can help rule them out only within this instrumented experiment.
 
@@ -20,7 +20,7 @@ Goal Integrity and Identity/Delegation are not active causal stages in this pack
 2. **Attacker-controlled:** only the allowlisted fixture bytes represented by `doc.lending-policy.malicious`.
 3. **Server-owned:** ExperimentContext, profile, fixture selection, coded grants, control decisions, IDs, policy, persistence path, handler registry, and telemetry emission.
 4. **Retrieved context:** yes. `CTRL-RAG-CONTEXT-001` classifies it as `untrusted_data` and returns `OBSERVE retrieved_context_is_data`.
-5. **Persistent memory:** yes. The retrieved bytes are written unchanged, then recalled in a distinct run.
+5. **Persistent memory:** yes. The store loads fixture-equivalent bytes under the closed memory fixture and verifies canonical hash equality. This proves equality of the compared bytes, not a direct retrieve-output → persist copy.
 6. **Identity/delegation:** no active identity/delegation control or claim packet is emitted. Authentication remains NOT MODELED.
 7. **Goal/instruction integrity:** no Goal Integrity control is active in this packet.
 8. **Sensitive request:** `lookup_customer_tier`, scope `customer:read`, resource `cust-001`.
@@ -28,23 +28,23 @@ Goal Integrity and Identity/Delegation are not active causal stages in this pack
 10. **ALLOW/DENY control:** `CTRL-MCP-001`.
 11. **Final-operation PDP:** `CTRL-MCP-001` is the sole tool PDP.
 12. **Order:** RAG OBSERVE; memory write; memory recall and OBSERVE; request construction; MCP decision; conditional handler; evidence.
-13. **ATTACK execution:** the privileged handler executes once after labeled lab fail-open ALLOW.
-14. **RETEST execution:** the privileged handler does not execute after `DENY tool_not_granted`.
-15. **Execution proof:** runtime `lookup_customer_tier_handler_count` / `handler_invoke_count`; indexed `mcp.started` is corroboration on a complete copy.
+13. **ATTACK invocation:** ToolRegistry invocation count is 1 after labeled lab fail-open ALLOW.
+14. **ATTACK completion/outcome:** `mcp.completed`, no `mcp.failed`, successful hop/outcome, and the returned tier payload support successful completion and customer-tier access.
+15. **RETEST invocation:** ToolRegistry invocation count is 0 after `DENY tool_not_granted`; no governed handler invocation occurred on this path.
 16. **Primary run IDs:** each launch's RECALL run ID; `run_id == recall_run_id`.
 17. **Sibling IDs:** RETRIEVE and WRITE run IDs. Recall `source_run_id` identifies the WRITE run.
 18. **Fingerprints:** `content.hash` / `input_fingerprint`.
-19. **Fingerprint scope:** SHA-256 of the closed RAG document bytes, which are persisted unchanged. Equality does not prove whole-experiment identity.
+19. **Fingerprint scope:** SHA-256 of the closed RAG document bytes. The memory fixture loads equivalent bytes with the same hash. Equality does not prove direct data flow or whole-experiment identity.
 20. **ATTACK→RETEST change:** server-owned vulnerable versus defended ExperimentContext; MCP result ALLOW versus DENY; handler 1 versus 0; outcome achieved versus prevented.
 21. **Intentionally identical:** malicious document bytes, persisted bytes, memory/request influence, requested tool/scope/resource, RAG OBSERVE, and memory OBSERVE.
 22. **Splunk corroborates:** emitted event copies, control IDs/decisions, hashes, cross-run linkage, request fields, and execution-start events when export is complete.
 23. **Splunk does not prove:** enforcement, authentication, universal resistance, local-to-index completeness without counting, or non-execution from absence alone.
-24. **Falsifiers:** privileged handler count not 1 in ATTACK; privileged handler count not 0 in RETEST; RETEST MCP decision not DENY; ATTACK/RETEST input fingerprints differ; an operation occurs before its MCP decision; or expected cross-run hash/source linkage fails.
+24. **Falsifiers:** ToolRegistry invocation count not 1 in ATTACK; missing ATTACK `mcp.completed` or successful outcome; invocation count not 0 in RETEST; RETEST MCP decision not DENY; ATTACK/RETEST input fingerprints differ; an operation occurs before its MCP decision; or expected cross-run hash/source linkage fails.
 
 ## Trust boundaries
 
 - External/retrieved bytes → agent context.
-- Retrieved bytes → persistent memory.
+- Closed retrieve fixture → independently loaded fixture-equivalent persistent memory, joined by hash equality.
 - Recalled data → later request.
 - Tool request → server-owned MCP PDP.
 - PDP decision → ToolRegistry handler.
@@ -57,7 +57,8 @@ Splunk is after execution on the evidence plane.
 - `CTRL-RAG-CONTEXT-001`: classifies retrieved context; OBSERVE only; does not grant a tool.
 - `CTRL-MEMORY-CONTEXT-001`: classifies recalled context; OBSERVE only; does not grant a tool.
 - `CTRL-MCP-001`: evaluates tool, scope, and resource against effective server-owned authority; sole tool PDP.
-- ToolRegistry handler count: authoritative execution evidence; not an authorization decision.
+- ToolRegistry invocation count: invocation-begin evidence, not completion and not an authorization decision.
+- `mcp.completed` / `mcp.failed` plus hop/outcome: terminal runtime evidence.
 - Splunk: reconstructed evidence; not enforcement.
 
 ## Code path and validation

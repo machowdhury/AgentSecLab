@@ -46,17 +46,17 @@ Do not sanitize everything, delete memory, block all RAG, or ask Splunk to block
 
 ## RETEST
 
-Same hash. RAG OBSERVE. Memory OBSERVE. CTRL-MCP-001 DENY tool_not_granted. Handler 0.
+Same hash. RAG OBSERVE. Memory OBSERVE. CTRL-MCP-001 DENY tool_not_granted. ToolRegistry invocation count 0.
 
 ## COMPARE
 
-SAME ADVERSARIAL INFLUENCE. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION.
+SAME ADVERSARIAL INFLUENCE. DIFFERENT AUTHORIZATION. DIFFERENT INVOCATION, COMPLETION, AND OUTCOME.
 
 ## PROVE
 
 Classify SUPPORTED / CORROBORATED / NOT PROVEN / INCORRECT.
 
-Runtime handler count = authoritative execution. CTRL-MCP-001 = authorization. Splunk = reconstructed telemetry. One RETEST != universal resistance.
+ToolRegistry count proves process-local invocation began, not successful completion. Use `mcp.completed` / `mcp.failed` plus hop/outcome for completion and result evidence. CTRL-MCP-001 = authorization. Splunk = reconstructed telemetry, not enforcement. One RETEST != universal resistance.
 
 ## Learning connection
 
