@@ -1,0 +1,38 @@
+{
+  "schema": "agentsec.bounded_evidence_graph.v1",
+  "incident_id": "AGENT-2026-009",
+  "scope": "THIS INCIDENT ONLY — NOT A UNIVERSAL ATTACK GRAPH",
+  "allowed_edge_semantics": [
+    "PRECEDES",
+    "CORRELATES_WITH",
+    "REQUESTS",
+    "AUTHORIZED_BY",
+    "EXECUTED_BY",
+    "PRODUCED",
+    "REFERENCES"
+  ],
+  "forbidden_unless_established": ["CAUSED"],
+  "nodes": [
+    {"id": "E-RAG", "kind": "evidence", "label": "Untrusted RAG context", "state": "OBSERVED"},
+    {"id": "E-WRITE", "kind": "event", "label": "Memory written", "state": "PROVEN"},
+    {"id": "E-RECALL", "kind": "event", "label": "Memory recalled", "state": "PROVEN"},
+    {"id": "E-REQUEST", "kind": "request", "label": "lookup_customer_tier / customer:read", "state": "PROVEN"},
+    {"id": "E-PDP", "kind": "decision", "label": "CTRL-MCP-001 ALLOW", "state": "PROVEN"},
+    {"id": "E-START", "kind": "execution", "label": "ToolRegistry invocation began", "state": "PROVEN"},
+    {"id": "E-COMPLETE", "kind": "outcome", "label": "mcp.completed / successful lab outcome", "state": "SUPPORTED"},
+    {"id": "E-DATA", "kind": "outcome", "label": "Synthetic customer-tier result", "state": "SUPPORTED"},
+    {"id": "E-SCANNER", "kind": "evidence", "label": "Unrelated scanner HIGH", "state": "REFUTED"},
+    {"id": "E-GOAL", "kind": "unknown", "label": "Goal-control involvement", "state": "NOT OBSERVED"},
+    {"id": "E-IDENTITY", "kind": "unknown", "label": "Identity-control involvement", "state": "NOT OBSERVED"}
+  ],
+  "edges": [
+    {"from": "E-RAG", "to": "E-WRITE", "semantic": "CORRELATES_WITH", "basis": "same canonical content hash; direct copy edge NOT MODELED"},
+    {"from": "E-WRITE", "to": "E-RECALL", "semantic": "PRODUCED", "basis": "recall source_run_id equals write run.id"},
+    {"from": "E-RECALL", "to": "E-REQUEST", "semantic": "PRECEDES", "basis": "ordered recall-run sequence and follow-on fields"},
+    {"from": "E-REQUEST", "to": "E-PDP", "semantic": "AUTHORIZED_BY", "basis": "CTRL-MCP-001 decision on same request hop"},
+    {"from": "E-PDP", "to": "E-START", "semantic": "PRECEDES", "basis": "ALLOW before mcp.started; not a universal causality claim"},
+    {"from": "E-START", "to": "E-COMPLETE", "semantic": "PRECEDES", "basis": "same run and span lifecycle"},
+    {"from": "E-COMPLETE", "to": "E-DATA", "semantic": "PRODUCED", "basis": "fixture-backed handler response"},
+    {"from": "E-SCANNER", "to": "E-RAG", "semantic": "REFERENCES", "basis": "analyst false-lead comparison only; hashes differ"}
+  ]
+}

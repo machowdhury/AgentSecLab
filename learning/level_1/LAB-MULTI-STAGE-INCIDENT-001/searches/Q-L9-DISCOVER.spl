@@ -1,0 +1,9 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "event.name"=agentsec.control.decision "agentsec.control.id"=CTRL-MCP-001
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval ts=mvindex(mvdedup('timestamp'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)
+| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)
+| where ts>="2026-09-20T19:37:40Z" AND ts<="2026-09-20T19:38:00Z"
+| stats values(tool) AS tools values(requested_scope) AS requested_scopes values(allowed_scope) AS allowed_scopes BY ts, run_id
+| sort 0 ts

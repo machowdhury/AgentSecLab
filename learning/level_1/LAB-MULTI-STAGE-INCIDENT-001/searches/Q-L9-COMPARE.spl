@@ -1,0 +1,13 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 ("agentsec.run.id"=__ATTACK_RUN_ID__ OR "agentsec.run.id"=__RETEST_RUN_ID__)
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
+| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)
+| eval is_started=if(event_name="agentsec.mcp.started",1,0)
+| eval is_completed=if(event_name="agentsec.mcp.completed",1,0)
+| stats values(mode) AS mode values(decision) AS decisions values(reason) AS reasons values(content_hash) AS hashes max(is_started) AS has_started max(is_completed) AS has_completed dc(_raw) AS distinct_events count AS indexed_rows BY run_id
+| eval duplicate_note=if(indexed_rows>distinct_events,"DUPLICATE INDEXED COPIES — NOT ADDITIONAL EXECUTIONS","NO DUPLICATE COPY OBSERVED")
+| table mode, run_id, decisions, reasons, hashes, has_started, has_completed, distinct_events, indexed_rows, duplicate_note
+| sort 0 mode

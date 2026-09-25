@@ -58,6 +58,26 @@
     ],
     "evidence_required": "Completed data inventory, lifecycle and trace, minimization decision, privacy evidence ledger, privacy threat model, control strategy, residual-risk statement, and three audience-specific explanations."
   },
+  "multi_stage_incident_competencies": {
+    "lab_id": "LAB-MULTI-STAGE-INCIDENT-001",
+    "tracking": "SELF_ASSESSED / NO PERSISTENCE / NOT CERTIFICATION",
+    "dimensions": [
+      "TRIAGE",
+      "FORM AND CHALLENGE HYPOTHESIS",
+      "RECONSTRUCT TIMELINE",
+      "CLASSIFY EVIDENCE STATES",
+      "SEPARATE INFLUENCE AND AUTHORITY",
+      "PROVE AUTHORIZATION AND EXECUTION",
+      "ANALYZE DATA IMPACT",
+      "ANALYZE CONTROLS",
+      "CONTAIN AND REMEDIATE",
+      "BUILD DETECTION CANDIDATE",
+      "EXPAND HUNT",
+      "UPDATE THREAT AND PRIVACY MODELS",
+      "COMMUNICATE"
+    ],
+    "evidence_required": "Completed AGENT-2026-009 artifact with initial/revised hypothesis, candidates, timeline, evidence graph/ledger, control and data-impact analysis, response, retest, detection candidate, hunt, model updates, residual risk, and three audience reports."
+  },
   "rubric": {
     "dimensions": [
       {

@@ -31,6 +31,9 @@
   <collection label="Privacy &amp; Data Governance">
     <view name="ws_lab_privacy_data_governance">Privacy Investigation</view>
   </collection>
+  <collection label="Integrated Incident">
+    <view name="ws_lab_multi_stage_incident">AGENT-2026-009</view>
+  </collection>
   <view name="ws_agentsec_mastery">Mastery Check</view>
   <view name="search">Search</view>
 </nav>

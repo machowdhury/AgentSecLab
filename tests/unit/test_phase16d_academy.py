@@ -58,6 +58,7 @@ REPLAY_VIEWS = (
     "ws_lab_blue_team_incident.xml",
     "ws_lab_threat_modeling.xml",
     "ws_lab_privacy_data_governance.xml",
+    "ws_lab_multi_stage_incident.xml",
 )
 
 PHASE16D_DOCS = (
@@ -99,9 +100,9 @@ def test_curriculum_is_learning_metadata_not_policy():
     assert data["schema_version"] == "1.9.0"
     assert data["start_lab_id"] == "LAB-PI-001"
     ids = [level["id"] for level in data["levels"]]
-    assert ids == ["L0", "L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"]
+    assert ids == ["L0", "L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "L9"]
     assert data["nav_collections"][0]["label"] == "Foundations"
-    assert data["nav_collections"][-1]["label"] == "Privacy & Data Governance"
+    assert data["nav_collections"][-1]["label"] == "Integrated Incident"
     assert lab_row("LAB-PI-001")["level_id"] == "L1"
     assert next_lab("LAB-PI-001")["lab_id"] == "LAB-MCP-001"
     assert previous_lab("LAB-PI-001") is None
@@ -115,7 +116,9 @@ def test_curriculum_is_learning_metadata_not_policy():
     assert previous_lab("LAB-THREAT-MODELING-001")["lab_id"] == "LAB-BLUE-TEAM-INCIDENT-001"
     assert next_lab("LAB-THREAT-MODELING-001")["lab_id"] == "LAB-PRIVACY-DATA-GOVERNANCE-001"
     assert previous_lab("LAB-PRIVACY-DATA-GOVERNANCE-001")["lab_id"] == "LAB-THREAT-MODELING-001"
-    assert next_lab("LAB-PRIVACY-DATA-GOVERNANCE-001") is None
+    assert next_lab("LAB-PRIVACY-DATA-GOVERNANCE-001")["lab_id"] == "LAB-MULTI-STAGE-INCIDENT-001"
+    assert previous_lab("LAB-MULTI-STAGE-INCIDENT-001")["lab_id"] == "LAB-PRIVACY-DATA-GOVERNANCE-001"
+    assert next_lab("LAB-MULTI-STAGE-INCIDENT-001") is None
 
 
 def test_nav_follows_learner_curriculum_not_build_order():
@@ -133,6 +136,7 @@ def test_nav_follows_learner_curriculum_not_build_order():
     assert nav.index("ws_lab_agentsec_capstone") < nav.index("ws_lab_blue_team_incident")
     assert nav.index("ws_lab_blue_team_incident") < nav.index("ws_lab_threat_modeling")
     assert nav.index("ws_lab_threat_modeling") < nav.index("ws_lab_privacy_data_governance")
+    assert nav.index("ws_lab_privacy_data_governance") < nav.index("ws_lab_multi_stage_incident")
     assert ">Direct Prompt Injection</view>" in nav
     assert ">Lending Assistant Investigation</view>" in nav
     assert ">Mastery Check</view>" in nav

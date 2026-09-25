@@ -1,0 +1,13 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=-30d
+    ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed)
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)
+| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)
+| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
+| eval started=if(event_name="agentsec.mcp.started",1,0)
+| eval completed=if(event_name="agentsec.mcp.completed",1,0)
+| stats values(requested_scope) AS requested_scopes values(allowed_scope) AS allowed_scopes values(reason) AS reasons max(started) AS started max(completed) AS completed dc(_raw) AS distinct_events BY run_id, tool
+| where mvcount(requested_scopes)>0 AND requested_scopes!=allowed_scopes
+| sort 0 - started - completed

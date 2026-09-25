@@ -1,0 +1,891 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="2" theme="light">
+  <label>Acme Bank Incident AGENT-2026-009</label>
+  <description>L9 bounded multi-stage REPLAY investigation.</description>
+  <definition><![CDATA[
+{
+  "title": "Acme Bank Incident AGENT-2026-009",
+  "description": "LAB-MULTI-STAGE-INCIDENT-001 bounded REPLAY integration workbench.",
+  "defaults": {
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "large"
+        }
+      }
+    }
+  },
+  "inputs": {
+    "input_incident_run": {
+      "type": "input.dropdown",
+      "title": "Investigate selected candidate",
+      "options": {
+        "token": "incident_run_id",
+        "defaultValue": "2437f64a-fff4-424f-8a83-0f04285662e4",
+        "items": [
+          {
+            "label": "Candidate 01",
+            "value": "2437f64a-fff4-424f-8a83-0f04285662e4"
+          },
+          {
+            "label": "Candidate 02",
+            "value": "8d2c016f-cadc-4463-939a-23a183221b3d"
+          }
+        ]
+      }
+    }
+  },
+  "dataSources": {
+    "ds_discover": {
+      "type": "ds.search",
+      "name": "Q-L9-DISCOVER",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"event.name\"=agentsec.control.decision \"agentsec.control.id\"=CTRL-MCP-001\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval ts=mvindex(mvdedup('timestamp'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| where ts>=\"2026-09-20T19:37:40Z\" AND ts<=\"2026-09-20T19:38:00Z\"\n| stats values(tool) AS tools values(requested_scope) AS requested_scopes values(allowed_scope) AS allowed_scopes BY ts, run_id\n| sort 0 ts"
+      }
+    },
+    "ds_timeline": {
+      "type": "ds.search",
+      "name": "Q-L9-TIMELINE",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=\"$incident_run_id$\"\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval plane=case(match(event_name,\"rag|context\"),\"CONTEXT\",match(event_name,\"memory\"),\"PERSISTENCE\",match(event_name,\"control\"),\"CONTROL\",match(event_name,\"mcp\"),\"EXECUTION\",true(),\"RUNTIME\")\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval source_run_id=mvindex(mvdedup('agentsec.memory.source_run_id'),0)\n| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)\n| eval attempted=mvindex(mvdedup('agentsec.operation.attempted'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval outcome=coalesce(mvindex(mvdedup('agentsec.operation.outcome'),0),mvindex(mvdedup('agentsec.outcome'),0))\n| table sequence, timestamp, plane, event_name, control_id, decision, reason, tool, source_run_id, content_hash, attempted, executed, outcome\n| sort 0 sequence"
+      }
+    },
+    "ds_compare": {
+      "type": "ds.search",
+      "name": "Q-L9-COMPARE",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"2437f64a-fff4-424f-8a83-0f04285662e4\" OR \"agentsec.run.id\"=\"8d2c016f-cadc-4463-939a-23a183221b3d\")\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| stats values(mode) AS mode values(decision) AS decisions values(reason) AS reasons values(content_hash) AS hashes max(is_started) AS has_started max(is_completed) AS has_completed dc(_raw) AS distinct_events count AS indexed_rows BY run_id\n| eval duplicate_note=if(indexed_rows>distinct_events,\"DUPLICATE INDEXED COPIES — NOT ADDITIONAL EXECUTIONS\",\"NO DUPLICATE COPY OBSERVED\")\n| table mode, run_id, decisions, reasons, hashes, has_started, has_completed, distinct_events, indexed_rows, duplicate_note\n| sort 0 mode"
+      }
+    },
+    "ds_external": {
+      "type": "ds.search",
+      "name": "Q-L9-EXTERNAL-PIVOT",
+      "options": {
+        "query": "index=agentsec_telemetry earliest=0 (sourcetype=agentsec:scanner:finding OR sourcetype=agentsec:external:evaluation)\n| eval evidence_plane=if(sourcetype==\"agentsec:scanner:finding\",\"STATIC FINDING\",\"ADVERSARIAL EVALUATION\")\n| eval external_id=coalesce(mvindex(mvdedup('external.evidence.id'),0),mvindex(mvdedup('run.id'),0))\n| eval correlation_method=mvindex(mvdedup('correlation.method'),0)\n| eval description_hash=mvindex(mvdedup('artifact.description_sha256'),0)\n| eval runtime_run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| table _time, evidence_plane, external_id, correlation_method, description_hash, runtime_run_id, result, severity\n| sort 0 _time"
+      }
+    },
+    "ds_detection": {
+      "type": "ds.search",
+      "name": "Q-L9-DETECTION-CANDIDATE",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0\n    (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval is_mismatch=if(requested_scope!=\"\" AND allowed_scope!=\"\" AND requested_scope!=allowed_scope,1,0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eventstats max(is_mismatch) AS authority_mismatch max(is_started) AS execution_started values(decision) AS decisions BY run_id, tool\n| where authority_mismatch=1 AND execution_started=1\n| stats values(decisions) AS decisions values(requested_scope) AS requested_scopes values(allowed_scope) AS allowed_scopes dc(_raw) AS distinct_evidence BY run_id, tool\n| eval status=\"DETECTION CANDIDATE — NOT INSTALLED\""
+      }
+    },
+    "ds_hunt": {
+      "type": "ds.search",
+      "name": "Q-L9-HUNT",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=-30d\n    (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| stats values(requested_scope) AS requested_scopes values(allowed_scope) AS allowed_scopes values(reason) AS reasons max(started) AS started max(completed) AS completed dc(_raw) AS distinct_events BY run_id, tool\n| where mvcount(requested_scopes)>0 AND requested_scopes!=allowed_scopes\n| sort 0 - started - completed"
+      }
+    }
+  },
+  "visualizations": {
+    "viz_incident": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# ACME BANK INCIDENT AGENT-2026-009\n\n**REPLAY workshop. Path A begins in Splunk Search; Path B is a review key, not policy.**\n\nSecurity Operations identified unusual activity in an AI-assisted lending customer workflow between approximately **2026-09-20 19:37:40Z and 19:38:00Z**.\n\nAvailable telemetry suggests external context may have influenced agent behavior and a privileged customer-information tool may have been requested.\n\nDetermine what actually occurred, whether unauthorized execution took place, what synthetic data was affected, which controls succeeded or failed, and how the architecture should change.\n\nStarting observables: affected workflow · possible privileged request · possible untrusted context.\n\nWrite your initial hypothesis now. No run ID, attack family, decision, execution state, root cause, or data-impact answer is supplied here.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "INCIDENT BRIEF"
+    },
+    "viz_method": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Multi-stage analytical model\n\nENTRY → INFLUENCE → CONTEXT → INTENT / GOAL → REQUEST → AUTHORITY → EXECUTION → OUTCOME → PERSISTENCE → OBSERVABILITY\n\nThis is an investigation model, not a universal attack sequence. Classify every stage textually:\n\n**PROVEN · SUPPORTED · OBSERVED · INFERRED · NOT OBSERVED · NOT MODELED · NOT PROVEN · REFUTED**\n\n`CLAIM STRENGTH <= EVIDENCE STRENGTH`\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "METHOD · EVIDENCE STATES"
+    },
+    "viz_modes": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Same incident, three modes\n\n**GUIDED** — incident window, observables, and progressive hints.\n\n**INVESTIGATOR** — incident brief and approximate window; construct SPL.\n\n**ADVANCED / ARCHITECT** — brief, architecture, and evidence access only; independently classify stages, controls, response, and redesign.\n\nDo not force RAG, Memory, Goal, Identity, MCP, scanner, and garak into one explanation. Ruling a domain out is valid analysis.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "LEARNER MODE"
+    },
+    "viz_hypothesis": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Decompose the hypothesis\n\nExample to test—not an answer: “Untrusted retrieved content caused the agent to request and execute an unauthorized customer-data operation.”\n\nAsk separately: Was untrusted content present and retrieved? Did equivalent content persist and recall? Did behavior form a privileged request? Was it authorized? Was the handler invoked? Did it complete? What synthetic data was returned? What remains unknown?\n\nThe full chain is not established unless each required link has evidence.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "HYPOTHESIS"
+    },
+    "viz_hints": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Progressive hints\n\n**HINT 1 — plane:** start with runtime tool-control decisions in the bounded window.\n\n**HINT 2 — evidence type:** pivot candidate run IDs into memory, MCP authorization, execution, and outcome.\n\n**HINT 3 — fields:** sequence, event.name, content.hash, memory.id, source_run_id, requested/allowed scope, decision, reason, outcome.\n\n**HINT 4 — SPL:** Q-L9-DISCOVER → Q-L9-TIMELINE → Q-L9-COMPARE, only after recording a hypothesis.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "HINT SYSTEM"
+    },
+    "viz_discover": {
+      "type": "splunk.table",
+      "title": "Candidate discovery",
+      "description": "Bounded tool-control candidates. A candidate is not an incident and a request is not execution.",
+      "dataSources": {
+        "primary": "ds_discover"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "NO EVIDENCE FOUND / INSUFFICIENT EVIDENCE. This is not SAFE and does not prove prevention."
+      }
+    },
+    "viz_timeline_help": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Reconstruct, do not collapse\n\nProve each transition independently:\n\nREQUEST → DECISION → INVOCATION → COMPLETION → OUTCOME\n\nUse runtime `agentsec.sequence` within a run. Use `source_run_id`, memory ID, and canonical hash across write/recall. Hash equality supports byte equality; it does not establish a direct retrieve-output-to-write causal edge.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "TIMELINE METHOD"
+    },
+    "viz_timeline": {
+      "type": "splunk.table",
+      "title": "Selected candidate timeline",
+      "description": "Sequence-ordered evidence for the selected candidate. Dropdown labels intentionally do not reveal the answer.",
+      "dataSources": {
+        "primary": "ds_timeline"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "NO EVIDENCE FOUND / INSUFFICIENT EVIDENCE. This is not SAFE and does not prove prevention."
+      }
+    },
+    "viz_graph": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Bounded evidence graph\n\nUse only explicit edges: **PRECEDES · CORRELATES_WITH · REQUESTS · AUTHORIZED_BY · EXECUTED_BY · PRODUCED · REFERENCES**.\n\nDo not write `CAUSED` unless causality is independently established. UI color is never the state; every node needs textual evidence state and identifier.\n\nMissing event → `NOT OBSERVED`, not prevention. Missing capability → `NOT MODELED`. Unsupported conclusion → `NOT PROVEN`.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "EVIDENCE GRAPH"
+    },
+    "viz_ledger": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Incident evidence ledger\n\nFor every claim record: evidence ID · plane · state · alternative explanation · missing evidence.\n\nSeparate runtime (`otel:agentic:json`), scanner (`agentsec:scanner:finding`), and evaluation (`agentsec:external:evaluation`) planes. Correlation is not causation.\n\nChallenge your first hypothesis with contradictory evidence and valid alternate explanations.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "EVIDENCE"
+    },
+    "viz_external": {
+      "type": "splunk.table",
+      "title": "Adjacent external evidence",
+      "description": "Scanner and garak evidence for triage. No automatic causal join to runtime.",
+      "dataSources": {
+        "primary": "ds_external"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "NO EVIDENCE FOUND / INSUFFICIENT EVIDENCE. This is not SAFE and does not prove prevention."
+      }
+    },
+    "viz_false_lead": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# False-lead test\n\nA Cisco mcp-scanner finding reports native **HIGH / PROMPT INJECTION**. Determine whether its description hash matches the incident fingerprint and whether a runtime join exists.\n\nA garak evaluation PASS targets a local model and carries no AgentSec runtime run ID. Decide whether it supports, contextualizes, or fails to correlate with this incident.\n\nScanner HIGH != exploitation. Evaluation PASS != safe. External evidence remains adjacent.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "CHALLENGE THE HYPOTHESIS"
+    },
+    "viz_controls": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Control analysis\n\nFor each stage record threat · control · preventive/detective/corrective/recovery · OBSERVE/ENFORCE · result · evidence.\n\nDistinguish **CONTROL PRESENT · TRIGGERED · SUCCEEDED · FAILED · NOT APPLICABLE · NOT MODELED**.\n\nRAG and Memory controls classify influence. CTRL-MCP-001 decides tool authority before invocation. Splunk investigates downstream. Goal and Identity must not be blamed without evidence.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "CONTROLS"
+    },
+    "viz_compare": {
+      "type": "splunk.table",
+      "title": "ATTACK / RETEST comparison",
+      "description": "Compare shared influence with authorization and execution. Duplicate indexed copies are not additional executions.",
+      "dataSources": {
+        "primary": "ds_compare"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "NO EVIDENCE FOUND / INSUFFICIENT EVIDENCE. This is not SAFE and does not prove prevention."
+      }
+    },
+    "viz_data": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Data / privacy impact\n\nAsk separately: Was the action authorized? Did execution occur? What synthetic data was supplied or returned? Was every field necessary? Where did it travel or appear in telemetry? Was it persisted? What field-level impact is proven?\n\nThe packet supports a synthetic customer-tier result. It does not establish production customer exposure, field-level necessity, provider retention, or a breach.\n\nAuthorized execution does not establish appropriate data use.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "DATA IMPACT"
+    },
+    "viz_identity_memory": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Persistence and identity\n\nMemory involvement requires WRITE → PERSIST → RECALL → REUSE evidence. `source_run_id`, memory ID, and hash support the bounded write/recall link.\n\nIdentity/Delegation control events are **NOT OBSERVED** in this packet. Authentication, production IAM, human approval, and cryptographic delegation are **NOT MODELED**. A caller claim would not establish authentication.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "MEMORY · IDENTITY"
+    },
+    "viz_respond": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Respond\n\n**Immediate containment:** restrict or disable the affected fixture workflow; remove suspect context; isolate associated memory; constrain tool scope; preserve evidence. Educational recommendations only—perform no real-world action.\n\n**Root-cause remediation:** remove the vulnerable fail-open experiment condition and preserve fail-safe CTRL-MCP-001 behavior.\n\n**Architectural hardening:** retrieval/memory scoping, least privilege, argument minimization, downstream authorization, telemetry completeness, bounded retention, and tested recovery.\n\nContainment != remediation != architectural hardening.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "CONTAINMENT · REMEDIATION"
+    },
+    "viz_retest": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Retest\n\nCompare the same canonical influence fingerprint and same privileged request.\n\nRecord what stayed identical, what ExperimentContext/control result changed, whether invocation began, whether expected legitimate functionality remained, and what evidence proves each claim.\n\nDefense success is not merely “handler zero”; it also requires the intended authorization result and preserved legitimate behavior. One RETEST does not prove universal resistance.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "RETEST"
+    },
+    "viz_detection_help": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Candidate detection—not installed\n\nINCIDENT → OBSERVABLES → CANDIDATE SPL → ATTACK → RETEST → BASELINE → FALSE-POSITIVE REVIEW → DETECTION CANDIDATE\n\nThe candidate hunts authority mismatch followed by execution. Validate it against ATTACK, RETEST, and benign `lookup_policy` activity. Do not create a saved search or call silence SAFE.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "DETECTION ENGINEERING"
+    },
+    "viz_detection": {
+      "type": "splunk.table",
+      "title": "Candidate SPL result",
+      "description": "Experimental detection logic. This is not a packaged detector or production alert.",
+      "dataSources": {
+        "primary": "ds_detection"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "NO EVIDENCE FOUND / INSUFFICIENT EVIDENCE. This is not SAFE and does not prove prevention."
+      }
+    },
+    "viz_hunt_help": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Hunt expansion\n\nAsk whether similar authority-mismatch behavior occurred elsewhere without starting from a known run ID.\n\nDocument hypothesis, time range, candidates, pivots, exclusions, conclusion, and limitations. Broad matches require control-reason and execution review.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "THREAT HUNT"
+    },
+    "viz_hunt": {
+      "type": "splunk.table",
+      "title": "Expanded 30-day hunt",
+      "description": "Candidate list requiring analyst review. Empty is NO EVIDENCE FOUND, not SAFE.",
+      "dataSources": {
+        "primary": "ds_hunt"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "NO EVIDENCE FOUND / INSUFFICIENT EVIDENCE. This is not SAFE and does not prove prevention."
+      }
+    },
+    "viz_updates": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Feed operations back into architecture\n\n**Threat-model update:** customer information and grant integrity are assets; RAG/memory are influence boundaries; MCP is the authority boundary; a vulnerable fail-open condition is a control gap; telemetry needs cross-run reconstruction.\n\n**Privacy-model update:** customer-tier data is part of the inventory; purpose and minimization need explicit evidence; tool result and telemetry are exposure paths; retention remains NOT MODELED.\n\nRecord residual security and privacy risk after the defended comparison.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "THREAT · PRIVACY MODEL UPDATE"
+    },
+    "viz_reports": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Communicate three times\n\n**SOC / Incident Response:** detailed evidence IDs, SPL, sequence, alternative explanations, gaps, containment.\n\n**Engineering / Architecture:** root-cause remediation, control placement, tests, observability, data minimization.\n\n**Executive / CISO:** what occurred, bounded business/data impact, proven facts, uncertainty, containment, recommended actions, residual risk.\n\nNo sensational language. Do not claim a production breach.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "REPORT"
+    },
+    "viz_answer": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Path B · bounded reference reasoning\n\nOpen only after completing an initial hypothesis, candidate timeline, evidence ledger, and challenge step.\n\nThe canonical packet shows untrusted retrieved content, fixture-equivalent persisted bytes, later recall, and a privileged `lookup_customer_tier / customer:read` request. RAG and Memory controls stayed OBSERVE and did not mint authority.\n\nOn ATTACK, CTRL-MCP-001 recorded a labeled vulnerable fail-open ALLOW before handler invocation; runtime handler count was 1, followed by `mcp.started`, `mcp.completed`, and a successful fixture outcome. On RETEST, the same influence fingerprint and request reached CTRL-MCP-001, which DENIED `tool_not_granted`; handler count was 0.\n\nGoal and Identity failure are NOT OBSERVED. Authentication and production impact are NOT MODELED. Direct retrieve-output → write causality and field-level privacy necessity are NOT PROVEN.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "PATH B"
+    },
+    "viz_commander": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Incident commander view\n\n**What happened?** A bounded untrusted-context/memory chain formed a privileged request; vulnerable authorization allowed fixture execution.\n\n**What is proven?** Request, ATTACK ALLOW, invocation, completion, synthetic result; RETEST DENY and handler zero.\n\n**What is not proven?** Production breach, authentication, goal/identity failure, direct retrieve-to-write causality, universal safety.\n\n**Controls:** RAG/Memory observed; vulnerable MCP condition failed; defended MCP succeeded; Splunk reconstructed.\n\n**Now:** contain workflow/context/memory, preserve evidence, enforce least privilege, retest, validate candidate detection and hunt.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "COMMANDER SUMMARY"
+    },
+    "viz_frameworks": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# EDUCATIONAL MAPPING\n\nRelate only relevant concepts through previously validated OWASP, MITRE ATLAS, CSA MAESTRO, NIST AI RMF, and NIST Privacy Framework lenses.\n\nNo unverified identifier is introduced. This is not certification. This is not compliance validation. This is not complete framework coverage. This is not a legal determination.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "FRAMEWORK SYNTHESIS"
+    },
+    "viz_failures": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Failure-state language\n\nSplunk unavailable → INVESTIGATION EVIDENCE UNAVAILABLE. HEC unavailable → EXPORT PATH UNAVAILABLE. Incomplete run → INSUFFICIENT EVIDENCE. Missing event → NOT OBSERVED. Missing correlation → NO JUSTIFIED JOIN. Empty hunt → NO EVIDENCE FOUND.\n\nNever replace any of these with SAFE.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "FAILURE STATES"
+    }
+  },
+  "layout": {
+    "options": {
+      "submitButton": false,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "globalInputs": [
+      "input_incident_run"
+    ],
+    "layoutDefinitions": {
+      "layout_incident": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1160
+        },
+        "structure": [
+          {
+            "item": "viz_incident",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 620
+            }
+          },
+          {
+            "item": "viz_method",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 620,
+              "w": 720,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_modes",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 620,
+              "w": 720,
+              "h": 520
+            }
+          }
+        ]
+      },
+      "layout_investigate": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1060
+        },
+        "structure": [
+          {
+            "item": "viz_hypothesis",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 720,
+              "h": 600
+            }
+          },
+          {
+            "item": "viz_hints",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 0,
+              "w": 720,
+              "h": 600
+            }
+          },
+          {
+            "item": "viz_discover",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 600,
+              "w": 1440,
+              "h": 440
+            }
+          }
+        ]
+      },
+      "layout_timeline": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1510
+        },
+        "structure": [
+          {
+            "item": "viz_timeline_help",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 470
+            }
+          },
+          {
+            "item": "viz_timeline",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 470,
+              "w": 1440,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_graph",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 990,
+              "w": 1440,
+              "h": 500
+            }
+          }
+        ]
+      },
+      "layout_evidence": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1490
+        },
+        "structure": [
+          {
+            "item": "viz_ledger",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 470
+            }
+          },
+          {
+            "item": "viz_external",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 470,
+              "w": 1440,
+              "h": 480
+            }
+          },
+          {
+            "item": "viz_false_lead",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 950,
+              "w": 1440,
+              "h": 520
+            }
+          }
+        ]
+      },
+      "layout_controls": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1140
+        },
+        "structure": [
+          {
+            "item": "viz_controls",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 620
+            }
+          },
+          {
+            "item": "viz_compare",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 620,
+              "w": 1440,
+              "h": 500
+            }
+          }
+        ]
+      },
+      "layout_data": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 670
+        },
+        "structure": [
+          {
+            "item": "viz_data",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 720,
+              "h": 650
+            }
+          },
+          {
+            "item": "viz_identity_memory",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 0,
+              "w": 720,
+              "h": 650
+            }
+          }
+        ]
+      },
+      "layout_respond": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 2590
+        },
+        "structure": [
+          {
+            "item": "viz_respond",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 720,
+              "h": 700
+            }
+          },
+          {
+            "item": "viz_retest",
+            "type": "block",
+            "position": {
+              "x": 720,
+              "y": 0,
+              "w": 720,
+              "h": 700
+            }
+          },
+          {
+            "item": "viz_detection_help",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 700,
+              "w": 1440,
+              "h": 500
+            }
+          },
+          {
+            "item": "viz_detection",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1200,
+              "w": 1440,
+              "h": 420
+            }
+          },
+          {
+            "item": "viz_hunt_help",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1620,
+              "w": 1440,
+              "h": 450
+            }
+          },
+          {
+            "item": "viz_hunt",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 2070,
+              "w": 1440,
+              "h": 500
+            }
+          }
+        ]
+      },
+      "layout_model": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1100
+        },
+        "structure": [
+          {
+            "item": "viz_updates",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 620
+            }
+          },
+          {
+            "item": "viz_frameworks",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 620,
+              "w": 1440,
+              "h": 460
+            }
+          }
+        ]
+      },
+      "layout_report": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1140
+        },
+        "structure": [
+          {
+            "item": "viz_reports",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 620
+            }
+          },
+          {
+            "item": "viz_failures",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 620,
+              "w": 1440,
+              "h": 500
+            }
+          }
+        ]
+      },
+      "layout_answer": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1660
+        },
+        "structure": [
+          {
+            "item": "viz_answer",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 880
+            }
+          },
+          {
+            "item": "viz_commander",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 880,
+              "w": 1440,
+              "h": 760
+            }
+          }
+        ]
+      }
+    },
+    "tabs": {
+      "options": {
+        "barPosition": "top"
+      },
+      "items": [
+        {
+          "layoutId": "layout_incident",
+          "label": "INCIDENT"
+        },
+        {
+          "layoutId": "layout_investigate",
+          "label": "INVESTIGATE"
+        },
+        {
+          "layoutId": "layout_timeline",
+          "label": "TIMELINE"
+        },
+        {
+          "layoutId": "layout_evidence",
+          "label": "EVIDENCE"
+        },
+        {
+          "layoutId": "layout_controls",
+          "label": "CONTROLS"
+        },
+        {
+          "layoutId": "layout_data",
+          "label": "DATA IMPACT"
+        },
+        {
+          "layoutId": "layout_respond",
+          "label": "RESPOND"
+        },
+        {
+          "layoutId": "layout_model",
+          "label": "THREAT MODEL"
+        },
+        {
+          "layoutId": "layout_report",
+          "label": "REPORT"
+        },
+        {
+          "layoutId": "layout_answer",
+          "label": "PATH B"
+        }
+      ]
+    }
+  },
+  "applicationProperties": {
+    "collapseNavigation": false,
+    "downsampleVisualizations": false
+  }
+}
+  ]]></definition>
+</dashboard>

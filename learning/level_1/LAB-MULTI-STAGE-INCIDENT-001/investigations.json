@@ -1,0 +1,59 @@
+{
+  "schema": "agentsec.l9_investigation.v1",
+  "lab_id": "LAB-MULTI-STAGE-INCIDENT-001",
+  "incident_id": "AGENT-2026-009",
+  "answer_gating": "PEDAGOGICAL",
+  "progress_persistence": false,
+  "workflow": ["DISCOVER", "NARROW", "CORRELATE", "SEQUENCE", "COMPARE", "CHALLENGE"],
+  "levels": [
+    {"id": "GUIDED", "starting_evidence": "incident window, workflow, observables, progressive hints", "withheld": "run IDs and conclusion"},
+    {"id": "INVESTIGATOR", "starting_evidence": "incident brief and approximate window", "withheld": "candidate SPL and final chain"},
+    {"id": "ADVANCED_ARCHITECT", "starting_evidence": "brief, architecture, evidence access", "withheld": "all pivots, state classifications, and remediation"}
+  ],
+  "hints": [
+    {"id": "HINT_1", "level": "PLANE", "text": "Start with runtime tool-control decisions in the incident window; keep external evidence adjacent."},
+    {"id": "HINT_2", "level": "EVIDENCE_TYPE", "text": "Pivot candidate run IDs into memory, MCP authorization, execution, and outcome event families."},
+    {"id": "HINT_3", "level": "FIELDS", "text": "Inspect sequence, event.name, content.hash, memory.id, source_run_id, requested/allowed scope, decision, reason, and operation outcome."},
+    {"id": "HINT_4", "level": "EXAMPLE_SPL", "text": "Run Q-L9-DISCOVER, bind Q-L9-TIMELINE to each candidate, then compare with Q-L9-COMPARE after recording your hypothesis."}
+  ],
+  "hypothesis_decomposition": [
+    "Was untrusted content present?",
+    "Was it retrieved?",
+    "Did equivalent content persist and later recall?",
+    "Did behavior form a privileged request?",
+    "Was the request authorized?",
+    "Was the handler invoked?",
+    "Did it complete?",
+    "What synthetic data was returned?",
+    "What remains unknown?"
+  ],
+  "failure_states": {
+    "splunk_unavailable": "INVESTIGATION EVIDENCE UNAVAILABLE — not SAFE",
+    "hec_unavailable": "EXPORT PATH UNAVAILABLE — local runtime does not become SAFE",
+    "incomplete_run": "INSUFFICIENT EVIDENCE — reconcile local and distinct indexed events",
+    "missing_event": "NOT OBSERVED — do not infer prevention",
+    "missing_correlation": "NO JUSTIFIED JOIN",
+    "external_evidence_unavailable": "EXTERNAL PLANE UNAVAILABLE — runtime conclusion unchanged",
+    "ambiguous_candidates": "NARROW AND PIVOT — candidate is not incident",
+    "empty_hunt": "NO EVIDENCE FOUND — not SAFE",
+    "malformed_fixture": "REJECTED BY OFFLINE CONTRACT"
+  },
+  "required_outputs": [
+    "initial and revised hypothesis",
+    "timeline",
+    "evidence graph",
+    "evidence ledger",
+    "control analysis",
+    "data-impact analysis",
+    "containment",
+    "remediation and architecture hardening",
+    "retest comparison",
+    "candidate detection",
+    "expanded hunt",
+    "threat-model update",
+    "privacy-model update",
+    "SOC report",
+    "engineering report",
+    "executive report"
+  ]
+}

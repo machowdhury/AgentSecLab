@@ -12,6 +12,8 @@
 
 **Privacy update:** `LAB-PRIVACY-DATA-GOVERNANCE-001` is a post-L7 synthetic REPLAY investigation comparing excessive and minimized tool arguments while CTRL-MCP-001 ALLOW and expected execution remain constant. Studio `ws_lab_privacy_data_governance`. Attack Service NO. No DLP, detector, new PDP, contract, or schema field.
 
+**L9 integration update:** `LAB-MULTI-STAGE-INCIDENT-001` is a post-L8 REPLAY investigation over the validated Capstone ATTACK/RETEST packet. Studio `ws_lab_multi_stage_incident`. Attack Service NO. It adds a bounded incident evidence graph, false lead, control/response analysis, candidate detection and hunt exercises; no new attack, detector, PDP, contract, or schema field.
+
 Classifications are not inferred from roadmap prose alone. Cross-check: `learning/level_1/`, `src/agentsec/`, `splunk_app/…/views/`, `src/agentsec/experiment_context.py`, `src/agentsec/launch_catalog.py`, `learning/**/searches/*.spl`, `docs/IMPLEMENTATION_STATUS.md` proof columns.
 
 Legend: **IMPLEMENTED** / **DESIGNED** / **LIVE VALIDATED** / **REPLAY** / **SIMULATED** / **PARTIAL** / **NOT IMPLEMENTED** / **NOT APPLICABLE**.

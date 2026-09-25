@@ -1,0 +1,8 @@
+index=agentsec_telemetry earliest=0 (sourcetype=agentsec:scanner:finding OR sourcetype=agentsec:external:evaluation)
+| eval evidence_plane=if(sourcetype=="agentsec:scanner:finding","STATIC FINDING","ADVERSARIAL EVALUATION")
+| eval external_id=coalesce(mvindex(mvdedup('external.evidence.id'),0),mvindex(mvdedup('run.id'),0))
+| eval correlation_method=mvindex(mvdedup('correlation.method'),0)
+| eval description_hash=mvindex(mvdedup('artifact.description_sha256'),0)
+| eval runtime_run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| table _time, evidence_plane, external_id, correlation_method, description_hash, runtime_run_id, result, severity
+| sort 0 _time
