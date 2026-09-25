@@ -47,6 +47,7 @@ BLUE_TEAM_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_blue_team_incid
 THREAT_MODEL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_threat_modeling"
 PRIVACY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_privacy_data_governance"
 MULTI_STAGE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_multi_stage_incident"
+ADVANCED_CAPSTONE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_advanced_capstone"
 MASTERY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_mastery"
 
 
@@ -76,6 +77,7 @@ def build() -> dict:
     l7 = _mode_line(levels["L7"]["labs"])
     l8 = _mode_line(levels["L8"]["labs"])
     l9 = _mode_line(levels["L9"]["labs"])
+    l10 = _mode_line(levels["L10"]["labs"])
 
     add_md(
         "viz_hero",
@@ -214,7 +216,7 @@ This is the learner path. It is not the order the software was built.
 
 You should always know: where you are, what you are learning, why it matters, and what to do next.
 
-Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone** → **Blue Team** → **Security Architecture** → **Privacy & Data Governance** → **Integrated Incident**. Then **Mastery Check** (optional). Search stays the notebook.
+Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone** → **Blue Team** → **Security Architecture** → **Privacy & Data Governance** → **Integrated Incident** → **Advanced Capstone**. Then **Mastery Check** (optional). Search stays the notebook.
 
 LIVE labs have Attack Service. REPLAY labs use Investigate specimen plus Search. Do not treat REPLAY as a fresh launch.
 """,
@@ -270,6 +272,12 @@ Open [AcmeBank Incident PRIV-2026-001]({PRIVACY_URL}) after L7. It is a syntheti
 {l9}
 
 Open [Acme Bank Incident AGENT-2026-009]({MULTI_STAGE_URL}) after L8. It is the first major integration REPLAY: investigate one validated multi-stage packet, challenge false leads, contain, redesign, build candidate detection/hunt logic, and communicate.
+
+**L10 Advanced capstone and mastery** — {levels['L10']['learn']} Effort: {levels['L10']['effort']}. Exit: {levels['L10']['exit']}.
+
+{l10}
+
+Open [Acme Bank Capstone MASTER-2026-001]({ADVANCED_CAPSTONE_URL}) after L9. It is an unfamiliar REPLAY mastery problem. It does not start from a run identifier and it does not reuse AGENT-2026-009. Capstone remains the last LIVE launcher.
 
 Then [Mastery Check]({MASTERY_URL}) if you want to prove the reasoning without the workshop scaffolding. Skip FOUNDATIONAL if you already know the vocabulary.
 """,

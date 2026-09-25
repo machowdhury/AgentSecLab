@@ -1,0 +1,18 @@
+{
+  "lab_id": "LAB-ADVANCED-CAPSTONE-MASTERY-001",
+  "incident_id": "MASTER-2026-001",
+  "not_authorization": true,
+  "mode": "REPLAY",
+  "path_a": [
+    "Read the business workflow and architecture before searching.",
+    "Draft an initial threat model and at least three hypotheses.",
+    "Discover activity from the incident window. Do not start from a run identifier.",
+    "Separate signal, benign activity, control success, control gap, irrelevant evidence, missing evidence, and ambiguous evidence.",
+    "Maintain an evidence ledger and a timeline.",
+    "Bound data impact and name one NOT PROVEN question.",
+    "Write containment, remediation, a retest design, a detection candidate, and a hunt.",
+    "Revise the threat model and write SOC, engineering, and executive notes.",
+    "Open Path B only after that draft."
+  ],
+  "path_b": "Reference investigation in the Path B tab. It is a review key, not policy, and not a fresh execution."
+}

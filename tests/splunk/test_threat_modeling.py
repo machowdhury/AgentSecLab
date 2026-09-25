@@ -46,7 +46,7 @@ def test_curriculum_route_and_bounded_artifacts():
     curriculum = json.loads(
         (ROOT / "learning" / "academy" / "curriculum.json").read_text(encoding="utf-8")
     )
-    assert [row["id"] for row in curriculum["levels"]][-4:] == ["L6", "L7", "L8", "L9"]
+    assert [row["id"] for row in curriculum["levels"]][-5:] == ["L6", "L7", "L8", "L9", "L10"]
     assert next(row for row in curriculum["levels"] if row["id"] == "L6")["next"] == "L7"
     level = next(row for row in curriculum["levels"] if row["id"] == "L7")
     assert level["exit"] == "SECURITY ARCHITECT"
@@ -58,7 +58,7 @@ def test_curriculum_route_and_bounded_artifacts():
             "view": "ws_lab_threat_modeling",
         }
     ]
-    assert curriculum["nav_collections"][-3] == {
+    assert curriculum["nav_collections"][-4] == {
         "label": "Security Architecture",
         "views": ["ws_lab_threat_modeling"],
     }

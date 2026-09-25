@@ -1,0 +1,320 @@
+{
+  "incident_id": "MASTER-2026-001",
+  "lab_id": "LAB-ADVANCED-CAPSTONE-MASTERY-001",
+  "title": "Acme Bank Capstone MASTER-2026-001",
+  "schema_version": "1.9.0",
+  "external_evidence_contract": "1.0.0",
+  "evidence_class": "REPLAY",
+  "not_authorization": true,
+  "not_a_new_attack": true,
+  "pdp": "CTRL-MCP-001",
+  "goal_control": "CTRL-GOAL-INTEGRITY-001",
+  "splunk_role": "downstream evidence and investigation",
+  "window": {
+    "start": "2026-09-18T22:47:40Z",
+    "end": "2026-09-18T22:48:10Z",
+    "note": "Discovery starts from this window and sourcetypes. Canonical run identifiers are not on the mission surface."
+  },
+  "business": {
+    "organization": "AcmeBank",
+    "workflow": "goal_integrity_lab",
+    "entry": "/goal/evaluate",
+    "objective": "Summarize lending policy options for an internal assistant. The authorized task is summarize_lending_policy_options. The permitted action is summarize_lending_policy. The granted tool is lookup_policy with scope policy:read and resource lending-basics.",
+    "report": "Security Operations received an operational note that, around 2026-09-18 22:47 UTC, the lending-policy assistant recorded activity that may have gone beyond a summary. A scanner export and an evaluation export were forwarded with the note. Cause, customer impact, and whether any control failed are unknown."
+  },
+  "architecture": {
+    "components": [
+      "AcmeBank orchestrator task contract",
+      "untrusted instruction fixture",
+      "CTRL-GOAL-INTEGRITY-001",
+      "CTRL-MCP-001",
+      "lookup_policy handler",
+      "OpenTelemetry",
+      "Splunk",
+      "adjacent Cisco mcp-scanner findings",
+      "adjacent garak evaluation"
+    ],
+    "trust_boundaries": ["agent.task.contract", "acmebank.mcp.authorize"],
+    "assets": ["authorized task contract", "lending policy fixture", "tool grant for lookup_policy", "security telemetry"],
+    "authority": "CTRL-MCP-001 authorizes tools. CTRL-GOAL-INTEGRITY-001 constrains whether an untrusted instruction may replace the task. Neither Splunk, the scanner, nor garak authorizes.",
+    "known_unknowns": [
+      "Whether a person authenticated",
+      "Whether a downstream lending decision changed",
+      "Whether a customer received policy text",
+      "Whether a model provider retained the instruction"
+    ]
+  },
+  "initial_hypotheses": [
+    {
+      "id": "H1",
+      "statement": "An untrusted instruction proposed a broader objective, and that broader objective executed while the goal control only observed.",
+      "disposition": "SUPPORTED",
+      "why": "ATTACK records CTRL-GOAL-INTEGRITY-001 OBSERVE with proposed action extract_full_policy, CTRL-MCP-001 ALLOW for lookup_policy, mcp.completed, and a documented wrong-goal handler count of 1. The indexed preview carries effective_action extract_full_policy. Same task and same instruction on RETEST do not."
+    },
+    {
+      "id": "H2",
+      "statement": "CTRL-MCP-001 denied the tool, so any execution was an authorization bypass.",
+      "disposition": "REFUTED",
+      "why": "On BASELINE, ATTACK, and RETEST, CTRL-MCP-001 recorded ALLOW tool_granted for lookup_policy. The tool PDP behaved as coded. The differing plane is the goal decision, not a missing tool grant."
+    },
+    {
+      "id": "H3",
+      "statement": "The HIGH scanner finding caused the runtime behavior, or the garak PASS shows the workflow was safe.",
+      "disposition": "REFUTED",
+      "why": "Scanner scan 7ae3ea64-4e7a-40fe-943f-3e582bce5ee8 is hash_join on a description hash that is not the task hash, and it has no agentsec.run.id. Garak evaluation aeb05718-1364-4143-8248-71dd6f27b07b is an identity_tuple with no runtime run id. PASS is not safety. Neither plane authorizes or executes."
+    }
+  ],
+  "canonical_runs": {
+    "baseline": {
+      "run_id": "0aced342-1295-4820-b807-9a8718d9e847",
+      "mode": "BASELINE",
+      "profile": "defended",
+      "timestamp": "2026-09-18T22:47:48Z",
+      "distinct_raw": 10,
+      "indexed_rows_measured": 30,
+      "goal_decision": "OBSERVE",
+      "goal_reason": "untrusted_instruction_cannot_redefine_task",
+      "mcp_decision": "ALLOW",
+      "mcp_reason": "tool_granted",
+      "mcp_tool": "lookup_policy",
+      "effective_action": "summarize_lending_policy",
+      "in_task_handler": 1,
+      "wrong_goal_handler": 0
+    },
+    "attack": {
+      "run_id": "fd994587-7e1c-4a70-8013-54cb2c85254d",
+      "mode": "ATTACK",
+      "profile": "vulnerable",
+      "timestamp": "2026-09-18T22:47:49Z",
+      "distinct_raw": 10,
+      "indexed_rows_measured": 30,
+      "goal_decision": "OBSERVE",
+      "goal_reason": "overlay",
+      "mcp_decision": "ALLOW",
+      "mcp_reason": "tool_granted",
+      "mcp_tool": "lookup_policy",
+      "proposed_action": "extract_full_policy",
+      "effective_action": "extract_full_policy",
+      "in_task_handler": 0,
+      "wrong_goal_handler": 1
+    },
+    "retest": {
+      "run_id": "605ba7c1-449b-4338-92df-7da3b704b08e",
+      "mode": "RETEST",
+      "profile": "defended",
+      "timestamp": "2026-09-18T22:47:49Z",
+      "distinct_raw": 10,
+      "indexed_rows_measured": 30,
+      "goal_decision": "DENY",
+      "goal_reason": "unauthorized_task_expansion",
+      "mcp_decision": "ALLOW",
+      "mcp_reason": "tool_granted",
+      "mcp_tool": "lookup_policy",
+      "proposed_action": "extract_full_policy",
+      "effective_action": "summarize_lending_policy",
+      "in_task_handler": 1,
+      "wrong_goal_handler": 0
+    }
+  },
+  "shared_fingerprints": {
+    "task_id": "summarize_lending_policy_options",
+    "task_hash": "sha256:6f95aaf2adf5b37b11e35805f9bbbb24fdb34f38435590b5042d7c406bdf7b6c",
+    "instruction_hash": "sha256:15a1c5fa3724419b21b854623c594dba28bf4f357efe39c932084374a8cbe5e2",
+    "proposed_change_fingerprint": "sha256:6326e3be47ecf73831a06be2b718f42219e0c950d4c989de23aa558bfdc01b34",
+    "note": "ATTACK and RETEST share task hash, instruction hash, and proposed expansion. They do not share the goal decision or the effective action. Same hash is not the same execution."
+  },
+  "false_leads": [
+    {
+      "id": "FL-1",
+      "name": "HIGH scanner finding",
+      "classification": "UNRELATED",
+      "why": "Different hash, correlation method hash_join, no agentsec.run.id. A HIGH finding is not exploitation and is not a CTRL-MCP-001 decision."
+    },
+    {
+      "id": "FL-2",
+      "name": "garak PASS",
+      "classification": "UNRELATED",
+      "why": "No runtime run id. An evaluation PASS is not a safety determination and does not authorize the goal or the tool."
+    },
+    {
+      "id": "FL-3",
+      "name": "BASELINE lookup_policy ALLOW",
+      "classification": "BENIGN COMPARISON",
+      "why": "The same granted tool and the same MCP ALLOW appear on ordinary use. Tool name plus ALLOW does not identify the expanded objective."
+    },
+    {
+      "id": "FL-4",
+      "name": "indexed row count 30",
+      "classification": "DUPLICATE REPLAY",
+      "why": "dc(_raw) is 10 for each run. Three indexed copies are not three executions."
+    }
+  ],
+  "evidence_gap": {
+    "question": "Did a customer lending decision change, or did a customer receive the policy text?",
+    "state": "NOT PROVEN",
+    "why": "Telemetry shows a lab handler path and an effective action identifier. It does not show a customer channel, a changed lending decision, or production impact."
+  },
+  "causal_rules": [
+    "CORRELATED != CAUSED",
+    "PRECEDES != CAUSED",
+    "SAME HASH != SAME EXECUTION",
+    "SAME RUN != EVERY EVENT CAUSED EVERY OTHER EVENT"
+  ],
+  "planes": {
+    "influence": ["untrusted instruction fixture"],
+    "authorize_goal": ["CTRL-GOAL-INTEGRITY-001"],
+    "authorize_tool": ["CTRL-MCP-001"],
+    "execute": ["lookup_policy handler selected by the effective action"],
+    "observe": ["OpenTelemetry", "Splunk", "scanner", "garak"]
+  },
+  "privacy": {
+    "required": "A summary of the synthetic lending-basics policy for the authorized task.",
+    "available": "lookup_policy may return the policy fixture. The untrusted instruction asks for the full document.",
+    "sent": "The tool request is lookup_policy. The instruction is a fixture, not customer content.",
+    "returned": "ATTACK effective action is extract_full_policy. The bytes returned to a person are NOT PROVEN.",
+    "logged": "Task preview, instruction trust, and hashes inside content preview. Synthetic only.",
+    "persisted": "Provider retention and memory write are NOT OBSERVED in this packet.",
+    "proven": "Authorized tool use and an expanded effective action are different facts. Customer disclosure is NOT PROVEN."
+  },
+  "external_evidence": [
+    {
+      "source": "cisco mcp-scanner",
+      "id": "7ae3ea64-4e7a-40fe-943f-3e582bce5ee8",
+      "classification": "UNRELATED",
+      "inside_ctrl_mcp_001": false
+    },
+    {
+      "source": "garak",
+      "id": "aeb05718-1364-4143-8248-71dd6f27b07b",
+      "classification": "UNRELATED",
+      "inside_ctrl_mcp_001": false
+    }
+  ],
+  "controls": [
+    {
+      "id": "CTRL-GOAL-INTEGRITY-001",
+      "class": "PREVENTIVE when it DENYs; DETECTIVE when it only OBSERVEs",
+      "mode": "ENFORCE on RETEST; OBSERVE on the vulnerable ATTACK profile",
+      "attack": "FAILED to stop the expansion",
+      "retest": "SUCCEEDED",
+      "baseline": "OBSERVE; expansion did not become the effective action"
+    },
+    {
+      "id": "CTRL-MCP-001",
+      "class": "PREVENTIVE",
+      "mode": "ENFORCE",
+      "attack": "SUCCEEDED for the granted tool; NOT APPLICABLE to the goal expansion",
+      "retest": "SUCCEEDED",
+      "baseline": "SUCCEEDED"
+    },
+    {
+      "id": "Splunk",
+      "class": "DETECTIVE",
+      "mode": "OBSERVE",
+      "outcome": "NOT APPLICABLE as a control decision"
+    },
+    {
+      "id": "DET-MCP-001",
+      "class": "DETECTIVE",
+      "mode": "OBSERVE",
+      "outcome": "NOT TRIGGERED. Absence is not safety."
+    }
+  ],
+  "containment": [
+    "Justified: stop using the vulnerable profile that records a goal OBSERVE overlay while the effective action is the expanded objective.",
+    "Justified: preserve the window's telemetry. Do not delete it to 'clean' the incident.",
+    "Not justified by this evidence: declare a customer breach, disable lookup_policy for every workflow, or rotate production credentials."
+  ],
+  "remediation": [
+    {
+      "problem": "Vulnerable profile accepts an expanded objective while the tool grant stays valid.",
+      "control": "CTRL-GOAL-INTEGRITY-001 DENY unauthorized_task_expansion before handler selection.",
+      "placement": "GOAL / TASK",
+      "expected_effect": "Expanded objective does not become the effective action. lookup_policy for the authorized summary can still be ALLOW.",
+      "evidence_required": "Same task, same instruction, goal DENY, wrong-goal handler 0, in-task handler 1, mcp.completed for lookup_policy.",
+      "residual_risk": "A different expansion string, or a profile that still overlays, is not covered by one fixture."
+    },
+    {
+      "problem": "Effective action and instruction hash are buried in content preview.",
+      "control": "Emit them as first-class telemetry fields.",
+      "placement": "TELEMETRY",
+      "expected_effect": "Investigators can correlate without parsing a preview string.",
+      "evidence_required": "New events expose the fields. This capstone does not add them.",
+      "residual_risk": "Until that change, preview parsing can miss or truncate the identifier."
+    }
+  ],
+  "retest_design": {
+    "preserve": [
+      "SAME RELEVANT INPUT",
+      "SAME BUSINESS OBJECTIVE",
+      "SAME ATTACK / INFLUENCE CONDITION",
+      "EXPECTED CONTROL CHANGE",
+      "EXPECTED LEGITIMATE FUNCTIONALITY"
+    ],
+    "actual": "RETEST keeps the task hash, instruction hash, and proposed extract_full_policy. Goal decision changes to DENY. MCP remains ALLOW tool_granted. Effective action returns to summarize_lending_policy."
+  },
+  "detection_candidate": {
+    "installed": false,
+    "hypothesis": "A goal OBSERVE overlay plus proposed extract_full_policy plus mcp.completed marks the vulnerable expansion. MCP ALLOW alone does not.",
+    "observables": ["CTRL-GOAL-INTEGRITY-001", "OBSERVE", "extract_full_policy", "agentsec.mcp.completed"],
+    "expected_attack": "match",
+    "expected_retest": "no match",
+    "expected_baseline": "no match",
+    "false_positives": "OBSERVE without the expanded proposal, or counting indexed copies as executions.",
+    "blind_spots": "effective_action is inside preview; other expansion strings; duplicate indexing."
+  },
+  "hunt": {
+    "starts_from_run_id": false,
+    "hypothesis": "Other runs record a goal-integrity decision whose proposed action differs from the authorized summary.",
+    "time_range": "earliest=0, then narrow with timestamp after candidates appear",
+    "behavior": "CTRL-GOAL-INTEGRITY-001 decisions, grouped by run, with decision, reason, and proposed action",
+    "exclusions": "Do not treat BASELINE lookup_policy ALLOW, scanner HIGH, or garak PASS as this behavior.",
+    "conclusion": "The window contains three goal-integrity runs. Only the vulnerable profile shows the expanded effective action."
+  },
+  "revised_threat_model": {
+    "wrong_assumption": "A tool ALLOW means the objective was authorized.",
+    "missed_threat": "Untrusted instruction replaces the effective action while the granted tool stays the same.",
+    "boundary": "agent.task.contract",
+    "authority": "CTRL-GOAL-INTEGRITY-001, not CTRL-MCP-001, decides the expansion.",
+    "missing_telemetry": "First-class effective action, customer-channel outcome, authentication.",
+    "control_change": "Enforce the goal DENY before handler selection on the vulnerable profile.",
+    "residual_risk": "Customer impact is NOT PROVEN. One fixture does not prove every future expansion is denied."
+  },
+  "reports": {
+    "soc": "Scope is the 2026-09-18 22:47:40Z-22:48:10Z lending-policy assistant window. Three runs. ATTACK: goal OBSERVE overlay, MCP ALLOW, expanded effective action. RETEST: goal DENY, MCP ALLOW, summary action. BASELINE: goal OBSERVE, MCP ALLOW, summary action. Scanner HIGH and garak PASS are unrelated. Customer outcome is NOT PROVEN. Contain the vulnerable profile. Candidate detection is not installed.",
+    "engineering": "Contributing condition is the vulnerable goal profile, not a failed tool grant. Place enforcement on GOAL / TASK. Keep CTRL-MCP-001 as the tool PDP. Add first-class effective-action telemetry later. Validate with the same instruction and a goal DENY while lookup_policy still completes for the authorized summary.",
+    "executive": "A lab lending-policy assistant followed a broader objective while its tool grant remained valid. A later run of the same request kept the summary and denied the expansion. Customer impact is not proven. Existing tool authorization worked. The goal check did not stop the lab expansion on the vulnerable setting. We are stopping that setting and keeping the evidence. Residual risk is an unproven customer outcome and any expansion this fixture does not cover."
+  },
+  "mastery_dimensions": [
+    "SYSTEM UNDERSTANDING",
+    "THREAT MODELING",
+    "SPLUNK INVESTIGATION",
+    "CORRELATION",
+    "EVIDENCE REASONING",
+    "AUTHORIZATION REASONING",
+    "EXECUTION REASONING",
+    "DATA / PRIVACY ANALYSIS",
+    "EXTERNAL EVIDENCE",
+    "CONTROL DESIGN",
+    "DETECTION ENGINEERING",
+    "THREAT HUNTING",
+    "INCIDENT RESPONSE",
+    "ARCHITECTURE",
+    "COMMUNICATION"
+  ],
+  "competency_states": [
+    "DEMONSTRATED",
+    "PARTIALLY DEMONSTRATED",
+    "NOT YET DEMONSTRATED",
+    "NOT ASSESSED"
+  ],
+  "reflection_prompts": [
+    "What assumption did you initially make that evidence changed?",
+    "Which evidence was most important?",
+    "Which evidence was misleading?",
+    "What could you not prove?",
+    "Which control would you prioritize?",
+    "What would you instrument differently?",
+    "How would you approach the next unfamiliar agentic incident?"
+  ]
+}

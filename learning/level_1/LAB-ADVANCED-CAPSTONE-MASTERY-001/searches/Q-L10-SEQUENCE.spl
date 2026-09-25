@@ -1,0 +1,13 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval ts=mvindex(mvdedup('timestamp'),0)
+| eval seq=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval control=mvindex(mvdedup('agentsec.control.id'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval outcome=mvindex(mvdedup('agentsec.operation.outcome'),0)
+| where isnotnull(ts) AND ts>="2026-09-18T22:47:40Z" AND ts<="2026-09-18T22:48:10Z"
+| table ts seq run_id event_name control decision reason tool outcome
+| sort 0 run_id seq

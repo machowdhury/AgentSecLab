@@ -40,12 +40,12 @@ def _markdown(layouts: tuple[str, ...] | None = None) -> str:
 
 def test_l9_curriculum_navigation_and_artifacts():
     curriculum = json.loads((ROOT / "learning" / "academy" / "curriculum.json").read_text(encoding="utf-8"))
-    assert [row["id"] for row in curriculum["levels"]][-3:] == ["L7", "L8", "L9"]
+    assert [row["id"] for row in curriculum["levels"]][-4:] == ["L7", "L8", "L9", "L10"]
     assert next(row for row in curriculum["levels"] if row["id"] == "L8")["next"] == "L9"
     level = next(row for row in curriculum["levels"] if row["id"] == "L9")
     assert level["exit"] == "AGENTIC INCIDENT RESPONDER / SECURITY ARCHITECT"
     assert level["labs"][0]["lab_id"] == "LAB-MULTI-STAGE-INCIDENT-001"
-    assert curriculum["nav_collections"][-1] == {"label": "Integrated Incident", "views": ["ws_lab_multi_stage_incident"]}
+    assert curriculum["nav_collections"][-2] == {"label": "Integrated Incident", "views": ["ws_lab_multi_stage_incident"]}
     for path in (
         DEFINITION, VIEW, LAB / "README.md", LAB / "incident.json",
         LAB / "incident-brief.md", LAB / "evidence-graph.json",

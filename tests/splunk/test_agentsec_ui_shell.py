@@ -30,6 +30,7 @@ LEARNER_VIEWS = (
     "ws_lab_threat_modeling.xml",
     "ws_lab_privacy_data_governance.xml",
     "ws_lab_multi_stage_incident.xml",
+    "ws_lab_advanced_capstone.xml",
 )
 
 
@@ -52,6 +53,7 @@ def test_nav_is_grouped_and_home_is_default():
         "Security Architecture",
         "Privacy &amp; Data Governance",
         "Integrated Incident",
+        "Advanced Capstone",
     ):
         assert f'<collection label="{label}">' in nav
     assert "Attack Labs" not in nav
@@ -66,6 +68,7 @@ def test_nav_is_grouped_and_home_is_default():
     assert nav.index("ws_lab_blue_team_incident") < nav.index("ws_lab_threat_modeling")
     assert nav.index("ws_lab_threat_modeling") < nav.index("ws_lab_privacy_data_governance")
     assert nav.index("ws_lab_privacy_data_governance") < nav.index("ws_lab_multi_stage_incident")
+    assert nav.index("ws_lab_multi_stage_incident") < nav.index("ws_lab_advanced_capstone")
     assert "<collection label=" in nav
     assert not re.search(r"<view name=\"ws_lab_[^\"]+\" default=", nav)
     # LAB-* ids must not be the visible nav labels; they live in XML descriptions.
@@ -122,6 +125,7 @@ def test_xml_labels_are_human_readable():
         "ws_lab_threat_modeling.xml": "Threat Modeling and Security Architecture",
         "ws_lab_privacy_data_governance.xml": "Privacy and Data Governance",
         "ws_lab_multi_stage_incident.xml": "Acme Bank Incident AGENT-2026-009",
+        "ws_lab_advanced_capstone.xml": "Acme Bank Capstone MASTER-2026-001",
         "ws_agentsec_home.xml": "Home",
         "ws_agentsec_mastery.xml": "Mastery Check",
     }

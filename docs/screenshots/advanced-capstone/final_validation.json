@@ -1,0 +1,121 @@
+{
+  "classification": {
+    "rendering": "OBSERVED",
+    "accessibility": "PARTIAL",
+    "screen_reader": "NOT TESTED"
+  },
+  "tabs": [
+    {
+      "name": "MISSION",
+      "visible": true
+    },
+    {
+      "name": "ARCHITECTURE",
+      "visible": true
+    },
+    {
+      "name": "INVESTIGATE",
+      "visible": true
+    },
+    {
+      "name": "EVIDENCE",
+      "visible": true
+    },
+    {
+      "name": "TIMELINE",
+      "visible": true
+    },
+    {
+      "name": "DATA",
+      "visible": true
+    },
+    {
+      "name": "CONTROLS",
+      "visible": true
+    },
+    {
+      "name": "DETECT & HUNT",
+      "visible": true
+    },
+    {
+      "name": "RESPOND",
+      "visible": true
+    },
+    {
+      "name": "REPORT",
+      "visible": true
+    },
+    {
+      "name": "PATH B",
+      "visible": true
+    }
+  ],
+  "widths": {
+    "1920": {
+      "horizontal_overflow": false
+    },
+    "1440": {
+      "horizontal_overflow": false
+    },
+    "1280": {
+      "horizontal_overflow": false
+    },
+    "1024": {
+      "horizontal_overflow": false
+    }
+  },
+  "zoom_200": {
+    "physical_width_equivalent": 1024,
+    "effective_css_width": 512,
+    "method": "responsive reflow equivalent",
+    "horizontal_overflow": true
+  },
+  "keyboard": {
+    "focus_before": "MISSION",
+    "focus_after_arrow_right": "ARCHITECTURE",
+    "focused_tab_style": {
+      "outline": "rgb(0, 110, 170) none 3px",
+      "boxShadow": "rgb(255, 255, 255) 0px 0px 1px 1px inset, rgb(0, 110, 170) 0px 0px 0px 3px inset"
+    }
+  },
+  "answer_gating": {
+    "mission_has_no_run_id": true,
+    "mission_has_no_disposition": true,
+    "disposition_absent_before_path_b": true,
+    "disposition_present_in_path_b": true,
+    "discovery_table_may_show_run_id": true
+  },
+  "academy_home": {
+    "level_10": true,
+    "incident": true,
+    "capstone_last_live": true
+  },
+  "semantic_states": {
+    "textual_states": true,
+    "distinct_events": true
+  },
+  "copy_controls": "native selectable markdown and Splunk table cells; no custom copy widget",
+  "failure_states": {
+    "no_evidence_found": true,
+    "insufficient_evidence": true,
+    "never_safe": true
+  },
+  "screenshots": [
+    "docs/screenshots/advanced-capstone/final_mission.png",
+    "docs/screenshots/advanced-capstone/final_architecture.png",
+    "docs/screenshots/advanced-capstone/final_investigate.png",
+    "docs/screenshots/advanced-capstone/final_evidence.png",
+    "docs/screenshots/advanced-capstone/final_timeline.png",
+    "docs/screenshots/advanced-capstone/final_data.png",
+    "docs/screenshots/advanced-capstone/final_controls.png",
+    "docs/screenshots/advanced-capstone/final_detect_hunt.png",
+    "docs/screenshots/advanced-capstone/final_respond.png",
+    "docs/screenshots/advanced-capstone/final_report.png",
+    "docs/screenshots/advanced-capstone/final_path_b.png",
+    "docs/screenshots/advanced-capstone/final_w1920_mission.png",
+    "docs/screenshots/advanced-capstone/final_w1440_mission.png",
+    "docs/screenshots/advanced-capstone/final_w1280_mission.png",
+    "docs/screenshots/advanced-capstone/final_w1024_mission.png",
+    "docs/screenshots/advanced-capstone/final_w1024_zoom200_mission.png"
+  ]
+}
