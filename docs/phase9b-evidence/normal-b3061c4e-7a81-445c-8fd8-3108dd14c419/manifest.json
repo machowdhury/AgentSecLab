@@ -14,7 +14,7 @@
   },
   "artifact": {
     "type": "mcp.catalog.snapshot",
-    "path": "/Users/mahamudc/Documents/workspace/AgentSecLab/artifacts/scanners/b3061c4e-7a81-445c-8fd8-3108dd14c419/input/tools.json",
+    "path": "input/tools.json",
     "sha256": "sha256:d706a2f8f8476ed0a972d2b7f371a42450addbfbafa2448488d8223e370bac60",
     "bytes": 826,
     "fixture": "NORMAL",
@@ -28,7 +28,7 @@
     "network_required": false,
     "llm_used": false,
     "argv": [
-      "/Users/mahamudc/Documents/workspace/AgentSecLab/tools/cisco-mcp-scanner/.venv/bin/mcp-scanner",
+      "mcp-scanner",
       "--analyzers",
       "yara",
       "--format",
@@ -37,12 +37,12 @@
       "error",
       "static",
       "--tools",
-      "/Users/mahamudc/Documents/workspace/AgentSecLab/artifacts/scanners/b3061c4e-7a81-445c-8fd8-3108dd14c419/input/tools.json"
+      "input/tools.json"
     ],
     "exit_code": 0,
     "timed_out": false,
     "duration_ms": 1985,
-    "binary": "/Users/mahamudc/Documents/workspace/AgentSecLab/tools/cisco-mcp-scanner/.venv/bin/mcp-scanner"
+    "binary": "mcp-scanner"
   },
   "provenance": {
     "raw_artifact": "raw/scanner-output.json",
@@ -52,5 +52,42 @@
     "adapter_version": "9b.1"
   },
   "classification": null,
-  "finding_count": 0
+  "finding_count": 0,
+  "external": {
+    "contract.version": "1.0.0",
+    "evidence_class": "finding",
+    "producer_class": "OBSERVED_SCANNER",
+    "records": [
+      {
+        "contract.version": "1.0.0",
+        "provider": "cisco-ai-defense",
+        "tool": "cisco-ai-mcp-scanner",
+        "tool_version": "4.8.4",
+        "evidence_class": "finding",
+        "evidence_id": "b3061c4e-7a81-445c-8fd8-3108dd14c419",
+        "producer_class": "OBSERVED_SCANNER",
+        "subject": {
+          "type": "mcp.catalog.snapshot",
+          "id": "NORMAL"
+        },
+        "artifact": {
+          "type": "mcp.catalog.snapshot",
+          "fingerprint": "sha256:8a76d34c6c21fda0dc930fa2f64fe87c3216f23cbc73ca357c47b0927850d9c3",
+          "fingerprint_algorithm": "sha256"
+        },
+        "correlation": {
+          "method": "hash_join",
+          "key": "description_sha256/content.hash",
+          "value": "sha256:8a76d34c6c21fda0dc930fa2f64fe87c3216f23cbc73ca357c47b0927850d9c3"
+        },
+        "source_timestamp": "2026-09-16T05:36:53Z",
+        "raw_evidence_ref": "raw/scanner-output.json",
+        "raw_evidence_sha256": "sha256:360d31670dfbcc9e0f60fdf23015f3f110323d08eb18fbe49a1efef71e079567",
+        "native": {
+          "finding_count": 0,
+          "scan_id": "b3061c4e-7a81-445c-8fd8-3108dd14c419"
+        }
+      }
+    ]
+  }
 }

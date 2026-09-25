@@ -46,9 +46,23 @@ artifacts/scanners/<scan-id>/  (Splunk ingest is Phase 9C — not started)
 
 Do **not** mix scanner findings into `mcp.started` or `control.decision` events.
 
-**Phase 9B observation (does not rewrite 9A):** live `--format raw` JSON includes a default `server_url` even when argv is `static --tools` only. That field is scanner-native output, not AgentSec MCP connection evidence.
+**P0 (external evidence layer):** Cisco mcp-scanner is the first adapter behind a vendor-neutral contract (`src/agentsec/external_evidence/`, version 1.0.0). Runtime schema remains **1.9.0**. Future adapters may emit finding, evaluation, inventory, or assessment records. Those adapters are **NOT MODELED** here except as a contract capability. No garak, AI-BOM, or extra vendors in this checkpoint.
 
-Schema 1.5.0 already forbids scanner fields on `otel:agentic:json` (`docs/SCHEMA_1_5_0.md`). Phases 9A and 9B do **not** bump schema.
+```text
+External Tool
+      ↓
+Adapter
+      ↓
+Normalized External Evidence
+      ↓
+Evidence Pack
+      ↓
+HEC
+      ↓
+Splunk  (investigation only; not the PDP)
+```
+
+Schema 1.9.0 forbids scanner fields on `otel:agentic:json`. The external contract is separately versioned. Phases 9A/9B/P0 do **not** bump runtime schema.
 
 ---
 

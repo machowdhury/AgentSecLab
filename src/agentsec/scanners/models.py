@@ -1,4 +1,4 @@
-"""Scanner evidence types. Separate from agentsec.security_event 1.5.0."""
+"""Scanner evidence types. Separate from agentsec.security_event 1.9.0."""
 
 from __future__ import annotations
 

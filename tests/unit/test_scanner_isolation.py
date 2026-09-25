@@ -46,9 +46,15 @@ def test_mcp_authorization_path_does_not_import_scanners():
     for path in AUTHZ_PATHS:
         imported = _imported_modules(path)
         assert not any(name == "agentsec.scanners" or name.startswith("agentsec.scanners.") for name in imported), path
+        assert not any(
+            name == "agentsec.external_evidence" or name.startswith("agentsec.external_evidence.")
+            for name in imported
+        ), path
         text = path.read_text(encoding="utf-8")
         assert "cisco_mcp_scanner" not in text
         assert "OBSERVED_SCANNER" not in text
+        assert "ExternalEvidence" not in text
+        assert "cisco_normalized_to_external" not in text
 
 
 def test_coded_policy_and_catalog_unchanged_by_export():
@@ -102,3 +108,9 @@ def test_wrapper_source_does_not_call_authorize():
     assert "coded_policy" not in hec
     assert "CTRL-MCP-001" not in hec
     assert "otel:agentic:json" not in hec
+    cisco = (ROOT / "src" / "agentsec" / "external_evidence" / "cisco.py").read_text(encoding="utf-8")
+    assert "authorize_tool" not in cisco
+    assert "CTRL-MCP-001" not in cisco
+    contract = (ROOT / "src" / "agentsec" / "external_evidence" / "contract.py").read_text(encoding="utf-8")
+    assert "authorize_tool" not in contract
+    assert "agentsec.mcp" not in contract

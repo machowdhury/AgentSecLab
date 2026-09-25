@@ -73,6 +73,22 @@ Zero findings ≠ no scan. The NORMAL specimen is a scan event with `scan.findin
 
 Default Splunk fields also present: `host=agentsec-scanner`, `source=agentsec-scanner-hec`, `sourcetype=agentsec:scanner:finding`, `index=agentsec_telemetry`.
 
+## P0 additive nested fields (unit-tested)
+
+HEC now also emits `external.*` and `correlation.*` (contract 1.0.0). These were **not** part of the 2026-09-16 live `fieldsummary`. Do not treat them as MEASURED in Splunk until re-ingest.
+
+| Nested field | Meaning |
+|--------------|---------|
+| `external.evidence_class` | Contract class (`finding` for Cisco P0) |
+| `external.producer_class` | Honesty label (`OBSERVED_SCANNER`) |
+| `external.provider` / `tool` / `tool_version` | Provenance |
+| `external.raw_evidence_sha256` | Hash of `raw/scanner-output.json` |
+| `correlation.method` | `hash_join` |
+| `correlation.key` | `description_sha256/content.hash` |
+| `correlation.value` | same as `artifact.description_sha256` |
+
+Top-level `evidence_class` remains `OBSERVED_SCANNER` so Q-SCANNER-WHO stays compatible.
+
 ## Not indexed (by design)
 
 artifact.path, execution.argv, execution.binary, raw stdout/stderr, full tool descriptions, `agentsec.run.id`, `agentsec.schema.version`, `agentsec.control.decision`.

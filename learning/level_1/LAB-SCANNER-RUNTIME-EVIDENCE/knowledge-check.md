@@ -18,6 +18,21 @@ Answer from indexed evidence. Full hashes and ids are on LEARN.
 14. What would a SOC need before promoting this hunt into a production detection?
 15. Which AgentSec invariant is being demonstrated?
 
+## External evidence architecture
+
+Answer from LEARN plus indexed evidence.
+
+1. What did mcp-scanner report?
+2. What artifact did it inspect?
+3. What evidence class is this?
+4. How is it correlated with runtime evidence?
+5. What does the hash match establish?
+6. Did the scanner authorize anything?
+7. Which control actually made the authorization decision?
+8. What runtime execution occurred?
+9. What does Splunk prove?
+10. What remains unproven?
+
 ## Answers
 
 1. Yes, if Q-SCANNER-WHO shows `target_executed` for scan `b3061c4e-7a81-445c-8fd8-3108dd14c419`. Scan executed is not a security verdict.
@@ -35,5 +50,18 @@ Answer from indexed evidence. Full hashes and ids are on LEARN.
 13. Native HIGH is the scanner's label for that finding. Incident HIGH needs authorization, execution, impact, and context. SCANNER HIGH != HIGH-SEVERITY INCIDENT.
 14. Stable grant snapshots, pin/`list_changed` telemetry, a join stronger than the lab overlay string, and a true-positive class that is not identical scanner HIGH on both ATTACK and RETEST. Phase 9D: DETECTION ANALYZED — NO NEW DETECTOR.
 15. INV-002 Data Cannot Grant Authority.
+
+### External evidence architecture
+
+1. Native YARA PROMPT INJECTION HIGH on `lookup_policy` for the MALICIOUS pack; finding_count=0 for NORMAL. Report, not a grant.
+2. Exported MCP catalog snapshot (`mcp.catalog.snapshot` / `input/tools.json`). Fingerprint for join is `artifact.description_sha256`, not the file hash.
+3. Contract class `finding`. Producer label `OBSERVED_SCANNER`. Not an ALLOW/DENY.
+4. `correlation.method=hash_join` on `description_sha256` ↔ `agentsec.content.hash`.
+5. The compared canonical description bytes matched. Not same process, request, execution, or security decision.
+6. No. External tools are not the PDP.
+7. CTRL-MCP-001.
+8. ATTACK: follow-on `lookup_customer_tier` ALLOW then mcp.started/completed, handler 1. RETEST: DENY `tool_not_granted`, handler 0. BASELINE: `lookup_policy` ALLOW, no follow-on.
+9. Indexed scanner events, indexed runtime events, and whether those hashes join. Splunk is not the PDP.
+10. Causality between scan and request, that zero findings means safe, that HIGH means DENY, live re-scan of this host, and any detector that does not exist.
 
 No DET-SCANNER. No DET-MCP-CATALOG. No Agent Scan. No rug-pull. No A2A. Phase 10 not started.

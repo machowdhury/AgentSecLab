@@ -16,7 +16,9 @@ Three planes stay separate:
 2. Runtime metadata observation from CTRL-MCP-METADATA-001
 3. Authorization and execution from CTRL-MCP-001 and mcp.* events
 
-The join key is description SHA-256 (`artifact.description_sha256` / `agentsec.content.hash`). The exported file hash is not the join key.
+The join key is description SHA-256 (`artifact.description_sha256` / `agentsec.content.hash`). Correlation method is `hash_join`. A hash match means those canonical bytes matched; it does not prove the same process, request, execution, or decision. The exported file hash is not the join key.
+
+Runtime schema remains 1.9.0. Scanner events stay on `agentsec:scanner:finding`. Contract class is `finding`. Producer class remains `OBSERVED_SCANNER`.
 
 ## WHERE DOES IT SIT IN AGENTSEC?
 
@@ -51,6 +53,8 @@ CTRL-MCP-001. ATTACK and RETEST have the same scanner finding; only the authoriz
 Phase 8D runtime copies (ATTACK handler 1, RETEST handler 0). Phase 9C scanner ingest. Dashboard contract tests. Playwright tab/token capture. Not pytest-as-Splunk-rendering.
 
 SCANNER FINDING != AUTHORIZATION DECISION. ZERO FINDINGS != SAFE. DETECTION ANALYZED — NO NEW DETECTOR. No DET-SCANNER. No DET-MCP-CATALOG. No Agent Scan. No rug-pull. No A2A.
+
+Phase 10 not started.
 
 ## What I should now be able to explain
 

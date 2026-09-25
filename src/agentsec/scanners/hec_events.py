@@ -1,7 +1,7 @@
 """Build HEC payloads from Phase 9B scanner packs.
 
 Scanner evidence is an independent sourcetype. It is not
-agentsec.security_event 1.5.0. It does not authorize.
+agentsec.security_event 1.9.0. It does not authorize.
 
 Event model (Phase 9C):
 
@@ -21,6 +21,15 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from agentsec.external_evidence.contract import (
+    CORRELATION_KEY_DESCRIPTION_CONTENT_HASH,
+    CORRELATION_METHOD_HASH_JOIN,
+    EVIDENCE_CLASS_FINDING,
+    EXTERNAL_CONTRACT_VERSION,
+    FINGERPRINT_ALG_SHA256,
+    PRODUCER_OBSERVED_SCANNER,
+)
 
 SOURCETYPE = "agentsec:scanner:finding"
 INDEX_NAME = "agentsec_telemetry"
@@ -42,6 +51,7 @@ OMITTED_FROM_INDEX = (
     "raw stderr",
     "tool description text",
     "agentsec.run.id",
+    "agentsec.control.decision",
 )
 
 
@@ -141,9 +151,56 @@ def _finding_block(row: dict[str, Any]) -> dict[str, Any]:
     )
 
 
-def _shared(manifest: dict[str, Any], *, include_exit: bool) -> dict[str, Any]:
+def _external_and_correlation(
+    manifest: dict[str, Any],
+    *,
+    finding_row: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Derive contract fields from packs. Unknown values stay omitted."""
+    desc = manifest.get("artifact", {}).get("description_sha256")
+    provenance = manifest.get("provenance", {})
+    scanner = manifest.get("scanner", {})
+    artifact = manifest.get("artifact", {})
+    external_meta = manifest.get("external") or {}
+    evidence_class = external_meta.get("evidence_class") or EVIDENCE_CLASS_FINDING
+    native_id = None
+    if finding_row:
+        native_id = finding_row.get("native_rule_id")
+    correlation = _omit_none(
+        {
+            "method": CORRELATION_METHOD_HASH_JOIN,
+            "key": CORRELATION_KEY_DESCRIPTION_CONTENT_HASH,
+            "value": desc,
+        }
+    )
+    external = _omit_none(
+        {
+            "contract.version": external_meta.get("contract.version") or EXTERNAL_CONTRACT_VERSION,
+            "evidence_class": evidence_class,
+            "producer_class": manifest.get("evidence_class") or PRODUCER_OBSERVED_SCANNER,
+            "provider": "cisco-ai-defense",
+            "tool": scanner.get("name"),
+            "tool_version": scanner.get("version"),
+            "native_finding_id": native_id,
+            "raw_evidence_ref": provenance.get("raw_artifact"),
+            "raw_evidence_sha256": provenance.get("raw_output_sha256"),
+            "artifact_fingerprint": desc,
+            "artifact_fingerprint_algorithm": FINGERPRINT_ALG_SHA256,
+            "subject_type": artifact.get("type"),
+            "subject_id": (finding_row or {}).get("tool_name") or artifact.get("fixture"),
+        }
+    )
+    return {"external": external, "correlation": correlation}
+
+
+def _shared(
+    manifest: dict[str, Any],
+    *,
+    include_exit: bool,
+    finding_row: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     created_at = _created_at(manifest)
-    return {
+    body = {
         "timestamp": created_at,
         "evidence_class": manifest["evidence_class"],
         "scan_id": manifest["scan_id"],
@@ -152,6 +209,8 @@ def _shared(manifest: dict[str, Any], *, include_exit: bool) -> dict[str, Any]:
         "execution": _execution_block(manifest, include_exit=include_exit),
         "provenance": _provenance_block(manifest),
     }
+    body.update(_external_and_correlation(manifest, finding_row=finding_row))
+    return body
 
 
 def scan_event_body(manifest: dict[str, Any], findings_doc: dict[str, Any]) -> dict[str, Any]:
@@ -169,7 +228,7 @@ def scan_event_body(manifest: dict[str, Any], findings_doc: dict[str, Any]) -> d
 
 
 def finding_event_body(manifest: dict[str, Any], row: dict[str, Any]) -> dict[str, Any]:
-    body = _shared(manifest, include_exit=False)
+    body = _shared(manifest, include_exit=False, finding_row=row)
     body["event.name"] = EVENT_FINDING
     body["finding"] = _finding_block(row)
     return body

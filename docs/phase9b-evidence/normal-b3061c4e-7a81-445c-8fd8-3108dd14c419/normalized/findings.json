@@ -5,5 +5,39 @@
   "finding_count": 0,
   "findings": [],
   "parse_error": null,
-  "adapter_version": "9b.1"
+  "adapter_version": "9b.1",
+  "external_contract_version": "1.0.0",
+  "external_evidence_class": "finding",
+  "external_evidence": [
+    {
+      "contract.version": "1.0.0",
+      "provider": "cisco-ai-defense",
+      "tool": "cisco-ai-mcp-scanner",
+      "tool_version": "4.8.4",
+      "evidence_class": "finding",
+      "evidence_id": "b3061c4e-7a81-445c-8fd8-3108dd14c419",
+      "producer_class": "OBSERVED_SCANNER",
+      "subject": {
+        "type": "mcp.catalog.snapshot",
+        "id": "NORMAL"
+      },
+      "artifact": {
+        "type": "mcp.catalog.snapshot",
+        "fingerprint": "sha256:8a76d34c6c21fda0dc930fa2f64fe87c3216f23cbc73ca357c47b0927850d9c3",
+        "fingerprint_algorithm": "sha256"
+      },
+      "correlation": {
+        "method": "hash_join",
+        "key": "description_sha256/content.hash",
+        "value": "sha256:8a76d34c6c21fda0dc930fa2f64fe87c3216f23cbc73ca357c47b0927850d9c3"
+      },
+      "source_timestamp": "2026-09-16T05:36:53Z",
+      "raw_evidence_ref": "raw/scanner-output.json",
+      "raw_evidence_sha256": "sha256:360d31670dfbcc9e0f60fdf23015f3f110323d08eb18fbe49a1efef71e079567",
+      "native": {
+        "finding_count": 0,
+        "scan_id": "b3061c4e-7a81-445c-8fd8-3108dd14c419"
+      }
+    }
+  ]
 }

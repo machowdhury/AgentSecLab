@@ -2,7 +2,7 @@
 
 **Level:** 1  
 **Difficulty:** GUIDED  
-**Schema:** `agentsec.security_event` 1.5.0 (runtime). Scanner sourcetype `agentsec:scanner:finding` is independent.  
+**Schema:** `agentsec.security_event` **1.9.0** (runtime; this workshop originated under 1.5.0 and must not treat scanner fields as 1.9.0). Scanner sourcetype `agentsec:scanner:finding` is independent. External evidence contract **1.0.0**.  
 **Invariant:** INV-002 (Data Cannot Grant Authority)  
 **Controls:** CTRL-MCP-METADATA-001 (OBSERVE) then CTRL-MCP-001 (authorization). Scanner is not a control.  
 **Status:** Phase 9E Dashboard Studio workshop (`ws_lab_scanner_runtime_evidence`). **DETECTION ANALYZED — NO NEW DETECTOR.** No DET-SCANNER. No DET-MCP-CATALOG.
@@ -57,7 +57,8 @@ Not required: Snyk Agent Scan, rug-pull / `list_changed`, A2A, MCP-007, Phase 10
 ```text
 MCP catalog
     |
-    +----> Cisco mcp-scanner ----> Artifact Evidence  (PLANE 1)
+    +----> Cisco adapter ----> External finding (PLANE 1)
+    |      mcp-scanner raw → ExternalEvidence → pack → HEC
     |
     +----> Agent runtime
                |
