@@ -52,6 +52,10 @@
     {
       "label": "Privacy & Data Governance",
       "views": ["ws_lab_privacy_data_governance"]
+    },
+    {
+      "label": "Integrated Incident",
+      "views": ["ws_lab_multi_stage_incident"]
     }
   ],
   "levels": [
@@ -164,9 +168,21 @@
       "prerequisites": "L7 Threat Modeling & Security Architecture. Investigate before opening Path B.",
       "effort": "REPLAY / PRIVACY INVESTIGATION 3-5 hours",
       "exit": "PRIVACY-AWARE SECURITY ARCHITECT",
-      "next": null,
+      "next": "L9",
       "labs": [
         {"lab_id": "LAB-PRIVACY-DATA-GOVERNANCE-001", "title": "AcmeBank Incident PRIV-2026-001", "mode": "REPLAY", "view": "ws_lab_privacy_data_governance"}
+      ]
+    },
+    {
+      "id": "L9",
+      "title": "Multi-stage agentic attack, investigation and defense",
+      "learn": "Investigate a bounded multi-stage incident, distinguish influence from authority and authorization from execution, challenge false leads, contain, redesign, detect, hunt, and communicate.",
+      "prerequisites": "L6-L8 investigation, architecture, and privacy reasoning. Draft before opening Path B.",
+      "effort": "REPLAY / INTEGRATED INCIDENT 4-6 hours",
+      "exit": "AGENTIC INCIDENT RESPONDER / SECURITY ARCHITECT",
+      "next": null,
+      "labs": [
+        {"lab_id": "LAB-MULTI-STAGE-INCIDENT-001", "title": "Acme Bank Incident AGENT-2026-009", "mode": "REPLAY", "view": "ws_lab_multi_stage_incident"}
       ]
     }
   ]

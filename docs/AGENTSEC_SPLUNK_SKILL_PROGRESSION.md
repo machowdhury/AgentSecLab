@@ -5,6 +5,7 @@
 **Blue-team update:** `LAB-BLUE-TEAM-INCIDENT-001` adds a post-Capstone REPLAY hunt: bounded candidate discovery, hypothesis-led timeline reconstruction, ATTACK/RETEST/BASELINE comparison, evidence ledger, and reporting. Three new Q-* searches are live-validated; no detector is created.
 **Security-architecture update:** `LAB-THREAT-MODELING-001` reuses the Blue-Team observability model to ask what events, identities, decisions, invocations, outcomes, correlation, and provenance an architecture requires. It adds no SPL, saved search, detector, or meaningless live-Splunk test.
 **Privacy update:** `LAB-PRIVACY-DATA-GOVERNANCE-001` adds bounded candidate, trace, and comparison SPL for `PRIV-2026-001`. Learners compare purpose, content preview/hash, CTRL-MCP-001 decision, invocation, completion, and missing evidence. The searches were live-validated; they add no detector and never interpret zero rows as SAFE.
+**L9 integration update:** `LAB-MULTI-STAGE-INCIDENT-001` requires DISCOVER → NARROW → CORRELATE → SEQUENCE → COMPARE → CHALLENGE across the validated Capstone packet, adjacent scanner/garak evidence, a candidate detection, and a behavior-first hunt. Candidate SPL is not installed as a saved search; duplicate indexed copies are not additional executions.
 Path A (Search) and Path B (solution SPL) are **learning UX**, not access control. Do not implement artificial security gates.  
 Historical line: **Do not start Phase 16B from this file.** 16B already shipped. **Do not start Phase 16D from this file.**
 

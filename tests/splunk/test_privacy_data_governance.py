@@ -36,12 +36,12 @@ def _markdown(layouts: tuple[str, ...] | None = None) -> str:
 
 def test_l8_curriculum_navigation_and_artifacts():
     curriculum = json.loads((ROOT / "learning" / "academy" / "curriculum.json").read_text(encoding="utf-8"))
-    assert [row["id"] for row in curriculum["levels"]][-3:] == ["L6", "L7", "L8"]
+    assert [row["id"] for row in curriculum["levels"]][-4:] == ["L6", "L7", "L8", "L9"]
     assert next(row for row in curriculum["levels"] if row["id"] == "L7")["next"] == "L8"
     level = next(row for row in curriculum["levels"] if row["id"] == "L8")
     assert level["exit"] == "PRIVACY-AWARE SECURITY ARCHITECT"
     assert level["labs"][0]["lab_id"] == "LAB-PRIVACY-DATA-GOVERNANCE-001"
-    assert curriculum["nav_collections"][-1] == {
+    assert curriculum["nav_collections"][-2] == {
         "label": "Privacy & Data Governance",
         "views": ["ws_lab_privacy_data_governance"],
     }

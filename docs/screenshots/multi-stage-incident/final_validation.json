@@ -1,0 +1,113 @@
+{
+  "classification": {
+    "rendering": "OBSERVED",
+    "accessibility": "PARTIAL",
+    "screen_reader": "NOT TESTED"
+  },
+  "tabs": [
+    {
+      "name": "INCIDENT",
+      "visible": true
+    },
+    {
+      "name": "INVESTIGATE",
+      "visible": true
+    },
+    {
+      "name": "TIMELINE",
+      "visible": true
+    },
+    {
+      "name": "EVIDENCE",
+      "visible": true
+    },
+    {
+      "name": "CONTROLS",
+      "visible": true
+    },
+    {
+      "name": "DATA IMPACT",
+      "visible": true
+    },
+    {
+      "name": "RESPOND",
+      "visible": true
+    },
+    {
+      "name": "THREAT MODEL",
+      "visible": true
+    },
+    {
+      "name": "REPORT",
+      "visible": true
+    },
+    {
+      "name": "PATH B",
+      "visible": true
+    }
+  ],
+  "widths": {
+    "1920": {
+      "horizontal_overflow": false
+    },
+    "1440": {
+      "horizontal_overflow": false
+    },
+    "1280": {
+      "horizontal_overflow": false
+    },
+    "1024": {
+      "horizontal_overflow": false
+    }
+  },
+  "zoom_200": {
+    "physical_width_equivalent": 1024,
+    "effective_css_width": 512,
+    "method": "responsive reflow equivalent",
+    "horizontal_overflow": true
+  },
+  "keyboard": {
+    "focus_before": "INCIDENT",
+    "focus_after_arrow_right": "INVESTIGATE",
+    "focused_tab_style": {
+      "outline": "rgb(0, 110, 170) none 3px",
+      "boxShadow": "rgb(255, 255, 255) 0px 0px 1px 1px inset, rgb(0, 110, 170) 0px 0px 0px 3px inset"
+    }
+  },
+  "answer_gating": {
+    "answer_absent_before_path_b": true,
+    "answer_present_in_path_b": true
+  },
+  "academy_home": {
+    "level_9": true,
+    "incident": true,
+    "capstone_last_live": true
+  },
+  "semantic_states": {
+    "textual_states": true,
+    "timeline_language": true
+  },
+  "copy_controls": "native selectable markdown and Splunk table cells; no custom copy widget",
+  "failure_states": {
+    "no_evidence_found": true,
+    "insufficient_evidence": true,
+    "never_safe": true
+  },
+  "screenshots": [
+    "docs/screenshots/multi-stage-incident/final_incident.png",
+    "docs/screenshots/multi-stage-incident/final_investigate.png",
+    "docs/screenshots/multi-stage-incident/final_timeline.png",
+    "docs/screenshots/multi-stage-incident/final_evidence.png",
+    "docs/screenshots/multi-stage-incident/final_controls.png",
+    "docs/screenshots/multi-stage-incident/final_data_impact.png",
+    "docs/screenshots/multi-stage-incident/final_respond.png",
+    "docs/screenshots/multi-stage-incident/final_threat_model.png",
+    "docs/screenshots/multi-stage-incident/final_report.png",
+    "docs/screenshots/multi-stage-incident/final_path_b.png",
+    "docs/screenshots/multi-stage-incident/final_w1920_incident.png",
+    "docs/screenshots/multi-stage-incident/final_w1440_incident.png",
+    "docs/screenshots/multi-stage-incident/final_w1280_incident.png",
+    "docs/screenshots/multi-stage-incident/final_w1024_incident.png",
+    "docs/screenshots/multi-stage-incident/final_w1024_zoom200_incident.png"
+  ]
+}

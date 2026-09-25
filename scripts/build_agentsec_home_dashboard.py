@@ -46,6 +46,7 @@ CAPSTONE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agentsec_capston
 BLUE_TEAM_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_blue_team_incident"
 THREAT_MODEL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_threat_modeling"
 PRIVACY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_privacy_data_governance"
+MULTI_STAGE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_multi_stage_incident"
 MASTERY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_mastery"
 
 
@@ -74,6 +75,7 @@ def build() -> dict:
     l6 = _mode_line(levels["L6"]["labs"])
     l7 = _mode_line(levels["L7"]["labs"])
     l8 = _mode_line(levels["L8"]["labs"])
+    l9 = _mode_line(levels["L9"]["labs"])
 
     add_md(
         "viz_hero",
@@ -212,7 +214,7 @@ This is the learner path. It is not the order the software was built.
 
 You should always know: where you are, what you are learning, why it matters, and what to do next.
 
-Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone** → **Blue Team** → **Security Architecture** → **Privacy & Data Governance**. Then **Mastery Check** (optional). Search stays the notebook.
+Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone** → **Blue Team** → **Security Architecture** → **Privacy & Data Governance** → **Integrated Incident**. Then **Mastery Check** (optional). Search stays the notebook.
 
 LIVE labs have Attack Service. REPLAY labs use Investigate specimen plus Search. Do not treat REPLAY as a fresh launch.
 """,
@@ -263,6 +265,12 @@ Open [Threat Modeling & Security Architecture]({THREAT_MODEL_URL}) after Blue Te
 
 Open [AcmeBank Incident PRIV-2026-001]({PRIVACY_URL}) after L7. It is a synthetic REPLAY privacy investigation: trace data, minimize it, separate tool authorization from appropriate data use, and state what remains unknown.
 
+**L9 Multi-stage agentic attack, investigation and defense** — {levels['L9']['learn']} Effort: {levels['L9']['effort']}. Exit: {levels['L9']['exit']}.
+
+{l9}
+
+Open [Acme Bank Incident AGENT-2026-009]({MULTI_STAGE_URL}) after L8. It is the first major integration REPLAY: investigate one validated multi-stage packet, challenge false leads, contain, redesign, build candidate detection/hunt logic, and communicate.
+
 Then [Mastery Check]({MASTERY_URL}) if you want to prove the reasoning without the workshop scaffolding. Skip FOUNDATIONAL if you already know the vocabulary.
 """,
         title="PROGRESSION",
@@ -285,6 +293,8 @@ Then [Mastery Check]({MASTERY_URL}) if you want to prove the reasoning without t
 **SECURITY ARCHITECT** — model an unfamiliar agentic architecture, place controls at the relevant boundary, design observability, and state evidence gaps and residual risk.
 
 **PRIVACY-AWARE SECURITY ARCHITECT** — inventory and trace data, minimize it by purpose, investigate telemetry exposure, and distinguish authorized action from appropriate data handling.
+
+**AGENTIC INCIDENT RESPONDER / SECURITY ARCHITECT** — reconstruct a multi-stage incident, classify evidence strength, analyze controls and data impact, contain, redesign, detect, hunt, and report.
 
 [Mastery Check]({MASTERY_URL}) uses those labels. There is no certificate and no leaderboard. Viewing a tab is not completion.
 """,
