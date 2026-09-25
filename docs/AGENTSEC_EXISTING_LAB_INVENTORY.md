@@ -26,6 +26,7 @@ Attack Service LIVE means `known_lab_ids()` in `launch_catalog.py`. That set is 
 | LAB-MCP-006 | Confused Deputy | `ws_lab_mcp_006` | NOT IMPLEMENTED | historical LIVE packs | NOT IMPLEMENTED | NONE JUSTIFIED |
 | LAB-MCP-CATALOG | Tool Catalog | `ws_lab_mcp_catalog` | NOT IMPLEMENTED | historical LIVE packs | NOT IMPLEMENTED | NONE JUSTIFIED (candidate later) |
 | LAB-SCANNER-RUNTIME-EVIDENCE | Scanner + Runtime | `ws_lab_scanner_runtime_evidence` | NOT APPLICABLE | scanner CLI packs; not a launcher | NOT IMPLEMENTED | NONE JUSTIFIED |
+| LAB-EXTERNAL-EVALUATION-GARAK | Adversarial Model Evaluation | no Studio view (bounded Tool Lab) | NOT APPLICABLE | local garak CLI evaluation | NOT IMPLEMENTED | NONE JUSTIFIED |
 | LAB-RAG-CONTEXT (LAB-RAG-001) | RAG / Retrieved Context | `ws_lab_rag_context` | NOT IMPLEMENTED | historical LIVE packs | NOT IMPLEMENTED | NONE JUSTIFIED |
 | LAB-MEMORY-001 | Persistent Memory | `ws_lab_memory_security` | NOT IMPLEMENTED | historical LIVE packs (write+recall) | NOT IMPLEMENTED | NONE JUSTIFIED |
 | LAB-AGENT-DELEGATION-001 | Identity / Delegation | **no view** | NOT IMPLEMENTED | historical LIVE packs | NOT IMPLEMENTED | NONE JUSTIFIED |
@@ -173,6 +174,21 @@ Attack Service LIVE means `known_lab_ids()` in `launch_catalog.py`. That set is 
 | LIVE ATTACK | NOT APPLICABLE as Attack Service LIVE; scanner CLI is OBSERVED_SCANNER |
 | Learner value | MEDIUM–HIGH — SCANNER FINDING ≠ AUTHORIZATION |
 | Prerequisites | LAB-MCP-CATALOG |
+
+## LAB-EXTERNAL-EVALUATION-GARAK — Adversarial Model Evaluation
+
+| Field | Value |
+|-------|-------|
+| Domain | Adversarial AI evaluation / external evidence |
+| Attack ID | NOT APPLICABLE; native garak evaluation id retained |
+| Control | None; garak is not a PDP. CTRL-MCP-001 remains runtime PDP |
+| Runtime | Local garak 0.17.0 → Ollama `llama3.2:1b`; not AgentSec runtime |
+| Splunk | `sourcetype=agentsec:external:evaluation`, live validated in P1A |
+| Studio | No view; bounded Tool Lab and SPL searches |
+| Hunt | Q-GARAK-EVALUATION + Q-EXTERNAL-EVIDENCE-PLANES |
+| Attack Service | NOT APPLICABLE |
+| Learner value | HIGH — evaluation result ≠ authorization or universal safety |
+| Prerequisites | External evidence concepts; scanner lab recommended |
 
 ## LAB-RAG-CONTEXT / LAB-RAG-001
 

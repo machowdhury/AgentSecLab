@@ -1,0 +1,13 @@
+index=agentsec_telemetry earliest=0
+    (sourcetype=agentsec:scanner:finding OR
+     sourcetype=agentsec:external:evaluation OR
+     sourcetype=otel:agentic:json)
+| eval evidence_plane=case(
+    sourcetype=="agentsec:scanner:finding","STATIC FINDING",
+    sourcetype=="agentsec:external:evaluation","ADVERSARIAL EVALUATION",
+    sourcetype=="otel:agentic:json" AND 'event.name'=="agentsec.control.decision","AUTHORIZATION",
+    sourcetype=="otel:agentic:json" AND like('event.name',"agentsec.mcp.%"),"OUTCOME / EXECUTION",
+    sourcetype=="otel:agentic:json","RUNTIME TELEMETRY",
+    true(),"OTHER")
+| stats count, values(sourcetype) as sourcetypes by evidence_plane
+| sort evidence_plane

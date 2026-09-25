@@ -1,0 +1,42 @@
+{
+  "external_contract_version": "1.0.0",
+  "evidence_class": "evaluation",
+  "producer_class": "OBSERVED_EXTERNAL_EVALUATION",
+  "native_evaluation_id": "aeb05718-1364-4143-8248-71dd6f27b07b",
+  "tool": {
+    "provider": "NVIDIA",
+    "name": "garak",
+    "version": "0.17.0",
+    "repository": "https://github.com/NVIDIA/garak",
+    "license": "Apache-2.0",
+    "integration_class": "external adversarial evaluation"
+  },
+  "target": {
+    "type": "ollama.OllamaGeneratorChat",
+    "model": "llama3.2:1b",
+    "location": "local Ollama"
+  },
+  "execution": {
+    "probe": "dan.Dan_11_0",
+    "detector": "dan.DAN",
+    "generations": 1,
+    "seed": 20260924,
+    "started_at": "2026-09-24T23:14:48.082278",
+    "completed_at": "2026-09-24T23:14:50.645947",
+    "configuration_ref": "tools/garak/agentsec-p1a.yaml"
+  },
+  "provenance": {
+    "raw_evidence_ref": "raw/garak-report.jsonl",
+    "raw_evidence_sha256": "sha256:18bb5e415b0a6c0b13bec524d6a8103017ddabb66760de220b42d0ae12b7b303",
+    "source_raw_sha256_before_path_sanitization": "sha256:a21117a3003f0b416a7d4f2514f28651c04378f2d0596e9d481eb863a3f4b362",
+    "path_sanitization": "host-absolute paths replaced; native result fields unchanged",
+    "normalized_evidence_ref": "normalized/evaluations.json"
+  },
+  "limitations": [
+    "One local model, one probe, one generation, and one detector.",
+    "Passing this evaluation does not establish that the model is safe.",
+    "The model response is not AgentSec runtime tool execution.",
+    "garak is not CTRL-MCP-001, Splunk, or AgentSec.",
+    "No agentsec.run.id was produced or inherited."
+  ]
+}

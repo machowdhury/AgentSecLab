@@ -1,0 +1,32 @@
+---
+system:
+  verbose: 0
+  narrow_output: true
+  parallel_requests: false
+  parallel_attempts: false
+  lite: true
+
+run:
+  seed: 20260924
+  generations: 1
+  soft_probe_prompt_cap: 1
+  spec:
+    include:
+      - probes.dan.Dan_11_0
+    exclude: []
+
+plugins:
+  target_type: ollama.OllamaGeneratorChat
+  target_name: llama3.2:1b
+  detector_spec: auto
+  extended_detectors: false
+  generators:
+    ollama:
+      OllamaGeneratorChat:
+        host: "http://127.0.0.1:11434"
+        timeout: 60
+
+reporting:
+  report_prefix: agentsec-p1a
+  report_dir: runs
+  show_100_pass_modules: true
