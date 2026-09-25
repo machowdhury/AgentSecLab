@@ -37,6 +37,11 @@
       "write": "3f8d6305-2d3b-4988-9e65-dc99b7ac10de",
       "recall": "8d2c016f-cadc-4463-939a-23a183221b3d"
     },
+    "baseline": {
+      "retrieve": "5a15fe04-4bb1-4f70-8ec0-ab83f423dcde",
+      "write": "5dd71f94-5b12-4c52-b5ed-93a0b6832d45",
+      "recall": "3d2b66a1-9ef1-4b1d-b993-444db50fd3ee"
+    },
     "benign_comparison": "db514fd8-dbf4-49f3-a2cb-6bd2bfe92987"
   },
   "shared_fingerprint": "sha256:c565f364c7c5fba3cf25d235bb8e2bee7d9433daa9f07d5e097ab6d2a82a97ef",
@@ -56,7 +61,7 @@
     "RAG": "INVOLVED",
     "MEMORY": "INVOLVED",
     "MCP": "INVOLVED",
-    "PRIVACY": "RELEVANT — customer-tier data returned; field-level necessity NOT PROVEN",
+    "PRIVACY": "RELEVANT BUT NOT INVOLVED AS A CONTROL — customer-tier data returned; field-level necessity NOT PROVEN",
     "GOAL_INTEGRITY": "RELEVANT BUT NOT OBSERVED",
     "IDENTITY_DELEGATION": "RELEVANT BUT NOT OBSERVED",
     "AUTHENTICATION": "NOT MODELED",

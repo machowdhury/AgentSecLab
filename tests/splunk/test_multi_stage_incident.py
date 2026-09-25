@@ -66,9 +66,15 @@ def test_incident_fixture_is_one_coherent_existing_packet():
         "recall": "2437f64a-fff4-424f-8a83-0f04285662e4",
     }
     assert incident["canonical_runs"]["retest"]["recall"] == "8d2c016f-cadc-4463-939a-23a183221b3d"
+    assert incident["canonical_runs"]["baseline"] == {
+        "retrieve": "5a15fe04-4bb1-4f70-8ec0-ab83f423dcde",
+        "write": "5dd71f94-5b12-4c52-b5ed-93a0b6832d45",
+        "recall": "3d2b66a1-9ef1-4b1d-b993-444db50fd3ee",
+    }
     assert incident["shared_fingerprint"].startswith("sha256:")
     assert incident["domains"]["GOAL_INTEGRITY"] == "RELEVANT BUT NOT OBSERVED"
     assert incident["domains"]["IDENTITY_DELEGATION"] == "RELEVANT BUT NOT OBSERVED"
+    assert incident["domains"]["PRIVACY"].startswith("RELEVANT BUT NOT INVOLVED")
 
 
 def test_workflow_hints_answer_gating_and_failure_states():
