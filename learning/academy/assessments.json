@@ -23,6 +23,24 @@
     ],
     "evidence_required": "Completed hypothesis, SPL strategy, timeline, evidence ledger, revised conclusion, report, and threat-model bridge."
   },
+  "threat_modeling_competencies": {
+    "lab_id": "LAB-THREAT-MODELING-001",
+    "tracking": "SELF_ASSESSED / NO PERSISTENCE / NOT CERTIFICATION",
+    "dimensions": [
+      "MODEL SYSTEM",
+      "IDENTIFY ASSETS",
+      "MAP ACTORS",
+      "TRACE DATA FLOWS",
+      "DRAW TRUST BOUNDARIES",
+      "ANALYZE AUTHORITY",
+      "MAP THREATS AND CONTROLS",
+      "DESIGN OBSERVABILITY",
+      "STATE EVIDENCE GAPS",
+      "EXPLAIN RESIDUAL RISK",
+      "COMMUNICATE"
+    ],
+    "evidence_required": "Completed threat-model artifact with architecture summary, selected assets, actors, flows, boundaries, authority, prioritized threats, controls and placement, telemetry, gaps, residual risks, recommendations, and three audience-specific explanations."
+  },
   "rubric": {
     "dimensions": [
       {

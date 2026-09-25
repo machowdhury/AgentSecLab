@@ -56,6 +56,7 @@ REPLAY_VIEWS = (
     "ws_lab_scanner_runtime_evidence.xml",
     "ws_lab_external_evaluation_garak.xml",
     "ws_lab_blue_team_incident.xml",
+    "ws_lab_threat_modeling.xml",
 )
 
 PHASE16D_DOCS = (
@@ -97,9 +98,9 @@ def test_curriculum_is_learning_metadata_not_policy():
     assert data["schema_version"] == "1.9.0"
     assert data["start_lab_id"] == "LAB-PI-001"
     ids = [level["id"] for level in data["levels"]]
-    assert ids == ["L0", "L1", "L2", "L3", "L4", "L5", "L6"]
+    assert ids == ["L0", "L1", "L2", "L3", "L4", "L5", "L6", "L7"]
     assert data["nav_collections"][0]["label"] == "Foundations"
-    assert data["nav_collections"][-1]["label"] == "Blue Team"
+    assert data["nav_collections"][-1]["label"] == "Security Architecture"
     assert lab_row("LAB-PI-001")["level_id"] == "L1"
     assert next_lab("LAB-PI-001")["lab_id"] == "LAB-MCP-001"
     assert previous_lab("LAB-PI-001") is None
@@ -109,13 +110,15 @@ def test_curriculum_is_learning_metadata_not_policy():
     assert next_lab("LAB-AGENTSEC-CAPSTONE-001")["lab_id"] == "LAB-BLUE-TEAM-INCIDENT-001"
     assert previous_lab("LAB-AGENTSEC-CAPSTONE-001")["lab_id"] == "LAB-MCP-006"
     assert previous_lab("LAB-BLUE-TEAM-INCIDENT-001")["lab_id"] == "LAB-AGENTSEC-CAPSTONE-001"
-    assert next_lab("LAB-BLUE-TEAM-INCIDENT-001") is None
+    assert next_lab("LAB-BLUE-TEAM-INCIDENT-001")["lab_id"] == "LAB-THREAT-MODELING-001"
+    assert previous_lab("LAB-THREAT-MODELING-001")["lab_id"] == "LAB-BLUE-TEAM-INCIDENT-001"
+    assert next_lab("LAB-THREAT-MODELING-001") is None
 
 
 def test_nav_follows_learner_curriculum_not_build_order():
     nav = NAV.read_text(encoding="utf-8")
     assert 'name="ws_agentsec_home" default="true"' in nav
-    for label in ("Foundations", "Context Security", "Agent Intent", "Capstone", "Blue Team"):
+    for label in ("Foundations", "Context Security", "Agent Intent", "Capstone", "Blue Team", "Security Architecture"):
         assert f'<collection label="{label}">' in nav
     assert "Attack Labs" not in nav
     assert "Agent Authority" not in nav
@@ -125,6 +128,7 @@ def test_nav_follows_learner_curriculum_not_build_order():
     assert nav.index("ws_lab_mcp_001") < nav.index("ws_lab_rag_context")
     assert nav.index("ws_lab_agent_delegation") < nav.index("ws_lab_agentsec_capstone")
     assert nav.index("ws_lab_agentsec_capstone") < nav.index("ws_lab_blue_team_incident")
+    assert nav.index("ws_lab_blue_team_incident") < nav.index("ws_lab_threat_modeling")
     assert ">Direct Prompt Injection</view>" in nav
     assert ">Lending Assistant Investigation</view>" in nav
     assert ">Mastery Check</view>" in nav

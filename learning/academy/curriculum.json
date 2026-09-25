@@ -44,6 +44,10 @@
     {
       "label": "Blue Team",
       "views": ["ws_lab_blue_team_incident"]
+    },
+    {
+      "label": "Security Architecture",
+      "views": ["ws_lab_threat_modeling"]
     }
   ],
   "levels": [
@@ -132,9 +136,21 @@
       "prerequisites": "L5 Capstone. Complete the incident without using Path B first.",
       "effort": "REPLAY 2.5-4 hours",
       "exit": "BLUE-TEAM INVESTIGATOR",
-      "next": null,
+      "next": "L7",
       "labs": [
         {"lab_id": "LAB-BLUE-TEAM-INCIDENT-001", "title": "AcmeBank Incident AI-2026-001", "mode": "REPLAY", "view": "ws_lab_blue_team_incident"}
+      ]
+    },
+    {
+      "id": "L7",
+      "title": "Threat modeling and security architecture",
+      "learn": "Model an unfamiliar agentic system: assets, actors, flows, boundaries, authority, threats, controls, observability, gaps, and residual risk.",
+      "prerequisites": "L6 Blue-Team Investigation. Draft before opening Path B.",
+      "effort": "REPLAY / ARCHITECTURE 3-5 hours",
+      "exit": "SECURITY ARCHITECT",
+      "next": null,
+      "labs": [
+        {"lab_id": "LAB-THREAT-MODELING-001", "title": "AcmeBank Agentic Customer Operations Platform", "mode": "REPLAY", "view": "ws_lab_threat_modeling"}
       ]
     }
   ]

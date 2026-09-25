@@ -25,6 +25,9 @@
   <collection label="Blue Team">
     <view name="ws_lab_blue_team_incident">AcmeBank Incident AI-2026-001</view>
   </collection>
+  <collection label="Security Architecture">
+    <view name="ws_lab_threat_modeling">Threat Modeling</view>
+  </collection>
   <view name="ws_agentsec_mastery">Mastery Check</view>
   <view name="search">Search</view>
 </nav>

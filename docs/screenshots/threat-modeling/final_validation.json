@@ -1,0 +1,80 @@
+{
+  "classification": {
+    "rendering": "OBSERVED",
+    "accessibility": "PARTIAL",
+    "screen_reader": "NOT TESTED"
+  },
+  "tabs": [
+    {
+      "name": "FOUNDATIONS",
+      "visible": true
+    },
+    {
+      "name": "SYSTEM \u00b7 ARCHITECTURE",
+      "visible": true
+    },
+    {
+      "name": "MODEL \u00b7 ANALYZE",
+      "visible": true
+    },
+    {
+      "name": "ARCHITECT CHALLENGE",
+      "visible": true
+    },
+    {
+      "name": "PATH B \u00b7 REVIEW",
+      "visible": true
+    }
+  ],
+  "widths": {
+    "1920": {
+      "horizontal_overflow": false
+    },
+    "1440": {
+      "horizontal_overflow": false
+    },
+    "1280": {
+      "horizontal_overflow": false
+    },
+    "1024": {
+      "horizontal_overflow": false
+    }
+  },
+  "zoom_200": {
+    "physical_width_equivalent": 1024,
+    "effective_css_width": 512,
+    "method": "responsive reflow equivalent",
+    "horizontal_overflow": true
+  },
+  "keyboard": {
+    "focus_before": "FOUNDATIONS",
+    "focus_after_arrow_right": "SYSTEM \u00b7 ARCHITECTURE",
+    "focused_tab_style": {
+      "outline": "rgb(0, 110, 170) none 3px",
+      "boxShadow": "rgb(255, 255, 255) 0px 0px 1px 1px inset, rgb(0, 110, 170) 0px 0px 0px 3px inset"
+    }
+  },
+  "answer_gating": {
+    "reference_absent_before_review": true,
+    "review_warning_visible": true
+  },
+  "academy_home": {
+    "level_7": true,
+    "challenge": true,
+    "capstone_last_live": true
+  },
+  "copy_controls": "NOT APPLICABLE \u2014 static markdown uses native selectable text; no custom copy widget",
+  "error_states": "NOT APPLICABLE \u2014 no dashboard search/data dependency; malformed artifacts are rejected by offline contracts",
+  "screenshots": [
+    "docs/screenshots/threat-modeling/final_foundations.png",
+    "docs/screenshots/threat-modeling/final_system_architecture.png",
+    "docs/screenshots/threat-modeling/final_model_analyze.png",
+    "docs/screenshots/threat-modeling/final_architect_challenge.png",
+    "docs/screenshots/threat-modeling/final_path_b_review.png",
+    "docs/screenshots/threat-modeling/final_w1920_foundations.png",
+    "docs/screenshots/threat-modeling/final_w1440_foundations.png",
+    "docs/screenshots/threat-modeling/final_w1280_foundations.png",
+    "docs/screenshots/threat-modeling/final_w1024_foundations.png",
+    "docs/screenshots/threat-modeling/final_w1024_zoom200_foundations.png"
+  ]
+}
