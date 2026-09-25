@@ -1,6 +1,6 @@
 # External security evidence layer (P0)
 
-**Status:** IMPLEMENTED for Cisco mcp-scanner static YARA packs only.  
+**Status:** IMPLEMENTED for Cisco mcp-scanner static findings and garak adversarial evaluations.
 **Runtime schema:** 1.9.0 — unchanged.  
 **External contract:** 1.0.0 — independent.  
 **Sourcetype:** `agentsec:scanner:finding` preserved.
@@ -53,13 +53,18 @@ It must not import CTRL-MCP-001, Attack Service internals, Academy internals, or
 
 Cisco implementation: `src/agentsec/external_evidence/cisco.py` maps `NormalizedScan` → `ExternalEvidence`. Native Cisco fields stay under `native`.
 
+garak implementation: `src/agentsec/external_evidence/garak.py` reads native
+garak JSONL `eval` rows and emits class `evaluation`. It preserves model, probe,
+detector, counts, intents, and upstream tags under `native`.
+
 ## Evidence classes
 
 The contract can represent `finding`, `evaluation`, `inventory`, `assessment`.
 
 P0 Cisco mcp-scanner records use **`finding`**. Zero findings is still class `finding` with `finding_count=0`. That is not SAFE.
 
-No evaluation, inventory, or assessment adapters exist. Do not claim them.
+P1A garak records use **`evaluation`**. A PASS is not SAFE, and a FAIL is not
+confirmed exploitation. No inventory or assessment adapters exist.
 
 Honesty producer label `OBSERVED_SCANNER` remains on pack/HEC `evidence_class` for compatibility with Q-SCANNER-WHO. Nested `external.evidence_class` is the contract class.
 
@@ -77,7 +82,7 @@ EXTERNAL TOOL != PDP
 SPLUNK != PDP
 ```
 
-Hash join:
+Cisco hash join:
 
 ```text
 correlation.method = hash_join
@@ -85,6 +90,17 @@ correlation.key = description_sha256/content.hash
 ```
 
 HASH MATCH = the compared canonical content matched. It does **not** automatically prove same process, runtime, request, execution, security decision, or causality.
+
+garak uses a different, truthful relationship:
+
+```text
+correlation.method = identity_tuple
+correlation.key = garak.run/probe/detector/model
+```
+
+It links the normalized record to its native evaluation context, not to an
+AgentSec runtime request. Different evidence sources require different
+correlation strategies.
 
 Do not attach `agentsec.run.id` to scanner events unless the scanner produced or inherited that id. Canonical packs set it null and omit it from HEC.
 
@@ -103,4 +119,5 @@ Unknown values are omitted. Committed packs use pack-relative `input/tools.json`
 | MCP modules do not import ExternalEvidence | MEASURED (AST) |
 | Live mcp-scanner re-run on this host | NOT PROVEN in P0 |
 | Splunk re-ingest of new nested fields | NOT PROVEN in P0 (additive HEC; prior 9C ingest MEASURED without nested `external.*`) |
-| garak / AI-BOM / other vendors | NOT MODELED |
+| garak adapter and bounded local evaluation | MEASURED in P1A |
+| AI-BOM / other vendors | NOT MODELED |

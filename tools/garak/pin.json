@@ -1,0 +1,14 @@
+{
+  "tool": "garak",
+  "package": "garak",
+  "version": "0.17.0",
+  "official_repository": "https://github.com/NVIDIA/garak",
+  "license": "Apache-2.0",
+  "python_tested": "3.12.12",
+  "target_type_tested": "ollama.OllamaGeneratorChat",
+  "target_model_tested": "llama3.2:1b",
+  "probe_tested": "dan.Dan_11_0",
+  "detector_observed": "dan.DAN",
+  "external_contract_version": "1.0.0",
+  "runtime_schema_version": "1.9.0"
+}

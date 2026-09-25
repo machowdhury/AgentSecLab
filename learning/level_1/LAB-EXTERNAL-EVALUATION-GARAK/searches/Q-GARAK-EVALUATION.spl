@@ -1,0 +1,15 @@
+index=agentsec_telemetry sourcetype=agentsec:external:evaluation earliest=0
+| eval evidence_class=mvindex(mvdedup('external.evidence_class'),0)
+| eval tool=mvindex(mvdedup('external.tool'),0)
+| eval tool_version=mvindex(mvdedup('external.tool_version'),0)
+| eval model=mvindex(mvdedup('external.subject.id'),0)
+| eval native_result=mvindex(mvdedup('evaluation.native_result'),0)
+| eval probe=mvindex(mvdedup('evaluation.probe'),0)
+| eval detector=mvindex(mvdedup('evaluation.detector'),0)
+| eval passed=mvindex(mvdedup('evaluation.passed'),0)
+| eval fails=mvindex(mvdedup('evaluation.fails'),0)
+| eval total_evaluated=mvindex(mvdedup('evaluation.total_evaluated'),0)
+| eval raw_ref=mvindex(mvdedup('external.raw_evidence_ref'),0)
+| eval raw_sha256=mvindex(mvdedup('external.raw_evidence_sha256'),0)
+| table _time, evidence_class, tool, tool_version, model, native_result, probe,
+        detector, passed, fails, total_evaluated, raw_ref, raw_sha256
