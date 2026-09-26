@@ -1,6 +1,6 @@
 # Getting started
 
-The current L0–L10 academy is on the `develop` branch. `main` and the annotated tag `v1.0.0-rc1` are the older RC1 baseline and do not contain L6–L10. `develop` is not an RC2 release.
+The current L0–L10 academy is the v1.0.0-rc2 candidate on `develop` and tag `v1.0.0-rc2`. `main` and the annotated tag `v1.0.0-rc1` are the older RC1 baseline and do not contain L6–L10. RC2 is not final `v1.0.0`.
 
 The canonical linear first-run document is [QUICKSTART.md](QUICKSTART.md). The learner map is [../README.md](../README.md) and [AGENTSEC_RELEASE_LAB_MATRIX.md](AGENTSEC_RELEASE_LAB_MATRIX.md).
 

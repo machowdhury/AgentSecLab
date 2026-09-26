@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.0.0-rc2
+
+Release candidate for the L0–L10 Agentic Security Academy. Telemetry schema remains **1.9.0**. ExternalEvidence remains **1.0.0**. This is not final `v1.0.0`.
+
+RC1 (`v1.0.0-rc1`, commit `e6115b6d1c03a1672b4364e84748c7840671fbfc`) is the earlier academy through the L5 LIVE Capstone and Mastery Check. RC2 adds the later learning path and aligns the learner entry with that path. It does not add a new attack, detector, PDP, schema, or external-evidence contract.
+
+### Since RC1
+
+- Learner entry now names L0–L10, LIVE versus REPLAY, and the difference between the L5 Capstone, the L10 Advanced Capstone, and Mastery Check.
+- RAG, memory, goal integrity, and identity/delegation remain LIVE labs. They do not mint tool grants. CTRL-MCP-001 remains the tool PDP.
+- External security evidence: Cisco mcp-scanner (Cisco AI Defense) and garak (NVIDIA) stay adjacent evidence. A finding is not a DENY. A pass is not safe.
+- Blue-team investigation, threat modeling, privacy, the L9 multi-stage incident, and the L10 mastery case are REPLAY or static reasoning. They are not new LIVE launchers.
+- The seven LIVE labs are unchanged.
+- DET-MCP-001 stays disabled. Candidate searches are not installed detectors.
+- Clean-room installation, screen-reader coverage, and the garak license backlog remain unclosed.
+
+## v1.0.0-rc1
+
 Product notes for AgentSec **v1.0.0-rc1**. Telemetry schema remains **1.9.0**.
 
 RC1 is a release candidate plus external-validation pack (`docs/releases/`). It does not add attack domains or detectors.

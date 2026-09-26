@@ -2,9 +2,9 @@
 
 **Tagged RC1:** `main` and annotated tag `v1.0.0-rc1` peel to `e6115b6d1c03a1672b4364e84748c7840671fbfc`. That baseline does not contain the L6–L10 academy.
 
-**Current academy:** `develop`. Post-RC1 development. Not an RC2 tag. Do not describe `develop` as v1.0.0-rc1.
+**Current candidate:** `develop` and annotated tag `v1.0.0-rc2`. This is the L0–L10 academy. It is not final `v1.0.0`. Do not describe `develop` as v1.0.0-rc1.
 
-**Unchanged version strings:** `pyproject.toml` still says `1.0.0rc1`. Splunk `app.conf` still says `1.0.0-rc1`. Those strings were not bumped and do not mean `develop` equals the tag.
+**Version strings:** `pyproject.toml` says `1.0.0rc2`. Splunk `app.conf` says `1.0.0-rc2`. Those strings name this candidate. They do not move `main`.
 
 **Telemetry schema:** 1.9.0 (independent)
 

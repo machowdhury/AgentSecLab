@@ -2,7 +2,7 @@
 
 A technically capable person should be able to follow this linearly. Run every command from the **repository root**.
 
-Use the `develop` branch. That branch contains the current L0–L10 academy. `main` and annotated tag `v1.0.0-rc1` are the RC1 baseline and stop before L6. `develop` is not an RC2 tag. Clean-room installation on an empty machine has not been proven; these steps are the documented path.
+Use the `develop` branch or the tag `v1.0.0-rc2`. That tree is the current L0–L10 release candidate. `main` and annotated tag `v1.0.0-rc1` are the earlier baseline and stop before L6. This candidate is not final `v1.0.0`. Clean-room installation on an empty machine has not been proven; these steps are the documented path.
 
 After the first lab, continue with the README academy section and [AGENTSEC_RELEASE_LAB_MATRIX.md](AGENTSEC_RELEASE_LAB_MATRIX.md). Do not treat the L5 Capstone as the end of the academy. L10 is the Advanced Capstone. Mastery Check is a separate unscored self-check.
 
