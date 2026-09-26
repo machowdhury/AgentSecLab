@@ -40,16 +40,16 @@ Two git refs matter. They are not the same product snapshot.
 
 | Ref | What it is |
 |-----|------------|
-| `main` and annotated tag `v1.0.0-rc1` | Released RC1 baseline. The tag peels to commit `e6115b6d1c03a1672b4364e84748c7840671fbfc`. That snapshot does **not** contain the L6–L10 academy. |
-| `develop` | Post-RC1 development. This is the tree that contains the current L0–L10 academy. |
+| `main` and annotated tag `v1.0.0-rc1` | Earlier RC1 baseline. The tag peels to commit `e6115b6d1c03a1672b4364e84748c7840671fbfc`. That snapshot does **not** contain the L6–L10 academy. |
+| `develop` and annotated tag `v1.0.0-rc2` | Current release candidate. This is the L0–L10 academy. |
 
-`develop` is **not** `v1.0.0-rc1`, and it is **not** an RC2 release. No RC2 tag exists.
+`develop` is **not** `v1.0.0-rc1`. It is the v1.0.0-rc2 candidate, not final `v1.0.0`.
 
-Package metadata still says `1.0.0rc1` in `pyproject.toml` and `1.0.0-rc1` in the Splunk app. Those strings were not bumped. They do not mean the `develop` tree is the tagged RC1 commit.
+Package metadata is `1.0.0rc2` in `pyproject.toml`. The Splunk app version is `1.0.0-rc2`. Those strings name this candidate. They do not mean `main` moved.
 
 Telemetry schema remains **1.9.0**. The external-evidence contract remains **1.0.0**.
 
-A default `git clone` follows `origin/HEAD`, which is `main`. To study the academy described here, check out `develop`.
+A default `git clone` follows `origin/HEAD`, which is `main` (RC1). To study the academy described here, check out `develop` or the tag `v1.0.0-rc2`.
 
 Clean-room installation has **not** been proven. The commands below are the documented path. They have been used on existing lab machines. That is not a measurement that a new machine with empty volumes succeeds.
 
@@ -214,6 +214,7 @@ Apache License 2.0. See [LICENSE](LICENSE).
 | [docs/INSTRUCTOR_GUIDE.md](docs/INSTRUCTOR_GUIDE.md) | Workshop preparation |
 | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Learner vs developer workflow |
 | [CHANGELOG.md](CHANGELOG.md) | Product changelog |
+| [docs/releases/V1_0_0_RC2_RELEASE_NOTES.md](docs/releases/V1_0_0_RC2_RELEASE_NOTES.md) | Current candidate notes |
 | [docs/releases/V1_0_0_RC1_RELEASE_NOTES.md](docs/releases/V1_0_0_RC1_RELEASE_NOTES.md) | Historical RC1 notes for the tagged baseline |
 | [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) | Historical phase provenance |
 

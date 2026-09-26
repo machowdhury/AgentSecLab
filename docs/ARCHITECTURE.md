@@ -2,7 +2,7 @@
 
 ## v1.0 system (canonical)
 
-**Product:** 1.0.0-rc1 · **Schema:** 1.9.0 · **PDP:** lab runtime controls, not Splunk.
+**Product:** 1.0.0-rc2 · **Schema:** 1.9.0 · **PDP:** lab runtime controls, not Splunk. RC1 remains the tagged baseline `v1.0.0-rc1`.
 
 ```text
 Learner

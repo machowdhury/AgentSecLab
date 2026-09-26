@@ -1,8 +1,18 @@
-# Known limitations (v1.0)
+# Known limitations (v1.0.0-rc2)
 
-These remain visible on purpose. They still apply on `develop`. The post-RC1 academy does not remove them.
+These remain visible on purpose. Creating the RC2 candidate does not remove them. The RC1 reproducibility note is still the clean-room record.
 
 - Screen-reader coverage is partial and not fully tested. This is not a WCAG conformance claim.
+- Early LIVE mission cards may state the expected ATTACK outcome before the learner investigates
+- Path B is visible pedagogical guidance, not access control
+- Splunk practice still begins with a pasted `run.id`. The move to independent search at L6 is abrupt
+- Two evidence vocabularies remain: how evidence was obtained, and how strong a claim is
+- `ollama/ollama:latest` is not pinned
+- The garak pin license line is not closed external validation (`docs/EXTERNAL_VALIDATION_BACKLOG.md`)
+- The GitHub default branch remains `main` (RC1). RC2 is `develop` and tag `v1.0.0-rc2`
+- External findings do not authorize tool execution
+- Production delegation, production IAM, human approval, and cryptographic identity are not modeled
+- Empty or negative search results are not proof of safety
 
 - Educational localhost Attack Service (unauthenticated)
 - Not production authentication or multi-tenant isolation
