@@ -12,7 +12,7 @@ This is not a hidden privileged learner mode. Instructors use the same Attack Se
 6. Confirm ATLAS qualifier **REQUIRES REVALIDATION** on Attack Service (proves current UI)
 7. Explain LIVE vs REPLAY ([LIVE_VS_REPLAY.md](LIVE_VS_REPLAY.md))
 8. Recommended first lab: Direct Prompt Injection LIVE ATTACK, copy run.id, Path A
-9. Capstone only after L1–L3 LIVE
+9. L5 Capstone (Lending Assistant Investigation) only after L1–L3 LIVE. It is the last LIVE launcher. L6–L10 follow it. L10 is the Advanced Capstone (MASTER-2026-001), a REPLAY investigation. Mastery Check is the optional unscored self-check, not L5 and not L10.
 10. Debrief limitations ([KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md))
 
 ## Reset between demos
