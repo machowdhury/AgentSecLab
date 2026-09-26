@@ -1,24 +1,61 @@
 # Release lab matrix
 
-Effort numbers come from `learning/academy/curriculum.json` where present. Phase numbers are not the learner model.
+This matrix describes the academy on `develop`. It is the post-RC1 curriculum.
 
-| Title | Level | Domain | LIVE/REPLAY | Launch | ATTACK | RETEST | Path A | Path B | Splunk | Primary control | PDP | Detector |
-|-------|-------|--------|-------------|--------|--------|--------|--------|--------|--------|-----------------|-----|----------|
-| Direct Prompt Injection | L1 | Input | LIVE (+ REPLAY specimens on dashboard) | YES | YES | YES | YES | YES | YES | CTRL-INPUT-001 | input control; tools still CTRL-MCP-001 if invoked | DET-MCP-001 N/A as PI detector |
-| Tool Authorization | L1 | MCP | LIVE | YES | YES | YES | YES | YES | YES | CTRL-MCP-001 | coded_policy() | DET-MCP-001 (disabled) |
-| Scope Escalation | L1 | MCP | REPLAY | NO | historical | historical | YES | YES | YES | CTRL-MCP-001 | coded_policy() | reuse DET-MCP-001 |
-| Parameter / Resource Authorization | L1 | MCP | REPLAY | NO | historical | historical | YES | YES | YES | CTRL-MCP-001 | coded_policy() | reuse |
-| RAG / Retrieved Context | L2 | Context | LIVE | YES | YES | YES | YES | YES | YES | CTRL-RAG-CONTEXT-001 (OBSERVE class) | tool PDP CTRL-MCP-001 | no DET-RAG |
-| Persistent Memory | L2 | Context | LIVE | YES | YES | YES | YES | YES | YES | CTRL-MEMORY-CONTEXT-001 | tool PDP CTRL-MCP-001 | no DET-MEMORY |
-| Tool Result Trust | L2 | MCP | REPLAY | NO | historical | historical | YES | YES | YES | result-trust + CTRL-MCP-001 | coded_policy() | no new DET |
-| Tool Catalog | L2 | MCP | REPLAY | NO | historical | historical | YES | YES | YES | catalog + CTRL-MCP-001 | coded_policy() | no new DET |
-| Scanner + Runtime Evidence | L2 | Evidence | REPLAY | NO | historical | historical | YES | YES | YES | scanner ≠ PDP | CTRL-MCP-001 | no new DET |
-| Goal / Instruction Integrity | L3 | Intent | LIVE | YES | YES | YES | YES | YES | YES | CTRL-GOAL-INTEGRITY-001 | then CTRL-MCP-001 | no DET-GOAL |
-| Agent Identity / Delegation | L3 | Intent | LIVE | YES | YES | YES | YES | YES | YES | CTRL-IDENTITY / delegation | then CTRL-MCP-001 | no DET-A2A |
-| Confused Deputy | L3 | MCP | REPLAY | NO | historical | historical | YES | YES | YES | CTRL-DELEGATION-001 + CTRL-MCP-001 | both | no DET-006 |
-| Lending Assistant Investigation | Capstone | Integrated | LIVE | YES | YES | YES | YES | YES | YES | chain of above | CTRL-MCP-001 for tools | no DET-CAPSTONE |
-| Mastery Check | Assessment | — | mixed questions | NO | — | — | some | review | some | — | not scored | not a detector |
+`main` and annotated tag `v1.0.0-rc1` (peeled commit `e6115b6d1c03a1672b4364e84748c7840671fbfc`) are the RC1 baseline. That tag does not contain L6–L10. `develop` is not an RC2 release. No RC2 tag exists.
 
-**Prerequisites:** follow Home START / curriculum `prerequisites` fields. Estimated effort: see curriculum.json (LIVE hours listed there).
+Effort text comes from `learning/academy/curriculum.json` where present. Phase numbers are not the learner model.
 
-Learners do not edit source, shells, or grants unless a specific advanced doc says so. Published path: Studio → Attack Service → Search.
+## How to read mode
+
+| Mode | Meaning |
+|------|---------|
+| LIVE | A fresh supported execution can be launched. You get a new `run.id`. |
+| REPLAY | You investigate canonical or previously captured evidence. You do not launch it. |
+| STATIC REASONING | You analyze architecture, controls, privacy, or a threat model without claiming a fresh attack. |
+| SIMULATED | Fixture-backed or in-process data teaches a bounded idea. It is not a production system. |
+
+A LIVE dashboard may also show canonical specimen ids. Those ids are REPLAY or reference evidence unless Attack Service minted them in this session.
+
+ATTACK is an attack-condition experiment, not proof of universal compromise. RETEST is a controlled defended comparison, not proof of universal safety. BASELINE is an expected comparison, not “trusted forever.”
+
+Only seven labs are launchable. That count is the Attack Service allowlist in code: `LAB-PI-001`, `LAB-MCP-001`, `LAB-RAG-CONTEXT`, `LAB-MEMORY-001`, `LAB-AGENT-GOAL-INTEGRITY-001`, `LAB-AGENT-DELEGATION-001`, `LAB-AGENTSEC-CAPSTONE-001`. Other rows are not launchers. Do not add them by editing this table.
+
+Names: **L5 Capstone** is Lending Assistant Investigation. **L10 Advanced Capstone** is MASTER-2026-001. **Mastery Check** is the unscored self-check. Those three are not the same exercise.
+
+## Matrix
+
+| Level | Exercise | Mode | Launch | Simulated / fixture | Splunk | External evidence | Learner outcome |
+|-------|----------|------|--------|---------------------|--------|-------------------|-----------------|
+| L0 | Orientation (Academy Home) | STATIC REASONING | NO | NO | Read-only context | NO | Explain what AgentSec is and what Splunk does not do. |
+| L1 | Direct Prompt Injection (`LAB-PI-001`) | LIVE | YES | Educational payloads | YES | NO | Predict, launch ATTACK, copy this session’s `run.id`, compare RETEST. |
+| L1 | Tool Authorization (`LAB-MCP-001`) | LIVE | YES | Educational tool request | YES | NO | Separate a tool request from a CTRL-MCP-001 grant. |
+| L1 | Scope Escalation (`LAB-MCP-003`) | REPLAY | NO | Historical specimen | YES | NO | Read grant anatomy without launching. |
+| L1 | Parameter / Resource Authorization (`LAB-MCP-004`) | REPLAY | NO | Historical specimen | YES | NO | Read parameter and resource checks without launching. |
+| L2 | RAG / Retrieved Context (`LAB-RAG-CONTEXT`) | LIVE | YES | YES — fixture documents | YES | NO | See retrieval influence context. Retrieval does not mint a grant. |
+| L2 | Persistent Memory (`LAB-MEMORY-001`) | LIVE | YES | YES — in-process memory | YES | NO | See recall reused as data. Recall does not mint a grant. |
+| L2 | Tool Result Trust (`LAB-MCP-005`) | REPLAY | NO | Historical specimen | YES | NO | Treat a tool result as data, not as authority. |
+| L2 | Tool Catalog (`LAB-MCP-CATALOG`) | REPLAY | NO | Historical specimen | YES | NO | Separate catalog content from a grant. |
+| L2 | Scanner + Runtime Evidence (`LAB-SCANNER-RUNTIME-EVIDENCE`) | REPLAY | NO | Imported scanner pack | YES | YES — Cisco mcp-scanner (Cisco AI Defense), not built by AgentSec | A finding is adjacent evidence. HIGH is not DENY. Zero findings are not safe. |
+| L2 | External Security Toolbox (`LAB-EXTERNAL-EVALUATION-GARAK`) | REPLAY | NO | Imported evaluation pack | YES | YES — garak (NVIDIA), not built by AgentSec | A garak result is adjacent evidence. PASS is not safe. |
+| L3 | Goal / Instruction Integrity (`LAB-AGENT-GOAL-INTEGRITY-001`) | LIVE | YES | Educational instruction | YES | NO | An authorized tool is not an authorized objective. |
+| L3 | Agent Identity / Delegation (`LAB-AGENT-DELEGATION-001`) | LIVE | YES | YES — educational identity claim, not authentication | YES | NO | A claim is not production identity. |
+| L3 | Confused Deputy (`LAB-MCP-006`) | REPLAY | NO | Historical specimen | YES | NO | Separate delegation evidence from a tool grant. |
+| L4 | Investigation craft | STATIC REASONING | NO | Practice on LIVE Path A | YES, on those labs | NO | Hunt versus detection. Zero rows is not safe. No separate page. |
+| L5 | Lending Assistant Investigation (`LAB-AGENTSEC-CAPSTONE-001`) — **L5 Capstone** | LIVE | YES | Uses the educational runtime chain | YES | NO | Launch and reconstruct the integrated chain. Last LIVE launcher. |
+| L6 | AcmeBank Incident AI-2026-001 (`LAB-BLUE-TEAM-INCIDENT-001`) | REPLAY | NO | Canonical incident evidence | YES | NO | Hypothesize, search, and state uncertainty without a fresh launch. |
+| L7 | AcmeBank Agentic Customer Operations Platform (`LAB-THREAT-MODELING-001`) | STATIC REASONING | NO | Described system, not a new attack | Optional corroboration | NO | Produce a threat model with gaps and residual risk. `curriculum.json` records the workshop mode as REPLAY because it is not a launcher. The activity adds no attack. |
+| L8 | AcmeBank Incident PRIV-2026-001 (`LAB-PRIVACY-DATA-GOVERNANCE-001`) | REPLAY | NO | Canonical incident evidence | YES | NO | Separate an authorized action from appropriate data use. Not a privacy certification. |
+| L9 | Acme Bank Incident AGENT-2026-009 (`LAB-MULTI-STAGE-INCIDENT-001`) | REPLAY | NO | Canonical multi-stage evidence | YES | Uses indexed external evidence as a lead, not as authorization | Investigate a chain, reject false leads, and communicate bounded conclusions. |
+| L10 | Acme Bank Capstone MASTER-2026-001 (`LAB-ADVANCED-CAPSTONE-MASTERY-001`) — **Advanced Capstone** | REPLAY | NO | Canonical mastery evidence | YES | Uses indexed external evidence as a lead, not as authorization | Investigate without a starting run id. Leave at least one claim NOT PROVEN. |
+| — | Mastery Check (`ws_agentsec_mastery`) | STATIC REASONING | NO | Questions, not an execution | Some review searches | NO | Unscored self-check. Not L5. Not L10. Not a certification. |
+
+## Shared rules
+
+CTRL-MCP-001 (`coded_policy()`) is the tool policy decision point on LIVE tool use. RAG, memory, identity observation, Splunk, Cisco mcp-scanner, and garak do not mint tool grants.
+
+Path B is visible pedagogical guidance, not access control.
+
+Learners do not edit source, shells, or grants. Published path: Academy Home, then Attack Service only when the row says Launch YES, then Splunk Search.
+
+Prerequisites and effort: Academy Home and `learning/academy/curriculum.json`.

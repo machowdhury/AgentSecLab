@@ -2,6 +2,10 @@
 
 A technically capable person should be able to follow this linearly. Run every command from the **repository root**.
 
+Use the `develop` branch. That branch contains the current L0–L10 academy. `main` and annotated tag `v1.0.0-rc1` are the RC1 baseline and stop before L6. `develop` is not an RC2 tag. Clean-room installation on an empty machine has not been proven; these steps are the documented path.
+
+After the first lab, continue with the README academy section and [AGENTSEC_RELEASE_LAB_MATRIX.md](AGENTSEC_RELEASE_LAB_MATRIX.md). Do not treat the L5 Capstone as the end of the academy. L10 is the Advanced Capstone. Mastery Check is a separate unscored self-check.
+
 ## 1. Prerequisites
 
 - Git
@@ -95,6 +99,12 @@ Use quotes around the run.id. Empty is not DENY. If empty, wait, check the id, o
 
 Volumes and indexed data persist. Next start: `./scripts/lab-up.sh`.
 
-## 12. More help
+## 12. What to do next
 
-[TROUBLESHOOTING.md](TROUBLESHOOTING.md) · [OPERATIONS.md](OPERATIONS.md) · [LIVE_VS_REPLAY.md](LIVE_VS_REPLAY.md) · [INSTRUCTOR_GUIDE.md](INSTRUCTOR_GUIDE.md)
+Return to Academy Home and follow L1 through L10. The L5 menu label **Capstone** is Lending Assistant Investigation, the last LIVE launcher. **Advanced Capstone** is L10. **Mastery Check** is optional and unscored.
+
+Specimen ids printed on a dashboard are reference evidence. Investigate the `run.id` from the launch you just made.
+
+## 13. More help
+
+[TROUBLESHOOTING.md](TROUBLESHOOTING.md) · [OPERATIONS.md](OPERATIONS.md) · [LIVE_VS_REPLAY.md](LIVE_VS_REPLAY.md) · [AGENTSEC_RELEASE_LAB_MATRIX.md](AGENTSEC_RELEASE_LAB_MATRIX.md) · [INSTRUCTOR_GUIDE.md](INSTRUCTOR_GUIDE.md)

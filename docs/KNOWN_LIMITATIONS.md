@@ -1,6 +1,8 @@
 # Known limitations (v1.0)
 
-These remain visible on purpose.
+These remain visible on purpose. They still apply on `develop`. The post-RC1 academy does not remove them.
+
+- Screen-reader coverage is partial and not fully tested. This is not a WCAG conformance claim.
 
 - Educational localhost Attack Service (unauthenticated)
 - Not production authentication or multi-tenant isolation
