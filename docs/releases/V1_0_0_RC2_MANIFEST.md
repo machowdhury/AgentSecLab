@@ -21,7 +21,7 @@ That command is the identity of the stamp commit. This file does not embed that 
 | Branch | develop |
 | RC1 peeled commit | `e6115b6d1c03a1672b4364e84748c7840671fbfc` |
 | Independent review commit | `2eb3cce749100b08a5b85c77b615e6924474cbbc` |
-| Preparation commit | FILLED BY STAMP |
+| Preparation commit | `080201be4e9436abb8728da3fd8c649f8ebabc11` |
 | Tag | v1.0.0-rc2 |
 | Tag type | annotated |
 | Tag target | the stamp commit that contains this table after the preparation SHA is filled |
@@ -48,4 +48,4 @@ That command is the identity of the stamp commit. This file does not embed that 
 | Independent review | `docs/reviews/AGENTSEC_INDEPENDENT_RC2_VALIDATION.md` |
 | Artifact checksums | Not used. The RC1 manifest did not require them |
 
-The phrase FILLED BY STAMP is replaced in the stamp commit before the tag is created. The tagged tree does not contain that phrase.
+The preparation commit named above is the parent of the stamp commit. The tagged tree does not contain an unfilled placeholder.
