@@ -1,5 +1,20 @@
-index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.control.id"=CTRL-MCP-001 ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0
+    [ search index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0
+        "event.name"=agentsec.control.decision
+        "agentsec.control.id"=CTRL-MCP-001
+        "agentsec.control.decision"=DENY
+      | eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+      | dedup run_id
+      | head 3
+      | rename run_id as "agentsec.run.id"
+      | fields "agentsec.run.id" ]
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
 | eval event_name=mvindex(mvdedup('event.name'),0)
+| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)
 | eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
-| stats values(event_name) as event_names values(decision) as decisions count as indexed_rows dc(_raw) as distinct_raw by agentsec.run.id agentsec.testbed.mode
-| sort agentsec.testbed.mode
+| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| eval outcome=mvindex(mvdedup('agentsec.outcome'),0)
+| table _time run_id mode event_name control_id decision reason tool outcome
+| sort run_id _time

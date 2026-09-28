@@ -91,7 +91,9 @@ def build() -> dict:
     add_search("ds_narrow", "Q-BRIDGE-NARROW", "Q-BRIDGE-NARROW.spl")
     add_search("ds_sequence", "Q-BRIDGE-SEQUENCE", "Q-BRIDGE-SEQUENCE.spl")
     add_search("ds_compare", "Q-BRIDGE-COMPARE", "Q-BRIDGE-COMPARE.spl")
+    add_search("ds_compare_exec", "Q-BRIDGE-COMPARE-EXECUTION", "Q-BRIDGE-COMPARE-EXECUTION.spl")
     add_search("ds_dup", "Q-BRIDGE-DUPLICATES", "Q-BRIDGE-DUPLICATES.spl")
+    add_search("ds_dup_mode", "Q-BRIDGE-DUPLICATES-BY-MODE", "Q-BRIDGE-DUPLICATES-BY-MODE.spl")
     add_search("ds_external", "Q-BRIDGE-EXTERNAL", "Q-BRIDGE-EXTERNAL.spl")
     add_search("ds_stats", "Q-BRIDGE-STATS", "Q-BRIDGE-STATS.spl")
 
@@ -175,19 +177,15 @@ Set a time range before you trust a row count. These teaching searches use `earl
     add_md(
         "viz_narrow_prompt",
         """
-# Exercise 6 starts here — write SPL
+# Exercise 6 — write a stats search
 
-In Search, narrow the sample. First show tool authorization decisions. Then show denied decisions. Then identify which runs contain them.
+In [Search]({SEARCH_URL}), write the command yourself. Path A does not contain the finished pipeline. Path B does, after you try.
 
-Complete this stats command yourself. The blank is yours to fill. A finished command is on Path B, after you try.
+**Goal.** For CTRL-MCP-001 control decisions, report indexed events, distinct raw events, and distinct run identifiers in each testbed mode and each decision. The mode column must not multiply an event just because the mode field repeats the same value.
 
-```
-index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0
-"event.name"=agentsec.control.decision "agentsec.control.id"=CTRL-MCP-001
-| stats _____ by agentsec.testbed.mode agentsec.control.decision
-```
+**Fields.** `_raw`, `agentsec.run.id`, `agentsec.testbed.mode`, `agentsec.control.decision`, `event.name`, `agentsec.control.id`.
 
-Count indexed rows, distinct raw events, and distinct run identifiers. Those three numbers are not interchangeable.
+**Hint.** Check `mvcount` on `agentsec.testbed.mode` before you group. If one event holds the same mode more than once, deduplicate that value before `stats` uses it in `by`.
 """,
     )
 
@@ -196,21 +194,24 @@ Count indexed rows, distinct raw events, and distinct run identifiers. Those thr
         """
 # Exercise 3 — candidate run
 
-**Hint 4.** Filter `agentsec.control.id` to CTRL-MCP-001 and `agentsec.control.decision` to DENY. Summarize by `agentsec.run.id` and `agentsec.testbed.mode`. The run identifier in the result is discovered evidence. It was not the starting answer.
+**Hint 4.** Use `agentsec.control.id` CTRL-MCP-001 and decision DENY only to find candidate runs. The run identifier in that result is discovered evidence.
 
-If the candidate table returns several runs, pick one and say why. If it returns none, write NO EVIDENCE FOUND for that filter. Do not switch the claim to a safety verdict.
+If several runs return, pick one and say why. If none return, write NO EVIDENCE FOUND. Do not turn that into a safety verdict.
 
-**Exercise 4 — timeline.** For the run you chose, list event names you can actually see.
+**Exercise 4 — timeline.** Pivot on the run id you found. Do not add `agentsec.control.id` to that pivot. List every event name that search returns, in time order. The sequence table samples denied-authorization runs the same way: the control id is only inside the search that chooses run ids.
 
-**Exercise 5 — authorization versus execution.** Answer only from present events:
+**Exercise 5 — authorization versus execution.** Keep the two questions separate.
 
-- requested: a control-decision event exists
-- allowed or denied: `agentsec.control.decision` on that event
-- invoked: `agentsec.mcp.started` is present
-- completed: `agentsec.mcp.completed` is present
-- outcome: only a field that is actually on the event
+Authorization evidence is the control-decision event: `agentsec.control.id`, decision, reason, and tool.
 
-A missing stage stays missing. ALLOW is not execution. DENY is not universal safety. An event present is not compromise. An event absent is not proof of safety.
+Execution and outcome evidence is whatever else shares that `agentsec.run.id`: `agentsec.mcp.started`, `agentsec.mcp.completed`, `agentsec.mcp.failed`, hop outcome, run completion. Those events often have no `agentsec.control.id`. An empty control id on them is a field fact, not a missing run.
+
+- decision: only `agentsec.control.decision` on the control event
+- invoked: `agentsec.mcp.started` is present for that run
+- completed: `agentsec.mcp.completed` is present for that run
+- outcome: only an outcome value that is on an event for that run
+
+A missing stage stays **NOT OBSERVED**. ALLOW is not execution. DENY is not universal prevention. ERROR is not ALLOW and not DENY. An event present is not compromise. An event absent is not proof of safety.
 """,
         title="INVESTIGATE",
     )
@@ -224,8 +225,8 @@ A missing stage stays missing. ALLOW is not execution. DENY is not universal saf
     add_table(
         "viz_sequence_table",
         "ds_sequence",
-        "Event names present per run",
-        "Sequence reconstruction. Absent names stay NOT OBSERVED.",
+        "Events for denied-authorization runs, in time order",
+        "Control id chose the runs. It is not required on later events. Empty cells stay empty.",
         INSUFFICIENT,
     )
     add_md(
@@ -233,23 +234,37 @@ A missing stage stays missing. ALLOW is not execution. DENY is not universal saf
         """
 # Exercise 7 — controlled comparison
 
-Compare ATTACK, RETEST, and BASELINE on the same control. These are controlled labels in `agentsec.testbed.mode`. They are not universal compromise, universal security, or a permanent baseline of safety.
+Compare ATTACK, RETEST, and BASELINE as controlled labels in `agentsec.testbed.mode`. They are not universal compromise, universal security, or a permanent baseline of safety.
 
-Read decisions and which event names exist in each mode. Record differences, similarities, and stages you cannot see. Do not copy a conclusion from this heading. The rows are the evidence.
+Read the authorization table first: what CTRL-MCP-001 decided. Then read the execution and outcome table: which follow-on events exist, and which outcomes they carry. Do not collapse those into one yes or no. ERROR stays ERROR. Counts describe this index, not every future run. Do not copy a verdict from this heading.
 """,
     )
     add_table(
         "viz_compare_table",
         "ds_compare",
-        "ATTACK, RETEST, and BASELINE on CTRL-MCP-001",
-        "Comparison evidence. A mode label is not itself a finding.",
+        "Authorization comparison — CTRL-MCP-001 decisions",
+        "Decisions only. A decision row is not an execution row.",
         NO_EVIDENCE,
+    )
+    add_table(
+        "viz_compare_exec_table",
+        "ds_compare_exec",
+        "Execution and outcome comparison",
+        "These events are not filtered by control id. An empty outcome stays empty.",
+        INSUFFICIENT,
     )
     add_table(
         "viz_dup_table",
         "ds_dup",
-        "Indexed rows, distinct raw events, distinct runs",
-        "If indexed rows exceed distinct raw events, the index holds duplicate copies. Copies are not extra executions.",
+        "No-split count, distinct raw, distinct runs, mode values",
+        "No by clause. Compare indexed rows with distinct raw before you explain a gap. mode_value_count is values inside the field, not extra runs.",
+        NO_EVIDENCE,
+    )
+    add_table(
+        "viz_dup_mode_table",
+        "ds_dup_mode",
+        "Mode groups after one mode value per event",
+        "Mode was deduplicated before stats by. This is not an execution count.",
         NO_EVIDENCE,
     )
 
@@ -281,21 +296,27 @@ Zero external findings are not trust. HEC accepted is not the same as searchable
 
 # Exercise 10 — report
 
-Write:
+Write five separate lines from your rows, not from this heading:
 
-- technical finding
-- evidence (how obtained, and what claim it supports)
-- alternative explanation
-- missing evidence
-- bounded conclusion
+- authorization evidence: the CTRL-MCP-001 decision, reason, and tool
+- execution evidence: started, completed, or failed events for that run, or **NOT OBSERVED**
+- outcome evidence: hop or run outcome values that are present, or **NOT OBSERVED**
+- external evidence: what scanner or garak shows, and **CORRELATION NOT ESTABLISHED** when no runtime run id is present
+- missing evidence: at least one **NOT PROVEN** claim
+
+Use this shape and fill the blanks from the rows:
+
+Splunk evidence shows CTRL-MCP-001 made a decision for a request. Events correlated by the run id you found show the execution or outcome that is actually present. The available evidence does not establish an unsupported claim.
 
 # Failure language
 
 Use NO EVIDENCE FOUND, INSUFFICIENT EVIDENCE, or CORRELATION NOT ESTABLISHED. Do not claim the lab is protected, and do not claim there was no hostile activity, unless the rows actually establish that bounded statement. They usually do not.
 
-# Duplicates
+# Counts are not causes
 
-`count` is indexed rows. `dc(_raw)` is distinct raw copies. `dc(agentsec.run.id)` is distinct run identifiers. None of those is an execution count by itself.
+`count` is indexed rows in that aggregation. `dc(_raw)` is distinct raw events. `dc(agentsec.run.id)` is distinct run identifiers. `mvcount` is how many values one field holds. An execution count is a separate question, answered only when an execution event is present.
+
+`stats by` a multivalue field can raise `count` even when `dc(_raw)` does not. Find out why the numbers differ before you name a cause. Compare a search with no `by` clause first. None of these numbers is an execution count by itself.
 
 # Where this stops
 
@@ -324,21 +345,26 @@ Open [Search]({SEARCH_URL}) for Path A. Path B is a review key, not policy.
 
 **Discovery.** You should have started from the index and sourcetype, then control-decision events, with no run identifier in the opening search.
 
-**Stats you were asked to complete.**
+**Stats you were asked to write.** The control id stays on this authorization summary. Mode is reduced to one value before `by`, because a repeated value inside the field would multiply `count`.
 
 ```
 index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0
 "event.name"=agentsec.control.decision "agentsec.control.id"=CTRL-MCP-001
-| stats count as indexed_rows dc(_raw) as distinct_raw dc(agentsec.run.id) as distinct_runs by agentsec.testbed.mode agentsec.control.decision
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| stats count as indexed_rows dc(_raw) as distinct_raw dc(agentsec.run.id) as distinct_runs by mode decision
+| sort mode decision
 ```
 
-**How to read the comparison.** For each of ATTACK, RETEST, and BASELINE, record the decision values and whether `agentsec.mcp.started` and `agentsec.mcp.completed` appear. A DENY without a started event supports "denial is indexed" and leaves invocation **NOT OBSERVED**. An ALLOW with a completed event supports "execution was indexed for that run" and does not prove every future request is allowed. BASELINE is a controlled comparison, not a proof of safety.
+**How to read the two comparison tables.** The authorization table is CTRL-MCP-001 decisions only. The execution table is started, completed, failed, hop, and run-completion events, and it does not require `agentsec.control.id`. A DENY with no `agentsec.mcp.started` for that run leaves invocation **NOT OBSERVED**. An ALLOW with a started event supports indexed execution for that run and does not prove the next request is allowed. ERROR stays ERROR. BASELINE is a controlled comparison, not a proof of safety. Do not treat a row count from one volume as a permanent product result.
 
-**Duplicates.** If `indexed_rows` is greater than `distinct_raw`, you are seeing replayed or restaged copies. Do not add those copies to an execution count.
+**Sequence.** `agentsec.control.id` chooses candidate runs. The pivot is `agentsec.run.id`. Later events may have an empty control id, an empty decision, and a populated outcome. Empty is **NOT OBSERVED** for that field, not a second decision.
 
-**False lead.** Reject "scanner HIGH means the tool was denied" and "garak failed means the runtime blocked the call." Those claims are **NOT PROVEN** by external events. Production customer harm is **NOT MODELED**.
+**Counts.** Read the no-split table first. If indexed rows equal distinct raw, this search is not showing extra indexed copies. `mode_value_count` tells you how many values the mode field holds. Grouping by that field before deduplicating it can make `count` larger than `dc(_raw)` without any additional event. Do not invent a cause for that gap. None of these figures is an execution count.
 
-**Bounded conclusion shape.** "For the runs this search returned, CTRL-MCP-001 decisions and follow-on MCP events show the following authorization and execution states. Stages that are absent stay absent. This does not authorize anything, and it does not prove the lab is protected."
+**False lead.** Reject "scanner HIGH means the tool was denied" and "garak PASS means the runtime allowed the call." Those claims are **NOT PROVEN**. No runtime run id on those events is **CORRELATION NOT ESTABLISHED**. Production customer harm is **NOT MODELED**.
+
+**Bounded conclusion shape.** Fill this from your rows. "Splunk evidence shows CTRL-MCP-001 made this decision for this request. Events correlated by this run id show this execution or outcome, or those stages are **NOT OBSERVED**. External evidence does not establish runtime authorization. The evidence does not establish the unsupported claim."
 
 If your table is empty, your conclusion is NO EVIDENCE FOUND for this Splunk volume, not a control result.
 """,
@@ -387,34 +413,36 @@ If your table is empty, your conclusion is NO EVIDENCE FOUND for this Splunk vol
                         block("viz_discover", 0, 0, FULL, 520),
                         block("viz_discover_table", 0, 520, FULL, 320),
                         block("viz_fields_table", 0, 840, FULL, 320),
-                        block("viz_narrow_prompt", 0, 1160, FULL, 280),
+                        block("viz_narrow_prompt", 0, 1160, FULL, 360),
                     ],
-                    1460,
+                    1540,
                 ),
                 "layout_investigate": layout(
                     [
-                        block("viz_investigate", 0, 0, FULL, 420),
-                        block("viz_narrow_table", 0, 420, FULL, 300),
-                        block("viz_sequence_table", 0, 720, FULL, 300),
-                        block("viz_compare_prompt", 0, 1020, FULL, 220),
-                        block("viz_compare_table", 0, 1240, FULL, 300),
-                        block("viz_dup_table", 0, 1540, FULL, 280),
+                        block("viz_investigate", 0, 0, FULL, 640),
+                        block("viz_narrow_table", 0, 640, FULL, 300),
+                        block("viz_sequence_table", 0, 940, FULL, 320),
+                        block("viz_compare_prompt", 0, 1260, FULL, 240),
+                        block("viz_compare_table", 0, 1500, FULL, 280),
+                        block("viz_compare_exec_table", 0, 1780, FULL, 300),
+                        block("viz_dup_table", 0, 2080, FULL, 220),
+                        block("viz_dup_mode_table", 0, 2300, FULL, 240),
                     ],
-                    1840,
+                    2560,
                 ),
                 "layout_challenge": layout(
                     [
-                        block("viz_challenge", 0, 0, FULL, 760),
-                        block("viz_external_table", 0, 760, FULL, 320),
+                        block("viz_challenge", 0, 0, FULL, 980),
+                        block("viz_external_table", 0, 980, FULL, 320),
                     ],
-                    1100,
+                    1320,
                 ),
                 "layout_path_b": layout(
                     [
-                        block("viz_path_b", 0, 0, FULL, 640),
-                        block("viz_stats_table", 0, 640, FULL, 320),
+                        block("viz_path_b", 0, 0, FULL, 920),
+                        block("viz_stats_table", 0, 920, FULL, 320),
                     ],
-                    980,
+                    1260,
                 ),
             },
         },
@@ -449,7 +477,25 @@ def validate(definition: dict) -> None:
             raise ValueError(f"mission states a verdict: {banned}")
     if "indexed_rows dc(_raw)" in mission:
         raise ValueError("mission includes the completed stats command")
+    path_a = _tab_markdown(definition, "layout_discover") + _tab_markdown(
+        definition, "layout_investigate"
+    )
+    if "mvindex(mvdedup('agentsec.testbed.mode'),0)" in path_a:
+        raise ValueError("Path A includes the finished mode normalization")
     path_b = _tab_markdown(definition, "layout_path_b")
+    if "restaged" in path_b.lower() or "restaged" in _tab_markdown(definition, "layout_challenge").lower():
+        raise ValueError("workshop claims restaged copies")
+    sequence = definition["dataSources"]["ds_sequence"]["options"]["query"]
+    outer, _, inner = sequence.partition("[")
+    if "CTRL-MCP-001" in outer:
+        raise ValueError("sequence requires control id before the run pivot")
+    if "agentsec.outcome" not in sequence:
+        raise ValueError("sequence does not project outcome")
+    if "agentsec.mcp.started" in definition["dataSources"]["ds_compare"]["options"]["query"]:
+        raise ValueError("authorization comparison includes execution events")
+    execution = definition["dataSources"]["ds_compare_exec"]["options"]["query"]
+    if "CTRL-MCP-001" in execution or "agentsec.mcp.started" not in execution:
+        raise ValueError("execution comparison is filtered like an authorization search")
     for required in ("NOT PROVEN", "NOT MODELED", "not policy", "CTRL-MCP-001", "Path B"):
         if required not in path_b:
             raise ValueError(f"path B missing {required}")

@@ -1,3 +1,10 @@
 index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "event.name"=agentsec.control.decision
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)
 | head 25
-| table _time event.name agentsec.control.id agentsec.control.decision agentsec.control.reason gen_ai.tool.name agentsec.testbed.mode agentsec.security.profile
+| table _time event_name control_id decision reason tool mode profile

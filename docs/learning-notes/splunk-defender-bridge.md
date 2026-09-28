@@ -26,7 +26,7 @@ In the underlying tool lab, untrusted content can influence what the agent reque
 
 ## What can go wrong?
 
-You can treat a pasted run identifier as the investigation. You can treat indexed copies as extra executions. You can treat a scanner HIGH or a garak result as DENY. You can fill in a missing `agentsec.mcp.started` event. You can call an empty search proof that nothing happened.
+You can treat a pasted run identifier as the investigation. You can treat `count` as executions. You can `stats by` a mode field that repeats inside one event and then invent a cause for the larger number. You can require `agentsec.control.id` on hop and MCP events that do not carry it, and then treat the hidden outcome as absent. You can treat a scanner HIGH or a garak result as DENY. You can fill in a missing `agentsec.mcp.started` event. You can call an empty search proof that nothing happened.
 
 ## What telemetry should exist?
 
@@ -34,7 +34,7 @@ Control decisions (`event.name=agentsec.control.decision`) with `agentsec.contro
 
 ## How will Splunk show it?
 
-Tables on the bridge. Search is Path A. Path B is a review key after you have tried. `count`, `dc(_raw)`, and `dc(agentsec.run.id)` answer different questions.
+Tables on the bridge. Search is Path A. Path B is a review key after you have tried. `count`, `dc(_raw)`, `dc(agentsec.run.id)`, and `mvcount` answer different questions. CTRL-MCP-001 selects authorization events. The run id is how you reach execution and outcome events that do not carry that control id.
 
 ## What control could change the result?
 
