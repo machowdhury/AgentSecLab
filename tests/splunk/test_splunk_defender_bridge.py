@@ -98,9 +98,12 @@ def test_progressive_hints_and_answer_separation():
     assert "Hint 2" in discover
     assert "Hint 3" in discover
     assert "Hint 4" in investigate
-    assert "stats _____" in discover
-    assert "dc(agentsec.run.id) as distinct_runs by agentsec.testbed.mode" in path_b
-    assert "dc(agentsec.run.id) as distinct_runs by agentsec.testbed.mode" not in discover
+    assert "write the command yourself" in discover.lower()
+    assert "mvcount" in discover
+    assert "mvindex(mvdedup('agentsec.testbed.mode'),0)" not in discover
+    assert "mvindex(mvdedup('agentsec.testbed.mode'),0)" not in investigate
+    assert "mvindex(mvdedup('agentsec.testbed.mode'),0)" in path_b
+    assert "by mode decision" in path_b
     assert "Path B" in path_b
     assert "not policy" in path_b.lower()
     assert "Beginner" in _tab_markdown("layout_mission")
@@ -119,6 +122,12 @@ def test_comparison_duplicates_gaps_and_false_lead():
     assert "NOT MODELED" in path_b
     assert "dc(_raw)" in challenge
     assert "indexed rows" in challenge.lower()
+    assert "mvcount" in challenge
+    assert "restaged" not in challenge.lower()
+    assert "restaged" not in path_b.lower()
+    assert "NOT OBSERVED" in challenge
+    assert "authorization evidence" in challenge.lower()
+    assert "execution evidence" in challenge.lower()
     assert "NO EVIDENCE FOUND" in challenge
     assert "INSUFFICIENT EVIDENCE" in challenge
     assert "CORRELATION NOT ESTABLISHED" in challenge
@@ -133,8 +142,10 @@ def test_comparison_duplicates_gaps_and_false_lead():
 def test_searches_are_bounded_and_do_not_embed_a_run_id():
     names = sorted(path.name for path in SEARCHES.glob("Q-BRIDGE-*.spl"))
     assert names == [
+        "Q-BRIDGE-COMPARE-EXECUTION.spl",
         "Q-BRIDGE-COMPARE.spl",
         "Q-BRIDGE-DISCOVER.spl",
+        "Q-BRIDGE-DUPLICATES-BY-MODE.spl",
         "Q-BRIDGE-DUPLICATES.spl",
         "Q-BRIDGE-EXTERNAL.spl",
         "Q-BRIDGE-FIELDS.spl",
@@ -146,8 +157,32 @@ def test_searches_are_bounded_and_do_not_embed_a_run_id():
     assert discover.startswith("index=agentsec_telemetry sourcetype=otel:agentic:json")
     assert "agentsec.run.id=" not in discover
     narrow = (SEARCHES / "Q-BRIDGE-NARROW.spl").read_text(encoding="utf-8")
-    assert "by agentsec.run.id" in narrow
+    assert "by run_id mode" in narrow
     assert "CTRL-MCP-001" in narrow
+    assert narrow.index("mvdedup") < narrow.index("| stats")
+    sequence = (SEARCHES / "Q-BRIDGE-SEQUENCE.spl").read_text(encoding="utf-8")
+    outer, _, _inner = sequence.partition("[")
+    assert "CTRL-MCP-001" not in outer
+    assert "CTRL-MCP-001" in sequence
+    assert "agentsec.outcome" in sequence
+    assert "agentsec.mcp.started" not in sequence.split("[", 1)[0]
+    auth = (SEARCHES / "Q-BRIDGE-COMPARE.spl").read_text(encoding="utf-8")
+    execution = (SEARCHES / "Q-BRIDGE-COMPARE-EXECUTION.spl").read_text(encoding="utf-8")
+    assert "CTRL-MCP-001" in auth
+    assert "agentsec.mcp.started" not in auth
+    assert "agentsec.control.decision" in auth
+    assert "CTRL-MCP-001" not in execution
+    assert "agentsec.mcp.started" in execution
+    assert "agentsec.hop.completed" in execution
+    assert execution.index("mvdedup") < execution.index("| stats")
+    duplicates = (SEARCHES / "Q-BRIDGE-DUPLICATES.spl").read_text(encoding="utf-8")
+    assert "mvcount" in duplicates
+    assert "\n| stats" in duplicates
+    assert " by " not in duplicates.split("| stats", 1)[1]
+    by_mode = (SEARCHES / "Q-BRIDGE-DUPLICATES-BY-MODE.spl").read_text(encoding="utf-8")
+    assert by_mode.index("mvdedup") < by_mode.index("| stats")
+    assert "by mode" in by_mode
+    assert "by agentsec.testbed.mode" not in by_mode
     for path in SEARCHES.glob("*.spl"):
         text = path.read_text(encoding="utf-8")
         assert text.startswith("index=agentsec_telemetry"), path.name

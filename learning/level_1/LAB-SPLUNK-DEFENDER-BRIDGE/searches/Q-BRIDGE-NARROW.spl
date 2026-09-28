@@ -1,3 +1,7 @@
 index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "event.name"=agentsec.control.decision "agentsec.control.id"=CTRL-MCP-001 "agentsec.control.decision"=DENY
-| stats count as indexed_rows dc(_raw) as distinct_raw values(gen_ai.tool.name) as tools values(agentsec.control.reason) as reasons by agentsec.run.id agentsec.testbed.mode
-| sort agentsec.testbed.mode
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
+| stats count as indexed_rows dc(_raw) as distinct_raw values(tool) as tools values(reason) as reasons by run_id mode
+| sort mode run_id

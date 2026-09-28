@@ -1,0 +1,6 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 ("event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed OR "event.name"=agentsec.hop.completed OR "event.name"=agentsec.run.completed)
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval outcome=mvindex(mvdedup('agentsec.outcome'),0)
+| stats count as indexed_rows dc(_raw) as distinct_raw dc(agentsec.run.id) as distinct_runs values(outcome) as outcomes by mode event_name
+| sort mode event_name
