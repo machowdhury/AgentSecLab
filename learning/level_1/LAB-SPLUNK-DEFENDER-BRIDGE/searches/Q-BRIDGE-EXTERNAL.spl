@@ -1,0 +1,7 @@
+index=agentsec_telemetry earliest=0 (sourcetype=agentsec:scanner:finding OR sourcetype=agentsec:external:evaluation)
+| eval severity=mvindex(mvdedup('finding.native_severity'),0)
+| eval native_result=mvindex(mvdedup('evaluation.native_result'),0)
+| eval correlation_method=mvindex(mvdedup('correlation.method'),0)
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| stats count as indexed_rows dc(_raw) as distinct_raw dc(run_id) as distinct_runtime_run_ids values(severity) as severities values(native_result) as native_results values(correlation_method) as correlation_methods by sourcetype
+| sort sourcetype

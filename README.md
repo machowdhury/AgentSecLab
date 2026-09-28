@@ -93,7 +93,7 @@ The commands above start the **local Docker lab**. **External Splunk** is not st
 4. Copy the fresh `run.id` from **this** launch.
 5. In Splunk Search, investigate that id (Path A). A starter constraint is in the quickstart.
 6. Read the lab’s ATTACK and RETEST comparison as a controlled pair, not as proof the system is safe or fully compromised.
-7. Continue in Academy order. Do not stop at the L5 Capstone. L6 through L10 and the optional Mastery Check come after it.
+7. Continue in Academy order. Do not stop at the L5 Capstone. Complete the Splunk Defender Bridge, then L6 through L10 and the optional Mastery Check.
 
 Workshop pages may show canonical specimen ids. Those are REPLAY or reference evidence. They are not the launch you just executed. Use the `run.id` Attack Service minted for this session.
 
@@ -121,6 +121,7 @@ Names below are the curriculum titles. Menus use shorter collection labels. “C
 | L3 | Intent and identity | Separate an authorized tool from an authorized goal, and an identity claim from authentication. | Yes for Goal and Identity. Confused Deputy is REPLAY. |
 | L4 | Investigation craft | Practice hunt versus detection and evidence quality on LIVE Path A. Zero rows is not safe. | No separate workshop. |
 | L5 | Integrated purple team | **L5 Capstone:** Lending Assistant Investigation. Reconstruct a chain you launch. | Yes. Last LIVE launcher. |
+| Checkpoint | Splunk Defender Bridge | Investigate tool-authorization evidence without a supplied run identifier. Then continue to L6. | No. REPLAY / static. Not an eighth LIVE lab. |
 | L6 | Blue-team investigation and threat hunting | Investigate AcmeBank Incident AI-2026-001 from incomplete evidence. | No. REPLAY. |
 | L7 | Threat modeling and security architecture | Model an unfamiliar agentic system and state residual risk. | No. Reasoning. No fresh attack. |
 | L8 | Privacy, data protection and agentic data governance | Separate an authorized action from an appropriate use of data. | No. REPLAY investigation. |

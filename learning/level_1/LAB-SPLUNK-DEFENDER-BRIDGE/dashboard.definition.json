@@ -1,0 +1,568 @@
+{
+  "title": "Splunk Defender Bridge",
+  "description": "LAB-SPLUNK-DEFENDER-BRIDGE REPLAY investigation between L5 and L6. Splunk is downstream evidence, not the PDP.",
+  "inputs": {},
+  "dataSources": {
+    "ds_discover": {
+      "type": "ds.search",
+      "name": "Q-BRIDGE-DISCOVER",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"event.name\"=agentsec.control.decision\n| head 25\n| table _time event.name agentsec.control.id agentsec.control.decision agentsec.control.reason gen_ai.tool.name agentsec.testbed.mode agentsec.security.profile"
+      }
+    },
+    "ds_fields": {
+      "type": "ds.search",
+      "name": "Q-BRIDGE-FIELDS",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"event.name\"=agentsec.control.decision\n| fieldsummary maxvals=8 agentsec.control.id agentsec.control.decision agentsec.control.reason gen_ai.tool.name agentsec.testbed.mode agentsec.security.profile agentsec.run.id event.name agentsec.sequence"
+      }
+    },
+    "ds_narrow": {
+      "type": "ds.search",
+      "name": "Q-BRIDGE-NARROW",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"event.name\"=agentsec.control.decision \"agentsec.control.id\"=CTRL-MCP-001 \"agentsec.control.decision\"=DENY\n| stats count as indexed_rows dc(_raw) as distinct_raw values(gen_ai.tool.name) as tools values(agentsec.control.reason) as reasons by agentsec.run.id agentsec.testbed.mode\n| sort agentsec.testbed.mode"
+      }
+    },
+    "ds_sequence": {
+      "type": "ds.search",
+      "name": "Q-BRIDGE-SEQUENCE",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.control.id\"=CTRL-MCP-001 (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| stats values(event_name) as event_names values(decision) as decisions count as indexed_rows dc(_raw) as distinct_raw by agentsec.run.id agentsec.testbed.mode\n| sort agentsec.testbed.mode"
+      }
+    },
+    "ds_compare": {
+      "type": "ds.search",
+      "name": "Q-BRIDGE-COMPARE",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.control.id\"=CTRL-MCP-001 \"agentsec.testbed.mode\" IN (ATTACK, RETEST, BASELINE) (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| stats count as indexed_rows dc(_raw) as distinct_raw dc(agentsec.run.id) as distinct_runs values(decision) as decisions by agentsec.testbed.mode event_name\n| sort agentsec.testbed.mode event_name"
+      }
+    },
+    "ds_dup": {
+      "type": "ds.search",
+      "name": "Q-BRIDGE-DUPLICATES",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"event.name\"=agentsec.control.decision \"agentsec.control.id\"=CTRL-MCP-001\n| stats count as indexed_rows dc(_raw) as distinct_raw dc(agentsec.run.id) as distinct_runs by agentsec.testbed.mode\n| sort agentsec.testbed.mode"
+      }
+    },
+    "ds_external": {
+      "type": "ds.search",
+      "name": "Q-BRIDGE-EXTERNAL",
+      "options": {
+        "query": "index=agentsec_telemetry earliest=0 (sourcetype=agentsec:scanner:finding OR sourcetype=agentsec:external:evaluation)\n| eval severity=mvindex(mvdedup('finding.native_severity'),0)\n| eval native_result=mvindex(mvdedup('evaluation.native_result'),0)\n| eval correlation_method=mvindex(mvdedup('correlation.method'),0)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| stats count as indexed_rows dc(_raw) as distinct_raw dc(run_id) as distinct_runtime_run_ids values(severity) as severities values(native_result) as native_results values(correlation_method) as correlation_methods by sourcetype\n| sort sourcetype"
+      }
+    },
+    "ds_stats": {
+      "type": "ds.search",
+      "name": "Q-BRIDGE-STATS",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"event.name\"=agentsec.control.decision \"agentsec.control.id\"=CTRL-MCP-001\n| stats count as indexed_rows dc(_raw) as distinct_raw dc(agentsec.run.id) as distinct_runs by agentsec.testbed.mode agentsec.control.decision\n| sort agentsec.testbed.mode agentsec.control.decision"
+      }
+    }
+  },
+  "visualizations": {
+    "viz_mission": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Splunk Defender Bridge\n\nYou are between the guided L5 investigation and independent L6 work.\n\n**Security question.** A banking agent may have asked a tool to do something outside the authority it was given. What can indexed evidence show about that request, and what can it not show?\n\n**Write a hypothesis before you search.** Name the asset, the trust boundary, and the claim you hope to support or drop. Do not start from a run identifier. A run identifier is something you may discover later.\n\n**REPLAY workshop.** This page does not launch an attack. It uses evidence already in `index=agentsec_telemetry`. It is not an eighth LIVE lab. CTRL-MCP-001 remains the tool policy decision point. Splunk remains downstream evidence. Splunk is not policy.\n\n**Same evidence for every learner.**\n\n- **Beginner.** Use DISCOVER in order. Read each hint before you edit SPL.\n- **Practitioner.** Use the security question and the investigation objectives. Open a hint only when you are stuck.\n- **Advanced.** Stay in [Search](http://127.0.0.1:8000/en-US/app/search/search) until CHALLENGE. Hints are optional.\n\nOpening this mission does not tell you the ATTACK, RETEST, or BASELINE result. You produce that comparison after you have rows.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "MISSION"
+    },
+    "viz_mission_process": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Process you are practicing\n\nsecurity question → hypothesis → evidence source → time scope → fields → candidate activity → candidate run → correlation → sequence → authorization versus execution → ATTACK / RETEST / BASELINE → alternative explanation → missing evidence → bounded conclusion\n\nClaim strength stays at or below evidence strength.\n\nTwo vocabularies stay separate. How evidence was obtained: MEASURED, OBSERVED, DOCUMENTED, REPLAYED, SIMULATED. What you may claim: PROVEN, SUPPORTED, OBSERVED, INFERRED, NOT OBSERVED, NOT MODELED, NOT PROVEN, REFUTED.\n\nThis workshop is REPLAY / static investigation unless you later measure a fresh launch yourself. A row on this page is not a new experiment.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_discover": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Exercise 1 — Discovery\n\n**REPLAY workshop.** Path A is [Search](http://127.0.0.1:8000/en-US/app/search/search). Path B is the last tab. Path B is an answer key, not policy.\n\nStart here. Do not paste a run identifier.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json\n```\n\nSet a time range before you trust a row count. These teaching searches use `earliest=0` because this lab volume holds historical specimens. If you narrow the picker and the table says NO EVIDENCE FOUND, that window has no matching rows. That is not a safety verdict.\n\n**Hint 1.** You are looking for tool-authorization activity, not a named incident.\n\n**Hint 2.** Stay on `index=agentsec_telemetry` and `sourcetype=otel:agentic:json`. Start with control-decision events.\n\n**Hint 3.** Useful fields, when the field summary shows them, include `event.name`, `agentsec.control.id`, `agentsec.control.decision`, `agentsec.control.reason`, `gen_ai.tool.name`, `agentsec.testbed.mode`, and `agentsec.run.id`. Do not invent a field the summary does not list.\n\n**Exercise 2 — field discovery.** From the field summary, write down which fields you need to answer: was a tool request decided, and in which testbed mode?\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "DISCOVER"
+    },
+    "viz_discover_table": {
+      "type": "splunk.table",
+      "title": "Broad control-decision sample",
+      "description": "Inspection sample. Not a verdict and not a supplied run identifier.",
+      "dataSources": {
+        "primary": "ds_discover"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "NO EVIDENCE FOUND for this question and time range. Empty is not a safety verdict and not proof the activity did not occur."
+      }
+    },
+    "viz_fields_table": {
+      "type": "splunk.table",
+      "title": "Field summary for control decisions",
+      "description": "Use this to choose fields. A field that is absent is not a hidden grant.",
+      "dataSources": {
+        "primary": "ds_fields"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "NO EVIDENCE FOUND for this question and time range. Empty is not a safety verdict and not proof the activity did not occur."
+      }
+    },
+    "viz_narrow_prompt": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Exercise 6 starts here — write SPL\n\nIn Search, narrow the sample. First show tool authorization decisions. Then show denied decisions. Then identify which runs contain them.\n\nComplete this stats command yourself. The blank is yours to fill. A finished command is on Path B, after you try.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0\n\"event.name\"=agentsec.control.decision \"agentsec.control.id\"=CTRL-MCP-001\n| stats _____ by agentsec.testbed.mode agentsec.control.decision\n```\n\nCount indexed rows, distinct raw events, and distinct run identifiers. Those three numbers are not interchangeable.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_investigate": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Exercise 3 — candidate run\n\n**Hint 4.** Filter `agentsec.control.id` to CTRL-MCP-001 and `agentsec.control.decision` to DENY. Summarize by `agentsec.run.id` and `agentsec.testbed.mode`. The run identifier in the result is discovered evidence. It was not the starting answer.\n\nIf the candidate table returns several runs, pick one and say why. If it returns none, write NO EVIDENCE FOUND for that filter. Do not switch the claim to a safety verdict.\n\n**Exercise 4 — timeline.** For the run you chose, list event names you can actually see.\n\n**Exercise 5 — authorization versus execution.** Answer only from present events:\n\n- requested: a control-decision event exists\n- allowed or denied: `agentsec.control.decision` on that event\n- invoked: `agentsec.mcp.started` is present\n- completed: `agentsec.mcp.completed` is present\n- outcome: only a field that is actually on the event\n\nA missing stage stays missing. ALLOW is not execution. DENY is not universal safety. An event present is not compromise. An event absent is not proof of safety.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "INVESTIGATE"
+    },
+    "viz_narrow_table": {
+      "type": "splunk.table",
+      "title": "Denied CTRL-MCP-001 decisions by run",
+      "description": "Candidate runs. Indexed row count is not an execution count.",
+      "dataSources": {
+        "primary": "ds_narrow"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "NO EVIDENCE FOUND for this question and time range. Empty is not a safety verdict and not proof the activity did not occur."
+      }
+    },
+    "viz_sequence_table": {
+      "type": "splunk.table",
+      "title": "Event names present per run",
+      "description": "Sequence reconstruction. Absent names stay NOT OBSERVED.",
+      "dataSources": {
+        "primary": "ds_sequence"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "INSUFFICIENT EVIDENCE. A stage that is absent stays absent. Do not fill it in."
+      }
+    },
+    "viz_compare_prompt": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Exercise 7 — controlled comparison\n\nCompare ATTACK, RETEST, and BASELINE on the same control. These are controlled labels in `agentsec.testbed.mode`. They are not universal compromise, universal security, or a permanent baseline of safety.\n\nRead decisions and which event names exist in each mode. Record differences, similarities, and stages you cannot see. Do not copy a conclusion from this heading. The rows are the evidence.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_compare_table": {
+      "type": "splunk.table",
+      "title": "ATTACK, RETEST, and BASELINE on CTRL-MCP-001",
+      "description": "Comparison evidence. A mode label is not itself a finding.",
+      "dataSources": {
+        "primary": "ds_compare"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "NO EVIDENCE FOUND for this question and time range. Empty is not a safety verdict and not proof the activity did not occur."
+      }
+    },
+    "viz_dup_table": {
+      "type": "splunk.table",
+      "title": "Indexed rows, distinct raw events, distinct runs",
+      "description": "If indexed rows exceed distinct raw events, the index holds duplicate copies. Copies are not extra executions.",
+      "dataSources": {
+        "primary": "ds_dup"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "NO EVIDENCE FOUND for this question and time range. Empty is not a safety verdict and not proof the activity did not occur."
+      }
+    },
+    "viz_challenge": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Exercise 8 — evidence gap\n\nLeave at least one claim **NOT PROVEN**. Example: this index does not prove what the agent would do on a later day.\n\nLeave at least one claim **NOT MODELED**. Example: customer impact, production identity, and a change ticket are not modeled by these events.\n\n# Exercise 9 — false lead\n\nCisco mcp-scanner findings and garak evaluations are adjacent evidence. A scanner severity, including HIGH, is not a CTRL-MCP-001 DENY. A garak pass or fail is not a runtime authorization decision. Neither tool authorizes the agent.\n\nAsk of the external table:\n\n- What does this evidence tell us?\n- What does it not tell us?\n- Can it establish runtime execution?\n- Can it establish authorization?\n- Can it establish causality?\n- Can it be correlated by `agentsec.run.id`?\n\nScanner correlation, where the event carries it, is hash-based (`correlation.method`, description hash to `agentsec.content.hash`). Do not invent a runtime run identifier the event does not contain. If distinct runtime run identifiers are empty, write **CORRELATION NOT ESTABLISHED**.\n\nZero external findings are not trust. HEC accepted is not the same as searchable evidence.\n\n# Exercise 10 — report\n\nWrite:\n\n- technical finding\n- evidence (how obtained, and what claim it supports)\n- alternative explanation\n- missing evidence\n- bounded conclusion\n\n# Failure language\n\nUse NO EVIDENCE FOUND, INSUFFICIENT EVIDENCE, or CORRELATION NOT ESTABLISHED. Do not claim the lab is protected, and do not claim there was no hostile activity, unless the rows actually establish that bounded statement. They usually do not.\n\n# Duplicates\n\n`count` is indexed rows. `dc(_raw)` is distinct raw copies. `dc(agentsec.run.id)` is distinct run identifiers. None of those is an execution count by itself.\n\n# Where this stops\n\nAn investigation query reconstructs a known question. A hunt query looks for behavior without a supplied run identifier. A candidate detection is unscheduled SPL. A validated detection has been tested against known cases. An enabled detector is scheduled. This bridge creates no detector and does not enable DET-MCP-001.\n\nL6 remains the deeper incident hunt. This page only gets you from unknown activity to a candidate investigation.\n\nOpen [Search](http://127.0.0.1:8000/en-US/app/search/search) for Path A. Path B is a review key, not policy.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "CHALLENGE"
+    },
+    "viz_external_table": {
+      "type": "splunk.table",
+      "title": "External evidence plane",
+      "description": "Scanner and garak rows. Not a runtime authorization decision.",
+      "dataSources": {
+        "primary": "ds_external"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "CORRELATION NOT ESTABLISHED. This result does not identify a runtime run or an authorization decision."
+      }
+    },
+    "viz_path_b": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Path B — review after you investigate\n\n**REPLAY workshop.** This is Path B, an answer key, not policy. Splunk does not enforce. CTRL-MCP-001 remains the tool policy decision point.\n\n**Discovery.** You should have started from the index and sourcetype, then control-decision events, with no run identifier in the opening search.\n\n**Stats you were asked to complete.**\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0\n\"event.name\"=agentsec.control.decision \"agentsec.control.id\"=CTRL-MCP-001\n| stats count as indexed_rows dc(_raw) as distinct_raw dc(agentsec.run.id) as distinct_runs by agentsec.testbed.mode agentsec.control.decision\n```\n\n**How to read the comparison.** For each of ATTACK, RETEST, and BASELINE, record the decision values and whether `agentsec.mcp.started` and `agentsec.mcp.completed` appear. A DENY without a started event supports \"denial is indexed\" and leaves invocation **NOT OBSERVED**. An ALLOW with a completed event supports \"execution was indexed for that run\" and does not prove every future request is allowed. BASELINE is a controlled comparison, not a proof of safety.\n\n**Duplicates.** If `indexed_rows` is greater than `distinct_raw`, you are seeing replayed or restaged copies. Do not add those copies to an execution count.\n\n**False lead.** Reject \"scanner HIGH means the tool was denied\" and \"garak failed means the runtime blocked the call.\" Those claims are **NOT PROVEN** by external events. Production customer harm is **NOT MODELED**.\n\n**Bounded conclusion shape.** \"For the runs this search returned, CTRL-MCP-001 decisions and follow-on MCP events show the following authorization and execution states. Stages that are absent stay absent. This does not authorize anything, and it does not prove the lab is protected.\"\n\nIf your table is empty, your conclusion is NO EVIDENCE FOUND for this Splunk volume, not a control result.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "PATH B"
+    },
+    "viz_stats_table": {
+      "type": "splunk.table",
+      "title": "Completed stats check",
+      "description": "Compare this with the command you wrote. Row counts are indexed evidence, not execution counts.",
+      "dataSources": {
+        "primary": "ds_stats"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "NO EVIDENCE FOUND for this question and time range. Empty is not a safety verdict and not proof the activity did not occur."
+      }
+    }
+  },
+  "layout": {
+    "options": {
+      "submitButton": false,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "globalInputs": [],
+    "tabs": {
+      "options": {
+        "barPosition": "top"
+      },
+      "items": [
+        {
+          "layoutId": "layout_mission",
+          "label": "MISSION"
+        },
+        {
+          "layoutId": "layout_discover",
+          "label": "DISCOVER"
+        },
+        {
+          "layoutId": "layout_investigate",
+          "label": "INVESTIGATE"
+        },
+        {
+          "layoutId": "layout_challenge",
+          "label": "CHALLENGE"
+        },
+        {
+          "layoutId": "layout_path_b",
+          "label": "PATH B · REVIEW"
+        }
+      ]
+    },
+    "layoutDefinitions": {
+      "layout_mission": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 820
+        },
+        "structure": [
+          {
+            "item": "viz_mission",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_mission_process",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 520,
+              "w": 1440,
+              "h": 280
+            }
+          }
+        ]
+      },
+      "layout_discover": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1460
+        },
+        "structure": [
+          {
+            "item": "viz_discover",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 520
+            }
+          },
+          {
+            "item": "viz_discover_table",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 520,
+              "w": 1440,
+              "h": 320
+            }
+          },
+          {
+            "item": "viz_fields_table",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 840,
+              "w": 1440,
+              "h": 320
+            }
+          },
+          {
+            "item": "viz_narrow_prompt",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1160,
+              "w": 1440,
+              "h": 280
+            }
+          }
+        ]
+      },
+      "layout_investigate": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1840
+        },
+        "structure": [
+          {
+            "item": "viz_investigate",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 420
+            }
+          },
+          {
+            "item": "viz_narrow_table",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 420,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_sequence_table",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 720,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_compare_prompt",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1020,
+              "w": 1440,
+              "h": 220
+            }
+          },
+          {
+            "item": "viz_compare_table",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1240,
+              "w": 1440,
+              "h": 300
+            }
+          },
+          {
+            "item": "viz_dup_table",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1540,
+              "w": 1440,
+              "h": 280
+            }
+          }
+        ]
+      },
+      "layout_challenge": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1100
+        },
+        "structure": [
+          {
+            "item": "viz_challenge",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 760
+            }
+          },
+          {
+            "item": "viz_external_table",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 760,
+              "w": 1440,
+              "h": 320
+            }
+          }
+        ]
+      },
+      "layout_path_b": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 980
+        },
+        "structure": [
+          {
+            "item": "viz_path_b",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          },
+          {
+            "item": "viz_stats_table",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 640,
+              "w": 1440,
+              "h": 320
+            }
+          }
+        ]
+      }
+    }
+  },
+  "defaults": {
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "large"
+        }
+      }
+    }
+  }
+}

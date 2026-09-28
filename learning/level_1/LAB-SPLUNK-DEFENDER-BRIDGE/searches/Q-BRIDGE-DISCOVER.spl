@@ -1,0 +1,3 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "event.name"=agentsec.control.decision
+| head 25
+| table _time event.name agentsec.control.id agentsec.control.decision agentsec.control.reason gen_ai.tool.name agentsec.testbed.mode agentsec.security.profile

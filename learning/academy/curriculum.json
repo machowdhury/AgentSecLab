@@ -42,6 +42,10 @@
       "views": ["ws_lab_agentsec_capstone"]
     },
     {
+      "label": "Splunk Defender Bridge",
+      "views": ["ws_lab_splunk_defender_bridge"]
+    },
+    {
       "label": "Blue Team",
       "views": ["ws_lab_blue_team_incident"]
     },
@@ -60,6 +64,19 @@
     {
       "label": "Advanced Capstone",
       "views": ["ws_lab_advanced_capstone"]
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "SPLUNK-DEFENDER-BRIDGE",
+      "title": "Splunk Defender Bridge",
+      "placement": "L5 → Splunk Defender Bridge → L6",
+      "mode": "REPLAY",
+      "live_launcher": false,
+      "lab_id": "LAB-SPLUNK-DEFENDER-BRIDGE",
+      "view": "ws_lab_splunk_defender_bridge",
+      "not_authorization": true,
+      "evidence_class": "REPLAY"
     }
   ],
   "levels": [
@@ -132,7 +149,7 @@
     {
       "id": "L5",
       "title": "Integrated purple team",
-      "learn": "Reconstruct retrieve, persist, later recall, and tool authorization from evidence. Rule out Goal and Identity when they are not required.",
+      "learn": "Reconstruct retrieve, persist, later recall, and tool authorization from evidence. Rule out Goal and Identity when they are not required. After this LIVE capstone, complete the Splunk Defender Bridge before independent hunting.",
       "prerequisites": "L1-L3 LIVE. REPLAY grant and INV-002 workshops recommended.",
       "effort": "2.5-4 hours",
       "exit": "ADVANCED / PURPLE TEAM",
@@ -145,7 +162,7 @@
       "id": "L6",
       "title": "Blue-team investigation and threat hunting",
       "learn": "Reason from incomplete evidence: hypothesize, search, reconstruct, challenge, conclude, report, and state uncertainty.",
-      "prerequisites": "L5 Capstone. Complete the incident without using Path B first.",
+      "prerequisites": "L5 Capstone and the Splunk Defender Bridge. Complete the incident without using Path B first.",
       "effort": "REPLAY 2.5-4 hours",
       "exit": "BLUE-TEAM INVESTIGATOR",
       "next": "L7",
