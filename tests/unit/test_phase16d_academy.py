@@ -55,6 +55,7 @@ REPLAY_VIEWS = (
     "ws_lab_mcp_catalog.xml",
     "ws_lab_scanner_runtime_evidence.xml",
     "ws_lab_external_evaluation_garak.xml",
+    "ws_lab_splunk_defender_bridge.xml",
     "ws_lab_blue_team_incident.xml",
     "ws_lab_threat_modeling.xml",
     "ws_lab_privacy_data_governance.xml",
@@ -136,7 +137,8 @@ def test_nav_follows_learner_curriculum_not_build_order():
     assert nav.index("ws_lab_pi_001") < nav.index("ws_lab_mcp_001")
     assert nav.index("ws_lab_mcp_001") < nav.index("ws_lab_rag_context")
     assert nav.index("ws_lab_agent_delegation") < nav.index("ws_lab_agentsec_capstone")
-    assert nav.index("ws_lab_agentsec_capstone") < nav.index("ws_lab_blue_team_incident")
+    assert nav.index("ws_lab_agentsec_capstone") < nav.index("ws_lab_splunk_defender_bridge")
+    assert nav.index("ws_lab_splunk_defender_bridge") < nav.index("ws_lab_blue_team_incident")
     assert nav.index("ws_lab_blue_team_incident") < nav.index("ws_lab_threat_modeling")
     assert nav.index("ws_lab_threat_modeling") < nav.index("ws_lab_privacy_data_governance")
     assert nav.index("ws_lab_privacy_data_governance") < nav.index("ws_lab_multi_stage_incident")

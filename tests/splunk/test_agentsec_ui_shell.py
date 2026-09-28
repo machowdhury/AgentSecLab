@@ -26,6 +26,7 @@ LEARNER_VIEWS = (
     "ws_lab_agent_goal_integrity.xml",
     "ws_lab_agent_delegation.xml",
     "ws_lab_agentsec_capstone.xml",
+    "ws_lab_splunk_defender_bridge.xml",
     "ws_lab_blue_team_incident.xml",
     "ws_lab_threat_modeling.xml",
     "ws_lab_privacy_data_governance.xml",
@@ -49,6 +50,7 @@ def test_nav_is_grouped_and_home_is_default():
         "Context Security",
         "Agent Intent",
         "Capstone",
+        "Splunk Defender Bridge",
         "Blue Team",
         "Security Architecture",
         "Privacy &amp; Data Governance",
@@ -64,7 +66,8 @@ def test_nav_is_grouped_and_home_is_default():
     ) < nav.index("Capstone")
     assert nav.index("ws_lab_agent_goal_integrity") < nav.index("ws_lab_agentsec_capstone")
     assert nav.index("ws_lab_agent_delegation") < nav.index("ws_lab_agentsec_capstone")
-    assert nav.index("ws_lab_agentsec_capstone") < nav.index("ws_lab_blue_team_incident")
+    assert nav.index("ws_lab_agentsec_capstone") < nav.index("ws_lab_splunk_defender_bridge")
+    assert nav.index("ws_lab_splunk_defender_bridge") < nav.index("ws_lab_blue_team_incident")
     assert nav.index("ws_lab_blue_team_incident") < nav.index("ws_lab_threat_modeling")
     assert nav.index("ws_lab_threat_modeling") < nav.index("ws_lab_privacy_data_governance")
     assert nav.index("ws_lab_privacy_data_governance") < nav.index("ws_lab_multi_stage_incident")
@@ -121,6 +124,7 @@ def test_xml_labels_are_human_readable():
         "ws_lab_agent_goal_integrity.xml": "Goal / Instruction Integrity",
         "ws_lab_agent_delegation.xml": "Agent Identity / Delegation",
         "ws_lab_agentsec_capstone.xml": "Lending Assistant Investigation",
+        "ws_lab_splunk_defender_bridge.xml": "Splunk Defender Bridge",
         "ws_lab_blue_team_incident.xml": "AcmeBank Incident AI-2026-001",
         "ws_lab_threat_modeling.xml": "Threat Modeling and Security Architecture",
         "ws_lab_privacy_data_governance.xml": "Privacy and Data Governance",

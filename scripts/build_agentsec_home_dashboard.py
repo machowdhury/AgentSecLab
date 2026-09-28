@@ -43,6 +43,7 @@ PI_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_pi_001"
 SEARCH_URL = "http://127.0.0.1:8000/en-US/app/search/search"
 ATTACK_URL = "http://127.0.0.1:5001/"
 CAPSTONE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agentsec_capstone"
+BRIDGE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_splunk_defender_bridge"
 BLUE_TEAM_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_blue_team_incident"
 THREAT_MODEL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_threat_modeling"
 PRIVACY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_privacy_data_governance"
@@ -216,7 +217,7 @@ This is the learner path. It is not the order the software was built.
 
 You should always know: where you are, what you are learning, why it matters, and what to do next.
 
-Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone** → **Blue Team** → **Security Architecture** → **Privacy & Data Governance** → **Integrated Incident** → **Advanced Capstone**. Then **Mastery Check** (optional). Search stays the notebook.
+Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone** → **Splunk Defender Bridge** → **Blue Team** → **Security Architecture** → **Privacy & Data Governance** → **Integrated Incident** → **Advanced Capstone**. Then **Mastery Check** (optional). Search stays the notebook.
 
 LIVE labs have Attack Service. REPLAY labs use Investigate specimen plus Search. Do not treat REPLAY as a fresh launch.
 """,
@@ -247,13 +248,17 @@ LIVE labs have Attack Service. REPLAY labs use Investigate specimen plus Search.
 
 {l5}
 
-Open [Lending Assistant Investigation]({CAPSTONE_URL}) only after L1–L3 LIVE. It is graduation, not another random lab.
+Open [Lending Assistant Investigation]({CAPSTONE_URL}) only after L1–L3 LIVE. It is graduation, not another random lab. Capstone remains the last LIVE launcher.
+
+**Splunk Defender Bridge** — REPLAY / static investigation between L5 and L6. You are not handed a run identifier. You practice discovery, narrowing, correlation, sequence, and a controlled ATTACK / RETEST / BASELINE comparison. It is not an eighth LIVE lab and not L6.
+
+Open [Splunk Defender Bridge]({BRIDGE_URL}) after the L5 Capstone and before Blue Team.
 
 **L6 Blue-team investigation** — {levels['L6']['learn']} Effort: {levels['L6']['effort']}. Exit: {levels['L6']['exit']}.
 
 {l6}
 
-Open [AcmeBank Incident AI-2026-001]({BLUE_TEAM_URL}) after the Capstone. It is a REPLAY investigation: develop and challenge a hypothesis, reconstruct evidence, and report uncertainty. Capstone remains the last LIVE launcher.
+Open [AcmeBank Incident AI-2026-001]({BLUE_TEAM_URL}) after the Splunk Defender Bridge. It is a REPLAY investigation: develop and challenge a hypothesis, reconstruct evidence, and report uncertainty. Capstone remains the last LIVE launcher.
 
 **L7 Threat modeling and security architecture** — {levels['L7']['learn']} Effort: {levels['L7']['effort']}. Exit: {levels['L7']['exit']}.
 

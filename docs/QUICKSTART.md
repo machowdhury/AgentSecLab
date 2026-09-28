@@ -101,7 +101,7 @@ Volumes and indexed data persist. Next start: `./scripts/lab-up.sh`.
 
 ## 12. What to do next
 
-Return to Academy Home and follow L1 through L10. The L5 menu label **Capstone** is Lending Assistant Investigation, the last LIVE launcher. **Advanced Capstone** is L10. **Mastery Check** is optional and unscored.
+Return to Academy Home and follow L1 through L10. The L5 menu label **Capstone** is Lending Assistant Investigation, the last LIVE launcher. Complete **Splunk Defender Bridge** before L6. **Advanced Capstone** is L10. **Mastery Check** is optional and unscored.
 
 Specimen ids printed on a dashboard are reference evidence. Investigate the `run.id` from the launch you just made.
 

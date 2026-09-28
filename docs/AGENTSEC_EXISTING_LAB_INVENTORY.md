@@ -16,6 +16,8 @@
 
 **L10 mastery update:** `LAB-ADVANCED-CAPSTONE-MASTERY-001` is a post-L9 REPLAY mastery investigation, incident MASTER-2026-001. Studio `ws_lab_advanced_capstone`. Attack Service NO. It reuses the validated goal-integrity lending-policy packet and adjacent scanner/garak evidence. It does not reuse AGENT-2026-009 and adds no attack, scanner, detector, PDP, contract, or schema field.
 
+**Post-RC2 checkpoint:** `LAB-SPLUNK-DEFENDER-BRIDGE` is the Splunk Defender Bridge, a REPLAY / static investigation between L5 and L6. Studio `ws_lab_splunk_defender_bridge`. Attack Service NO. It is not a new level id and not an eighth LIVE lab. It adds no attack, detector, PDP, contract, or schema field.
+
 Classifications are not inferred from roadmap prose alone. Cross-check: `learning/level_1/`, `src/agentsec/`, `splunk_app/…/views/`, `src/agentsec/experiment_context.py`, `src/agentsec/launch_catalog.py`, `learning/**/searches/*.spl`, `docs/IMPLEMENTATION_STATUS.md` proof columns.
 
 Legend: **IMPLEMENTED** / **DESIGNED** / **LIVE VALIDATED** / **REPLAY** / **SIMULATED** / **PARTIAL** / **NOT IMPLEMENTED** / **NOT APPLICABLE**.

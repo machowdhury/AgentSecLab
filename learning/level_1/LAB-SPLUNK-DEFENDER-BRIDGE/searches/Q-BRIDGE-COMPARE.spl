@@ -1,0 +1,5 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.control.id"=CTRL-MCP-001 "agentsec.testbed.mode" IN (ATTACK, RETEST, BASELINE) ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| stats count as indexed_rows dc(_raw) as distinct_raw dc(agentsec.run.id) as distinct_runs values(decision) as decisions by agentsec.testbed.mode event_name
+| sort agentsec.testbed.mode event_name
