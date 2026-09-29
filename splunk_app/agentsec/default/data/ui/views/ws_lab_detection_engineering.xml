@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="2" theme="light">
+  <label>Detection Engineering — Prove Your Coverage</label>
+  <description>LAB-DETECTION-ENGINEERING REPLAY workshop after L6. Splunk is downstream evidence, not the PDP. DET-MCP-001 stays disabled.</description>
+  <definition><![CDATA[
+{
+  "visualizations": {
+    "viz_mission": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Detection Engineering — Prove Your Coverage\n\nYou are a detection engineer. You are not handed a finished detector.\n\n**Security question.** Can we detect a tool execution that occurs after CTRL-MCP-001 denied that same tool?\n\n**Write the hypothesis before you search.** Name the behavior, the trust boundary, and what would disprove the claim. Do not start from a run identifier.\n\n**REPLAY workshop.** This page sits after L6. It is not L11 and not a LIVE lab. It does not launch an attack. CTRL-MCP-001 remains the tool policy decision point. Splunk remains downstream. A row here does not ALLOW, DENY, or declare an incident.\n\n**Same evidence for every learner.**\n\n- **Beginner.** Read the hypothesis, the field list, and one hint. Use the partial search. Stop before you copy a finished correlation.\n- **Practitioner.** Write the broad search, tune it, compare ATTACK, RETEST, and BASELINE, and write the coverage statement.\n- **Expert.** Start from the behavior. Derive the fields. Challenge `agentsec.operation.outcome=prevented` as proof. Separate the simulated positive from the index.\n\nWork in [Search](http://127.0.0.1:8000/en-US/app/search/search). Path B is an answer key, not policy. Opening this mission does not tell you the ATTACK, RETEST, or BASELINE result.\n\nThe principle you have to earn: detection coverage is a claim that must be proven. A logically valid detection can still miss the attack you thought it covered.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "MISSION"
+    },
+    "viz_hypothesis": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Hypothesis\n\n**Behavior that matters.** A tool starts after CTRL-MCP-001 has denied that same tool in the same run.\n\n**Authorization evidence.** `event.name=agentsec.control.decision`, `agentsec.control.decision=DENY`, and `agentsec.control.id=CTRL-MCP-001`. Those fields are on the decision event.\n\n**Execution evidence.** `event.name=agentsec.mcp.started` for a tool. That event sets `agentsec.operation.executed` true. It does not carry `agentsec.control.id` or `agentsec.control.decision`.\n\n**Not proof.** `agentsec.operation.executed=false` and `agentsec.operation.outcome=prevented` describe the decision event. They do not prove a later start is absent. ALLOW is not execution. DENY is not a safety verdict.\n\n**Field names that exist.** `event.name`, `agentsec.run.id`, `gen_ai.tool.name`, `agentsec.sequence`, `agentsec.control.id`, `agentsec.control.decision`, `agentsec.control.reason`, `agentsec.testbed.mode`.\n\n**Names that are not emitted.** `agentsec.event.name` and `agentsec.tool.name`.\n\n**Hint 1.** Deduplicate a repeated field with `mvindex(mvdedup(...),0)` before you group. A larger `mvcount` is not extra executions until `dc(_raw)` says so.\n\n**Partial search.** Finish it yourself in [Search](http://127.0.0.1:8000/en-US/app/search/search). Use `earliest=0` on this lab index. The disabled saved search looks back 24 hours and is not this exercise.\n\n```\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0\n(\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started)\n```\n\nThe table below only shows which event names exist in each mode. It is not your detection.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "HYPOTHESIS"
+    },
+    "viz_events": {
+      "type": "splunk.table",
+      "title": "Event names by mode",
+      "description": "Inventory only. A count of starts is not a detection match.",
+      "dataSources": {
+        "primary": "ds_events"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No rows for this predicate and time range. Empty is not a safety verdict and not proof the behavior did not occur."
+      }
+    },
+    "viz_correlate": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Correlate, then write\n\n**Broad candidate.** Same `agentsec.run.id` has a CTRL-MCP-001 DENY and any `agentsec.mcp.started`. No tool key. No sequence test. Write this in [Search](http://127.0.0.1:8000/en-US/app/search/search).\n\n**Hint 2.** Same run is not the same tool. A denied tool and an allowed tool can share a run.\n\n**Hint 3.** Order uses `agentsec.sequence`, not `_time` alone. A start counts only when its sequence is greater than the DENY sequence for that same tool. A start at sequence 4 is not after a DENY at sequence 9.\n\n**Hint 4.** Put `agentsec.control.id=CTRL-MCP-001` on the decision test only. Do not require that field on `agentsec.mcp.started`. The shipped file `DET-MCP-001.spl` checks DENY and does not filter the control id. Your tuned predicate should add that filter. Do not edit `savedsearches.conf`.\n\n**Tuned candidate.** Same run, same `gen_ai.tool.name`, start sequence greater than the DENY sequence, control id constrained on the decision. Keep the decision row and the start row as different events.\n\nThen run the tuned search three times, or add `agentsec.testbed.mode` after you deduplicate it, so you can compare ATTACK, RETEST, and BASELINE. Do not assume ATTACK matches. Do not assume RETEST is empty. Do not assume BASELINE is empty.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "CORRELATE"
+    },
+    "viz_compare": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Compare, break, and tune\n\n**ATTACK.** Ask whether the tuned predicate matched. Then look at CTRL-MCP-001 decisions whose reason begins with `vulnerable_profile_fail_open`. If those rows are ALLOW followed by `agentsec.mcp.started`, your DENY-then-start predicate does not cover that path. A non-match is not proof the attack failed.\n\n**RETEST.** A DENY can be attempt evidence while the denied tool never starts. A start of a different tool in that run is not execution of the denied tool. Separate attempt, authorization failure, same-tool execution, and impact. Impact may be NOT OBSERVED.\n\n**BASELINE.** A non-match says this predicate did not flag the available baseline rows. It does not establish a false-positive rate.\n\n**What tuning gains.** Same tool and later sequence drop a run that denies one tool and starts another.\n\n**What tuning loses.** A start with no tool name, a start of a different tool you still find suspicious, execution recorded only as `agentsec.mcp.completed` or `agentsec.mcp.failed`, and every fail-open ALLOW. Those silences are scope. They are not health.\n\n**False positive to test.** What legitimate or merely different behavior satisfies the broad search? Use a row you found. Do not invent an approval workflow this index does not show.\n\n**False negative to test.** How can the tuned search miss a real start? Missing `agentsec.mcp.started`, a control id required on that start event, a different tool, and the 24-hour saved-search window are the relevant gaps. Mark each one as something you saw or something you are only reasoning about.\n\nDo not add filters until BASELINE disappears. BASELINE emptiness is not the goal.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "COMPARE"
+    },
+    "viz_coverage": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Detection coverage statement\n\nWrite this yourself. Path B does not contain your filled statement.\n\nAnswer each line:\n\n- What behavior does this detection look for?\n- What behavior does it not look for?\n- What evidence does it depend on?\n- What correlation does it require?\n- Which scenarios were tested?\n- What matched, and was that row indexed or simulated?\n- What did not match?\n- What could cause a false positive?\n- What could cause a false negative?\n- What remains untested?\n- What conclusion is justified?\n- What conclusion is not justified?\n- What would still be required before anyone enabled a detector?\n\nAt least one of NOT OBSERVED, NOT PROVEN, or CORRELATION NOT ESTABLISHED belongs in the statement when the evidence has that gap.\n\nA match is not an incident. A finding is not an incident. No match is not a safety verdict. RETEST is not universal safety. BASELINE is not a false-positive rate. Scanner HIGH is not DENY. Garak PASS is not a safety verdict. External evidence has no runtime run id in this lab's measured external plane: CORRELATION NOT ESTABLISHED.\n\nDo not write SAFE, SECURE, or NO ATTACK as the conclusion. Do not write that the system is secure.\n\nThe positive control file `learning/level_1/LAB-MCP-001/searches/DET-MCP-001-POSITIVE-CONTROL.spl` is `makeresults` with `evidence_class=SIMULATED`. It is a logic check. It is not an indexed attack. DET-MCP-001 stays disabled.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "COVERAGE"
+    },
+    "viz_path_b": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Path B · review\n\nPath B is an answer key, not policy. Use it after you have written a search and a coverage statement.\n\n**Broad candidate.** Same run, CTRL-MCP-001 DENY, any `agentsec.mcp.started`. No tool key. No sequence test. The panel under this note runs that search with `earliest=0`.\n\nTwo RETEST runs were measured with a DENY of `lookup_customer_tier` at sequence 9 and an earlier start of `lookup_policy`:\n\n- `0ab10594-a7fc-48b6-81bf-4cbca54a64c6`: ALLOW of `lookup_policy` at sequence 3, start at sequence 4, DENY of `lookup_customer_tier` at sequence 9.\n- `23c222ea-6a87-40b7-a3e9-f12a5b572fa1`: start of `lookup_policy` at sequence 5, DENY of `lookup_customer_tier` at sequence 9.\n\nDo not describe the `lookup_policy` start as occurring after the `lookup_customer_tier` DENY. The policy start is not after that DENY. The broad search matches because it ignores tool and sequence. Your own search is the evidence if the index changes. These identifiers are previously measured specimens, not a promise that the table never grows.\n\n**Tuned candidate.** Same run and same `gen_ai.tool.name`, start sequence greater than the DENY sequence, and `agentsec.control.id=CTRL-MCP-001` only inside the DENY test. The second panel runs that search. Empty is not a safety verdict.\n\nThe shipped file `DET-MCP-001.spl` groups by run and tool and requires `sequence>deny_sequence`. Its `is_deny` test does not include `control_id=\"CTRL-MCP-001\"`. `eventstats` copies `control_id` with `latest()` and takes the DENY sequence with `min()`. If one run and tool had two DENY rows, those functions could describe different rows. That split was not an indexed same-tool match. Do not edit the saved search. It stays disabled. Its dispatch window is 24 hours, which is not `earliest=0`.\n\n**What the tuned predicate does not cover.** Fail-open ALLOW followed by `agentsec.mcp.started`. That is the principal ATTACK shape this predicate misses on purpose. A non-match there does not mean the attack was stopped.\n\n**Simulated positive.** `DET-MCP-001-POSITIVE-CONTROL.spl` returns a labeled `SIMULATED` row. Logic tested with synthetic SPL input is not scenario validation.\n\n**Coverage claim you may make.** The tuned predicate looks for a later start of the same tool after a CTRL-MCP-001 DENY, on the fields above, inside the window you actually searched. You may not claim universal detection, a production false-positive rate, or that zero rows made the system secure.\n\nDetection coverage is a claim that must be proven.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "PATH B · REVIEW"
+    },
+    "viz_broad": {
+      "type": "splunk.table",
+      "title": "Path B broad candidate",
+      "description": "Run-id correlation only. A row here is not same-tool execution after denial.",
+      "dataSources": {
+        "primary": "ds_broad"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No rows for this predicate and time range. Empty is not a safety verdict and not proof the behavior did not occur."
+      }
+    },
+    "viz_tuned": {
+      "type": "splunk.table",
+      "title": "Path B tuned candidate",
+      "description": "Same tool and later sequence. Empty is not a safety verdict.",
+      "dataSources": {
+        "primary": "ds_tuned"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No rows for this predicate and time range. Empty is not a safety verdict and not proof the behavior did not occur."
+      }
+    }
+  },
+  "dataSources": {
+    "ds_events": {
+      "type": "ds.search",
+      "name": "Q-DET-EVENTS",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0\n(\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| stats count as indexed_rows dc(_raw) as distinct_raw by mode event_name\n| sort mode event_name"
+      }
+    },
+    "ds_broad": {
+      "type": "ds.search",
+      "name": "Q-DET-BROAD",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0\n(\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval is_deny=if(event_name=\"agentsec.control.decision\" AND control_id=\"CTRL-MCP-001\" AND decision=\"DENY\",1,0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eventstats max(is_deny) as has_deny values(eval(if(is_deny=1,tool,null()))) as deny_tools by run_id\n| where has_deny=1 AND is_started=1\n| stats values(mode) as mode values(deny_tools) as deny_tools values(tool) as start_tools by run_id"
+      }
+    },
+    "ds_tuned": {
+      "type": "ds.search",
+      "name": "Q-DET-TUNED",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0\n(\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval is_deny=if(event_name=\"agentsec.control.decision\" AND control_id=\"CTRL-MCP-001\" AND decision=\"DENY\",1,0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eventstats min(eval(if(is_deny=1,sequence,null()))) as deny_sequence max(is_deny) as has_deny by run_id tool\n| where has_deny=1 AND is_started=1 AND sequence>deny_sequence\n| stats count as start_rows values(mode) as mode min(deny_sequence) as deny_sequence min(sequence) as start_sequence by run_id tool"
+      }
+    }
+  },
+  "defaults": {
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "large"
+        }
+      }
+    }
+  },
+  "inputs": {},
+  "layout": {
+    "type": "grid",
+    "options": {
+      "submitButton": false,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "tabs": {
+      "items": [
+        {
+          "layoutId": "layout_mission",
+          "label": "MISSION"
+        },
+        {
+          "layoutId": "layout_hypothesis",
+          "label": "HYPOTHESIS"
+        },
+        {
+          "layoutId": "layout_correlate",
+          "label": "CORRELATE"
+        },
+        {
+          "layoutId": "layout_compare",
+          "label": "COMPARE"
+        },
+        {
+          "layoutId": "layout_coverage",
+          "label": "COVERAGE"
+        },
+        {
+          "layoutId": "layout_path_b",
+          "label": "PATH B · REVIEW"
+        }
+      ]
+    },
+    "layoutDefinitions": {
+      "layout_mission": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 760
+        },
+        "structure": [
+          {
+            "item": "viz_mission",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 720
+            }
+          }
+        ]
+      },
+      "layout_hypothesis": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1260
+        },
+        "structure": [
+          {
+            "item": "viz_hypothesis",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 860
+            }
+          },
+          {
+            "item": "viz_events",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 860,
+              "w": 1440,
+              "h": 360
+            }
+          }
+        ]
+      },
+      "layout_correlate": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 760
+        },
+        "structure": [
+          {
+            "item": "viz_correlate",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 720
+            }
+          }
+        ]
+      },
+      "layout_compare": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 860
+        },
+        "structure": [
+          {
+            "item": "viz_compare",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 820
+            }
+          }
+        ]
+      },
+      "layout_coverage": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 900
+        },
+        "structure": [
+          {
+            "item": "viz_coverage",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 860
+            }
+          }
+        ]
+      },
+      "layout_path_b": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1660
+        },
+        "structure": [
+          {
+            "item": "viz_path_b",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 980
+            }
+          },
+          {
+            "item": "viz_broad",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 980,
+              "w": 1440,
+              "h": 320
+            }
+          },
+          {
+            "item": "viz_tuned",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 1300,
+              "w": 1440,
+              "h": 320
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+  ]]></definition>
+</dashboard>
