@@ -45,6 +45,7 @@ ATTACK_URL = "http://127.0.0.1:5001/"
 CAPSTONE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agentsec_capstone"
 BRIDGE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_splunk_defender_bridge"
 BLUE_TEAM_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_blue_team_incident"
+DETECTION_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_detection_engineering"
 THREAT_MODEL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_threat_modeling"
 PRIVACY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_privacy_data_governance"
 MULTI_STAGE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_multi_stage_incident"
@@ -217,7 +218,7 @@ This is the learner path. It is not the order the software was built.
 
 You should always know: where you are, what you are learning, why it matters, and what to do next.
 
-Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone** → **Splunk Defender Bridge** → **Blue Team** → **Security Architecture** → **Privacy & Data Governance** → **Integrated Incident** → **Advanced Capstone**. Then **Mastery Check** (optional). Search stays the notebook.
+Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone** → **Splunk Defender Bridge** → **Blue Team** → **Detection Engineering** → **Security Architecture** → **Privacy & Data Governance** → **Integrated Incident** → **Advanced Capstone**. Then **Mastery Check** (optional). Search stays the notebook.
 
 LIVE labs have Attack Service. REPLAY labs use Investigate specimen plus Search. Do not treat REPLAY as a fresh launch.
 """,
@@ -259,6 +260,10 @@ Open [Splunk Defender Bridge]({BRIDGE_URL}) after the L5 Capstone and before Blu
 {l6}
 
 Open [AcmeBank Incident AI-2026-001]({BLUE_TEAM_URL}) after the Splunk Defender Bridge. It is a REPLAY investigation: develop and challenge a hypothesis, reconstruct evidence, and report uncertainty. Capstone remains the last LIVE launcher.
+
+**Detection Engineering** — REPLAY workshop after L6. You hypothesize a detection, write the SPL, compare ATTACK, RETEST, and BASELINE, and state what the predicate does not cover. It is not L11 and it does not enable a detector.
+
+Open [Detection Engineering — Prove Your Coverage]({DETECTION_URL}) after Blue Team and before threat modeling.
 
 **L7 Threat modeling and security architecture** — {levels['L7']['learn']} Effort: {levels['L7']['effort']}. Exit: {levels['L7']['exit']}.
 

@@ -1,0 +1,13 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0
+("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started)
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| eval is_deny=if(event_name="agentsec.control.decision" AND control_id="CTRL-MCP-001" AND decision="DENY",1,0)
+| eval is_started=if(event_name="agentsec.mcp.started",1,0)
+| eventstats max(is_deny) as has_deny values(eval(if(is_deny=1,tool,null()))) as deny_tools by run_id
+| where has_deny=1 AND is_started=1
+| stats values(mode) as mode values(deny_tools) as deny_tools values(tool) as start_tools by run_id

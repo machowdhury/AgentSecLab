@@ -18,6 +18,8 @@
 
 **Post-RC2 checkpoint:** `LAB-SPLUNK-DEFENDER-BRIDGE` is the Splunk Defender Bridge, a REPLAY / static investigation between L5 and L6. Studio `ws_lab_splunk_defender_bridge`. Attack Service NO. It is not a new level id and not an eighth LIVE lab. It adds no attack, detector, PDP, contract, or schema field.
 
+**Post-RC2 checkpoint:** `LAB-DETECTION-ENGINEERING` is the Detection Engineering workshop, a REPLAY checkpoint after L6. Studio `ws_lab_detection_engineering`. Attack Service NO. It is not L11 and not a LIVE lab. It does not enable DET-MCP-001 and does not edit `savedsearches.conf`.
+
 Classifications are not inferred from roadmap prose alone. Cross-check: `learning/level_1/`, `src/agentsec/`, `splunk_app/…/views/`, `src/agentsec/experiment_context.py`, `src/agentsec/launch_catalog.py`, `learning/**/searches/*.spl`, `docs/IMPLEMENTATION_STATUS.md` proof columns.
 
 Legend: **IMPLEMENTED** / **DESIGNED** / **LIVE VALIDATED** / **REPLAY** / **SIMULATED** / **PARTIAL** / **NOT IMPLEMENTED** / **NOT APPLICABLE**.

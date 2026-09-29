@@ -50,6 +50,10 @@
       "views": ["ws_lab_blue_team_incident"]
     },
     {
+      "label": "Detection Engineering",
+      "views": ["ws_lab_detection_engineering"]
+    },
+    {
       "label": "Security Architecture",
       "views": ["ws_lab_threat_modeling"]
     },
@@ -75,6 +79,17 @@
       "live_launcher": false,
       "lab_id": "LAB-SPLUNK-DEFENDER-BRIDGE",
       "view": "ws_lab_splunk_defender_bridge",
+      "not_authorization": true,
+      "evidence_class": "REPLAY"
+    },
+    {
+      "id": "DETECTION-ENGINEERING",
+      "title": "Detection Engineering — Prove Your Coverage",
+      "placement": "L6 → Detection Engineering Workshop → L7",
+      "mode": "REPLAY",
+      "live_launcher": false,
+      "lab_id": "LAB-DETECTION-ENGINEERING",
+      "view": "ws_lab_detection_engineering",
       "not_authorization": true,
       "evidence_class": "REPLAY"
     }
@@ -161,7 +176,7 @@
     {
       "id": "L6",
       "title": "Blue-team investigation and threat hunting",
-      "learn": "Reason from incomplete evidence: hypothesize, search, reconstruct, challenge, conclude, report, and state uncertainty.",
+      "learn": "Reason from incomplete evidence: hypothesize, search, reconstruct, challenge, conclude, report, and state uncertainty. After this hunt, complete the Detection Engineering workshop.",
       "prerequisites": "L5 Capstone and the Splunk Defender Bridge. Complete the incident without using Path B first.",
       "effort": "REPLAY 2.5-4 hours",
       "exit": "BLUE-TEAM INVESTIGATOR",
@@ -174,7 +189,7 @@
       "id": "L7",
       "title": "Threat modeling and security architecture",
       "learn": "Model an unfamiliar agentic system: assets, actors, flows, boundaries, authority, threats, controls, observability, gaps, and residual risk.",
-      "prerequisites": "L6 Blue-Team Investigation. Draft before opening Path B.",
+      "prerequisites": "L6 Blue-Team Investigation, then the Detection Engineering workshop. Draft before opening Path B.",
       "effort": "REPLAY / ARCHITECTURE 3-5 hours",
       "exit": "SECURITY ARCHITECT",
       "next": "L8",
