@@ -6,10 +6,11 @@
 | Saved search | `AgentSec - MCP Execution After Authorization Deny` |
 | Severity | **HIGH** |
 | Default | **disabled** (`savedsearches.conf`) |
-| Validation status | live negatives **MEASURED** in `docs/PHASE3E_MCP_DETECTION.md`; positive control **SIMULATED** |
+| Validation status | historical live negatives **MEASURED** in `docs/PHASE3E_MCP_DETECTION.md`; positive control **SIMULATED** |
+| Maturity | **LOGIC_VALIDATED** for the synthetic positive and historical negatives. Not SCENARIO_VALIDATED. Not OPERATIONALLY_VALIDATED. |
 | SPL file | `DET-MCP-001.spl` |
 
-This is **one** operational detection of a high-confidence invariant violation. It does **not** detect every MCP authorization bypass.
+This is a **disabled** detection candidate and a teaching artifact. The saved search is not enabled. It is not a production detection, not an operationally validated detector, and not proof of prevention, compromise, or an incident. It does **not** detect every MCP authorization bypass. `is_deny` matches a control-decision DENY and does not filter `agentsec.control.id`. `eventstats` takes the DENY sequence with `min()` and copies other DENY fields with `latest()`. Those two functions can describe different rows if one run and tool has more than one DENY.
 
 ## Detection objective
 

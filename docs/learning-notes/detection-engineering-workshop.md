@@ -8,7 +8,7 @@ A learner writes a candidate detection for one behavior: a tool start after CTRL
 
 ## Why it exists
 
-A SPL file is not a detector. DET-MCP-001 is disabled. Its same-tool logic can be right and still miss the fail-open ALLOW path that the indexed ATTACK specimens use.
+A SPL file is not a detector. DET-MCP-001 is disabled and at maturity LOGIC_VALIDATED. Its same-tool logic can be right and still miss the fail-open ALLOW path that the indexed ATTACK specimens use. The search note does not call it an operational detection.
 
 ## How it works
 

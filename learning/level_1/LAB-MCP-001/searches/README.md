@@ -1,6 +1,6 @@
 # LAB-MCP-001 searches
 
-Foundational investigation SPL for LAB-MCP-001 (MCP tool invoke), plus one operational detection `DET-MCP-001`.
+Foundational investigation SPL for LAB-MCP-001 (MCP tool invoke), plus disabled teaching candidate `DET-MCP-001`.
 
 Investigation queries: replace `__RUN_ID__` with a concrete `agentsec.run.id` before running.
 
