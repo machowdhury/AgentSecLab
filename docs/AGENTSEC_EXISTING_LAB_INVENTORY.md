@@ -22,6 +22,8 @@
 
 **Post-RC2 checkpoint:** `LAB-AGENT-IDENTITY-NHI` is the Agent Identity and Non-Human IAM workshop, a REPLAY checkpoint between L7 and L8. Studio `ws_lab_agent_identity_nhi`. Attack Service NO. It is not a new attack level and not a LIVE lab. It does not add authentication, a detector, a schema field, or an ExternalEvidence change.
 
+**Post-RC2 checkpoint:** `LAB-A2A-AUTH-DELEGATION` is the A2A Authentication and Delegation workshop, a SIMULATED / REPLAYED checkpoint after the Identity/NHI workshop and before L8. Studio `ws_lab_a2a_auth_delegation`. Attack Service NO. Its static packet contrasts simulated authentication and delegation evidence with the historical claim-only corpus. It adds no runtime authenticator, delegation enforcement, PDP, attack, detector, schema field, or ExternalEvidence change.
+
 Classifications are not inferred from roadmap prose alone. Cross-check: `learning/level_1/`, `src/agentsec/`, `splunk_app/…/views/`, `src/agentsec/experiment_context.py`, `src/agentsec/launch_catalog.py`, `learning/**/searches/*.spl`, `docs/IMPLEMENTATION_STATUS.md` proof columns.
 
 Legend: **IMPLEMENTED** / **DESIGNED** / **LIVE VALIDATED** / **REPLAY** / **SIMULATED** / **PARTIAL** / **NOT IMPLEMENTED** / **NOT APPLICABLE**.

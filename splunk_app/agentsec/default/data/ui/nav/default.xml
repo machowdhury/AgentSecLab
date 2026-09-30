@@ -37,6 +37,9 @@
   <collection label="Agent Identity">
     <view name="ws_lab_agent_identity_nhi">Agent Identity and Non-Human IAM</view>
   </collection>
+  <collection label="A2A Authentication">
+    <view name="ws_lab_a2a_auth_delegation">A2A Authentication and Delegation</view>
+  </collection>
   <collection label="Privacy &amp; Data Governance">
     <view name="ws_lab_privacy_data_governance">Privacy Investigation</view>
   </collection>
