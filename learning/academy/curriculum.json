@@ -58,6 +58,10 @@
       "views": ["ws_lab_threat_modeling"]
     },
     {
+      "label": "Agent Identity",
+      "views": ["ws_lab_agent_identity_nhi"]
+    },
+    {
       "label": "Privacy & Data Governance",
       "views": ["ws_lab_privacy_data_governance"]
     },
@@ -90,6 +94,17 @@
       "live_launcher": false,
       "lab_id": "LAB-DETECTION-ENGINEERING",
       "view": "ws_lab_detection_engineering",
+      "not_authorization": true,
+      "evidence_class": "REPLAY"
+    },
+    {
+      "id": "AGENT-IDENTITY-NHI",
+      "title": "Agent Identity and Non-Human IAM",
+      "placement": "L7 → Identity/NHI Workshop → L8",
+      "mode": "REPLAY",
+      "live_launcher": false,
+      "lab_id": "LAB-AGENT-IDENTITY-NHI",
+      "view": "ws_lab_agent_identity_nhi",
       "not_authorization": true,
       "evidence_class": "REPLAY"
     }
@@ -201,7 +216,7 @@
       "id": "L8",
       "title": "Privacy, data protection and agentic data governance",
       "learn": "Trace what data an agent can see, infer, remember, disclose, send, persist, retrieve, log, and expose; distinguish authorized action from appropriate data use.",
-      "prerequisites": "L7 Threat Modeling & Security Architecture. Investigate before opening Path B.",
+      "prerequisites": "L7 Threat Modeling & Security Architecture, then the Agent Identity and Non-Human IAM workshop. Investigate before opening Path B.",
       "effort": "REPLAY / PRIVACY INVESTIGATION 3-5 hours",
       "exit": "PRIVACY-AWARE SECURITY ARCHITECT",
       "next": "L9",

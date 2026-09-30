@@ -47,6 +47,7 @@ BRIDGE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_splunk_defender_br
 BLUE_TEAM_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_blue_team_incident"
 DETECTION_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_detection_engineering"
 THREAT_MODEL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_threat_modeling"
+IDENTITY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agent_identity_nhi"
 PRIVACY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_privacy_data_governance"
 MULTI_STAGE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_multi_stage_incident"
 ADVANCED_CAPSTONE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_advanced_capstone"
@@ -218,7 +219,7 @@ This is the learner path. It is not the order the software was built.
 
 You should always know: where you are, what you are learning, why it matters, and what to do next.
 
-Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone** → **Splunk Defender Bridge** → **Blue Team** → **Detection Engineering** → **Security Architecture** → **Privacy & Data Governance** → **Integrated Incident** → **Advanced Capstone**. Then **Mastery Check** (optional). Search stays the notebook.
+Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone** → **Splunk Defender Bridge** → **Blue Team** → **Detection Engineering** → **Security Architecture** → **Agent Identity** → **Privacy & Data Governance** → **Integrated Incident** → **Advanced Capstone**. Then **Mastery Check** (optional). Search stays the notebook.
 
 LIVE labs have Attack Service. REPLAY labs use Investigate specimen plus Search. Do not treat REPLAY as a fresh launch.
 """,
@@ -269,13 +270,17 @@ Open [Detection Engineering — Prove Your Coverage]({DETECTION_URL}) after Blue
 
 {l7}
 
-Open [Threat Modeling & Security Architecture]({THREAT_MODEL_URL}) after Blue Team. It is a REPLAY / ARCHITECTURE workbench: model assets, flows, trust, authority, threats, controls, evidence gaps, and residual risk. It creates no new attack or runtime control.
+Open [Threat Modeling & Security Architecture]({THREAT_MODEL_URL}) after Detection Engineering. It is a REPLAY / ARCHITECTURE workbench: model assets, flows, trust, authority, threats, controls, evidence gaps, and residual risk. It creates no new attack or runtime control.
+
+**Agent Identity and Non-Human IAM** — REPLAY / static workshop between L7 and L8. You start from a security question, not a run identifier. You separate a claimed name, an identity observation, a tool decision, and execution evidence. It does not add authentication, a LIVE attack, or a detector.
+
+Open [Agent Identity and Non-Human IAM]({IDENTITY_URL}) after threat modeling and before privacy.
 
 **L8 Privacy, data protection and agentic data governance** — {levels['L8']['learn']} Effort: {levels['L8']['effort']}. Exit: {levels['L8']['exit']}.
 
 {l8}
 
-Open [AcmeBank Incident PRIV-2026-001]({PRIVACY_URL}) after L7. It is a synthetic REPLAY privacy investigation: trace data, minimize it, separate tool authorization from appropriate data use, and state what remains unknown.
+Open [AcmeBank Incident PRIV-2026-001]({PRIVACY_URL}) after the identity workshop. It is a synthetic REPLAY privacy investigation: trace data, minimize it, separate tool authorization from appropriate data use, and state what remains unknown.
 
 **L9 Multi-stage agentic attack, investigation and defense** — {levels['L9']['learn']} Effort: {levels['L9']['effort']}. Exit: {levels['L9']['exit']}.
 
