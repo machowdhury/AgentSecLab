@@ -1,0 +1,8 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0
+"agentsec.workflow.entry"="/identity/delegate" "event.name"=agentsec.mcp.started
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| eval agent=mvindex(mvdedup('gen_ai.agent.id'),0)
+| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)
+| eval principal_type=mvindex(mvdedup('agentsec.principal.type'),0)
+| stats count dc(run_id) as runs values(agent) as agent values(control_id) as control_id values(principal_type) as principal_type by mode
