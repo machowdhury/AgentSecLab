@@ -4,7 +4,7 @@ Design only. This document does not authorize implementation.
 
 Reviewed baseline: `develop` at `b566ecd53b2cbfd997b8f441bc960388eddbe854`, which contains the Detection Engineering workshop. `origin/develop` matches that commit. `main` is `e6115b6d1c03a1672b4364e84748c7840671fbfc`. `v1.0.0-rc2` is `bd8c2c02729497018b4e28b582fe6c9a9e052638`. Schema remains `1.9.0`. ExternalEvidence remains `1.0.0`. CTRL-MCP-001 remains the tool PDP. DET-MCP-001 stays disabled.
 
-Evidence classes below: OBSERVED in source, DOCUMENTED in existing notes, NOT RE-MEASURED for the local Splunk index in this design pass. No new attack was run.
+Evidence classes below: OBSERVED in source, DOCUMENTED in existing notes, and MEASURED in the local Splunk index during independent review and again in this remediation. No new attack was run. Section 18 records the original sentences and the corrections. The corrected text is what a later workshop must follow.
 
 ## 1. What this phase is
 
@@ -17,6 +17,10 @@ The lesson is:
 - an agent identity is not a human identity
 - the actor that requests is not always the actor that executes
 - a known name is not permission to act
+- an agent id is not execution
+- `agentsec.principal.type=user` is not an authenticated human
+- a delegation label is not authenticated delegation
+- correlation is not attribution
 
 L3 already has a LIVE lab, `LAB-AGENT-DELEGATION-001`, whose control `CTRL-IDENTITY-001` records claims and does not authorize tools. This design does not replace that lab and does not add a second LIVE identity attack.
 
@@ -29,9 +33,9 @@ OBSERVED in `src/agentsec/events.py`, `src/agentsec/identity/`, and `src/agentse
 | Identity claim | Closed A2A-shaped body: `principal`, `caller_agent`, `callee_agent`, requested tool/scope/resource, `delegation_claim`. Trust label `untrusted_claim`. | Verify the name. |
 | Authenticated identity | Result field `who_authenticated` is the literal `NOT PROVEN / NOT MODELED`. It is not an OpenTelemetry attribute. | Passwords, OAuth, OIDC, SAML, JWT checks, mTLS, PKI, SPIFFE, cloud IAM. |
 | Principal | `agentsec.principal.id` is `RunContext.user_id`. `agentsec.principal.type` is hardcoded `"user"` on every base event. HTTP `user_id` is a label (`applicant-web` by default), not a login. | `principal.authenticated`, issuer, session, owner. |
-| Executing actor | `gen_ai.agent.id` on the hop that emits the event. Callee follow-on uses `acme-agent-fulfillment-006`. | Prove a workload identity. |
-| Requesting actor | On the identity control event: `agentsec.identity.caller_agent_id` (`acme-agent-advisor-005`). | Prove the caller sent the bytes. |
-| Delegated actor | `agentsec.delegator.agent.id` only when `hop.index >= 1`. Claimed scope may be `agentsec.delegation.claimed_scope`. | A validated, attenuated, expiring grant. |
+| Executing actor | Not established by `gen_ai.agent.id`. Hop 0 writes `acme-agent-fulfillment-006` on the CTRL-IDENTITY-001 event before any tool start. Execution evidence is `event.name=agentsec.mcp.started`. Completion is `agentsec.mcp.completed` when that event is present. Outcome is the outcome field on the events that carry it. | Treat an agent id as proof the tool ran. |
+| Requesting actor | A label on the identity control event: `agentsec.identity.caller_agent_id` (`acme-agent-advisor-005`). | Prove that this agent sent the request. |
+| Delegated actor | A label: `agentsec.delegator.agent.id` only when `hop.index >= 1`. Claimed scope may be `agentsec.delegation.claimed_scope`. | Authenticated delegation, or authority held by the named agent. |
 | Human user | Principal type string `"user"`. | A human action, an employee, or a customer authentication. |
 | Agent | Coded ids and display names for caller and callee. | An agent registry or Agent Card. |
 | Service | `service.name` is the lab service label. | A service account. |
@@ -39,7 +43,9 @@ OBSERVED in `src/agentsec/events.py`, `src/agentsec/identity/`, and `src/agentse
 | Workload | Not emitted. | SPIFFE ID or SVID. |
 | Downstream resource | Requested resource id on the MCP call, such as a policy or customer id. | A resource owner. |
 
-`CTRL-IDENTITY-001` returns `OBSERVE` / `identity_claim_is_not_grant` for a well-formed claim, or `ERROR` for a bad claim. The module states that this control never authorizes a tool. A vulnerable-profile overlay, `vulnerable_profile_fail_open:caller_identity_derived_authority`, can be consumed only by CTRL-MCP-001 inside one run. `coded_policy()` is not mutated. Identity OBSERVE is not that overlay.
+`CTRL-IDENTITY-001` records an untrusted identity claim. A well-formed claim returns `OBSERVE` / `identity_claim_is_not_grant`. A bad claim returns `ERROR`. It does not validate credentials, authenticate, establish a human, establish a security principal, authorize a tool, mint authority, or prove delegation. `OBSERVE` is not `ALLOW`.
+
+The vulnerable-profile overlay is separate lab machinery. When the profile is `vulnerable` and the request is the closed privileged triple, `mint_identity_overlay` can be passed into CTRL-MCP-001, which may then `ALLOW` with `vulnerable_profile_fail_open:caller_identity_derived_authority`. That is a labeled vulnerable condition: an authorization fault that used a caller-identity label. It is not authenticated identity, and it is not proof the caller possessed legitimate authority. `coded_policy()` is not mutated.
 
 `user_id` on `POST /process` is parsed as a label. Authority-like keys such as `authenticated`, `identity_verified`, and token fields are rejected on the identity request. That rejection is schema hygiene, not an identity provider.
 
@@ -54,7 +60,7 @@ No new authenticator. Names below are teaching roles, not schema fields.
 | Kind | Can be requester | Principal | Delegate | Executor | Resource | Policy subject | Evidence source |
 |---|---|---|---|---|---|---|---|
 | Human | Yes, as a claim | Only if a later phase authenticates one | No in this phase | No | As a data subject, later | Later | Not today |
-| Agent | Yes | Claim only | Claim only | Yes, as `gen_ai.agent.id` | No | The coded MCP policy names an agent id | The event names the agent id |
+| Agent | Yes, as a claim | Claim only. A named agent is not a security principal. | Claim only | Only when `agentsec.mcp.started` is present. The agent id alone is not execution. | No | The coded MCP policy names an agent id | The event names the agent id |
 | Service | The lab process emits `service.name` | No | No | The process runs the pipeline | No | No | `service.name` is a label |
 | Tool | No | No | No | The handler runs after CTRL-MCP-001 ALLOW | No | Tool name is an authorization input | `gen_ai.tool.name`, `mcp.started` |
 | Workload | Not modeled | Not modeled | Not modeled | Not modeled | No | No | Not observed |
@@ -70,13 +76,25 @@ claimed principal (label)
     |
     +-- is not --> authenticated principal
     |
-requesting agent (caller id)
+caller agent id
     |
-    +-- is not --> executing agent (callee id / gen_ai.agent.id)
+    +-- is not --> proof that this agent sent the request
+    |
+gen_ai.agent.id
+    |
+    +-- is not --> agentsec.mcp.started
+    |
+delegator agent id
+    |
+    +-- is not --> authenticated delegation
     |
 CTRL-IDENTITY-001 OBSERVE
     |
     +-- is not --> CTRL-MCP-001 ALLOW or DENY
+    |
+principal.type=user
+    |
+    +-- is not --> authenticated human
     |
 known agent id
     |
@@ -112,13 +130,13 @@ At each hop the learner records:
 
 | Question | Honest answer from current evidence |
 |---|---|
-| Who is requesting? | Caller agent id on the identity control event, if that event is present. |
+| Who is requesting? | Caller agent id is a label on the identity control event, if that field is present. It does not prove who sent the bytes. |
 | How was identity established? | A string was accepted by the closed parser. |
 | Who authenticated it? | NOT PROVEN / NOT MODELED. |
 | What principal is represented? | `agentsec.principal.id` plus type `user`. That is a label. |
 | What authority is requested? | Requested tool, scope, resource, and claimed scope. |
 | Who authorizes it? | CTRL-MCP-001. CTRL-IDENTITY-001 does not. |
-| What executes? | `gen_ai.agent.id` on the follow-on hop, then the tool handler only after ALLOW. |
+| What executes? | `event.name=agentsec.mcp.started` after a CTRL-MCP-001 decision. `gen_ai.agent.id` on CTRL-IDENTITY-001 is not that evidence. If the start event does not bind the actor, the binding stays NOT PROVEN. |
 | What evidence proves each statement? | The event fields above, or an explicit gap. |
 
 There is no reverse path from Splunk to CTRL-MCP-001.
@@ -151,7 +169,11 @@ Teach these as separate sentences:
 
 `AGENT CLAIMS USER X != USER X AUTHENTICATED THE ACTION`
 
-`applicant-web` must not be narrated as an employee or a customer who logged in. `agentsec.principal.type=user` is a constant, so it cannot by itself separate humans from agents.
+`applicant-web` must not be narrated as an employee or a customer who logged in.
+
+`agentsec.principal.type` is a known telemetry semantic limitation. On the measured identity workflow it is the constant `user`. Schema 1.9.0 also allows `agent` and `system`. This emitter does not write those values for this case. This phase does not change the emitter or the schema.
+
+`principal.type=user` is not an authenticated human and not proof that a human caused the action. The field is insufficient for both conclusions.
 
 ## 7. Principal candidates, not schema fields
 
@@ -167,7 +189,7 @@ Do not add these to schema 1.9.0.
 | `principal.scope` | Yes | Do not invent it. Use requested scope versus coded allowed scope already on MCP decisions. |
 | `principal.owner` | Yes | Absent. |
 
-The first workshop must reuse `agentsec.principal.id`, `agentsec.principal.type`, `gen_ai.agent.id`, `agentsec.identity.caller_agent_id`, `agentsec.identity.callee_agent_id`, `agentsec.identity.claim.trust`, `agentsec.delegator.agent.id`, `agentsec.delegation.claimed_scope`, `agentsec.control.id`, `agentsec.control.decision`, and `agentsec.run.id`.
+The first workshop must reuse `agentsec.principal.id`, `agentsec.principal.type`, `gen_ai.agent.id`, `agentsec.identity.caller_agent_id`, `agentsec.identity.callee_agent_id`, `agentsec.identity.claim.trust`, `agentsec.delegator.agent.id`, `agentsec.delegation.claimed_scope`, `agentsec.control.id`, `agentsec.control.decision`, `event.name`, and `agentsec.run.id`. `gen_ai.agent.id` is read as a claim. It is not the execution column.
 
 ## 8. Risks
 
@@ -182,7 +204,7 @@ The first workshop must reuse `agentsec.principal.id`, `agentsec.principal.type`
 | Over-privileged agent | The coded identity-lab agents are granted `lookup_policy` only. Over-privilege is not the identity-lab result unless a separate lab's policy says so. Do not generalize. |
 | Orphaned or unowned non-human identity | NOT MODELED. Fixtures have no owner and no expiry, which is an absence, not an observed orphan incident. |
 | Human-to-agent attribution ambiguity | DEMONSTRATED by the user label on agent hops without an authentication event. |
-| Agent-to-tool attribution ambiguity | PARTIAL. Tool start events carry `gen_ai.agent.id` and do not carry `agentsec.control.id`. That was already taught. It does not identify a human. |
+| Agent-to-tool attribution ambiguity | The start event can carry `gen_ai.agent.id` and still omit `agentsec.control.id`. The id is a label on that event. Execution is the `mcp.started` event itself. The id does not identify a human, and it does not by itself prove which agent caused the handler to run. |
 
 ## 9. Evidence the investigation may use
 
@@ -195,16 +217,30 @@ Do not log secrets, tokens, or raw credentials. A later fingerprint, if any, mus
 | Issuer | NOT OBSERVED |
 | Authentication method | NOT OBSERVED |
 | Session | NOT OBSERVED. `agentsec.run.id` correlates a run only. |
-| Requesting actor | `agentsec.identity.caller_agent_id` |
-| Executing actor | `gen_ai.agent.id` on the follow-on hop; tool name on `mcp.started` |
-| Delegated actor | `agentsec.delegator.agent.id` when hop index is at least 1 |
+| Caller label | `agentsec.identity.caller_agent_id`. Not proof of the sender. |
+| Callee label | `agentsec.identity.callee_agent_id`. Not proof of execution. |
+| Agent id | `gen_ai.agent.id`. On CTRL-IDENTITY-001 this is the callee label before `mcp.started`. |
+| Delegator label | `agentsec.delegator.agent.id` when hop index is at least 1. Not authenticated delegation. |
+| Execution | `event.name=agentsec.mcp.started` |
+| Completion | `event.name=agentsec.mcp.completed` when present |
+| Outcome | Outcome fields on the events that carry them. Absence is NOT OBSERVED. |
 | Resource | Requested resource on the MCP decision |
 | Authorization | `agentsec.control.id=CTRL-MCP-001` and its decision |
 | Claim classification | `agentsec.control.id=CTRL-IDENTITY-001` and `OBSERVE` |
 | Time order | `agentsec.sequence` |
 | Credential id | NOT MODELED. Do not add one in this workshop. |
 
-Indexed presence of a historical identity run in the local Splunk index was NOT RE-MEASURED in this design pass. The workshop must allow `NOT OBSERVED` when a field or run is missing. Absence is not "no identity attack" and not "safe."
+MEASURED, and reconfirmed in this remediation, on the existing index. No new attack was launched.
+
+`agentsec.lab.id=LAB-AGENT-DELEGATION-001` returned count 0. That string is the repository learning contract for the L3 lab. It is not an indexed correlation key.
+
+The historical rows for this case use `agentsec.lab.id=agentsec-local` and `agentsec.workflow.entry=/identity/delegate`. Distinct runs: ATTACK 6, RETEST 6, BASELINE 1. Do not assume those runs share one authorization result. The workshop tells the learner to discover rows from those indexed fields. An empty search on the curriculum lab id is `NO EVIDENCE FOUND` for that key. It is not proof the workflow is absent, and it is not safe.
+
+A Splunk search for `who_authenticated` returned count 0. The only copy is the result string `NOT PROVEN / NOT MODELED` from `identity_result_to_dict`. The workshop must not use that string as authentication proof. Authentication remains NOT MODELED.
+
+For this bounded REPLAY exercise, telemetry is partial and sufficient: the claim fields, the two control ids, sequence, and `mcp.started` exist on the workflow above. For production identity forensics it is insufficient: there is no authenticated subject, issuer, session, credential binding, owner, or expiry. This phase does not add that telemetry.
+
+The workshop must allow `NOT OBSERVED` when a field or run is missing. Absence is not "no identity attack" and not "safe."
 
 ## 10. Workshop shape
 
@@ -212,28 +248,60 @@ One REPLAY checkpoint. No LIVE launcher. No new attack. No detector. No edit to 
 
 Working name: Agent Identity and Non-Human IAM. Lab id, if implementation is later authorized: `LAB-AGENT-IDENTITY-NHI`. View name is an implementation choice. Do not create it in this phase.
 
-Path A does not start from a run id and does not hand the ledger answers. Path B may cite previously measured `LAB-AGENT-DELEGATION-001` specimens after the learner has written the ledger.
+Path A does not start from a run id and does not hand the ledger answers. The learner discovers rows from indexed fields: `agentsec.workflow.entry=/identity/delegate` and `agentsec.lab.id=agentsec-local`. Path A must not search `agentsec.lab.id=LAB-AGENT-DELEGATION-001`. Path B may name that repository contract after the learner has written the ledger, and must say it is not the indexed key.
+
+Investigation order:
+
+1. Discover identity-workflow evidence from the indexed fields above.
+2. Narrow candidate runs. Do not begin from a supplied run id.
+3. Read identity claims: principal label, caller label, callee label, claim trust.
+4. Read CTRL-IDENTITY-001.
+5. Read CTRL-MCP-001 as a separate event.
+6. Use `agentsec.sequence` to order those events. Do not treat co-presence as order.
+7. Read `agentsec.mcp.started` before calling anything execution. Read completion and outcome only where those events exist.
+8. Compare ATTACK, RETEST, and BASELINE. The measured corpus has 6, 6, and 1 runs. The learner determines what each run did. The design does not award a pre-written conclusion.
+9. Fill the ledger.
+10. State what remains NOT PROVEN.
+
+The learner answers, from evidence:
+
+- Who is named in `agentsec.principal.id`?
+- Does that prove a human?
+- Which agent id is the caller label?
+- Which agent id is the callee label?
+- Does either label establish authentication?
+- What did CTRL-IDENTITY-001 record?
+- What did CTRL-MCP-001 decide?
+- Was `agentsec.mcp.started` observed?
+- Does an agent id prove that agent executed the operation?
+- Was authenticated delegation established?
+- Can the action be attributed to `applicant-web`?
+- What remains NOT PROVEN?
+
+These sentences stay NOT PROVEN, and the learner loses claim strength if they state them as facts: `applicant-web` is a human; `applicant-web` authenticated; `applicant-web` caused the tool call; the advisor id authenticated; the advisor id possessed delegated authority; the fulfillment id authenticated; the fulfillment id received authenticated delegation; the tool executed under `applicant-web`'s authority.
 
 The learner fills one ledger row:
 
 | Column | Meaning |
 |---|---|
 | Claim | The sentence under test |
-| Claimed actor | The string |
-| Authenticated principal | What evidence of authentication exists |
-| Executing actor | Agent id and tool, if a start exists |
-| Evidence | Field, control id, sequence |
-| Evidence state | OBSERVED CLAIM, NOT OBSERVED, NOT PROVEN, CORRELATION NOT ESTABLISHED |
-| Correlation | `agentsec.run.id` plus actor ids. A run id alone is not attribution. |
-| Alternative explanation | The label was copied from `user_id` |
-| Missing evidence | Authentication, issuer, session, owner, expiry |
-| Confidence | Claim strength, not a probability product |
+| Observed identifier | The string that was actually on an event |
+| Claimed role | Principal label, caller claim, callee claim, or delegator label. Not a proven role. |
+| Evidence event | Event name, control id, sequence |
+| Authorization state | CTRL-MCP-001 decision, or NOT OBSERVED. CTRL-IDENTITY-001 is not this column. |
+| Execution evidence | `agentsec.mcp.started`, or NOT OBSERVED. An agent id does not fill this cell. |
+| Claim strength | OBSERVED CLAIM, NOT OBSERVED, NOT PROVEN, or CORRELATION NOT ESTABLISHED |
+| Alternative explanation | The label was copied from `user_id`, or hop 0 stamped the callee id before a start |
+| Missing evidence | Authentication, human attribution, issuer, session, owner, expiry |
+
+Provenance is which event held the field. Claim strength is what that event is allowed to prove. They are different columns.
 
 Example, to be derived by the learner from fields, not memorized as a verdict:
 
 - "`acme-agent-advisor-005` is named as caller on a CTRL-IDENTITY-001 event" can be an OBSERVED CLAIM when that field is present.
 - "`applicant-web` authenticated and caused the tool call" stays NOT PROVEN.
 - "CTRL-IDENTITY-001 OBSERVE authorized the tool" is a false reading. OBSERVE is not ALLOW.
+- "`gen_ai.agent.id` on the identity event means that agent executed the tool" is a false reading.
 
 Failure language stays: NO EVIDENCE FOUND, CORRELATION NOT ESTABLISHED, INSUFFICIENT EVIDENCE, NO MATCH, NOT OBSERVED, NOT PROVEN. Not SAFE, SECURE, PROTECTED, or NO ATTACK.
 
@@ -241,23 +309,26 @@ Failure language stays: NO EVIDENCE FOUND, CORRELATION NOT ESTABLISHED, INSUFFIC
 
 Use the existing identity lab, not a new attack.
 
-**Case:** claimed user principal versus unauthenticated agent execution.
+**Case:** claimed principal label versus unauthenticated agent labels, on the indexed identity workflow.
 
-Actors already coded:
+Repository contract, not an indexed key: `LAB-AGENT-DELEGATION-001`.
 
-- principal label `applicant-web`, type string `user`
-- caller `acme-agent-advisor-005`
-- callee `acme-agent-fulfillment-006`
-- claim trust `untrusted_claim`
-- CTRL-IDENTITY-001 `OBSERVE` / `identity_claim_is_not_grant`
-- CTRL-MCP-001 as the separate tool decision
-- `who_authenticated` documented as not modeled
+Indexed correlation, MEASURED:
+
+- `agentsec.lab.id=agentsec-local`
+- `agentsec.workflow.entry=/identity/delegate`
+- principal label `applicant-web`
+- caller claim `acme-agent-advisor-005`
+- callee claim `acme-agent-fulfillment-006`
+- historical run counts ATTACK 6, RETEST 6, BASELINE 1
+
+The learner separates, per run: claimed principal label, caller agent claim, callee agent claim, CTRL-IDENTITY-001 observation, CTRL-MCP-001 decision, `agentsec.mcp.started`, outcome where present, missing authentication, and missing human attribution.
 
 What the learner should be able to say:
 
-The lab recorded a user-shaped label and two agent ids. It did not record an authenticated human. A caller id is not a grant. If the vulnerable profile's overlay is present, that overlay is a labeled lab fault consumed by CTRL-MCP-001. It is not evidence that authentication succeeded.
+The workflow recorded a user-shaped label and two agent ids. It did not record an authenticated human. A caller id is not a grant. An agent id is not execution. If the vulnerable profile's overlay is present, that overlay is a labeled lab fault consumed by CTRL-MCP-001. It is not evidence that authentication succeeded.
 
-Do not teach, in this first workshop, a second implemented case for spoofing, stale credentials, orphaned non-human identities, or principal substitution. Those remain future or already live in other labs (confused deputy is LAB-MCP-006).
+Do not teach, in this first workshop, a second implemented case for spoofing, stale credentials, orphaned non-human identities, or principal substitution. Those remain future or already live in other labs (confused deputy is LAB-MCP-006). The implementation phase must measure event sequence and fields again. This design does not freeze a per-run verdict.
 
 ## 12. Later phases, not this one
 
@@ -288,7 +359,7 @@ What transfers from ordinary IAM: service accounts, workload identity, least pri
 
 Educational only. Not a compliance claim.
 
-Existing AgentSec notes cite OWASP ASI03 for identity and privilege abuse, and they cite NIST AI 600-1 as a related risk profile rather than a technique map. This design does not re-verify those documents. Any new mapping is **NEEDS_EXTERNAL_VALIDATION**.
+Existing AgentSec notes cite OWASP ASI03 for identity and privilege abuse, and they cite NIST AI 600-1 as a related risk profile rather than a technique map. This design does not re-verify those documents. Those citations are **DOCUMENTED BUT NOT REVALIDATED**. Any new mapping is **NEEDS_EXTERNAL_VALIDATION**.
 
 Useful classroom parallels, without new identifiers: a service account is not a person; a workload identity is not an application role; zero trust refuses to treat a name as a grant; RBAC and ABAC bind a principal to an action and a resource after authentication. AgentSec's CTRL-MCP-001 is the lab's tool binding. It is not an enterprise IAM product.
 
@@ -308,7 +379,7 @@ L7 already asks the learner to name actors, boundaries, and authority. The works
 
 Beginner. Claim versus authenticated identity. Identity versus authorization. Human label versus agent versus service name.
 
-Practitioner. Fill the ledger: requesting actor, executing actor, principal label, CTRL-IDENTITY-001, CTRL-MCP-001, and missing evidence. Compare ATTACK, RETEST, and BASELINE only when those modes exist for the reused lab. Do not invent a mode result.
+Practitioner. Fill the ledger from labels, CTRL-IDENTITY-001, CTRL-MCP-001, sequence, and `mcp.started`. Compare ATTACK, RETEST, and BASELINE on the identity workflow. Do not invent a mode result, and do not treat the historical run counts as the answer.
 
 Expert. Say what a non-human lifecycle would need later, what must stay least privilege, and what residual risk remains because authentication, expiry, and ownership are absent. Propose no implementation.
 
@@ -322,10 +393,20 @@ Leadership output. Bounded risk: the lab can show an agent id and a user-shaped 
 
 ## 17. Decision
 
-The identity foundation is strong enough to teach, because the runtime already separates an untrusted claim from tool authorization and already refuses to claim authentication.
+The corrected design is ready for independent re-review. It does not authorize implementation.
 
-It is not strong enough to pretend non-human IAM exists. The workshop's job is the gap.
+Non-human principal maturity for the emitted agent ids is **CLAIM ONLY**. A named agent is not a security principal. Caller id, callee id, `gen_ai.agent.id`, and `agentsec.delegator.agent.id` are identity claims. They do not establish authentication, credential binding, principal establishment, delegated authority, or human attribution. Do not call a named agent a principal.
 
-GO — AUTHORIZE BOUNDED IDENTITY & NON-HUMAN IAM WORKSHOP
+The workshop, if a later prompt builds it, stays REPLAY, discovers evidence from `agentsec-local` and `/identity/delegate`, adds no authentication, and does not change CTRL-MCP-001, schema 1.9.0, or ExternalEvidence 1.0.0.
 
-That authorization is not granted by this file. Implementation waits for an independent design review and a later prompt. The workshop, if built, stays REPLAY, reuses `LAB-AGENT-DELEGATION-001` evidence, adds no authentication, and does not change CTRL-MCP-001, schema 1.9.0, or ExternalEvidence 1.0.0.
+## 18. Remediation record
+
+Independent review: `docs/reviews/AGENTSEC_AGENT_IDENTITY_NON_HUMAN_IAM_DESIGN_INDEPENDENT_REVIEW.md`. Verdict: CONDITIONAL GO. This section keeps the original statements. The sections above are the corrected design.
+
+| Original design statement | Independent finding | Corrected decision |
+|---|---|---|
+| Historical Splunk presence was NOT RE-MEASURED. The teaching case was `LAB-AGENT-DELEGATION-001`. | MEASURED: `agentsec.lab.id=LAB-AGENT-DELEGATION-001` returned count 0. The rows use `agentsec.lab.id=agentsec-local` and `agentsec.workflow.entry=/identity/delegate`, with ATTACK 6, RETEST 6, and BASELINE 1 runs. Reconfirmed in this remediation. | `LAB-AGENT-DELEGATION-001` stays the repository contract only. Learners discover evidence from the indexed workflow fields. An empty lab-id search is not absence of the case. |
+| Non-human principal was summarized as PARTIAL. | Emitted agent ids are claims. There is no authenticated non-human principal. | CLAIM ONLY. Do not use "principal" as a shorthand for a named agent. |
+| `gen_ai.agent.id` on the emitting hop was described as the executing actor. | Hop 0 writes `acme-agent-fulfillment-006` on CTRL-IDENTITY-001 before `mcp.started`. | Agent id is not execution. Execution evidence is `agentsec.mcp.started`. Completion and outcome are used only where those events exist. |
+| `principal.type=user` was described as a constant label. | The schema enum is `user`, `agent`, and `system`. This emitter writes `user` on the measured identity workflow, including agent events. | Known telemetry semantic limitation. Do not change the emitter or schema in this phase. `principal.type=user` is not an authenticated human and not proof a human caused the action. |
+| `who_authenticated` was a result string, not an event. | MEASURED index count for `who_authenticated` is 0. | Authentication remains NOT MODELED. The result string is not proof. |
