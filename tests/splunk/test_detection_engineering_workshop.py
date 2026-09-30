@@ -94,7 +94,17 @@ def test_path_a_does_not_hand_over_the_correlation_or_the_runs():
     assert "Beginner" in _tab_markdown("layout_mission")
     assert "Practitioner" in _tab_markdown("layout_mission")
     assert "Expert" in _tab_markdown("layout_mission")
-    assert "not a safety verdict" in path_a.lower()
+    assert "NOT IMPLEMENTED" in path_a
+    assert "NO EVIDENCE FOUND" in path_a
+    assert "NO MATCH" in path_a
+    assert "Find CTRL-MCP-001" in path_a
+    assert "Write the coverage statement" in path_a
+    det_md = (
+        ROOT / "learning" / "level_1" / "LAB-MCP-001" / "searches" / "DET-MCP-001.md"
+    ).read_text(encoding="utf-8")
+    assert "operational detection" not in det_md.lower()
+    assert "LOGIC_VALIDATED" in det_md
+    assert "disabled" in det_md.lower()
 
 
 def test_path_b_records_order_and_the_shipped_gap():

@@ -103,6 +103,8 @@ You are a detection engineer. You are not handed a finished detector.
 - **Practitioner.** Write the broad search, tune it, compare ATTACK, RETEST, and BASELINE, and write the coverage statement.
 - **Expert.** Start from the behavior. Derive the fields. Challenge `agentsec.operation.outcome=prevented` as proof. Separate the simulated positive from the index.
 
+The same page serves four kinds of learner. An IT practitioner uses the hints. A security student edits the SPL and writes the false-positive and false-negative notes. An experienced practitioner writes the coverage statement and names a telemetry gap. An AI security expert challenges the hypothesis and may propose a second detection. That proposal stays NOT IMPLEMENTED.
+
 Work in [Search]({SEARCH_URL}). Path B is an answer key, not policy. Opening this mission does not tell you the ATTACK, RETEST, or BASELINE result.
 
 The principle you have to earn: detection coverage is a claim that must be proven. A logically valid detection can still miss the attack you thought it covered.
@@ -152,7 +154,20 @@ The table below only shows which event names exist in each mode. It is not your 
         f"""
 # Correlate, then write
 
-**Broad candidate.** Same `agentsec.run.id` has a CTRL-MCP-001 DENY and any `agentsec.mcp.started`. No tool key. No sequence test. Write this in [Search]({SEARCH_URL}).
+Build the search in this order in [Search]({SEARCH_URL}). Do not skip to a finished correlation.
+
+1. Find CTRL-MCP-001 decisions whose decision is DENY.
+2. Keep the run identifiers those rows carry. Do not start from a run identifier someone handed you.
+3. Look for `agentsec.mcp.started` in those same runs.
+4. Check whether the start is a different tool from the DENY. Same run alone can correlate a denied tool with an allowed tool. That is a false correlation until you test the tool.
+5. Add `gen_ai.tool.name` so the DENY and the start must name the same tool.
+6. Add order. The start counts only when `agentsec.sequence` is greater than the DENY sequence for that tool.
+7. Compare ATTACK, RETEST, and BASELINE yourself. Do not assume which mode matches.
+8. Write what the query detects.
+9. Write what it does not detect.
+10. Write the coverage statement on the COVERAGE tab.
+
+**Broad candidate.** Same `agentsec.run.id` has a CTRL-MCP-001 DENY and any `agentsec.mcp.started`. No tool key. No sequence test.
 
 **Hint 2.** Same run is not the same tool. A denied tool and an allowed tool can share a run.
 
@@ -184,7 +199,7 @@ Then run the tuned search three times, or add `agentsec.testbed.mode` after you 
 
 **False positive to test.** What legitimate or merely different behavior satisfies the broad search? Use a row you found. Do not invent an approval workflow this index does not show.
 
-**False negative to test.** How can the tuned search miss a real start? Missing `agentsec.mcp.started`, a control id required on that start event, a different tool, and the 24-hour saved-search window are the relevant gaps. Mark each one as something you saw or something you are only reasoning about.
+**False negative to test.** The primary demonstrated gap is ALLOW followed by `agentsec.mcp.started`. This candidate looks for DENY followed by a later start, so it cannot see a fail-open ALLOW. Other gaps you may only be reasoning about include a missing `agentsec.mcp.started`, a control id required on that start event, a different tool name, and the saved search's 24-hour window. Mark each one OBSERVED or POSSIBLE. A second hypothesis that would look for ALLOW then start stays NOT IMPLEMENTED. Do not edit DET-MCP-001 to cover both patterns.
 
 Do not add filters until BASELINE disappears. BASELINE emptiness is not the goal.
 """,
@@ -214,11 +229,13 @@ Answer each line:
 - What conclusion is not justified?
 - What would still be required before anyone enabled a detector?
 
-At least one of NOT OBSERVED, NOT PROVEN, or CORRELATION NOT ESTABLISHED belongs in the statement when the evidence has that gap.
+When the evidence has a gap, use one of these labels: NO EVIDENCE FOUND, CORRELATION NOT ESTABLISHED, INSUFFICIENT EVIDENCE, NO MATCH, NOT OBSERVED, NOT PROVEN.
 
-A match is not an incident. A finding is not an incident. No match is not a safety verdict. RETEST is not universal safety. BASELINE is not a false-positive rate. Scanner HIGH is not DENY. Garak PASS is not a safety verdict. External evidence has no runtime run id in this lab's measured external plane: CORRELATION NOT ESTABLISHED.
+A match is not an incident. A finding is not an incident. No match is not a safety verdict. RETEST is not universal safety. BASELINE is not a false-positive rate. A detection name is not detection coverage. Detection coverage is not attack coverage. Scanner HIGH is not a runtime execution and not a DENY. Garak PASS is not runtime safety. An external finding is not a DET-MCP-001 match and not a CTRL-MCP-001 decision. Splunk does not send a finding back to CTRL-MCP-001.
 
-Do not write SAFE, SECURE, or NO ATTACK as the conclusion. Do not write that the system is secure.
+If Splunk is down, a stage is missing, the tool names differ, or the order is unclear, leave the gap labeled. Do not fill it.
+
+Do not write SAFE, SECURE, PROTECTED, or NO ATTACK as the conclusion. Do not write that the system is secure.
 
 The positive control file `learning/level_1/LAB-MCP-001/searches/DET-MCP-001-POSITIVE-CONTROL.spl` is `makeresults` with `evidence_class=SIMULATED`. It is a logic check. It is not an indexed attack. DET-MCP-001 stays disabled.
 """,
@@ -243,7 +260,7 @@ Do not describe the `lookup_policy` start as occurring after the `lookup_custome
 
 **Tuned candidate.** Same run and same `gen_ai.tool.name`, start sequence greater than the DENY sequence, and `agentsec.control.id=CTRL-MCP-001` only inside the DENY test. The second panel runs that search. Empty is not a safety verdict.
 
-The shipped file `DET-MCP-001.spl` groups by run and tool and requires `sequence>deny_sequence`. Its `is_deny` test does not include `control_id="CTRL-MCP-001"`. `eventstats` copies `control_id` with `latest()` and takes the DENY sequence with `min()`. If one run and tool had two DENY rows, those functions could describe different rows. That split was not an indexed same-tool match. Do not edit the saved search. It stays disabled. Its dispatch window is 24 hours, which is not `earliest=0`.
+The shipped file `DET-MCP-001.spl` groups by run and tool and requires `sequence>deny_sequence`. Its `is_deny` test does not include `control_id="CTRL-MCP-001"`. `eventstats` copies `control_id` with `latest()` and takes the DENY sequence with `min()`. If one run and tool had two DENY rows, those functions could describe different rows. That split was not an indexed same-tool match. The workshop tuned search uses `min()` for the DENY sequence and does not copy metadata with `latest()`, so it does not mix two DENY rows. It still does not claim that every future DENY pair is unambiguous. Do not edit the saved search. It stays disabled. Its dispatch window is 24 hours, which is not `earliest=0`. A scheduling window is not a historical investigation window.
 
 **What the tuned predicate does not cover.** Fail-open ALLOW followed by `agentsec.mcp.started`. That is the principal ATTACK shape this predicate misses on purpose. A non-match there does not mean the attack was stopped.
 
