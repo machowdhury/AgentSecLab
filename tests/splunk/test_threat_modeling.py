@@ -58,7 +58,7 @@ def test_curriculum_route_and_bounded_artifacts():
             "view": "ws_lab_threat_modeling",
         }
     ]
-    assert curriculum["nav_collections"][-5] == {
+    assert curriculum["nav_collections"][-6] == {
         "label": "Security Architecture",
         "views": ["ws_lab_threat_modeling"],
     }

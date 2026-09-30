@@ -31,6 +31,7 @@ LEARNER_VIEWS = (
     "ws_lab_detection_engineering.xml",
     "ws_lab_threat_modeling.xml",
     "ws_lab_agent_identity_nhi.xml",
+    "ws_lab_a2a_auth_delegation.xml",
     "ws_lab_privacy_data_governance.xml",
     "ws_lab_multi_stage_incident.xml",
     "ws_lab_advanced_capstone.xml",
@@ -55,6 +56,7 @@ def test_nav_is_grouped_and_home_is_default():
         "Splunk Defender Bridge",
         "Blue Team",
         "Security Architecture",
+        "A2A Authentication",
         "Privacy &amp; Data Governance",
         "Integrated Incident",
         "Advanced Capstone",
@@ -71,7 +73,11 @@ def test_nav_is_grouped_and_home_is_default():
     assert nav.index("ws_lab_agentsec_capstone") < nav.index("ws_lab_splunk_defender_bridge")
     assert nav.index("ws_lab_splunk_defender_bridge") < nav.index("ws_lab_blue_team_incident")
     assert nav.index("ws_lab_blue_team_incident") < nav.index("ws_lab_threat_modeling")
-    assert nav.index("ws_lab_threat_modeling") < nav.index("ws_lab_privacy_data_governance")
+    assert nav.index("ws_lab_threat_modeling") < nav.index("ws_lab_agent_identity_nhi")
+    assert nav.index("ws_lab_agent_identity_nhi") < nav.index("ws_lab_a2a_auth_delegation")
+    assert nav.index("ws_lab_a2a_auth_delegation") < nav.index(
+        "ws_lab_privacy_data_governance"
+    )
     assert nav.index("ws_lab_privacy_data_governance") < nav.index("ws_lab_multi_stage_incident")
     assert nav.index("ws_lab_multi_stage_incident") < nav.index("ws_lab_advanced_capstone")
     assert "<collection label=" in nav
@@ -130,6 +136,7 @@ def test_xml_labels_are_human_readable():
         "ws_lab_blue_team_incident.xml": "AcmeBank Incident AI-2026-001",
         "ws_lab_detection_engineering.xml": "Detection Engineering — Prove Your Coverage",
         "ws_lab_agent_identity_nhi.xml": "Agent Identity and Non-Human IAM",
+        "ws_lab_a2a_auth_delegation.xml": "A2A Authentication and Delegation",
         "ws_lab_threat_modeling.xml": "Threat Modeling and Security Architecture",
         "ws_lab_privacy_data_governance.xml": "Privacy and Data Governance",
         "ws_lab_multi_stage_incident.xml": "Acme Bank Incident AGENT-2026-009",

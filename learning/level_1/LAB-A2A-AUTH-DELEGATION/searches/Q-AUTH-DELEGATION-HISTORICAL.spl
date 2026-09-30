@@ -1,0 +1,10 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0
+"agentsec.workflow.entry"="/identity/delegate"
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| eval caller=mvindex(mvdedup('agentsec.identity.caller_agent_id'),0)
+| eval callee=mvindex(mvdedup('agentsec.identity.callee_agent_id'),0)
+| stats dc(run_id) as runs values(caller) as caller_claim values(callee) as callee_claim by mode
+| eval evidence_plane="HISTORICAL CLAIM-ONLY CORPUS"
+| eval authentication="NOT OBSERVED"
+| eval delegation="NOT OBSERVED"

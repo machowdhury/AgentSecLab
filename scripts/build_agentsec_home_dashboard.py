@@ -48,6 +48,7 @@ BLUE_TEAM_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_blue_team_incid
 DETECTION_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_detection_engineering"
 THREAT_MODEL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_threat_modeling"
 IDENTITY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agent_identity_nhi"
+A2A_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_a2a_auth_delegation"
 PRIVACY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_privacy_data_governance"
 MULTI_STAGE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_multi_stage_incident"
 ADVANCED_CAPSTONE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_advanced_capstone"
@@ -276,11 +277,15 @@ Open [Threat Modeling & Security Architecture]({THREAT_MODEL_URL}) after Detecti
 
 Open [Agent Identity and Non-Human IAM]({IDENTITY_URL}) after threat modeling and before privacy.
 
+**A2A Authentication and Delegation** — SIMULATED / REPLAYED workshop after Identity/NHI and before L8. You separate an identity claim, a simulated authentication result, a bounded simulated delegation evaluation, the CTRL-MCP-001 tool decision, execution evidence, and downstream impact. It adds no runtime IAM or delegation enforcement.
+
+Open [A2A Authentication and Delegation]({A2A_URL}) after the identity workshop and before privacy.
+
 **L8 Privacy, data protection and agentic data governance** — {levels['L8']['learn']} Effort: {levels['L8']['effort']}. Exit: {levels['L8']['exit']}.
 
 {l8}
 
-Open [AcmeBank Incident PRIV-2026-001]({PRIVACY_URL}) after the identity workshop. It is a synthetic REPLAY privacy investigation: trace data, minimize it, separate tool authorization from appropriate data use, and state what remains unknown.
+Open [AcmeBank Incident PRIV-2026-001]({PRIVACY_URL}) after the A2A workshop. It is a synthetic REPLAY privacy investigation: trace data, minimize it, separate tool authorization from appropriate data use, and state what remains unknown.
 
 **L9 Multi-stage agentic attack, investigation and defense** — {levels['L9']['learn']} Effort: {levels['L9']['effort']}. Exit: {levels['L9']['exit']}.
 
