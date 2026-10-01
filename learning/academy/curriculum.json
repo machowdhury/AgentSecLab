@@ -94,6 +94,10 @@
       "views": ["ws_lab_component_provenance"]
     },
     {
+      "label": "Code Agent Bounds",
+      "views": ["ws_lab_code_agent_bounds"]
+    },
+    {
       "label": "Integrated Incident",
       "views": ["ws_lab_multi_stage_incident"]
     },
@@ -212,6 +216,17 @@
       "view": "ws_lab_component_provenance",
       "not_authorization": true,
       "evidence_class": "DOCUMENTED / SIMULATED"
+    },
+    {
+      "id": "CODE-AGENT-BOUNDS",
+      "title": "Code Agent Bounds",
+      "placement": "Component Provenance → Code Agent Bounds → L9",
+      "mode": "REPLAY",
+      "live_launcher": false,
+      "lab_id": "LAB-CODE-AGENT-BOUNDS",
+      "view": "ws_lab_code_agent_bounds",
+      "not_authorization": true,
+      "evidence_class": "SIMULATED / REPLAYED"
     }
   ],
   "levels": [

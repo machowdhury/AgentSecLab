@@ -61,6 +61,9 @@
   <collection label="Component Provenance">
     <view name="ws_lab_component_provenance">Component Provenance</view>
   </collection>
+  <collection label="Code Agent Bounds">
+    <view name="ws_lab_code_agent_bounds">Code Agent Bounds</view>
+  </collection>
   <collection label="Integrated Incident">
     <view name="ws_lab_multi_stage_incident">AGENT-2026-009</view>
   </collection>

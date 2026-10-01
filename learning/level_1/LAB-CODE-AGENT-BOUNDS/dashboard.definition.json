@@ -1,0 +1,177 @@
+{
+  "visualizations": {
+    "viz_mission": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Code-generation agent bounds\n\nThis is a REPLAY workshop. Path A is the ledger you fill before Path B. The packet is not policy.\n\nA code-generation agent's authority must be bounded and evidenced. Identity claim is not authentication. Delegation is not authorization. Approval of a read is not approval of an install. A current credential is not a tool grant. No GitHub credential is used and no external repository is modified.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_debt": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Bounded record\n\n- claimed agent: acme-agent-coder-001\n- authentication: SIMULATED AUTHENTICATION RESULT\n- delegated operation: read_repository\n- approved operation: read_repository\n- approval authority: NOT PROVEN\n- credential: sim-cred-coder-001, status CURRENT\n- dependency name: example-lib, not installed\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_request": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Request\n\nATTACK and RETEST submit `install_dependency`. The delegated and approved operation is `read_repository`.\n\nBASELINE submits `read_repository`.\n\nPull request and deploy stay NOT OPENED or NOT REQUESTED. Write the binding before Path B.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_pathb": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Path B — review\n\n- ATTACK: binding MISMATCH, ALLOW only as vulnerable_profile_fail_open:code_agent_scope_not_checked, simulated start, pull request NOT OPENED.\n- RETEST: binding MISMATCH, DENY operation_not_granted, do not infer execution.\n- BASELINE: binding MATCH, ALLOW tool_granted. A read grant is not authority to install, open a pull request, or deploy.\n\nResource impact is NOT PROVEN.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    }
+  },
+  "dataSources": {},
+  "defaults": {
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "large"
+        }
+      }
+    }
+  },
+  "inputs": {},
+  "layout": {
+    "type": "grid",
+    "options": {
+      "submitButton": false,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "tabs": {
+      "items": [
+        {
+          "layoutId": "layout_viz_mission",
+          "label": "MISSION"
+        },
+        {
+          "layoutId": "layout_viz_debt",
+          "label": "DEBT"
+        },
+        {
+          "layoutId": "layout_viz_request",
+          "label": "REQUEST"
+        },
+        {
+          "layoutId": "layout_viz_pathb",
+          "label": "PATH B · REVIEW"
+        }
+      ]
+    },
+    "layoutDefinitions": {
+      "layout_viz_mission": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_mission",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_viz_debt": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_debt",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_viz_request": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_request",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_viz_pathb": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_pathb",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      }
+    }
+  }
+}
