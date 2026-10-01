@@ -60,7 +60,7 @@
     "viz_mission": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# AcmeBank Incident AI-2026-001\n\nSOC received a report:\n\n> An AI-assisted banking workflow may have attempted or performed an action outside its intended authority.\n\nIncident window: **2026-09-20 19:37:40Z\u201319:38:00Z**\n\n**REPLAY workshop.** This is historical validated evidence, not a launch you just minted.\n\nThis is an unfamiliar-incident assignment. Do not infer the attack family, decision, execution state, root cause, or solution from the title.\n\n**Write an initial hypothesis before opening INVESTIGATE.**\n\n[Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n\nREPLAY evidence \u00b7 runtime schema **1.9.0** \u00b7 ExternalEvidence **1.0.0**\n",
+        "markdown": "# AcmeBank Incident AI-2026-001\n\nSOC received a report:\n\n> An AI-assisted banking workflow may have attempted or performed an action outside its intended authority.\n\nIncident window: **2026-09-20 19:37:40Z–19:38:00Z**\n\n**REPLAY workshop.** This is historical validated evidence, not a launch you just minted.\n\nThis is an unfamiliar-incident assignment. Do not infer the attack family, decision, execution state, root cause, or solution from the title.\n\n**Write an initial hypothesis before opening INVESTIGATE.**\n\n[Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n\nREPLAY evidence · runtime schema **1.9.0** · ExternalEvidence **1.0.0**\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -69,7 +69,7 @@
     "viz_method": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# Investigation method\n\nOBSERVATION \u2192 INITIAL HYPOTHESIS \u2192 EVIDENCE REQUIRED \u2192 SEARCH \u2192 TIMELINE \u2192 CORRELATION \u2192 CONTROL ANALYSIS \u2192 SUPPORT / REFUTE \u2192 REVISED HYPOTHESIS \u2192 CONCLUSION \u2192 EVIDENCE GAPS \u2192 RECOMMENDATION\n\nRepeatedly ask WHO, WHAT, WHEN, WHERE, WHY, AUTHORITY, EXECUTION, OUTCOME, EVIDENCE, and UNKNOWN.\n\n- Observation is not authorization.\n- Authorization is not execution.\n- Execution started is not completion.\n- Correlation is not causation.\n- No evidence is not safe.\n- Splunk is downstream evidence, not the PDP.\n",
+        "markdown": "# Investigation method\n\nOBSERVATION → INITIAL HYPOTHESIS → EVIDENCE REQUIRED → SEARCH → TIMELINE → CORRELATION → CONTROL ANALYSIS → SUPPORT / REFUTE → REVISED HYPOTHESIS → CONCLUSION → EVIDENCE GAPS → RECOMMENDATION\n\nRepeatedly ask WHO, WHAT, WHEN, WHERE, WHY, AUTHORITY, EXECUTION, OUTCOME, EVIDENCE, and UNKNOWN.\n\n- Observation is not authorization.\n- Authorization is not execution.\n- Execution started is not completion.\n- Correlation is not causation.\n- No evidence is not safe.\n- Splunk is downstream evidence, not the PDP.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -78,7 +78,7 @@
     "viz_levels": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# Choose your investigation level\n\n**LEVEL 1 \u2014 GUIDED ANALYST**\n\nUse the incident window and candidate-search table. Then pivot each candidate run ID into the timeline. Determine what occurred; no conclusion is supplied.\n\n**LEVEL 2 \u2014 INVESTIGATOR**\n\nUse the description and approximate window. Construct the search. Do not initially use the full SPL, complete event IDs, root cause, or final decision.\n\n**LEVEL 3 \u2014 THREAT HUNTER**\n\nHypothesis: an agent may have requested a privileged tool outside its intended task. Define evidence needed, search strategy, candidate runs, pivots, supporting and contradicting evidence, conclusion, and limitations.\n\nAll levels use the same telemetry. No duplicate dataset and no new attack.\n",
+        "markdown": "# Choose your investigation level\n\n**LEVEL 1 — GUIDED ANALYST**\n\nUse the incident window and candidate-search table. Then pivot each candidate run ID into the timeline. Determine what occurred; no conclusion is supplied.\n\n**LEVEL 2 — INVESTIGATOR**\n\nUse the description and approximate window. Construct the search. Do not initially use the full SPL, complete event IDs, root cause, or final decision.\n\n**LEVEL 3 — THREAT HUNTER**\n\nHypothesis: an agent may have requested a privileged tool outside its intended task. Define evidence needed, search strategy, candidate runs, pivots, supporting and contradicting evidence, conclusion, and limitations.\n\nAll levels use the same telemetry. No duplicate dataset and no new attack.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -87,7 +87,7 @@
     "viz_hints": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# Progressive hints\n\nStop after the first hint that gets you moving.\n\n**HINT 1 \u2014 Direction**\n\nStart with tool-control decisions in the incident window. A request is not execution.\n\n**HINT 2 \u2014 Evidence source**\n\nPivot from each candidate run ID to runtime `event.name` and `agentsec.sequence`.\n\n**HINT 3 \u2014 Field strategy**\n\nInspect memory ID, source run ID, content hash, requested scope, allowed scope, and later `mcp.*` events. Equality and correlation do not establish direct causality.\n\n**HINT 4 \u2014 Example SPL**\n\nUse `Q-INCIDENT-CANDIDATES`, bind `Q-INCIDENT-TIMELINE` to each candidate, and compare only after recording a hypothesis.\n",
+        "markdown": "# Progressive hints\n\nStop after the first hint that gets you moving.\n\n**HINT 1 — Direction**\n\nStart with tool-control decisions in the incident window. A request is not execution.\n\n**HINT 2 — Evidence source**\n\nPivot from each candidate run ID to runtime `event.name` and `agentsec.sequence`.\n\n**HINT 3 — Field strategy**\n\nInspect memory ID, source run ID, content hash, requested scope, allowed scope, and later `mcp.*` events. Equality and correlation do not establish direct causality.\n\n**HINT 4 — Example SPL**\n\nUse `Q-INCIDENT-CANDIDATES`, bind `Q-INCIDENT-TIMELINE` to each candidate, and compare only after recording a hypothesis.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -159,7 +159,7 @@
     "viz_answer": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# Path B \u2014 review key\n\nOpen only after you record an initial and revised hypothesis. This is an answer key, not policy.\n\nThe two recall runs carry the same malicious-memory fingerprint and request the same privileged tool/scope. Memory classification remains OBSERVE. The vulnerable specimen records CTRL-MCP-001 ALLOW, then `mcp.started` and `mcp.completed`. The defended specimen records CTRL-MCP-001 DENY `tool_not_granted` and has no indexed follow-on execution event.\n\nThe defensible result is:\n\n**SAME ADVERSARIAL INFLUENCE. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION.**\n\nRoot cause of the ATTACK authorization in this controlled specimen: the explicitly labeled vulnerable fail-open experiment overlay at CTRL-MCP-001. Retrieved content and memory did not mint authority. Splunk did not prevent RETEST.\n\nDirect retrieve-output \u2192 write causality is NOT MODELED. Authentication is NOT MODELED. Goal/Identity failure is NOT OBSERVED. Universal resistance is NOT PROVEN.\n",
+        "markdown": "# Path B — review key\n\nOpen only after you record an initial and revised hypothesis. This is an answer key, not policy.\n\nThe two recall runs carry the same malicious-memory fingerprint and request the same privileged tool/scope. Memory classification remains OBSERVE. The vulnerable specimen records CTRL-MCP-001 ALLOW, then `mcp.started` and `mcp.completed`. The defended specimen records CTRL-MCP-001 DENY `tool_not_granted` and has no indexed follow-on execution event.\n\nThe defensible result is:\n\n**SAME ADVERSARIAL INFLUENCE. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION.**\n\nRoot cause of the ATTACK authorization in this controlled specimen: the explicitly labeled vulnerable fail-open experiment overlay at CTRL-MCP-001. Retrieved content and memory did not mint authority. Splunk did not prevent RETEST.\n\nDirect retrieve-output → write causality is NOT MODELED. Authentication is NOT MODELED. Goal/Identity failure is NOT OBSERVED. Universal resistance is NOT PROVEN.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -186,7 +186,7 @@
     "viz_false_positive": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# False-positive exercise\n\nA broad rule such as \u201cany tool execution is malicious\u201d also matches expected `lookup_policy` activity.\n\nCompare the real BASELINE specimen below:\n\n- requested `policy:read`\n- coded authority includes `policy:read`\n- CTRL-MCP-001 reason is `tool_granted`\n\n**MATCH != MALICIOUS.** Context, intended task, authority, control reason, and outcome change interpretation.\n",
+        "markdown": "# False-positive exercise\n\nA broad rule such as “any tool execution is malicious” also matches expected `lookup_policy` activity.\n\nCompare the real BASELINE specimen below:\n\n- requested `policy:read`\n- coded authority includes `policy:read`\n- CTRL-MCP-001 reason is `tool_granted`\n\n**MATCH != MALICIOUS.** Context, intended task, authority, control reason, and outcome change interpretation.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -213,7 +213,7 @@
     "viz_report": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# Finish the investigation\n\nSubmit:\n\n**Executive Summary \u00b7 What Happened \u00b7 Timeline \u00b7 Evidence \u00b7 Authorization Analysis \u00b7 Execution Analysis \u00b7 Root Cause or LIKELY CONTRIBUTING FACTOR \u00b7 Evidence Gaps \u00b7 Control Recommendations \u00b7 Residual Risk \u00b7 Confidence / Limitations**\n\nExplain it twice:\n\n- Technical: evidence IDs, SPL, controls, execution states, uncertainty.\n- Executive: what happened, impact, unauthorized execution status, control behavior, change, and uncertainty.\n\nDetection bridge: known incident \u2192 observables \u2192 candidate SPL \u2192 ATTACK \u2192 RETEST \u2192 BASELINE \u2192 false-positive analysis \u2192 detection candidate. This phase creates no saved search.\n\nThreat-model bridge: asset, actor, entry point, trust boundary, authority, control placement, observability, missing telemetry, residual risk.\n",
+        "markdown": "# Finish the investigation\n\nSubmit:\n\n**Executive Summary · What Happened · Timeline · Evidence · Authorization Analysis · Execution Analysis · Root Cause or LIKELY CONTRIBUTING FACTOR · Evidence Gaps · Control Recommendations · Residual Risk · Confidence / Limitations**\n\nExplain it twice:\n\n- Technical: evidence IDs, SPL, controls, execution states, uncertainty.\n- Executive: what happened, impact, unauthorized execution status, control behavior, change, and uncertainty.\n\nDetection bridge: known incident → observables → candidate SPL → ATTACK → RETEST → BASELINE → false-positive analysis → detection candidate. This phase creates no saved search.\n\nThreat-model bridge: asset, actor, entry point, trust boundary, authority, control placement, observability, missing telemetry, residual risk.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -244,11 +244,11 @@
         },
         {
           "layoutId": "layout_evidence",
-          "label": "EVIDENCE \u00b7 WORKBENCH"
+          "label": "EVIDENCE · WORKBENCH"
         },
         {
           "layoutId": "layout_answers",
-          "label": "PATH B \u00b7 ANSWERS"
+          "label": "PATH B · ANSWERS"
         }
       ]
     },

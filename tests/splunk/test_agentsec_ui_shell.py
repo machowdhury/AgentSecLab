@@ -183,6 +183,16 @@ def test_xml_labels_are_human_readable():
             assert "LAB-" in xml, name
 
 
+def test_studio_browser_titles_match_labels():
+    """Splunk Studio uses definition.title. A missing title renders as undefined."""
+    for name in LEARNER_VIEWS + ("ws_agentsec_home.xml", "ws_agentsec_mastery.xml"):
+        xml = (VIEWS / name).read_text(encoding="utf-8")
+        label = re.search(r"<label>(.*?)</label>", xml)
+        assert label, name
+        definition = _definition(name)
+        assert definition.get("title") == label.group(1), name
+
+
 def test_schema_unchanged():
     schema = SCHEMA.read_text(encoding="utf-8")
     assert '"const": "1.9.0"' in schema

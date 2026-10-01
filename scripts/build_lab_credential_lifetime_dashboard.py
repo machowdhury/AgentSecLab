@@ -194,10 +194,10 @@ def main() -> None:
     definition = build()
     if "| --- |" in json.dumps(definition):
         raise SystemExit("Studio markdown must not contain a GFM table")
-    write_definition(DEFINITION, definition)
     write_studio_xml(
         XML,
         definition,
+        definition_path=DEFINITION,
         label=TITLE,
         description="LAB-CREDENTIAL-LIFETIME. SIMULATED / REPLAYED credential lifetime workshop.",
     )

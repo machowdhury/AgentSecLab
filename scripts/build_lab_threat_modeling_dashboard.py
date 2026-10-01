@@ -375,10 +375,10 @@ def validate(definition: dict) -> None:
 
 def main() -> None:
     definition = build()
-    write_definition(OUT_JSON, definition)
     write_studio_xml(
         OUT_XML,
         definition,
+        definition_path=OUT_JSON,
         label="Threat Modeling and Security Architecture",
         description="REPLAY architecture workbench. Reasoning assistance, not compliance.",
     )

@@ -103,7 +103,7 @@ SPL_TEACHING = {
     "Q-MCP-AFTER-DENY": (
         "- **Why this hunt?** It asks whether mcp.started followed DENY for the same run/tool.\n"
         "- **Why zero rows are not a detector?** No notable. Completeness first.\n"
-        "- DET-MCP-001 is the operational detection of the same invariant, packaged disabled."
+        "- DET-MCP-001 is the disabled saved search for the same invariant. It is not an enabled operational detection."
     ),
 }
 
@@ -814,7 +814,7 @@ This tab is a **stacked notebook**: Path A, then optional hints, then Path B. Cu
     add_md(
         "viz_detect_md",
         """
-# DETECT — investigation hunt and one operational detection
+# DETECT — investigation hunt and one disabled saved search
 
 No notable event. No ES notable. No automatic remediation.
 
@@ -823,7 +823,7 @@ No notable event. No ES notable. No automatic remediation.
 ## HUNT vs DETECTION
 
 - **HUNT** (`Q-MCP-AFTER-DENY` on Hunt run.id): asks whether the violation occurred in this copy. Left table. Validated LIVE specimens: **0** rows. Zero rows is not independent proof the handler never ran.
-- **DETECTION** (`DET-MCP-001`, saved search `AgentSec - MCP Execution After Authorization Deny`): continuously checks the same invariant across the index window. Severity **HIGH** because authorization already denied and execution nevertheless began. Packaged **disabled**. This dashboard does **not** enable it. It did **not** fire on the validated LIVE runs.
+- **DETECTION** (`DET-MCP-001`, saved search `AgentSec - MCP Execution After Authorization Deny`): the same invariant, packaged **disabled** with scheduling off. It is not continuously checking while disabled. Severity **HIGH** on the predicate means authorization already denied and execution nevertheless began. This dashboard does **not** enable it. It did **not** fire on the validated LIVE runs.
 
 DENY alone is not an alert. ALLOW (including labeled fail-open) is not this detection. `mcp.failed` after ALLOW is execution then error, not DENY-then-start. ERROR is not DENY. Splunk detects a copy of a violation; it does not enforce authorization.
 
@@ -1305,6 +1305,11 @@ def write_xml(definition: dict) -> None:
 
 def main() -> None:
     definition = build()
+    definition.setdefault("title", "Tool Authorization")
+    definition.setdefault(
+        "description",
+        "WS-MCP-001. Validated Q-MCP SPL. DET-MCP-001 packaged disabled. Not a notable-event pack. LAB-MCP-001. Splunk does not ALLOW or DENY a tool.",
+    )
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(
         json.dumps(definition, indent=2, ensure_ascii=False) + "\n",

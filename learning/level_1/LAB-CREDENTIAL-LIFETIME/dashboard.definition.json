@@ -315,5 +315,7 @@
         ]
       }
     }
-  }
+  },
+  "title": "Short-Lived Credential Lifetime",
+  "description": "LAB-CREDENTIAL-LIFETIME. SIMULATED / REPLAYED credential lifetime workshop."
 }

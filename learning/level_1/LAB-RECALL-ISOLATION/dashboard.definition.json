@@ -280,5 +280,7 @@
         ]
       }
     }
-  }
+  },
+  "title": "Memory Ownership and Isolation",
+  "description": "LAB-RECALL-ISOLATION. SIMULATED / REPLAYED memory ownership workshop."
 }

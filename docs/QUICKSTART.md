@@ -2,7 +2,7 @@
 
 A technically capable person should be able to follow this linearly. Run every command from the **repository root**.
 
-Use the `develop` branch or the tag `v1.0.0-rc2`. That tree is the current L0–L10 release candidate. `main` and annotated tag `v1.0.0-rc1` are the earlier baseline and stop before L6. This candidate is not final `v1.0.0`. Clean-room installation on an empty machine has not been proven; these steps are the documented path.
+Use the `develop` branch. That tree is the current L0–L10 release candidate (v1.0.0-rc3). `main` and annotated tag `v1.0.0-rc1` are the earlier baseline and stop before L6. Tag `v1.0.0-rc2` is the previous candidate. This candidate is not final `v1.0.0`. Clean-room installation on an empty machine has not been proven in this paragraph; these steps are the documented path. The release notes record whether a later clean-room run succeeded.
 
 After the first lab, continue with the README academy section and [AGENTSEC_RELEASE_LAB_MATRIX.md](AGENTSEC_RELEASE_LAB_MATRIX.md). Do not treat the L5 Capstone as the end of the academy. L10 is the Advanced Capstone. Mastery Check is a separate unscored self-check.
 
@@ -13,7 +13,7 @@ After the first lab, continue with the README academy section and [AGENTSEC_RELE
 - A browser
 - This repository
 
-Hardware minimums: **NOT BENCHMARKED**. Observed development used Docker Desktop on macOS with Splunk 10.2 (`linux/amd64`, emulated on Apple Silicon). First boot pulls images and an Ollama model.
+Hardware minimums: **NOT BENCHMARKED**. Observed development used Docker Desktop on macOS with Splunk 10.2 (`linux/amd64`, emulated on Apple Silicon). First boot pulls container images. It does not pull the Ollama model.
 
 Details: [AGENTSEC_PREREQUISITES.md](AGENTSEC_PREREQUISITES.md).
 
@@ -47,6 +47,12 @@ Rebuild images from this repository (required after Attack Service UI/source cha
 
 ```bash
 ./scripts/lab-up.sh --build
+```
+
+Pull the lab model once into the Ollama volume. `lab-up.sh` does not do this. Until the model is present, AcmeBank `/health` stays `degraded` and `ollama_reachable` is false. That flag means the configured model name was not listed by Ollama. It does not mean the Ollama process is down.
+
+```bash
+docker exec agentsec_ollama ollama pull llama3.2:1b
 ```
 
 ## 5. Readiness

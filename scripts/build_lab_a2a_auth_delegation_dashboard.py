@@ -458,10 +458,10 @@ def validate(definition: dict) -> None:
 
 def main() -> None:
     definition = build()
-    write_definition(OUT_JSON, definition)
     write_studio_xml(
         OUT_XML,
         definition,
+        definition_path=OUT_JSON,
         label="A2A Authentication and Delegation",
         description=(
             "LAB-A2A-AUTH-DELEGATION. SIMULATED / REPLAYED workshop between "

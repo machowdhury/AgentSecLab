@@ -218,8 +218,8 @@ def validate(definition: dict) -> None:
 
 def main() -> None:
     definition = build()
-    write_definition(OUT_JSON, definition)
-    write_studio_xml(OUT_XML, definition, label="Privacy and Data Governance", description="L8 synthetic privacy investigation workbench.")
+    write_studio_xml(
+        OUT_XML, definition, definition_path=OUT_JSON, label="Privacy and Data Governance", description="L8 synthetic privacy investigation workbench.")
     print(f"wrote {OUT_JSON.relative_to(ROOT)}")
     print(f"wrote {OUT_XML.relative_to(ROOT)}")
 

@@ -242,7 +242,28 @@ def layout_options() -> dict:
     }
 
 
-def write_studio_xml(path: Path, definition: dict, *, label: str, description: str) -> None:
+def ensure_browser_title(definition: dict, *, label: str, description: str) -> dict:
+    """Splunk Studio uses definition.title for the browser tab.
+
+    A missing title renders as "undefined | Splunk". The XML label is not that field.
+    The title is always the view label so a pre-existing root title cannot diverge.
+    """
+    definition["title"] = label
+    definition.setdefault("description", description)
+    return definition
+
+
+def write_studio_xml(
+    path: Path,
+    definition: dict,
+    *,
+    label: str,
+    description: str,
+    definition_path: Path | None = None,
+) -> None:
+    ensure_browser_title(definition, label=label, description=description)
+    if definition_path is not None:
+        write_definition(definition_path, definition)
     payload = json.dumps(definition, indent=2, ensure_ascii=False)
     if "]]>" in payload:
         raise ValueError("definition contains CDATA terminator")

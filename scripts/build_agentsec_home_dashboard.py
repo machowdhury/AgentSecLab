@@ -484,10 +484,10 @@ Schema remains **1.9.0**. One packaged detector exists: DET-MCP-001 (disabled, D
 
 def main() -> None:
     definition = build()
-    write_definition(OUT_JSON, definition)
     write_studio_xml(
         OUT_XML,
         definition,
+        definition_path=OUT_JSON,
         label="Home",
         description="AgentSec academy landing. Start here. Splunk does not ALLOW or DENY.",
     )

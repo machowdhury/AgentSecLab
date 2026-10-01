@@ -173,5 +173,7 @@
         ]
       }
     }
-  }
+  },
+  "title": "Code Agent Bounds",
+  "description": "LAB-CODE-AGENT-BOUNDS. Simulated code-agent authority. No GitHub credential."
 }

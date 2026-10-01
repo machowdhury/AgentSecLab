@@ -363,7 +363,9 @@
         ]
       }
     }
-  }
+  },
+  "title": "Detection Engineering — Prove Your Coverage",
+  "description": "LAB-DETECTION-ENGINEERING REPLAY workshop after L6. Splunk is downstream evidence, not the PDP. DET-MCP-001 stays disabled."
 }
   ]]></definition>
 </dashboard>

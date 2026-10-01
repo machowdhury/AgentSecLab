@@ -60,7 +60,7 @@
     {
       "kind": "framework",
       "name": "agentsec",
-      "version": "pyproject 1.0.0rc2; app.conf 1.0.0-rc2",
+      "version": "pyproject 1.0.0rc3; app.conf 1.0.0-rc3",
       "source": "repository",
       "owner": "NOT RECORDED",
       "environment": "repository",

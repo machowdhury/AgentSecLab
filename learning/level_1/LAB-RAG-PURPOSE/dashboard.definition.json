@@ -280,5 +280,7 @@
         ]
       }
     }
-  }
+  },
+  "title": "RAG Purpose Authorization",
+  "description": "LAB-RAG-PURPOSE. SIMULATED / REPLAYED purpose authorization workshop."
 }

@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.0.0-rc3
+
+Release candidate after the bounded REPLAY workshops. Telemetry schema remains **1.9.0**. ExternalEvidence remains **1.0.0**. This is not final `v1.0.0`. Tag `v1.0.0-rc2` was not moved. `main` was not merged.
+
+Package metadata is `1.0.0rc3`. The Splunk app version is `1.0.0-rc3`. Those strings are the product version. They are not the schema version and not the external-evidence contract version.
+
+### Since RC2
+
+- REPLAY workshops for human approval binding, credential lifetime, RAG purpose, memory isolation, asset inventory, component provenance, code-agent bounds, and change bounds. Each packet is SIMULATED or REPLAYED. None of them is a second tool PDP. CTRL-MCP-001 remains the only tool authorization decision point.
+- Studio browser titles are the view labels, so a missing definition title does not render as `undefined | Splunk`.
+- DET-MCP-001 stays disabled. Learner text does not call that disabled search an enabled operational detection.
+- `ollama/ollama:latest` stays unpinned. No digest was invented.
+- Garak license, probe fidelity, Cisco AI-BOM compatibility, and framework mappings stay on the external-validation backlog.
+
 ## v1.0.0-rc2
 
 Release candidate for the L0–L10 Agentic Security Academy. Telemetry schema remains **1.9.0**. ExternalEvidence remains **1.0.0**. This is not final `v1.0.0`.
