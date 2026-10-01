@@ -313,7 +313,11 @@ Open [AI Asset Inventory](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_asset_
 
 **Component Provenance** — a known component is not trusted, a scanned component is not safe, and an identified component is not authorized. The Ollama `latest` tag remains unpinned because no digest was measured.
 
-Open [Component Provenance](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_component_provenance) after the inventory and before the multi-stage incident.
+Open [Component Provenance](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_component_provenance) after the inventory and before Code Agent Bounds.
+
+**Code Agent Bounds** — simulated code-generation authority. A read grant is not an install. No GitHub credential is used.
+
+Open [Code Agent Bounds](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_code_agent_bounds) after provenance and before the multi-stage incident.
 
 **L9 Multi-stage agentic attack, investigation and defense** — {levels['L9']['learn']} Effort: {levels['L9']['effort']}. Exit: {levels['L9']['exit']}.
 
