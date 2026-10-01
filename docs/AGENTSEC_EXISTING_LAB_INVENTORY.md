@@ -22,6 +22,8 @@
 
 **Post-RC2 checkpoint:** `LAB-AGENT-IDENTITY-NHI` is the Agent Identity and Non-Human IAM workshop, a REPLAY checkpoint between L7 and L8. Studio `ws_lab_agent_identity_nhi`. Attack Service NO. It is not a new attack level and not a LIVE lab. It does not add authentication, a detector, a schema field, or an ExternalEvidence change.
 
+**Post-RC2 checkpoint:** `LAB-CREDENTIAL-LIFETIME` is the Short-Lived Credential Lifetime workshop, a SIMULATED / REPLAYED checkpoint after Human Approval and before L8. Studio `ws_lab_credential_lifetime`. Attack Service NO. References are synthetic. It adds no OAuth deployment, PKI, secret, schema field, detector, or ExternalEvidence change.
+
 **Post-RC2 checkpoint:** `LAB-HITL-APPROVAL` is the Human Approval and Action Binding workshop, a SIMULATED / REPLAYED checkpoint after A2A and before L8. Studio `ws_lab_hitl_approval`. Attack Service NO. The packet teaches post-approval parameter mutation. It adds no runtime approval service, schema field, detector, or ExternalEvidence change.
 
 **Post-RC2 checkpoint:** `LAB-A2A-AUTH-DELEGATION` is the A2A Authentication and Delegation workshop, a SIMULATED / REPLAYED checkpoint after the Identity/NHI workshop and before L8. Studio `ws_lab_a2a_auth_delegation`. Attack Service NO. Its static packet contrasts simulated authentication and delegation evidence with the historical claim-only corpus. It adds no runtime authenticator, delegation enforcement, PDP, attack, detector, schema field, or ExternalEvidence change.

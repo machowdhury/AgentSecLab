@@ -1,0 +1,86 @@
+{
+  "packet_id": "SIM-CRED-PACKET-001",
+  "evidence_classification": "SIMULATED / REPLAYED",
+  "not_runtime_credential": true,
+  "not_oauth": true,
+  "not_pki": true,
+  "approval_clock_separate": true,
+  "credentials": [
+    {
+      "record_label": "SIMULATED CREDENTIAL REFERENCE",
+      "credential_reference": "sim-cred-expired-001",
+      "subject": "acme-agent-fulfillment-006",
+      "audience": "teaching-tool-gateway",
+      "scope": "policy:read",
+      "issued_at": "2026-10-01T12:00:00Z",
+      "not_before": "2026-10-01T12:00:00Z",
+      "expires_at": "2026-10-01T13:00:00Z",
+      "status": "EXPIRED",
+      "rotation": "NOT DEMONSTRATED",
+      "revocation": "NOT REVOKED — revocation enforcement NOT DEMONSTRATED"
+    },
+    {
+      "record_label": "SIMULATED CREDENTIAL REFERENCE",
+      "credential_reference": "sim-cred-current-001",
+      "subject": "acme-agent-fulfillment-006",
+      "audience": "teaching-tool-gateway",
+      "scope": "policy:read",
+      "issued_at": "2026-10-01T15:00:00Z",
+      "not_before": "2026-10-01T15:00:00Z",
+      "expires_at": "2026-10-01T18:00:00Z",
+      "status": "CURRENT",
+      "rotation": "NOT DEMONSTRATED",
+      "revocation": "NOT REVOKED — revocation enforcement NOT DEMONSTRATED"
+    }
+  ],
+  "approval_expires_at": "2026-10-01T16:05:00Z",
+  "approval_note": "Approval expiry is a different clock from credential expiry. This packet does not reuse the HITL attack.",
+  "modes": [
+    {
+      "mode": "ATTACK",
+      "request_id": "sim-request-expired-cred-001",
+      "credential_reference": "sim-cred-expired-001",
+      "credential_status": "EXPIRED",
+      "presented_at": "2026-10-01T15:20:00Z",
+      "requested_tool": "lookup_customer_tier",
+      "requested_resource": "cust-001",
+      "ctrl_mcp_001_decision": "ALLOW",
+      "ctrl_mcp_001_reason": "vulnerable_profile_fail_open:expired_credential_accepted",
+      "execution_observed": "YES — separate simulated mcp.started evidence",
+      "resource_impact": "NOT PROVEN",
+      "evidence_classification": "SIMULATED / REPLAYED",
+      "claim_strength": "BOUNDED TO THE PACKET"
+    },
+    {
+      "mode": "RETEST",
+      "request_id": "sim-request-expired-cred-001",
+      "credential_reference": "sim-cred-expired-001",
+      "credential_status": "EXPIRED",
+      "presented_at": "2026-10-01T15:20:00Z",
+      "requested_tool": "lookup_customer_tier",
+      "requested_resource": "cust-001",
+      "ctrl_mcp_001_decision": "DENY",
+      "ctrl_mcp_001_reason": "expired_credential",
+      "execution_observed": "NO — do not infer execution",
+      "resource_impact": "NOT PROVEN",
+      "evidence_classification": "SIMULATED / REPLAYED",
+      "claim_strength": "BOUNDED TO THE PACKET"
+    },
+    {
+      "mode": "BASELINE",
+      "request_id": "sim-request-current-cred-001",
+      "credential_reference": "sim-cred-current-001",
+      "credential_status": "CURRENT",
+      "presented_at": "2026-10-01T15:20:00Z",
+      "requested_tool": "lookup_policy",
+      "requested_resource": "lending-basics",
+      "ctrl_mcp_001_decision": "ALLOW",
+      "ctrl_mcp_001_reason": "tool_granted",
+      "execution_observed": "YES — separate simulated mcp.started evidence",
+      "resource_impact": "NOT PROVEN",
+      "note": "The current credential did not itself authorize the tool. CTRL-MCP-001 granted the in-scope tool.",
+      "evidence_classification": "SIMULATED / REPLAYED",
+      "claim_strength": "BOUNDED TO THE PACKET"
+    }
+  ]
+}

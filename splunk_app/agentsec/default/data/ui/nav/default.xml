@@ -43,6 +43,9 @@
   <collection label="Human Approval">
     <view name="ws_lab_hitl_approval">Human Approval and Action Binding</view>
   </collection>
+  <collection label="Credential Lifetime">
+    <view name="ws_lab_credential_lifetime">Short-Lived Credential Lifetime</view>
+  </collection>
   <collection label="Privacy &amp; Data Governance">
     <view name="ws_lab_privacy_data_governance">Privacy Investigation</view>
   </collection>

@@ -50,6 +50,7 @@ THREAT_MODEL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_threat_model
 IDENTITY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agent_identity_nhi"
 A2A_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_a2a_auth_delegation"
 HITL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_hitl_approval"
+CREDENTIAL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_credential_lifetime"
 PRIVACY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_privacy_data_governance"
 MULTI_STAGE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_multi_stage_incident"
 ADVANCED_CAPSTONE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_advanced_capstone"
@@ -284,7 +285,11 @@ Open [A2A Authentication and Delegation]({A2A_URL}) after the identity workshop 
 
 **Human Approval and Action Binding** — SIMULATED / REPLAYED workshop after A2A and before L8. You compare an approved action with the action that was submitted. Approval is not authorization. A binding match is not an ALLOW.
 
-Open [Human Approval and Action Binding]({HITL_URL}) after A2A and before privacy.
+Open [Human Approval and Action Binding]({HITL_URL}) after A2A and before Credential Lifetime.
+
+**Short-Lived Credential Lifetime** — SIMULATED / REPLAYED workshop after Human Approval and before L8. You separate an identity, a synthetic credential reference, expiry, and the CTRL-MCP-001 tool decision. No secret is stored. A current credential is not tool authorization.
+
+Open [Short-Lived Credential Lifetime]({CREDENTIAL_URL}) after Human Approval and before privacy.
 
 **L8 Privacy, data protection and agentic data governance** — {levels['L8']['learn']} Effort: {levels['L8']['effort']}. Exit: {levels['L8']['exit']}.
 
