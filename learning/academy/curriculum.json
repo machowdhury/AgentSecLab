@@ -363,7 +363,7 @@
       "id": "L9",
       "title": "Multi-stage agentic attack, investigation and defense",
       "learn": "Investigate a bounded multi-stage incident, distinguish influence from authority and authorization from execution, challenge false leads, contain, redesign, detect, hunt, and communicate.",
-      "prerequisites": "L6-L8 investigation, architecture, and privacy reasoning. Draft before opening Path B.",
+      "prerequisites": "L6-L8, then the identity, A2A, approval, credential, purpose, memory, inventory, provenance, code-agent, and change-bounds workshops. Draft before opening Path B.",
       "effort": "REPLAY / INTEGRATED INCIDENT 4-6 hours",
       "exit": "AGENTIC INCIDENT RESPONDER / SECURITY ARCHITECT",
       "next": "L10",
