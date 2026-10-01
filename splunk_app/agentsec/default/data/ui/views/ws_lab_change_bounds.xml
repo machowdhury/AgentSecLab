@@ -178,7 +178,9 @@
         ]
       }
     }
-  }
+  },
+  "title": "Change Bounds",
+  "description": "LAB-CHANGE-BOUNDS. Simulated change authority. No cloud credential."
 }
   ]]></definition>
 </dashboard>

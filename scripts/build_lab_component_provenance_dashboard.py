@@ -114,10 +114,10 @@ def main() -> None:
     definition = build()
     if "| --- |" in json.dumps(definition):
         raise SystemExit("GFM table")
-    write_definition(DEFINITION, definition)
     write_studio_xml(
         XML,
         definition,
+        definition_path=DEFINITION,
         label="Component Provenance",
         description="LAB-COMPONENT-PROVENANCE. Known is not trusted. Scanned is not safe.",
     )

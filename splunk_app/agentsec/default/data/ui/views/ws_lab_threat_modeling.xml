@@ -4,7 +4,7 @@
   <description>REPLAY architecture workbench. Reasoning assistance, not compliance.</description>
   <definition><![CDATA[
 {
-  "title": "Threat Modeling & Security Architecture",
+  "title": "Threat Modeling and Security Architecture",
   "description": "LAB-THREAT-MODELING-001 REPLAY architecture workbench. Reasoning assistance, not compliance.",
   "defaults": {
     "visualizations": {

@@ -393,10 +393,10 @@ def validate(definition: dict, packet: dict) -> None:
 
 def main() -> None:
     definition = build()
-    write_definition(OUT_JSON, definition)
     write_studio_xml(
         OUT_XML,
         definition,
+        definition_path=OUT_JSON,
         label="Acme Bank Capstone MASTER-2026-001",
         description="LAB-ADVANCED-CAPSTONE-MASTERY-001 REPLAY mastery workspace. Learning metadata is not policy.",
     )

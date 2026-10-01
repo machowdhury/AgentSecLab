@@ -341,8 +341,8 @@ def validate(definition: dict) -> None:
 
 def main() -> None:
     definition = build()
-    write_definition(OUT_JSON, definition)
-    write_studio_xml(OUT_XML, definition, label="Acme Bank Incident AGENT-2026-009", description="L9 bounded multi-stage REPLAY investigation.")
+    write_studio_xml(
+        OUT_XML, definition, definition_path=OUT_JSON, label="Acme Bank Incident AGENT-2026-009", description="L9 bounded multi-stage REPLAY investigation.")
     print(f"wrote {OUT_JSON.relative_to(ROOT)}")
     print(f"wrote {OUT_XML.relative_to(ROOT)}")
 

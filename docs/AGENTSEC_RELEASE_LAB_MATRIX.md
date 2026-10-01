@@ -1,8 +1,8 @@
 # Release lab matrix
 
-This matrix describes the v1.0.0-rc2 candidate on `develop`.
+This matrix describes the v1.0.0-rc3 candidate on `develop`.
 
-`main` and annotated tag `v1.0.0-rc1` (peeled commit `e6115b6d1c03a1672b4364e84748c7840671fbfc`) are the RC1 baseline. That tag does not contain L6–L10. Tag `v1.0.0-rc2` is this candidate. It is not final `v1.0.0`.
+`main` and annotated tag `v1.0.0-rc1` (peeled commit `e6115b6d1c03a1672b4364e84748c7840671fbfc`) are the RC1 baseline. That tag does not contain L6–L10. Tag `v1.0.0-rc2` is the previous candidate and was not moved. This candidate is not final `v1.0.0`.
 
 Effort text comes from `learning/academy/curriculum.json` where present. Phase numbers are not the learner model.
 

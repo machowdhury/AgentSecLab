@@ -466,5 +466,7 @@
         ]
       }
     }
-  }
+  },
+  "title": "Agent Identity and Non-Human IAM",
+  "description": "LAB-AGENT-IDENTITY-NHI. REPLAY workshop after L7. Identity claim is not authentication. Splunk is not the PDP."
 }

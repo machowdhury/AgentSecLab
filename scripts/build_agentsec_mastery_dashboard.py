@@ -401,10 +401,10 @@ Unacceptable sentences to rewrite: "Splunk blocked the attack." "The agent was a
 
 def main() -> None:
     definition = build()
-    write_definition(OUT_JSON, definition)
     write_studio_xml(
         OUT_XML,
         definition,
+        definition_path=OUT_JSON,
         label="Mastery Check",
         description="Learner mastery challenges. Not authorization. Splunk does not ALLOW or DENY.",
     )

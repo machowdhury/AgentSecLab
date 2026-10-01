@@ -114,10 +114,10 @@ def main() -> None:
     definition = build()
     if "| --- |" in json.dumps(definition):
         raise SystemExit("GFM table")
-    write_definition(DEFINITION, definition)
     write_studio_xml(
         XML,
         definition,
+        definition_path=DEFINITION,
         label="Change Bounds",
         description="LAB-CHANGE-BOUNDS. Simulated change authority. No cloud credential.",
     )

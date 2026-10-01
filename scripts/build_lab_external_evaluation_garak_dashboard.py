@@ -439,15 +439,15 @@ Viewing this tab is not stored completion and is not certification.
 
 def main() -> None:
     definition = build()
-    write_definition(OUT_JSON, definition)
     write_studio_xml(
         OUT_XML,
+        definition,
+        definition_path=OUT_JSON,
         label="External Security Toolbox",
         description=(
             "LAB-EXTERNAL-EVALUATION-GARAK · REPLAY · External evidence is "
             "not authorization; Splunk is not the PDP."
         ),
-        definition=definition,
     )
     print(f"wrote {OUT_JSON.relative_to(ROOT)}")
     print(f"wrote {OUT_XML.relative_to(ROOT)}")

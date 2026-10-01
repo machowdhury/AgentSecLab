@@ -315,5 +315,7 @@
         ]
       }
     }
-  }
+  },
+  "title": "Human Approval and Action Binding",
+  "description": "LAB-HITL-APPROVAL. SIMULATED / REPLAYED human approval binding workshop."
 }

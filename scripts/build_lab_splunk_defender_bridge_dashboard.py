@@ -508,10 +508,10 @@ def validate(definition: dict) -> None:
 
 def main() -> None:
     definition = build()
-    write_definition(OUT_JSON, definition)
     write_studio_xml(
         OUT_XML,
         definition,
+        definition_path=OUT_JSON,
         label="Splunk Defender Bridge",
         description=(
             "LAB-SPLUNK-DEFENDER-BRIDGE REPLAY investigation between L5 and L6. "

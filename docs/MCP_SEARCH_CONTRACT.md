@@ -1,7 +1,7 @@
 # MCP search contract (LAB-MCP-001)
 
 **Status:** Phase 3C **VALIDATED** against live Splunk (2026-09-12).  
-**Not:** notables, MCP-003+, Cisco. One operational detection `DET-MCP-001` is Phase 3E (`docs/PHASE3E_MCP_DETECTION.md`).  
+**Not:** notables, MCP-003+, Cisco. `DET-MCP-001` is the Phase 3E saved search (`docs/PHASE3E_MCP_DETECTION.md`). It is packaged disabled. It is not an enabled operational detection.
 **Runtime remains authoritative.** Splunk is the analytical/evidence surface.
 
 Stored SPL: `learning/level_1/LAB-MCP-001/searches/`. Token: `__RUN_ID__`.

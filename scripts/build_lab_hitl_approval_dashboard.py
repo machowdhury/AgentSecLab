@@ -197,10 +197,10 @@ def main() -> None:
     blob = json.dumps(definition)
     if "| --- |" in blob:
         raise SystemExit("Studio markdown must not contain a GFM table")
-    write_definition(DEFINITION, definition)
     write_studio_xml(
         XML,
         definition,
+        definition_path=DEFINITION,
         label=TITLE,
         description="LAB-HITL-APPROVAL. SIMULATED / REPLAYED human approval binding workshop.",
     )

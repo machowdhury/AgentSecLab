@@ -178,7 +178,9 @@
         ]
       }
     }
-  }
+  },
+  "title": "Component Provenance",
+  "description": "LAB-COMPONENT-PROVENANCE. Known is not trusted. Scanned is not safe."
 }
   ]]></definition>
 </dashboard>

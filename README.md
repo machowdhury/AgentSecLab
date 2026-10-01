@@ -41,15 +41,16 @@ Two git refs matter. They are not the same product snapshot.
 | Ref | What it is |
 |-----|------------|
 | `main` and annotated tag `v1.0.0-rc1` | Earlier RC1 baseline. The tag peels to commit `e6115b6d1c03a1672b4364e84748c7840671fbfc`. That snapshot does **not** contain the L6–L10 academy. |
-| `develop` and annotated tag `v1.0.0-rc2` | Current release candidate. This is the L0–L10 academy. |
+| annotated tag `v1.0.0-rc2` | Previous L0–L10 candidate. It stays on its original commit. |
+| `develop` | Current release candidate, v1.0.0-rc3. This is the L0–L10 academy plus the bounded REPLAY workshops after RC2. |
 
-`develop` is **not** `v1.0.0-rc1`. It is the v1.0.0-rc2 candidate, not final `v1.0.0`.
+`develop` is the v1.0.0-rc3 candidate, not final `v1.0.0`. Annotated tag `v1.0.0-rc2` was not moved.
 
-Package metadata is `1.0.0rc2` in `pyproject.toml`. The Splunk app version is `1.0.0-rc2`. Those strings name this candidate. They do not mean `main` moved.
+Package metadata is `1.0.0rc3` in `pyproject.toml`. The Splunk app version is `1.0.0-rc3`. Those strings name this candidate. They do not mean `main` moved.
 
 Telemetry schema remains **1.9.0**. The external-evidence contract remains **1.0.0**.
 
-A default `git clone` follows `origin/HEAD`, which is `main` (RC1). To study the academy described here, check out `develop` or the tag `v1.0.0-rc2`.
+A default `git clone` follows `origin/HEAD`, which is `main` (RC1). To study the academy described here, check out `develop`. Tag `v1.0.0-rc2` is the previous candidate. Tag `v1.0.0-rc3` is created only when this candidate's release gate passes.
 
 Clean-room installation has **not** been proven. The commands below are the documented path. They have been used on existing lab machines. That is not a measurement that a new machine with empty volumes succeeds.
 
@@ -67,8 +68,11 @@ From the repository root, on `develop`:
 ./scripts/lab-preflight.sh
 cp .env.example .env          # once; do not commit .env
 ./scripts/lab-up.sh           # first Splunk boot can take 10–20 minutes
+docker exec agentsec_ollama ollama pull llama3.2:1b
 ./scripts/lab-ready.sh        # SERVICE HEALTH, not searchable evidence
 ```
+
+`lab-up.sh` does not pull the model. Without that pull, AcmeBank health stays degraded. REPLAY workshops do not need the model.
 
 Linear detail: [docs/QUICKSTART.md](docs/QUICKSTART.md). Short pointer: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md).
 

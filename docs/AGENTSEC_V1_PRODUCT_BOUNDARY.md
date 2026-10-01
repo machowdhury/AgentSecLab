@@ -2,9 +2,11 @@
 
 **Tagged RC1:** `main` and annotated tag `v1.0.0-rc1` peel to `e6115b6d1c03a1672b4364e84748c7840671fbfc`. That baseline does not contain the L6–L10 academy.
 
-**Current candidate:** `develop` and annotated tag `v1.0.0-rc2`. This is the L0–L10 academy. It is not final `v1.0.0`. Do not describe `develop` as v1.0.0-rc1.
+**Previous candidate:** annotated tag `v1.0.0-rc2`. It was not moved.
 
-**Version strings:** `pyproject.toml` says `1.0.0rc2`. Splunk `app.conf` says `1.0.0-rc2`. Those strings name this candidate. They do not move `main`.
+**Current candidate:** `develop`, product version 1.0.0-rc3. This is the L0–L10 academy plus the bounded REPLAY workshops added after RC2. It is not final `v1.0.0`.
+
+**Version strings:** `pyproject.toml` says `1.0.0rc3`. Splunk `app.conf` says `1.0.0-rc3`. Those strings name this candidate. They do not move `main` or the RC2 tag.
 
 **Telemetry schema:** 1.9.0 (independent)
 

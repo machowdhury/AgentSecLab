@@ -471,7 +471,9 @@
         ]
       }
     }
-  }
+  },
+  "title": "A2A Authentication and Delegation",
+  "description": "LAB-A2A-AUTH-DELEGATION. SIMULATED / REPLAYED workshop between the Identity/NHI checkpoint and L8. Splunk remains downstream."
 }
   ]]></definition>
 </dashboard>

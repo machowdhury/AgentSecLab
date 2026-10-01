@@ -26,7 +26,7 @@ Hunt defaults to BASELINE so the dashboard does not open in an error state. Spec
 
 1. Open Splunk → AgentSec → **LAB-MCP-001 MCP tool authorization**.
 2. Submit if needed (`submitOnDashboardLoad` is on).
-3. Walk the ten tabs. DETECT teaches hunt (`Q-MCP-AFTER-DENY`) and operational detection (`DET-MCP-001`, disabled). Right table is **SIMULATED** `DET-MCP-001-POSITIVE-CONTROL`.
+3. Walk the ten tabs. DETECT teaches hunt (`Q-MCP-AFTER-DENY`) and the disabled saved search `DET-MCP-001`. It is not an enabled operational detection. Right table is **SIMULATED** `DET-MCP-001-POSITIVE-CONTROL`.
 4. Paste another complete `run.id` into Hunt to explore OBSERVE / HUNT / DETECT.
 
 Splunk does not invoke tools and does not switch `AGENTSEC_SECURITY_PROFILE`.
