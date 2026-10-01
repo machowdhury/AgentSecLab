@@ -1,0 +1,195 @@
+{
+  "visualizations": {
+    "viz_mission": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Asset inventory\n\nThis is a REPLAY workshop. Path A is your own reading of the list before Path B. The list is not policy.\n\nYou cannot govern what you cannot inventory. Inventory is not trust. Inventory is not authorization. Presence in a list is not safety.\n\nCisco AI-BOM compatibility is **NOT CLAIMED**. It remains NEEDS_EXTERNAL_VALIDATION. This file is not `cisco-aibom` output.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_list": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Documented components\n\n- model: llama3.2:1b; version name only; source src/agentsec/settings.py default OLLAMA_MODEL; evidence DOCUMENTED; trust NOT ESTABLISHED\n- runtime: ollama/ollama; version latest — unpinned; source docker-compose.yml; evidence DOCUMENTED; trust NOT ESTABLISHED\n- agent: acme-agent-fulfillment-006; version fixture identifier; source identity and A2A teaching packets; evidence SIMULATED; trust NOT ESTABLISHED\n- tool: lookup_policy; version fixture; source src/agentsec/mcp/policy.py; evidence DOCUMENTED; trust NOT A GRANT\n- mcp_server: in-process teaching MCP; version NOT A PRODUCTION MESH; source AgentSec lab runtime; evidence DOCUMENTED; trust NOT ESTABLISHED\n- framework: agentsec; version pyproject 1.0.0rc2; app.conf 1.0.0-rc2; source repository; evidence DOCUMENTED; trust NOT ESTABLISHED\n- external_tool: cisco mcp-scanner; version pin in repository; exact pin NOT RE-MEASURED in this packet; source docs/AGENTSEC_OPEN_SOURCE_SECURITY_ECOSYSTEM.md; evidence DOCUMENTED; trust FINDING IS NOT AUTHORIZATION\n- external_tool: garak; version 0.17.0 in existing evaluation notes; source docs/GARAK_EXTERNAL_EVALUATION.md; evidence DOCUMENTED; trust EVALUATION IS NOT AUTHORIZATION\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_pathb": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Path B — review\n\nThe Ollama image is `ollama/ollama:latest`. That version is unpinned. The model name `llama3.2:1b` is a configured name, not a measured digest.\n\n`lookup_policy` on the list is not a grant. CTRL-MCP-001 remains the tool PDP. A scanner row is not a DENY. A garak row is not safety.\n\nOwners are NOT RECORDED. Completeness is NOT PROVEN.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_table": {
+      "type": "splunk.table",
+      "title": "Index is not the inventory",
+      "description": "Empty is not a complete inventory.",
+      "dataSources": {
+        "primary": "ds_inventory"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No rows. Absence is not a complete inventory."
+      }
+    }
+  },
+  "dataSources": {
+    "ds_inventory": {
+      "type": "ds.search",
+      "name": "Inventory absence",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0\n| head 1\n| stats count\n| eval inventory=\"NOT AN INDEXED AI-BOM\"\n| eval note=\"This search does not prove the component list is complete or trusted\""
+      }
+    }
+  },
+  "defaults": {
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "large"
+        }
+      }
+    }
+  },
+  "inputs": {},
+  "layout": {
+    "type": "grid",
+    "options": {
+      "submitButton": false,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "tabs": {
+      "items": [
+        {
+          "layoutId": "layout_viz_mission",
+          "label": "MISSION"
+        },
+        {
+          "layoutId": "layout_viz_list",
+          "label": "INVENTORY"
+        },
+        {
+          "layoutId": "layout_viz_pathb",
+          "label": "PATH B · REVIEW"
+        },
+        {
+          "layoutId": "layout_gap",
+          "label": "GAP"
+        }
+      ]
+    },
+    "layoutDefinitions": {
+      "layout_viz_mission": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_mission",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_viz_list": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_list",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_viz_pathb": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_pathb",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_gap": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 320
+        },
+        "structure": [
+          {
+            "item": "viz_table",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 280
+            }
+          }
+        ]
+      }
+    }
+  }
+}

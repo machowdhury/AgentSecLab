@@ -86,6 +86,10 @@
       "views": ["ws_lab_recall_isolation"]
     },
     {
+      "label": "Asset Inventory",
+      "views": ["ws_lab_asset_inventory"]
+    },
+    {
       "label": "Integrated Incident",
       "views": ["ws_lab_multi_stage_incident"]
     },
@@ -182,6 +186,17 @@
       "view": "ws_lab_recall_isolation",
       "not_authorization": true,
       "evidence_class": "SIMULATED / REPLAYED"
+    },
+    {
+      "id": "ASSET-INVENTORY",
+      "title": "AI Asset Inventory",
+      "placement": "L8 → Memory Isolation → Asset Inventory Workshop → L9",
+      "mode": "REPLAY",
+      "live_launcher": false,
+      "lab_id": "LAB-ASSET-INVENTORY",
+      "view": "ws_lab_asset_inventory",
+      "not_authorization": true,
+      "evidence_class": "DOCUMENTED"
     }
   ],
   "levels": [
