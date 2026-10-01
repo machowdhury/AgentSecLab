@@ -82,6 +82,10 @@
       "views": ["ws_lab_purpose_authorization"]
     },
     {
+      "label": "Memory Isolation",
+      "views": ["ws_lab_recall_isolation"]
+    },
+    {
       "label": "Integrated Incident",
       "views": ["ws_lab_multi_stage_incident"]
     },
@@ -165,6 +169,17 @@
       "live_launcher": false,
       "lab_id": "LAB-RAG-PURPOSE",
       "view": "ws_lab_purpose_authorization",
+      "not_authorization": true,
+      "evidence_class": "SIMULATED / REPLAYED"
+    },
+    {
+      "id": "RECALL-ISOLATION",
+      "title": "Memory Ownership and Isolation",
+      "placement": "L8 → RAG Purpose → Memory Isolation Workshop → L9",
+      "mode": "REPLAY",
+      "live_launcher": false,
+      "lab_id": "LAB-RECALL-ISOLATION",
+      "view": "ws_lab_recall_isolation",
       "not_authorization": true,
       "evidence_class": "SIMULATED / REPLAYED"
     }

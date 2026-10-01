@@ -52,6 +52,7 @@ A2A_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_a2a_auth_delegation"
 HITL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_hitl_approval"
 CREDENTIAL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_credential_lifetime"
 RAG_PURPOSE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_purpose_authorization"
+RECALL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_recall_isolation"
 PRIVACY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_privacy_data_governance"
 MULTI_STAGE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_multi_stage_incident"
 ADVANCED_CAPSTONE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_advanced_capstone"
@@ -300,7 +301,11 @@ Open [AcmeBank Incident PRIV-2026-001]({PRIVACY_URL}) after the A2A workshop. It
 
 **RAG Purpose Authorization** — SIMULATED / REPLAYED workshop after L8. A retrieved fixture document is not authorized for every purpose. Retrieval does not invoke CTRL-MCP-001. Similarity is not authorization.
 
-Open [RAG Purpose Authorization]({RAG_PURPOSE_URL}) after privacy and before the multi-stage incident.
+Open [RAG Purpose Authorization]({RAG_PURPOSE_URL}) after privacy and before Memory Isolation.
+
+**Memory Ownership and Isolation** — SIMULATED / REPLAYED workshop after RAG purpose. The same agent can recall another user's memory in the vulnerable teaching row. RETEST isolates that request. Deletion is NOT MEASURED. Recall is not tool authorization.
+
+Open [Memory Ownership and Isolation]({RECALL_URL}) after RAG purpose and before the multi-stage incident.
 
 **L9 Multi-stage agentic attack, investigation and defense** — {levels['L9']['learn']} Effort: {levels['L9']['effort']}. Exit: {levels['L9']['exit']}.
 

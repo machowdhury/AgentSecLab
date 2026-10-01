@@ -35,6 +35,7 @@ LEARNER_VIEWS = (
     "ws_lab_hitl_approval.xml",
     "ws_lab_credential_lifetime.xml",
     "ws_lab_purpose_authorization.xml",
+    "ws_lab_recall_isolation.xml",
     "ws_lab_privacy_data_governance.xml",
     "ws_lab_multi_stage_incident.xml",
     "ws_lab_advanced_capstone.xml",
@@ -64,6 +65,7 @@ def test_nav_is_grouped_and_home_is_default():
         "Credential Lifetime",
         "Privacy &amp; Data Governance",
         "RAG Purpose",
+        "Memory Isolation",
         "Integrated Incident",
         "Advanced Capstone",
     ):
@@ -88,7 +90,7 @@ def test_nav_is_grouped_and_home_is_default():
     )
     assert nav.index("ws_lab_privacy_data_governance") < nav.index(
         "ws_lab_purpose_authorization"
-    ) < nav.index("ws_lab_multi_stage_incident")
+    ) < nav.index("ws_lab_recall_isolation") < nav.index("ws_lab_multi_stage_incident")
     assert nav.index("ws_lab_multi_stage_incident") < nav.index("ws_lab_advanced_capstone")
     assert "<collection label=" in nav
     assert not re.search(r"<view name=\"ws_lab_[^\"]+\" default=", nav)
@@ -150,6 +152,7 @@ def test_xml_labels_are_human_readable():
         "ws_lab_hitl_approval.xml": "Human Approval and Action Binding",
         "ws_lab_credential_lifetime.xml": "Short-Lived Credential Lifetime",
         "ws_lab_purpose_authorization.xml": "RAG Purpose Authorization",
+        "ws_lab_recall_isolation.xml": "Memory Ownership and Isolation",
         "ws_lab_threat_modeling.xml": "Threat Modeling and Security Architecture",
         "ws_lab_privacy_data_governance.xml": "Privacy and Data Governance",
         "ws_lab_multi_stage_incident.xml": "Acme Bank Incident AGENT-2026-009",

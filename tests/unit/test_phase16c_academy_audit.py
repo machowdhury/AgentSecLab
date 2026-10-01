@@ -62,6 +62,7 @@ PUBLISHED_VIEWS = frozenset(
         "ws_lab_hitl_approval.xml",
         "ws_lab_credential_lifetime.xml",
         "ws_lab_purpose_authorization.xml",
+        "ws_lab_recall_isolation.xml",
         "ws_lab_threat_modeling.xml",
         "ws_lab_privacy_data_governance.xml",
         "ws_lab_multi_stage_incident.xml",

@@ -52,6 +52,9 @@
   <collection label="RAG Purpose">
     <view name="ws_lab_purpose_authorization">RAG Purpose Authorization</view>
   </collection>
+  <collection label="Memory Isolation">
+    <view name="ws_lab_recall_isolation">Memory Ownership and Isolation</view>
+  </collection>
   <collection label="Integrated Incident">
     <view name="ws_lab_multi_stage_incident">AGENT-2026-009</view>
   </collection>
