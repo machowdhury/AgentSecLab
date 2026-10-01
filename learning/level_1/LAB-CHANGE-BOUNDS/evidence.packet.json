@@ -1,0 +1,55 @@
+{
+  "packet_id": "SIM-CHANGE-BOUNDS-PACKET-001",
+  "evidence_classification": "SIMULATED / REPLAYED",
+  "not_cloud_account": true,
+  "credential_reference": "sim-cred-ops-001",
+  "credential_scope": "resource:inspect",
+  "approval": {
+    "record_label": "SIMULATED APPROVAL DECISION",
+    "approved_operation": "inspect_resource",
+    "approval_authority": "NOT PROVEN"
+  },
+  "delegated_operation": "inspect_resource",
+  "modes": [
+    {
+      "mode": "ATTACK",
+      "request_id": "sim-change-request-001",
+      "submitted_operation": "delete_resource",
+      "binding": "MISMATCH",
+      "blast_radius": "UNBOUNDED IN THE VULNERABLE ROW",
+      "ctrl_mcp_001_decision": "ALLOW",
+      "ctrl_mcp_001_reason": "vulnerable_profile_fail_open:change_scope_not_checked",
+      "execution_observed": "YES — separate simulated start",
+      "completion_observed": "NOT OBSERVED",
+      "rollback": "NOT RECORDED",
+      "resource_impact": "NOT PROVEN"
+    },
+    {
+      "mode": "RETEST",
+      "request_id": "sim-change-request-001",
+      "submitted_operation": "delete_resource",
+      "binding": "MISMATCH",
+      "blast_radius": "NOT REACHED",
+      "ctrl_mcp_001_decision": "DENY",
+      "ctrl_mcp_001_reason": "change_not_granted",
+      "execution_observed": "NO — do not infer execution",
+      "completion_observed": "NOT OBSERVED",
+      "rollback": "NOT NEEDED FROM THIS PACKET",
+      "resource_impact": "NOT PROVEN"
+    },
+    {
+      "mode": "BASELINE",
+      "request_id": "sim-change-baseline-001",
+      "submitted_operation": "inspect_resource",
+      "binding": "MATCH",
+      "blast_radius": "READ ONLY",
+      "ctrl_mcp_001_decision": "ALLOW",
+      "ctrl_mcp_001_reason": "tool_granted",
+      "execution_observed": "YES — separate simulated start",
+      "completion_observed": "NOT OBSERVED",
+      "rollback": "NOT RECORDED",
+      "note": "Tool access is not change authority. A start is not a successful change.",
+      "resource_impact": "NOT PROVEN"
+    }
+  ]
+}

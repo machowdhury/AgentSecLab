@@ -39,6 +39,7 @@ LEARNER_VIEWS = (
     "ws_lab_asset_inventory.xml",
     "ws_lab_component_provenance.xml",
     "ws_lab_code_agent_bounds.xml",
+    "ws_lab_change_bounds.xml",
     "ws_lab_privacy_data_governance.xml",
     "ws_lab_multi_stage_incident.xml",
     "ws_lab_advanced_capstone.xml",
@@ -72,6 +73,7 @@ def test_nav_is_grouped_and_home_is_default():
         "Asset Inventory",
         "Component Provenance",
         "Code Agent Bounds",
+        "Change Bounds",
         "Integrated Incident",
         "Advanced Capstone",
     ):
@@ -100,7 +102,7 @@ def test_nav_is_grouped_and_home_is_default():
         "ws_lab_asset_inventory"
     ) < nav.index("ws_lab_component_provenance") < nav.index(
         "ws_lab_code_agent_bounds"
-    ) < nav.index("ws_lab_multi_stage_incident")
+    ) < nav.index("ws_lab_change_bounds") < nav.index("ws_lab_multi_stage_incident")
     assert nav.index("ws_lab_multi_stage_incident") < nav.index("ws_lab_advanced_capstone")
     assert "<collection label=" in nav
     assert not re.search(r"<view name=\"ws_lab_[^\"]+\" default=", nav)
@@ -166,6 +168,7 @@ def test_xml_labels_are_human_readable():
         "ws_lab_asset_inventory.xml": "AI Asset Inventory",
         "ws_lab_component_provenance.xml": "Component Provenance",
         "ws_lab_code_agent_bounds.xml": "Code Agent Bounds",
+        "ws_lab_change_bounds.xml": "Change Bounds",
         "ws_lab_threat_modeling.xml": "Threat Modeling and Security Architecture",
         "ws_lab_privacy_data_governance.xml": "Privacy and Data Governance",
         "ws_lab_multi_stage_incident.xml": "Acme Bank Incident AGENT-2026-009",

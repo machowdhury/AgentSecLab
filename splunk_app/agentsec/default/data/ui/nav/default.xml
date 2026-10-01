@@ -64,6 +64,9 @@
   <collection label="Code Agent Bounds">
     <view name="ws_lab_code_agent_bounds">Code Agent Bounds</view>
   </collection>
+  <collection label="Change Bounds">
+    <view name="ws_lab_change_bounds">Change Bounds</view>
+  </collection>
   <collection label="Integrated Incident">
     <view name="ws_lab_multi_stage_incident">AGENT-2026-009</view>
   </collection>
