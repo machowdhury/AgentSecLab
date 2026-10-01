@@ -78,6 +78,10 @@
       "views": ["ws_lab_privacy_data_governance"]
     },
     {
+      "label": "RAG Purpose",
+      "views": ["ws_lab_purpose_authorization"]
+    },
+    {
       "label": "Integrated Incident",
       "views": ["ws_lab_multi_stage_incident"]
     },
@@ -150,6 +154,17 @@
       "live_launcher": false,
       "lab_id": "LAB-CREDENTIAL-LIFETIME",
       "view": "ws_lab_credential_lifetime",
+      "not_authorization": true,
+      "evidence_class": "SIMULATED / REPLAYED"
+    },
+    {
+      "id": "RAG-PURPOSE",
+      "title": "RAG Purpose Authorization",
+      "placement": "L8 → RAG Purpose Authorization Workshop → L9",
+      "mode": "REPLAY",
+      "live_launcher": false,
+      "lab_id": "LAB-RAG-PURPOSE",
+      "view": "ws_lab_purpose_authorization",
       "not_authorization": true,
       "evidence_class": "SIMULATED / REPLAYED"
     }
