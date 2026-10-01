@@ -1,0 +1,52 @@
+{
+  "packet_id": "SIM-PURPOSE-PACKET-001",
+  "evidence_classification": "SIMULATED / REPLAYED",
+  "not_vector_database": true,
+  "not_runtime_purpose_pdp": true,
+  "historical_rag_plane": "LAB-RAG-CONTEXT remains retrieved-context-is-data. This packet is not that corpus.",
+  "principal": "applicant-web",
+  "query": "lending policy",
+  "retrieved_object": "doc.lending-policy.normal",
+  "resource_classification": "internal",
+  "allowed_purpose": "applicant-education",
+  "vector_similarity": "NOT USED — similarity is not authorization",
+  "retrieval_result": "RETRIEVED",
+  "ctrl_rag_context_001": "NOT THIS PACKET — historical OBSERVE is a different control",
+  "ctrl_mcp_001": "NOT INVOKED — retrieval does not create a tool decision",
+  "modes": [
+    {
+      "mode": "ATTACK",
+      "request_id": "sim-purpose-request-001",
+      "requested_purpose": "executive-decision",
+      "purpose_relation": "NOT ALLOWED FOR THIS PURPOSE",
+      "purpose_decision": "FAIL_OPEN",
+      "purpose_reason": "vulnerable_profile_fail_open:purpose_not_checked",
+      "downstream_use": "USED",
+      "tool_authorization": "NOT INVOKED",
+      "resource_impact": "NOT PROVEN"
+    },
+    {
+      "mode": "RETEST",
+      "request_id": "sim-purpose-request-001",
+      "requested_purpose": "executive-decision",
+      "purpose_relation": "NOT ALLOWED FOR THIS PURPOSE",
+      "purpose_decision": "DENY",
+      "purpose_reason": "purpose_not_allowed",
+      "downstream_use": "NOT USED",
+      "tool_authorization": "NOT INVOKED",
+      "resource_impact": "NOT PROVEN"
+    },
+    {
+      "mode": "BASELINE",
+      "request_id": "sim-purpose-request-baseline-001",
+      "requested_purpose": "applicant-education",
+      "purpose_relation": "ALLOWED FOR THIS PURPOSE",
+      "purpose_decision": "ALLOW",
+      "purpose_reason": "purpose_allowed",
+      "downstream_use": "USED FOR THE ALLOWED PURPOSE",
+      "tool_authorization": "NOT INVOKED",
+      "note": "An allowed purpose is not a tool grant.",
+      "resource_impact": "NOT PROVEN"
+    }
+  ]
+}

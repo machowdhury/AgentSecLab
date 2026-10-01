@@ -1,0 +1,6 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0
+"agentsec.control.id"=CTRL-RAG-CONTEXT-001
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| stats count by mode
+| eval evidence_plane="HISTORICAL RETRIEVED-CONTEXT OBSERVE — NOT A PURPOSE DECISION"
+| eval purpose_authorization="NOT OBSERVED"

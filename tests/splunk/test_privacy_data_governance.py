@@ -41,7 +41,7 @@ def test_l8_curriculum_navigation_and_artifacts():
     level = next(row for row in curriculum["levels"] if row["id"] == "L8")
     assert level["exit"] == "PRIVACY-AWARE SECURITY ARCHITECT"
     assert level["labs"][0]["lab_id"] == "LAB-PRIVACY-DATA-GOVERNANCE-001"
-    assert curriculum["nav_collections"][-3] == {
+    assert curriculum["nav_collections"][-4] == {
         "label": "Privacy & Data Governance",
         "views": ["ws_lab_privacy_data_governance"],
     }

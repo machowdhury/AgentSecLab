@@ -1,0 +1,284 @@
+{
+  "visualizations": {
+    "viz_mission": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# RAG purpose authorization\n\nThis is a REPLAY workshop. Path A is the ledger you fill before Path B. The packet is not policy.\n\nA document can be retrieved and still be unauthorized for the purpose in front of you.\n\nRetrieved is not authorized for this principal. Authorized for a principal is not authorized for this purpose. Retrieval is not tool authorization. Vector similarity is not authorization.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_object": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Retrieved object\n\n- principal: applicant-web\n- query: lending policy\n- object: doc.lending-policy.normal\n- classification: internal\n- allowed purpose: applicant-education\n- retrieval: RETRIEVED\n- vector similarity: NOT USED\n\nThis object already exists as a RAG fixture. This workshop does not add a vector database.\n\nHistorical CTRL-RAG-CONTEXT-001 rows are retrieved-context observations. They are not this purpose decision.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_request": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Requested purpose\n\nATTACK and RETEST request purpose `executive-decision` for the same retrieved object.\n\nBASELINE requests purpose `applicant-education`.\n\nWrite whether each requested purpose is the allowed purpose before you open Path B. CTRL-MCP-001 is not invoked by retrieval.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_ledger": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Evidence ledger\n\n- ATTACK purpose: executive-decision. Relation: ______. Downstream use: ______. Tool decision: NOT INVOKED.\n- RETEST purpose: executive-decision. Relation: ______. Downstream use: ______. Tool decision: NOT INVOKED.\n- BASELINE purpose: applicant-education. Relation: ______. Downstream use: ______. Tool decision: NOT INVOKED.\n- Resource impact: NOT PROVEN\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_pathb": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Path B — review\n\n- ATTACK: purpose not allowed, FAIL_OPEN, reason vulnerable_profile_fail_open:purpose_not_checked, downstream use USED.\n- RETEST: purpose not allowed, DENY, reason purpose_not_allowed, downstream use NOT USED.\n- BASELINE: purpose allowed, ALLOW, reason purpose_allowed, used for the allowed purpose. That is not a tool grant.\n\nCTRL-MCP-001 remains the tool PDP and is not invoked here.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_contrast": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Historical context control\n\nThe search counts CTRL-RAG-CONTEXT-001 rows and labels them **HISTORICAL RETRIEVED-CONTEXT OBSERVE — NOT A PURPOSE DECISION**. Purpose authorization on those rows is NOT OBSERVED.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_contrast_table": {
+      "type": "splunk.table",
+      "title": "Historical context observations",
+      "description": "Not a purpose decision.",
+      "dataSources": {
+        "primary": "ds_purpose"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No CTRL-RAG-CONTEXT-001 rows. Empty is not a purpose denial."
+      }
+    }
+  },
+  "dataSources": {
+    "ds_purpose": {
+      "type": "ds.search",
+      "name": "Purpose contrast",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0\n\"agentsec.control.id\"=CTRL-RAG-CONTEXT-001\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| stats count by mode\n| eval evidence_plane=\"HISTORICAL RETRIEVED-CONTEXT OBSERVE — NOT A PURPOSE DECISION\"\n| eval purpose_authorization=\"NOT OBSERVED\""
+      }
+    }
+  },
+  "defaults": {
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "large"
+        }
+      }
+    }
+  },
+  "inputs": {},
+  "layout": {
+    "type": "grid",
+    "options": {
+      "submitButton": false,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "tabs": {
+      "items": [
+        {
+          "layoutId": "layout_viz_mission",
+          "label": "MISSION"
+        },
+        {
+          "layoutId": "layout_viz_object",
+          "label": "OBJECT"
+        },
+        {
+          "layoutId": "layout_viz_request",
+          "label": "REQUEST"
+        },
+        {
+          "layoutId": "layout_viz_ledger",
+          "label": "LEDGER"
+        },
+        {
+          "layoutId": "layout_viz_pathb",
+          "label": "PATH B · REVIEW"
+        },
+        {
+          "layoutId": "layout_viz_contrast",
+          "label": "CONTRAST"
+        }
+      ]
+    },
+    "layoutDefinitions": {
+      "layout_viz_mission": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 600
+        },
+        "structure": [
+          {
+            "item": "viz_mission",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 560
+            }
+          }
+        ]
+      },
+      "layout_viz_object": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 600
+        },
+        "structure": [
+          {
+            "item": "viz_object",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 560
+            }
+          }
+        ]
+      },
+      "layout_viz_request": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 600
+        },
+        "structure": [
+          {
+            "item": "viz_request",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 560
+            }
+          }
+        ]
+      },
+      "layout_viz_ledger": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 600
+        },
+        "structure": [
+          {
+            "item": "viz_ledger",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 560
+            }
+          }
+        ]
+      },
+      "layout_viz_pathb": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 600
+        },
+        "structure": [
+          {
+            "item": "viz_pathb",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 560
+            }
+          }
+        ]
+      },
+      "layout_viz_contrast": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 880
+        },
+        "structure": [
+          {
+            "item": "viz_contrast",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 560
+            }
+          },
+          {
+            "item": "viz_contrast_table",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 560,
+              "w": 1440,
+              "h": 280
+            }
+          }
+        ]
+      }
+    }
+  }
+}
