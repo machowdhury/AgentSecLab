@@ -317,7 +317,11 @@ Open [Component Provenance](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_comp
 
 **Code Agent Bounds** — simulated code-generation authority. A read grant is not an install. No GitHub credential is used.
 
-Open [Code Agent Bounds](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_code_agent_bounds) after provenance and before the multi-stage incident.
+Open [Code Agent Bounds](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_code_agent_bounds) after provenance and before Change Bounds.
+
+**Change Bounds** — simulated operations authority. Inspect scope is not delete authority. A started action is not a completed change. No cloud credential is used.
+
+Open [Change Bounds](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_change_bounds) after Code Agent Bounds and before the multi-stage incident.
 
 **L9 Multi-stage agentic attack, investigation and defense** — {levels['L9']['learn']} Effort: {levels['L9']['effort']}. Exit: {levels['L9']['exit']}.
 

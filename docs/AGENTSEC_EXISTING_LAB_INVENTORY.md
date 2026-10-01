@@ -22,6 +22,8 @@
 
 **Post-RC2 checkpoint:** `LAB-AGENT-IDENTITY-NHI` is the Agent Identity and Non-Human IAM workshop, a REPLAY checkpoint between L7 and L8. Studio `ws_lab_agent_identity_nhi`. Attack Service NO. It is not a new attack level and not a LIVE lab. It does not add authentication, a detector, a schema field, or an ExternalEvidence change.
 
+**Post-RC2 checkpoint:** `LAB-CHANGE-BOUNDS` is a simulated IT and cloud change scenario. Studio `ws_lab_change_bounds`. No cloud credential. A start is not a successful change, and inspect scope is not delete authority.
+
 **Post-RC2 checkpoint:** `LAB-CODE-AGENT-BOUNDS` is a simulated software-engineering agent scenario. Studio `ws_lab_code_agent_bounds`. No GitHub credential and no external repository change. A read grant is not an install grant.
 
 **Post-RC2 checkpoint:** `LAB-COMPONENT-PROVENANCE` teaches that a known or scanned component is not a tool grant. Studio `ws_lab_component_provenance`. The Ollama image pin is recorded as NOT RESOLVED. Scanner and garak evidence stay non-authorization.

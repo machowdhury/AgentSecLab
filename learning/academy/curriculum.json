@@ -98,6 +98,10 @@
       "views": ["ws_lab_code_agent_bounds"]
     },
     {
+      "label": "Change Bounds",
+      "views": ["ws_lab_change_bounds"]
+    },
+    {
       "label": "Integrated Incident",
       "views": ["ws_lab_multi_stage_incident"]
     },
@@ -225,6 +229,17 @@
       "live_launcher": false,
       "lab_id": "LAB-CODE-AGENT-BOUNDS",
       "view": "ws_lab_code_agent_bounds",
+      "not_authorization": true,
+      "evidence_class": "SIMULATED / REPLAYED"
+    },
+    {
+      "id": "CHANGE-BOUNDS",
+      "title": "Change Bounds",
+      "placement": "Code Agent Bounds → Change Bounds → L9",
+      "mode": "REPLAY",
+      "live_launcher": false,
+      "lab_id": "LAB-CHANGE-BOUNDS",
+      "view": "ws_lab_change_bounds",
       "not_authorization": true,
       "evidence_class": "SIMULATED / REPLAYED"
     }

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="2" theme="light">
+  <label>Change Bounds</label>
+  <description>LAB-CHANGE-BOUNDS. Simulated change authority. No cloud credential.</description>
+  <definition><![CDATA[
+{
+  "visualizations": {
+    "viz_mission": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Change bounds\n\nThis is a REPLAY workshop. Path A is the ledger you fill before Path B. The packet is not policy.\n\nTool access is not change authority. Change authority is not unlimited blast radius. A started action is not a successful change. No cloud account credential is used.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_debt": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Bounded record\n\n- credential: sim-cred-ops-001\n- credential scope: resource:inspect\n- delegated operation: inspect_resource\n- approved operation: inspect_resource\n- approval authority: NOT PROVEN\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_request": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Request\n\nATTACK and RETEST submit `delete_resource`. The delegated and approved operation is `inspect_resource`.\n\nBASELINE submits `inspect_resource`.\n\nWrite whether a simulated start would prove the resource changed. It does not.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_pathb": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Path B — review\n\n- ATTACK: binding MISMATCH, ALLOW only as vulnerable_profile_fail_open:change_scope_not_checked, simulated start, completion NOT OBSERVED, impact NOT PROVEN.\n- RETEST: binding MISMATCH, DENY change_not_granted, do not infer execution.\n- BASELINE: binding MATCH, ALLOW tool_granted, start observed, completion NOT OBSERVED. A start is not a successful change.\n\nRollback is NOT RECORDED. Resource impact is NOT PROVEN.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    }
+  },
+  "dataSources": {},
+  "defaults": {
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "large"
+        }
+      }
+    }
+  },
+  "inputs": {},
+  "layout": {
+    "type": "grid",
+    "options": {
+      "submitButton": false,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "tabs": {
+      "items": [
+        {
+          "layoutId": "layout_viz_mission",
+          "label": "MISSION"
+        },
+        {
+          "layoutId": "layout_viz_debt",
+          "label": "DEBT"
+        },
+        {
+          "layoutId": "layout_viz_request",
+          "label": "REQUEST"
+        },
+        {
+          "layoutId": "layout_viz_pathb",
+          "label": "PATH B · REVIEW"
+        }
+      ]
+    },
+    "layoutDefinitions": {
+      "layout_viz_mission": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_mission",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_viz_debt": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_debt",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_viz_request": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_request",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_viz_pathb": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_pathb",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+  ]]></definition>
+</dashboard>
