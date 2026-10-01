@@ -90,6 +90,10 @@
       "views": ["ws_lab_asset_inventory"]
     },
     {
+      "label": "Component Provenance",
+      "views": ["ws_lab_component_provenance"]
+    },
+    {
       "label": "Integrated Incident",
       "views": ["ws_lab_multi_stage_incident"]
     },
@@ -197,6 +201,17 @@
       "view": "ws_lab_asset_inventory",
       "not_authorization": true,
       "evidence_class": "DOCUMENTED"
+    },
+    {
+      "id": "COMPONENT-PROVENANCE",
+      "title": "Component Provenance",
+      "placement": "Asset Inventory → Component Provenance Workshop → L9",
+      "mode": "REPLAY",
+      "live_launcher": false,
+      "lab_id": "LAB-COMPONENT-PROVENANCE",
+      "view": "ws_lab_component_provenance",
+      "not_authorization": true,
+      "evidence_class": "DOCUMENTED / SIMULATED"
     }
   ],
   "levels": [

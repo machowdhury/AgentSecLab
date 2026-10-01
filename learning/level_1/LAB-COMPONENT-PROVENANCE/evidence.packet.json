@@ -1,0 +1,47 @@
+{
+  "packet_id": "SIM-PROVENANCE-PACKET-001",
+  "evidence_classification": "DOCUMENTED / SIMULATED",
+  "claim_strength": "BOUNDED TO THE PACKET AND NAMED FILES",
+  "builds_on": "LAB-ASSET-INVENTORY",
+  "ollama_pin": "NOT RESOLVED — docker-compose.yml still says ollama/ollama:latest. A digest was not measured, so this workshop does not invent one.",
+  "unpinned_examples": [
+    "docker-compose.yml image ollama/ollama:latest",
+    "pyproject.toml pytest>=8.3.0",
+    "pyproject.toml setuptools>=69"
+  ],
+  "pinned_example": "pyproject.toml flask==3.0.3",
+  "scanner": "Cisco mcp-scanner remains static evidence. A finding is not authorization.",
+  "evaluation": "garak remains model-evaluation evidence. A pass is not safety.",
+  "modes": [
+    {
+      "mode": "ATTACK",
+      "request_id": "sim-provenance-request-001",
+      "component": "ollama/ollama:latest",
+      "provenance": "UNPINNED",
+      "requested_tool": "lookup_customer_tier",
+      "ctrl_mcp_001_decision": "ALLOW",
+      "ctrl_mcp_001_reason": "vulnerable_profile_fail_open:known_component_treated_as_grant",
+      "note": "Packet-only teaching fault. Not implemented in authorize.py."
+    },
+    {
+      "mode": "RETEST",
+      "request_id": "sim-provenance-request-001",
+      "component": "ollama/ollama:latest",
+      "provenance": "UNPINNED",
+      "requested_tool": "lookup_customer_tier",
+      "ctrl_mcp_001_decision": "DENY",
+      "ctrl_mcp_001_reason": "provenance_is_not_a_grant",
+      "execution_observed": "NO — do not infer execution"
+    },
+    {
+      "mode": "BASELINE",
+      "request_id": "sim-provenance-baseline-001",
+      "component": "flask==3.0.3",
+      "provenance": "PINNED NAME",
+      "requested_tool": "lookup_policy",
+      "ctrl_mcp_001_decision": "ALLOW",
+      "ctrl_mcp_001_reason": "tool_granted",
+      "note": "A pinned dependency did not authorize the tool."
+    }
+  ]
+}

@@ -309,7 +309,11 @@ Open [Memory Ownership and Isolation]({RECALL_URL}) after RAG purpose and before
 
 **AI Asset Inventory** — documented component list. You cannot govern what you cannot inventory. The list is not a Cisco AI-BOM, not trust, and not authorization.
 
-Open [AI Asset Inventory](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_asset_inventory) after Memory Isolation and before the multi-stage incident.
+Open [AI Asset Inventory](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_asset_inventory) after Memory Isolation and before Component Provenance.
+
+**Component Provenance** — a known component is not trusted, a scanned component is not safe, and an identified component is not authorized. The Ollama `latest` tag remains unpinned because no digest was measured.
+
+Open [Component Provenance](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_component_provenance) after the inventory and before the multi-stage incident.
 
 **L9 Multi-stage agentic attack, investigation and defense** — {levels['L9']['learn']} Effort: {levels['L9']['effort']}. Exit: {levels['L9']['exit']}.
 

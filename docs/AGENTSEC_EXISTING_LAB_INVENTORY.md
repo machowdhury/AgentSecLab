@@ -22,6 +22,8 @@
 
 **Post-RC2 checkpoint:** `LAB-AGENT-IDENTITY-NHI` is the Agent Identity and Non-Human IAM workshop, a REPLAY checkpoint between L7 and L8. Studio `ws_lab_agent_identity_nhi`. Attack Service NO. It is not a new attack level and not a LIVE lab. It does not add authentication, a detector, a schema field, or an ExternalEvidence change.
 
+**Post-RC2 checkpoint:** `LAB-COMPONENT-PROVENANCE` teaches that a known or scanned component is not a tool grant. Studio `ws_lab_component_provenance`. The Ollama image pin is recorded as NOT RESOLVED. Scanner and garak evidence stay non-authorization.
+
 **Post-RC2 checkpoint:** `LAB-ASSET-INVENTORY` is an educational component list after Memory Isolation. Studio `ws_lab_asset_inventory`. It is not a Cisco AI-BOM file and does not claim compatibility. Inventory is not trust and not authorization.
 
 **Post-RC2 checkpoint:** `LAB-RECALL-ISOLATION` is the Memory Ownership and Isolation workshop, a SIMULATED / REPLAYED checkpoint after RAG purpose and before L9. Studio `ws_lab_recall_isolation`. Attack Service NO. It reuses fixture memory id `mem.lending-preference.normal`. Deletion and retention are NOT MEASURED. Recall is not a tool decision.
