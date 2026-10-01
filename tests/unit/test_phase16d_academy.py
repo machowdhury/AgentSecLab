@@ -65,6 +65,7 @@ REPLAY_VIEWS = (
     "ws_lab_purpose_authorization.xml",
     "ws_lab_recall_isolation.xml",
     "ws_lab_asset_inventory.xml",
+    "ws_lab_component_provenance.xml",
     "ws_lab_threat_modeling.xml",
     "ws_lab_privacy_data_governance.xml",
     "ws_lab_multi_stage_incident.xml",

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="2" theme="light">
+  <label>Component Provenance</label>
+  <description>LAB-COMPONENT-PROVENANCE. Known is not trusted. Scanned is not safe.</description>
+  <definition><![CDATA[
+{
+  "visualizations": {
+    "viz_mission": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Component provenance\n\nThis is a REPLAY workshop. Path A is the ledger you fill before Path B. The packet is not policy.\n\nA known component is not a trusted component. A scanned component is not a safe component. An identified component is not an authorized component.\n\nCisco mcp-scanner stays static evidence. garak stays model-evaluation evidence. Neither authorizes a tool.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_debt": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# What the repository shows\n\n- `docker-compose.yml` uses `ollama/ollama:latest`. That pin was not resolved. No digest was measured, so none is invented here.\n- `pyproject.toml` pins `flask==3.0.3` and leaves `pytest>=8.3.0` and `setuptools>=69` as floors.\n- The asset inventory lists these names. Listing them did not make them trusted.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_request": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Request\n\nATTACK and RETEST present the same privileged tool, `lookup_customer_tier`, beside the unpinned Ollama image.\n\nBASELINE presents `lookup_policy` beside the pinned Flask requirement.\n\nWrite the CTRL-MCP-001 decision yourself before Path B. Provenance is not the decision.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_pathb": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Path B — review\n\n- ATTACK: UNPINNED image, ALLOW only as the packet reason vulnerable_profile_fail_open:known_component_treated_as_grant.\n- RETEST: same image and tool, DENY, reason provenance_is_not_a_grant, do not infer execution.\n- BASELINE: pinned Flask name, ALLOW tool_granted. The pin did not authorize the tool.\n\nResource impact is NOT PROVEN. The Ollama image remains unpinned in compose.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    }
+  },
+  "dataSources": {},
+  "defaults": {
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "large"
+        }
+      }
+    }
+  },
+  "inputs": {},
+  "layout": {
+    "type": "grid",
+    "options": {
+      "submitButton": false,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "tabs": {
+      "items": [
+        {
+          "layoutId": "layout_viz_mission",
+          "label": "MISSION"
+        },
+        {
+          "layoutId": "layout_viz_debt",
+          "label": "DEBT"
+        },
+        {
+          "layoutId": "layout_viz_request",
+          "label": "REQUEST"
+        },
+        {
+          "layoutId": "layout_viz_pathb",
+          "label": "PATH B · REVIEW"
+        }
+      ]
+    },
+    "layoutDefinitions": {
+      "layout_viz_mission": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_mission",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_viz_debt": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_debt",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_viz_request": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_request",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_viz_pathb": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_pathb",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+  ]]></definition>
+</dashboard>
