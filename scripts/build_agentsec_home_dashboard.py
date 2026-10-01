@@ -49,6 +49,7 @@ DETECTION_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_detection_engin
 THREAT_MODEL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_threat_modeling"
 IDENTITY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agent_identity_nhi"
 A2A_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_a2a_auth_delegation"
+HITL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_hitl_approval"
 PRIVACY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_privacy_data_governance"
 MULTI_STAGE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_multi_stage_incident"
 ADVANCED_CAPSTONE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_advanced_capstone"
@@ -279,7 +280,11 @@ Open [Agent Identity and Non-Human IAM]({IDENTITY_URL}) after threat modeling an
 
 **A2A Authentication and Delegation** — SIMULATED / REPLAYED workshop after Identity/NHI and before L8. You separate an identity claim, a simulated authentication result, a bounded simulated delegation evaluation, the CTRL-MCP-001 tool decision, execution evidence, and downstream impact. It adds no runtime IAM or delegation enforcement.
 
-Open [A2A Authentication and Delegation]({A2A_URL}) after the identity workshop and before privacy.
+Open [A2A Authentication and Delegation]({A2A_URL}) after the identity workshop and before Human Approval.
+
+**Human Approval and Action Binding** — SIMULATED / REPLAYED workshop after A2A and before L8. You compare an approved action with the action that was submitted. Approval is not authorization. A binding match is not an ALLOW.
+
+Open [Human Approval and Action Binding]({HITL_URL}) after A2A and before privacy.
 
 **L8 Privacy, data protection and agentic data governance** — {levels['L8']['learn']} Effort: {levels['L8']['effort']}. Exit: {levels['L8']['exit']}.
 

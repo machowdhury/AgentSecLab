@@ -66,6 +66,10 @@
       "views": ["ws_lab_a2a_auth_delegation"]
     },
     {
+      "label": "Human Approval",
+      "views": ["ws_lab_hitl_approval"]
+    },
+    {
       "label": "Privacy & Data Governance",
       "views": ["ws_lab_privacy_data_governance"]
     },
@@ -120,6 +124,17 @@
       "live_launcher": false,
       "lab_id": "LAB-A2A-AUTH-DELEGATION",
       "view": "ws_lab_a2a_auth_delegation",
+      "not_authorization": true,
+      "evidence_class": "SIMULATED / REPLAYED"
+    },
+    {
+      "id": "HITL-APPROVAL",
+      "title": "Human Approval and Action Binding",
+      "placement": "L7 → Identity/NHI → A2A → HITL Approval Workshop → L8",
+      "mode": "REPLAY",
+      "live_launcher": false,
+      "lab_id": "LAB-HITL-APPROVAL",
+      "view": "ws_lab_hitl_approval",
       "not_authorization": true,
       "evidence_class": "SIMULATED / REPLAYED"
     }
@@ -231,7 +246,7 @@
       "id": "L8",
       "title": "Privacy, data protection and agentic data governance",
       "learn": "Trace what data an agent can see, infer, remember, disclose, send, persist, retrieve, log, and expose; distinguish authorized action from appropriate data use.",
-      "prerequisites": "L7 Threat Modeling & Security Architecture, then the Agent Identity and Non-Human IAM workshop, then the A2A Authentication and Delegation workshop. Investigate before opening Path B.",
+      "prerequisites": "L7 Threat Modeling & Security Architecture, then the Agent Identity and Non-Human IAM workshop, then the A2A Authentication and Delegation workshop, then the Human Approval workshop. Investigate before opening Path B.",
       "effort": "REPLAY / PRIVACY INVESTIGATION 3-5 hours",
       "exit": "PRIVACY-AWARE SECURITY ARCHITECT",
       "next": "L9",

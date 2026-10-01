@@ -1,0 +1,319 @@
+{
+  "visualizations": {
+    "mission": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Human approval and action binding\n\nThis is a REPLAY workshop. Path A is the ledger you fill before Path B. The packet is not policy.\n\nYou are reviewing whether an approval still covers the action that was submitted.\n\nThe packet is **SIMULATED / REPLAYED**. It is not a runtime approval service and not historical MCP-004 evidence.\n\n## Security question\n\nAn approval exists for `lookup_policy` / `lending-basics`. The submitted action is `lookup_policy` / `executive-restricted`. What does the approval cover, and what does CTRL-MCP-001 decide?\n\n## What this does not prove\n\n- Approval is not authentication.\n- Authentication is not approval authority.\n- Approval is not authorization.\n- A binding match is not an ALLOW.\n- A binding mismatch is not automatically a DENY.\n- Execution is not resource impact.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "approve": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Simulated approval decision\n\n- Record label: SIMULATED APPROVAL DECISION\n- Approval id: sim-approval-001\n- Claimed approver: approver-sam\n- Approver authentication: SIMULATED APPROVER AUTHENTICATION RESULT\n- Approver type: packet label only; not schema principal.type; not proof of a person\n- Credential reference: sim-auth-ref-approver-001\n- Approval authority: NOT PROVEN\n- Decision: APPROVE\n- Approved tool: lookup_policy\n- Approved resource: lending-basics\n- Action reference: sim-action-lending-basics\n- Window: 2026-10-01T15:05:00Z to 2026-10-01T16:05:00Z\n\nThe action reference is a correlation id. It is not a hash, a signature, or a tamper-proof binding.\n\nReplay of the same approval id on a second request is **DEFERRED** in this packet.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "request": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Submitted action\n\nATTACK and RETEST submit the same action:\n\n- tool `lookup_policy`\n- resource `executive-restricted`\n- action reference `sim-action-executive-restricted`\n- time `2026-10-01T15:20:00Z` (inside the approval window)\n\nBASELINE submits the approved action:\n\n- tool `lookup_policy`\n- resource `lending-basics`\n- action reference `sim-action-lending-basics`\n\nWrite MATCH or MISMATCH for each mode before you open Path B. Expiry is not the difference.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "authorize": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# CTRL-MCP-001\n\nCTRL-MCP-001 remains the tool decision. This workshop does not add an approval decision to the runtime.\n\nA MATCH is not an ALLOW. A MISMATCH is not a DENY. Write the binding on the ledger before you open Path B.\n\nAny ALLOW that accepts a mismatched action must carry an explicitly labeled vulnerable teaching reason. That reason is packet evidence. It is not implemented in `authorize.py`, and it is not the MCP-004 resource reason `vulnerable_profile_fail_open:resource_not_granted`.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "contrast": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Historical resource decisions are not approvals\n\nThe search below counts historical CTRL-MCP-001 resource reasons. Those rows are **HISTORICAL RESOURCE DECISION — NOT AN APPROVAL**. Do not relabel them as HITL.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "ledger": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Evidence ledger\n\nCopy one line per mode. Fill binding, CTRL-MCP-001, and execution yourself.\n\n- Approval id for all modes: sim-approval-001\n- Approved tool for all modes: lookup_policy\n- Approved resource for all modes: lending-basics\n- ATTACK submitted resource: executive-restricted. Binding: ______. Decision: ______. Execution: ______.\n- RETEST submitted resource: executive-restricted. Binding: ______. Decision: ______. Execution: ______.\n- BASELINE submitted resource: lending-basics. Binding: ______. Decision: ______. Execution: ______.\n- Resource impact for all modes: NOT PROVEN\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "pathb": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Path B — review\n\n- ATTACK: binding MISMATCH, CTRL-MCP-001 ALLOW, reason vulnerable_profile_fail_open:stale_approval_accepted, separate simulated start.\n- RETEST: binding MISMATCH, CTRL-MCP-001 DENY, reason approval_binding_mismatch, execution not observed; do not infer a start.\n- BASELINE: binding MATCH, CTRL-MCP-001 ALLOW, reason tool_granted, separate simulated start.\n\nApproval authority remains NOT PROVEN. Resource impact remains NOT PROVEN. Replay remains DEFERRED.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_contrast_table": {
+      "type": "splunk.table",
+      "title": "Historical resource decisions — not approvals",
+      "description": "CTRL-MCP-001 resource reasons. Not an approval record.",
+      "dataSources": {
+        "primary": "ds_contrast"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No historical resource-decision rows in this volume."
+      }
+    }
+  },
+  "dataSources": {
+    "ds_contrast": {
+      "type": "ds.search",
+      "name": "Contrast",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0\n\"event.name\"=agentsec.control.decision \"agentsec.control.id\"=CTRL-MCP-001\n(\"agentsec.control.reason\"=resource_not_granted OR \"agentsec.control.reason\"=\"vulnerable_profile_fail_open:resource_not_granted\")\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| stats count by mode reason\n| eval evidence_plane=\"HISTORICAL RESOURCE DECISION — NOT AN APPROVAL\"\n| eval approval=\"NOT OBSERVED\""
+      }
+    }
+  },
+  "defaults": {
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "large"
+        }
+      }
+    }
+  },
+  "inputs": {},
+  "layout": {
+    "type": "grid",
+    "options": {
+      "submitButton": false,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "tabs": {
+      "items": [
+        {
+          "layoutId": "layout_mission",
+          "label": "MISSION"
+        },
+        {
+          "layoutId": "layout_approve",
+          "label": "APPROVE"
+        },
+        {
+          "layoutId": "layout_request",
+          "label": "REQUEST"
+        },
+        {
+          "layoutId": "layout_authorize",
+          "label": "AUTHORIZE"
+        },
+        {
+          "layoutId": "layout_contrast",
+          "label": "CONTRAST"
+        },
+        {
+          "layoutId": "layout_ledger",
+          "label": "LEDGER"
+        },
+        {
+          "layoutId": "layout_pathb",
+          "label": "PATH B · REVIEW"
+        }
+      ]
+    },
+    "layoutDefinitions": {
+      "layout_mission": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_mission",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_approve": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_approve",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_request": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_request",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_authorize": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_authorize",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_contrast": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1000
+        },
+        "structure": [
+          {
+            "item": "viz_contrast",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          },
+          {
+            "item": "viz_contrast_table",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 640,
+              "w": 1440,
+              "h": 320
+            }
+          }
+        ]
+      },
+      "layout_ledger": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_ledger",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      },
+      "layout_pathb": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 680
+        },
+        "structure": [
+          {
+            "item": "viz_pathb",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 640
+            }
+          }
+        ]
+      }
+    }
+  }
+}
