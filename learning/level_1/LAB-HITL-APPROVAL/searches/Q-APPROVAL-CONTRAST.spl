@@ -1,0 +1,8 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0
+"event.name"=agentsec.control.decision "agentsec.control.id"=CTRL-MCP-001
+("agentsec.control.reason"=resource_not_granted OR "agentsec.control.reason"="vulnerable_profile_fail_open:resource_not_granted")
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
+| stats count by mode reason
+| eval evidence_plane="HISTORICAL RESOURCE DECISION — NOT AN APPROVAL"
+| eval approval="NOT OBSERVED"

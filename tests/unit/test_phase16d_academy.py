@@ -60,6 +60,7 @@ REPLAY_VIEWS = (
     "ws_lab_detection_engineering.xml",
     "ws_lab_agent_identity_nhi.xml",
     "ws_lab_a2a_auth_delegation.xml",
+    "ws_lab_hitl_approval.xml",
     "ws_lab_threat_modeling.xml",
     "ws_lab_privacy_data_governance.xml",
     "ws_lab_multi_stage_incident.xml",
