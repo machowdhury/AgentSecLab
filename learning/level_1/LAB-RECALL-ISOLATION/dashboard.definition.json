@@ -1,0 +1,284 @@
+{
+  "visualizations": {
+    "viz_mission": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Memory ownership and isolation\n\nThis is a REPLAY workshop. Path A is the ledger you fill before Path B. The packet is not policy.\n\nWrite is not ownership. Recall is not authorization. A memory id is not an owner. The same agent is not the same user. Stored is not retained forever.\n\nDeletion and retention are NOT MEASURED. Do not call this secure deletion.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_object": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Memory record\n\n- memory id: mem.lending-preference.normal\n- owner: user-a\n- writer: acme-agent-memory-001\n- deletion status: NOT MEASURED\n- retention status: NOT MEASURED\n\nThe writer agent is the same in every mode. The reader user is the boundary.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_request": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Recall request\n\nATTACK and RETEST use reader `user-b` for memory owned by `user-a`.\n\nBASELINE uses reader `user-a`.\n\nWrite whether the reader is the owner before you open Path B. Recall does not invoke CTRL-MCP-001.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_ledger": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Evidence ledger\n\n- ATTACK reader: user-b. Recall: ______. Isolation: ______. Tool decision: NOT INVOKED.\n- RETEST reader: user-b. Recall: ______. Isolation: ______. Tool decision: NOT INVOKED.\n- BASELINE reader: user-a. Recall: ______. Isolation: ______. Tool decision: NOT INVOKED.\n- Deletion: NOT MEASURED. Retention: NOT MEASURED. Resource impact: NOT PROVEN.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_pathb": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Path B — review\n\n- ATTACK: reader user-b, recall RETURNED, isolation CROSSED, reason vulnerable_profile_fail_open:cross_user_recall.\n- RETEST: reader user-b, recall ISOLATED, isolation HELD, reason cross_user_recall_denied.\n- BASELINE: reader user-a, recall RETURNED, isolation OWNER. Owner recall is not tool authorization.\n\nCTRL-MCP-001 remains the tool PDP and is not invoked here. Deletion remains NOT MEASURED.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_contrast": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Historical recall control\n\nThe search counts CTRL-MEMORY-CONTEXT-001 rows and labels them **HISTORICAL RECALL OBSERVE — NOT AN OWNERSHIP DECISION**. Isolation and deletion on those rows are not measured by this packet.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      }
+    },
+    "viz_contrast_table": {
+      "type": "splunk.table",
+      "title": "Historical recall observations",
+      "description": "Not an ownership decision.",
+      "dataSources": {
+        "primary": "ds_recall"
+      },
+      "showProgressBar": true,
+      "showLastUpdated": false,
+      "hideWhenNoData": false,
+      "options": {
+        "count": 50,
+        "showRowNumbers": false,
+        "backgroundColor": "#FFFFFF",
+        "headerBackgroundColor": "#0B1F33",
+        "headerTextColor": "#FFFFFF",
+        "noDataMessage": "No CTRL-MEMORY-CONTEXT-001 rows. Empty is not isolation."
+      }
+    }
+  },
+  "dataSources": {
+    "ds_recall": {
+      "type": "ds.search",
+      "name": "Recall contrast",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0\n\"agentsec.control.id\"=CTRL-MEMORY-CONTEXT-001\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| stats count by mode\n| eval evidence_plane=\"HISTORICAL RECALL OBSERVE — NOT AN OWNERSHIP DECISION\"\n| eval isolation=\"NOT OBSERVED\"\n| eval deletion=\"NOT MEASURED\""
+      }
+    }
+  },
+  "defaults": {
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "large"
+        }
+      }
+    }
+  },
+  "inputs": {},
+  "layout": {
+    "type": "grid",
+    "options": {
+      "submitButton": false,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "tabs": {
+      "items": [
+        {
+          "layoutId": "layout_viz_mission",
+          "label": "MISSION"
+        },
+        {
+          "layoutId": "layout_viz_object",
+          "label": "OBJECT"
+        },
+        {
+          "layoutId": "layout_viz_request",
+          "label": "REQUEST"
+        },
+        {
+          "layoutId": "layout_viz_ledger",
+          "label": "LEDGER"
+        },
+        {
+          "layoutId": "layout_viz_pathb",
+          "label": "PATH B · REVIEW"
+        },
+        {
+          "layoutId": "layout_viz_contrast",
+          "label": "CONTRAST"
+        }
+      ]
+    },
+    "layoutDefinitions": {
+      "layout_viz_mission": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 600
+        },
+        "structure": [
+          {
+            "item": "viz_mission",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 560
+            }
+          }
+        ]
+      },
+      "layout_viz_object": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 600
+        },
+        "structure": [
+          {
+            "item": "viz_object",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 560
+            }
+          }
+        ]
+      },
+      "layout_viz_request": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 600
+        },
+        "structure": [
+          {
+            "item": "viz_request",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 560
+            }
+          }
+        ]
+      },
+      "layout_viz_ledger": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 600
+        },
+        "structure": [
+          {
+            "item": "viz_ledger",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 560
+            }
+          }
+        ]
+      },
+      "layout_viz_pathb": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 600
+        },
+        "structure": [
+          {
+            "item": "viz_pathb",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 560
+            }
+          }
+        ]
+      },
+      "layout_viz_contrast": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 880
+        },
+        "structure": [
+          {
+            "item": "viz_contrast",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 560
+            }
+          },
+          {
+            "item": "viz_contrast_table",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 560,
+              "w": 1440,
+              "h": 280
+            }
+          }
+        ]
+      }
+    }
+  }
+}

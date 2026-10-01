@@ -1,0 +1,44 @@
+{
+  "packet_id": "SIM-RECALL-PACKET-001",
+  "evidence_classification": "SIMULATED / REPLAYED",
+  "not_runtime_isolation": true,
+  "not_secure_deletion": true,
+  "memory_id": "mem.lending-preference.normal",
+  "owner": "user-a",
+  "writer": "acme-agent-memory-001",
+  "same_agent_note": "The writer agent id is the same in every mode. The reader user is not.",
+  "deletion_status": "NOT MEASURED",
+  "retention_status": "NOT MEASURED",
+  "ctrl_memory_context_001": "NOT THIS PACKET — historical OBSERVE is recalled data, not ownership",
+  "ctrl_mcp_001": "NOT INVOKED — recall is not a tool decision",
+  "modes": [
+    {
+      "mode": "ATTACK",
+      "request_id": "sim-recall-request-001",
+      "reader": "user-b",
+      "recall_result": "RETURNED",
+      "isolation": "CROSSED",
+      "reason": "vulnerable_profile_fail_open:cross_user_recall",
+      "resource_impact": "NOT PROVEN"
+    },
+    {
+      "mode": "RETEST",
+      "request_id": "sim-recall-request-001",
+      "reader": "user-b",
+      "recall_result": "ISOLATED",
+      "isolation": "HELD",
+      "reason": "cross_user_recall_denied",
+      "resource_impact": "NOT PROVEN"
+    },
+    {
+      "mode": "BASELINE",
+      "request_id": "sim-recall-request-owner-001",
+      "reader": "user-a",
+      "recall_result": "RETURNED",
+      "isolation": "OWNER",
+      "reason": "owner_recall",
+      "note": "Owner recall is not tool authorization and not proof of retention or deletion.",
+      "resource_impact": "NOT PROVEN"
+    }
+  ]
+}

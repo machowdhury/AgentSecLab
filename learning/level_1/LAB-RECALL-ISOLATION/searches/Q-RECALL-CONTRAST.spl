@@ -1,0 +1,7 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0
+"agentsec.control.id"=CTRL-MEMORY-CONTEXT-001
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| stats count by mode
+| eval evidence_plane="HISTORICAL RECALL OBSERVE — NOT AN OWNERSHIP DECISION"
+| eval isolation="NOT OBSERVED"
+| eval deletion="NOT MEASURED"
