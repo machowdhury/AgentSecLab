@@ -1,0 +1,91 @@
+{
+  "packet_id": "SIM-INVENTORY-PACKET-001",
+  "evidence_classification": "DOCUMENTED",
+  "claim_strength": "BOUNDED TO REPOSITORY FILES",
+  "not_cisco_aibom": true,
+  "cisco_aibom_compatibility": "NOT CLAIMED — NEEDS_EXTERNAL_VALIDATION",
+  "cisco_aibom_note": "docs/AGENTSEC_OPEN_SOURCE_SECURITY_ECOSYSTEM.md names cisco-ai-defense/aibom as a supply-chain project inspected 2026-09-15. This packet does not run that CLI and does not claim its format.",
+  "lesson": "You cannot govern what you cannot inventory. Inventory is not trust. Inventory is not authorization. Presence is not safety.",
+  "components": [
+    {
+      "kind": "model",
+      "name": "llama3.2:1b",
+      "version": "name only",
+      "source": "src/agentsec/settings.py default OLLAMA_MODEL",
+      "owner": "NOT RECORDED",
+      "environment": "lab compose",
+      "evidence_source": "DOCUMENTED",
+      "trust": "NOT ESTABLISHED"
+    },
+    {
+      "kind": "runtime",
+      "name": "ollama/ollama",
+      "version": "latest — unpinned",
+      "source": "docker-compose.yml",
+      "owner": "NOT RECORDED",
+      "environment": "lab compose",
+      "evidence_source": "DOCUMENTED",
+      "trust": "NOT ESTABLISHED"
+    },
+    {
+      "kind": "agent",
+      "name": "acme-agent-fulfillment-006",
+      "version": "fixture identifier",
+      "source": "identity and A2A teaching packets",
+      "owner": "NOT RECORDED",
+      "environment": "simulated packet",
+      "evidence_source": "SIMULATED",
+      "trust": "NOT ESTABLISHED"
+    },
+    {
+      "kind": "tool",
+      "name": "lookup_policy",
+      "version": "fixture",
+      "source": "src/agentsec/mcp/policy.py",
+      "owner": "NOT RECORDED",
+      "environment": "lab",
+      "evidence_source": "DOCUMENTED",
+      "trust": "NOT A GRANT"
+    },
+    {
+      "kind": "mcp_server",
+      "name": "in-process teaching MCP",
+      "version": "NOT A PRODUCTION MESH",
+      "source": "AgentSec lab runtime",
+      "owner": "NOT RECORDED",
+      "environment": "lab",
+      "evidence_source": "DOCUMENTED",
+      "trust": "NOT ESTABLISHED"
+    },
+    {
+      "kind": "framework",
+      "name": "agentsec",
+      "version": "pyproject 1.0.0rc2; app.conf 1.0.0-rc2",
+      "source": "repository",
+      "owner": "NOT RECORDED",
+      "environment": "repository",
+      "evidence_source": "DOCUMENTED",
+      "trust": "NOT ESTABLISHED"
+    },
+    {
+      "kind": "external_tool",
+      "name": "cisco mcp-scanner",
+      "version": "pin in repository; exact pin NOT RE-MEASURED in this packet",
+      "source": "docs/AGENTSEC_OPEN_SOURCE_SECURITY_ECOSYSTEM.md",
+      "owner": "upstream project",
+      "environment": "static evidence adapter",
+      "evidence_source": "DOCUMENTED",
+      "trust": "FINDING IS NOT AUTHORIZATION"
+    },
+    {
+      "kind": "external_tool",
+      "name": "garak",
+      "version": "0.17.0 in existing evaluation notes",
+      "source": "docs/GARAK_EXTERNAL_EVALUATION.md",
+      "owner": "upstream project",
+      "environment": "model evaluation",
+      "evidence_source": "DOCUMENTED",
+      "trust": "EVALUATION IS NOT AUTHORIZATION"
+    }
+  ]
+}

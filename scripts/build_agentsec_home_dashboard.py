@@ -305,7 +305,11 @@ Open [RAG Purpose Authorization]({RAG_PURPOSE_URL}) after privacy and before Mem
 
 **Memory Ownership and Isolation** — SIMULATED / REPLAYED workshop after RAG purpose. The same agent can recall another user's memory in the vulnerable teaching row. RETEST isolates that request. Deletion is NOT MEASURED. Recall is not tool authorization.
 
-Open [Memory Ownership and Isolation]({RECALL_URL}) after RAG purpose and before the multi-stage incident.
+Open [Memory Ownership and Isolation]({RECALL_URL}) after RAG purpose and before Asset Inventory.
+
+**AI Asset Inventory** — documented component list. You cannot govern what you cannot inventory. The list is not a Cisco AI-BOM, not trust, and not authorization.
+
+Open [AI Asset Inventory](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_asset_inventory) after Memory Isolation and before the multi-stage incident.
 
 **L9 Multi-stage agentic attack, investigation and defense** — {levels['L9']['learn']} Effort: {levels['L9']['effort']}. Exit: {levels['L9']['exit']}.
 

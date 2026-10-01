@@ -55,6 +55,9 @@
   <collection label="Memory Isolation">
     <view name="ws_lab_recall_isolation">Memory Ownership and Isolation</view>
   </collection>
+  <collection label="Asset Inventory">
+    <view name="ws_lab_asset_inventory">AI Asset Inventory</view>
+  </collection>
   <collection label="Integrated Incident">
     <view name="ws_lab_multi_stage_incident">AGENT-2026-009</view>
   </collection>
