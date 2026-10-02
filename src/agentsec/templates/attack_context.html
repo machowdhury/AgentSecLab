@@ -198,9 +198,11 @@
     </section>
   </main>
 
+  <script src="{{ url_for('static', filename='agentsec-ui.js') }}"></script>
   <script>
     (() => {
       "use strict";
+      if (window.AgentSecUI) window.AgentSecUI.rewriteLearnerLinks(document);
       const launchContract = {lab_id: {{ lab_id|tojson }}};
       const labId = launchContract.lab_id;
       const kind = {{ context_workbench.kind|tojson }};
@@ -347,7 +349,7 @@
       document.getElementById("attack-button").addEventListener("click", event => launch("ATTACK", event.currentTarget.dataset.specimen));
       document.getElementById("retest-button").addEventListener("click", event => launch("RETEST", event.currentTarget.dataset.specimen));
       openSearch.addEventListener("click", () => {
-        window.open({{ context_workbench.workshop_url|tojson }}, "_blank", "noopener");
+        window.open(window.AgentSecUI.learnerHref({{ context_workbench.workshop_url|tojson }}), "_blank", "noopener");
       });
       fetch("/api/target-health")
         .then(response => response.json().then(data => ({ok: response.ok, data})))

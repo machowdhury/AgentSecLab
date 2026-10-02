@@ -5,6 +5,7 @@ from __future__ import annotations
 from urllib.parse import quote, urlencode
 
 DEFAULT_SPLUNK_WEB = "http://127.0.0.1:8000"
+LOOPBACK_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
 STARTER_EARLIEST = "-1h"
 INDEX = "agentsec_telemetry"
 SOURCETYPE = "otel:agentic:json"
@@ -78,6 +79,44 @@ def starter_spl(run_id: str, *, earliest: str = STARTER_EARLIEST) -> str:
 
 def completeness_spl(run_id: str, *, earliest: str = STARTER_EARLIEST) -> str:
     return starter_spl(run_id, earliest=earliest) + " | stats dc(_raw) as n"
+
+
+def browser_splunk_web(host_header: str, scheme: str = "http") -> str:
+    """Splunk Web on port 8000 using the hostname the browser used to reach Attack Service."""
+    raw = (host_header or "").split(",")[0].strip()
+    hostname = raw
+    if raw.startswith("[") and "]" in raw:
+        hostname = raw[1:raw.index("]")]
+    elif raw.count(":") == 1 and raw.rsplit(":", 1)[1].isdigit():
+        hostname = raw.rsplit(":", 1)[0]
+    if not hostname or hostname in {"0.0.0.0", "::"}:
+        hostname = "127.0.0.1"
+    chosen = scheme if scheme in {"http", "https"} else "http"
+    return f"{chosen}://{hostname}:8000"
+
+
+def rewrite_learner_navigation(url: str, page_origin: str) -> str:
+    """Keep a learner link on the host the browser is using.
+
+    Relative Splunk paths stay relative when the page is already Splunk.
+    From Attack Service they move to the same hostname on port 8000.
+    Loopback absolute URLs keep their port and take the page hostname.
+    """
+    from urllib.parse import urlsplit, urlunsplit
+
+    page = urlsplit(page_origin)
+    page_host = page.hostname or "127.0.0.1"
+    if url.startswith("/") and not url.startswith("//"):
+        if page.port in (None, 8000):
+            return url
+        scheme = page.scheme or "http"
+        return f"{scheme}://{page_host}:8000{url}"
+    parts = urlsplit(url)
+    if parts.hostname in LOOPBACK_HOSTS:
+        port = f":{parts.port}" if parts.port else ""
+        scheme = parts.scheme or page.scheme or "http"
+        return urlunsplit((scheme, f"{page_host}{port}", parts.path, parts.query, parts.fragment))
+    return url
 
 
 def search_url(run_id: str, *, splunk_web: str = DEFAULT_SPLUNK_WEB) -> str:

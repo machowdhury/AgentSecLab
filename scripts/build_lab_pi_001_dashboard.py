@@ -45,8 +45,8 @@ FULL = 1440
 HALF = 720
 THIRD = 480
 
-SEARCH_URL = "http://127.0.0.1:8000/en-US/app/search/search"
-ATTACK_URL = "http://127.0.0.1:5001"
+SEARCH_URL = "/en-US/app/search/search"
+ATTACK_URL = "/en-US/app/agentsec/open_attack?path=/"
 EMPTY_STANDARD = (
     "No indexed event matched this evidence question. That is not SAFE, not TRUSTED, "
     "not blocked, not prevented, and not proof there was no attack."

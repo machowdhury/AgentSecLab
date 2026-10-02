@@ -28,6 +28,17 @@ docker run --rm hello-world
 
 If that fails with the same `runc` or `mountinfo` error, the host runtime cannot start containers. The AgentSec Dockerfiles are not the first place to edit.
 
+## If a lab does not start
+
+| What you see | What it means |
+|--------------|----------------|
+| precheck `FAIL` on disk, Docker, or a port | The host is not ready. This is not a control DENY. |
+| Splunk stays unhealthy | Splunk is still starting, or it failed. Read `docker compose logs splunk`. |
+| `MODEL ABSENT` or AcmeBank `"status": "degraded"` | LIVE generation is degraded. REPLAY pages can still open. This is not a control DENY. |
+| Attack Service `RUN DENIED` | The lab control denied that run. Read the control fields. |
+| Attack Service `RUN TIMED OUT` or `BACKEND UNAVAILABLE` | The evidence check or the service failed. This is not a control DENY. |
+| `RUN COMPLETED` | The runtime finished. It is not proof the attack succeeded. |
+
 ## Remote URL not reachable
 
 **Symptom:** `lab-up.sh --remote` printed a server URL, and the browser on your laptop cannot open it.

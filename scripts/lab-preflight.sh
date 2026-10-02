@@ -153,7 +153,49 @@ check_port 4318 "OTel HTTP"
 if command -v df >/dev/null 2>&1; then
   avail="$(df -Pk "$ROOT" | awk 'NR==2 {print $4}')"
   if [ -n "$avail" ]; then
-    log "INFO  observed free disk on this volume: ${avail} KiB (NOT BENCHMARKED; no minimum is claimed)"
+    avail_gb="$(awk -v k="$avail" 'BEGIN {printf "%.1f", k/1024/1024}')"
+    log "INFO  CURRENTLY AVAILABLE disk on this volume: ${avail_gb} GB (${avail} KiB)"
+    log "INFO  MINIMUM SUPPORTED disk: NOT BENCHMARKED"
+    log "INFO  RECOMMENDED planning floor: 8 GB free before a first install. That floor is not a measured minimum."
+    if [ "$avail" -lt 2097152 ]; then
+      fail "Insufficient free disk for AgentSec. Available: ${avail_gb} GB. Recommended planning floor: 8 GB. Free disk space and rerun ./scripts/lab-preflight.sh. This check does not delete Docker data."
+    elif [ "$avail" -lt 8388608 ]; then
+      warn "free disk ${avail_gb} GB is below the 8 GB planning floor. Splunk images are large. This is not a measured minimum and this check does not delete Docker data."
+    else
+      pass "free disk ${avail_gb} GB is at or above the 8 GB planning floor (not a measured minimum)"
+    fi
+  fi
+fi
+
+if [ -r /proc/meminfo ]; then
+  mem_kb="$(awk '/MemAvailable:/ {print $2}' /proc/meminfo)"
+  if [ -n "$mem_kb" ]; then
+    log "INFO  MemAvailable: ${mem_kb} kB. No memory minimum is benchmarked."
+  fi
+elif command -v sysctl >/dev/null 2>&1; then
+  mem_bytes="$(sysctl -n hw.memsize 2>/dev/null || true)"
+  if [ -n "$mem_bytes" ]; then
+    log "INFO  host memory size: ${mem_bytes} bytes. Available memory was not measured. No memory minimum is benchmarked."
+  fi
+fi
+
+if [ "${DOCKER_OK:-0}" = "1" ]; then
+  if docker system df --format '{{.Type}} {{.Size}}' >/dev/null 2>&1; then
+    docker system df --format '{{.Type}} {{.Size}}' | while IFS= read -r row; do
+      log "INFO  Docker storage: ${row}"
+    done
+    log "INFO  Docker storage figures are observed. This check does not run docker system prune."
+  else
+    log "INFO  Docker storage: NOT MEASURED"
+  fi
+  volumes="$(docker volume ls --format '{{.Name}}' 2>/dev/null | grep -E 'splunk_app_agentsec|ollama_models|shared_telemetry' || true)"
+  if [ -n "$volumes" ]; then
+    log "INFO  existing AgentSec volumes:"
+    printf '%s\n' "$volumes" | while IFS= read -r name; do
+      log "INFO  volume ${name}"
+    done
+  else
+    log "INFO  no AgentSec named volumes are present yet"
   fi
 fi
 

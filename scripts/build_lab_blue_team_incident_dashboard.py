@@ -25,7 +25,7 @@ OUT_XML = (
     / "views"
     / "ws_lab_blue_team_incident.xml"
 )
-SEARCH_URL = "http://127.0.0.1:8000/en-US/app/search/search"
+SEARCH_URL = "/en-US/app/search/search"
 
 ATTACK_RECALL = "2437f64a-fff4-424f-8a83-0f04285662e4"
 RETEST_RECALL = "8d2c016f-cadc-4463-939a-23a183221b3d"

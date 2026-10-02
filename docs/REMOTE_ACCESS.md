@@ -49,7 +49,7 @@ Learners open Attack Service in a browser for LIVE launches, so port 5001 is a l
 
 `./scripts/lab-up.sh` without `--remote` forces `127.0.0.1` for ports 8000 and 5001 even if `.env` says otherwise.
 
-Academy workshop pages still contain links to `http://127.0.0.1:5001`. On a laptop those links are correct. On a remote browser they open the laptop, not the server. Use the Attack Service URL printed by `lab-up.sh --remote`. Those page links were not rewritten.
+Academy Search links are paths on the Splunk host, such as `/en-US/app/search/search`. Attack Service links in the Academy open `open_attack`, which sends the browser to port 5001 on the same hostname. A local install still looks like `http://127.0.0.1:8000/...`. A remote install looks like `http://SERVER-IP-OR-DNS:8000/...`. Do not put a temporary cloud address in these pages.
 
 ## Cloud firewall
 

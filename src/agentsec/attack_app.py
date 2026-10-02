@@ -35,6 +35,7 @@ from agentsec.lab_manifest import load_lab_manifest, prediction_for
 from agentsec.launch_catalog import RETEST_SUPPORT, allowlist_public_rows, known_lab_ids
 from agentsec.launch_contract import parse_launch_json
 from agentsec.launch_service import LaunchService, error_body
+from agentsec.search_handoff import browser_splunk_web
 from agentsec.mcp.policy import coded_policy
 from agentsec.memory.fixtures import (
     CLOSED_FOLLOW_ON_SCOPE as MEMORY_FOLLOW_ON_SCOPE,
@@ -336,7 +337,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
             context_workbench = {
                 "kind": "rag",
                 "title": "RAG / Retrieved Context",
-                "workshop_url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_rag_context",
+                "workshop_url": "/en-US/app/agentsec/ws_lab_rag_context",
                 "security_question": manifest.get("security_question"),
                 "attacker_influence": "Closed retrieved document bytes",
                 "artifact_label": "Retrieved document",
@@ -361,7 +362,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
             context_workbench = {
                 "kind": "memory",
                 "title": "Persistent Memory",
-                "workshop_url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_memory_security",
+                "workshop_url": "/en-US/app/agentsec/ws_lab_memory_security",
                 "security_question": manifest.get("security_question"),
                 "attacker_influence": "Closed bytes persisted before a later recall",
                 "artifact_label": "Persisted memory",
@@ -386,7 +387,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
             authority_workbench = {
                 "kind": "goal",
                 "title": "Goal / Instruction Integrity",
-                "workshop_url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agent_goal_integrity",
+                "workshop_url": "/en-US/app/agentsec/ws_lab_agent_goal_integrity",
                 "security_question": manifest.get("security_question"),
                 "attacker_influence": "Closed untrusted instruction fixture",
                 "server_fact_label": "Server-owned task",
@@ -412,7 +413,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
             authority_workbench = {
                 "kind": "identity",
                 "title": "Agent Identity / Delegation",
-                "workshop_url": "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agent_delegation",
+                "workshop_url": "/en-US/app/agentsec/ws_lab_agent_delegation",
                 "security_question": manifest.get("security_question"),
                 "attacker_influence": "Closed untrusted identity and delegation claim",
                 "server_fact_label": "Claimed actors",
@@ -438,7 +439,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
             capstone_workbench = {
                 "title": "Lending Assistant Investigation",
                 "workshop_url": (
-                    "http://127.0.0.1:8000/en-US/app/agentsec/"
+                    "/en-US/app/agentsec/"
                     "ws_lab_agentsec_capstone"
                 ),
                 "security_question": manifest.get("security_question"),
@@ -562,7 +563,10 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
     @app.post("/api/launch")
     def launch():
         parsed = parse_launch_json(request.get_data(as_text=True))
-        status, body = launcher.launch(parsed)
+        status, body = launcher.launch(
+            parsed,
+            splunk_web=browser_splunk_web(request.host, request.scheme),
+        )
         return jsonify(body), status
 
     @app.post("/api/compare-handoff")
@@ -587,7 +591,11 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
         if not isinstance(attack_run_id, str) or not isinstance(retest_run_id, str):
             status, body = error_body("malformed_compare")
             return jsonify(body), status
-        status, body = launcher.compare_handoff(attack_run_id, retest_run_id)
+        status, body = launcher.compare_handoff(
+            attack_run_id,
+            retest_run_id,
+            splunk_web=browser_splunk_web(request.host, request.scheme),
+        )
         return jsonify(body), status
 
     @app.get("/api/launches/<run_id>")

@@ -674,7 +674,7 @@ Use **Hunt** (defaults to BASELINE) and **Hunt scan** (defaults to NORMAL).
 
 **WHY search this?** Reconstruct a canonical experiment in Search. Practice Path A without minting a new run.id.
 
-**Path A — try it yourself:** [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search). Copy a canonical Investigate specimen run.id. Start from scanner hunts or runtime Q-MCP. Construct the hunt before you treat the tables as the answer. If zero rows, this volume may not contain that specimen. Empty is not DENY.
+**Path A — try it yourself:** [Open Splunk Search](/en-US/app/search/search). Copy a canonical Investigate specimen run.id. Start from scanner hunts or runtime Q-MCP. Construct the hunt before you treat the tables as the answer. If zero rows, this volume may not contain that specimen. Empty is not DENY.
 
 **Path B — show solution:** the bound tables on this tab are the expected shape. Read them after Path A. SCANNER FINDING != AUTHORIZATION. They are not policy and not LIVE launch evidence.
 

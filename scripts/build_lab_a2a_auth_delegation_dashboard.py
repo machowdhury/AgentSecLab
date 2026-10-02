@@ -40,7 +40,7 @@ OUT_XML = (
     / "views"
     / "ws_lab_a2a_auth_delegation.xml"
 )
-SEARCH_URL = "http://127.0.0.1:8000/en-US/app/search/search"
+SEARCH_URL = "/en-US/app/search/search"
 NO_ROWS = (
     "NO EVIDENCE FOUND for the historical claim-only corpus. "
     "Empty is not authenticated, delegated, authorized, executed, or safe."

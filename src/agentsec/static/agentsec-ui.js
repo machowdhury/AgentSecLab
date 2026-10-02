@@ -77,6 +77,80 @@
     });
   }
 
+  function learnerHref(url, loc) {
+    var page = loc || window.location;
+    if (!url) {
+      return url;
+    }
+    if (url.charAt(0) === "/" && url.charAt(1) !== "/") {
+      if (!page.port || page.port === "8000") {
+        return url;
+      }
+      return page.protocol + "//" + page.hostname + ":8000" + url;
+    }
+    var parsed;
+    try {
+      parsed = new URL(url, page.origin);
+    } catch (err) {
+      return url;
+    }
+    if (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost" || parsed.hostname === "::1") {
+      var port = parsed.port ? ":" + parsed.port : "";
+      return page.protocol + "//" + page.hostname + port + parsed.pathname + parsed.search + parsed.hash;
+    }
+    return url;
+  }
+
+  function rewriteLearnerLinks(root, loc) {
+    var scope = root || document;
+    var nodes = scope.querySelectorAll("a[href]");
+    for (var i = 0; i < nodes.length; i += 1) {
+      var raw = nodes[i].getAttribute("href");
+      if (!raw) {
+        continue;
+      }
+      nodes[i].setAttribute("href", learnerHref(raw, loc));
+    }
+  }
+
+  function learnerRunState(data) {
+    if (!data || data.error_class === "ERROR") {
+      return {
+        state: "RUN FAILED",
+        message: "The launch did not complete. This is not a control DENY."
+      };
+    }
+    if (data.evidence_timeout) {
+      return {
+        state: "RUN TIMED OUT",
+        message: "The evidence check timed out. This is not a control DENY and not a security decision."
+      };
+    }
+    var terminal = (data.runtime && data.runtime.terminal) || data.terminal;
+    if (terminal === "completed_denied") {
+      return {
+        state: "RUN DENIED",
+        message: "The control denied this run. Authorization is not execution."
+      };
+    }
+    if (terminal === "completed_allowed") {
+      if (data.evidence_state === "WAITING_FOR_EVIDENCE") {
+        return {
+          state: "RUN IN PROGRESS",
+          message: "The runtime finished. Searchable evidence is not ready yet. This is not a control DENY."
+        };
+      }
+      return {
+        state: "RUN COMPLETED",
+        message: "The runtime completed. Copy the run.id and open Search. Completion is not proof the attack succeeded."
+      };
+    }
+    return {
+      state: "RUN FAILED",
+      message: "The launch did not complete. This is not a control DENY."
+    };
+  }
+
   function afterPaint() {
     return new Promise(function (resolve) {
       window.requestAnimationFrame(function () {
@@ -94,6 +168,9 @@
     hops: hops,
     firstDecision: firstDecision,
     anyTrue: anyTrue,
+    learnerHref: learnerHref,
+    rewriteLearnerLinks: rewriteLearnerLinks,
+    learnerRunState: learnerRunState,
     afterPaint: afterPaint
   };
 })(window);

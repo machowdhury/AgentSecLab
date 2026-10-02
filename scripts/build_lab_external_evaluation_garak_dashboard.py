@@ -43,10 +43,10 @@ OUT_XML = (
 
 MALICIOUS_SCAN = "7ae3ea64-4e7a-40fe-943f-3e582bce5ee8"
 GARAK_EVIDENCE_ID = "aeb05718-1364-4143-8248-71dd6f27b07b|dan.Dan_11_0|dan.DAN"
-SEARCH_URL = "http://127.0.0.1:8000/en-US/app/search/search"
-HOME_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home"
+SEARCH_URL = "/en-US/app/search/search"
+HOME_URL = "/en-US/app/agentsec/ws_agentsec_home"
 SCANNER_URL = (
-    "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_scanner_runtime_evidence"
+    "/en-US/app/agentsec/ws_lab_scanner_runtime_evidence"
 )
 
 NO_EVIDENCE = (

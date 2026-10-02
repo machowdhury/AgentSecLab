@@ -134,7 +134,9 @@ class LaunchService:
         self._memory_lifecycle_lock = threading.Lock()
         self._records: dict[str, LaunchRecord] = {}
 
-    def launch(self, parsed: ParsedLaunchRequest) -> tuple[int, dict]:
+    def launch(self, parsed: ParsedLaunchRequest, *, splunk_web: str | None = None) -> tuple[int, dict]:
+        if splunk_web:
+            self.splunk_web = splunk_web
         if not parsed.ok:
             return error_body(parsed.error_reason, parsed=parsed)
 
@@ -693,7 +695,15 @@ class LaunchService:
         with self._lock:
             return self._records.get(run_id)
 
-    def compare_handoff(self, attack_run_id: str, retest_run_id: str) -> tuple[int, dict]:
+    def compare_handoff(
+        self,
+        attack_run_id: str,
+        retest_run_id: str,
+        *,
+        splunk_web: str | None = None,
+    ) -> tuple[int, dict]:
+        if splunk_web:
+            self.splunk_web = splunk_web
         if not _is_uuid(attack_run_id) or not _is_uuid(retest_run_id) or attack_run_id == retest_run_id:
             return error_body("malformed_compare")
         attack = self.get_record(attack_run_id)

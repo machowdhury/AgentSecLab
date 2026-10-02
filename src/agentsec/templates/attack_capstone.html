@@ -193,7 +193,7 @@
         <p class="eyebrow">Step 2 · investigate</p>
         <h2>Form a hypothesis, then reconstruct in Splunk</h2>
         <p>Begin with the three server-owned run IDs. Splunk corroborates emitted evidence; it did not authorize or execute the tool.</p>
-        <p>Capstone is the last LIVE launcher. After proving the packet, continue to <a href="http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_mastery">Mastery Check</a> for reasoning validation, not another launch.</p>
+        <p>Capstone is the last LIVE launcher. After proving the packet, continue to <a href="/en-US/app/agentsec/ws_agentsec_mastery">Mastery Check</a> for reasoning validation, not another launch.</p>
       </div>
       <a class="btn btn-primary" href="{{ capstone_workbench.workshop_url }}">Open Splunk workshop</a>
     </section>
@@ -219,11 +219,13 @@
     </details>
   </main>
 
+  <script src="{{ url_for('static', filename='agentsec-ui.js') }}"></script>
   <script>
     (() => {
       "use strict";
+      if (window.AgentSecUI) window.AgentSecUI.rewriteLearnerLinks(document);
       const labId = {{ lab_id|tojson }};
-      const workshopUrl = {{ capstone_workbench.workshop_url|tojson }};
+      const workshopUrl = window.AgentSecUI.learnerHref({{ capstone_workbench.workshop_url|tojson }});
       const requestedTool = {{ capstone_workbench.requested_tool|tojson }};
       const requestedScope = {{ capstone_workbench.requested_scope|tojson }};
       const requestedResource = "cust-001";

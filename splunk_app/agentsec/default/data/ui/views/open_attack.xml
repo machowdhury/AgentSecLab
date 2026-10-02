@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="1.1" script="agentsec_open_attack.js" hideEdit="true">
+  <label>Open Attack Service</label>
+  <description>Sends the browser to Attack Service on this host, port 5001. Not a workshop.</description>
+  <row>
+    <panel>
+      <html>
+        <p id="agentsec-open-attack">Opening Attack Service on this server, port 5001.</p>
+      </html>
+    </panel>
+  </row>
+</dashboard>

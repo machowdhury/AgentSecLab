@@ -182,9 +182,11 @@
     </details>
   </main>
 
+  <script src="{{ url_for('static', filename='agentsec-ui.js') }}"></script>
   <script>
     (() => {
       "use strict";
+      if (window.AgentSecUI) window.AgentSecUI.rewriteLearnerLinks(document);
       const labId = {{ lab_id|tojson }};
       const kind = {{ authority_workbench.kind|tojson }};
       const requestLabel = {{ authority_workbench.request|tojson }};

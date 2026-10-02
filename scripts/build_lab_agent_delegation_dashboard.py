@@ -27,8 +27,8 @@ OUT_XML = (
     / "ws_lab_agent_delegation.xml"
 )
 INV_PATH = ROOT / "learning" / "level_1" / "LAB-AGENT-DELEGATION-001" / "investigations.json"
-SEARCH_URL = "http://127.0.0.1:8000/en-US/app/search/search"
-ATTACK_URL = "http://127.0.0.1:5001/labs/LAB-AGENT-DELEGATION-001"
+SEARCH_URL = "/en-US/app/search/search"
+ATTACK_URL = "/en-US/app/agentsec/open_attack?path=/labs/LAB-AGENT-DELEGATION-001"
 
 BG = "#F6F8FB"
 NAVY = "#0B1F33"

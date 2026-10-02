@@ -44,8 +44,8 @@ FULL = 1440
 HALF = 720
 THIRD = 480
 
-SEARCH_URL = "http://127.0.0.1:8000/en-US/app/search/search"
-ATTACK_URL = "http://127.0.0.1:5001/labs/LAB-MCP-001"
+SEARCH_URL = "/en-US/app/search/search"
+ATTACK_URL = "/en-US/app/agentsec/open_attack?path=/labs/LAB-MCP-001"
 EMPTY_HUNT = (
     "Investigate specimen defaults to the BASELINE specimen so this page is not an error "
     "state. Custom run.id is available from Search. Zero rows means "
@@ -872,7 +872,7 @@ Inspecting a tool result after the handler cannot be DENY of that invoke. Splunk
 
 **Action:** Open Attack Service, read the RETEST prediction, then Launch RETEST (LIVE) with the same request bytes.
 
-[Open Attack Service RETEST](http://127.0.0.1:5001/labs/LAB-MCP-001)
+[Open Attack Service RETEST](/en-US/app/agentsec/open_attack?path=/labs/LAB-MCP-001)
 
 **SPL this step:** none. Re-read HUNT. **Next:** LIVE RETEST the same unauthorized request on the defended experiment.
 """,

@@ -60,7 +60,7 @@
     "viz_mission": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# AcmeBank Incident AI-2026-001\n\nSOC received a report:\n\n> An AI-assisted banking workflow may have attempted or performed an action outside its intended authority.\n\nIncident window: **2026-09-20 19:37:40Z–19:38:00Z**\n\n**REPLAY workshop.** This is historical validated evidence, not a launch you just minted.\n\nThis is an unfamiliar-incident assignment. Do not infer the attack family, decision, execution state, root cause, or solution from the title.\n\n**Write an initial hypothesis before opening INVESTIGATE.**\n\n[Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search)\n\nREPLAY evidence · runtime schema **1.9.0** · ExternalEvidence **1.0.0**\n",
+        "markdown": "# AcmeBank Incident AI-2026-001\n\nSOC received a report:\n\n> An AI-assisted banking workflow may have attempted or performed an action outside its intended authority.\n\nIncident window: **2026-09-20 19:37:40Z–19:38:00Z**\n\n**REPLAY workshop.** This is historical validated evidence, not a launch you just minted.\n\nThis is an unfamiliar-incident assignment. Do not infer the attack family, decision, execution state, root cause, or solution from the title.\n\n**Write an initial hypothesis before opening INVESTIGATE.**\n\n[Open Splunk Search](/en-US/app/search/search)\n\nREPLAY evidence · runtime schema **1.9.0** · ExternalEvidence **1.0.0**\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"

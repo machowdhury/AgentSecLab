@@ -29,8 +29,10 @@ Do not commit `.env`. The example file contains **lab defaults** for localhost, 
 ## 3. What does the AgentSec preflight check?
 
 ```bash
-./scripts/lab-preflight.sh
+./scripts/precheck.sh
 ```
+
+`./scripts/precheck.sh` is the learner name for `./scripts/lab-preflight.sh`. Both run the same checks, including free disk. Neither deletes Docker data.
 
 `scripts/lab-preflight.sh` installs nothing and does not start the lab. It prints `PASS`, `WARN`, `FAIL`, or `INFO`. The result line is `RESULT PASS`, `RESULT WARN`, or `RESULT FAIL`.
 
