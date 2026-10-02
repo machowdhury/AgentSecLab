@@ -78,6 +78,16 @@ Ten consecutive full suites after the fix. Each line is pytest's own exit code:
 
 10/10. The extra passing test is `test_concurrent_rag_attribution_is_request_scoped`. No assertion was weakened. The three deselected tests remain the live Ollama, live Splunk, and live scanner markers.
 
+That 10/10 series ran on the sources committed as `1c87dd9d5236fd51430d3a35fca37edb42cf0b1b`. A later documentation commit records the live search and does not change that code.
+
+## Live search
+
+The existing lab was fast-forwarded to `1c87dd9` and rebuilt with `./scripts/lab-up.sh --build --refresh-app --remote`. Volumes were not deleted. This is not a fresh-volume clean-room. Precheck result was WARN because the AgentSec ports were already published. Exit code 0. WARN is not PASS.
+
+AcmeBank `/health` reported version `1.1.0`, status `healthy`, `ollama_reachable` true. Attack Service `/health` reported version `1.1.0`, status `healthy`. The Splunk app `app.conf` inside the container was `version = 1.1.0`. Model name `llama3.2:1b` was listed. Generation quality was NOT MEASURED. SERVICE READY is not searchable evidence. HEC HTTP 200 is not indexed evidence.
+
+Splunk Search then returned indexed rows for the four run ids in the concurrency remediation review. RESOURCE IMPACT: NOT PROVEN.
+
 ## Not claimed
 
 Screen reader: NOT TESTED. Physical keyboard: NOT MEASURED. True browser 200% zoom: NOT MEASURED. No WCAG claim. A clean-room clock for v1.1.0 is NOT BENCHMARKED until a fresh-volume run is recorded. The 2026-10-02 v1.0.0 clean-room is historical.

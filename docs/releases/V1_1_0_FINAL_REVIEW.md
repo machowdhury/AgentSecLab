@@ -31,3 +31,5 @@ Not changed: `SCHEMA_VERSION` `1.9.0`, `EXTERNAL_CONTRACT_VERSION` `1.0.0`, DET-
 The pre-fix confirmation series failed and is recorded in `V1_1_0_VALIDATION.md`. It was not erased.
 
 After request-scoped handler attribution: original concurrency test 100/100, one full suite `1086 passed, 3 deselected`, and a later 10/10 full-suite series, each with pytest exit code 0. CTRL-MCP-001 was not modified. Schema stays `1.9.0`. ExternalEvidence stays `1.0.0`. DET-MCP-001 stays disabled.
+
+A rebuilt existing lab, not a fresh-volume clean-room, produced four overlapping launches. Splunk Search indexed the CTRL-MCP-001 decision separately from `agentsec.mcp.started` on the ATTACK run. The RETEST run's indexed event names did not include `agentsec.mcp.started`. RESOURCE IMPACT: NOT PROVEN.
