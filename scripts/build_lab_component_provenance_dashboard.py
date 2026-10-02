@@ -57,6 +57,28 @@ Cisco mcp-scanner stays static evidence. garak stays model-evaluation evidence. 
 - `docker-compose.yml` uses `ollama/ollama:latest`. That pin was not resolved. No digest was measured, so none is invented here.
 - `pyproject.toml` pins `flask==3.0.3` and leaves `pytest>=8.3.0` and `setuptools>=69` as floors.
 - The asset inventory lists these names. Listing them did not make them trusted.
+
+## A generic dependency graph
+
+This graph is **SIMULATED**. It is not a scan of this repository, not an npm or PyPI lookup, and not a measured digest.
+
+- application `classroom-ledger`
+- direct dependency `ledger-client@1.4.2`
+- transitive dependency `sigil-utils@0.9.1`
+
+Questions, before any mode table:
+
+- inventory is not trust
+- a package name is not provenance
+- a version string is not integrity
+- `latest` is not an immutable identity
+- an SBOM line is not authorization
+- a SIMULATED signature is not a verification that occurred
+- a known publisher is not authorization
+- a dependency being present is not execution
+- execution is not compromise
+
+No digest is printed here because none was measured. Cisco AI-BOM compliance is not claimed.
 """,
         ),
         (

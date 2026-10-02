@@ -13,3 +13,5 @@ Cisco mcp-scanner remains a finding. garak remains an evaluation. Neither is CTR
 3. Why was the Ollama tag not pinned in this change?
 4. What is the same in ATTACK and RETEST?
 5. Why does a pin not authorize a tool?
+6. Why is the simulated `classroom-ledger` graph not a measured npm or PyPI result?
+7. Why is a package name not provenance, and why is `latest` not an immutable identity?

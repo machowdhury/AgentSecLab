@@ -17,7 +17,7 @@
     "viz_debt": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# What the repository shows\n\n- `docker-compose.yml` uses `ollama/ollama:latest`. That pin was not resolved. No digest was measured, so none is invented here.\n- `pyproject.toml` pins `flask==3.0.3` and leaves `pytest>=8.3.0` and `setuptools>=69` as floors.\n- The asset inventory lists these names. Listing them did not make them trusted.\n",
+        "markdown": "# What the repository shows\n\n- `docker-compose.yml` uses `ollama/ollama:latest`. That pin was not resolved. No digest was measured, so none is invented here.\n- `pyproject.toml` pins `flask==3.0.3` and leaves `pytest>=8.3.0` and `setuptools>=69` as floors.\n- The asset inventory lists these names. Listing them did not make them trusted.\n\n## A generic dependency graph\n\nThis graph is **SIMULATED**. It is not a scan of this repository, not an npm or PyPI lookup, and not a measured digest.\n\n- application `classroom-ledger`\n- direct dependency `ledger-client@1.4.2`\n- transitive dependency `sigil-utils@0.9.1`\n\nQuestions, before any mode table:\n\n- inventory is not trust\n- a package name is not provenance\n- a version string is not integrity\n- `latest` is not an immutable identity\n- an SBOM line is not authorization\n- a SIMULATED signature is not a verification that occurred\n- a known publisher is not authorization\n- a dependency being present is not execution\n- execution is not compromise\n\nNo digest is printed here because none was measured. Cisco AI-BOM compliance is not claimed.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
