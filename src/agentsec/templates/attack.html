@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Attack Service — {{ lab_title }}</title>
-  <link rel="icon" href="{{ url_for('static', filename='agentsec-mark.svg') }}" type="image/svg+xml">
+  <link rel="icon" href="{{ url_for('static', filename='agentsec-favicon.svg') }}" type="image/svg+xml">
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
 </head>
 <body>
@@ -356,7 +356,7 @@
         <li>Launch ATTACK and RETEST to fill this comparison. Missing a run is not SAFE.</li>
       </ul>
       <h3>This browser tab</h3>
-      <p class="muted">Session history survives reload in this tab. It is not an identity and not a security verdict.</p>
+      <p class="muted">Session history survives reload in this tab. The painted status is the last client state, not a live Splunk result. A launcher terminal, when this tab still has it, is the runtime record. Search remains the evidence authority. WAITING_FOR_EVIDENCE is not a control decision.</p>
       <ul class="fact-list" id="session-history"></ul>
       <details class="secondary" id="tech-details" hidden>
         <summary>Response body</summary>
@@ -396,6 +396,7 @@
       }
     }
     ui.renderSession(sessionHistory);
+    let liveCompare = false;
     const copySpl = document.getElementById("copy-spl");
     if (copySpl) {
       copySpl.addEventListener("click", function () {
@@ -411,6 +412,37 @@
     const runInput = document.getElementById("run-id");
     const attackRunInput = document.getElementById("attack-run-id");
     const retestRunInput = document.getElementById("retest-run-id");
+    function paintStoredComparison(pair) {
+      compareEl.replaceChildren();
+      function add(text) {
+        const li = document.createElement("li");
+        li.textContent = text;
+        compareEl.appendChild(li);
+      }
+      function shown(value) {
+        return value === undefined || value === null || value === "" ? "NOT YET MEASURED" : String(value);
+      }
+      add("Reconstructed from this browser tab for this lab. Not a Splunk verdict. WAITING_FOR_EVIDENCE is not a control decision.");
+      add("ATTACK run.id " + pair.attack.runId);
+      add("RETEST run.id " + pair.retest.runId);
+      add("ATTACK LAST KNOWN CLIENT STATE: " + shown(pair.attack.state));
+      add("RETEST LAST KNOWN CLIENT STATE: " + shown(pair.retest.state));
+      add("ATTACK launcher terminal=" + shown(pair.attack.terminal));
+      add("RETEST launcher terminal=" + shown(pair.retest.terminal));
+      add("ATTACK control=" + shown(pair.attack.decision));
+      add("RETEST control=" + shown(pair.retest.decision));
+      add("ATTACK llm_call_count=" + shown(pair.attack.llmCallCount));
+      add("RETEST llm_call_count=" + shown(pair.retest.llmCallCount));
+      add("ATTACK evidence=" + shown(pair.attack.evidenceState));
+      add("RETEST evidence=" + shown(pair.retest.evidenceState));
+      if (attackRunInput) {
+        attackRunInput.value = pair.attack.runId;
+      }
+      if (retestRunInput) {
+        retestRunInput.value = pair.retest.runId;
+      }
+      refreshCompareSearch();
+    }
     const starterEl = document.getElementById("starter-spl");
     const openSearch = document.getElementById("open-search");
     const openAttackSearch = document.getElementById("open-attack-search");
@@ -668,6 +700,9 @@
         li.appendChild(document.createTextNode(" — " + compareNote(kind, detail)));
         compareEl.appendChild(li);
       }
+      if (attack && retest) {
+        liveCompare = true;
+      }
       if (!attack || !retest) {
         const li = document.createElement("li");
         li.textContent = "Launch ATTACK and RETEST to fill this comparison. Missing a run is not SAFE.";
@@ -839,7 +874,16 @@
         }
         if (data.run_id) {
           rememberPrediction();
-          ui.recordLaunch({mode: mode, runId: data.run_id, state: launchLabel.state});
+          ui.recordLaunch({
+            mode: mode,
+            runId: data.run_id,
+            labId: labKey,
+            state: launchLabel.state,
+            terminal: (runtime && runtime.terminal) || data.terminal || "",
+            evidenceState: data.evidence_state || "",
+            decision: ui.firstDecision(runtime) || "",
+            llmCallCount: runtime ? runtime.llm_call_count : undefined
+          });
           ui.renderSession(sessionHistory);
           const guess = ui.predictionFor(labKey);
           const decision = ui.firstDecision(runtime);
@@ -956,6 +1000,16 @@
       }
       jsonEl.textContent = JSON.stringify(data, null, 2);
       detailsEl.hidden = false;
+    });
+    ui.refreshLauncherRecords(sessionHistory).then(function (runs) {
+      if (liveCompare) {
+        return;
+      }
+      const pair = ui.pairSessionRuns(runs, labKey);
+      if (!pair) {
+        return;
+      }
+      paintStoredComparison(pair);
     });
   </script>
 </body>

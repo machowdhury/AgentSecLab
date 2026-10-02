@@ -84,7 +84,7 @@
     "do_not_create": ["DET-ATTACK-SIMULATOR", "DET-LAUNCH", "DET-PROMPT-ATTACK"]
   },
   "limitations": [
-    "LOCAL EDUCATIONAL SERVICE. Attack Service is localhost and unauthenticated.",
+    "LOCAL EDUCATIONAL SERVICE when installed locally. On a remote deployment the learner uses the host in the browser address bar. The service is unauthenticated.",
     "NOT PRODUCTION AUTHENTICATION. NOT MULTI-TENANT. NOT INTERNET-FACING.",
     "CTRL-INPUT-001 is a regex lab control. Paraphrases may ALLOW.",
     "RETEST DENY is not automatically SAFE.",

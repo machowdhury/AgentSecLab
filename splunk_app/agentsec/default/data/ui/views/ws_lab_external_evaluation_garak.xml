@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dashboard version="2" theme="light">
+<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">
   <label>External Security Toolbox</label>
   <description>LAB-EXTERNAL-EVALUATION-GARAK · REPLAY · External evidence is not authorization; Splunk is not the PDP.</description>
   <definition><![CDATA[

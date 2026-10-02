@@ -1,0 +1,8 @@
+/* Visible keyboard focus for Dashboard Studio tab controls when Splunk loads this app stylesheet.
+   :focus-visible avoids a mouse-click ring. This file does not restyle Splunk chrome. */
+button[role="tab"]:focus-visible,
+[role="tab"]:focus-visible {
+  outline: 3px solid #007F86;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px #007F86;
+}

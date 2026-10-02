@@ -464,7 +464,7 @@ def main() -> None:
     payload = json.dumps(definition, indent=2)
     xml = (
         '<?xml version="1.0" encoding="utf-8"?>\n'
-        '<dashboard version="2" theme="light">\n'
+        '<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">\n'
         "  <label>AcmeBank Incident AI-2026-001</label>\n"
         "  <description>LAB-BLUE-TEAM-INCIDENT-001 REPLAY investigation. Splunk is downstream evidence, not the PDP.</description>\n"
         "  <definition><![CDATA[\n"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dashboard version="2" theme="light">
+<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">
   <label>Splunk Defender Bridge</label>
   <description>LAB-SPLUNK-DEFENDER-BRIDGE REPLAY investigation between L5 and L6. Splunk is downstream evidence, not the PDP.</description>
   <definition><![CDATA[

@@ -77,7 +77,7 @@ Privileged request fingerprint: `sha256:56179e463b2faf18c056389ebff32a61e346dd0b
 
 Open Splunk → AgentSec → **Agent Identity / Delegation**. Tabs match LEARN → PROVE.
 
-Launch LIVE ATTACK / RETEST from Attack Service `http://127.0.0.1:5001/labs/LAB-AGENT-DELEGATION-001`. Copy the fresh run.id into Splunk Search. Studio tables stay on 12C REPLAY.
+Launch LIVE ATTACK / RETEST from Attack Service `http://127.0.0.1:5001/labs/LAB-AGENT-DELEGATION-001`. Local example. On a remote deployment, open the host already in the browser address bar. Do not send that browser to 127.0.0.1. Copy the fresh run.id into Splunk Search. Studio tables stay on 12C REPLAY.
 
 Rebuild: `python3 scripts/build_lab_agent_delegation_dashboard.py`
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dashboard version="2" theme="light">
+<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">
   <label>AI Asset Inventory</label>
   <description>LAB-ASSET-INVENTORY. Documented component list. Not a Cisco AI-BOM.</description>
   <definition><![CDATA[

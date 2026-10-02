@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dashboard version="2" theme="light">
+<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">
   <label>Acme Bank Capstone MASTER-2026-001</label>
   <description>LAB-ADVANCED-CAPSTONE-MASTERY-001 REPLAY mastery workspace. Learning metadata is not policy.</description>
   <definition><![CDATA[

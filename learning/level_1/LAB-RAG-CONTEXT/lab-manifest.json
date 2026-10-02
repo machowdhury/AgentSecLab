@@ -87,7 +87,7 @@
     "do_not_create": ["DET-RAG", "DET-LAUNCH", "Q-RAG-INJECTION"]
   },
   "limitations": [
-    "LOCAL EDUCATIONAL SERVICE. Attack Service is localhost and unauthenticated.",
+    "LOCAL EDUCATIONAL SERVICE when installed locally. On a remote deployment the learner uses the host in the browser address bar. The service is unauthenticated.",
     "NOT PRODUCTION AUTHENTICATION. NOT MULTI-TENANT. NOT INTERNET-FACING.",
     "CTRL-RAG-CONTEXT-001 classifies retrieved context. It does not grant tools.",
     "CTRL-MCP-001 is a lab allow-list, not production MCP IAM.",

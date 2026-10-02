@@ -92,6 +92,8 @@ def build() -> dict:
         f"""
 # Start here
 
+![AgentSec mark. A gate stands for the control decision. It is not proof every claim was authenticated.](/en-US/static/app/agentsec/agentsec-mark.svg)
+
 AgentSec is a **hands-on Agentic Security academy**. You launch controlled attacks against a lab agent, observe real telemetry, and investigate the evidence yourself in Splunk.
 
 Splunk is the notebook. Splunk does **not** grant or deny authority.

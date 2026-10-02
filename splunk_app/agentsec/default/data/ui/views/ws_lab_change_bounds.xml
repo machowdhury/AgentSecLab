@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dashboard version="2" theme="light">
+<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">
   <label>Change Bounds</label>
   <description>LAB-CHANGE-BOUNDS. Simulated change authority. No cloud credential.</description>
   <definition><![CDATA[

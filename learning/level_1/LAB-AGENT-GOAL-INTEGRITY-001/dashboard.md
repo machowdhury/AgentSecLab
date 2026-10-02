@@ -3,6 +3,8 @@
 **View:** `ws_lab_agent_goal_integrity` in the `agentsec` app  
 **URL:** `http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agent_goal_integrity`
 
+Local example. On a remote deployment, open the host already in the browser address bar. Do not send that browser to 127.0.0.1.
+
 Definition: `dashboard.definition.json` (source) and `splunk_app/agentsec/default/data/ui/views/ws_lab_agent_goal_integrity.xml` (what Splunk loads). Rebuild both with `python3 scripts/build_lab_agent_goal_integrity_dashboard.py`.
 
 GRID 1440 / 12.
