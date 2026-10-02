@@ -39,7 +39,7 @@ OUT_XML = (
     / "views"
     / "ws_lab_detection_engineering.xml"
 )
-SEARCH_URL = "http://127.0.0.1:8000/en-US/app/search/search"
+SEARCH_URL = "/en-US/app/search/search"
 UUID = re.compile(
     r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
 )

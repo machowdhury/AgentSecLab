@@ -39,24 +39,24 @@ OUT_XML = (
 )
 CURRICULUM = ROOT / "learning" / "academy" / "curriculum.json"
 
-PI_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_pi_001"
-SEARCH_URL = "http://127.0.0.1:8000/en-US/app/search/search"
-ATTACK_URL = "http://127.0.0.1:5001/"
-CAPSTONE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agentsec_capstone"
-BRIDGE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_splunk_defender_bridge"
-BLUE_TEAM_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_blue_team_incident"
-DETECTION_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_detection_engineering"
-THREAT_MODEL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_threat_modeling"
-IDENTITY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agent_identity_nhi"
-A2A_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_a2a_auth_delegation"
-HITL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_hitl_approval"
-CREDENTIAL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_credential_lifetime"
-RAG_PURPOSE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_purpose_authorization"
-RECALL_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_recall_isolation"
-PRIVACY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_privacy_data_governance"
-MULTI_STAGE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_multi_stage_incident"
-ADVANCED_CAPSTONE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_advanced_capstone"
-MASTERY_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_mastery"
+PI_URL = "/en-US/app/agentsec/ws_lab_pi_001"
+SEARCH_URL = "/en-US/app/search/search"
+ATTACK_URL = "/en-US/app/agentsec/open_attack?path=/"
+CAPSTONE_URL = "/en-US/app/agentsec/ws_lab_agentsec_capstone"
+BRIDGE_URL = "/en-US/app/agentsec/ws_lab_splunk_defender_bridge"
+BLUE_TEAM_URL = "/en-US/app/agentsec/ws_lab_blue_team_incident"
+DETECTION_URL = "/en-US/app/agentsec/ws_lab_detection_engineering"
+THREAT_MODEL_URL = "/en-US/app/agentsec/ws_lab_threat_modeling"
+IDENTITY_URL = "/en-US/app/agentsec/ws_lab_agent_identity_nhi"
+A2A_URL = "/en-US/app/agentsec/ws_lab_a2a_auth_delegation"
+HITL_URL = "/en-US/app/agentsec/ws_lab_hitl_approval"
+CREDENTIAL_URL = "/en-US/app/agentsec/ws_lab_credential_lifetime"
+RAG_PURPOSE_URL = "/en-US/app/agentsec/ws_lab_purpose_authorization"
+RECALL_URL = "/en-US/app/agentsec/ws_lab_recall_isolation"
+PRIVACY_URL = "/en-US/app/agentsec/ws_lab_privacy_data_governance"
+MULTI_STAGE_URL = "/en-US/app/agentsec/ws_lab_multi_stage_incident"
+ADVANCED_CAPSTONE_URL = "/en-US/app/agentsec/ws_lab_advanced_capstone"
+MASTERY_URL = "/en-US/app/agentsec/ws_agentsec_mastery"
 
 
 def _mode_line(labs: list[dict]) -> str:
@@ -309,19 +309,19 @@ Open [Memory Ownership and Isolation]({RECALL_URL}) after RAG purpose and before
 
 **AI Asset Inventory** — documented component list. You cannot govern what you cannot inventory. The list is not a Cisco AI-BOM, not trust, and not authorization.
 
-Open [AI Asset Inventory](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_asset_inventory) after Memory Isolation and before Component Provenance.
+Open [AI Asset Inventory](/en-US/app/agentsec/ws_lab_asset_inventory) after Memory Isolation and before Component Provenance.
 
 **Component Provenance** — a known component is not trusted, a scanned component is not safe, and an identified component is not authorized. The Ollama `latest` tag remains unpinned because no digest was measured.
 
-Open [Component Provenance](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_component_provenance) after the inventory and before Code Agent Bounds.
+Open [Component Provenance](/en-US/app/agentsec/ws_lab_component_provenance) after the inventory and before Code Agent Bounds.
 
 **Code Agent Bounds** — simulated code-generation authority. A read grant is not an install. No GitHub credential is used.
 
-Open [Code Agent Bounds](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_code_agent_bounds) after provenance and before Change Bounds.
+Open [Code Agent Bounds](/en-US/app/agentsec/ws_lab_code_agent_bounds) after provenance and before Change Bounds.
 
 **Change Bounds** — simulated operations authority. Inspect scope is not delete authority. A started action is not a completed change. No cloud credential is used.
 
-Open [Change Bounds](http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_change_bounds) after Code Agent Bounds and before the multi-stage incident.
+Open [Change Bounds](/en-US/app/agentsec/ws_lab_change_bounds) after Code Agent Bounds and before the multi-stage incident.
 
 **L9 Multi-stage agentic attack, investigation and defense** — {levels['L9']['learn']} Effort: {levels['L9']['effort']}. Exit: {levels['L9']['exit']}.
 

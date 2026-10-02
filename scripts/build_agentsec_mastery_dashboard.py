@@ -41,11 +41,11 @@ OUT_XML = (
     / "views"
     / "ws_agentsec_mastery.xml"
 )
-SEARCH_URL = "http://127.0.0.1:8000/en-US/app/search/search"
-ATTACK_URL = "http://127.0.0.1:5001/"
-PI_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_pi_001"
-CAPSTONE_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_agentsec_capstone"
-HOME_URL = "http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home"
+SEARCH_URL = "/en-US/app/search/search"
+ATTACK_URL = "/en-US/app/agentsec/open_attack?path=/"
+PI_URL = "/en-US/app/agentsec/ws_lab_pi_001"
+CAPSTONE_URL = "/en-US/app/agentsec/ws_lab_agentsec_capstone"
+HOME_URL = "/en-US/app/agentsec/ws_agentsec_home"
 
 
 def _bullets(items: list[str]) -> str:

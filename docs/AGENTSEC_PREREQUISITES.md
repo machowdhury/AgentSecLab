@@ -4,6 +4,27 @@ This is the host setup for a new learner. The linear start after the host is rea
 
 Measured hardware floors are **NOT BENCHMARKED**. Where a number is absent, the requirement is **UNKNOWN**. A recommendation below is a planning label, not a measured minimum.
 
+Before the first start, run `./scripts/precheck.sh`. That command is `./scripts/lab-preflight.sh`. It checks Docker, Compose, files, ports, and free disk. It does not install software and it does not delete Docker data.
+
+## Resource requirements
+
+AgentSec runs several containers. Splunk is storage-intensive. An Ollama model uses more disk. The first installation needs more space than the git clone.
+
+| Item | Status |
+|------|--------|
+| Minimum supported disk | **NOT BENCHMARKED** |
+| Recommended planning floor | 8 GB free on the volume that holds the repository and Docker data. This is not a measured minimum. |
+| Current free space | Printed by precheck as `CURRENTLY AVAILABLE` |
+| Memory minimum | **NOT BENCHMARKED**. Precheck prints MemAvailable on Linux, or total host memory on macOS. |
+
+If free space is under 2 GB, precheck fails and tells you to free disk and rerun `./scripts/precheck.sh`. It does not run `docker system prune` and it does not delete volumes. Diagnostic commands, which you run yourself:
+
+```bash
+df -h .
+docker system df
+docker volume ls
+```
+
 ## Container Runtime Requirements
 
 | Runtime | Status | Evidence |

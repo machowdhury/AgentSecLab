@@ -26,7 +26,7 @@
 
   <main id="main" class="workbench">
     <nav class="workbench-nav" aria-label="Experiment labs">
-      <a href="http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_mcp_001">Academy workshop</a>
+      <a href="/en-US/app/agentsec/ws_lab_mcp_001">Academy workshop</a>
       {% if next_lab %}<span>Next: {{ next_lab.title }} ({{ next_lab.mode }})</span>{% endif %}
       <a href="/">All LIVE labs</a>
       <a href="#advanced">Evidence / Advanced</a>
@@ -95,7 +95,7 @@
         <output id="run-id" class="run-id" aria-live="polite">Launch an experiment to mint a UUID</output>
         <div class="compact-actions">
           <button class="btn btn-secondary" id="copy-run-id" type="button" disabled>Copy Run ID</button>
-          <a class="btn btn-secondary" id="open-search" href="http://127.0.0.1:8000/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Investigate in Splunk</a>
+          <a class="btn btn-secondary" id="open-search" href="/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Investigate in Splunk</a>
         </div>
         <p class="run-help" id="copy-feedback" aria-live="polite">run.id correlates this experiment across runtime, local evidence, telemetry, and Splunk.</p>
       </section>
@@ -143,7 +143,7 @@
         <h2 id="next-heading">Reconstruct WHO → REQUEST → AUTHZ → EXECUTION → EVIDENCE</h2>
         <p>Start with the fresh run.id in Splunk Search. Confirm completeness before interpreting an absent event.</p>
       </div>
-      <a class="btn btn-primary" id="open-search-primary" href="http://127.0.0.1:8000/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Open Splunk Search</a>
+      <a class="btn btn-primary" id="open-search-primary" href="/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Open Splunk Search</a>
     </section>
 
     <details class="advanced" id="advanced">
@@ -181,6 +181,7 @@
     (function () {
       "use strict";
       const ui = window.AgentSecUI;
+      ui.rewriteLearnerLinks(document);
       const attackButton = document.getElementById("fire-attack");
       const retestButton = document.getElementById("fire-retest");
       const statusEl = document.getElementById("ui-status");
@@ -293,7 +294,7 @@
         }, null, 2);
         document.getElementById("result-json").textContent = JSON.stringify(data, null, 2);
         if (data.search_handoff) {
-          const url = data.search_handoff.search_url || "http://127.0.0.1:8000/en-US/app/search/search";
+          const url = ui.learnerHref(data.search_handoff.search_url || "/en-US/app/search/search");
           document.getElementById("open-search").href = url;
           document.getElementById("open-search-primary").href = url;
           document.getElementById("starter-spl").value = data.search_handoff.starter_spl || "";

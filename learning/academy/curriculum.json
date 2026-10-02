@@ -6,8 +6,8 @@
   "start_lab_title": "Direct Prompt Injection",
   "mastery_view": "ws_agentsec_mastery",
   "mastery_title": "Mastery Check",
-  "attack_service_url": "http://127.0.0.1:5001/",
-  "search_url": "http://127.0.0.1:8000/en-US/app/search/search",
+  "attack_service_url": "/en-US/app/agentsec/open_attack?path=/",
+  "search_url": "/en-US/app/search/search",
   "nav_collections": [
     {
       "label": "Foundations",

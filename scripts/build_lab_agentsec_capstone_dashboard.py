@@ -32,8 +32,8 @@ OUT_XML = (
     / "ws_lab_agentsec_capstone.xml"
 )
 INV_PATH = LAB_DIR / "investigations.json"
-SEARCH_URL = "http://127.0.0.1:8000/en-US/app/search/search"
-ATTACK_URL = "http://127.0.0.1:5001/labs/LAB-AGENTSEC-CAPSTONE-001"
+SEARCH_URL = "/en-US/app/search/search"
+ATTACK_URL = "/en-US/app/agentsec/open_attack?path=/labs/LAB-AGENTSEC-CAPSTONE-001"
 
 BG = "#F6F8FB"
 NAVY = "#0B1F33"
@@ -1753,7 +1753,7 @@ Multiple influence planes can exist. Authority still requires an enforcement dec
 
 This packet does **not** replay every previous vulnerability. Goal and Identity event families are expected absent here.
 
-**NEXT** — [Mastery Check](http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_mastery) is reasoning validation after Capstone. It is not a certificate, not a score, and not another lab.
+**NEXT** — [Mastery Check](/en-US/app/agentsec/ws_agentsec_mastery) is reasoning validation after Capstone. It is not a certificate, not a score, and not another lab.
 
 ## Limits
 

@@ -19,7 +19,7 @@ REPLAY_HUNT_BANNER = """**REPLAY workshop.** There is no Attack Service launcher
 
 **WHY search this?** Reconstruct a canonical experiment in Search. Practice Path A without minting a new run.id.
 
-**Path A — try it yourself:** [Open Splunk Search](http://127.0.0.1:8000/en-US/app/search/search). Copy a canonical Investigate specimen run.id. Constraining `index=agentsec_telemetry sourcetype=otel:agentic:json` and quoted `agentsec.run.id` is the starting point. Construct the hunt before you treat the tables as the answer. If zero rows, this volume may not contain that specimen. Empty is not DENY.
+**Path A — try it yourself:** [Open Splunk Search](/en-US/app/search/search). Copy a canonical Investigate specimen run.id. Constraining `index=agentsec_telemetry sourcetype=otel:agentic:json` and quoted `agentsec.run.id` is the starting point. Construct the hunt before you treat the tables as the answer. If zero rows, this volume may not contain that specimen. Empty is not DENY.
 
 **Path B — show solution:** the bound tables on this tab are the expected shape for that specimen. Read them after Path A. They are not policy and not LIVE launch evidence.
 

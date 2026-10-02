@@ -287,7 +287,7 @@ def test_no_new_detector_and_security_semantics():
     assert "Path B — Show solution" in markdown
     assert "LIVE EXPERIMENT" in markdown
     assert "REPLAY SPECIMEN" in markdown
-    assert "http://127.0.0.1:5001/labs/LAB-MEMORY-001" in markdown
+    assert "/en-US/app/agentsec/open_attack?path=/labs/LAB-MEMORY-001" in markdown
     assert "MEMORY-I1-FIND-THE-WRITE" in markdown or "Find the write" in markdown
     assert SPECIMEN_IDS["attack_write_run_id"] in markdown
     assert SPECIMEN_IDS["attack_recall_run_id"] in markdown
