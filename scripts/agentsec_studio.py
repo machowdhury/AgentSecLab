@@ -269,7 +269,7 @@ def write_studio_xml(
         raise ValueError("definition contains CDATA terminator")
     xml = (
         '<?xml version="1.0" encoding="utf-8"?>\n'
-        '<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">\n'
+        '<dashboard version="2" theme="light">\n'
         f"  <label>{label}</label>\n"
         f"  <description>{description}</description>\n"
         "  <definition><![CDATA[\n"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">
+<dashboard version="2" theme="light">
   <label>Scanner + Runtime Evidence</label>
   <description>LIVE Scanner + Runtime Evidence workshop. LAB-SCANNER-RUNTIME. Splunk does not ALLOW or DENY.</description>
   <definition><![CDATA[

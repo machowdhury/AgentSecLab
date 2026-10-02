@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">
+<dashboard version="2" theme="light">
   <label>RAG / Retrieved Context</label>
   <description>LIVE RAG / Retrieved Context workshop. LAB-RAG-CONTEXT. Splunk does not ALLOW or DENY.</description>
   <definition><![CDATA[

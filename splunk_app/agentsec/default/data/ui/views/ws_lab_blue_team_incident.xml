@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">
+<dashboard version="2" theme="light">
   <label>AcmeBank Incident AI-2026-001</label>
   <description>LAB-BLUE-TEAM-INCIDENT-001 REPLAY investigation. Splunk is downstream evidence, not the PDP.</description>
   <definition><![CDATA[
