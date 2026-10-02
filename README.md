@@ -73,11 +73,12 @@ docker compose version
 docker info
 ```
 
-4. Clone and enter the repository. `main` is v1.0.0.
+4. Clone the repository and use `develop` for this install guide. `main` and tag `v1.0.0` are the released product and do not yet include this later guide.
 
 ```bash
 git clone https://github.com/machowdhury/AgentSecLab.git
 cd AgentSecLab
+git checkout develop
 ```
 
 5. Create the local env file, then run preflight. Preflight fails if `.env` is missing. It does not install software.
