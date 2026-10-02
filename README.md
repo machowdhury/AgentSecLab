@@ -99,6 +99,15 @@ cp .env.example .env
 9. Read the status the script printed. `SERVICE READY` means the Academy stack answered. `MODEL ABSENT` means LIVE generation is **DEGRADED**, not a pass. REPLAY pages can still be opened.
 10. Begin at L0 on Academy Home.
 
+On a remote Linux server or cloud VM, use the remote commands instead of a plain `lab-up`:
+
+```bash
+./scripts/lab-preflight.sh --remote
+./scripts/lab-up.sh --remote
+```
+
+Open the server URL that command prints. Print it again with `./scripts/agentsec-access.sh`. Remote mode publishes Academy `8000` and Attack Service `5001` on `0.0.0.0`. It does not publish HEC, OTel, AcmeBank, or Ollama. The cloud firewall must allow TCP 8000 and TCP 5001 only from your IP. Do not open those ports to `0.0.0.0/0`. Details: [docs/REMOTE_ACCESS.md](docs/REMOTE_ACCESS.md).
+
 The Ollama container tries to pull `llama3.2:1b` on startup. `lab-up.sh` does not run that pull itself. A certificate error has to be fixed at the trust layer. Do not disable certificate verification.
 
 Step-by-step detail: [docs/QUICKSTART.md](docs/QUICKSTART.md). Map: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md).

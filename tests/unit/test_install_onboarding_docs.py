@@ -33,7 +33,7 @@ def test_install_entry_order_and_runtime_status():
 
 
 def test_documented_flags_and_preflight_checks_exist_in_scripts():
-    for flag in ("--build", "--refresh-app", "--no-wait", "--help"):
+    for flag in ("--build", "--refresh-app", "--no-wait", "--remote", "--help"):
         assert flag in LAB_UP
         assert flag in QUICK
     for token in (
@@ -51,10 +51,11 @@ def test_documented_flags_and_preflight_checks_exist_in_scripts():
 
 
 def test_documented_ports_and_services_match_compose():
-    for port in ("5000", "5001", "8000", "8088", "4317", "4318"):
-        assert f"127.0.0.1:{port}:{port}" in COMPOSE or (
-            port in ("4317", "4318") and f"127.0.0.1:{port}:{port}" in COMPOSE
-        )
+    for port in ("5000", "8088", "4317", "4318"):
+        assert f"127.0.0.1:{port}:{port}" in COMPOSE
+        assert port in QUICK
+    for port in ("8000", "5001"):
+        assert "${AGENTSEC_BIND_ADDRESS:-127.0.0.1}:" + port + ":" + port in COMPOSE
         assert port in QUICK
     for name in (
         "agentsec_ollama",
@@ -101,6 +102,7 @@ def test_install_doc_links_resolve():
         "docs/AGENTSEC_PREREQUISITES.md",
         "docs/TROUBLESHOOTING.md",
         "docs/OPERATIONS.md",
+        "docs/REMOTE_ACCESS.md",
     ):
         text = (ROOT / rel).read_text(encoding="utf-8")
         base = (ROOT / rel).parent

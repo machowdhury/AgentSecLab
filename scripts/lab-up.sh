@@ -9,36 +9,43 @@ cd "$ROOT"
 REFRESH_APP=0
 BUILD=0
 WAIT_READY=1
+REMOTE=0
 for arg in "$@"; do
   case "$arg" in
     --refresh-app) REFRESH_APP=1 ;;
     --build) BUILD=1 ;;
     --no-wait) WAIT_READY=0 ;;
+    --remote) REMOTE=1 ;;
     -h|--help)
       cat <<'EOF'
-Usage: ./scripts/lab-up.sh [--build] [--refresh-app] [--no-wait]
+Usage: ./scripts/lab-up.sh [--build] [--refresh-app] [--no-wait] [--remote]
 
-Starts the LOCAL Docker lab (AcmeBank, Attack Service, Ollama, collector, Splunk).
+Starts the Docker lab (AcmeBank, Attack Service, Ollama, collector, Splunk).
 
 Run from the repository root after copying .env.example to .env.
 
-  (no flags)       docker compose up -d, then wait until the lab is READY
+  (no flags)       localhost bindings, then wait until the lab is READY
+  --remote         publish learner ports 8000 and 5001 on 0.0.0.0
   --build          rebuild AcmeBank / Attack Service images from this repository, then up
   --refresh-app    restage splunk_app/agentsec into the named volume and
                    restart Splunk so Dashboard Studio picks up XML changes
   --no-wait        start containers; do not run readiness checks
 
+--remote does not publish HEC, OTel, AcmeBank, or Ollama.
+Binding 0.0.0.0 does not open a cloud firewall. See docs/REMOTE_ACCESS.md.
+
 First Splunk boot can take 10–20 minutes. Later starts are usually faster.
 READY is service health (see ./scripts/lab-ready.sh). It is not proof that a
-run.id is searchable.
+run.id is searchable. External browser reachability is not measured.
 
-After READY:
+After local READY:
   Splunk Academy Home  http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home
   Attack Service       http://127.0.0.1:5001
   AcmeBank health      http://127.0.0.1:5000/health
 
 Stop: ./scripts/lab-down.sh
 Preflight: ./scripts/lab-preflight.sh
+Access URLs again: ./scripts/agentsec-access.sh
 
 This is the canonical start. Do not copy the Splunk app by hand.
 
@@ -61,10 +68,29 @@ fi
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local --env-file $ROOT/.env"
 
 log() { printf '[lab-up] %s\n' "$*"; }
+STARTED="$(date +%s)"
 
-log "Local Docker lab. Source app remains in splunk_app/agentsec/"
+if [ "$REMOTE" -eq 1 ]; then
+  export AGENTSEC_DEPLOYMENT=remote
+  export AGENTSEC_BIND_ADDRESS=0.0.0.0
+  log "AGENTSEC REMOTE LAB"
+  log "[1/4] Checking prerequisites..."
+  log "[2/4] Validating remote networking plan..."
+  log "Learner bind address: 0.0.0.0"
+  log "Academy port: 8000. Attack Service port: 5001."
+  log "Private ports stay on 127.0.0.1: AcmeBank 5000, HEC 8088, OTel 4317 and 4318. Ollama is not published."
+  log "External firewall: NOT MEASURED. Permit TCP 8000 and TCP 5001 only from trusted learner IPs."
+else
+  export AGENTSEC_DEPLOYMENT=local
+  export AGENTSEC_BIND_ADDRESS=127.0.0.1
+  log "[1/4] Checking prerequisites..."
+  log "[2/4] Confirming localhost bindings for learner ports..."
+fi
+
+log "Source app remains in splunk_app/agentsec/. Deployment: ${AGENTSEC_DEPLOYMENT}."
 log "Compose files: docker-compose.yml + docker-compose.local.yml (profile local)"
 
+log "[3/4] Starting containers..."
 if [ "$BUILD" -eq 1 ]; then
   log "Rebuilding application images..."
   $COMPOSE build
@@ -124,24 +150,39 @@ else
   $COMPOSE up -d
 fi
 
+elapsed() {
+  now="$(date +%s)"
+  delta=$((now - STARTED))
+  log "Elapsed time: $((delta / 60))m $((delta % 60))s"
+}
+
 if [ "$WAIT_READY" -eq 1 ]; then
-  log "Waiting for readiness (first Splunk boot can take 10–20 minutes)..."
+  log "[4/4] Running readiness checks (first Splunk boot can take 10–20 minutes)..."
   i=1
   while [ "$i" -le 80 ]; do
-    if "$ROOT/scripts/lab-ready.sh"; then
+    set +e
+    AGENTSEC_DEPLOYMENT="$AGENTSEC_DEPLOYMENT" AGENTSEC_BIND_ADDRESS="$AGENTSEC_BIND_ADDRESS" "$ROOT/scripts/lab-ready.sh"
+    ready_rc=$?
+    set -e
+    if [ "$ready_rc" -eq 0 ]; then
       log "Service health check exited 0."
       log "If lab-ready printed MODEL ABSENT, LIVE generation is DEGRADED. That is not a PASS."
-      log "AcmeBank    http://127.0.0.1:5000"
-      log "Attack UI   http://127.0.0.1:5001"
-      log "Splunk      http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home"
+      elapsed
       exit 0
+    fi
+    if [ "$ready_rc" -eq 2 ]; then
+      log "ERROR: remote listener check failed. Waiting will not change the bind."
+      elapsed
+      exit 1
     fi
     log "Not ready yet (attempt ${i}/80). Sleeping 15s..."
     i=$((i + 1))
     sleep 15
   done
   log "ERROR: lab did not become ready. See docker compose logs splunk splunk_app_init splunk_hec_init"
+  elapsed
   exit 1
 fi
 
 log "Started without readiness wait. Run ./scripts/lab-ready.sh later."
+elapsed

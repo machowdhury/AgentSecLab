@@ -1,5 +1,9 @@
-# AgentSec Phase 2 — localhost-published compose mesh.
+# AgentSec compose mesh.
 # Copy .env.example to .env before starting. Do not commit .env.
+# AGENTSEC_BIND_ADDRESS applies only to learner ports 8000 and 5001.
+# Default is 127.0.0.1. ./scripts/lab-up.sh forces that default.
+# ./scripts/lab-up.sh --remote sets 0.0.0.0 for those two ports only.
+# HEC, OTel, and AcmeBank stay on 127.0.0.1. Ollama is not published.
 
 networks:
   agentsec_mesh:
@@ -78,7 +82,7 @@ services:
       dockerfile: docker/Dockerfile.attack
     container_name: agentsec_attack_service
     ports:
-      - "127.0.0.1:5001:5001"
+      - "${AGENTSEC_BIND_ADDRESS:-127.0.0.1}:5001:5001"
     networks: [agentsec_mesh]
     volumes:
       - ./artifacts:/app/artifacts
@@ -170,7 +174,7 @@ services:
         soft: 64000
         hard: 64000
     ports:
-      - "127.0.0.1:8000:8000"
+      - "${AGENTSEC_BIND_ADDRESS:-127.0.0.1}:8000:8000"
       - "127.0.0.1:8088:8088"
     networks: [agentsec_mesh]
     depends_on:

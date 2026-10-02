@@ -8,6 +8,27 @@ cd "$ROOT"
 
 FAILS=0
 WARNS=0
+REMOTE=0
+for arg in "$@"; do
+  case "$arg" in
+    --remote) REMOTE=1 ;;
+    -h|--help)
+      cat <<'EOF'
+Usage: ./scripts/lab-preflight.sh [--remote]
+
+Checks host prerequisites. Does not install software and does not start the lab.
+
+  (no flags)   local mode. Learner ports are expected on 127.0.0.1.
+  --remote     plan a remote bind of 0.0.0.0 for ports 8000 and 5001 only.
+EOF
+      exit 0
+      ;;
+    *)
+      printf '[lab-preflight] unknown argument: %s\n' "$arg" >&2
+      exit 1
+      ;;
+  esac
+done
 
 log() { printf '[lab-preflight] %s\n' "$*"; }
 
@@ -36,6 +57,18 @@ warn() { log "WARN  $*"; WARNS=$((WARNS + 1)); }
 fail() { log "FAIL  $*"; FAILS=$((FAILS + 1)); }
 
 log "Preflight (no installs, no host mutation)."
+if [ "$REMOTE" -eq 1 ]; then
+  log "DEPLOYMENT MODE: REMOTE"
+  log "LEARNER BIND ADDRESS: 0.0.0.0"
+  log "ACADEMY PORT: 8000"
+  log "ATTACK SERVICE PORT: 5001"
+  log "INTERNAL SERVICES: PRIVATE"
+  log "INFO  remote mode publishes 8000 and 5001 only. AcmeBank 5000, HEC 8088, OTel 4317/4318, and Ollama stay private."
+  log "INFO  external firewall permission is NOT MEASURED."
+else
+  log "DEPLOYMENT MODE: LOCAL"
+  log "LEARNER BIND ADDRESS: 127.0.0.1"
+fi
 
 if command -v docker >/dev/null 2>&1; then
   pass "docker CLI is available ($(docker --version | tr -d '\n'))"
@@ -152,6 +185,29 @@ if [ "${DOCKER_OK:-0}" = "1" ] && docker inspect agentsec_ollama >/dev/null 2>&1
   fi
 else
   log "INFO  model presence is checked when the agentsec_ollama container is running"
+fi
+
+if [ "$REMOTE" -eq 1 ]; then
+  if command -v ufw >/dev/null 2>&1; then
+    ufw_out="$(ufw status 2>&1 || true)"
+    case "$ufw_out" in
+      *inactive*) log "INFO  host firewall ufw: inactive" ;;
+      *active*)
+        warn "ufw is active. This check will not change it. Confirm TCP 8000 and TCP 5001 are allowed from the learner IP."
+        ;;
+      *) log "INFO  host firewall ufw: NOT MEASURED" ;;
+    esac
+  elif command -v firewall-cmd >/dev/null 2>&1; then
+    fw_out="$(firewall-cmd --state 2>&1 || true)"
+    case "$fw_out" in
+      running)
+        warn "firewalld is running. This check will not change it. Confirm TCP 8000 and TCP 5001 are allowed from the learner IP."
+        ;;
+      *) log "INFO  host firewall firewalld: NOT MEASURED" ;;
+    esac
+  else
+    log "INFO  host firewall: NOT MEASURED"
+  fi
 fi
 
 if [ "$FAILS" -gt 0 ]; then

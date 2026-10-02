@@ -18,6 +18,7 @@ Rule: an infrastructure failure is not a security conclusion. A Docker or host e
 | AcmeBank JSON `"status": "degraded"` | AcmeBank degraded |
 | `x509: certificate signed by unknown authority` | TLS inspection |
 | `open /proc/self/mountinfo: permission denied` | Container runtime cannot start |
+| Remote browser cannot open the server URL | Remote URL not reachable |
 
 Before changing an AgentSec file, run:
 
@@ -26,6 +27,14 @@ docker run --rm hello-world
 ```
 
 If that fails with the same `runc` or `mountinfo` error, the host runtime cannot start containers. The AgentSec Dockerfiles are not the first place to edit.
+
+## Remote URL not reachable
+
+**Symptom:** `lab-up.sh --remote` printed a server URL, and the browser on your laptop cannot open it.
+**Cause:** the cloud security group or the host firewall is blocking the port, or the printed host is a placeholder. `SERVICE READY` does not measure that path.
+**Check:** on the server, `ss -lnt` shows `0.0.0.0:8000` and `0.0.0.0:5001`, and `127.0.0.1:8088`. Confirm the security group allows TCP 8000 and TCP 5001 from your IP only.
+**Remediation:** fix the firewall rule. Do not open 8000, 5001, 5000, 8088, or 11434 to `0.0.0.0/0`. Do not disable the host firewall. See [REMOTE_ACCESS.md](REMOTE_ACCESS.md).
+**Do not conclude:** an authorization decision.
 
 ## Docker command not found
 
