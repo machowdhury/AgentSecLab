@@ -194,7 +194,7 @@ def test_search_reuse_bind_only():
         assert queries[ds_id]["type"] == "ds.search"
     sim = (SEARCH_DIR / "DET-MCP-001-POSITIVE-CONTROL.spl").read_text(encoding="utf-8").strip()
     assert queries["ds_det_mcp_001_sim"]["options"]["query"] == sim
-    assert set(queries) == set(expected) | {"ds_det_mcp_001_sim"}
+    assert set(queries) - {"ds_guide_events", "ds_guide_summary"} == set(expected) | {"ds_det_mcp_001_sim"}
     for query in queries.values():
         text = query["options"]["query"]
         assert "| join " not in text

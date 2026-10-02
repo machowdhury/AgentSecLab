@@ -4,7 +4,9 @@ A technically capable person should be able to follow this linearly. Run every c
 
 Use `main` or annotated tag `v1.1.0`. That tree is the L0–L10 academy. Tag `v1.0.0` is the previous release. Tag `v1.0.0-rc1` peels to the earlier baseline and stops before L6. Tags `v1.0.0-rc2` and `v1.0.0-rc3` stay on their original commits. These steps are the documented path. The v1.0.0 release notes record the 2026-10-02 clean-room: service start was proven, and LIVE generation was degraded because the model was not listed. That measurement was not repeated as a new benchmark for v1.1.0.
 
-After the first lab, continue with the README academy section and [AGENTSEC_RELEASE_LAB_MATRIX.md](AGENTSEC_RELEASE_LAB_MATRIX.md). Do not treat the L5 Capstone as the end of the academy. L10 is the Advanced Capstone. Mastery Check is a separate unscored self-check.
+After the first lab, continue with the README academy section and [AGENTSEC_RELEASE_LAB_MATRIX.md](AGENTSEC_RELEASE_LAB_MATRIX.md). Do not treat the L5 Capstone as the end of the academy. L10 is the Advanced Capstone. Mastery Check is a separate unscored self-check. Arena is optional after that. It is not the start.
+
+On a LIVE workshop, launch from Attack Service, copy the run.id, and paste it into **LIVE run.id**. The table on that page is a Splunk search. Rows are indexed evidence only when Splunk returns them. Search remains available when you want to edit the SPL. REPLAY workshops do not need Ollama. Ollama is the local LLM runtime AgentSec uses for LIVE labs. It is not part of Splunk.
 
 ## 1. Prerequisites
 

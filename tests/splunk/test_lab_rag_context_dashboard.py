@@ -108,7 +108,7 @@ def test_workbench_tabs_and_token_defaults():
     labels = [item["label"] for item in definition["layout"]["tabs"]["items"]]
     assert labels == list(WORKSHOP_TABS)
     tokens = {inp["options"]["token"] for inp in definition["inputs"].values()}
-    assert tokens == set(REQUIRED_TOKENS)
+    assert tokens == set(REQUIRED_TOKENS) | {"live_run_id"}
     for input_id in definition["inputs"]:
         assert input_id in definition["layout"]["globalInputs"]
     hunt = [inp for inp in definition["inputs"].values() if inp["options"]["token"] == "run_id"][0]
@@ -120,7 +120,7 @@ def test_workbench_tabs_and_token_defaults():
     assert SPECIMEN_IDS["retest_run_id"] in item_values
     assert hunt["title"] == "Investigate specimen"
     titles = {inp["title"] for inp in definition["inputs"].values()}
-    assert titles == {"Investigate specimen"}
+    assert titles - {"LIVE run.id"} == {"Investigate specimen"}
     for layout in definition["layout"]["layoutDefinitions"].values():
         assert layout["type"] == "grid"
         assert layout["options"]["backgroundColor"] == "#F6F8FB"
@@ -166,7 +166,7 @@ def test_search_reuse_bind_only():
     assert "agentsec.sequence" in seq
     assert "agentsec.rag.context.document.id" in seq
     assert "_raw" not in seq
-    assert set(queries) == set(expected) | {"ds_det_mcp_001_sim", "ds_observe_seq"}
+    assert set(queries) - {"ds_guide_events", "ds_guide_summary"} == set(expected) | {"ds_det_mcp_001_sim", "ds_observe_seq"}
     for query in queries.values():
         text = query["options"]["query"]
         assert "| join " not in text

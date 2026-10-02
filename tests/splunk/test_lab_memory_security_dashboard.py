@@ -126,7 +126,7 @@ def test_workbench_tabs_and_token_defaults():
     labels = [item["label"] for item in definition["layout"]["tabs"]["items"]]
     assert labels == list(WORKSHOP_TABS)
     tokens = {inp["options"]["token"] for inp in definition["inputs"].values()}
-    assert tokens == set(REQUIRED_TOKENS)
+    assert tokens == set(REQUIRED_TOKENS) | {"live_run_id"}
     for input_id in definition["inputs"]:
         assert input_id in definition["layout"]["globalInputs"]
     for token in REQUIRED_TOKENS:
@@ -143,11 +143,14 @@ def test_workbench_tabs_and_token_defaults():
     ][0]
     assert hunt_write["title"] == "Investigate write specimen"
     titles = {inp["title"] for inp in definition["inputs"].values()}
-    assert titles == {
+    assert titles - {"LIVE run.id"} == {
         "Investigate write specimen",
         "Investigate recall specimen",
     }
     for inp in definition["inputs"].values():
+        if inp["title"] == "LIVE run.id":
+            assert inp["type"] == "input.text"
+            continue
         assert inp["type"] == "input.dropdown"
     for layout in definition["layout"]["layoutDefinitions"].values():
         assert layout["type"] == "grid"
@@ -213,7 +216,7 @@ def test_search_reuse_bind_only():
     assert "agentsec.sequence" in recall_seq
     assert "_raw" not in write_seq
     assert "_raw" not in recall_seq
-    assert set(queries) == set(expected) | {
+    assert set(queries) - {"ds_guide_events", "ds_guide_summary"} == set(expected) | {
         "ds_det_mcp_001_sim",
         "ds_observe_write",
         "ds_observe_recall",

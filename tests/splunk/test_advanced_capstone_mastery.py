@@ -54,10 +54,8 @@ def test_l10_registration_preserves_live_capstone_boundary():
     assert level["labs"][0]["lab_id"] == "LAB-ADVANCED-CAPSTONE-MASTERY-001"
     assert level["labs"][0]["mode"] == "REPLAY"
     assert level["labs"][0]["view"] == "ws_lab_advanced_capstone"
-    assert curriculum["nav_collections"][-1] == {
-        "label": "Advanced Capstone",
-        "views": ["ws_lab_advanced_capstone"],
-    }
+    assert curriculum["nav_collections"][-1]["label"] == "Mastery"
+    assert curriculum["nav_collections"][-1]["views"][0] == "ws_lab_advanced_capstone"
     assessments = json.loads((ROOT / "learning" / "academy" / "assessments.json").read_text(encoding="utf-8"))
     assert len(assessments["challenges"]) == 10
     competency = assessments["advanced_capstone_competencies"]

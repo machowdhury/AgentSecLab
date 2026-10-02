@@ -295,6 +295,42 @@
     return next;
   }
 
+  function captureLaunch(data, mode, labId) {
+    if (!data || !data.runId && !data.run_id) {
+      return;
+    }
+    var runtime = data.runtime || {};
+    var label = learnerRunState(data);
+    recordLaunch({
+      mode: mode || "",
+      runId: data.run_id || data.runId || "",
+      labId: labId || "",
+      state: label.state,
+      terminal: runtime.terminal || data.terminal || "",
+      evidenceState: data.evidence_state || "",
+      decision: firstDecision(runtime) || "",
+      llmCallCount: runtime.llm_call_count
+    });
+    var list = document.getElementById("session-history");
+    if (list) {
+      renderSession(list);
+    }
+    paintSessionPair(labId || (list && list.getAttribute("data-lab-id")) || "");
+  }
+
+  function paintSessionPair(labId) {
+    var pairEl = document.getElementById("session-pair");
+    if (!pairEl) {
+      return;
+    }
+    var pair = pairSessionRuns(readSession().runs, labId);
+    if (!pair) {
+      pairEl.textContent = "No ATTACK and RETEST pair for this lab in this tab. LAST KNOWN CLIENT STATE. Not indexed evidence.";
+      return;
+    }
+    pairEl.textContent = "Paired from this tab for " + labId + ": ATTACK " + pair.attack.runId + " · RETEST " + pair.retest.runId + ". LAST KNOWN CLIENT STATE. Not indexed evidence. The comparison table still waits for launches on this page.";
+  }
+
   function refreshLauncherRecords(listEl) {
     var session = readSession();
     if (!session.runs.length || typeof fetch !== "function") {
@@ -344,6 +380,21 @@
     historyText: historyText,
     pairSessionRuns: pairSessionRuns,
     readSessionRuns: function () { return readSession().runs; },
-    refreshLauncherRecords: refreshLauncherRecords
+    refreshLauncherRecords: refreshLauncherRecords,
+    captureLaunch: captureLaunch,
+    paintSessionPair: paintSessionPair
   };
+
+  if (typeof document !== "undefined" && document.addEventListener) {
+  document.addEventListener("DOMContentLoaded", function () {
+    var list = document.getElementById("session-history");
+    if (!list || list.getAttribute("data-agentsec-managed") !== "1") {
+      return;
+    }
+    var labId = list.getAttribute("data-lab-id") || "";
+    refreshLauncherRecords(list).then(function () {
+      paintSessionPair(labId);
+    });
+  });
+  }
 })(window);

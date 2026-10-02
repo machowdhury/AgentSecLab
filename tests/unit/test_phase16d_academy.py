@@ -115,7 +115,7 @@ def test_curriculum_is_learning_metadata_not_policy():
     ids = [level["id"] for level in data["levels"]]
     assert ids == ["L0", "L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "L9", "L10"]
     assert data["nav_collections"][0]["label"] == "Foundations"
-    assert data["nav_collections"][-1]["label"] == "Advanced Capstone"
+    assert data["nav_collections"][-1]["label"] == "Mastery"
     assert lab_row("LAB-PI-001")["level_id"] == "L1"
     assert next_lab("LAB-PI-001")["lab_id"] == "LAB-MCP-001"
     assert previous_lab("LAB-PI-001") is None
@@ -139,7 +139,7 @@ def test_curriculum_is_learning_metadata_not_policy():
 def test_nav_follows_learner_curriculum_not_build_order():
     nav = NAV.read_text(encoding="utf-8")
     assert 'name="ws_agentsec_home" default="true"' in nav
-    for label in ("Foundations", "Context Security", "Agent Intent", "Capstone", "Blue Team", "Security Architecture", "Privacy &amp; Data Governance"):
+    for label in ("Foundations", "Context Security", "Agent Intent", "Capstone", "Blue Team and Threat Modeling", "Identity and Delegation", "Data and Memory Governance"):
         assert f'<collection label="{label}">' in nav
     assert "Attack Labs" not in nav
     assert "Agent Authority" not in nav

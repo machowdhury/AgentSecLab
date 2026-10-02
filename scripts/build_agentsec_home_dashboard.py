@@ -109,11 +109,13 @@ The runtime (AcmeBank) is the enforcement point. Attack Service is a closed laun
 
 **Primary action:** begin [Direct Prompt Injection]({PI_URL}).
 
-**If you already know agents, tools, and RAG:** skip ORIENT prose. Open Direct Prompt Injection, then Attack Service. You still need run.id → Search → control vs execution. Mastery Check is after the labs, not a shortcut around launching.
+**Your path:** open [Your path](/en-US/app/agentsec/learner_path). It shows NOT STARTED, IN PROGRESS, and INVESTIGATED for this browser. That list is navigation. It is not a Splunk index and not a security verdict. Reset on that page clears only the list.
 
-Then keep this loop: LEARN → PREDICT → LAUNCH → OBSERVE → INVESTIGATE in Search → optional solution → DEFEND → RETEST → COMPARE → PROVE.
+**How a lesson works:** LEARN → LAUNCH or select a specimen → paste or select the run.id → read the inline SPL and table → interpret → compare → conclude → continue.
 
-After the labs, [Mastery Check]({MASTERY_URL}) is optional self-assessment. It is not a certificate and not a score.
+**If you already know agents, tools, and RAG:** skip ORIENT prose. Open Direct Prompt Injection, launch it, and paste the fresh run.id into **LIVE run.id**. Search remains the advanced notebook (Path A). Mastery Check is after the labs, not a shortcut around launching.
+
+After the labs, [Mastery Check]({MASTERY_URL}) is optional self-assessment. It is not a certificate and not a score. [Arena](/en-US/app/agentsec/ws_agentsec_arena) is optional exploration after the guided path. It uses the same evidence rules.
 """,
         title="START LEARNING",
     )
@@ -233,9 +235,9 @@ This is the learner path. It is not the order the software was built.
 
 You should always know: where you are, what you are learning, why it matters, and what to do next.
 
-Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone** → **Splunk Defender Bridge** → **Blue Team** → **Detection Engineering** → **Security Architecture** → **Agent Identity** → **Privacy & Data Governance** → **Integrated Incident** → **Advanced Capstone**. Then **Mastery Check** (optional). Search stays the notebook.
+Menus follow this path: **Foundations** → **Context Security** → **Agent Intent** → **Capstone** → **Blue Team and Threat Modeling** → **Identity and Delegation** → **Data and Memory Governance** → **Operational Scenarios** → **Mastery**. Then optional **Arena**. Search stays the advanced notebook.
 
-LIVE labs have Attack Service. REPLAY labs use Investigate specimen plus Search. Do not treat REPLAY as a fresh launch.
+LIVE labs have Attack Service. You copy the fresh run.id into the workshop. REPLAY labs use Investigate specimen. REPLAY is a teaching mode with canonical evidence. It is not a second-class conclusion and it is not a fresh LIVE launch. A control decision is not execution. Execution is not a measured downstream resource change.
 """,
         title="WHERE AM I?",
     )
@@ -398,13 +400,15 @@ You do not need all of SPL. You need enough to investigate AgentSec.
         """
 # Path A and Path B
 
-**Path A — try it yourself.** Security question, starting index/sourcetype/run.id, Open Splunk Search, then Hint 1 / Hint 2 if needed. You construct the hunt.
+**Guided investigation** is the LIVE run.id box or the Investigate specimen, the SPL under it, and the inline table. Those rows are indexed evidence only when Splunk returns them.
+
+**Path A — advanced.** Open Splunk Search when you want to change the query. Hint 1 / Hint 2 remain available. You construct the hunt.
 
 **Path B — show solution.** Copyable SPL from an existing Q-* hunt, expected shape, what it means, what it does not mean. Optional. Not policy.
 
-Beginner labs place Path B after the hints. The capstone treats Path B as a review key. Either way: Search first.
+Beginner labs place Path B after the hints. The capstone treats Path B as a review key.
 
-Bound Studio tables use Investigate specimen (often official LIVE or REPLAY ids). Fresh Attack Service ids are not auto-written into Studio.
+Bound Studio tables use Investigate specimen (often official LIVE or REPLAY ids). Fresh Attack Service ids are not auto-written into Studio. Paste the fresh run.id. HEC HTTP 200 is not the inline table.
 """,
         title="PATH A / PATH B",
     )

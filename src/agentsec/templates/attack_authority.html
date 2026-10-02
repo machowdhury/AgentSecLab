@@ -177,6 +177,12 @@
         <section><h2>RETEST response</h2><pre id="retest-response">Not run</pre></section>
       </div>
     </details>
+    <section>
+      <h2>This browser tab</h2>
+      <p>LAST KNOWN CLIENT STATE. Not indexed evidence. A reload keeps this list in this tab. Search remains the evidence authority.</p>
+      <ul class="fact-list" id="session-history" data-agentsec-managed="1" data-lab-id="{{ lab_id }}"></ul>
+      <p id="session-pair"></p>
+    </section>
   </main>
 
   <script src="{{ url_for('static', filename='agentsec-ui.js') }}"></script>
@@ -329,6 +335,7 @@
           try { data = await response.json(); } catch (_error) { data = {detail: "Response was not JSON."}; }
           if (!response.ok) throw new Error(data.detail || data.error || "HTTP " + response.status);
           render(data, mode);
+          window.AgentSecUI.captureLaunch(data, mode, labId);
           status.textContent = mode + " complete. Runtime facts are shown below; investigate Splunk separately.";
         } catch (error) {
           status.textContent = "ERROR · runtime or dependency failure · " + error.message;

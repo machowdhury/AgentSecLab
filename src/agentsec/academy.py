@@ -29,11 +29,11 @@ REPLAY_HUNT_BANNER = """**REPLAY workshop.** There is no Attack Service launcher
 **NEXT** COMPARE ATTACK vs RETEST on the same fields, then PROVE.
 """
 
-LIVE_INVESTIGATE_GATE = """**Path A is the default.** Construct the hunt in Splunk Search with your LIVE run.id.
+LIVE_INVESTIGATE_GATE = """**Guided path.** Paste the fresh LIVE run.id into the workshop **LIVE run.id** box and read the inline table. Studio does not receive that id from Attack Service by itself.
 
-**Path B is optional.** Solution SPL appears after Hint 1 and Hint 2. Do not skip Path A. Path B is an answer key, not policy. Splunk does not enforce.
+**Advanced.** Splunk Search remains available when you want to edit the SPL. Path B is optional and is an answer key, not policy. Splunk does not enforce.
 
-If Search returns zero rows, wait until Attack Service says **EVIDENCE READY**, then paste the LIVE run.id. Empty is not DENY, not prevention, and not a broken lab.
+If the inline table or Search returns zero rows, wait until Attack Service says **EVIDENCE READY**. Empty is not DENY, not prevention, and not a broken lab.
 """
 
 CAPSTONE_PATH_B_GATE = (

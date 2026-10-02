@@ -126,7 +126,7 @@ def test_grid_workshop_tabs_and_tokens():
     hunt = [inp for inp in definition["inputs"].values() if inp["options"]["token"] == "run_id"][0]
     assert hunt["options"]["defaultValue"] == SPECIMEN_IDS["baseline_run_id"]
     assert hunt["title"] == "Investigate specimen"
-    assert {inp["title"] for inp in definition["inputs"].values()} == {"Investigate specimen"}
+    assert {inp["title"] for inp in definition["inputs"].values()} - {"LIVE run.id"} == {"Investigate specimen"}
 
 
 def test_datasources_are_validated_spl_with_token_bind_only():
@@ -178,7 +178,7 @@ def test_datasources_are_validated_spl_with_token_bind_only():
         "ds_what_retest_id",
         "ds_what_retest_dec",
     }
-    assert set(definition["dataSources"]) == set(expected) | extra
+    assert set(definition["dataSources"]) - {"ds_guide_events", "ds_guide_summary"} == set(expected) | extra
 
 
 def test_display_searches_do_not_drift_from_validated_filter():

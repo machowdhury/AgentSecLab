@@ -45,7 +45,8 @@ def test_l9_curriculum_navigation_and_artifacts():
     level = next(row for row in curriculum["levels"] if row["id"] == "L9")
     assert level["exit"] == "AGENTIC INCIDENT RESPONDER / SECURITY ARCHITECT"
     assert level["labs"][0]["lab_id"] == "LAB-MULTI-STAGE-INCIDENT-001"
-    assert curriculum["nav_collections"][-2] == {"label": "Integrated Incident", "views": ["ws_lab_multi_stage_incident"]}
+    operational = next(row for row in curriculum["nav_collections"] if row["label"] == "Operational Scenarios")
+    assert "ws_lab_multi_stage_incident" in operational["views"]
     for path in (
         DEFINITION, VIEW, LAB / "README.md", LAB / "incident.json",
         LAB / "incident-brief.md", LAB / "evidence-graph.json",

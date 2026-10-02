@@ -85,8 +85,9 @@ def test_grid_workshop_tabs_and_tokens():
     labels = [item["label"] for item in definition["layout"]["tabs"]["items"]]
     assert labels == list(WORKSHOP_TABS)
     tokens = {inp["options"]["token"] for inp in definition["inputs"].values()}
-    assert tokens == set(REQUIRED_TOKENS) | set(HUNT_LOCAL_TOKENS)
-    assert definition["layout"]["globalInputs"] == ["input_run_id"]
+    # live_run_id is the pasted LIVE handle. run_id remains the specimen dropdown.
+    assert tokens == set(REQUIRED_TOKENS) | set(HUNT_LOCAL_TOKENS) | {"live_run_id"}
+    assert definition["layout"]["globalInputs"] == ["input_run_id", "input_live_run"]
     hunt_inp = [inp for inp in definition["inputs"].values() if inp["options"]["token"] == "run_id"][0]
     assert hunt_inp["type"] == "input.dropdown"
     assert hunt_inp["options"]["defaultValue"] == SPECIMEN_IDS.get("run_id", SPECIMEN_IDS["baseline_run_id"])
@@ -103,7 +104,7 @@ def test_grid_workshop_tabs_and_tokens():
         definition["inputs"][input_id]["title"]
         for input_id in definition["layout"]["globalInputs"]
     }
-    assert global_titles == {"Investigate specimen"}
+    assert global_titles == {"Investigate specimen", "LIVE run.id"}
     hunt_layout = definition["layout"]["layoutDefinitions"]["layout_hunt"]["structure"]
     hunt_input_ids = {item["item"] for item in hunt_layout if item["type"] == "input"}
     assert hunt_input_ids == set()
@@ -135,7 +136,14 @@ def test_datasources_are_validated_spl_with_token_bind_only():
     sim = catalog["positive_control"]
     sim_spl = (SEARCH_DIR / sim["spl_file"]).read_text(encoding="utf-8").strip()
     assert definition["dataSources"]["ds_q_after_deny_sim"]["options"]["query"] == sim_spl
-    assert set(definition["dataSources"]) == set(expected) | {"ds_q_after_deny_sim"}
+    assert set(definition["dataSources"]) == set(expected) | {
+        "ds_q_after_deny_sim",
+        "ds_guide_events",
+        "ds_guide_summary",
+    }
+    guide = definition["dataSources"]["ds_guide_events"]["options"]["query"]
+    assert '"agentsec.run.id"="$live_run_id$"' in guide
+    assert 'where "$live_run_id$"!=""' in guide
 
 
 def test_visualizations_reference_existing_datasources_and_layouts():

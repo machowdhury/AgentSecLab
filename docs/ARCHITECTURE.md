@@ -7,7 +7,7 @@
 ```text
 Learner
     ↓
-Splunk Dashboard Studio Academy  (syllabus, Path A/B, REPLAY tables)
+Splunk Dashboard Studio Academy  (guided path, inline SPL and tables, Path A/B)
     ↓
 Attack Service                   (closed JSON: lab_id, specimen_id, mode, execution)
     ↓
@@ -19,7 +19,7 @@ OpenTelemetry events
     ↓
 OTel collector → Splunk HEC → index agentsec_telemetry
     ↓
-Splunk Search                    (investigation notebook; Q-* hunts)
+Splunk Search                    (advanced notebook; the workshop table is also a Splunk search)
 ```
 
 ![AgentSec architecture. CTRL-MCP-001 is the tool decision gate. Splunk is downstream.](brand/agentsec-architecture.svg)

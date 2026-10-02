@@ -62,10 +62,10 @@ def test_checkpoint_follows_l6_and_levels_stay_put():
     assert checkpoint["mode"] == "REPLAY"
     assert checkpoint["live_launcher"] is False
     assert checkpoint["lab_id"] not in known_lab_ids()
-    labels = [row["label"] for row in curriculum["nav_collections"]]
-    assert labels.index("Blue Team") < labels.index("Detection Engineering") < labels.index(
-        "Security Architecture"
-    )
+    blue = next(row for row in curriculum["nav_collections"] if row["label"] == "Blue Team and Threat Modeling")
+    views = blue["views"]
+    assert views.index("ws_lab_blue_team_incident") < views.index("ws_lab_detection_engineering")
+    assert views.index("ws_lab_detection_engineering") < views.index("ws_lab_threat_modeling")
     nav = NAV.read_text(encoding="utf-8")
     assert nav.index("ws_lab_blue_team_incident") < nav.index("ws_lab_detection_engineering")
     assert nav.index("ws_lab_detection_engineering") < nav.index("ws_lab_threat_modeling")

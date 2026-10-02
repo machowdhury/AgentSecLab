@@ -64,9 +64,7 @@ def test_checkpoint_sits_between_l5_and_l6_and_is_not_live():
     assert checkpoint["live_launcher"] is False
     assert checkpoint["lab_id"] not in known_lab_ids()
     labels = [row["label"] for row in curriculum["nav_collections"]]
-    assert labels.index("Capstone") < labels.index("Splunk Defender Bridge") < labels.index(
-        "Blue Team"
-    )
+    assert labels.index("Capstone") < labels.index("Blue Team and Threat Modeling")
     nav = NAV.read_text(encoding="utf-8")
     assert nav.index("ws_lab_agentsec_capstone") < nav.index("ws_lab_splunk_defender_bridge")
     assert nav.index("ws_lab_splunk_defender_bridge") < nav.index("ws_lab_blue_team_incident")

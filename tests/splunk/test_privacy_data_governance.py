@@ -41,10 +41,8 @@ def test_l8_curriculum_navigation_and_artifacts():
     level = next(row for row in curriculum["levels"] if row["id"] == "L8")
     assert level["exit"] == "PRIVACY-AWARE SECURITY ARCHITECT"
     assert level["labs"][0]["lab_id"] == "LAB-PRIVACY-DATA-GOVERNANCE-001"
-    assert curriculum["nav_collections"][-9] == {
-        "label": "Privacy & Data Governance",
-        "views": ["ws_lab_privacy_data_governance"],
-    }
+    governance = next(row for row in curriculum["nav_collections"] if row["label"] == "Data and Memory Governance")
+    assert governance["views"][0] == "ws_lab_privacy_data_governance"
     for path in (
         DEFINITION, VIEW, LAB / "README.md", LAB / "incident.md",
         LAB / "data-map.json", LAB / "investigations.json",

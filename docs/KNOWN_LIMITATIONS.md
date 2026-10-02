@@ -34,7 +34,8 @@ The RC3 note below described an earlier inset ring on some views. That sentence 
 - LIVE vs REPLAY must not be collapsed
 - Missing event is not prevention
 - One RETEST is not universal security
-- No learner progress persistence
+- Learner progress is browser-local navigation state (NOT STARTED, IN PROGRESS, INVESTIGATED). It is not security evidence. Reset does not delete Splunk data or Attack Service records.
+- Dashboard Studio native tab focus remains a platform limitation on Splunk 10.2. No app stylesheet is injected into Studio.
 - No certification
 - DET-MCP-001 is packaged disabled; no DET-CAPSTONE / DET-RAG / DET-MEMORY / DET-GOAL
 - ATLAS labels require revalidation (educational, not verified MITRE mappings)
