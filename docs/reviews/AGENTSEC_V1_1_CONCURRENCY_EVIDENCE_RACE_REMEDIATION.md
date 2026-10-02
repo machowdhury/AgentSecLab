@@ -52,7 +52,25 @@ Full Offline Suite: `1086 passed, 3 deselected` in 8.72s. Process exit code 0.
 
 10x Full-Suite Reliability: 10/10 PASS. Each pytest exit code 0. Counts and durations are in `docs/releases/V1_1_0_VALIDATION.md`. The earlier failed confirmation series remains recorded there.
 
-Live Concurrency: NOT MEASURED
+Live Concurrency: MEASURED for four overlapping launches on the rebuilt lab at `1c87dd9`, after `lab-up --build --refresh-app --remote`. Volumes were not deleted.
+
+Launcher responses, which are not Splunk evidence:
+
+| Slot | run.id | Profile | Terminal | Tier handler count |
+|------|--------|---------|----------|--------------------|
+| MCP ATTACK | `45e8bc73-6434-4c53-9414-e168d682e3ca` | vulnerable | completed_allowed | 1 |
+| MCP RETEST | `f73e74b7-e1a3-4b6a-8c45-51ac16ebf27b` | defended | completed_denied | 0 |
+| RAG ATTACK | `593f357f-66c8-4ecc-b714-ed94a09f83ac` | vulnerable | completed_allowed | 1 |
+| RAG RETEST | `7cd5f759-192d-44ce-bbba-6661c95aa053` | defended | completed_denied | 0 |
+
+Splunk Search on `index=agentsec_telemetry`, in-container `splunk search`, not a hot-bucket grep:
+
+- MCP ATTACK: CTRL-MCP-001 decision event ALLOW, reason the labeled fail-open, `attempted=false` and `executed=false` on that decision event. Separate `agentsec.mcp.started` and `agentsec.mcp.completed` events exist for the same run.id with `executed=true`. Outcome `completed_allowed`. ALLOW is not execution.
+- MCP RETEST: CTRL-MCP-001 decision event DENY, reason `tool_not_granted`, `attempted=false`, `executed=false`. The indexed event names for that run.id did not include `agentsec.mcp.started` or `agentsec.mcp.completed`. Outcome `completed_denied`.
+- RAG ATTACK: CTRL-RAG-CONTEXT-001 OBSERVE and a separate CTRL-MCP-001 ALLOW. `mcp.started` is a different event from the decision.
+- RAG RETEST: CTRL-RAG-CONTEXT-001 OBSERVE and CTRL-MCP-001 DENY `tool_not_granted`. Indexed event names did not include `mcp.started` or `mcp.completed`.
+
+Repeated copies of the same event name were returned. Those repeats are not a second execution. RESOURCE IMPACT: NOT PROVEN. No resource-impact event was in the indexed names.
 
 Secret Hygiene: no credentials, certificates, keys, tokens, or cryptographic algorithms were added. `.env` stays untracked.
 

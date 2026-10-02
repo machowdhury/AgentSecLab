@@ -35,6 +35,10 @@ Tag `v1.0.0` stays on its original commit. Tags `v1.0.0-rc1`, `v1.0.0-rc2`, and 
 - Ollama is described as the local LLM runtime for LIVE labs. It is not part of Splunk. REPLAY workshops do not require it.
 - Handler-start counts on a launch response belong to that request. `ToolRegistry.invoke_counts` stays a process-wide diagnostic. It is not request evidence. This does not change CTRL-MCP-001.
 
+## Bounded live check on the rebuilt lab
+
+Four overlapping launches were searched in Splunk. MCP ATTACK `45e8bc73-6434-4c53-9414-e168d682e3ca`: CTRL-MCP-001 ALLOW on the decision event, with `attempted=false` and `executed=false` on that event, and a separate `agentsec.mcp.started` event. MCP RETEST `f73e74b7-e1a3-4b6a-8c45-51ac16ebf27b`: CTRL-MCP-001 DENY `tool_not_granted`, and the indexed event names did not include `agentsec.mcp.started`. ALLOW is not execution. RESOURCE IMPACT: NOT PROVEN.
+
 ## Known limitations
 
 See `docs/KNOWN_LIMITATIONS.md`.
