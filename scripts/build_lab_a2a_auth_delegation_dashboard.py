@@ -206,24 +206,24 @@ This grant does not overload `agentsec.delegator.agent.id` or `agentsec.delegati
         f"""
 # Request
 
-Compare each requested pair with the bounded grant. Do not inspect the answer key yet.
+The coded grant in this packet is `lookup_policy` on `lending-basics`. Three cards are shown in a fixed order. The order is not a timeline and not a verdict.
 
-ATTACK requested:
-
-- tool `{attack["requested_tool"]}`
-- resource `{attack["requested_resource"]}`
-
-RETEST requested:
-
-- tool `{retest["requested_tool"]}`
-- resource `{retest["requested_resource"]}`
-
-BASELINE requested:
+Card Cedar
 
 - tool `{baseline["requested_tool"]}`
 - resource `{baseline["requested_resource"]}`
 
-**Task.** Write MATCH or MISMATCH for each mode. ATTACK and RETEST must be judged as the same request. BASELINE is a different request.
+Card Birch
+
+- tool `{attack["requested_tool"]}`
+- resource `{attack["requested_resource"]}`
+
+Card Alder
+
+- tool `{retest["requested_tool"]}`
+- resource `{retest["requested_resource"]}`
+
+**Task.** Which cards request something outside that grant? Which two cards are the same request? Same request does not mean the same control decision. Do not open Path B until you have written MATCH or MISMATCH for each card.
 """,
         "REQUEST",
     )

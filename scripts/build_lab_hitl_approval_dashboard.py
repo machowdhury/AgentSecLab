@@ -84,20 +84,23 @@ Replay of the same approval id on a second request is **DEFERRED** in this packe
         "request",
         """# Submitted action
 
-ATTACK and RETEST submit the same action:
+The approval covers `lookup_policy` on `lending-basics`. Two packets arrived inside the approval window. Names are labels, not modes.
+
+Packet North
 
 - tool `lookup_policy`
 - resource `executive-restricted`
 - action reference `sim-action-executive-restricted`
-- time `2026-10-01T15:20:00Z` (inside the approval window)
+- time `2026-10-01T15:20:00Z`
 
-BASELINE submits the approved action:
+Packet South
 
 - tool `lookup_policy`
 - resource `lending-basics`
 - action reference `sim-action-lending-basics`
+- time `2026-10-01T15:20:00Z`
 
-Write MATCH or MISMATCH for each mode before you open Path B. Expiry is not the difference.
+**Task.** Which packet is outside the approved resource? A binding mismatch is not automatically a DENY, and a match is not an ALLOW. What evidence would prove the approver authenticated? What evidence would prove tool authorization? What evidence would prove execution? Which of those claims is NOT PROVEN from the approval record alone? Write that before Path B. Expiry is not the difference.
 """,
     )
     authorize = markdown(
