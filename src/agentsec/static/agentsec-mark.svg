@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">AgentSec mark</title>
+  <desc id="desc">Three claim lines meet a single gate. The gate is a control decision, not proof that every claim was authenticated.</desc>
+  <rect width="64" height="64" rx="8" fill="#F6F8FB"/>
+  <path d="M10 46 L24 18" fill="none" stroke="#8AA0B4" stroke-width="2" stroke-dasharray="3 3"/>
+  <path d="M32 46 L32 18" fill="none" stroke="#8AA0B4" stroke-width="2" stroke-dasharray="3 3"/>
+  <path d="M54 46 L40 18" fill="none" stroke="#8AA0B4" stroke-width="2" stroke-dasharray="3 3"/>
+  <rect x="28" y="14" width="8" height="36" rx="1" fill="#0B1F33"/>
+  <rect x="22" y="30" width="20" height="4" fill="#007F86"/>
+</svg>

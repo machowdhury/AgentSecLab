@@ -54,6 +54,11 @@ body {
   top: 0.75rem;
 }
 
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
 .site-header {
   background: var(--chrome-navy);
   color: #fff;
@@ -68,6 +73,17 @@ body {
   gap: 0.75rem 1.5rem;
   justify-content: space-between;
   align-items: flex-start;
+}
+
+.brand-lockup {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.brand-mark {
+  flex: 0 0 auto;
+  margin-top: 0.15rem;
 }
 
 .brand-kicker {
@@ -346,6 +362,32 @@ details.secondary summary {
   font-weight: 600;
 }
 
+
+.prediction fieldset {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 0 0 1rem;
+}
+
+.choice-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.run-id-row input,
+#starter-spl,
+.payload {
+  max-width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .site-header-inner,
+  main {
+    max-width: 100%;
+  }
+}
 
 @media (max-width: 768px) {
   .facts {

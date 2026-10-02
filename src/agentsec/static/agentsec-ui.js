@@ -159,6 +159,77 @@
     });
   }
 
+  var SESSION_KEY = "agentsec.learner.session.v1";
+
+  function readSession() {
+    try {
+      var raw = window.sessionStorage.getItem(SESSION_KEY);
+      var parsed = raw ? JSON.parse(raw) : {};
+      if (!parsed || typeof parsed !== "object") {
+        return {predictions: {}, runs: []};
+      }
+      parsed.predictions = parsed.predictions || {};
+      parsed.runs = Array.isArray(parsed.runs) ? parsed.runs : [];
+      return parsed;
+    } catch (err) {
+      return {predictions: {}, runs: []};
+    }
+  }
+
+  function writeSession(data) {
+    try {
+      window.sessionStorage.setItem(SESSION_KEY, JSON.stringify(data));
+    } catch (err) {
+      return;
+    }
+  }
+
+  function savePrediction(labId, prediction) {
+    var session = readSession();
+    session.predictions[labId || "lab"] = {
+      control: prediction.control || "UNKNOWN",
+      execution: prediction.execution || "UNKNOWN",
+      at: new Date().toISOString()
+    };
+    writeSession(session);
+  }
+
+  function predictionFor(labId) {
+    var session = readSession();
+    return session.predictions[labId || "lab"] || null;
+  }
+
+  function recordLaunch(entry) {
+    var session = readSession();
+    session.runs.unshift({
+      mode: entry.mode || "",
+      runId: entry.runId || "",
+      state: entry.state || "",
+      at: entry.at || new Date().toISOString()
+    });
+    session.runs = session.runs.slice(0, 12);
+    writeSession(session);
+  }
+
+  function renderSession(listEl) {
+    if (!listEl) {
+      return;
+    }
+    var runs = readSession().runs;
+    listEl.replaceChildren();
+    if (!runs.length) {
+      var empty = document.createElement("li");
+      empty.textContent = "No launches in this browser tab yet. A reload keeps this list. It is not an account and not a verdict.";
+      listEl.appendChild(empty);
+      return;
+    }
+    runs.forEach(function (row) {
+      var item = document.createElement("li");
+      item.textContent = row.mode + " · " + row.state + " · " + row.runId + " · " + row.at;
+      listEl.appendChild(item);
+    });
+  }
+
   window.AgentSecUI = {
     statusFromResult: statusFromResult,
     applyState: applyState,
@@ -171,6 +242,10 @@
     learnerHref: learnerHref,
     rewriteLearnerLinks: rewriteLearnerLinks,
     learnerRunState: learnerRunState,
-    afterPaint: afterPaint
+    afterPaint: afterPaint,
+    savePrediction: savePrediction,
+    predictionFor: predictionFor,
+    recordLaunch: recordLaunch,
+    renderSession: renderSession
   };
 })(window);
