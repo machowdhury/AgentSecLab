@@ -9,6 +9,7 @@ Use these pages in order:
 3. [../README.md](../README.md) and [AGENTSEC_RELEASE_LAB_MATRIX.md](AGENTSEC_RELEASE_LAB_MATRIX.md) — the academy after the lab is up.
 4. [OPERATIONS.md](OPERATIONS.md) — stop, restart, and reset.
 5. [TROUBLESHOOTING.md](TROUBLESHOOTING.md) — Docker and host failures.
+6. [REMOTE_ACCESS.md](REMOTE_ACCESS.md) — a Linux server or cloud VM. Laptops stay on the localhost commands above.
 
 After L5, the Splunk Defender Bridge is the REPLAY checkpoint before L6. See [SPLUNK_DEFENDER_BRIDGE.md](SPLUNK_DEFENDER_BRIDGE.md).
 

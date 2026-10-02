@@ -75,7 +75,12 @@ Flags that exist:
 | `--build` | Rebuild AcmeBank and Attack Service from this repository, then start. |
 | `--refresh-app` | Restage the Splunk app and re-run HEC init after a Splunk restart. |
 | `--no-wait` | Start containers and return without `lab-ready.sh`. |
+| `--remote` | Publish learner ports 8000 and 5001 on `0.0.0.0`. Leave HEC, OTel, AcmeBank, and Ollama private. |
 | `-h`, `--help` | Print the script usage and exit. |
+
+Without `--remote`, `lab-up.sh` forces `AGENTSEC_BIND_ADDRESS=127.0.0.1` for ports 8000 and 5001. The script prints four steps: prerequisites, the bind plan, container start, and readiness. It prints elapsed time at the end. That elapsed time is this run, not a promise about the next machine.
+
+Remote install, firewall rules, and the public URL: [REMOTE_ACCESS.md](REMOTE_ACCESS.md).
 
 `lab-up.sh` does not itself run `ollama pull`. Starting the stack starts container `agentsec_ollama`. That container's entrypoint, `scripts/ollama_init.sh`, tries `ollama pull` for `OLLAMA_MODEL` (default `llama3.2:1b`). If the pull fails, the entrypoint continues, and the container can still become healthy. `lab-up.sh` does not load a historical Splunk index or a sample `run.id`. It does not delete volumes.
 

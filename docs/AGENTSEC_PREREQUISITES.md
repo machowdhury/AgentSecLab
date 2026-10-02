@@ -26,6 +26,7 @@ Docker Engine is the daemon that runs containers. Docker Compose v2 is the `dock
 | `python3` | REQUIRED once `.env` exists | Preflight and `lab-ready.sh` read `.env` with `python3`. |
 | `curl` | REQUIRED for readiness | `lab-ready.sh` calls host `curl`. |
 | A browser | REQUIRED to use the Academy | Splunk Web and Attack Service are browser UIs. |
+| `./scripts/lab-up.sh --remote` | OPTIONAL, for a Linux server or cloud VM | Publishes Academy 8000 and Attack Service 5001. See [REMOTE_ACCESS.md](REMOTE_ACCESS.md). A laptop uses plain `./scripts/lab-up.sh`. |
 | `.env` copied from `.env.example` | REQUIRED before preflight and `lab-up.sh` | Both scripts require the file. Do not commit it. |
 | `uv`, pytest, Playwright | NOT REQUIRED for a learner | Test and UI-review tools. |
 | External Splunk | NOT REQUIRED | `lab-up.sh` starts the compose Splunk service. |

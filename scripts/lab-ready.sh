@@ -356,7 +356,27 @@ else
   log "Command normally used: docker exec agentsec_ollama ollama pull ${MODEL}"
   log "Certificate or TLS errors must be resolved at the host trust layer. Do not disable certificate verification."
 fi
-log "Academy Home: http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home"
-log "Attack Service: http://127.0.0.1:5001"
 unset SPLUNK_PASSWORD HEC_TOKEN
+if [ "${AGENTSEC_DEPLOYMENT:-local}" = "remote" ]; then
+  log "Deployment mode: REMOTE"
+  log "Internal readiness URL: http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home"
+  set +e
+  python3 "$ROOT/scripts/agentsec_access.py" classify --mode remote
+  listen_rc=$?
+  set -e
+  if [ "$listen_rc" -ne 0 ]; then
+    log "REMOTE LISTENERS: NOT ACCEPTED"
+    log "Remote access is not ready while Academy stays on 127.0.0.1:8000 or a private port is public."
+    log "External browser reachability: NOT MEASURED"
+    exit 2
+  fi
+  log "REMOTE LISTENERS: Academy and Attack Service are public listeners. Private ports are not."
+  "$ROOT/scripts/agentsec-access.sh"
+  log "External browser reachability: NOT MEASURED"
+  exit 0
+fi
+log "Deployment mode: LOCAL"
+log "Academy: http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home"
+log "Attack Service: http://127.0.0.1:5001"
+log "Open these URLs on this computer. They are localhost bindings."
 exit 0
