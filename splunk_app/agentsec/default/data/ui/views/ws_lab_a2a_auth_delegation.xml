@@ -67,7 +67,7 @@
     "viz_request": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# Request\n\nCompare each requested pair with the bounded grant. Do not inspect the answer key yet.\n\nATTACK requested:\n\n- tool `lookup_customer_tier`\n- resource `cust-001`\n\nRETEST requested:\n\n- tool `lookup_customer_tier`\n- resource `cust-001`\n\nBASELINE requested:\n\n- tool `lookup_policy`\n- resource `lending-basics`\n\n**Task.** Write MATCH or MISMATCH for each mode. ATTACK and RETEST must be judged as the same request. BASELINE is a different request.\n",
+        "markdown": "# Request\n\nThe coded grant in this packet is `lookup_policy` on `lending-basics`. Three cards are shown in a fixed order. The order is not a timeline and not a verdict.\n\nCard Cedar\n\n- tool `lookup_policy`\n- resource `lending-basics`\n\nCard Birch\n\n- tool `lookup_customer_tier`\n- resource `cust-001`\n\nCard Alder\n\n- tool `lookup_customer_tier`\n- resource `cust-001`\n\n**Task.** Which cards request something outside that grant? Which two cards are the same request? Same request does not mean the same control decision. Do not open Path B until you have written MATCH or MISMATCH for each card.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"

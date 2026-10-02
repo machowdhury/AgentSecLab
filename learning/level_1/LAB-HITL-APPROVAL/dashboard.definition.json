@@ -21,7 +21,7 @@
     "request": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# Submitted action\n\nATTACK and RETEST submit the same action:\n\n- tool `lookup_policy`\n- resource `executive-restricted`\n- action reference `sim-action-executive-restricted`\n- time `2026-10-01T15:20:00Z` (inside the approval window)\n\nBASELINE submits the approved action:\n\n- tool `lookup_policy`\n- resource `lending-basics`\n- action reference `sim-action-lending-basics`\n\nWrite MATCH or MISMATCH for each mode before you open Path B. Expiry is not the difference.\n",
+        "markdown": "# Submitted action\n\nThe approval covers `lookup_policy` on `lending-basics`. Two packets arrived inside the approval window. Names are labels, not modes.\n\nPacket North\n\n- tool `lookup_policy`\n- resource `executive-restricted`\n- action reference `sim-action-executive-restricted`\n- time `2026-10-01T15:20:00Z`\n\nPacket South\n\n- tool `lookup_policy`\n- resource `lending-basics`\n- action reference `sim-action-lending-basics`\n- time `2026-10-01T15:20:00Z`\n\n**Task.** Which packet is outside the approved resource? A binding mismatch is not automatically a DENY, and a match is not an ALLOW. What evidence would prove the approver authenticated? What evidence would prove tool authorization? What evidence would prove execution? Which of those claims is NOT PROVEN from the approval record alone? Write that before Path B. Expiry is not the difference.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
