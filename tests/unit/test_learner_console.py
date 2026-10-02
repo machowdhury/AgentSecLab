@@ -30,7 +30,11 @@ def test_session_helpers_do_not_post_predictions():
     assert "sessionStorage" in script
     assert "savePrediction" in script
     assert "recordLaunch" in script
-    assert "fetch(" not in script
+    assert "LAST KNOWN CLIENT STATE" in script
+    assert "pairSessionRuns" in script
+    assert "/api/launches/" in script
+    assert "predict-control" not in script
+    assert "method: \"POST\"" not in script
 
 
 def test_brand_assets_describe_the_gate_without_a_new_component():
@@ -71,3 +75,36 @@ def test_access_script_does_not_claim_stale_loopback_links():
     text = (ROOT / "scripts/agentsec-access.sh").read_text(encoding="utf-8")
     assert "Academy pages still contain http://127.0.0.1:5001" not in text
     assert "browser address bar" in text
+
+
+def test_studio_focus_stylesheet_is_packaged_on_dashboards():
+    css = (
+        ROOT / "splunk_app/agentsec/appserver/static/agentsec_studio_focus.css"
+    ).read_text(encoding="utf-8")
+    assert ':focus-visible' in css
+    assert 'role="tab"' in css
+    views = ROOT / "splunk_app/agentsec/default/data/ui/views"
+    studio = list(views.glob("ws_*.xml"))
+    assert studio
+    for path in studio:
+        text = path.read_text(encoding="utf-8")
+        assert 'stylesheet="agentsec_studio_focus.css"' in text
+
+
+def test_brand_assets_are_packaged_without_a_deployment_address():
+    home = (
+        ROOT / "splunk_app/agentsec/default/data/ui/views/ws_agentsec_home.xml"
+    ).read_text(encoding="utf-8")
+    assert "agentsec-mark.svg" in home
+    assert (ROOT / "splunk_app/agentsec/appserver/static/agentsec-mark.svg").is_file()
+    assert (ROOT / "splunk_app/agentsec/static/appIcon.png").is_file()
+    assert (ROOT / "splunk_app/agentsec/static/appIcon_2x.png").is_file()
+    assert (ROOT / "src/agentsec/static/agentsec-favicon.svg").is_file()
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "Ollama is the local LLM runtime" in readme
+    memory = (
+        ROOT / "learning/level_1/LAB-MEMORY-001/dashboard.md"
+    ).read_text(encoding="utf-8")
+    assert "browser address bar" in memory
+    blob = readme + home + memory
+    assert "3.17.29.24" not in blob

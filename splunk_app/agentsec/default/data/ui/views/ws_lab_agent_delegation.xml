@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dashboard version="2" theme="light">
+<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">
   <label>Agent Identity / Delegation</label>
   <description>LIVE vs REPLAY Agent Identity / Delegation. LAB-AGENT-DELEGATION-001. Splunk does not ALLOW or DENY.</description>
   <definition><![CDATA[

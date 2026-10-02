@@ -86,7 +86,7 @@
     "do_not_create": ["DET-MCP-NEW", "DET-LAUNCH", "DET-ATTACK-SIMULATOR"]
   },
   "limitations": [
-    "LOCAL EDUCATIONAL SERVICE. Attack Service is localhost and unauthenticated.",
+    "LOCAL EDUCATIONAL SERVICE when installed locally. On a remote deployment the learner uses the host in the browser address bar. The service is unauthenticated.",
     "NOT PRODUCTION AUTHENTICATION. NOT MULTI-TENANT. NOT INTERNET-FACING.",
     "CTRL-MCP-001 is a lab allow-list, not production MCP IAM.",
     "JSON-RPC is in-process, not stdio/HTTP MCP transport.",

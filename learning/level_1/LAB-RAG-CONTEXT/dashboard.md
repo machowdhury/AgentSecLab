@@ -3,6 +3,8 @@
 **View:** `ws_lab_rag_context` in the `agentsec` app  
 **URL:** `http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_rag_context`
 
+Local example. On a remote deployment, open the host already in the browser address bar. Do not send that browser to 127.0.0.1.
+
 Definition: `dashboard.definition.json` (source) and `splunk_app/agentsec/default/data/ui/views/ws_lab_rag_context.xml` (what Splunk loads). Rebuild both with `python3 scripts/build_lab_rag_context_dashboard.py`.
 
 GRID 1440 / 12. Token: Investigate specimen (`run_id`, defaults to canonical REPLAY BASELINE). Fresh LIVE run.ids are Splunk Search, not Studio tokens.

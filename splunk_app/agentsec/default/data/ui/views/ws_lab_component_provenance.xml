@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dashboard version="2" theme="light">
+<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">
   <label>Component Provenance</label>
   <description>LAB-COMPONENT-PROVENANCE. Known is not trusted. Scanned is not safe.</description>
   <definition><![CDATA[

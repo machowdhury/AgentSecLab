@@ -4,6 +4,8 @@ AgentSec is an **agentic security academy**: a local, hands-on lab for learning 
 
 You run controlled experiments against an educational agent, then investigate the evidence in Splunk. AcmeBank is where reference controls run. The Attack Service is a closed educational launcher on localhost. Splunk is the investigation workbench. Splunk does **not** authorize tools.
 
+Ollama is the local LLM runtime AgentSec uses for LIVE labs. It is not part of Splunk. REPLAY workshops do not require it.
+
 ## Who it is for
 
 Technically capable learners, instructors, SOC analysts, and security architects who want a **local** lab. Some security background helps. You do not need to already know agents, RAG, or Splunk search language. The early labs teach those ideas on purpose.

@@ -3,6 +3,8 @@
 **View:** `ws_lab_memory_security` in the `agentsec` app  
 **URL:** `http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_memory_security`
 
+Local example. On a remote deployment, open the host already in the browser address bar. Do not send that browser to 127.0.0.1.
+
 Definition: `dashboard.definition.json` (source) and `splunk_app/agentsec/default/data/ui/views/ws_lab_memory_security.xml` (what Splunk loads). Rebuild both with `python3 scripts/build_lab_memory_security_dashboard.py`.
 
 GRID 1440 / 12.

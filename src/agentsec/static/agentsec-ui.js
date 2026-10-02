@@ -201,14 +201,35 @@
 
   function recordLaunch(entry) {
     var session = readSession();
-    session.runs.unshift({
+    var row = {
       mode: entry.mode || "",
       runId: entry.runId || "",
+      labId: entry.labId || "",
       state: entry.state || "",
-      at: entry.at || new Date().toISOString()
-    });
+      at: entry.at || new Date().toISOString(),
+      terminal: entry.terminal || "",
+      evidenceState: entry.evidenceState || "",
+      decision: entry.decision || "",
+      llmCallCount: entry.llmCallCount
+    };
+    session.runs.unshift(row);
     session.runs = session.runs.slice(0, 12);
     writeSession(session);
+  }
+
+  function historyText(row) {
+    var client = "LAST KNOWN CLIENT STATE: " + (row.state || "UNKNOWN");
+    var terminal = row.terminal ? String(row.terminal) : "NOT IN THIS TAB";
+    var evidence = row.evidenceState ? String(row.evidenceState) : "NOT IN THIS TAB";
+    return [
+      row.mode || "",
+      client,
+      "launcher terminal=" + terminal,
+      "evidence=" + evidence,
+      "not a Splunk verdict",
+      row.runId || "",
+      row.at || ""
+    ].join(" · ");
   }
 
   function renderSession(listEl) {
@@ -225,8 +246,81 @@
     }
     runs.forEach(function (row) {
       var item = document.createElement("li");
-      item.textContent = row.mode + " · " + row.state + " · " + row.runId + " · " + row.at;
+      item.textContent = historyText(row);
       listEl.appendChild(item);
+    });
+  }
+
+  function pairSessionRuns(runs, labId) {
+    if (!labId || !Array.isArray(runs)) {
+      return null;
+    }
+    var attack = null;
+    var retest = null;
+    for (var i = 0; i < runs.length; i += 1) {
+      var row = runs[i];
+      if (!row || row.labId !== labId || !row.runId) {
+        continue;
+      }
+      if (!attack && row.mode === "ATTACK") {
+        attack = row;
+      }
+      if (!retest && row.mode === "RETEST") {
+        retest = row;
+      }
+    }
+    if (!attack || !retest || attack.runId === retest.runId) {
+      return null;
+    }
+    return {attack: attack, retest: retest};
+  }
+
+  function applyLauncherRecord(row, body) {
+    var runtime = body && body.runtime ? body.runtime : {};
+    var terminal = runtime.terminal || (body && body.terminal) || "";
+    var next = {
+      mode: row.mode,
+      runId: row.runId,
+      labId: row.labId,
+      state: row.state,
+      at: row.at,
+      terminal: terminal || row.terminal || "",
+      evidenceState: (body && body.evidence_state) || row.evidenceState || "",
+      decision: firstDecision(runtime) || row.decision || "",
+      llmCallCount: runtime.llm_call_count === undefined || runtime.llm_call_count === null
+        ? row.llmCallCount
+        : runtime.llm_call_count,
+      recordSource: "launcher-record"
+    };
+    return next;
+  }
+
+  function refreshLauncherRecords(listEl) {
+    var session = readSession();
+    if (!session.runs.length || typeof fetch !== "function") {
+      renderSession(listEl);
+      return Promise.resolve(session.runs);
+    }
+    var jobs = session.runs.map(function (row) {
+      if (!row.runId) {
+        return Promise.resolve(row);
+      }
+      return fetch("/api/launches/" + encodeURIComponent(row.runId)).then(function (response) {
+        if (!response.ok) {
+          return row;
+        }
+        return response.json().then(function (body) {
+          return applyLauncherRecord(row, body);
+        });
+      }).catch(function () {
+        return row;
+      });
+    });
+    return Promise.all(jobs).then(function (runs) {
+      session.runs = runs;
+      writeSession(session);
+      renderSession(listEl);
+      return runs;
     });
   }
 
@@ -246,6 +340,10 @@
     savePrediction: savePrediction,
     predictionFor: predictionFor,
     recordLaunch: recordLaunch,
-    renderSession: renderSession
+    renderSession: renderSession,
+    historyText: historyText,
+    pairSessionRuns: pairSessionRuns,
+    readSessionRuns: function () { return readSession().runs; },
+    refreshLauncherRecords: refreshLauncherRecords
   };
 })(window);

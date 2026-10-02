@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dashboard version="2" theme="light">
+<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">
   <label>Detection Engineering — Prove Your Coverage</label>
   <description>LAB-DETECTION-ENGINEERING REPLAY workshop after L6. Splunk is downstream evidence, not the PDP. DET-MCP-001 stays disabled.</description>
   <definition><![CDATA[

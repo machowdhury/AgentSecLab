@@ -87,7 +87,7 @@
     "do_not_create": ["DET-A2A", "DET-DELEGATION", "DET-LAUNCH", "Q-A2A-WHO", "Q-A2A-CLAIM", "Q-AGENT-IDENTITY-OBSERVE", "Q-AGENT-DELEGATION-EXECUTED"]
   },
   "limitations": [
-    "LOCAL EDUCATIONAL SERVICE. Attack Service is localhost and unauthenticated.",
+    "LOCAL EDUCATIONAL SERVICE when installed locally. On a remote deployment the learner uses the host in the browser address bar. The service is unauthenticated.",
     "NOT PRODUCTION AUTHENTICATION. NOT MULTI-TENANT. NOT INTERNET-FACING.",
     "CTRL-IDENTITY-001 classifies identity/delegation claims. It is OBSERVE only. It is not a tool PDP.",
     "CTRL-MCP-001 is a lab allow-list, not production MCP IAM.",

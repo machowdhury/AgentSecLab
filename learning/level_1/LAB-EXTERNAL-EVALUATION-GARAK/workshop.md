@@ -52,12 +52,14 @@ Review the upstream installation documentation and license before independent us
 
 ## TARGET
 
-Local Ollama at `http://127.0.0.1:11434`, model `llama3.2:1b`.
+Local Ollama at `http://127.0.0.1:11434`, model `llama3.2:1b`. That address is the container-local runtime on a local install. Remote mode does not publish port 11434, and it is not a learner navigation URL.
 No prompt or model response is sent to an external model service.
 
 Verify:
 
 ```bash
+Local health check only. It is not a remote learner URL.
+
 curl -fsS http://127.0.0.1:11434/api/tags
 ```
 
