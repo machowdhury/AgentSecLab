@@ -336,8 +336,26 @@ if [ "$atk_code" != "200" ]; then
 fi
 log "AcmeBank and Attack UI health HTTP 200."
 
-log "READY — SERVICE HEALTH: containers, Splunk Web, HEC health, Academy views, AcmeBank, Attack Service."
+log "SERVICE READY: containers, Splunk Web, HEC health, Academy views, AcmeBank HTTP, Attack Service HTTP."
 log "NOT PROVEN: a given run.id is searchable. HEC HTTP 200 is not indexed evidence."
+
+MODEL="$(load_env_value OLLAMA_MODEL || true)"
+if [ -z "${MODEL:-}" ]; then
+  MODEL="llama3.2:1b"
+fi
+acme_status="$(curl -sf --max-time 10 http://127.0.0.1:5000/health || true)"
+if [ -n "$acme_status" ]; then
+  log "AcmeBank /health: ${acme_status}"
+fi
+if docker exec agentsec_ollama ollama list 2>/dev/null | grep -q "$MODEL"; then
+  log "MODEL PRESENT: ${MODEL} is listed. A listed name is not a measured digest and is not proof of generation quality."
+else
+  log "MODEL ABSENT: ${MODEL} is required for LIVE generation and is not listed."
+  log "LIVE model-dependent generation is DEGRADED, not PASS."
+  log "Academy REPLAY does not need this model."
+  log "Command normally used: docker exec agentsec_ollama ollama pull ${MODEL}"
+  log "Certificate or TLS errors must be resolved at the host trust layer. Do not disable certificate verification."
+fi
 log "Academy Home: http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home"
 log "Attack Service: http://127.0.0.1:5001"
 unset SPLUNK_PASSWORD HEC_TOKEN

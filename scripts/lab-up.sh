@@ -129,7 +129,8 @@ if [ "$WAIT_READY" -eq 1 ]; then
   i=1
   while [ "$i" -le 80 ]; do
     if "$ROOT/scripts/lab-ready.sh"; then
-      log "Lab is READY."
+      log "Service health check exited 0."
+      log "If lab-ready printed MODEL ABSENT, LIVE generation is DEGRADED. That is not a PASS."
       log "AcmeBank    http://127.0.0.1:5000"
       log "Attack UI   http://127.0.0.1:5001"
       log "Splunk      http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home"

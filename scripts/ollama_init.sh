@@ -36,8 +36,11 @@ else
     if ollama pull "$MODEL"; then
         echo "[ollama_init] Model '$MODEL' pulled."
     else
-        echo "[ollama_init] WARNING: could not pull '$MODEL'. API stays up; AcmeBank LLM calls will fail until a model exists."
-        echo "[ollama_init] Host Ollama on 11434 is a valid fallback via OLLAMA_BASE_URL=http://host.docker.internal:11434"
+        echo "[ollama_init] WARNING: could not pull '$MODEL'."
+        echo "[ollama_init] The model is required for LIVE generation and is currently absent."
+        echo "[ollama_init] Command: docker exec agentsec_ollama ollama pull $MODEL"
+        echo "[ollama_init] If the error is certificate or TLS verification, fix trust at the host or image trust layer. Do not disable certificate verification."
+        echo "[ollama_init] AcmeBank /health stays degraded until the model is listed. Academy REPLAY does not need the model."
     fi
 fi
 

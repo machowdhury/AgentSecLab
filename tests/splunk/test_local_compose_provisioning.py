@@ -39,6 +39,21 @@ def test_helpers_and_docs_describe_local_vs_external():
     assert "./scripts/lab-up.sh" in README
 
 
+def test_missing_ollama_model_is_not_called_live_ready():
+    preflight = (ROOT / "scripts" / "lab-preflight.sh").read_text(encoding="utf-8")
+    ready = (ROOT / "scripts" / "lab-ready.sh").read_text(encoding="utf-8")
+    init = (ROOT / "scripts" / "ollama_init.sh").read_text(encoding="utf-8")
+    lab_up = (ROOT / "scripts" / "lab-up.sh").read_text(encoding="utf-8")
+    assert "Do not disable certificate verification" in preflight
+    assert "currently absent" in preflight
+    assert "MODEL ABSENT" in ready
+    assert "DEGRADED, not PASS" in ready
+    assert "Do not disable certificate verification" in init
+    assert "--insecure" not in init
+    assert "MODEL ABSENT" in lab_up
+    assert "ollama/ollama:latest" in COMPOSE
+
+
 def test_lab_up_refresh_reruns_hec_after_splunk_restart():
     lab_up = (ROOT / "scripts" / "lab-up.sh").read_text(encoding="utf-8")
     restart_at = lab_up.index("$COMPOSE restart splunk")

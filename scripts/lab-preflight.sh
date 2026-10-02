@@ -11,6 +11,26 @@ WARNS=0
 
 log() { printf '[lab-preflight] %s\n' "$*"; }
 
+load_env_value() {
+  key="$1"
+  if [ ! -f "$ROOT/.env" ]; then
+    return 0
+  fi
+  python3 - "$ROOT/.env" "$key" <<'PY'
+from pathlib import Path
+import sys
+path, key = Path(sys.argv[1]), sys.argv[2]
+for raw in path.read_text(encoding="utf-8").splitlines():
+    line = raw.strip()
+    if not line or line.startswith("#") or "=" not in line:
+        continue
+    name, value = line.split("=", 1)
+    if name.strip() == key:
+        print(value.strip().strip('"').strip("'"), end="")
+        break
+PY
+}
+
 pass() { log "PASS  $*"; }
 warn() { log "WARN  $*"; WARNS=$((WARNS + 1)); }
 fail() { log "FAIL  $*"; FAILS=$((FAILS + 1)); }
@@ -71,7 +91,7 @@ check_port() {
   port="$1"
   name="$2"
   if [ "${DOCKER_OK:-0}" = "1" ]; then
-    owner="$(docker ps --format '{{.Names}} {{.Ports}}' 2>/dev/null | grep -E "agentsec_.*:${port}->|127.0.0.1:${port}->" || true)"
+    owner="$(docker ps --format '{{.Names}} {{.Ports}}' 2>/dev/null | grep 'agentsec_' | grep -E "(^|[^0-9])${port}([^0-9]|$)" || true)"
     if [ -n "$owner" ]; then
       warn "port ${port} (${name}) is already published by an AgentSec container — lab may already be running"
       return 0
@@ -105,7 +125,34 @@ if command -v df >/dev/null 2>&1; then
 fi
 
 log "Hardware minimums: NOT BENCHMARKED. Observed development used Docker Desktop on macOS with Splunk 10.2 (amd64 image, emulated on Apple Silicon)."
-log "Ollama model pull happens inside the stack on first boot and can take several minutes."
+
+MODEL="llama3.2:1b"
+if [ -f "$ROOT/.env" ]; then
+  env_model="$(load_env_value OLLAMA_MODEL || true)"
+  if [ -n "${env_model:-}" ]; then
+    MODEL="$env_model"
+  fi
+fi
+log "INFO  LIVE generation requires Ollama model ${MODEL}. Academy REPLAY does not."
+log "INFO  The container entrypoint tries: ollama pull ${MODEL}"
+log "INFO  Certificate or TLS errors must be resolved at the host trust layer. Do not disable certificate verification."
+if [ "${DOCKER_OK:-0}" = "1" ] && docker inspect agentsec_ollama >/dev/null 2>&1; then
+  ollama_state="$(docker inspect -f '{{.State.Status}}' agentsec_ollama 2>/dev/null || true)"
+  if [ "$ollama_state" = "running" ]; then
+    if docker exec agentsec_ollama ollama list 2>/dev/null | grep -q "$MODEL"; then
+      pass "Ollama lists ${MODEL}. A listed name is not a measured digest."
+    else
+      warn "model ${MODEL} is required for LIVE generation and is currently absent"
+      warn "command normally used: docker exec agentsec_ollama ollama pull ${MODEL}"
+      warn "certificate or TLS errors must be resolved at the host trust layer. Do not disable certificate verification."
+      warn "until that model is listed, AcmeBank /health stays degraded. LIVE generation is not READY."
+    fi
+  else
+    warn "agentsec_ollama is not running, so model presence was not checked"
+  fi
+else
+  log "INFO  model presence is checked when the agentsec_ollama container is running"
+fi
 
 if [ "$FAILS" -gt 0 ]; then
   log "RESULT FAIL (${FAILS} fail, ${WARNS} warn). Remediate FAIL items before ./scripts/lab-up.sh"
