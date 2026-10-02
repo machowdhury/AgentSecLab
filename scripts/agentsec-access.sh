@@ -72,5 +72,5 @@ log "Internal readiness URL on this server: http://127.0.0.1:8000/en-US/app/agen
 log "External browser reachability: NOT MEASURED"
 log "Your host or cloud firewall must permit TCP 8000 and TCP 5001 only from trusted learner IPs."
 log "Do not open 8000, 5001, 5000, 8088, or 11434 to 0.0.0.0/0."
-log "Academy pages still contain http://127.0.0.1:5001 links. On another computer those open that computer, not this server. Use the Attack Service URL above."
+log "Academy and Attack Service links use the host in the browser address bar. They do not assume the learner browser is on this server."
 exit 0
