@@ -40,6 +40,8 @@ OUT_XML = (
 CURRICULUM = ROOT / "learning" / "academy" / "curriculum.json"
 
 PI_URL = "/en-US/app/agentsec/ws_lab_pi_001"
+MARK_URL = "/en-US/static/app/agentsec/agentsec-mark.svg"
+MARK_SIZE = 64
 SEARCH_URL = "/en-US/app/search/search"
 ATTACK_URL = "/en-US/app/agentsec/open_attack?path=/"
 CAPSTONE_URL = "/en-US/app/agentsec/ws_lab_agentsec_capstone"
@@ -87,12 +89,17 @@ def build() -> dict:
     l9 = _mode_line(levels["L9"]["labs"])
     l10 = _mode_line(levels["L10"]["labs"])
 
+    visualizations["viz_mark"] = {
+        "type": "splunk.image",
+        "options": {
+            "src": MARK_URL,
+            "preserveAspectRatio": True,
+        },
+    }
     add_md(
         "viz_hero",
         f"""
 # Start here
-
-![AgentSec mark. A gate stands for the control decision. It is not proof every claim was authenticated.](/en-US/static/app/agentsec/agentsec-mark.svg)
 
 AgentSec is a **hands-on Agentic Security academy**. You launch controlled attacks against a lab agent, observe real telemetry, and investigate the evidence yourself in Splunk.
 
@@ -436,11 +443,12 @@ Schema remains **1.9.0**. One packaged detector exists: DET-MCP-001 (disabled, D
             "layoutDefinitions": {
                 "layout_start": layout(
                     [
-                        block("viz_hero", 0, 0, FULL, 400),
-                        block("viz_roles", 0, 400, HALF, 420),
-                        block("viz_modes", HALF, 400, HALF, 420),
+                        block("viz_mark", 0, 0, MARK_SIZE, MARK_SIZE),
+                        block("viz_hero", 0, MARK_SIZE + 8, FULL, 400),
+                        block("viz_roles", 0, MARK_SIZE + 408, HALF, 420),
+                        block("viz_modes", HALF, MARK_SIZE + 408, HALF, 420),
                     ],
-                    840,
+                    MARK_SIZE + 828,
                 ),
                 "layout_orient": layout(
                     [

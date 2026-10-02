@@ -1,4 +1,6 @@
-/* Visible keyboard focus for Dashboard Studio tab controls when Splunk loads this app stylesheet.
+/* Keyboard focus for a tab when this stylesheet is actually linked.
+   Splunk 10.2 Dashboard Studio sets stylesheet:false and its page template
+   does not link this file. A served URL is not a loaded stylesheet.
    :focus-visible avoids a mouse-click ring. This file does not restyle Splunk chrome. */
 button[role="tab"]:focus-visible,
 [role="tab"]:focus-visible {

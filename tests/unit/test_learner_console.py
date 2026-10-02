@@ -96,6 +96,11 @@ def test_brand_assets_are_packaged_without_a_deployment_address():
         ROOT / "splunk_app/agentsec/default/data/ui/views/ws_agentsec_home.xml"
     ).read_text(encoding="utf-8")
     assert "agentsec-mark.svg" in home
+    assert '"type": "splunk.image"' in home
+    assert '"preserveAspectRatio": true' in home
+    assert '"w": 64' in home
+    assert '"h": 64' in home
+    assert "![AgentSec mark" not in home
     assert (ROOT / "splunk_app/agentsec/appserver/static/agentsec-mark.svg").is_file()
     assert (ROOT / "splunk_app/agentsec/static/appIcon.png").is_file()
     assert (ROOT / "splunk_app/agentsec/static/appIcon_2x.png").is_file()
