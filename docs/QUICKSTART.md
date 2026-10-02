@@ -126,7 +126,11 @@ A corporate proxy or a TLS inspection appliance can add delay or fail the pull. 
 | `degraded` | AcmeBank `/health` JSON | The model name was not listed, or the tags request failed. HTTP status is still 200, so Docker can show the AcmeBank container healthy while this JSON says `degraded`. |
 | `ollama_reachable` | AcmeBank `/health` | True only when `/api/tags` lists a name containing the model prefix. False does not mean the Ollama process is stopped. |
 
-`SERVICE READY` does not mean a `run.id` is searchable. HEC HTTP 200 is not indexed evidence. `DEGRADED` is not a pass. Academy REPLAY pages can still be opened when the model is absent. LIVE generation that needs the model stays degraded until `docker exec agentsec_ollama ollama list` shows it.
+`SERVICE READY` does not mean a `run.id` is searchable. HEC HTTP 200 is not indexed evidence. A healthy service is not a successful attack. A listed model name is not a measured digest. Academy views being loaded is not an accessibility certification. `DEGRADED` is not a pass. Academy REPLAY pages can still be opened when the model is absent. LIVE generation that needs the model stays degraded until `docker exec agentsec_ollama ollama list` shows it.
+
+Precheck `WARN` means you may continue and should read the warning. Precheck `FAIL` means the host is not ready to start. Neither word is a control DENY. The 8 GB disk line is a planning floor, not a benchmarked minimum. `lab-up.sh` leaves existing named volumes in place. It does not delete indexed evidence.
+
+Observed clocks above vary with network speed, image cache, CPU, memory, disk, Splunk initialization, and whether the model is already present. They are not a promised install time.
 
 Confirm the model:
 
