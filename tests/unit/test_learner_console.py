@@ -21,6 +21,8 @@ def test_prediction_stays_out_of_the_launch_body():
     assert "predict-control" not in html.split('body: JSON.stringify({', 1)[1].split("})", 1)[0]
     assert "3.17.29.24" not in html
     assert "Host publish remains 127.0.0.1" not in html
+    assert "input_pattern_matched" not in html
+    assert "expected_evidence_vulnerable" not in html
 
 
 def test_session_helpers_do_not_post_predictions():

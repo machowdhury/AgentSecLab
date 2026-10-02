@@ -67,19 +67,16 @@
         <div class="mode-actions">
           <button id="attack-button" class="btn btn-danger" type="button" data-specimen="{{ specimen_attack }}">
             Launch ATTACK (LIVE)
-            <small>{{ authority_workbench.expected_attack }}</small>
+            <small>Predict the decision before you launch. It is not printed here.</small>
           </button>
           <button id="retest-button" class="btn btn-primary" type="button" data-specimen="{{ specimen_retest }}">
             Launch RETEST (LIVE)
-            <small>{{ authority_workbench.expected_retest }}</small>
+            <small>Same closed specimen family. The decision is still not printed here.</small>
           </button>
         </div>
         <details class="prediction">
           <summary>Prediction and falsification</summary>
-          <div class="prediction-grid">
-            <div><h3>ATTACK prediction</h3><p>{{ authority_workbench.expected_attack }}</p></div>
-            <div><h3>RETEST prediction</h3><p>{{ authority_workbench.expected_retest }}</p></div>
-          </div>
+          <p>WHAT WOULD FALSIFY THIS? Evidence that contradicts the decision or the execution claim you wrote before clicking. Search is still required.</p>
         </details>
         <p id="launch-status" class="status-message" role="status" aria-live="polite">Choose ATTACK or RETEST. Each launch creates a fresh server-owned run.id.</p>
       </section>

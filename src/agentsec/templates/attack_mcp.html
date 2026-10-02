@@ -41,7 +41,7 @@
         <div><span>Requested scope</span><strong><code>{{ mcp_request.requested_scope }}</code></strong></div>
         <div><span>Server-owned authority</span><strong><code>{{ mcp_policy.allowed_tools }}</code> · <code>{{ mcp_policy.allowed_scopes }}</code></strong></div>
         <div><span>Policy decision point</span><strong>CTRL-MCP-001 · AcmeBank runtime</strong></div>
-        <div><span>Expected change</span><strong>ATTACK fail-open; RETEST defended</strong></div>
+        <div><span>Expected change</span><strong>Predict before you launch</strong></div>
       </div>
       <p class="semantic-line"><strong>REQUEST ≠ GRANT</strong><span>ALLOW ≠ EXECUTION</span><span>SPLUNK ≠ ENFORCEMENT</span></p>
     </section>
@@ -69,18 +69,8 @@
         </div>
 
         <details class="prediction">
-          <summary>Prediction and falsification</summary>
-          <div class="prediction-grid">
-            <div>
-              <h3>ATTACK</h3>
-              <p>{{ prediction_attack.expected_evidence_vulnerable }}</p>
-            </div>
-            <div>
-              <h3>RETEST</h3>
-              <p>{{ prediction_retest.expected_evidence_defended }}</p>
-              <p><strong>Would falsify:</strong> {{ prediction_retest.falsify }}</p>
-            </div>
-          </div>
+          <summary>Predict before ATTACK</summary>
+          <p>Write whether you expect ALLOW, DENY, ERROR, or UNKNOWN, and whether execution occurs. WHAT WOULD FALSIFY THIS? An observation in the response that contradicts the note you wrote. This page does not print the decision and does not grade the note.</p>
         </details>
       </section>
 
