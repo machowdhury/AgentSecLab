@@ -40,19 +40,18 @@ Two git refs matter. They are not the same product snapshot.
 
 | Ref | What it is |
 |-----|------------|
-| `main` and annotated tag `v1.0.0-rc1` | Earlier RC1 baseline. The tag peels to commit `e6115b6d1c03a1672b4364e84748c7840671fbfc`. That snapshot does **not** contain the L6–L10 academy. |
-| annotated tag `v1.0.0-rc2` | Previous L0–L10 candidate. It stays on its original commit. |
-| `develop` | Current release candidate, v1.0.0-rc3. This is the L0–L10 academy plus the bounded REPLAY workshops after RC2. |
+| `main` and annotated tag `v1.0.0` | Final v1.0.0 academy. Package `1.0.0`. Splunk app `1.0.0`. |
+| annotated tag `v1.0.0-rc1` | Historical RC1 baseline. The tag peels to commit `e6115b6d1c03a1672b4364e84748c7840671fbfc`. That snapshot does **not** contain the L6–L10 academy. |
+| annotated tag `v1.0.0-rc2` | Historical previous candidate. It stays on its original commit. |
+| annotated tag `v1.0.0-rc3` | Historical candidate that this release promotes. It peels to `6c7af8e87f96cda4ee929664fbb17ec763dd135c` and was not moved. |
 
-`develop` is the v1.0.0-rc3 candidate, not final `v1.0.0`. Annotated tag `v1.0.0-rc2` was not moved.
+Package metadata is `1.0.0` in `pyproject.toml`. The Splunk app version is `1.0.0`. Those strings are the product version.
 
-Package metadata is `1.0.0rc3` in `pyproject.toml`. The Splunk app version is `1.0.0-rc3`. Those strings name this candidate. They do not mean `main` moved.
+Telemetry schema remains **1.9.0**. The external-evidence contract remains **1.0.0**. Product version, schema, and the external-evidence contract are independent.
 
-Telemetry schema remains **1.9.0**. The external-evidence contract remains **1.0.0**.
+A default `git clone` follows `origin/HEAD`, which is `main`. That branch is this v1.0.0 release.
 
-A default `git clone` follows `origin/HEAD`, which is `main` (RC1). To study the academy described here, check out `develop`. Tag `v1.0.0-rc2` is the previous candidate. Tag `v1.0.0-rc3` is created only when this candidate's release gate passes.
-
-Clean-room installation has **not** been proven. The commands below are the documented path. They have been used on existing lab machines. That is not a measurement that a new machine with empty volumes succeeds.
+Clean-room service start was proven on 2026-10-02 with fresh volumes. AcmeBank on that run was `degraded` because `llama3.2:1b` was not listed. That degraded state is not a PASS for LIVE generation. See [docs/releases/V1_0_0_RELEASE_NOTES.md](docs/releases/V1_0_0_RELEASE_NOTES.md).
 
 ## Prerequisites
 
@@ -62,7 +61,7 @@ Details: [docs/AGENTSEC_PREREQUISITES.md](docs/AGENTSEC_PREREQUISITES.md).
 
 ## Quick start
 
-From the repository root, on `develop`:
+From the repository root, on `main` or tag `v1.0.0`:
 
 ```bash
 ./scripts/lab-preflight.sh

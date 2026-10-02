@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.0
+
+Final educational release promoted from the qualified `v1.0.0-rc3` tree. Telemetry schema remains **1.9.0**. ExternalEvidence remains **1.0.0**. Tags `v1.0.0-rc1`, `v1.0.0-rc2`, and `v1.0.0-rc3` were not moved.
+
+Package metadata is `1.0.0`. The Splunk app version is `1.0.0`. Those strings are the product version. They are not the schema version and not the external-evidence contract version.
+
+This promotion does not add a lab, workshop, attack, detector, or authorization change. DET-MCP-001 stays disabled. CTRL-MCP-001 remains the tool policy decision point. Splunk remains the investigation workbench.
+
+SCREEN READER: NOT TESTED. No WCAG claim. The Ollama model pull inside `ollama/ollama:latest` remains a documented external TLS dependency. A missing model leaves LIVE generation degraded. That is not a PASS.
+
 ## v1.0.0-rc3
 
 Release candidate after the bounded REPLAY workshops. Telemetry schema remains **1.9.0**. ExternalEvidence remains **1.0.0**. This is not final `v1.0.0`. Tag `v1.0.0-rc2` was not moved. `main` was not merged.

@@ -1,18 +1,18 @@
 # AgentSec v1.0 product boundary
 
-**Tagged RC1:** `main` and annotated tag `v1.0.0-rc1` peel to `e6115b6d1c03a1672b4364e84748c7840671fbfc`. That baseline does not contain the L6–L10 academy.
+**Release:** `main` and annotated tag `v1.0.0`. Product version 1.0.0. This is the L0–L10 academy plus the bounded REPLAY workshops added after RC2.
 
-**Previous candidate:** annotated tag `v1.0.0-rc2`. It was not moved.
+**Historical RC1:** annotated tag `v1.0.0-rc1` peels to `e6115b6d1c03a1672b4364e84748c7840671fbfc`. That baseline does not contain the L6–L10 academy.
 
-**Current candidate:** `develop`, product version 1.0.0-rc3. This is the L0–L10 academy plus the bounded REPLAY workshops added after RC2. It is not final `v1.0.0`.
+**Historical candidates:** annotated tags `v1.0.0-rc2` and `v1.0.0-rc3`. They were not moved.
 
-**Version strings:** `pyproject.toml` says `1.0.0rc3`. Splunk `app.conf` says `1.0.0-rc3`. Those strings name this candidate. They do not move `main` or the RC2 tag.
+**Version strings:** `pyproject.toml` says `1.0.0`. Splunk `app.conf` says `1.0.0`. Schema and ExternalEvidence are independent of that product version.
 
 **Telemetry schema:** 1.9.0 (independent)
 
 **External evidence contract:** 1.0.0 (independent)
 
-**Status:** educational lab documentation. Not a production certification. The “is not” list below still applies on `develop`. L10 and Mastery Check do not add a certification.
+**Status:** educational lab documentation. Not a production certification. The “is not” list below still applies to v1.0.0. L10 and Mastery Check do not add a certification.
 
 ## What AgentSec v1.0 IS
 
