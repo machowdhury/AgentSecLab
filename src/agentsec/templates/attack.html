@@ -52,7 +52,7 @@
         <dt>WHAT DOES THE ATTACKER CONTROL?</dt>
         <dd>Only the closed specimen bytes. The browser cannot choose profile, grants, document body, memory body, or policy.</dd>
         <dt>WHAT SHOULD THE DEFENDED EXPERIMENT DO?</dt>
-        <dd>{{ expected_defended }}</dd>
+        <dd>Not printed here. Predict, launch, then read the control decision and the execution fields. A sentence on this page would not be that evidence.</dd>
         <dt>WHAT SHOULD NOT BE INFERRED FROM SPLUNK?</dt>
         <dd>Splunk did not enforce the result. Missing events are not prevention. One RETEST is not universal resistance. Absence of goal or identity events in this packet does not mean those domains never exist.</dd>
       </dl>
@@ -78,9 +78,9 @@
         <dt>WHERE IS THE TRUST BOUNDARY?</dt>
         <dd>Between recalled data and authorization. STORED != TRUSTED. RECALLED != AUTHORIZED. MEMORY INFLUENCE != AUTHORITY.</dd>
         <dt>WHAT SHOULD THE VULNERABLE PROFILE DO?</dt>
-        <dd>Labeled fail-open ALLOW vulnerable_profile_fail_open:memory_derived_authority, then mcp.started and handler 1. Overlay is lab-only and not stored in memory.</dd>
+        <dd>Predict it before you launch. The labeled vulnerable specimen is not a grant, and this page does not print the decision.</dd>
         <dt>WHAT SHOULD THE DEFENDED PROFILE DO?</dt>
-        <dd>Same memory, same request, CTRL-MCP-001 DENY tool_not_granted, handler 0.</dd>
+        <dd>Predict it before you launch. Same memory and same request do not tell you the decision.</dd>
         <dt>WHAT SHOULD APPEAR IN SPLUNK?</dt>
         <dd>Write event, recall event, matching fingerprints, OBSERVE, then ALLOW or DENY. Splunk is a copy of telemetry.</dd>
         <dt>WHAT SHOULD NOT BE INFERRED FROM SPLUNK?</dt>
@@ -104,15 +104,15 @@
         <dt>WHAT SHOULD IT NOT BE ABLE TO CHANGE?</dt>
         <dd>The TaskContract, coded grants, profile, MCP policy, or the tool PDP. Instruction influence is not task authority.</dd>
         <dt>WHAT DO YOU PREDICT WILL HAPPEN?</dt>
-        <dd>Write it before launch. Vulnerable ATTACK: goal expansion accepted, MCP still ALLOWs lookup_policy, wrong-goal handler 1. Defended RETEST: goal expansion rejected, MCP still ALLOWs lookup_policy for the original task, wrong-goal 0, in-task 1.</dd>
+        <dd>Write the goal decision and the tool decision separately before you launch. A tool decision does not answer the goal question.</dd>
         <dt>THE MISCONCEPTION TO CHALLENGE</dt>
         <dd>If MCP allowed the tool, the action must have been authorized. That statement is false. CTRL-MCP-001 answers whether the tool may run. CTRL-GOAL-INTEGRITY-001 answers whether this purpose is authorized. TOOL AUTHORIZATION != TASK AUTHORIZATION.</dd>
         <dt>WHERE IS THE TRUST BOUNDARY?</dt>
         <dd>Between untrusted instruction and server-owned task. Between tool grant and task grant. These are different planes.</dd>
         <dt>WHAT SHOULD APPEAR IN SPLUNK?</dt>
-        <dd>Task fingerprint, instruction fingerprint, proposed extract_full_policy, CTRL-GOAL-INTEGRITY-001, CTRL-MCP-001 ALLOW tool_granted, execution evidence. Splunk is a copy of telemetry.</dd>
+        <dd>Task fingerprint, instruction fingerprint, the proposed action, both control decisions, and execution evidence. Splunk is a copy of telemetry.</dd>
         <dt>WHAT SHOULD NOT BE INFERRED FROM SPLUNK?</dt>
-        <dd>MCP ALLOW did not authorize the goal. Goal DENY did not deny lookup_policy. Splunk did not enforce the result. HEC success is not searchable evidence.</dd>
+        <dd>A goal decision and a tool decision are different events. One does not imply the other. Splunk did not enforce the result. HEC success is not searchable evidence.</dd>
       </dl>
     </section>
         {% endif %}
@@ -136,7 +136,7 @@
         <dt>WHY IS THE CLAIM UNTRUSTED?</dt>
         <dd>CTRL-IDENTITY-001 classifies identity/delegation claims as untrusted_claim. OBSERVE identity_claim_is_not_grant. OBSERVE is not ALLOW and not DENY.</dd>
         <dt>WHAT SHOULD HAPPEN?</dt>
-        <dd>Write it before launch. Vulnerable ATTACK: IDENTITY still OBSERVEs, then a labeled fail-open overlay, then CTRL-MCP-001 ALLOW, then lookup_customer_tier handler 1. Defended RETEST: same claim, IDENTITY still OBSERVEs, CTRL-MCP-001 DENY tool_not_granted, handler 0.</dd>
+        <dd>Write it before launch. Separate the identity observation from the tool decision, and separate that decision from execution. This page does not print the result.</dd>
         <dt>WHO AUTHENTICATED?</dt>
         <dd>NOT PROVEN / NOT MODELED. Caller id is not OAuth, OIDC, JWT validation, SPIFFE, or cryptographic identity.</dd>
         <dt>WHERE IS THE TRUST BOUNDARY?</dt>
@@ -165,27 +165,23 @@
       <p class="muted">Write your prediction before you click. Launching is not the investigation.</p>
       <dl class="facts">
         <dt>ATTACK OBJECTIVE</dt>
-        <dd>{{ prediction_attack.attack_objective }}</dd>
+        <dd>Use the form below to predict the control decision and whether execution occurs. This page does not print that answer.</dd>
         <dt>WHY THIS MATTERS</dt>
-        <dd>{{ prediction_attack.why_this_matters }}</dd>
+        <dd>A label on a button is not a measured control decision, and a completed run is not proof the attack succeeded.</dd>
         <dt>WHAT WILL CHANGE</dt>
-        <dd>{{ prediction_attack.what_will_change }}</dd>
+        <dd>A new run.id. What the control decides, and whether execution occurs, is what you have to find.</dd>
         <dt>WHAT WILL NOT CHANGE</dt>
-        <dd>{{ prediction_attack.what_will_not_change }}</dd>
+        <dd>The closed specimen. The browser does not choose profile, grants, or tool policy. Splunk does not ALLOW or DENY.</dd>
         <dt>WHAT SECURITY PROPERTY IS BEING TESTED</dt>
-        <dd>{{ prediction_attack.security_property }}</dd>
-        <dt>EXPECTED EVIDENCE (this ATTACK)</dt>
-        <dd>{{ prediction_attack.expected_evidence_vulnerable }}</dd>
+        <dd>Whether the control decision and the execution evidence agree with the prediction you write first.</dd>
         <dt>WHAT IS THE ATTACKER TRYING TO INFLUENCE?</dt>
-        <dd>{{ prediction_attack.attacker_influence or "The untrusted loan input string — treated as an instruction to approve." }}</dd>
+        <dd>The closed specimen content. The attacker wants that content treated as authority. Whether it is treated that way is the evidence question.</dd>
         <dt>WHAT THE ATTACKER DOES NOT CONTROL</dt>
-        <dd>{{ prediction_attack.what_will_not_change }}</dd>
+        <dd>Profile, grants, allowed tools, policy, and the authorization decision.</dd>
         <dt>WHAT SHOULD REMAIN SERVER-OWNED</dt>
         <dd>Profile, grants, allowed tools, policy, fixture body, and the authorization decision. The browser only selects the closed specimen/mode.</dd>
         <dt>WHAT SHOULD THE DEFENSE DO?</dt>
-        <dd>{{ prediction_attack.defense_should }}</dd>
-        <dt>PREDICT BEFORE LAUNCH</dt>
-        <dd>{{ prediction_attack.predict_before_launch }}</dd>
+        <dd>Write your own answer before you launch. The measured decision appears in the response and in Search, not in this paragraph.</dd>
       </dl>
     </section>
 
@@ -194,15 +190,15 @@
       <p class="muted">RETEST uses the <span class="badge-same">attack input</span> and a <span class="badge-different">server-owned defense</span>. Predict before you launch. What evidence would falsify your prediction?</p>
       <dl class="facts">
         <dt>WILL THE SAME INPUT REACH THE PROTECTED OPERATION?</dt>
-        <dd>{{ prediction_retest.will_reach_operation or "On the defended RETEST experiment, CTRL-INPUT-001 should DENY before Ollama. The input string does not change." }}</dd>
+        <dd>Write yes, no, or unknown before you launch. The specimen text can stay the same while the server-owned experiment changes. That is not the result.</dd>
         <dt>WHICH CONTROL EVALUATES IT?</dt>
-        <dd>{{ prediction_retest.which_control or "CTRL-INPUT-001 at acmebank.http_api, before acmebank.llm_call." }}</dd>
+        <dd>Name the control you think runs before the protected operation. Confirm it from the response, not from this page.</dd>
         <dt>WHAT DECISION DO YOU EXPECT?</dt>
-        <dd>{{ prediction_retest.expected_decision or "DENY, reason input_pattern_matched, attempted=false, executed=false, outcome=prevented." }}</dd>
+        <dd>Use the prediction form. ALLOW, DENY, ERROR, and UNKNOWN are your guess. They are not sent to Splunk and they are not graded.</dd>
         <dt>WHAT EXECUTION EVIDENCE?</dt>
-        <dd>{{ prediction_retest.expected_evidence_defended or "Zero llm.started on a complete copy. Runtime hops are authoritative for non-invocation." }}</dd>
+        <dd>Decide what you would count as execution before you click. A control decision by itself is not that evidence.</dd>
         <dt>WHAT WOULD FALSIFY THIS?</dt>
-        <dd>{{ prediction_retest.falsify or "llm.started on hop 0 after DENY, or a hop-0 ALLOW on this RETEST experiment, would falsify the defended prediction." }}</dd>
+        <dd>Write the observation that would prove your prediction wrong. Find that observation in the response and in Search. This page will not name it for you.</dd>
       </dl>
     </section>
 
@@ -224,7 +220,7 @@
         <dt>LIVE RETEST</dt>
         <dd>{{ retest_support }}. Same adversarial request as ATTACK. Different experiment configuration. New run.id.</dd>
         <dt>Expected when defended</dt>
-        <dd>{{ expected_defended }}</dd>
+        <dd>Not printed before launch. Compare your prediction with the response, then with Search.</dd>
       </dl>
       <h3>{{ payload_label }}</h3>
       <pre class="payload" id="payload-preview">{{ payload_preview }}</pre>

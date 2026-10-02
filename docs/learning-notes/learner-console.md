@@ -6,6 +6,8 @@ A prediction is ALLOW, DENY, ERROR, or UNKNOWN for the control, and YES, NO, or 
 
 `run.id` is the handle you copy into Splunk Search. REQUEST ACCEPTED means the launcher accepted the specimen. It is not authorization. RUN DENIED is a control outcome. BACKEND UNAVAILABLE is infrastructure. RUN TIMED OUT is not a DENY. RUN COMPLETED is not proof the attack succeeded.
 
+The page asks for the prediction. It does not print the control decision or the execution result before the launch.
+
 Search links keep using the host already in the address bar.
 
 ## What I should now be able to explain
