@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="1.1" script="agentsec_learner_path.js" hideEdit="true">
+  <label>Your path</label>
+  <description>Browser-local learning navigation. Not indexed evidence and not a security verdict.</description>
+  <row>
+    <panel>
+      <html>
+        <div id="agentsec-progress">
+          <p>Learning progress loads in this browser. It is not a Splunk result.</p>
+        </div>
+      </html>
+    </panel>
+  </row>
+</dashboard>

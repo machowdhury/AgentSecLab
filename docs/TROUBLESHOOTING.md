@@ -19,6 +19,8 @@ Rule: an infrastructure failure is not a security conclusion. A Docker or host e
 | `x509: certificate signed by unknown authority` | TLS inspection |
 | `open /proc/self/mountinfo: permission denied` | Container runtime cannot start |
 | Remote browser cannot open the server URL | Remote URL not reachable |
+| Workshop table is empty after a launch | Empty investigation table |
+| Your path forgot a workshop | Browser progress |
 
 Before changing an AgentSec file, run:
 
@@ -274,6 +276,20 @@ Authority-like keys are rejected as **ERROR**, not DENY.
 
 **Symptom:** old Attack UI.  
 **Remediation:** hard reload; confirm rebuild.
+
+## Empty investigation table
+
+**Symptom:** the workshop table has no rows after you paste a run.id.  
+**Cause:** the id is empty, indexing has not caught up, or that id is not in this index.  
+**Check:** Attack Service evidence state. Then run the same SPL in Search.  
+**Remediation:** wait, then paste the id again.  
+**Do not conclude:** DENY, timeout, or backend failure. Those words appear on the launcher, not as an empty table. HEC HTTP 200 is not this table.
+
+## Browser progress
+
+**Symptom:** Your path shows NOT STARTED after a new browser or a reset.  
+**Cause:** progress is `localStorage` on this Splunk origin. It is not an account.  
+**Remediation:** mark the workshop again. Reset clears only that list. It does not delete indexed evidence.
 
 ## HTTP 400 workshop page
 

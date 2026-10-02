@@ -164,6 +164,12 @@
         </section>
       </div>
     </details>
+    <section>
+      <h2>This browser tab</h2>
+      <p>LAST KNOWN CLIENT STATE. Not indexed evidence. A reload keeps this list in this tab. Search remains the evidence authority.</p>
+      <ul class="fact-list" id="session-history" data-agentsec-managed="1" data-lab-id="LAB-MCP-001"></ul>
+      <p id="session-pair"></p>
+    </section>
   </main>
 
   <script src="{{ url_for('static', filename='agentsec-ui.js') }}"></script>
@@ -298,6 +304,9 @@
           : controlDecision + " from runtime; handler count " + handlerCount(data) +
             "; evidence " + evidenceLabel(data) + ".";
         ui.applyState(statusEl, statusMessage, state, message);
+        if (runId) {
+          ui.captureLaunch(data, mode, "LAB-MCP-001");
+        }
         renderComparison();
       }
 

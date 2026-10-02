@@ -66,6 +66,11 @@ def test_tabs_and_tokens():
     }
     assert set(REQUIRED_TOKENS) <= tokens
     for inp in definition["inputs"].values():
+        if inp["type"] == "input.text":
+            assert inp["title"] == "LIVE run.id"
+            assert inp["options"]["token"] == "live_run_id"
+            assert inp["options"]["defaultValue"] == ""
+            continue
         assert "Investigate" in inp["title"]
         assert inp["type"] == "input.dropdown"
 

@@ -39,75 +39,52 @@
     },
     {
       "label": "Capstone",
-      "views": ["ws_lab_agentsec_capstone"]
+      "views": [
+        "ws_lab_agentsec_capstone"
+      ]
     },
     {
-      "label": "Splunk Defender Bridge",
-      "views": ["ws_lab_splunk_defender_bridge"]
+      "label": "Blue Team and Threat Modeling",
+      "views": [
+        "ws_lab_splunk_defender_bridge",
+        "ws_lab_blue_team_incident",
+        "ws_lab_detection_engineering",
+        "ws_lab_threat_modeling"
+      ]
     },
     {
-      "label": "Blue Team",
-      "views": ["ws_lab_blue_team_incident"]
+      "label": "Identity and Delegation",
+      "views": [
+        "ws_lab_agent_identity_nhi",
+        "ws_lab_a2a_auth_delegation",
+        "ws_lab_hitl_approval",
+        "ws_lab_credential_lifetime"
+      ]
     },
     {
-      "label": "Detection Engineering",
-      "views": ["ws_lab_detection_engineering"]
+      "label": "Data and Memory Governance",
+      "views": [
+        "ws_lab_privacy_data_governance",
+        "ws_lab_purpose_authorization",
+        "ws_lab_recall_isolation",
+        "ws_lab_asset_inventory",
+        "ws_lab_component_provenance"
+      ]
     },
     {
-      "label": "Security Architecture",
-      "views": ["ws_lab_threat_modeling"]
+      "label": "Operational Scenarios",
+      "views": [
+        "ws_lab_code_agent_bounds",
+        "ws_lab_change_bounds",
+        "ws_lab_multi_stage_incident"
+      ]
     },
     {
-      "label": "Agent Identity",
-      "views": ["ws_lab_agent_identity_nhi"]
-    },
-    {
-      "label": "A2A Authentication",
-      "views": ["ws_lab_a2a_auth_delegation"]
-    },
-    {
-      "label": "Human Approval",
-      "views": ["ws_lab_hitl_approval"]
-    },
-    {
-      "label": "Credential Lifetime",
-      "views": ["ws_lab_credential_lifetime"]
-    },
-    {
-      "label": "Privacy & Data Governance",
-      "views": ["ws_lab_privacy_data_governance"]
-    },
-    {
-      "label": "RAG Purpose",
-      "views": ["ws_lab_purpose_authorization"]
-    },
-    {
-      "label": "Memory Isolation",
-      "views": ["ws_lab_recall_isolation"]
-    },
-    {
-      "label": "Asset Inventory",
-      "views": ["ws_lab_asset_inventory"]
-    },
-    {
-      "label": "Component Provenance",
-      "views": ["ws_lab_component_provenance"]
-    },
-    {
-      "label": "Code Agent Bounds",
-      "views": ["ws_lab_code_agent_bounds"]
-    },
-    {
-      "label": "Change Bounds",
-      "views": ["ws_lab_change_bounds"]
-    },
-    {
-      "label": "Integrated Incident",
-      "views": ["ws_lab_multi_stage_incident"]
-    },
-    {
-      "label": "Advanced Capstone",
-      "views": ["ws_lab_advanced_capstone"]
+      "label": "Mastery",
+      "views": [
+        "ws_lab_advanced_capstone",
+        "ws_agentsec_mastery"
+      ]
     }
   ],
   "checkpoints": [
@@ -264,10 +241,30 @@
       "exit": "PRACTITIONER",
       "next": "L2",
       "labs": [
-        {"lab_id": "LAB-PI-001", "title": "Direct Prompt Injection", "mode": "LIVE", "view": "ws_lab_pi_001"},
-        {"lab_id": "LAB-MCP-001", "title": "Tool Authorization", "mode": "LIVE", "view": "ws_lab_mcp_001"},
-        {"lab_id": "LAB-MCP-003", "title": "Scope Escalation", "mode": "REPLAY", "view": "ws_lab_mcp_003"},
-        {"lab_id": "LAB-MCP-004", "title": "Parameter / Resource Authorization", "mode": "REPLAY", "view": "ws_lab_mcp_004"}
+        {
+          "lab_id": "LAB-PI-001",
+          "title": "Direct Prompt Injection",
+          "mode": "LIVE",
+          "view": "ws_lab_pi_001"
+        },
+        {
+          "lab_id": "LAB-MCP-001",
+          "title": "Tool Authorization",
+          "mode": "LIVE",
+          "view": "ws_lab_mcp_001"
+        },
+        {
+          "lab_id": "LAB-MCP-003",
+          "title": "Scope Escalation",
+          "mode": "REPLAY",
+          "view": "ws_lab_mcp_003"
+        },
+        {
+          "lab_id": "LAB-MCP-004",
+          "title": "Parameter / Resource Authorization",
+          "mode": "REPLAY",
+          "view": "ws_lab_mcp_004"
+        }
       ]
     },
     {
@@ -279,12 +276,42 @@
       "exit": "INVESTIGATOR (context)",
       "next": "L3",
       "labs": [
-        {"lab_id": "LAB-RAG-CONTEXT", "title": "RAG / Retrieved Context", "mode": "LIVE", "view": "ws_lab_rag_context"},
-        {"lab_id": "LAB-MEMORY-001", "title": "Persistent Memory", "mode": "LIVE", "view": "ws_lab_memory_security"},
-        {"lab_id": "LAB-MCP-005", "title": "Tool Result Trust", "mode": "REPLAY", "view": "ws_lab_mcp_005"},
-        {"lab_id": "LAB-MCP-CATALOG", "title": "Tool Catalog", "mode": "REPLAY", "view": "ws_lab_mcp_catalog"},
-        {"lab_id": "LAB-SCANNER-RUNTIME-EVIDENCE", "title": "Scanner + Runtime Evidence", "mode": "REPLAY", "view": "ws_lab_scanner_runtime_evidence"},
-        {"lab_id": "LAB-EXTERNAL-EVALUATION-GARAK", "title": "External Security Toolbox", "mode": "REPLAY", "view": "ws_lab_external_evaluation_garak"}
+        {
+          "lab_id": "LAB-RAG-CONTEXT",
+          "title": "RAG / Retrieved Context",
+          "mode": "LIVE",
+          "view": "ws_lab_rag_context"
+        },
+        {
+          "lab_id": "LAB-MEMORY-001",
+          "title": "Persistent Memory",
+          "mode": "LIVE",
+          "view": "ws_lab_memory_security"
+        },
+        {
+          "lab_id": "LAB-MCP-005",
+          "title": "Tool Result Trust",
+          "mode": "REPLAY",
+          "view": "ws_lab_mcp_005"
+        },
+        {
+          "lab_id": "LAB-MCP-CATALOG",
+          "title": "Tool Catalog",
+          "mode": "REPLAY",
+          "view": "ws_lab_mcp_catalog"
+        },
+        {
+          "lab_id": "LAB-SCANNER-RUNTIME-EVIDENCE",
+          "title": "Scanner + Runtime Evidence",
+          "mode": "REPLAY",
+          "view": "ws_lab_scanner_runtime_evidence"
+        },
+        {
+          "lab_id": "LAB-EXTERNAL-EVALUATION-GARAK",
+          "title": "External Security Toolbox",
+          "mode": "REPLAY",
+          "view": "ws_lab_external_evaluation_garak"
+        }
       ]
     },
     {
@@ -296,9 +323,24 @@
       "exit": "INVESTIGATOR (can rule a domain out)",
       "next": "L5",
       "labs": [
-        {"lab_id": "LAB-AGENT-GOAL-INTEGRITY-001", "title": "Goal / Instruction Integrity", "mode": "LIVE", "view": "ws_lab_agent_goal_integrity"},
-        {"lab_id": "LAB-AGENT-DELEGATION-001", "title": "Agent Identity / Delegation", "mode": "LIVE", "view": "ws_lab_agent_delegation"},
-        {"lab_id": "LAB-MCP-006", "title": "Confused Deputy", "mode": "REPLAY", "view": "ws_lab_mcp_006"}
+        {
+          "lab_id": "LAB-AGENT-GOAL-INTEGRITY-001",
+          "title": "Goal / Instruction Integrity",
+          "mode": "LIVE",
+          "view": "ws_lab_agent_goal_integrity"
+        },
+        {
+          "lab_id": "LAB-AGENT-DELEGATION-001",
+          "title": "Agent Identity / Delegation",
+          "mode": "LIVE",
+          "view": "ws_lab_agent_delegation"
+        },
+        {
+          "lab_id": "LAB-MCP-006",
+          "title": "Confused Deputy",
+          "mode": "REPLAY",
+          "view": "ws_lab_mcp_006"
+        }
       ]
     },
     {
@@ -320,7 +362,12 @@
       "exit": "ADVANCED / PURPLE TEAM",
       "next": "L6",
       "labs": [
-        {"lab_id": "LAB-AGENTSEC-CAPSTONE-001", "title": "Lending Assistant Investigation", "mode": "LIVE", "view": "ws_lab_agentsec_capstone"}
+        {
+          "lab_id": "LAB-AGENTSEC-CAPSTONE-001",
+          "title": "Lending Assistant Investigation",
+          "mode": "LIVE",
+          "view": "ws_lab_agentsec_capstone"
+        }
       ]
     },
     {
@@ -332,7 +379,12 @@
       "exit": "BLUE-TEAM INVESTIGATOR",
       "next": "L7",
       "labs": [
-        {"lab_id": "LAB-BLUE-TEAM-INCIDENT-001", "title": "AcmeBank Incident AI-2026-001", "mode": "REPLAY", "view": "ws_lab_blue_team_incident"}
+        {
+          "lab_id": "LAB-BLUE-TEAM-INCIDENT-001",
+          "title": "AcmeBank Incident AI-2026-001",
+          "mode": "REPLAY",
+          "view": "ws_lab_blue_team_incident"
+        }
       ]
     },
     {
@@ -344,7 +396,12 @@
       "exit": "SECURITY ARCHITECT",
       "next": "L8",
       "labs": [
-        {"lab_id": "LAB-THREAT-MODELING-001", "title": "AcmeBank Agentic Customer Operations Platform", "mode": "REPLAY", "view": "ws_lab_threat_modeling"}
+        {
+          "lab_id": "LAB-THREAT-MODELING-001",
+          "title": "AcmeBank Agentic Customer Operations Platform",
+          "mode": "REPLAY",
+          "view": "ws_lab_threat_modeling"
+        }
       ]
     },
     {
@@ -356,7 +413,12 @@
       "exit": "PRIVACY-AWARE SECURITY ARCHITECT",
       "next": "L9",
       "labs": [
-        {"lab_id": "LAB-PRIVACY-DATA-GOVERNANCE-001", "title": "AcmeBank Incident PRIV-2026-001", "mode": "REPLAY", "view": "ws_lab_privacy_data_governance"}
+        {
+          "lab_id": "LAB-PRIVACY-DATA-GOVERNANCE-001",
+          "title": "AcmeBank Incident PRIV-2026-001",
+          "mode": "REPLAY",
+          "view": "ws_lab_privacy_data_governance"
+        }
       ]
     },
     {
@@ -368,7 +430,12 @@
       "exit": "AGENTIC INCIDENT RESPONDER / SECURITY ARCHITECT",
       "next": "L10",
       "labs": [
-        {"lab_id": "LAB-MULTI-STAGE-INCIDENT-001", "title": "Acme Bank Incident AGENT-2026-009", "mode": "REPLAY", "view": "ws_lab_multi_stage_incident"}
+        {
+          "lab_id": "LAB-MULTI-STAGE-INCIDENT-001",
+          "title": "Acme Bank Incident AGENT-2026-009",
+          "mode": "REPLAY",
+          "view": "ws_lab_multi_stage_incident"
+        }
       ]
     },
     {
@@ -380,7 +447,12 @@
       "exit": "INDEPENDENT AGENTIC SECURITY INVESTIGATOR",
       "next": null,
       "labs": [
-        {"lab_id": "LAB-ADVANCED-CAPSTONE-MASTERY-001", "title": "Acme Bank Capstone MASTER-2026-001", "mode": "REPLAY", "view": "ws_lab_advanced_capstone"}
+        {
+          "lab_id": "LAB-ADVANCED-CAPSTONE-MASTERY-001",
+          "title": "Acme Bank Capstone MASTER-2026-001",
+          "mode": "REPLAY",
+          "view": "ws_lab_advanced_capstone"
+        }
       ]
     }
   ]

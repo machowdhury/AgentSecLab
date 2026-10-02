@@ -62,6 +62,12 @@
         {% endfor %}
       </ol>
     </details>
+    <section class="card">
+      <h2>This browser tab</h2>
+      <p class="muted">LAST KNOWN CLIENT STATE. Not indexed evidence. A reload keeps this list in this tab.</p>
+      <ul class="fact-list" id="session-history" data-agentsec-managed="1" data-lab-id="ACMEBANK"></ul>
+      <p id="session-pair"></p>
+    </section>
   </main>
   <script src="{{ url_for('static', filename='agentsec-ui.js') }}"></script>
   <script>
@@ -129,6 +135,7 @@
         if (data.run_id) {
           runBlock.hidden = false;
           ui.fillRunId(runInput, data.run_id);
+          ui.captureLaunch(data, "SUBMIT", "ACMEBANK");
         }
         jsonEl.textContent = JSON.stringify(data, null, 2);
         detailsEl.hidden = false;

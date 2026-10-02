@@ -60,7 +60,7 @@ def test_progressive_tabs_and_validated_searches():
         "INVESTIGATE",
         "CHALLENGE",
     ]
-    assert set(definition["dataSources"]) == {
+    assert set(definition["dataSources"]) - {"ds_guide_events", "ds_guide_summary"} == {
         "ds_cisco_who",
         "ds_cisco_finding",
         "ds_garak",

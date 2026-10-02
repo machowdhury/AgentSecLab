@@ -8,7 +8,7 @@ Before the first start, run `./scripts/precheck.sh`. That command is `./scripts/
 
 ## Resource requirements
 
-AgentSec runs several containers. Splunk is storage-intensive. Ollama is the local LLM runtime used for LIVE labs. It is not part of Splunk. REPLAY workshops do not require a model. An Ollama model uses more disk. The first installation needs more space than the git clone.
+AgentSec runs several containers. Splunk is storage-intensive. Ollama is the local LLM runtime AgentSec uses for LIVE labs. It is not part of Splunk. REPLAY workshops do not require it. An Ollama model uses more disk. The first installation needs more space than the git clone. Progress on Your path stays in the browser. It is not an account and not security evidence.
 
 | Item | Status |
 |------|--------|

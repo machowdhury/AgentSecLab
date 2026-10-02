@@ -11,6 +11,12 @@ Use these pages in order:
 5. [TROUBLESHOOTING.md](TROUBLESHOOTING.md) — Docker and host failures.
 6. [REMOTE_ACCESS.md](REMOTE_ACCESS.md) — a Linux server or cloud VM. Laptops stay on the localhost commands above.
 
+After the lab is up, stay in Academy Home. The path is LEARN, launch or select a specimen, paste or select the run.id, read the SPL and the inline table, interpret, compare, conclude, continue. LIVE labs need a fresh run.id copied from Attack Service. Studio does not receive that id by itself. REPLAY workshops use the Investigate specimen. REPLAY is a teaching mode. It is not a fresh LIVE launch and it is not a weaker evidence rule.
+
+A control decision is not execution. Execution is not a measured downstream resource change. An empty table is not DENY. HEC HTTP 200 is not the inline table.
+
+Your path stores progress in this browser only. Arena is optional and comes after Mastery. It uses the same LIVE launchers and the same evidence rules.
+
 After L5, the Splunk Defender Bridge is the REPLAY checkpoint before L6. See [SPLUNK_DEFENDER_BRIDGE.md](SPLUNK_DEFENDER_BRIDGE.md).
 
 Do not follow historical `docs/PHASE*.md` files as the install path. Those remain provenance.

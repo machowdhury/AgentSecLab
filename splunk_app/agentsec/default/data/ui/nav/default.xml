@@ -1,5 +1,6 @@
 <nav search_view="search" color="0B1F33">
   <view name="ws_agentsec_home" default="true">Home</view>
+  <view name="learner_path">Your path</view>
   <collection label="Foundations">
     <view name="ws_lab_pi_001">Direct Prompt Injection</view>
     <view name="ws_lab_mcp_001">Tool Authorization</view>
@@ -22,57 +23,34 @@
   <collection label="Capstone">
     <view name="ws_lab_agentsec_capstone">Lending Assistant Investigation</view>
   </collection>
-  <collection label="Splunk Defender Bridge">
+  <collection label="Blue Team and Threat Modeling">
     <view name="ws_lab_splunk_defender_bridge">Splunk Defender Bridge</view>
-  </collection>
-  <collection label="Blue Team">
     <view name="ws_lab_blue_team_incident">AcmeBank Incident AI-2026-001</view>
-  </collection>
-  <collection label="Detection Engineering">
     <view name="ws_lab_detection_engineering">Detection Engineering — Prove Your Coverage</view>
-  </collection>
-  <collection label="Security Architecture">
     <view name="ws_lab_threat_modeling">Threat Modeling</view>
   </collection>
-  <collection label="Agent Identity">
+  <collection label="Identity and Delegation">
     <view name="ws_lab_agent_identity_nhi">Agent Identity and Non-Human IAM</view>
-  </collection>
-  <collection label="A2A Authentication">
     <view name="ws_lab_a2a_auth_delegation">A2A Authentication and Delegation</view>
-  </collection>
-  <collection label="Human Approval">
     <view name="ws_lab_hitl_approval">Human Approval and Action Binding</view>
-  </collection>
-  <collection label="Credential Lifetime">
     <view name="ws_lab_credential_lifetime">Short-Lived Credential Lifetime</view>
   </collection>
-  <collection label="Privacy &amp; Data Governance">
+  <collection label="Data and Memory Governance">
     <view name="ws_lab_privacy_data_governance">Privacy Investigation</view>
-  </collection>
-  <collection label="RAG Purpose">
     <view name="ws_lab_purpose_authorization">RAG Purpose Authorization</view>
-  </collection>
-  <collection label="Memory Isolation">
     <view name="ws_lab_recall_isolation">Memory Ownership and Isolation</view>
-  </collection>
-  <collection label="Asset Inventory">
     <view name="ws_lab_asset_inventory">AI Asset Inventory</view>
-  </collection>
-  <collection label="Component Provenance">
     <view name="ws_lab_component_provenance">Component Provenance</view>
   </collection>
-  <collection label="Code Agent Bounds">
+  <collection label="Operational Scenarios">
     <view name="ws_lab_code_agent_bounds">Code Agent Bounds</view>
-  </collection>
-  <collection label="Change Bounds">
     <view name="ws_lab_change_bounds">Change Bounds</view>
-  </collection>
-  <collection label="Integrated Incident">
     <view name="ws_lab_multi_stage_incident">AGENT-2026-009</view>
   </collection>
-  <collection label="Advanced Capstone">
+  <collection label="Mastery">
     <view name="ws_lab_advanced_capstone">MASTER-2026-001</view>
+    <view name="ws_agentsec_mastery">Mastery Check</view>
   </collection>
-  <view name="ws_agentsec_mastery">Mastery Check</view>
+  <view name="ws_agentsec_arena">Arena</view>
   <view name="search">Search</view>
 </nav>

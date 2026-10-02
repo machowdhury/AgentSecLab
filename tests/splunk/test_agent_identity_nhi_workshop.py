@@ -72,9 +72,8 @@ def test_checkpoint_sits_between_l7_and_l8():
     assert checkpoint["lab_id"] not in known_lab_ids()
     assert not (LAB / "lab-manifest.json").is_file()
     labels = [row["label"] for row in curriculum["nav_collections"]]
-    assert labels.index("Security Architecture") < labels.index("Agent Identity") < labels.index(
-        "Privacy & Data Governance"
-    )
+    assert labels.index("Blue Team and Threat Modeling") < labels.index("Identity and Delegation")
+    assert labels.index("Identity and Delegation") < labels.index("Data and Memory Governance")
     nav = NAV.read_text(encoding="utf-8")
     assert nav.index("ws_lab_threat_modeling") < nav.index("ws_lab_agent_identity_nhi")
     assert nav.index("ws_lab_agent_identity_nhi") < nav.index("ws_lab_privacy_data_governance")

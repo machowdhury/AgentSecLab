@@ -357,7 +357,8 @@
       </ul>
       <h3>This browser tab</h3>
       <p class="muted">Session history survives reload in this tab. The painted status is the last client state, not a live Splunk result. A launcher terminal, when this tab still has it, is the runtime record. Search remains the evidence authority. WAITING_FOR_EVIDENCE is not a control decision.</p>
-      <ul class="fact-list" id="session-history"></ul>
+      <ul class="fact-list" id="session-history" data-lab-id="{{ lab_id }}"></ul>
+      <p id="session-pair"></p>
       <details class="secondary" id="tech-details" hidden>
         <summary>Response body</summary>
         <pre class="result-pre" id="result-json"></pre>
@@ -1002,6 +1003,7 @@
       detailsEl.hidden = false;
     });
     ui.refreshLauncherRecords(sessionHistory).then(function (runs) {
+      ui.paintSessionPair(labKey);
       if (liveCompare) {
         return;
       }

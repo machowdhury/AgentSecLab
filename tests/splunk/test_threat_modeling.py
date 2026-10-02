@@ -58,10 +58,8 @@ def test_curriculum_route_and_bounded_artifacts():
             "view": "ws_lab_threat_modeling",
         }
     ]
-    assert curriculum["nav_collections"][-14] == {
-        "label": "Security Architecture",
-        "views": ["ws_lab_threat_modeling"],
-    }
+    blue = next(row for row in curriculum["nav_collections"] if row["label"] == "Blue Team and Threat Modeling")
+    assert "ws_lab_threat_modeling" in blue["views"]
     for path in (
         DEFINITION,
         VIEW,

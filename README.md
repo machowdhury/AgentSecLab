@@ -100,7 +100,7 @@ cp .env.example .env
 7. Wait until the script exits. The script itself says the first Splunk boot can take 10–20 minutes. A measured clean-room was shorter; that measurement is not a promise. See [docs/QUICKSTART.md](docs/QUICKSTART.md).
 8. Open Academy Home: http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home
 9. Read the status the script printed. `SERVICE READY` means the Academy stack answered. `MODEL ABSENT` means LIVE generation is **DEGRADED**, not a pass. REPLAY pages can still be opened.
-10. Begin at L0 on Academy Home.
+10. Begin at Academy Home. The first action is Direct Prompt Injection. Your path, in the same app, records NOT STARTED, IN PROGRESS, and INVESTIGATED in this browser. That list is navigation. It is not a Splunk index and not a security verdict. Reset on Your path clears only that list.
 
 On a remote Linux server or cloud VM, use the remote commands instead of a plain `lab-up`:
 

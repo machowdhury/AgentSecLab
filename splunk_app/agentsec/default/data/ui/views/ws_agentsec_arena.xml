@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="2" theme="light">
+  <label>Arena</label>
+  <description>Optional advanced exploration. Same evidence rules as the guided labs. Not the landing page.</description>
+  <definition><![CDATA[
+{
+  "title": "Arena",
+  "description": "Optional advanced exploration. Same evidence rules as the guided labs.",
+  "visualizations": {
+    "viz_arena": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Arena\n\nOptional. This is after the guided curriculum. It is not the start, and it does not replace a workshop.\n\nUse the same LIVE launchers. There is no separate curriculum and no extra grant. Evidence rules are unchanged:\n\n- a control decision is not execution\n- execution is not a measured downstream resource change\n- an empty search is not DENY\n- HEC HTTP 200 is not indexed evidence\n- one RETEST is not universal protection\n\n- [Direct Prompt Injection](/en-US/app/agentsec/open_attack?path=/labs/LAB-PI-001)\n- [Tool Authorization](/en-US/app/agentsec/open_attack?path=/labs/LAB-MCP-001)\n- [RAG / Retrieved Context](/en-US/app/agentsec/open_attack?path=/labs/LAB-RAG-CONTEXT)\n- [Persistent Memory](/en-US/app/agentsec/open_attack?path=/labs/LAB-MEMORY-001)\n- [Goal / Instruction Integrity](/en-US/app/agentsec/open_attack?path=/labs/LAB-AGENT-GOAL-INTEGRITY-001)\n- [Agent Identity / Delegation](/en-US/app/agentsec/open_attack?path=/labs/LAB-AGENT-DELEGATION-001)\n- [Lending Assistant Investigation](/en-US/app/agentsec/open_attack?path=/labs/LAB-AGENTSEC-CAPSTONE-001)\n\nReturn to [Home](/en-US/app/agentsec/ws_agentsec_home) or [Your path](/en-US/app/agentsec/learner_path) when you want the guided sequence again.\n"
+      }
+    }
+  },
+  "dataSources": {},
+  "inputs": {},
+  "layout": {
+    "type": "absolute",
+    "options": {
+      "submitButton": false,
+      "submitOnDashboardLoad": true,
+      "showTitleAndDescription": true
+    },
+    "structure": [
+      {
+        "item": "viz_arena",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 1440,
+          "h": 640
+        }
+      }
+    ],
+    "globalInputs": []
+  }
+}
+  ]]></definition>
+</dashboard>

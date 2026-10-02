@@ -54,6 +54,13 @@ def _definition(xml_name: str) -> dict:
 
 
 def test_nav_is_grouped_and_home_is_default():
+    """Curriculum groups replaced singleton collections.
+
+    The old bar had 21 collections, most with one view. The learner contract
+    is now Home, Your path, nine curriculum groups, Arena, and Search.
+    View order inside the groups is still the curriculum sequence.
+    This is a navigation contract, not a security or evidence assertion.
+    """
     nav = NAV.read_text(encoding="utf-8")
     assert 'name="ws_agentsec_home" default="true"' in nav
     for label in (
@@ -61,21 +68,11 @@ def test_nav_is_grouped_and_home_is_default():
         "Context Security",
         "Agent Intent",
         "Capstone",
-        "Splunk Defender Bridge",
-        "Blue Team",
-        "Security Architecture",
-        "A2A Authentication",
-        "Human Approval",
-        "Credential Lifetime",
-        "Privacy &amp; Data Governance",
-        "RAG Purpose",
-        "Memory Isolation",
-        "Asset Inventory",
-        "Component Provenance",
-        "Code Agent Bounds",
-        "Change Bounds",
-        "Integrated Incident",
-        "Advanced Capstone",
+        "Blue Team and Threat Modeling",
+        "Identity and Delegation",
+        "Data and Memory Governance",
+        "Operational Scenarios",
+        "Mastery",
     ):
         assert f'<collection label="{label}">' in nav
     assert "Attack Labs" not in nav
@@ -122,7 +119,16 @@ def test_learner_views_use_dropdown_not_uuid_text():
         definition = _definition(name)
         assert definition["layout"]["options"]["submitButton"] is False, name
         assert definition["layout"]["options"]["submitOnDashboardLoad"] is True, name
+        text_inputs = []
         for inp in definition["inputs"].values():
+            if inp["type"] == "input.text":
+                # LIVE paste box. REPLAY stays on specimen dropdowns.
+                # Empty default so the bound search does not show a specimen answer first.
+                assert inp["title"] == "LIVE run.id", f"{name} {inp['title']}"
+                assert inp["options"]["token"] == "live_run_id"
+                assert inp["options"]["defaultValue"] == ""
+                text_inputs.append(inp)
+                continue
             assert inp["type"] == "input.dropdown", f"{name} {inp}"
             assert "Investigate" in inp["title"], f"{name} {inp['title']}"
             items = inp["options"]["items"]
@@ -132,6 +138,7 @@ def test_learner_views_use_dropdown_not_uuid_text():
                 assert item["value"]
                 assert item["label"] != item["value"]
                 assert " " in item["label"] or "—" in item["label"]
+        assert len(text_inputs) <= 1, name
         titles = {inp["title"] for inp in definition["inputs"].values()}
         assert "Hunt" not in titles, name
         assert "Hunt run_id" not in titles, name

@@ -49,7 +49,7 @@ Learners open Attack Service in a browser for LIVE launches, so port 5001 is a l
 
 `./scripts/lab-up.sh` without `--remote` forces `127.0.0.1` for ports 8000 and 5001 even if `.env` says otherwise.
 
-Academy Search links are paths on the Splunk host, such as `/en-US/app/search/search`. Attack Service links in the Academy open `open_attack`, which sends the browser to port 5001 on the same hostname. A local install still looks like `http://127.0.0.1:8000/...`. A remote install looks like `http://SERVER-IP-OR-DNS:8000/...`. Do not put a temporary cloud address in these pages.
+Academy Search links, Attack Service links, and the inline investigation tables are paths on the Splunk host you already opened. Attack Service links in the Academy open `open_attack`, which sends the browser to port 5001 on the same hostname. The LIVE run.id box does not call `127.0.0.1`. A local install still looks like `http://127.0.0.1:8000/...`. A remote install looks like `http://SERVER-IP-OR-DNS:8000/...`. Do not put a temporary cloud address in these pages.
 
 ## Cloud firewall
 
