@@ -4,16 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Attack Service — {{ lab_title }}</title>
+  <link rel="icon" href="{{ url_for('static', filename='agentsec-mark.svg') }}" type="image/svg+xml">
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="site-header-inner">
-      <div>
+      <div class="brand-lockup">
+        <img class="brand-mark" src="{{ url_for('static', filename='agentsec-mark.svg') }}" alt="" width="36" height="36">
+        <div>
         <p class="brand-kicker">AgentSec lab</p>
         <h1>Attack Service</h1>
         <p class="brand-sub">{{ lab_title }} · live launch</p>
+        </div>
       </div>
       <p class="header-meta">Untrusted HTTP client · {{ version }} · this console does not call Ollama and does not authorize</p>
     </div>
@@ -148,7 +152,7 @@
     <section class="card" aria-labelledby="scope-heading">
       <h2 id="scope-heading">Service scope</h2>
       <ul class="fact-list">
-        <li><strong>LOCAL EDUCATIONAL SERVICE</strong> — loopback classroom bind. Host publish remains 127.0.0.1.</li>
+        <li><strong>LOCAL EDUCATIONAL SERVICE</strong> — classroom launcher. Local mode binds to loopback. Remote mode stays on the host already in the address bar. This page does not authorize.</li>
         <li><strong>NOT PRODUCTION AUTHENTICATION</strong> — no login is implemented. Do not treat this as an authn guarantee.</li>
         <li><strong>NOT MULTI-TENANT</strong> · <strong>NOT INTERNET-FACING</strong></li>
         <li>Closed allowlist only. You pick {{ lab_id }} BASELINE, ATTACK, or RETEST. You do not send profile, grants, tools, scope, resource, identity_verified, authenticated, delegated_grant, A2A body, document trust, document body, memory body, instruction body, task contract, goal decision, trust labels, SPL, Python, or environment variables.</li>
@@ -224,6 +228,25 @@
       </dl>
       <h3>{{ payload_label }}</h3>
       <pre class="payload" id="payload-preview">{{ payload_preview }}</pre>
+      <form id="learner-prediction" class="prediction">
+        <fieldset>
+          <legend>Your prediction for the next launch</legend>
+          <p class="muted">This stays in this browser tab. It is not sent to Splunk, not graded, and not a control decision.</p>
+          <p id="predict-control-label">Will the control:</p>
+          <div class="choice-row" role="radiogroup" aria-labelledby="predict-control-label">
+            <label><input type="radio" name="predict-control" value="ALLOW"> ALLOW</label>
+            <label><input type="radio" name="predict-control" value="DENY"> DENY</label>
+            <label><input type="radio" name="predict-control" value="ERROR"> ERROR</label>
+            <label><input type="radio" name="predict-control" value="UNKNOWN" checked> UNKNOWN</label>
+          </div>
+          <p id="predict-execution-label">Will execution occur:</p>
+          <div class="choice-row" role="radiogroup" aria-labelledby="predict-execution-label">
+            <label><input type="radio" name="predict-execution" value="YES"> YES</label>
+            <label><input type="radio" name="predict-execution" value="NO"> NO</label>
+            <label><input type="radio" name="predict-execution" value="UNKNOWN" checked> UNKNOWN</label>
+          </div>
+        </fieldset>
+      </form>
       <div class="actions">
         <button class="btn btn-primary" id="fire-baseline" type="button" data-mode="BASELINE" data-specimen="{{ specimen_baseline }}">Launch BASELINE (LIVE)</button>
         <button class="btn btn-danger" id="fire-attack" type="button" data-mode="ATTACK" data-specimen="{{ specimen_attack }}">Launch ATTACK (LIVE)</button>
@@ -238,7 +261,8 @@
         <span class="status" id="ui-status" data-state="READY">READY</span>
         <p class="muted" id="status-live" aria-live="polite">Ready to launch an allowlisted {{ lab_id }} specimen.</p>
       </div>
-      <p class="muted" id="launch-meta">mode, state, elapsed time, and run.id appear here after a launch.</p>
+      <p class="muted" id="launch-meta">mode, state, elapsed time, and run.id appear here after a launch. run.id is an investigation handle, not a verdict.</p>
+      <p class="muted" id="prediction-compare">After a launch, your browser-only prediction is compared with fields in that response. Missing Search evidence is not a verdict.</p>
       <div id="run-pair-block">
         <h3>LIVE RUN PAIR</h3>
         <p class="muted">Keep both ids. ATTACK and RETEST must be different UUIDs. Unexplained UUIDs are not proof.</p>
@@ -322,6 +346,8 @@
       <label for="starter-spl">Starter query</label>
       <textarea id="starter-spl" readonly rows="3" spellcheck="false"></textarea>
       <div class="actions">
+        <button class="btn btn-secondary" id="copy-spl" type="button">Copy SPL</button>
+        <a class="btn btn-secondary" id="return-academy" href="/en-US/app/agentsec/ws_agentsec_home">Return to Academy</a>
         <a class="btn btn-secondary" id="open-search" href="/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Open Splunk Search</a>
         <a class="btn btn-secondary" id="open-attack-search" href="/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Open ATTACK in Search</a>
         <a class="btn btn-secondary" id="open-retest-search" href="/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Open RETEST in Search</a>
@@ -333,6 +359,9 @@
       <ul class="fact-list" id="compare-list">
         <li>Launch ATTACK and RETEST to fill this comparison. Missing a run is not SAFE.</li>
       </ul>
+      <h3>This browser tab</h3>
+      <p class="muted">Session history survives reload in this tab. It is not an identity and not a security verdict.</p>
+      <ul class="fact-list" id="session-history"></ul>
       <details class="secondary" id="tech-details" hidden>
         <summary>Response body</summary>
         <pre class="result-pre" id="result-json"></pre>
@@ -346,6 +375,37 @@
     const attackBtn = document.getElementById("fire-attack");
     const retestBtn = document.getElementById("fire-retest");
     ui.rewriteLearnerLinks(document);
+    const predictionForm = document.getElementById("learner-prediction");
+    const predictionCompare = document.getElementById("prediction-compare");
+    const sessionHistory = document.getElementById("session-history");
+    const labKey = {{ lab_id|tojson }};
+    function selectedValue(name) {
+      const picked = predictionForm ? predictionForm.querySelector('input[name="' + name + '"]:checked') : null;
+      return picked ? picked.value : "UNKNOWN";
+    }
+    function rememberPrediction() {
+      ui.savePrediction(labKey, {
+        control: selectedValue("predict-control"),
+        execution: selectedValue("predict-execution")
+      });
+    }
+    if (predictionForm) {
+      predictionForm.addEventListener("change", rememberPrediction);
+      const stored = ui.predictionFor(labKey);
+      if (stored) {
+        const controlInput = predictionForm.querySelector('input[name="predict-control"][value="' + stored.control + '"]');
+        const executionInput = predictionForm.querySelector('input[name="predict-execution"][value="' + stored.execution + '"]');
+        if (controlInput) controlInput.checked = true;
+        if (executionInput) executionInput.checked = true;
+      }
+    }
+    ui.renderSession(sessionHistory);
+    const copySpl = document.getElementById("copy-spl");
+    if (copySpl) {
+      copySpl.addEventListener("click", function () {
+        ui.copyFromInput(starterEl);
+      });
+    }
     const statusEl = document.getElementById("ui-status");
     const liveEl = document.getElementById("status-live");
     const factsEl = document.getElementById("fact-list");
@@ -768,7 +828,9 @@
         if (!response.ok && (response.status === 502 || response.status === 503 || response.status === 504)) {
           launchLabel = {state: "BACKEND UNAVAILABLE", message: "The launcher did not accept the request. This is not a control DENY."};
         } else if (data.run_id && data.error_class !== "ERROR") {
-          launchLabel = {state: "REQUEST ACCEPTED", message: "Request accepted for " + mode + ". run.id is present. Waiting for the runtime result."};
+          launchLabel = {state: "REQUEST ACCEPTED", message: "Request accepted for " + mode + ". run.id is an investigation handle, not authorization and not a verdict."};
+          ui.applyState(statusEl, liveEl, launchLabel.state, launchLabel.message);
+          await ui.afterPaint();
         }
         const settled = ui.learnerRunState(Object.assign({}, data, {runtime: runtime}));
         if (data.run_id && data.error_class !== "ERROR" && settled.state !== "RUN FAILED") {
@@ -777,7 +839,18 @@
         const elapsedSec = Math.round((Date.now() - startedAt) / 1000);
         const meta = document.getElementById("launch-meta");
         if (meta) {
-          meta.textContent = "mode=" + mode + " state=" + launchLabel.state + " elapsed=" + elapsedSec + "s" + (data.run_id ? " run.id=" + data.run_id : "");
+          meta.textContent = "mode=" + mode + " state=" + launchLabel.state + " elapsed=" + elapsedSec + "s" + (data.run_id ? " request=accepted run.id=" + data.run_id + " (investigation handle, not a verdict)" : "");
+        }
+        if (data.run_id) {
+          rememberPrediction();
+          ui.recordLaunch({mode: mode, runId: data.run_id, state: launchLabel.state});
+          ui.renderSession(sessionHistory);
+          const guess = ui.predictionFor(labKey);
+          const decision = ui.firstDecision(runtime);
+          const calls = runtime.llm_call_count;
+          if (predictionCompare && guess) {
+            predictionCompare.textContent = "You predicted control " + guess.control + " and execution " + guess.execution + ". This response shows control " + (decision || "not in the response") + " and llm_call_count " + (calls === undefined ? "not in the response" : calls) + ". That comparison is not a grade. Search is still required. Waiting for evidence is not a verdict.";
+          }
         }
         ui.applyState(statusEl, liveEl, launchLabel.state, launchLabel.message);
         if (data.run_id) {
