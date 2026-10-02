@@ -1,6 +1,6 @@
-# Known limitations (v1.0.0-rc3)
+# Known limitations (v1.0.0)
 
-These remain visible on purpose. The RC3 candidate does not remove them. The RC1 reproducibility note remains a historical record. A later clean-room section in the RC3 release notes is the measurement for this candidate.
+These remain visible on purpose. v1.0.0 does not remove them. The RC1 reproducibility note and the RC3 release notes remain historical records. The v1.0.0 release notes record the clean-room measurement used for this release.
 
 - Screen-reader coverage was not tested in the RC3 gate. This is not a WCAG conformance claim.
 - Dashboard Studio tabs use an inset box-shadow for keyboard focus. On the Change Bounds and Tool Authorization views, `outline` computed to `none` and a blue inset ring was present on the focused tab. That ring is the Splunk control.
@@ -12,7 +12,7 @@ These remain visible on purpose. The RC3 candidate does not remove them. The RC1
 - Two evidence vocabularies remain: how evidence was obtained, and how strong a claim is
 - `ollama/ollama:latest` is not pinned. Inside that image, `ollama pull llama3.2:1b` fails on this host with `x509: certificate signed by unknown authority`. The same registry URL succeeds with host `curl`. Do not disable certificate verification. Until the model is listed, AcmeBank `/health` stays `degraded` and LIVE generation is not pass. Academy REPLAY does not need the model.
 - The garak pin license line is not closed external validation (`docs/EXTERNAL_VALIDATION_BACKLOG.md`)
-- The GitHub default branch remains `main` (RC1). The current candidate is `develop`. Tag `v1.0.0-rc2` is the previous candidate.
+- `main` is v1.0.0. Tags `v1.0.0-rc1`, `v1.0.0-rc2`, and `v1.0.0-rc3` stay on their original commits.
 - External findings do not authorize tool execution
 - Production delegation, production IAM, human approval, and cryptographic identity are not modeled
 - Empty or negative search results are not proof of safety

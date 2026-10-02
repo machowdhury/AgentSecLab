@@ -2,7 +2,7 @@
 
 A technically capable person should be able to follow this linearly. Run every command from the **repository root**.
 
-Use the `develop` branch. That tree is the current L0–L10 release candidate (v1.0.0-rc3). `main` and annotated tag `v1.0.0-rc1` are the earlier baseline and stop before L6. Tag `v1.0.0-rc2` is the previous candidate. This candidate is not final `v1.0.0`. Clean-room installation on an empty machine has not been proven in this paragraph; these steps are the documented path. The release notes record whether a later clean-room run succeeded.
+Use `main` or annotated tag `v1.0.0`. That tree is the L0–L10 academy. Tag `v1.0.0-rc1` peels to the earlier baseline and stops before L6. Tags `v1.0.0-rc2` and `v1.0.0-rc3` stay on their original commits. These steps are the documented path. The release notes record the 2026-10-02 clean-room: service start was proven, and LIVE generation was degraded because the model was not listed.
 
 After the first lab, continue with the README academy section and [AGENTSEC_RELEASE_LAB_MATRIX.md](AGENTSEC_RELEASE_LAB_MATRIX.md). Do not treat the L5 Capstone as the end of the academy. L10 is the Advanced Capstone. Mastery Check is a separate unscored self-check.
 

@@ -194,4 +194,8 @@ LOW-4. Garak wheel hash, probe execution, Cisco JSON stability, Cisco AI-BOM, an
 
 `GO — v1.0.0 RELEASE QUALIFIED`
 
-The tag was not created. `main` was not modified.
+The tag was not created by this review. `main` was not modified by this review.
+
+## Promotion note
+
+An authorized promotion may change the product identity from `1.0.0rc3` / `1.0.0-rc3` to `1.0.0` after this review. That change does not rewrite the measurements above. Clean-room health on 2026-10-02 reported the rc3 strings and a degraded model. SCREEN READER: NOT TESTED. No WCAG claim. The Ollama TLS failure remains a documented external dependency. Degraded LIVE generation is not healthy.
