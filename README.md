@@ -55,24 +55,52 @@ Clean-room service start was proven on 2026-10-02 with fresh volumes. AcmeBank o
 
 ## Prerequisites
 
-Docker (Compose v2), Git, and a browser. Hardware minimums are **NOT BENCHMARKED**. Copy [`.env.example`](.env.example) to `.env` once. Never commit `.env`.
+You need Docker Engine with Compose v2, Git, `python3`, `curl`, and a browser. Podman is **not validated**. Windows is **not validated**. Hardware minimums are **NOT BENCHMARKED**.
 
-Details: [docs/AGENTSEC_PREREQUISITES.md](docs/AGENTSEC_PREREQUISITES.md).
+Host setup for macOS, the unvalidated Windows path, and Linux: [docs/AGENTSEC_PREREQUISITES.md](docs/AGENTSEC_PREREQUISITES.md).
 
 ## Quick start
 
-From the repository root, on `main` or tag `v1.0.0`:
+Run these from the repository root after Docker is installed and `docker info` succeeds.
+
+1. Check requirements in [docs/AGENTSEC_PREREQUISITES.md](docs/AGENTSEC_PREREQUISITES.md).
+2. Install Docker Engine and Compose v2. On macOS that is Docker Desktop. Start the engine.
+3. Verify Docker:
 
 ```bash
-./scripts/lab-preflight.sh
-cp .env.example .env          # once; do not commit .env
-./scripts/lab-up.sh           # first Splunk boot can take 10–20 minutes
-./scripts/lab-ready.sh        # service health; MODEL ABSENT means LIVE is degraded
+docker --version
+docker compose version
+docker info
 ```
 
-The Ollama container tries to pull `llama3.2:1b` on startup. If that pull fails, AcmeBank health stays degraded. REPLAY workshops do not need the model. A certificate error has to be fixed at the trust layer. Do not disable certificate verification.
+4. Clone and enter the repository. `main` is v1.0.0.
 
-Linear detail: [docs/QUICKSTART.md](docs/QUICKSTART.md). Short pointer: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md).
+```bash
+git clone https://github.com/machowdhury/AgentSecLab.git
+cd AgentSecLab
+```
+
+5. Create the local env file, then run preflight. Preflight fails if `.env` is missing. It does not install software.
+
+```bash
+cp .env.example .env
+./scripts/lab-preflight.sh
+```
+
+6. Start the lab. This pulls or builds images, starts the containers, and waits for service health.
+
+```bash
+./scripts/lab-up.sh
+```
+
+7. Wait until the script exits. The script itself says the first Splunk boot can take 10–20 minutes. A measured clean-room was shorter; that measurement is not a promise. See [docs/QUICKSTART.md](docs/QUICKSTART.md).
+8. Open Academy Home: http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home
+9. Read the status the script printed. `SERVICE READY` means the Academy stack answered. `MODEL ABSENT` means LIVE generation is **DEGRADED**, not a pass. REPLAY pages can still be opened.
+10. Begin at L0 on Academy Home.
+
+The Ollama container tries to pull `llama3.2:1b` on startup. `lab-up.sh` does not run that pull itself. A certificate error has to be fixed at the trust layer. Do not disable certificate verification.
+
+Step-by-step detail: [docs/QUICKSTART.md](docs/QUICKSTART.md). Map: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md).
 
 Service health means the services answer. It does not mean a `run.id` is searchable, and it does not mean the Ollama model is present. An HEC HTTP 200 is not indexed evidence. `MODEL ABSENT` means LIVE generation is degraded.
 
@@ -183,7 +211,7 @@ Boundaries: [docs/AGENTSEC_V1_PRODUCT_BOUNDARY.md](docs/AGENTSEC_V1_PRODUCT_BOUN
 
 - Path B is intentionally learner-accessible. Studio does not hide it.
 - This academy is not a certification. Mastery Check is unscored. L10 does not certify you.
-- Clean-room installation is not proven.
+- Clean-room service start was measured. On that run LIVE generation stayed degraded because the model was absent. That degraded result is not a pass. Windows and Podman were not part of the measurement.
 - Screen-reader coverage is partial and not fully tested. That is not a WCAG conformance claim.
 - Production authentication and cryptographic delegation are not modeled.
 - One RETEST does not prove universal effectiveness.

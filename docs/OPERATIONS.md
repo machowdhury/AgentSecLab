@@ -1,10 +1,26 @@
 # Operations: start, stop, reset, diagnostics
 
-Canonical start: `./scripts/lab-up.sh` from the repository root (`.env` required).
+Canonical start: `./scripts/lab-up.sh` from the repository root (`.env` required). There is no separate clean-room script. A fresh volume start is the destructive Compose command below, used only when you mean to delete lab data.
+
+## Learner commands
+
+| Intent | Command | Data |
+|--------|---------|------|
+| Stop | `./scripts/lab-down.sh` | Containers stop. The script says indexed Splunk data and named volumes remain. |
+| Start again | `./scripts/lab-up.sh` | Uses existing volumes. |
+| Rebuild app images | `./scripts/lab-up.sh --build` | Rebuilds AcmeBank and Attack Service, then starts. |
+| Restage Splunk app | `./scripts/lab-up.sh --refresh-app` | Copies `splunk_app/agentsec` into `splunk_app_agentsec`, restarts Splunk, and runs HEC init again. |
+| Status | `./scripts/lab-preflight.sh` and `./scripts/lab-ready.sh` | Preflight does not start the lab. `lab-ready` checks the running lab. |
+| Which containers exist | `docker ps --filter name=agentsec_` | Names only. |
+| Logs | `docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local --env-file .env logs --tail=80 attack_service acmebank otel_collector splunk ollama` | Does not print `.env`. |
 
 ## What READY means
 
-`./scripts/lab-ready.sh` exit 0 = **SERVICE HEALTH**. It does not prove evidence searchability.
+`./scripts/lab-ready.sh` prints `SERVICE READY` and exits 0 when service health passes. It can still print `MODEL ABSENT` and then exit 0. That pair means the Academy stack answered and LIVE generation is degraded. It does not prove a `run.id` is searchable. `DEGRADED` is not a pass.
+
+## Warning before a destructive reset
+
+`docker compose … down -v` deletes lab volumes. That includes `splunk_app_agentsec`, `ollama_models`, and `shared_telemetry`, and anonymous volumes attached to the containers. Indexed Splunk events and a downloaded model on those volumes are removed. It does not delete the git checkout. Run it only when that loss is acceptable.
 
 ## Shutdown (soft)
 
@@ -12,7 +28,7 @@ Canonical start: `./scripts/lab-up.sh` from the repository root (`.env` required
 ./scripts/lab-down.sh
 ```
 
-Stops containers. **Persists:** Docker volumes (`splunk_app_agentsec`, Splunk indexed data inside the Splunk volume if compose defines one — Splunk data lives in the container/volume set compose uses), `ollama_models`, `shared_telemetry`, named app volume, host `artifacts/`.
+Stops containers. `scripts/lab-down.sh` says indexed Splunk data and named volumes remain. Those named volumes include `splunk_app_agentsec`, `ollama_models`, and `shared_telemetry`. Host `artifacts/` is not removed. Images are not deleted.
 
 **Next start:** `./scripts/lab-up.sh` (no `--build` unless source/images must rebuild).
 
