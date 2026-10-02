@@ -180,6 +180,10 @@ Splunk is where you search, correlate, reconstruct, compare, investigate, hunt, 
 
 Splunk is not CTRL-MCP-001. It is not the tool authorization decision point. Zero rows do not prove an event never happened and do not prove safety. HEC acceptance does not prove the evidence set is complete.
 
+![AgentSec architecture. The gate is CTRL-MCP-001. Splunk stays downstream.](docs/brand/agentsec-architecture.svg)
+
+The picture matches the text in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). It does not add components.
+
 ## External security evidence
 
 Cisco **mcp-scanner** (Cisco AI Defense) and **garak** (NVIDIA) are third-party tools. AgentSec did not build them. The lab imports their output as adjacent evidence:

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 520" role="img" aria-labelledby="title desc">
+  <title id="title">AgentSec architecture</title>
+  <desc id="desc">Learner, Academy, Attack Service, AcmeBank, CTRL-MCP-001 as the tool decision gate, then OpenTelemetry and Splunk downstream. Splunk does not authorize.</desc>
+  <rect width="880" height="520" fill="#F6F8FB"/>
+  <g font-family="system-ui, Segoe UI, sans-serif" font-size="16" fill="#17202A">
+    <rect x="280" y="16" width="320" height="44" rx="4" fill="#FFFFFF" stroke="#D9E0E7"/>
+    <text x="440" y="44" text-anchor="middle">Learner</text>
+    <rect x="220" y="84" width="440" height="44" rx="4" fill="#FFFFFF" stroke="#D9E0E7"/>
+    <text x="440" y="112" text-anchor="middle">Splunk Academy  syllabus and investigation</text>
+    <rect x="220" y="152" width="440" height="44" rx="4" fill="#FFFFFF" stroke="#D9E0E7"/>
+    <text x="440" y="180" text-anchor="middle">Attack Service  closed specimen launcher</text>
+    <rect x="220" y="220" width="440" height="44" rx="4" fill="#FFFFFF" stroke="#D9E0E7"/>
+    <text x="440" y="248" text-anchor="middle">AcmeBank runtime  server-owned experiment</text>
+    <rect x="180" y="288" width="520" height="64" rx="4" fill="#0B1F33"/>
+    <text x="440" y="316" text-anchor="middle" fill="#FFFFFF">CTRL-MCP-001  tool decision gate</text>
+    <text x="440" y="336" text-anchor="middle" fill="#7ED0D4" font-size="13">ALLOW is not execution. DENY is not universal safety.</text>
+    <rect x="220" y="376" width="440" height="44" rx="4" fill="#FFFFFF" stroke="#007F86"/>
+    <text x="440" y="404" text-anchor="middle">OpenTelemetry events</text>
+    <rect x="160" y="444" width="560" height="52" rx="4" fill="#FFFFFF" stroke="#D9E0E7"/>
+    <text x="440" y="476" text-anchor="middle">Splunk HEC and Search  downstream evidence, not the PDP</text>
+  </g>
+  <g stroke="#8AA0B4" stroke-width="2" fill="none">
+    <path d="M440 60 V84"/>
+    <path d="M440 128 V152"/>
+    <path d="M440 196 V220"/>
+    <path d="M440 264 V288"/>
+    <path d="M440 352 V376" stroke="#007F86"/>
+    <path d="M440 420 V444" stroke="#007F86"/>
+  </g>
+</svg>
