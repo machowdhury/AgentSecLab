@@ -2,7 +2,7 @@
 
 AgentSec is an **agentic security academy**: a local, hands-on lab for learning agentic security, security fundamentals, Splunk investigation, blue-team reasoning, threat modeling, privacy, and evidence-based analysis.
 
-You run controlled experiments against an educational agent, then investigate the evidence in Splunk. AcmeBank is where reference controls run. The Attack Service is a closed educational launcher on localhost. Splunk is the investigation workbench. Splunk does **not** authorize tools.
+You run controlled experiments against an educational agent, then investigate the evidence in Splunk. AcmeBank is where reference controls run. The Attack Service is a closed educational launcher. On a local install it is on localhost. On a remote install, open the host already in the browser address bar. Splunk is the investigation workbench. Splunk does **not** authorize tools.
 
 Ollama is the local LLM runtime AgentSec uses for LIVE labs. It is not part of Splunk. REPLAY workshops do not require it.
 
@@ -42,16 +42,17 @@ Two git refs matter. They are not the same product snapshot.
 
 | Ref | What it is |
 |-----|------------|
-| `main` and annotated tag `v1.0.0` | Final v1.0.0 academy. Package `1.0.0`. Splunk app `1.0.0`. |
+| `main` and annotated tag `v1.1.0` | Current academy. Package `1.1.0`. Splunk app `1.1.0`. |
+| annotated tag `v1.0.0` | Previous release. It stays on its original commit. Package `1.0.0`. |
 | annotated tag `v1.0.0-rc1` | Historical RC1 baseline. The tag peels to commit `e6115b6d1c03a1672b4364e84748c7840671fbfc`. That snapshot does **not** contain the L6–L10 academy. |
 | annotated tag `v1.0.0-rc2` | Historical previous candidate. It stays on its original commit. |
-| annotated tag `v1.0.0-rc3` | Historical candidate that this release promotes. It peels to `6c7af8e87f96cda4ee929664fbb17ec763dd135c` and was not moved. |
+| annotated tag `v1.0.0-rc3` | Historical candidate. It peels to `6c7af8e87f96cda4ee929664fbb17ec763dd135c` and was not moved. |
 
-Package metadata is `1.0.0` in `pyproject.toml`. The Splunk app version is `1.0.0`. Those strings are the product version.
+Package metadata is `1.1.0` in `pyproject.toml`. The Splunk app version is `1.1.0`. Those strings are the product version.
 
 Telemetry schema remains **1.9.0**. The external-evidence contract remains **1.0.0**. Product version, schema, and the external-evidence contract are independent.
 
-A default `git clone` follows `origin/HEAD`, which is `main`. That branch is this v1.0.0 release.
+A default `git clone` follows `origin/HEAD`, which is `main`. That branch is this v1.1.0 release.
 
 Clean-room service start was proven on 2026-10-02 with fresh volumes. AcmeBank on that run was `degraded` because `llama3.2:1b` was not listed. That degraded state is not a PASS for LIVE generation. See [docs/releases/V1_0_0_RELEASE_NOTES.md](docs/releases/V1_0_0_RELEASE_NOTES.md).
 
@@ -75,12 +76,12 @@ docker compose version
 docker info
 ```
 
-4. Clone the repository and use `develop` for this install guide. `main` and tag `v1.0.0` are the released product and do not yet include this later guide.
+4. Clone the repository. `main` and tag `v1.1.0` are this release. Tag `v1.0.0` is the previous release.
 
 ```bash
 git clone https://github.com/machowdhury/AgentSecLab.git
 cd AgentSecLab
-git checkout develop
+git checkout v1.1.0
 ```
 
 5. Create the local env file, then run preflight. Preflight fails if `.env` is missing. It does not install software.

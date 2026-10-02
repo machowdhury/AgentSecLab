@@ -16,7 +16,7 @@ from agentsec.experiment import (
 from agentsec.evidence import write_evidence_bundle
 from agentsec.mcp.authorize import McpControlResult
 from agentsec.mcp.client import McpClient
-from agentsec.mcp.pipeline import McpHop, _run_follow_on_tool
+from agentsec.mcp.pipeline import McpHop, _run_follow_on_tool, request_handler_counts
 from agentsec.mcp.policy import coded_policy, policy_unchanged_by_retrieved_context
 from agentsec.mcp.registry import ToolRegistry, default_registry
 from agentsec.mcp.server import McpServer
@@ -267,8 +267,6 @@ def run_rag_retrieve(
     block_reason = None
     error_stage = ctx_decision.error_stage
     hop_outcome = "hop_allowed"
-    counts_before = registry.invoke_total
-    counts_before_by_tool = dict(registry.invoke_counts)
     context_derived_authority = bool(overlay is not None and ctx_decision.overlay_applied)
     follow_on_decision = None
     follow_on_reason = None
@@ -331,11 +329,9 @@ def run_rag_retrieve(
             server=server,
             client=client,
             emitter=emitter,
-            registry=registry,
             settings=settings,
             user_id=user_id,
             overlay=overlay if context_derived_authority else None,
-            counts_before_by_tool=counts_before_by_tool,
             agent_id=RAG_AGENT_ID,
             agent_name=RAG_AGENT_NAME,
         )
@@ -355,10 +351,11 @@ def run_rag_retrieve(
             error_stage = "control_evaluation" if follow_hop.control_decision == "ERROR" else "mcp_invocation"
 
     last_hop = hops[-1]
+    handler_count, _lookup_policy_count, lookup_tier_count = request_handler_counts(hops)
     if blocked and last_hop.control_decision == "DENY":
         terminal = "completed_denied"
         emitter.run_completed(outcome="completed_denied", duration_ms=_duration_ms(started))
-        actual = f"DENY {last_hop.tool_name}; handler_invokes={registry.invoke_total - counts_before}"
+        actual = f"DENY {last_hop.tool_name}; handler_invokes={handler_count}"
     elif blocked:
         terminal = "run_failed"
         stage = error_stage or "pipeline"
@@ -378,19 +375,14 @@ def run_rag_retrieve(
             else "pipeline",
             error_message=block_reason or "RAG retrieve stopped with error",
         )
-        actual = f"ERROR {ctx_decision.reason}; handler_invokes={registry.invoke_total - counts_before}"
+        actual = f"ERROR {ctx_decision.reason}; handler_invokes={handler_count}"
     else:
         terminal = "completed_allowed"
         emitter.run_completed(outcome="completed_allowed", duration_ms=_duration_ms(started))
         actual = (
             f"OBSERVE retrieved_context_is_data; "
-            f"handler_invokes={registry.invoke_total - counts_before}"
+            f"handler_invokes={handler_count}"
         )
-
-    handler_count = registry.invoke_total - counts_before
-    lookup_tier_count = registry.invoke_counts.get("lookup_customer_tier", 0) - counts_before_by_tool.get(
-        "lookup_customer_tier", 0
-    )
     policy_after = coded_policy()
     if policy_after.allowed_tools != policy_before.allowed_tools:
         raise RuntimeError("RAG blocker: coded allowed_tools mutated")

@@ -321,6 +321,70 @@ def test_concurrent_rag_attack_and_retest_do_not_leak_profile(acme_client):
     assert coded_policy().allowed_tools == frozenset({"lookup_policy"})
 
 
+def _launch_rag(client, mode: str) -> dict:
+    response = client.post(
+        "/api/launch",
+        json={
+            "lab_id": "LAB-RAG-CONTEXT",
+            "specimen_id": "RAG-001",
+            "mode": mode,
+            "execution": "live",
+        },
+    )
+    body = response.get_json()
+    assert response.status_code == 200
+    return body
+
+
+def _concurrent_rag(client, modes: list[str]) -> list[dict]:
+    results: dict[int, dict] = {}
+
+    def fire(index: int, mode: str) -> None:
+        results[index] = _launch_rag(client, mode)
+
+    threads = [threading.Thread(target=fire, args=(index, mode)) for index, mode in enumerate(modes)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    return [results[index] for index in range(len(modes))]
+
+
+def _assert_rag_attribution(body: dict, mode: str) -> None:
+    runtime = body["runtime"]
+    assert runtime["testbed_mode"] == mode
+    assert runtime["context_control_decision"] == "OBSERVE"
+    if mode == "ATTACK":
+        assert runtime["profile"] == "vulnerable"
+        assert runtime["follow_on_decision"] == "ALLOW"
+        assert runtime["follow_on_reason"] == RAG_FAIL_OPEN_REASON
+        assert runtime["lookup_customer_tier_handler_count"] == 1
+        assert runtime["handler_invoke_count"] == 1
+    else:
+        assert runtime["profile"] == "defended"
+        assert runtime["follow_on_decision"] == "DENY"
+        assert runtime["follow_on_reason"] == "tool_not_granted"
+        assert runtime["lookup_customer_tier_handler_count"] == 0
+        assert runtime["handler_invoke_count"] == 0
+
+
+def test_concurrent_rag_attribution_is_request_scoped(acme_client):
+    client, _calls = _wired_app(acme_client)
+    batches = [
+        ["RETEST", "ATTACK"],
+        ["ATTACK", "ATTACK"],
+        ["RETEST", "RETEST"],
+        ["ATTACK", "RETEST", "ATTACK"],
+    ]
+    for _round in range(5):
+        for modes in batches:
+            bodies = _concurrent_rag(client, modes)
+            run_ids = [body["run_id"] for body in bodies]
+            assert len(set(run_ids)) == len(run_ids)
+            for mode, body in zip(modes, bodies, strict=True):
+                _assert_rag_attribution(body, mode)
+
+
 def test_pi_and_mcp_launches_still_work(acme_client):
     client, _calls = _wired_app(acme_client)
     pi = client.post(

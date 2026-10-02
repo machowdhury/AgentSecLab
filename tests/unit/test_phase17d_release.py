@@ -72,8 +72,8 @@ def test_required_release_docs_exist():
 
 def test_product_version_rc1_not_schema():
     py = PYPROJECT.read_text(encoding="utf-8")
-    assert 'version = "1.0.0"' in py
-    assert "version = 1.0.0" in APP_CONF.read_text(encoding="utf-8")
+    assert 'version = "1.1.0"' in py
+    assert "version = 1.1.0" in APP_CONF.read_text(encoding="utf-8")
     assert SCHEMA_VERSION == "1.9.0"
 
 

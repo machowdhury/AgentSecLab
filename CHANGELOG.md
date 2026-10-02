@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.1.0
+
+Current educational release. Telemetry schema remains **1.9.0**. ExternalEvidence remains **1.0.0**. Tag `v1.0.0` and tags `v1.0.0-rc1`, `v1.0.0-rc2`, and `v1.0.0-rc3` were not moved.
+
+Package metadata is `1.1.0`. The Splunk app version is `1.1.0`. Those strings are the product version. They are not the schema version and not the external-evidence contract version.
+
+This release does not add a new LIVE attack, a new detector, or an authorization change. DET-MCP-001 stays disabled. CTRL-MCP-001 remains the tool policy decision point. Splunk remains the investigation workbench.
+
+### Since v1.0.0
+
+- Remote learner navigation stays on the host in the browser address bar.
+- Install and preflight notes say what they do not prove.
+- Attack Service session history labels the last client state and does not call it a Splunk verdict.
+- The ATTACK versus RETEST comparison for the same lab rebuilds after reload.
+- The launcher does not print the expected decision before launch.
+- Academy Home shows a bounded AgentSec mark. The Splunk app has an app icon. The Attack Service favicon is a simplified mark.
+- Dashboard Studio native tab focus is a Splunk 10.2 platform limitation. AgentSec does not inject a stylesheet into Studio.
+- Runtime handler counts are taken from the request that entered the handler. A process-wide counter remains a diagnostic and is not request evidence. CTRL-MCP-001 is unchanged.
+
+SCREEN READER: NOT TESTED. No WCAG claim. Physical keyboard traversal of Studio tabs: NOT MEASURED. True browser 200% zoom: NOT MEASURED.
+
 ## v1.0.0
 
 Final educational release promoted from the qualified `v1.0.0-rc3` tree. Telemetry schema remains **1.9.0**. ExternalEvidence remains **1.0.0**. Tags `v1.0.0-rc1`, `v1.0.0-rc2`, and `v1.0.0-rc3` were not moved.

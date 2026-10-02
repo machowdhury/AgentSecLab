@@ -1,6 +1,6 @@
 # Getting started
 
-The L0–L10 academy is v1.0.0 on `main` and annotated tag `v1.0.0`. Tag `v1.0.0-rc1` is the older RC1 baseline and does not contain L6–L10. Tags `v1.0.0-rc2` and `v1.0.0-rc3` were not moved. Current install notes on `develop` may be ahead of that tag. They do not change the tagged release.
+The L0–L10 academy is v1.1.0 on `main` and annotated tag `v1.1.0`. Tag `v1.0.0` is the previous release and was not moved. Tag `v1.0.0-rc1` is the older RC1 baseline and does not contain L6–L10. Tags `v1.0.0-rc2` and `v1.0.0-rc3` were not moved.
 
 Use these pages in order:
 

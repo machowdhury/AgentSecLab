@@ -31,7 +31,7 @@ from agentsec.identity.trust import (
 )
 from agentsec.mcp.authorize import McpControlResult
 from agentsec.mcp.client import McpClient
-from agentsec.mcp.pipeline import McpHop
+from agentsec.mcp.pipeline import McpHop, request_handler_counts
 from agentsec.mcp.policy import coded_policy, policy_unchanged_by_identity_claim
 from agentsec.mcp.registry import ToolRegistry, default_registry
 from agentsec.mcp.server import McpServer
@@ -260,7 +260,6 @@ def run_identity_delegation(
     policy = identity_agent_policy(CALLEE_AGENT_ID)
     server = McpServer(registry=registry, policy=policy, authorize_fn=authorize_fn)
     client = McpClient()
-    counts_before_by_tool = dict(registry.invoke_counts)
     overlay = None
     overlay_applied = False
     follow_on_decision = None
@@ -280,11 +279,9 @@ def run_identity_delegation(
             server=server,
             client=client,
             emitter=emitter,
-            registry=registry,
             settings=settings,
             request=evaluated,
             overlay=overlay,
-            counts_before_by_tool=counts_before_by_tool,
         )
         hops.append(hop)
         follow_on_decision = hop.control_decision
@@ -294,12 +291,7 @@ def run_identity_delegation(
         )
         policy_unchanged_by_identity_claim(policy, evaluated)
 
-    lookup_policy_count = registry.invoke_counts.get("lookup_policy", 0) - counts_before_by_tool.get(
-        "lookup_policy", 0
-    )
-    lookup_tier_count = registry.invoke_counts.get("lookup_customer_tier", 0) - counts_before_by_tool.get(
-        "lookup_customer_tier", 0
-    )
+    _handler_count, lookup_policy_count, lookup_tier_count = request_handler_counts(hops)
     policy_after = identity_agent_policy(CALLEE_AGENT_ID)
     terminal = "run_failed" if blocked or (hops and hops[-1].operation_outcome == "error") else "run_completed"
     if terminal == "run_failed":
@@ -446,11 +438,9 @@ def _run_follow_on_from_frozen(
     server: McpServer,
     client: McpClient,
     emitter: EventEmitter,
-    registry: ToolRegistry,
     settings: Settings,
     request: A2ADelegationRequest,
     overlay: IdentityDerivedOverlay | None,
-    counts_before_by_tool: dict[str, int],
 ) -> McpHop:
     hop_started_at = time.monotonic()
     hop_span_id = new_span_id()
@@ -522,6 +512,7 @@ def _run_follow_on_from_frozen(
     payload: dict[str, Any] | None = None
     mcp_error = None
     hop_outcome = "hop_allowed"
+    handler_began = False
     if control.blocks_tool:
         outcome = "prevented"
         hop_outcome = "hop_denied" if control.decision == "DENY" else "hop_error"
@@ -547,6 +538,7 @@ def _run_follow_on_from_frozen(
         attempted = True
         executed = True
         execution = server.execute(decision.ticket)
+        handler_began = execution.began
         if not execution.ok:
             mcp_error = execution.error_type
             mcp_failed = True
@@ -594,9 +586,6 @@ def _run_follow_on_from_frozen(
         duration_ms=_duration_ms(hop_started_at),
         delegator_agent_id=CALLER_AGENT_ID,
     )
-    invoked = registry.invoke_counts.get(request.requested_tool, 0) > counts_before_by_tool.get(
-        request.requested_tool, 0
-    )
     return McpHop(
         index=1,
         agent_id=CALLEE_AGENT_ID,
@@ -614,7 +603,7 @@ def _run_follow_on_from_frozen(
         mcp_failed=mcp_failed,
         span_id=hop_span_id,
         delegator_agent_id=CALLER_AGENT_ID,
-        handler_invoked=invoked,
+        handler_invoked=handler_began,
         tool_name=decision.tool_name or request.requested_tool,
         response=payload,
         mcp_error=mcp_error,

@@ -77,6 +77,25 @@ class McpHop:
     mcp_error: str | None = None
 
 
+def request_handler_counts(hops: list[McpHop]) -> tuple[int, int, int]:
+    """Count handler begins on these hops.
+
+    This is request evidence. It does not read ``ToolRegistry.invoke_counts``.
+    """
+    handler = 0
+    policy = 0
+    tier = 0
+    for hop in hops:
+        if not hop.handler_invoked:
+            continue
+        handler += 1
+        if hop.tool_name == "lookup_policy":
+            policy += 1
+        elif hop.tool_name == "lookup_customer_tier":
+            tier += 1
+    return handler, policy, tier
+
+
 @dataclass
 class McpInvokeResult:
     run_id: str
@@ -410,8 +429,7 @@ def run_mcp_invoke(
     blocked = False
     block_reason = None
     error_stage = control.error_stage
-    counts_before = registry.invoke_total
-    counts_before_by_tool = dict(registry.invoke_counts)
+    handler_began = False
     result_fixture: str | None = None
     result_derived_authority = False
     result_control_decision: str | None = None
@@ -447,6 +465,7 @@ def run_mcp_invoke(
         attempted = True
         executed = True
         execution = server.execute(decision.ticket)
+        handler_began = execution.began
         if not execution.ok:
             blocked = True
             block_reason = execution.error_type or "mcp_error"
@@ -512,7 +531,7 @@ def run_mcp_invoke(
         mcp_failed=mcp_failed,
         span_id=hop_span_id,
         delegator_agent_id=None,
-        handler_invoked=registry.invoke_total > counts_before,
+        handler_invoked=handler_began,
         tool_name=decision.tool_name or tool,
         response=payload,
         mcp_error=mcp_error,
@@ -601,11 +620,9 @@ def run_mcp_invoke(
             server=server,
             client=client,
             emitter=emitter,
-            registry=registry,
             settings=settings,
             user_id=user_id,
             overlay=overlay if result_derived_authority else None,
-            counts_before_by_tool=counts_before_by_tool,
         )
         hops.append(follow_hop)
         follow_on_decision = follow_hop.control_decision
@@ -632,11 +649,9 @@ def run_mcp_invoke(
             server=server,
             client=client,
             emitter=emitter,
-            registry=registry,
             settings=settings,
             user_id=user_id,
             overlay=server.metadata_derived_overlay if metadata_derived_authority else None,
-            counts_before_by_tool=counts_before_by_tool,
         )
         hops.append(follow_hop)
         follow_on_decision = follow_hop.control_decision
@@ -654,10 +669,11 @@ def run_mcp_invoke(
             error_stage = "control_evaluation" if follow_hop.control_decision == "ERROR" else "mcp_invocation"
 
     last_hop = hops[-1]
+    handler_count, lookup_policy_count, lookup_tier_count = request_handler_counts(hops)
     if blocked and last_hop.control_decision == "DENY":
         terminal = "completed_denied"
         emitter.run_completed(outcome="completed_denied", duration_ms=_duration_ms(started))
-        actual = f"DENY {last_hop.tool_name}; handler_invokes={registry.invoke_total - counts_before}"
+        actual = f"DENY {last_hop.tool_name}; handler_invokes={handler_count}"
     elif blocked:
         terminal = "run_failed"
         stage = error_stage or "pipeline"
@@ -674,17 +690,11 @@ def run_mcp_invoke(
             } else "pipeline",
             error_message=block_reason or "MCP invoke stopped with error",
         )
-        actual = f"ERROR {last_hop.tool_name}; handler_invokes={registry.invoke_total - counts_before}"
+        actual = f"ERROR {last_hop.tool_name}; handler_invokes={handler_count}"
     else:
         terminal = "completed_allowed"
         emitter.run_completed(outcome="completed_allowed", duration_ms=_duration_ms(started))
-        actual = f"ALLOW {last_hop.tool_name}; handler_invokes={registry.invoke_total - counts_before}"
-
-    handler_count = registry.invoke_total - counts_before
-    lookup_policy_count = registry.invoke_counts.get("lookup_policy", 0) - counts_before_by_tool.get("lookup_policy", 0)
-    lookup_tier_count = registry.invoke_counts.get("lookup_customer_tier", 0) - counts_before_by_tool.get(
-        "lookup_customer_tier", 0
-    )
+        actual = f"ALLOW {last_hop.tool_name}; handler_invokes={handler_count}"
     policy_after = policy_before if policy is not None else coded_policy()
     if policy_after.allowed_tools != policy_before.allowed_tools:
         raise RuntimeError("MCP-005 blocker: coded allowed_tools mutated")
@@ -850,11 +860,9 @@ def _run_follow_on_tool(
     server: McpServer,
     client: McpClient,
     emitter: EventEmitter,
-    registry: ToolRegistry,
     settings: Settings,
     user_id: str,
     overlay: object,
-    counts_before_by_tool: dict[str, int],
     agent_id: str = MCP_AGENT_ID,
     agent_name: str = MCP_AGENT_NAME,
 ) -> McpHop:
@@ -937,6 +945,7 @@ def _run_follow_on_tool(
     payload: dict[str, Any] | None = None
     mcp_error = None
     hop_outcome = "hop_allowed"
+    handler_began = False
     if control.blocks_tool:
         outcome = "prevented"
         hop_outcome = "hop_denied" if control.decision == "DENY" else "hop_error"
@@ -962,6 +971,7 @@ def _run_follow_on_tool(
         attempted = True
         executed = True
         execution = server.execute(decision.ticket)
+        handler_began = execution.began
         if not execution.ok:
             mcp_error = execution.error_type
             mcp_failed = True
@@ -1009,9 +1019,6 @@ def _run_follow_on_tool(
         duration_ms=_duration_ms(hop_started_at),
         delegator_agent_id=agent_id,
     )
-    invoked = registry.invoke_counts.get("lookup_customer_tier", 0) > counts_before_by_tool.get(
-        "lookup_customer_tier", 0
-    )
     return McpHop(
         index=1,
         agent_id=agent_id,
@@ -1029,7 +1036,7 @@ def _run_follow_on_tool(
         mcp_failed=mcp_failed,
         span_id=hop_span_id,
         delegator_agent_id=agent_id,
-        handler_invoked=invoked,
+        handler_invoked=handler_began,
         tool_name=decision.tool_name or "lookup_customer_tier",
         response=payload,
         mcp_error=mcp_error,
