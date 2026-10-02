@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 120" role="img" aria-labelledby="title desc">
+  <title id="title">Evidence sequence</title>
+  <desc id="desc">Claim, delegation or context, control decision, then execution. Dashed links mean those earlier stages are not proven by the drawing.</desc>
+  <rect width="760" height="120" fill="#F6F8FB"/>
+  <g font-family="system-ui, Segoe UI, sans-serif" font-size="14" fill="#17202A">
+    <rect x="16" y="36" width="140" height="48" rx="4" fill="#FFFFFF" stroke="#8AA0B4" stroke-dasharray="4 3"/>
+    <text x="86" y="64" text-anchor="middle">claim</text>
+    <rect x="196" y="36" width="170" height="48" rx="4" fill="#FFFFFF" stroke="#8AA0B4" stroke-dasharray="4 3"/>
+    <text x="281" y="64" text-anchor="middle">delegation / context</text>
+    <rect x="406" y="28" width="150" height="64" rx="4" fill="#0B1F33"/>
+    <text x="481" y="56" text-anchor="middle" fill="#FFFFFF">control decision</text>
+    <text x="481" y="74" text-anchor="middle" fill="#7ED0D4" font-size="12">CTRL-MCP-001</text>
+    <rect x="596" y="36" width="148" height="48" rx="4" fill="#FFFFFF" stroke="#007F86"/>
+    <text x="670" y="64" text-anchor="middle">execution</text>
+  </g>
+  <path d="M156 60 H196" stroke="#8AA0B4" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
+  <path d="M366 60 H406" stroke="#8AA0B4" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
+  <path d="M556 60 H596" stroke="#007F86" stroke-width="2" fill="none"/>
+</svg>

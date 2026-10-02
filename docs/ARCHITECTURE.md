@@ -22,6 +22,10 @@ OTel collector → Splunk HEC → index agentsec_telemetry
 Splunk Search                    (investigation notebook; Q-* hunts)
 ```
 
+![AgentSec architecture. CTRL-MCP-001 is the tool decision gate. Splunk is downstream.](brand/agentsec-architecture.svg)
+
+The drawing uses the same components as the text diagram above. It does not add services. Dashed or gray relationships elsewhere in the brand set are claims, not proof those stages occurred. The text diagram stays so it can be copied.
+
 Also present, **not** separate microservices: RAG fixture retriever, in-process memory, goal/identity evaluation, MCP tool handlers, learning metadata under `learning/`.
 
 **REPLAY** evidence is historical indexed (or pack) specimens bound in Studio. **LIVE** is a fresh Attack Service execution.
