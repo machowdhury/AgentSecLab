@@ -1,4 +1,9 @@
-"""Spy-capable tool registry with process-local invocation-begin counts."""
+"""Spy-capable tool registry.
+
+``invoke_counts`` is a process-wide diagnostic. It is not evidence that a
+particular run invoked a handler. Request evidence is ``ServerExecution.began``
+copied onto the hop for that call.
+"""
 
 from __future__ import annotations
 
@@ -42,7 +47,12 @@ class ToolRegistry:
         )
 
     def call_handler(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
-        """Begin the governed operation. Count increments before the handler body."""
+        """Begin the governed operation.
+
+        The process-wide counter increments before the handler body. Callers
+        that need request evidence must use the return of this call, not a
+        later read of ``invoke_counts``.
+        """
         self.invoke_counts[name] = self.invoke_counts.get(name, 0) + 1
         return self.specs[name].handler(arguments)
 

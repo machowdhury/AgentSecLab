@@ -2,7 +2,7 @@
 
 ## v1.0 system (canonical)
 
-**Product:** 1.0.0 · **Schema:** 1.9.0 · **PDP:** lab runtime controls, not Splunk. Historical tags `v1.0.0-rc1`, `v1.0.0-rc2`, and `v1.0.0-rc3` stay on their original commits.
+**Product:** 1.1.0 · **Schema:** 1.9.0 · **PDP:** lab runtime controls, not Splunk. Historical tags `v1.0.0`, `v1.0.0-rc1`, `v1.0.0-rc2`, and `v1.0.0-rc3` stay on their original commits.
 
 ```text
 Learner

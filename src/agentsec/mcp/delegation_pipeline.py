@@ -38,7 +38,7 @@ from agentsec.mcp.delegation import (
     grant_snapshot,
     policy_for_authority_source,
 )
-from agentsec.mcp.pipeline import McpHop, McpInvokeResult, _duration_ms, _invariants
+from agentsec.mcp.pipeline import McpHop, McpInvokeResult, _duration_ms, _invariants, request_handler_counts
 from agentsec.mcp.policy import ALLOWED_POLICY_IDS, ALLOWED_SCOPES, ALLOWED_TOOLS, coded_policy
 from agentsec.mcp.registry import ToolRegistry, default_registry
 from agentsec.mcp.server import McpServer
@@ -186,8 +186,6 @@ def run_mcp_006_invoke(
     block_reason = None
     error_stage = control.error_stage
     hops: list[McpHop] = []
-    counts_before = registry.invoke_total
-    counts_before_by_tool = dict(registry.invoke_counts)
 
     if control.blocks_deputy:
         blocked = True
@@ -260,12 +258,10 @@ def run_mcp_006_invoke(
                 server=server,
                 client=client,
                 emitter=emitter,
-                registry=registry,
                 user_id=user_id,
                 tool=bound_tool,
                 arguments=bound_args,
                 requested_scope=bound_scope,
-                counts_before=counts_before,
             )
             hops.append(hop1)
             downstream_decision = hop1.control_decision
@@ -285,10 +281,11 @@ def run_mcp_006_invoke(
                 error_stage = "control_evaluation" if hop1.control_decision == "ERROR" else "mcp_invocation"
 
     last = hops[-1]
+    handler_count, lookup_policy_count, lookup_tier_count = request_handler_counts(hops)
     if blocked and last.control_decision == "DENY":
         terminal = "completed_denied"
         emitter.run_completed(outcome="completed_denied", duration_ms=_duration_ms(started))
-        actual = f"DENY {last.tool_name}; handler_invokes={registry.invoke_total - counts_before}"
+        actual = f"DENY {last.tool_name}; handler_invokes={handler_count}"
     elif blocked:
         terminal = "run_failed"
         stage = error_stage or "pipeline"
@@ -308,17 +305,11 @@ def run_mcp_006_invoke(
             else "pipeline",
             error_message=block_reason or "MCP-006 stopped with error",
         )
-        actual = f"ERROR {last.tool_name}; handler_invokes={registry.invoke_total - counts_before}"
+        actual = f"ERROR {last.tool_name}; handler_invokes={handler_count}"
     else:
         terminal = "completed_allowed"
         emitter.run_completed(outcome="completed_allowed", duration_ms=_duration_ms(started))
-        actual = f"ALLOW {last.tool_name}; handler_invokes={registry.invoke_total - counts_before}"
-
-    handler_count = registry.invoke_total - counts_before
-    lookup_policy_count = registry.invoke_counts.get("lookup_policy", 0) - counts_before_by_tool.get("lookup_policy", 0)
-    lookup_tier_count = registry.invoke_counts.get("lookup_customer_tier", 0) - counts_before_by_tool.get(
-        "lookup_customer_tier", 0
-    )
+        actual = f"ALLOW {last.tool_name}; handler_invokes={handler_count}"
 
     snapshot_after = grant_snapshot()
     coded_after = coded_policy()
@@ -457,15 +448,12 @@ def _run_deputy_mcp_hop(
     server: McpServer,
     client: McpClient,
     emitter: EventEmitter,
-    registry: ToolRegistry,
     user_id: str,
     tool: str,
     arguments: dict[str, str],
     requested_scope: str,
-    counts_before: int,
 ) -> McpHop:
     """Hop 1: real CTRL-MCP-001 then maybe handler. Profile is always defended membership."""
-    del counts_before
     hop_started_at = time.monotonic()
     hop_span_id = new_span_id()
     emitter.hop_started(
@@ -525,6 +513,7 @@ def _run_deputy_mcp_hop(
     payload = None
     mcp_error = None
     hop_outcome = "hop_allowed"
+    handler_began = False
     if control.blocks_tool:
         outcome = "prevented"
         hop_outcome = "hop_denied" if control.decision == "DENY" else "hop_error"
@@ -550,6 +539,7 @@ def _run_deputy_mcp_hop(
         attempted = True
         executed = True
         execution = server.execute(decision.ticket)
+        handler_began = execution.began
         if not execution.ok:
             mcp_error = execution.error_type
             mcp_failed = True
@@ -614,7 +604,7 @@ def _run_deputy_mcp_hop(
         mcp_failed=mcp_failed,
         span_id=hop_span_id,
         delegator_agent_id=CODED_DELEGATOR_ID,
-        handler_invoked=mcp_started,
+        handler_invoked=handler_began,
         tool_name=decision.tool_name or tool,
         response=payload,
         mcp_error=mcp_error,
