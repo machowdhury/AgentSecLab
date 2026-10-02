@@ -68,15 +68,14 @@ From the repository root, on `develop`:
 ./scripts/lab-preflight.sh
 cp .env.example .env          # once; do not commit .env
 ./scripts/lab-up.sh           # first Splunk boot can take 10–20 minutes
-docker exec agentsec_ollama ollama pull llama3.2:1b
-./scripts/lab-ready.sh        # SERVICE HEALTH, not searchable evidence
+./scripts/lab-ready.sh        # service health; MODEL ABSENT means LIVE is degraded
 ```
 
-`lab-up.sh` does not pull the model. Without that pull, AcmeBank health stays degraded. REPLAY workshops do not need the model.
+The Ollama container tries to pull `llama3.2:1b` on startup. If that pull fails, AcmeBank health stays degraded. REPLAY workshops do not need the model. A certificate error has to be fixed at the trust layer. Do not disable certificate verification.
 
 Linear detail: [docs/QUICKSTART.md](docs/QUICKSTART.md). Short pointer: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md).
 
-`READY` means the services answer. It does not mean a `run.id` is searchable yet. An HEC HTTP 200 is not indexed evidence.
+Service health means the services answer. It does not mean a `run.id` is searchable, and it does not mean the Ollama model is present. An HEC HTTP 200 is not indexed evidence. `MODEL ABSENT` means LIVE generation is degraded.
 
 | URL | What it is |
 |-----|------------|

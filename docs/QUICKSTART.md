@@ -13,7 +13,7 @@ After the first lab, continue with the README academy section and [AGENTSEC_RELE
 - A browser
 - This repository
 
-Hardware minimums: **NOT BENCHMARKED**. Observed development used Docker Desktop on macOS with Splunk 10.2 (`linux/amd64`, emulated on Apple Silicon). First boot pulls container images. It does not pull the Ollama model.
+Hardware minimums: **NOT BENCHMARKED**. Observed development used Docker Desktop on macOS with Splunk 10.2 (`linux/amd64`, emulated on Apple Silicon). First boot pulls container images. The Ollama container then tries to pull `llama3.2:1b`. A failed pull leaves LIVE generation degraded.
 
 Details: [AGENTSEC_PREREQUISITES.md](AGENTSEC_PREREQUISITES.md).
 
@@ -41,18 +41,22 @@ Expect PASS (or WARN if the lab is already running). FAIL means fix the printed 
 
 What it starts: AcmeBank, Attack Service, Ollama, OpenTelemetry collector, Splunk (local profile), Splunk app init, HEC init.
 
-First Splunk initialization can take **10–20 minutes**. Output from compose/health retries can be noisy; the stop condition is `lab-ready` printing READY.
+First Splunk initialization can take **10–20 minutes**. Output from compose/health retries can be noisy. `lab-ready` prints SERVICE READY for the academy stack. A later `MODEL ABSENT` line means LIVE generation is degraded.
 
-Rebuild images from this repository (required after Attack Service UI/source changes):
+The Ollama entrypoint (`scripts/ollama_init.sh`) tries `ollama pull llama3.2:1b`. If that pull fails, the API still stays up and AcmeBank `/health` reports `degraded` with `ollama_reachable: false`. That flag means the model name was not listed. It does not mean the Ollama process is down. Academy REPLAY does not need the model.
 
-```bash
-./scripts/lab-up.sh --build
-```
-
-Pull the lab model once into the Ollama volume. `lab-up.sh` does not do this. Until the model is present, AcmeBank `/health` stays `degraded` and `ollama_reachable` is false. That flag means the configured model name was not listed by Ollama. It does not mean the Ollama process is down.
+If the automatic pull fails, the usual command is:
 
 ```bash
 docker exec agentsec_ollama ollama pull llama3.2:1b
+```
+
+A certificate or TLS error must be fixed at the host or image trust layer. Do not disable certificate verification. On this development host, `curl` on the host reached `registry.ollama.ai`, and the same request from inside the `ollama/ollama:latest` container failed with `x509: certificate signed by unknown authority`. That split is an external dependency of the container image, not an AgentSec authorization result.
+
+Rebuild images from this repository after Attack Service or AcmeBank source changes:
+
+```bash
+./scripts/lab-up.sh --build
 ```
 
 ## 5. Readiness
@@ -61,9 +65,9 @@ docker exec agentsec_ollama ollama pull llama3.2:1b
 ./scripts/lab-ready.sh
 ```
 
-READY means **SERVICE HEALTH**: Splunk Web, HEC health endpoint, published Academy views, AcmeBank, Attack Service.
+READY means **service health**: Splunk Web, HEC health endpoint, published Academy views, and HTTP responses from AcmeBank and Attack Service.
 
-READY does **not** mean a given `run.id` is searchable. HEC HTTP 200 is not indexed evidence.
+READY does **not** mean a given `run.id` is searchable. HEC HTTP 200 is not indexed evidence. `MODEL ABSENT` means LIVE generation is **DEGRADED**, not pass.
 
 ## 6. URLs
 

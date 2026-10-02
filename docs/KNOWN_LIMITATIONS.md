@@ -10,7 +10,7 @@ These remain visible on purpose. The RC3 candidate does not remove them. The RC1
 - Path B is visible pedagogical guidance, not access control
 - Splunk practice still begins with a pasted `run.id`. The move to independent search at L6 is abrupt
 - Two evidence vocabularies remain: how evidence was obtained, and how strong a claim is
-- `ollama/ollama:latest` is not pinned. A clean-room `ollama pull llama3.2:1b` on this host failed with `x509: certificate signed by unknown authority` while contacting `registry.ollama.ai`. That is a host TLS observation, not a measured image digest. Until a model is present, AcmeBank `/health` reports `ollama_reachable: false` and `status: degraded`.
+- `ollama/ollama:latest` is not pinned. Inside that image, `ollama pull llama3.2:1b` fails on this host with `x509: certificate signed by unknown authority`. The same registry URL succeeds with host `curl`. Do not disable certificate verification. Until the model is listed, AcmeBank `/health` stays `degraded` and LIVE generation is not pass. Academy REPLAY does not need the model.
 - The garak pin license line is not closed external validation (`docs/EXTERNAL_VALIDATION_BACKLOG.md`)
 - The GitHub default branch remains `main` (RC1). The current candidate is `develop`. Tag `v1.0.0-rc2` is the previous candidate.
 - External findings do not authorize tool execution
