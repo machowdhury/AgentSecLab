@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">
+<dashboard version="2" theme="light">
   <label>Tool Authorization</label>
   <description>WS-MCP-001. Validated Q-MCP SPL. DET-MCP-001 packaged disabled. Not a notable-event pack. LAB-MCP-001. Splunk does not ALLOW or DENY a tool.</description>
   <definition><![CDATA[

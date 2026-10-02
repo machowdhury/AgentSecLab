@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">
+<dashboard version="2" theme="light">
   <label>Confused Deputy</label>
   <description>LIVE Confused Deputy workshop. LAB-MCP-006. Splunk does not ALLOW or DENY.</description>
   <definition><![CDATA[

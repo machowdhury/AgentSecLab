@@ -77,18 +77,22 @@ def test_access_script_does_not_claim_stale_loopback_links():
     assert "browser address bar" in text
 
 
-def test_studio_focus_stylesheet_is_packaged_on_dashboards():
-    css = (
-        ROOT / "splunk_app/agentsec/appserver/static/agentsec_studio_focus.css"
-    ).read_text(encoding="utf-8")
-    assert ':focus-visible' in css
-    assert 'role="tab"' in css
+def test_studio_views_do_not_claim_an_unloaded_stylesheet():
+    """Dashboard Studio does not load an app stylesheet. Do not advertise one."""
     views = ROOT / "splunk_app/agentsec/default/data/ui/views"
     studio = list(views.glob("ws_*.xml"))
     assert studio
     for path in studio:
         text = path.read_text(encoding="utf-8")
-        assert 'stylesheet="agentsec_studio_focus.css"' in text
+        assert "agentsec_studio_focus.css" not in text
+        assert "stylesheet=" not in text
+    assert not (
+        ROOT / "splunk_app/agentsec/appserver/static/agentsec_studio_focus.css"
+    ).exists()
+    for path in (ROOT / "scripts").glob("*.py"):
+        assert "agentsec_studio_focus.css" not in path.read_text(encoding="utf-8")
+    attack_css = (ROOT / "src/agentsec/static/agentsec.css").read_text(encoding="utf-8")
+    assert ":focus-visible" in attack_css
 
 
 def test_brand_assets_are_packaged_without_a_deployment_address():

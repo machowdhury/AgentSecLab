@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">
+<dashboard version="2" theme="light">
   <label>A2A Authentication and Delegation</label>
   <description>LAB-A2A-AUTH-DELEGATION. SIMULATED / REPLAYED workshop between the Identity/NHI checkpoint and L8. Splunk remains downstream.</description>
   <definition><![CDATA[

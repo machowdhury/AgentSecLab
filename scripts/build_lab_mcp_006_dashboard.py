@@ -1015,7 +1015,7 @@ def write_xml(definition: dict) -> None:
         raise ValueError("definition contains CDATA terminator")
     xml = (
         '<?xml version="1.0" encoding="utf-8"?>\n'
-        '<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">\n'
+        '<dashboard version="2" theme="light">\n'
         "  <label>Confused Deputy</label>\n"
         "  <description>LIVE Confused Deputy workshop. LAB-MCP-006. Splunk does not ALLOW or DENY.</description>\n"
         "  <definition><![CDATA[\n"

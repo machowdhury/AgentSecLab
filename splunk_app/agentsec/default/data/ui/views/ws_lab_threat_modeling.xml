@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dashboard version="2" theme="light" stylesheet="agentsec_studio_focus.css">
+<dashboard version="2" theme="light">
   <label>Threat Modeling and Security Architecture</label>
   <description>REPLAY architecture workbench. Reasoning assistance, not compliance.</description>
   <definition><![CDATA[
