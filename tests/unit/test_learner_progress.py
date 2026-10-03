@@ -173,6 +173,118 @@ if (store["agentsec.learner.session.v1"]) throw new Error("reset touched session
     assert completed.returncode == 0, completed.stderr
 
 
+def test_path_mounts_when_splunk_inserts_the_root_after_the_script():
+    """Classic Dashboard runs script= before the HTML panel exists.
+
+    A static page that already contains #agentsec-progress does not catch this.
+    """
+    program = r"""
+const fs = require("fs");
+const vm = require("vm");
+const store = {};
+const localStorage = {
+  getItem(key) { return Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null; },
+  setItem(key, value) { store[key] = String(value); },
+  removeItem(key) { delete store[key]; }
+};
+const children = [];
+const root = {
+  id: "agentsec-progress",
+  attrs: {},
+  className: "",
+  getAttribute(name) { return this.attrs[name] || null; },
+  setAttribute(name, value) { this.attrs[name] = String(value); },
+  replaceChildren() { children.length = 0; },
+  appendChild(node) { children.push(node); }
+};
+let current = null;
+let styleCount = 0;
+const observers = [];
+function MutationObserver(cb) {
+  this.cb = cb;
+  this.disconnected = false;
+  observers.push(this);
+}
+MutationObserver.prototype.observe = function () {};
+MutationObserver.prototype.disconnect = function () { this.disconnected = true; };
+const requireCalls = [];
+function splunkRequire(deps, cb) {
+  requireCalls.push(deps[0]);
+  this.cb = cb;
+}
+const document = {
+  readyState: "complete",
+  documentElement: {},
+  head: {appendChild() { styleCount += 1; }},
+  getElementById(id) {
+    if (id === "agentsec-progress") return current;
+    return null;
+  },
+  createElement() {
+    return {
+      textContent: "", id: "", type: "", className: "", children: [],
+      appendChild(child) { this.children.push(child); },
+      addEventListener() {},
+      setAttribute() {}
+    };
+  },
+  addEventListener() {}
+};
+const window = {localStorage};
+const sandbox = {
+  window, document, localStorage, MutationObserver, setTimeout, clearTimeout,
+  require: function (deps, cb) { splunkRequire(deps, cb); sandbox._ready = cb; }
+};
+vm.runInNewContext(fs.readFileSync(process.argv[1], "utf8"), sandbox);
+if (children.length !== 0) throw new Error("painted before the panel existed");
+if (requireCalls[0] !== "splunkjs/mvc/simplexml/ready!") throw new Error("ready hook " + requireCalls.join(","));
+current = root;
+sandbox._ready();
+observers.forEach(function (observer) { if (!observer.disconnected) observer.cb(); });
+if (root.getAttribute("data-agentsec-mounted") !== "1") throw new Error("not mounted after panel insert");
+if (!children.some(node => node.id === "agentsec-progress-tally")) throw new Error("tally missing");
+if (!children.some(node => node.id === "agentsec-progress-reset")) throw new Error("reset missing");
+const card = children.find(node => node.children && node.children.some(child => child.id === "status-ws_lab_pi_001"));
+if (!card) throw new Error("curriculum missing");
+const status = card.children.find(child => child.id === "status-ws_lab_pi_001");
+if (status.textContent !== "NOT STARTED") throw new Error(status.textContent);
+function texts(node) {
+  return (node.textContent || "") + " " + (node.children || []).map(texts).join(" ");
+}
+const blob = children.map(texts).join(" ");
+if (!blob.includes("Not indexed evidence")) throw new Error("evidence disclaimer missing");
+if (!blob.includes("not that the system is safe")) throw new Error("investigated disclaimer missing");
+if (blob.includes("PASSED") || blob.includes("COMPLIANT") || blob.includes("AUTHORIZED")) throw new Error(blob);
+const before = children.length;
+window.AgentSecProgress.mount();
+observers.forEach(function (observer) { observer.cb(); });
+if (children.length !== before) throw new Error("duplicate ui " + children.length);
+if (styleCount !== 1) throw new Error("styles " + styleCount);
+window.AgentSecProgress.setState("ws_lab_pi_001", "IN PROGRESS");
+if (window.AgentSecProgress.stateFor("ws_lab_pi_001") !== "IN PROGRESS") throw new Error("state");
+root.attrs = {};
+children.length = 0;
+current = null;
+const again = {};
+const document2 = {
+  readyState: "complete",
+  documentElement: {},
+  head: {appendChild() {}},
+  getElementById(id) { return id === "agentsec-progress" ? root : null; },
+  createElement() {
+    return {textContent: "", id: "", type: "", className: "", children: [], appendChild(child) { this.children.push(child); }, addEventListener() {}, setAttribute() {}};
+  },
+  addEventListener() {}
+};
+vm.runInNewContext(fs.readFileSync(process.argv[1], "utf8"), {window: {localStorage}, document: document2, localStorage, MutationObserver, setTimeout, clearTimeout});
+const status2 = children.find(node => node.children && node.children.some(child => child.id === "status-ws_lab_pi_001"));
+const label = status2.children.find(child => child.id === "status-ws_lab_pi_001").textContent;
+if (label !== "IN PROGRESS") throw new Error("reinit lost progress " + label);
+"""
+    completed = _node(program, SCRIPT)
+    assert completed.returncode == 0, completed.stderr
+
+
 def test_session_capture_keeps_lab_pairs_separate():
     program = r"""
 const fs = require("fs");

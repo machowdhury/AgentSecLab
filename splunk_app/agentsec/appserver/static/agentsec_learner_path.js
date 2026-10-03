@@ -411,15 +411,93 @@
     return true;
   }
 
+  // Splunk Classic Dashboard can evaluate script="..." before the HTML panel
+  // exists. readyState is already past "loading", so DOMContentLoaded is not
+  // enough. splunkjs/mvc/simplexml/ready! is the supported dashboard-ready
+  // hook. If #agentsec-progress is still absent, a MutationObserver and a
+  // 50-attempt, 100ms timer wait for it, then stop. Both stop on success.
+  var waiter = null;
+  var MAX_WAIT_ATTEMPTS = 50;
+  var WAIT_MS = 100;
+
+  function stopWaiter() {
+    if (!waiter) {
+      return;
+    }
+    if (waiter.observer) {
+      waiter.observer.disconnect();
+    }
+    if (waiter.timer && typeof clearTimeout === "function") {
+      clearTimeout(waiter.timer);
+    }
+    waiter = null;
+  }
+
+  function ensureMounted() {
+    var root = typeof document !== "undefined" && document.getElementById
+      ? document.getElementById("agentsec-progress")
+      : null;
+    if (root && root.getAttribute("data-agentsec-mounted") === "1") {
+      stopWaiter();
+      return true;
+    }
+    if (mount()) {
+      stopWaiter();
+      return true;
+    }
+    return false;
+  }
+
+  function armWaiter() {
+    if (ensureMounted() || waiter) {
+      return;
+    }
+    waiter = {attempts: 0, observer: null, timer: null};
+    if (typeof MutationObserver === "function" && document.documentElement) {
+      waiter.observer = new MutationObserver(function () {
+        ensureMounted();
+      });
+      waiter.observer.observe(document.documentElement, {childList: true, subtree: true});
+    }
+    if (typeof setTimeout !== "function") {
+      return;
+    }
+    function tick() {
+      if (!waiter) {
+        return;
+      }
+      waiter.attempts += 1;
+      if (ensureMounted() || waiter.attempts >= MAX_WAIT_ATTEMPTS) {
+        stopWaiter();
+        return;
+      }
+      waiter.timer = setTimeout(tick, WAIT_MS);
+    }
+    waiter.timer = setTimeout(tick, WAIT_MS);
+  }
+
+  function begin() {
+    if (typeof require === "function") {
+      try {
+        require(["splunkjs/mvc/simplexml/ready!"], function () {
+          armWaiter();
+        });
+      } catch (err) {
+        armWaiter();
+      }
+    }
+    armWaiter();
+  }
+
   function start() {
     if (typeof document === "undefined" || !document.addEventListener) {
       return;
     }
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", mount);
+      document.addEventListener("DOMContentLoaded", begin);
       return;
     }
-    mount();
+    begin();
   }
 
   window.AgentSecProgress = {
