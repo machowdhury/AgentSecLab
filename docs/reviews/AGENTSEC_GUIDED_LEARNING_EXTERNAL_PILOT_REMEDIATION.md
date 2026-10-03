@@ -12,9 +12,11 @@ Root cause: `agentsec_learner_path.js` registered `DOMContentLoaded` and did not
 
 Fix: `mount()` runs immediately when `document.readyState` is not `"loading"`, and registers the listener otherwise. A second call sees `data-agentsec-mounted` and returns. The reset button calls the progress `reset` function.
 
-Node tests cover both lifecycle orders, a second mount, a fresh learner, reload of stored progress, and reset. Headless Chrome loaded a local page that injected the script from a `DOMContentLoaded` handler. The dumped DOM contained `Direct Prompt Injection`, `NOT STARTED`, `agentsec-progress-tally`, and `Reset learning progress`. That page was not Splunk. The local AgentSec lab was not running. Splunk-hosted Your Path on EC2 is not this measurement.
+Node tests cover both lifecycle orders, a second mount, a fresh learner, reload of stored progress, and reset. Headless Chrome loaded a local page that injected the script from a `DOMContentLoaded` handler. The dumped DOM contained `Direct Prompt Injection`, `NOT STARTED`, `agentsec-progress-tally`, and `Reset learning progress`. That page was not Splunk.
 
-Status: FIXED — INDEPENDENT RE-VERIFICATION REQUIRED for the Splunk-hosted page.
+After `fe67ebb` was fast-forwarded on EC2, `./scripts/lab-up.sh --build --refresh-app --remote` exited 0. The Your Path script SHA-256 in the running Splunk app matched the checkout (`fb80a104fc20016380896e1b2a57e62bc6d0d6f962aff88fd623ee268c86f143`). An authenticated request to `http://127.0.0.1:8000/en-US/app/agentsec/learner_path` returned HTTP 200, 8100 bytes, with `agentsec_learner_path.js` referenced and `Page not found` absent. The curriculum strings were not in that HTML. They are drawn by the script in the browser. EC2 has no browser, so the Splunk-hosted paint was not measured.
+
+Status: FIXED — INDEPENDENT RE-VERIFICATION REQUIRED for the Splunk-hosted paint.
 
 ## HIGH-2 Attack Service navigation
 
@@ -22,9 +24,11 @@ Root cause: every root-relative URL on a non-8000 page was rewritten to port 800
 
 Fix: only `/en-US/` paths move to port 8000 on the hostname already in the address bar. Attack Service paths stay relative. Loopback absolute URLs still take the page hostname and keep their port. No learner URL is hardcoded to a cloud address.
 
-Python and the browser script were both tested for local `127.0.0.1`, a documentation hostname, and `203.0.113.10`. The deployed EC2 page was not rebuilt in this measurement.
+Python and the browser script were both tested for local `127.0.0.1`, a documentation hostname, and `203.0.113.10`.
 
-Status: FIXED — INDEPENDENT RE-VERIFICATION REQUIRED on the remote Attack Service page.
+On EC2 after the same refresh, `http://127.0.0.1:5001/` returned HTTP 200. The HTML contained `/labs/LAB-MCP-001` and `/en-US/app/agentsec/ws_agentsec_home`. It did not contain `:8000/labs/` or `127.0.0.1:8000`. The Attack Service copy of `agentsec-ui.js` matched the checkout SHA-256 `d5f2b804b53d424093c50650a761c79260799b5aec6d6ac9940959a9c9ee6dc7`. A browser click of the switcher on the public host was not measured.
+
+Status: FIXED — INDEPENDENT RE-VERIFICATION REQUIRED for a browser click on the public host.
 
 ## HIGH-3 REPLAY evidence
 
