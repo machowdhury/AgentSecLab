@@ -15,7 +15,7 @@ After the lab is up, stay in Academy Home. The path is LEARN, launch or select a
 
 A control decision is not execution. Execution is not a measured downstream resource change. An empty table is not DENY. HEC HTTP 200 is not the inline table.
 
-Your path stores progress in this browser only. The page should list the curriculum, the progress tally, and Reset learning progress. Arena is optional and comes after Mastery. It uses the same LIVE launchers and the same evidence rules. On Attack Service, the lab switcher and NEXT LAB stay on port 5001. Home and Search on that page use port 8000 on the same hostname.
+Your path is the authoritative progress surface. Native Splunk navigation and Dashboard Studio workshops cannot read that browser list. The page should list the curriculum, the progress tally, and Reset learning progress. Arena is optional and comes after Mastery. It uses the same LIVE launchers and the same evidence rules. On Attack Service, the lab switcher and NEXT LAB stay on port 5001. Home and Search on that page use port 8000 on the same hostname.
 
 After L5, the Splunk Defender Bridge is the REPLAY checkpoint before L6. See [SPLUNK_DEFENDER_BRIDGE.md](SPLUNK_DEFENDER_BRIDGE.md).
 

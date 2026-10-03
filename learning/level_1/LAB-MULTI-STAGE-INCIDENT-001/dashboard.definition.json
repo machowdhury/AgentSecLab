@@ -425,6 +425,15 @@
         "fontSize": "large",
         "fontColor": "#17202A"
       }
+    },
+    "viz_flow_diagram": {
+      "type": "splunk.image",
+      "title": "Architecture flow",
+      "description": "Influence, authorization, and execution stay separate across the packet.",
+      "options": {
+        "src": "/en-US/static/app/agentsec/flows/flow-lab-multi-stage-incident-001.svg",
+        "preserveAspectRatio": true
+      }
     }
   },
   "layout": {
@@ -444,15 +453,25 @@
           "display": "auto-scale",
           "gutterSize": 8,
           "width": 1440,
-          "height": 1160
+          "height": 1368
         },
         "structure": [
+          {
+            "item": "viz_flow_diagram",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 200
+            }
+          },
           {
             "item": "viz_guide_shell",
             "type": "block",
             "position": {
               "x": 0,
-              "y": 0,
+              "y": 208,
               "w": 1440,
               "h": 640
             }
@@ -462,7 +481,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 660,
+              "y": 868,
               "w": 1440,
               "h": 620
             }
@@ -472,7 +491,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 1280,
+              "y": 1488,
               "w": 720,
               "h": 520
             }
@@ -482,7 +501,7 @@
             "type": "block",
             "position": {
               "x": 720,
-              "y": 1280,
+              "y": 1488,
               "w": 720,
               "h": 520
             }

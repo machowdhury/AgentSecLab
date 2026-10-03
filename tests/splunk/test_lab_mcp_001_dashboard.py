@@ -198,7 +198,7 @@ def test_visualizations_reference_existing_datasources_and_layouts():
             assert item["type"] == "block"
     assert layout_items == viz_ids
     for viz_id, viz in definition["visualizations"].items():
-        assert viz["type"] in {"splunk.markdown", "splunk.table"}
+        assert viz["type"] in {"splunk.markdown", "splunk.table", "splunk.image"}
         if viz["type"] == "splunk.table":
             primary = viz["dataSources"]["primary"]
             assert primary in ds_ids, viz_id

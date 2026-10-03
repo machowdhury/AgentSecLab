@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 384" role="img" aria-labelledby="title desc">
+<title id="title">Blue-team investigation flow</title>
+<desc id="desc">Hypothesis, search, reconstruct, and challenge. Absence is not DENY.</desc>
+<rect width="880" height="384" fill="#F6F8FB"/>
+<g font-family="system-ui, Segoe UI, sans-serif" font-size="15" fill="#17202A">
+<rect x="120" y="28" width="640" height="48" rx="4" fill="#FFFFFF" stroke="#D9E0E7"/>
+<text x="440" y="58" text-anchor="middle" fill="#17202A">INCOMPLETE EVIDENCE</text>
+<path d="M440 76 V96" stroke="#8AA0B4" stroke-width="2" fill="none"/>
+<rect x="120" y="96" width="640" height="48" rx="4" fill="#FFFFFF" stroke="#8AA0B4" stroke-dasharray="4 3"/>
+<text x="440" y="126" text-anchor="middle" fill="#17202A">HYPOTHESIZE</text>
+<path d="M440 144 V164" stroke="#8AA0B4" stroke-width="2" fill="none"/>
+<rect x="120" y="164" width="640" height="48" rx="4" fill="#FFFFFF" stroke="#8AA0B4" stroke-dasharray="4 3"/>
+<text x="440" y="194" text-anchor="middle" fill="#17202A">SEARCH / RECONSTRUCT</text>
+<path d="M440 212 V232" stroke="#8AA0B4" stroke-width="2" fill="none"/>
+<rect x="120" y="232" width="640" height="48" rx="4" fill="#FFFFFF" stroke="#8AA0B4" stroke-dasharray="4 3"/>
+<text x="440" y="262" text-anchor="middle" fill="#17202A">CHALLENGE / CONCLUDE</text>
+<path d="M440 280 V300" stroke="#8AA0B4" stroke-width="2" fill="none"/>
+<rect x="120" y="300" width="640" height="48" rx="4" fill="#FFFFFF" stroke="#D9E0E7"/>
+<text x="440" y="330" text-anchor="middle" fill="#17202A">SPLUNK SEARCH — observe only</text>
+</g></svg>

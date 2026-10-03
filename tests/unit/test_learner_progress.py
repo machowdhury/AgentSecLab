@@ -111,6 +111,10 @@ if (early.children.length !== late.children.length) throw new Error("duplicate i
 const fresh = early.children.find(node => node.children && node.children.some(child => child.id === "status-ws_lab_pi_001"));
 const status = fresh.children.find(child => child.id === "status-ws_lab_pi_001");
 if (status.textContent !== "NOT STARTED") throw new Error(status.textContent);
+if (!fresh.className.includes("agentsec-path-card")) throw new Error("card class");
+if (!late.children.some(node => node.id === "agentsec-progress-tally" && String(node.className || "").includes("agentsec-path-summary"))) {
+  throw new Error("tally class");
+}
 """
     # The compact reload case is asserted in the next program so storage is shared.
     completed = _node(program, SCRIPT)

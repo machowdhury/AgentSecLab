@@ -124,6 +124,42 @@ def table(
             "headerBackgroundColor": NAVY,
             "headerTextColor": WHITE,
             "noDataMessage": no_data,
+            "columnFormat": {
+                "decision": {
+                    "rowBackgroundColors": '> table | seriesByName("decision") | matchValue(decisionBackgrounds)',
+                    "rowColors": '> table | seriesByName("decision") | matchValue(decisionText)',
+                },
+                "executed": {
+                    "rowBackgroundColors": '> table | seriesByName("executed") | matchValue(executedBackgrounds)',
+                    "rowColors": '> table | seriesByName("executed") | matchValue(executedText)',
+                },
+            },
+        },
+        "context": {
+            "decisionBackgrounds": [
+                {"match": "ALLOW", "value": "#E8EEF5"},
+                {"match": "DENY", "value": "#F6EBD8"},
+                {"match": "ERROR", "value": "#F8E6E6"},
+                {"match": "OBSERVE", "value": "#F0F3F6"},
+            ],
+            "decisionText": [
+                {"match": "ALLOW", "value": "#3568A8"},
+                {"match": "DENY", "value": "#B7791F"},
+                {"match": "ERROR", "value": "#C62828"},
+                {"match": "OBSERVE", "value": SECONDARY},
+            ],
+            "executedBackgrounds": [
+                {"match": "true", "value": NAVY},
+                {"match": "false", "value": "#EEF1F4"},
+                {"match": "1", "value": NAVY},
+                {"match": "0", "value": "#EEF1F4"},
+            ],
+            "executedText": [
+                {"match": "true", "value": WHITE},
+                {"match": "false", "value": SECONDARY},
+                {"match": "1", "value": WHITE},
+                {"match": "0", "value": SECONDARY},
+            ],
         },
     }
 

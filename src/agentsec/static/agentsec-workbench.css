@@ -217,9 +217,11 @@
 }
 
 .prediction {
-  margin-top: .8rem;
-  border-top: 1px solid var(--border);
-  padding-top: .7rem;
+  margin-top: .9rem;
+  padding: 1rem 1.1rem;
+  border: 2px solid var(--chrome-navy);
+  border-radius: 6px;
+  background: #fff;
 }
 
 .prediction summary,
@@ -245,6 +247,39 @@
   margin: .3rem 0 0;
   color: var(--text-secondary);
   font-size: .9rem;
+}
+
+.choice-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .55rem;
+  margin: .35rem 0 .8rem;
+}
+
+.choice-card {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  min-height: 2.75rem;
+  min-width: 7.25rem;
+  padding: .5rem .8rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-page, #F6F8FB);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.choice-card:has(input:checked) {
+  border-color: var(--accent-teal, #007F86);
+  box-shadow: inset 0 0 0 2px var(--accent-teal, #007F86);
+  background: #fff;
+}
+
+.prediction-recorded {
+  margin: .4rem 0 0;
+  font-weight: 700;
+  color: var(--accent-teal, #007F86);
 }
 
 .run-id {

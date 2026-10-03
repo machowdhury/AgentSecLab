@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 384" role="img" aria-labelledby="title desc">
+<title id="title">RAG Purpose Authorization flow</title>
+<desc id="desc">A retrieved document is not authorized for every purpose. Similarity is not authorization.</desc>
+<rect width="880" height="384" fill="#F6F8FB"/>
+<g font-family="system-ui, Segoe UI, sans-serif" font-size="15" fill="#17202A">
+<rect x="120" y="28" width="640" height="48" rx="4" fill="#FFFFFF" stroke="#D9E0E7"/>
+<text x="440" y="58" text-anchor="middle" fill="#17202A">RETRIEVED FIXTURE DOCUMENT</text>
+<path d="M440 76 V96" stroke="#8AA0B4" stroke-width="2" fill="none"/>
+<rect x="120" y="96" width="640" height="48" rx="4" fill="#FFFFFF" stroke="#8AA0B4" stroke-dasharray="4 3"/>
+<text x="440" y="126" text-anchor="middle" fill="#17202A">PURPOSE EVALUATION</text>
+<path d="M440 144 V164" stroke="#8AA0B4" stroke-width="2" fill="none"/>
+<rect x="120" y="164" width="640" height="48" rx="4" fill="#FFFFFF" stroke="#007F86"/>
+<text x="440" y="194" text-anchor="middle" fill="#17202A">RETRIEVAL ≠ CTRL-MCP-001</text>
+<path d="M440 212 V232" stroke="#8AA0B4" stroke-width="2" fill="none"/>
+<rect x="120" y="232" width="640" height="48" rx="4" fill="#0B1F33" stroke="#0B1F33"/>
+<text x="440" y="262" text-anchor="middle" fill="#FFFFFF">TOOL PDP remains CTRL-MCP-001 if a tool is requested</text>
+<path d="M440 280 V300" stroke="#8AA0B4" stroke-width="2" fill="none"/>
+<rect x="120" y="300" width="640" height="48" rx="4" fill="#FFFFFF" stroke="#D9E0E7"/>
+<text x="440" y="330" text-anchor="middle" fill="#17202A">SPLUNK — observe only</text>
+</g></svg>

@@ -1415,7 +1415,91 @@
         "backgroundColor": "#FFFFFF",
         "headerBackgroundColor": "#0B1F33",
         "headerTextColor": "#FFFFFF",
-        "noDataMessage": "No indexed event matched this evidence question. No indexed rows for this run.id. If the box is empty, launch or select a run and enter its run.id. Zero rows are not DENY, not a timeout, and not a backend failure. Those states are reported on Attack Service. Indexing can lag. HEC HTTP 200 is not this table."
+        "noDataMessage": "No indexed event matched this evidence question. No indexed rows for this run.id. If the box is empty, launch or select a run and enter its run.id. Zero rows are not DENY, not a timeout, and not a backend failure. Those states are reported on Attack Service. Indexing can lag. HEC HTTP 200 is not this table.",
+        "columnFormat": {
+          "decision": {
+            "rowBackgroundColors": "> table | seriesByName(\"decision\") | matchValue(decisionBackgrounds)",
+            "rowColors": "> table | seriesByName(\"decision\") | matchValue(decisionText)"
+          },
+          "executed": {
+            "rowBackgroundColors": "> table | seriesByName(\"executed\") | matchValue(executedBackgrounds)",
+            "rowColors": "> table | seriesByName(\"executed\") | matchValue(executedText)"
+          }
+        }
+      },
+      "context": {
+        "decisionBackgrounds": [
+          {
+            "match": "ALLOW",
+            "value": "#E8EEF5"
+          },
+          {
+            "match": "DENY",
+            "value": "#F6EBD8"
+          },
+          {
+            "match": "ERROR",
+            "value": "#F8E6E6"
+          },
+          {
+            "match": "OBSERVE",
+            "value": "#F0F3F6"
+          }
+        ],
+        "decisionText": [
+          {
+            "match": "ALLOW",
+            "value": "#3568A8"
+          },
+          {
+            "match": "DENY",
+            "value": "#B7791F"
+          },
+          {
+            "match": "ERROR",
+            "value": "#C62828"
+          },
+          {
+            "match": "OBSERVE",
+            "value": "#3D4654"
+          }
+        ],
+        "executedBackgrounds": [
+          {
+            "match": "true",
+            "value": "#0B1F33"
+          },
+          {
+            "match": "false",
+            "value": "#EEF1F4"
+          },
+          {
+            "match": "1",
+            "value": "#0B1F33"
+          },
+          {
+            "match": "0",
+            "value": "#EEF1F4"
+          }
+        ],
+        "executedText": [
+          {
+            "match": "true",
+            "value": "#FFFFFF"
+          },
+          {
+            "match": "false",
+            "value": "#3D4654"
+          },
+          {
+            "match": "1",
+            "value": "#FFFFFF"
+          },
+          {
+            "match": "0",
+            "value": "#3D4654"
+          }
+        ]
       }
     },
     "viz_guide_summary": {
@@ -1434,7 +1518,100 @@
         "backgroundColor": "#FFFFFF",
         "headerBackgroundColor": "#0B1F33",
         "headerTextColor": "#FFFFFF",
-        "noDataMessage": "No indexed event matched this evidence question. No indexed rows for this run.id. If the box is empty, launch or select a run and enter its run.id. Zero rows are not DENY, not a timeout, and not a backend failure. Those states are reported on Attack Service. Indexing can lag. HEC HTTP 200 is not this table."
+        "noDataMessage": "No indexed event matched this evidence question. No indexed rows for this run.id. If the box is empty, launch or select a run and enter its run.id. Zero rows are not DENY, not a timeout, and not a backend failure. Those states are reported on Attack Service. Indexing can lag. HEC HTTP 200 is not this table.",
+        "columnFormat": {
+          "decision": {
+            "rowBackgroundColors": "> table | seriesByName(\"decision\") | matchValue(decisionBackgrounds)",
+            "rowColors": "> table | seriesByName(\"decision\") | matchValue(decisionText)"
+          },
+          "executed": {
+            "rowBackgroundColors": "> table | seriesByName(\"executed\") | matchValue(executedBackgrounds)",
+            "rowColors": "> table | seriesByName(\"executed\") | matchValue(executedText)"
+          }
+        }
+      },
+      "context": {
+        "decisionBackgrounds": [
+          {
+            "match": "ALLOW",
+            "value": "#E8EEF5"
+          },
+          {
+            "match": "DENY",
+            "value": "#F6EBD8"
+          },
+          {
+            "match": "ERROR",
+            "value": "#F8E6E6"
+          },
+          {
+            "match": "OBSERVE",
+            "value": "#F0F3F6"
+          }
+        ],
+        "decisionText": [
+          {
+            "match": "ALLOW",
+            "value": "#3568A8"
+          },
+          {
+            "match": "DENY",
+            "value": "#B7791F"
+          },
+          {
+            "match": "ERROR",
+            "value": "#C62828"
+          },
+          {
+            "match": "OBSERVE",
+            "value": "#3D4654"
+          }
+        ],
+        "executedBackgrounds": [
+          {
+            "match": "true",
+            "value": "#0B1F33"
+          },
+          {
+            "match": "false",
+            "value": "#EEF1F4"
+          },
+          {
+            "match": "1",
+            "value": "#0B1F33"
+          },
+          {
+            "match": "0",
+            "value": "#EEF1F4"
+          }
+        ],
+        "executedText": [
+          {
+            "match": "true",
+            "value": "#FFFFFF"
+          },
+          {
+            "match": "false",
+            "value": "#3D4654"
+          },
+          {
+            "match": "1",
+            "value": "#FFFFFF"
+          },
+          {
+            "match": "0",
+            "value": "#3D4654"
+          }
+        ]
+      }
+    },
+    "viz_flow_diagram": {
+      "type": "splunk.image",
+      "title": "Architecture flow",
+      "description": "Stored memory is later recalled. Recall is not a tool grant.",
+      "options": {
+        "src": "/en-US/static/app/agentsec/flows/flow-lab-memory-001.svg",
+        "preserveAspectRatio": true
       }
     }
   },
@@ -1480,15 +1657,25 @@
           "display": "auto-scale",
           "gutterSize": 8,
           "width": 1440,
-          "height": 440
+          "height": 648
         },
         "structure": [
+          {
+            "item": "viz_flow_diagram",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 200
+            }
+          },
           {
             "item": "viz_guide_shell",
             "type": "block",
             "position": {
               "x": 0,
-              "y": 0,
+              "y": 208,
               "w": 1440,
               "h": 640
             }
@@ -1498,7 +1685,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 660,
+              "y": 868,
               "w": 1440,
               "h": 420
             }
@@ -1508,7 +1695,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 1100,
+              "y": 1308,
               "w": 1440,
               "h": 280
             }
@@ -1518,7 +1705,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 1400,
+              "y": 1608,
               "w": 1440,
               "h": 420
             }
