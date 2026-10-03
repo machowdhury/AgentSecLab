@@ -1,7 +1,7 @@
 # AGENTSEC YOUR PATH SPLUNK RUNTIME REMEDIATION
 
 Starting Commit: `b2f98235a51a491d9719b4b7b9b5d08218d49413`
-Ending Commit: recorded after this commit
+Ending Commit: `d68b8680972bd3610f6d886d3b417c173da140fd`
 Root Cause: SUPPORTED. A live Splunk console exception was NOT MEASURED.
 
 Source Asset State: `splunk_app/agentsec/appserver/static/agentsec_learner_path.js` at the starting commit contained `mount()` and `start()`. `start()` called `mount()` immediately when `document.readyState` was not `"loading"`. `mount()` returned false when `#agentsec-progress` was missing and did not retry.
