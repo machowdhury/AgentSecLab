@@ -3,9 +3,9 @@
 Evidence classes stay separate. A passing test is not a Splunk-hosted render. A local static dump is not Dashboard Studio. HEC health is not indexed evidence.
 
 Starting Commit: `c0621083c0af66b698c03302f59f8cb7c01c2718`
-Ending Commit: pending this commit
-Origin/Develop: `c0621083c0af66b698c03302f59f8cb7c01c2718` before push
-Remote Sync: pending push
+Ending Commit: `2bd8c210a1ca8fed2bb2158ded5b7d791b5dca00`
+Origin/Develop: `c0621083c0af66b698c03302f59f8cb7c01c2718` before this push
+Remote Sync: pending `2bd8c21`
 
 Independent visual brief: style Your Path, differentiate inline evidence tables, decide progress versus navigation, add workshop flow diagrams, and strengthen predict-before-click. Security semantics were not changed.
 
@@ -190,7 +190,7 @@ Files Modified: Your Path script; Attack Service prediction CSS/HTML; 31 worksho
 Assets Added: 31 SVG flows; `src/agentsec/workshop_flows.py`
 Tests Added/Modified: `tests/unit/test_visual_learning.py`, progress tests, selected dashboard tests
 Documentation: README, GETTING_STARTED, TROUBLESHOOTING, this review
-Commit Created: pending
+Commit Created: `2bd8c210a1ca8fed2bb2158ded5b7d791b5dca00`
 Push: pending
 Main Modified: NO
 Existing Tags Modified: NO
