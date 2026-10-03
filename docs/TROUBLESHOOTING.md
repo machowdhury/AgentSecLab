@@ -290,7 +290,7 @@ Authority-like keys are rejected as **ERROR**, not DENY.
 **Symptom:** Your path opens in Splunk and shows no curriculum, no progress, and no reset control.  
 **Expected:** a list of workshops, a tally of NOT STARTED / IN PROGRESS / INVESTIGATED, and a Reset learning progress button.  
 **Check:** reload the page once. The list is drawn by the app script after the dashboard shell exists.  
-**Progress:** marks live in this browser only. A normal reload keeps them. Reset learning progress clears that list and nothing else. Do not edit browser storage by hand.  
+**Progress:** marks live in this browser only. Your path is the authoritative progress surface. Native Splunk navigation does not show those marks. A normal reload keeps them. Reset learning progress clears that list and nothing else. Do not edit browser storage by hand.  
 **If it stays blank:** hard-reload the Splunk page so the app script is not a stale copy. This is still not a Splunk index and not a security verdict.
 
 ## Browser progress

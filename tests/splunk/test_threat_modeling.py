@@ -38,7 +38,9 @@ def _markdown(layout_ids: tuple[str, ...] | None = None) -> str:
             for row in definition["layout"]["layoutDefinitions"][layout_id]["structure"]
         ]
     return "\n".join(
-        definition["visualizations"][viz_id]["options"]["markdown"] for viz_id in ids
+        definition["visualizations"][viz_id]["options"]["markdown"]
+        for viz_id in ids
+        if definition["visualizations"][viz_id].get("type") == "splunk.markdown"
     )
 
 

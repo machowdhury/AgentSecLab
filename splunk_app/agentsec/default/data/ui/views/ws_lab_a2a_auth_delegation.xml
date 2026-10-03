@@ -142,6 +142,15 @@
         "fontSize": "large",
         "fontColor": "#17202A"
       }
+    },
+    "viz_flow_diagram": {
+      "type": "splunk.image",
+      "title": "Architecture flow",
+      "description": "A simulated authentication result is not tool authorization.",
+      "options": {
+        "src": "/en-US/static/app/agentsec/flows/flow-lab-a2a-auth-delegation.svg",
+        "preserveAspectRatio": true
+      }
     }
   },
   "dataSources": {
@@ -234,15 +243,25 @@
           "display": "auto-scale",
           "gutterSize": 8,
           "width": 1440,
-          "height": 700
+          "height": 908
         },
         "structure": [
+          {
+            "item": "viz_flow_diagram",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 200
+            }
+          },
           {
             "item": "viz_guide_shell",
             "type": "block",
             "position": {
               "x": 0,
-              "y": 0,
+              "y": 208,
               "w": 1440,
               "h": 640
             }
@@ -252,7 +271,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 660,
+              "y": 868,
               "w": 1440,
               "h": 660
             }

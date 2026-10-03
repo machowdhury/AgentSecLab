@@ -212,7 +212,7 @@ def test_visualizations_cover_datasources_and_empty_states():
     assert layout_items == viz_ids
     used_ds = set()
     for viz in definition["visualizations"].values():
-        assert viz["type"] in {"splunk.markdown", "splunk.table"}
+        assert viz["type"] in {"splunk.markdown", "splunk.table", "splunk.image"}
         if viz["type"] == "splunk.table":
             used_ds.add(viz["dataSources"]["primary"])
             assert viz.get("hideWhenNoData") is False

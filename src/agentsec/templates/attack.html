@@ -230,17 +230,18 @@
           <p class="muted">This stays in this browser tab. It is not sent to Splunk, not graded, and not a control decision.</p>
           <p id="predict-control-label">Will the control:</p>
           <div class="choice-row" role="radiogroup" aria-labelledby="predict-control-label">
-            <label><input type="radio" name="predict-control" value="ALLOW"> ALLOW</label>
-            <label><input type="radio" name="predict-control" value="DENY"> DENY</label>
-            <label><input type="radio" name="predict-control" value="ERROR"> ERROR</label>
-            <label><input type="radio" name="predict-control" value="UNKNOWN" checked> UNKNOWN</label>
+            <label class="choice-card"><input type="radio" name="predict-control" value="ALLOW"> ALLOW</label>
+            <label class="choice-card"><input type="radio" name="predict-control" value="DENY"> DENY</label>
+            <label class="choice-card"><input type="radio" name="predict-control" value="ERROR"> ERROR</label>
+            <label class="choice-card"><input type="radio" name="predict-control" value="UNKNOWN" checked> UNKNOWN</label>
           </div>
           <p id="predict-execution-label">Will execution occur:</p>
           <div class="choice-row" role="radiogroup" aria-labelledby="predict-execution-label">
-            <label><input type="radio" name="predict-execution" value="YES"> YES</label>
-            <label><input type="radio" name="predict-execution" value="NO"> NO</label>
-            <label><input type="radio" name="predict-execution" value="UNKNOWN" checked> UNKNOWN</label>
+            <label class="choice-card"><input type="radio" name="predict-execution" value="YES"> YES</label>
+            <label class="choice-card"><input type="radio" name="predict-execution" value="NO"> NO</label>
+            <label class="choice-card"><input type="radio" name="predict-execution" value="UNKNOWN" checked> UNKNOWN</label>
           </div>
+          <p class="prediction-recorded" id="prediction-recorded" aria-live="polite">Select a control guess and an execution guess. You can change them before launch.</p>
         </fieldset>
       </form>
       <div class="actions">
@@ -385,6 +386,10 @@
         control: selectedValue("predict-control"),
         execution: selectedValue("predict-execution")
       });
+      const recorded = document.getElementById("prediction-recorded");
+      if (recorded) {
+        recorded.textContent = "PREDICTION RECORDED in this browser. Control " + selectedValue("predict-control") + ", execution " + selectedValue("predict-execution") + ". Still changeable before launch. Not sent to Splunk and not graded.";
+      }
     }
     if (predictionForm) {
       predictionForm.addEventListener("change", rememberPrediction);
@@ -394,6 +399,7 @@
         const executionInput = predictionForm.querySelector('input[name="predict-execution"][value="' + stored.execution + '"]');
         if (controlInput) controlInput.checked = true;
         if (executionInput) executionInput.checked = true;
+        rememberPrediction();
       }
     }
     ui.renderSession(sessionHistory);

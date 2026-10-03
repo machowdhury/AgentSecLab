@@ -31,7 +31,11 @@ def _markdown(layouts: tuple[str, ...] | None = None) -> str:
         row["item"] for layout_id in layouts
         for row in definition["layout"]["layoutDefinitions"][layout_id]["structure"]
     ]
-    return "\n".join(definition["visualizations"][viz_id]["options"]["markdown"] for viz_id in ids)
+    return "\n".join(
+        definition["visualizations"][viz_id]["options"]["markdown"]
+        for viz_id in ids
+        if definition["visualizations"][viz_id].get("type") == "splunk.markdown"
+    )
 
 
 def test_l8_curriculum_navigation_and_artifacts():
