@@ -21,6 +21,8 @@ DEFAULT_INTERVAL_SEC = 2
 MAX_TIMEOUT_SEC = 120
 MAX_INTERVAL_SEC = 15
 SPLUNK_CONTAINER = "agentsec_splunk"
+STATE_UNAVAILABLE = "EVIDENCE_CHECK_UNAVAILABLE"
+PROBE_CANNOT_EXECUTE = frozenset({"docker_not_available"})
 
 
 def count_local_events(artifacts_dir: Path, run_id: str) -> int | None:
@@ -165,8 +167,11 @@ def wait_for_searchable_evidence(
         if isinstance(count, int) and count >= 1:
             timed_out = False
             break
+        if last.get("error") in PROBE_CANNOT_EXECUTE:
+            timed_out = False
+            break
         if timeout_seconds <= 0:
-            timed_out = not (isinstance(count, int) and count >= 1)
+            timed_out = False
             break
         if monotonic_fn() >= deadline:
             timed_out = True
@@ -178,7 +183,12 @@ def wait_for_searchable_evidence(
     completeness_ok = (
         searchable and local_count is not None and splunk_count == local_count
     )
-    evidence_state = "EVIDENCE_READY" if searchable else "WAITING_FOR_EVIDENCE"
+    if searchable:
+        evidence_state = "EVIDENCE_READY"
+    elif last.get("error") in PROBE_CANNOT_EXECUTE:
+        evidence_state = STATE_UNAVAILABLE
+    else:
+        evidence_state = "WAITING_FOR_EVIDENCE"
     return {
         "run_id": run_id,
         "evidence_state": evidence_state,
@@ -188,7 +198,7 @@ def wait_for_searchable_evidence(
         "splunk_count": splunk_count,
         "local_event_count": local_count,
         "completeness_ok": completeness_ok,
-        "evidence_timeout": timed_out and not searchable,
+        "evidence_timeout": timed_out and evidence_state == "WAITING_FOR_EVIDENCE",
         "probe_error": last.get("error"),
         "otlp.ok": export_doc.get("otlp.ok"),
         "hec.ok": export_doc.get("hec.ok"),
@@ -197,6 +207,26 @@ def wait_for_searchable_evidence(
             "otlp.ok and HEC HTTP 200 are not EVIDENCE_READY. "
             "Timeout is not a failed attack, DENY, SAFE, or BLOCKED."
         ),
+    }
+
+
+def rollup_evidence(probes: list[dict]) -> dict:
+    """Combine independent run probes without treating a dead probe as zero rows."""
+
+    states = [str(probe.get("evidence_state") or "") for probe in probes]
+    if states and all(state == "EVIDENCE_READY" for state in states):
+        state = "EVIDENCE_READY"
+    elif any(state == STATE_UNAVAILABLE for state in states):
+        state = STATE_UNAVAILABLE
+    else:
+        state = "WAITING_FOR_EVIDENCE"
+    errors = [probe.get("probe_error") for probe in probes if probe.get("probe_error")]
+    timed_out = any(bool(probe.get("evidence_timeout")) for probe in probes)
+    return {
+        "evidence_state": state,
+        "evidence_timeout": timed_out and state == "WAITING_FOR_EVIDENCE",
+        "probe_error": errors[0] if state == STATE_UNAVAILABLE and errors else None,
+        "splunk_verified": state == "EVIDENCE_READY",
     }
 
 

@@ -17,6 +17,7 @@ from agentsec.evidence_readiness import (
     env_interval,
     env_timeout,
     read_export_doc,
+    rollup_evidence,
     wait_for_searchable_evidence,
 )
 from agentsec.experiment_context import ExperimentContext, lookup_experiment, ROUTE_CAPSTONE, ROUTE_GOAL, ROUTE_IDENTITY, ROUTE_MCP, ROUTE_MEMORY, ROUTE_RAG
@@ -792,7 +793,8 @@ class LaunchService:
             retrieve_ready = retrieve_probe["evidence_state"] == STATE_READY
             write_ready = write_probe["evidence_state"] == STATE_READY
             recall_ready = recall_probe["evidence_state"] == STATE_READY
-            overall = STATE_READY if retrieve_ready and write_ready and recall_ready else STATE_WAITING
+            rolled = rollup_evidence([retrieve_probe, write_probe, recall_probe])
+            overall = rolled["evidence_state"]
             record.evidence_state = overall
             if overall == STATE_READY and STATE_READY not in record.lifecycle:
                 record.lifecycle.append(STATE_READY)
@@ -815,6 +817,8 @@ class LaunchService:
                 "local_event_count_retrieve": retrieve_probe.get("local_event_count"),
                 "local_event_count_write": write_probe.get("local_event_count"),
                 "local_event_count_recall": recall_probe.get("local_event_count"),
+                "evidence_timeout": rolled["evidence_timeout"],
+                "probe_error": rolled["probe_error"],
                 "note": (
                     "RETRIEVE READY, WRITE READY, and RECALL READY are independent. "
                     "EXPERIMENT READY requires all three. HEC success is not searchable evidence. "
@@ -840,7 +844,8 @@ class LaunchService:
             )
             write_ready = write_probe["evidence_state"] == STATE_READY
             recall_ready = recall_probe["evidence_state"] == STATE_READY
-            overall = STATE_READY if write_ready and recall_ready else STATE_WAITING
+            rolled = rollup_evidence([write_probe, recall_probe])
+            overall = rolled["evidence_state"]
             record.evidence_state = overall
             if overall == STATE_READY and STATE_READY not in record.lifecycle:
                 record.lifecycle.append(STATE_READY)
@@ -859,6 +864,8 @@ class LaunchService:
                 "recall_probe": recall_probe,
                 "local_event_count_write": write_probe.get("local_event_count"),
                 "local_event_count_recall": recall_probe.get("local_event_count"),
+                "evidence_timeout": rolled["evidence_timeout"],
+                "probe_error": rolled["probe_error"],
                 "note": (
                     "WRITE READY and RECALL READY are independent. "
                     "EXPERIMENT READY requires both. HEC success is not searchable evidence. "
@@ -888,6 +895,8 @@ class LaunchService:
         if record.body:
             record.body["evidence_state"] = record.evidence_state
             record.body["splunk_verified"] = result["splunk_verified"]
+            record.body["probe_error"] = result.get("probe_error")
+            record.body["evidence_timeout"] = bool(result.get("evidence_timeout"))
             if record.write_run_id:
                 record.body["write_evidence_state"] = result.get("write_evidence_state")
                 record.body["recall_evidence_state"] = result.get("recall_evidence_state")

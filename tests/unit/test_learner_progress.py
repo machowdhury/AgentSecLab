@@ -57,6 +57,118 @@ if (store["agentsec.learner.session.v1"]) throw new Error("reset touched session
     assert completed.returncode == 0, completed.stderr
 
 
+def test_path_mounts_after_dom_and_before_dom_without_duplicating():
+    program = r"""
+const fs = require("fs");
+const vm = require("vm");
+function dom(readyState) {
+  const listeners = {};
+  const store = {};
+  const localStorage = {
+    getItem(key) { return Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null; },
+    setItem(key, value) { store[key] = String(value); },
+    removeItem(key) { delete store[key]; }
+  };
+  const children = [];
+  const root = {
+    id: "agentsec-progress",
+    attrs: {},
+    getAttribute(name) { return this.attrs[name] || null; },
+    setAttribute(name, value) { this.attrs[name] = String(value); },
+    replaceChildren() { children.length = 0; },
+    appendChild(node) { children.push(node); }
+  };
+  const document = {
+    readyState: readyState,
+    head: {appendChild() {}},
+    getElementById(id) {
+      if (id === "agentsec-progress") return root;
+      return null;
+    },
+    createElement(tag) {
+      return {tag: tag, textContent: "", id: "", type: "", children: [], appendChild(node) { this.children.push(node); }, addEventListener() {}, setAttribute() {}};
+    },
+    addEventListener(name, fn) { listeners[name] = fn; }
+  };
+  const window = {localStorage};
+  vm.runInNewContext(fs.readFileSync(process.argv[1], "utf8"), {window, document, localStorage});
+  return {window, document, listeners, root, children, localStorage, store};
+}
+const late = dom("complete");
+if (late.children.length < 10) throw new Error("late mount count " + late.children.length);
+if (late.root.getAttribute("data-agentsec-mounted") !== "1") throw new Error("late flag");
+const again = late.window.AgentSecProgress.mount();
+if (again !== false) throw new Error("second mount");
+if (!late.children.some(node => node.id === "agentsec-progress-reset")) throw new Error("reset missing");
+const early = dom("loading");
+if (early.children.length !== 0) throw new Error("early rendered too soon");
+if (typeof early.listeners.DOMContentLoaded !== "function") throw new Error("listener missing");
+early.document.readyState = "interactive";
+early.listeners.DOMContentLoaded();
+if (early.children.length !== late.children.length) throw new Error("early count");
+early.listeners.DOMContentLoaded();
+if (early.children.length !== late.children.length) throw new Error("duplicate init");
+const fresh = early.children.find(node => node.children && node.children.some(child => child.id === "status-ws_lab_pi_001"));
+const status = fresh.children.find(child => child.id === "status-ws_lab_pi_001");
+if (status.textContent !== "NOT STARTED") throw new Error(status.textContent);
+"""
+    # The compact reload case is asserted in the next program so storage is shared.
+    completed = _node(program, SCRIPT)
+    assert completed.returncode == 0, completed.stderr
+
+
+def test_path_reload_keeps_progress_and_reset_clears_only_that_key():
+    program = r"""
+const fs = require("fs");
+const vm = require("vm");
+const store = {};
+const localStorage = {
+  getItem(key) { return Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null; },
+  setItem(key, value) { store[key] = String(value); },
+  removeItem(key) { delete store[key]; }
+};
+function boot() {
+  const children = [];
+  let resetClick = null;
+  const root = {
+    attrs: {},
+    getAttribute(name) { return this.attrs[name] || null; },
+    setAttribute(name, value) { this.attrs[name] = String(value); },
+    replaceChildren() { children.length = 0; },
+    appendChild(node) { children.push(node); }
+  };
+  const document = {
+    readyState: "complete",
+    head: {appendChild() {}},
+    getElementById(id) { return id === "agentsec-progress" ? root : null; },
+    createElement() {
+      const node = {
+        textContent: "", id: "", type: "", children: [],
+        appendChild(child) { this.children.push(child); },
+        addEventListener(name, fn) { if (name === "click") this.onclick = fn; if (name === "click" && this.id === "agentsec-progress-reset") resetClick = fn; },
+        setAttribute() {}
+      };
+      return node;
+    },
+    addEventListener() {}
+  };
+  const window = {localStorage};
+  vm.runInNewContext(fs.readFileSync(process.argv[1], "utf8"), {window, document, localStorage});
+  return {window, children, resetClick};
+}
+const first = boot();
+first.window.AgentSecProgress.setState("ws_lab_mcp_001", "IN PROGRESS");
+const second = boot();
+if (second.window.AgentSecProgress.stateFor("ws_lab_mcp_001") !== "IN PROGRESS") throw new Error("reload lost progress");
+if (!second.resetClick) throw new Error("reset control missing");
+second.resetClick();
+if (second.window.AgentSecProgress.stateFor("ws_lab_mcp_001") !== "NOT STARTED") throw new Error("reset failed");
+if (store["agentsec.learner.session.v1"]) throw new Error("reset touched session");
+"""
+    completed = _node(program, SCRIPT)
+    assert completed.returncode == 0, completed.stderr
+
+
 def test_session_capture_keeps_lab_pairs_separate():
     program = r"""
 const fs = require("fs");

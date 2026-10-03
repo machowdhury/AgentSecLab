@@ -6,7 +6,7 @@ Use `main` or annotated tag `v1.1.0`. That tree is the L0–L10 academy. Tag `v1
 
 After the first lab, continue with the README academy section and [AGENTSEC_RELEASE_LAB_MATRIX.md](AGENTSEC_RELEASE_LAB_MATRIX.md). Do not treat the L5 Capstone as the end of the academy. L10 is the Advanced Capstone. Mastery Check is a separate unscored self-check. Arena is optional after that. It is not the start.
 
-On a LIVE workshop, launch from Attack Service, copy the run.id, and paste it into **LIVE run.id**. The table on that page is a Splunk search. Rows are indexed evidence only when Splunk returns them. Search remains available when you want to edit the SPL. REPLAY workshops do not need Ollama. Ollama is the local LLM runtime AgentSec uses for LIVE labs. It is not part of Splunk.
+On a LIVE workshop, launch from Attack Service, copy the run.id, and paste it into **LIVE run.id**. The table on that page is a Splunk search. Rows are indexed evidence only when Splunk returns them. Search remains available when you want to edit the SPL. Check evidence readiness can say the probe is unavailable, still waiting, timed out, or confirmed. Those words are not a control decision. Splunk Search is the record. REPLAY workshops do not need Ollama. A documented REPLAY run.id with zero Search rows means this volume does not contain that historical copy. The lab does not invent it. Ollama is the local LLM runtime AgentSec uses for LIVE labs. It is not part of Splunk.
 
 ## 1. Prerequisites
 

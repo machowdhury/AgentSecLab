@@ -95,11 +95,17 @@ def browser_splunk_web(host_header: str, scheme: str = "http") -> str:
     return f"{chosen}://{hostname}:8000"
 
 
+def _is_splunk_web_path(path: str) -> bool:
+    """Academy and Search live under Splunk Web. Attack Service routes do not."""
+    return path == "/en-US" or path.startswith("/en-US/")
+
+
 def rewrite_learner_navigation(url: str, page_origin: str) -> str:
     """Keep a learner link on the host the browser is using.
 
     Relative Splunk paths stay relative when the page is already Splunk.
-    From Attack Service they move to the same hostname on port 8000.
+    From Attack Service, only /en-US/ paths move to the same hostname on port 8000.
+    Attack Service paths such as / and /labs/ stay on the current origin.
     Loopback absolute URLs keep their port and take the page hostname.
     """
     from urllib.parse import urlsplit, urlunsplit
@@ -107,7 +113,7 @@ def rewrite_learner_navigation(url: str, page_origin: str) -> str:
     page = urlsplit(page_origin)
     page_host = page.hostname or "127.0.0.1"
     if url.startswith("/") and not url.startswith("//"):
-        if page.port in (None, 8000):
+        if page.port in (None, 8000) or not _is_splunk_web_path(url):
             return url
         scheme = page.scheme or "http"
         return f"{scheme}://{page_host}:8000{url}"

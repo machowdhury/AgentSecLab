@@ -83,7 +83,8 @@
       return url;
     }
     if (url.charAt(0) === "/" && url.charAt(1) !== "/") {
-      if (!page.port || page.port === "8000") {
+      var splunkPath = url === "/en-US" || url.indexOf("/en-US/") === 0;
+      if (!page.port || page.port === "8000" || !splunkPath) {
         return url;
       }
       return page.protocol + "//" + page.hostname + ":8000" + url;
@@ -120,35 +121,76 @@
         message: "The launch did not complete. This is not a control DENY."
       };
     }
-    if (data.evidence_timeout) {
-      return {
-        state: "RUN TIMED OUT",
-        message: "The evidence check timed out. This is not a control DENY and not a security decision."
-      };
-    }
-    var terminal = (data.runtime && data.runtime.terminal) || data.terminal;
+    var terminal = (data.runtime && data.runtime.terminal) || data.terminal || "";
     if (terminal === "completed_denied") {
       return {
         state: "RUN DENIED",
-        message: "The control denied this run. Authorization is not execution."
+        message: "The control denied this run. Authorization is not execution. The evidence line is separate and is not a Splunk verdict."
       };
     }
-    if (terminal === "completed_allowed") {
-      if (data.evidence_state === "WAITING_FOR_EVIDENCE") {
-        return {
-          state: "RUN IN PROGRESS",
-          message: "The runtime finished. Searchable evidence is not ready yet. This is not a control DENY."
-        };
-      }
+    if (terminal === "completed_allowed" || terminal === "run_completed") {
       return {
         state: "RUN COMPLETED",
-        message: "The runtime completed. Copy the run.id and open Search. Completion is not proof the attack succeeded."
+        message: "Launcher terminal " + terminal + ". Completion is not proof the attack succeeded. The evidence line is separate and is not a Splunk verdict."
+      };
+    }
+    if (terminal === "run_failed") {
+      return {
+        state: "RUN FAILED",
+        message: "The launcher reported run_failed. This is not a control DENY."
+      };
+    }
+    if (data.probe_error || data.evidence_state === "EVIDENCE_CHECK_UNAVAILABLE") {
+      return {
+        state: "EVIDENCE CHECK UNAVAILABLE",
+        message: "The evidence probe could not run. This is not absence of evidence and not a control DENY."
+      };
+    }
+    if (data.evidence_timeout) {
+      return {
+        state: "CHECK TIMED OUT",
+        message: "The evidence check timed out while waiting for indexing. This is not a control DENY."
+      };
+    }
+    if (!terminal) {
+      return {
+        state: "RUN IN PROGRESS",
+        message: "The launcher has not reported a terminal state. This is not a control decision."
       };
     }
     return {
       state: "RUN FAILED",
       message: "The launch did not complete. This is not a control DENY."
     };
+  }
+
+  function evidencePresentation(data) {
+    if (!data || data.probe_error || data.evidence_state === "EVIDENCE_CHECK_UNAVAILABLE") {
+      var reason = data && data.probe_error ? " (" + data.probe_error + ")" : "";
+      return {
+        state: "EVIDENCE CHECK UNAVAILABLE",
+        message: "The evidence probe could not run" + reason + ". This is not absence of evidence, not DENY, and not a Splunk verdict. Search remains authoritative."
+      };
+    }
+    if (data.evidence_timeout) {
+      return {
+        state: "CHECK TIMED OUT",
+        message: "The evidence check timed out while waiting for indexing. This is not a control DENY. Search remains authoritative."
+      };
+    }
+    if (data.evidence_state === "EVIDENCE_READY" || data.splunk_verified === true) {
+      return {
+        state: "EVIDENCE CONFIRMED",
+        message: "Splunk returned at least one event for this run.id. evidence_state=EVIDENCE_READY. That is not SAFE and not a control verdict."
+      };
+    }
+    if (data.evidence_state === "WAITING_FOR_EVIDENCE") {
+      return {
+        state: "WAITING FOR INDEXING",
+        message: "No indexed event was returned yet. This is not DENY and not a probe failure. Search remains authoritative."
+      };
+    }
+    return null;
   }
 
   function afterPaint() {
@@ -277,15 +319,24 @@
 
   function applyLauncherRecord(row, body) {
     var runtime = body && body.runtime ? body.runtime : {};
-    var terminal = runtime.terminal || (body && body.terminal) || "";
+    var terminal = runtime.terminal || (body && body.terminal) || row.terminal || "";
+    var view = {
+      runtime: runtime,
+      terminal: terminal,
+      evidence_state: (body && body.evidence_state) || row.evidenceState || "",
+      evidence_timeout: Boolean(body && body.evidence_timeout),
+      probe_error: (body && body.probe_error) || "",
+      error_class: body && body.error_class
+    };
+    var label = learnerRunState(view);
     var next = {
       mode: row.mode,
       runId: row.runId,
       labId: row.labId,
-      state: row.state,
+      state: label.state,
       at: row.at,
-      terminal: terminal || row.terminal || "",
-      evidenceState: (body && body.evidence_state) || row.evidenceState || "",
+      terminal: terminal,
+      evidenceState: view.evidence_state,
       decision: firstDecision(runtime) || row.decision || "",
       llmCallCount: runtime.llm_call_count === undefined || runtime.llm_call_count === null
         ? row.llmCallCount
@@ -372,6 +423,7 @@
     learnerHref: learnerHref,
     rewriteLearnerLinks: rewriteLearnerLinks,
     learnerRunState: learnerRunState,
+    evidencePresentation: evidencePresentation,
     afterPaint: afterPaint,
     savePrediction: savePrediction,
     predictionFor: predictionFor,
@@ -379,6 +431,7 @@
     renderSession: renderSession,
     historyText: historyText,
     pairSessionRuns: pairSessionRuns,
+    applyLauncherRecord: applyLauncherRecord,
     readSessionRuns: function () { return readSession().runs; },
     refreshLauncherRecords: refreshLauncherRecords,
     captureLaunch: captureLaunch,
