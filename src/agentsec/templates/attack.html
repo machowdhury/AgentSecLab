@@ -483,6 +483,10 @@
     bindCopy("copy-retest-retrieve-run-id", retestRetrieveInput);
 
     function learnerEvidenceLabel(data) {
+      const presented = ui.evidencePresentation(data);
+      if (presented && (data.probe_error || data.evidence_state === "EVIDENCE_CHECK_UNAVAILABLE" || data.evidence_timeout)) {
+        return presented;
+      }
       const state = data && data.evidence_state ? String(data.evidence_state) : "";
       const lifecycle = (data && data.lifecycle) ? data.lifecycle : [];
       if (data && data.retrieve_run_id && data.write_run_id && data.recall_run_id) {
@@ -493,7 +497,7 @@
           return {state: "EVIDENCE READY", message: "EXPERIMENT READY. RETRIEVE, WRITE, and RECALL each returned at least one Splunk event. That is not SAFE and not a control verdict."};
         }
         if (!retrieveReady || !writeReady || !recallReady) {
-          return {state: "WAITING FOR SPLUNK", message: "WAITING FOR SPLUNK. Retrieve, write, and recall are independent. HEC success is not searchable evidence. The experiment is not EVIDENCE READY until all three are searchable."};
+          return {state: "WAITING FOR INDEXING", message: "WAITING FOR INDEXING. Retrieve, write, and recall are independent. HEC success is not searchable evidence. The experiment is not EVIDENCE CONFIRMED until all three are searchable."};
         }
       }
       if (data && data.write_run_id && data.recall_run_id) {
@@ -503,20 +507,20 @@
           return {state: "EVIDENCE READY", message: "EXPERIMENT READY. WRITE READY and RECALL READY. Both run.ids returned at least one Splunk event. That is not SAFE and not a control verdict."};
         }
         if (writeReady && !recallReady) {
-          return {state: "WAITING FOR SPLUNK", message: "WRITE READY. RECALL is not yet searchable. The experiment is not EVIDENCE READY."};
+          return {state: "WAITING FOR INDEXING", message: "WRITE READY. RECALL is not yet searchable. The experiment is not EVIDENCE CONFIRMED."};
         }
         if (recallReady && !writeReady) {
-          return {state: "WAITING FOR SPLUNK", message: "RECALL READY. WRITE is not yet searchable. The experiment is not EVIDENCE READY."};
+          return {state: "WAITING FOR INDEXING", message: "RECALL READY. WRITE is not yet searchable. The experiment is not EVIDENCE CONFIRMED."};
         }
         if (state === "WAITING_FOR_EVIDENCE" || lifecycle.indexOf("WAITING_FOR_EVIDENCE") >= 0) {
-          return {state: "WAITING FOR SPLUNK", message: "WAITING FOR SPLUNK. Write and recall telemetry may have been sent. HEC success is not searchable evidence."};
+          return {state: "WAITING FOR INDEXING", message: "WAITING FOR INDEXING. Write and recall telemetry may have been sent. HEC success is not searchable evidence."};
         }
       }
       if (state === "EVIDENCE_READY") {
-        return {state: "EVIDENCE READY", message: "EVIDENCE READY. Splunk returned at least one event for this run.id. That is not SAFE and not a control verdict."};
+        return {state: "EVIDENCE CONFIRMED", message: "EVIDENCE CONFIRMED. Splunk returned at least one event for this run.id. evidence_state=EVIDENCE_READY. That is not SAFE and not a control verdict."};
       }
       if (state === "WAITING_FOR_EVIDENCE" || lifecycle.indexOf("WAITING_FOR_EVIDENCE") >= 0) {
-        return {state: "WAITING FOR SPLUNK", message: "WAITING FOR SPLUNK. Telemetry may have been sent. HEC success is not searchable evidence."};
+        return {state: "WAITING FOR INDEXING", message: "WAITING FOR INDEXING. No indexed event was returned yet. This is not DENY and not a probe failure. HEC success is not searchable evidence."};
       }
       if (lifecycle.indexOf("TELEMETRY_SENT") >= 0) {
         return {state: "TELEMETRY SENT", message: "TELEMETRY SENT. Searchable evidence has not been measured yet."};
@@ -859,13 +863,24 @@
         let launchLabel = ui.learnerRunState(data);
         if (!response.ok && (response.status === 502 || response.status === 503 || response.status === 504)) {
           launchLabel = {state: "BACKEND UNAVAILABLE", message: "The launcher did not accept the request. This is not a control DENY."};
+          if (!data.run_id) {
+            ui.recordLaunch({
+              mode: mode,
+              runId: "",
+              labId: labKey,
+              state: "BACKEND UNAVAILABLE",
+              terminal: "",
+              evidenceState: ""
+            });
+            ui.renderSession(sessionHistory);
+          }
         } else if (data.run_id && data.error_class !== "ERROR") {
           launchLabel = {state: "REQUEST ACCEPTED", message: "Request accepted for " + mode + ". run.id is an investigation handle, not authorization and not a verdict."};
           ui.applyState(statusEl, liveEl, launchLabel.state, launchLabel.message);
           await ui.afterPaint();
         }
         const settled = ui.learnerRunState(Object.assign({}, data, {runtime: runtime}));
-        if (data.run_id && data.error_class !== "ERROR" && settled.state !== "RUN FAILED") {
+        if (launchLabel.state !== "BACKEND UNAVAILABLE" && data.run_id && data.error_class !== "ERROR" && settled.state !== "RUN FAILED") {
           launchLabel = settled;
         }
         const elapsedSec = Math.round((Date.now() - startedAt) / 1000);
@@ -971,6 +986,15 @@
         detailsEl.hidden = false;
       } catch (err) {
         ui.applyState(statusEl, liveEl, "BACKEND UNAVAILABLE", "The browser did not receive a usable response. This is not a control DENY.");
+        ui.recordLaunch({
+          mode: mode,
+          runId: "",
+          labId: labKey,
+          state: "BACKEND UNAVAILABLE",
+          terminal: "",
+          evidenceState: ""
+        });
+        ui.renderSession(sessionHistory);
         renderFacts(0, {error: "The browser did not receive a usable response.", error_class: "ERROR"});
       } finally {
         setButtonsBusy(false);
@@ -993,12 +1017,8 @@
       }
       const response = await fetch("/api/launches/" + encodeURIComponent(runId) + "/evidence?timeout_seconds=0");
       const data = await response.json();
-      if (data.evidence_timeout) {
-        ui.applyState(statusEl, liveEl, "RUN TIMED OUT", "The evidence check timed out. This is not a control DENY and not a security decision.");
-      } else {
-        const label = learnerEvidenceLabel(data);
-        ui.applyState(statusEl, liveEl, label.state, label.message + " splunk_verified=" + String(Boolean(data.splunk_verified)) + ". Timeout is not a failed attack.");
-      }
+      const label = learnerEvidenceLabel(data);
+      ui.applyState(statusEl, liveEl, label.state, label.message + " splunk_verified=" + String(Boolean(data.splunk_verified)) + ". A probe failure is not missing evidence. A timeout is not a control DENY.");
       jsonEl.textContent = JSON.stringify(data, null, 2);
       detailsEl.hidden = false;
     });

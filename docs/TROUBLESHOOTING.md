@@ -285,11 +285,33 @@ Authority-like keys are rejected as **ERROR**, not DENY.
 **Remediation:** wait, then paste the id again.  
 **Do not conclude:** DENY, timeout, or backend failure. Those words appear on the launcher, not as an empty table. HEC HTTP 200 is not this table.
 
+## Your path is blank
+
+**Symptom:** Your path opens in Splunk and shows no curriculum, no progress, and no reset control.  
+**Expected:** a list of workshops, a tally of NOT STARTED / IN PROGRESS / INVESTIGATED, and a Reset learning progress button.  
+**Check:** reload the page once. The list is drawn by the app script after the dashboard shell exists.  
+**Progress:** marks live in this browser only. A normal reload keeps them. Reset learning progress clears that list and nothing else. Do not edit browser storage by hand.  
+**If it stays blank:** hard-reload the Splunk page so the app script is not a stale copy. This is still not a Splunk index and not a security verdict.
+
 ## Browser progress
 
 **Symptom:** Your path shows NOT STARTED after a new browser or a reset.  
 **Cause:** progress is `localStorage` on this Splunk origin. It is not an account.  
-**Remediation:** mark the workshop again. Reset clears only that list. It does not delete indexed evidence.
+**Remediation:** mark the workshop again. Reset learning progress clears only that list. It does not delete indexed evidence.
+
+## Canonical REPLAY run.id returns zero rows
+
+**Symptom:** a REPLAY workshop shows its lesson, and Splunk Search for the documented run.id returns no events.  
+**Cause:** that run.id is a historical copy. `lab-up`, `--refresh-app`, and a new volume do not create it. The repository does not ship those event bodies, so there is no supported reseed command. Scanner packs under `docs/phase9b-evidence` are a different sourcetype. They are not these run.ids.  
+**Check:** `index=agentsec_telemetry earliest=0 "agentsec.run.id"="<the documented id>"`.  
+**Do not conclude:** DENY, a broken workshop, or that deleting the Splunk volume will restore the copy.  
+**A fresh LIVE launch** mints a different run.id. It does not replace the canonical one.
+
+## Evidence check cannot reach Splunk
+
+**Symptom:** Check evidence readiness says EVIDENCE CHECK UNAVAILABLE, or CHECK TIMED OUT, while Search already shows the run.  
+**Cause:** the Attack Service probe asks Splunk from inside its container. If that probe cannot run, the UI must say the check is unavailable. That is not zero events and not a control DENY. CHECK TIMED OUT means the probe ran and the wait ended with no indexed row. WAITING FOR INDEXING means a successful probe has not seen a row yet. EVIDENCE CONFIRMED means the probe saw at least one indexed event.  
+**Authority:** Splunk Search remains the evidence record. HEC HTTP 200 is not that record.
 
 ## HTTP 400 workshop page
 

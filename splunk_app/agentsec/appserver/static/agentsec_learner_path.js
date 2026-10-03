@@ -307,18 +307,48 @@
       });
       root.appendChild(item);
     });
-    var reset = document.createElement("button");
-    reset.type = "button";
-    reset.id = "agentsec-progress-reset";
-    reset.textContent = "Reset learning progress";
-    reset.addEventListener("click", function () {
+    var resetButton = document.createElement("button");
+    resetButton.type = "button";
+    resetButton.id = "agentsec-progress-reset";
+    resetButton.textContent = "Reset learning progress";
+    resetButton.addEventListener("click", function () {
       reset();
       render(root);
     });
-    root.appendChild(reset);
+    root.appendChild(resetButton);
     var note = document.createElement("p");
     note.textContent = "Reset clears this browser list only. It does not delete Splunk data, Attack Service records, or security decisions.";
     root.appendChild(note);
+  }
+
+  function mount() {
+    if (typeof document === "undefined" || !document.getElementById) {
+      return false;
+    }
+    var root = document.getElementById("agentsec-progress");
+    if (!root || root.getAttribute("data-agentsec-mounted") === "1") {
+      return false;
+    }
+    if (document.head && !document.getElementById("agentsec-progress-style")) {
+      var style = document.createElement("style");
+      style.id = "agentsec-progress-style";
+      style.textContent = "#agentsec-progress button:focus{outline:3px solid #0B1F33;outline-offset:2px}";
+      document.head.appendChild(style);
+    }
+    render(root);
+    root.setAttribute("data-agentsec-mounted", "1");
+    return true;
+  }
+
+  function start() {
+    if (typeof document === "undefined" || !document.addEventListener) {
+      return;
+    }
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", mount);
+      return;
+    }
+    mount();
   }
 
   window.AgentSecProgress = {
@@ -329,19 +359,9 @@
     setState: setState,
     reset: reset,
     summary: summary,
-    stateFor: stateFor
+    stateFor: stateFor,
+    mount: mount
   };
 
-  if (typeof document !== "undefined" && document.addEventListener) {
-  document.addEventListener("DOMContentLoaded", function () {
-    var root = document.getElementById("agentsec-progress");
-    if (!root) {
-      return;
-    }
-    var style = document.createElement("style");
-    style.textContent = "#agentsec-progress button:focus{outline:3px solid #0B1F33;outline-offset:2px}";
-    document.head.appendChild(style);
-    render(root);
-  });
-  }
+  start();
 })(window);

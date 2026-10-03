@@ -218,8 +218,10 @@
       }
 
       function evidenceLabel(data) {
+        const presented = ui.evidencePresentation(data);
+        if (presented) return presented.state;
         if (!data) return "NOT MEASURED";
-        return data.evidence_state === "EVIDENCE_READY" ? "EVIDENCE READY" : String(data.evidence_state || "NOT VERIFIED");
+        return data.evidence_state ? String(data.evidence_state) : "NOT VERIFIED";
       }
 
       function relationship(a, b) {
@@ -363,10 +365,10 @@
         const response = await fetch("/api/launches/" + encodeURIComponent(runId) + "/evidence?timeout_seconds=0");
         const data = await response.json();
         document.getElementById("result-json").textContent = JSON.stringify(data, null, 2);
-        const label = data.evidence_state === "EVIDENCE_READY" ? "EVIDENCE READY" : "WAITING FOR SPLUNK";
-        document.getElementById("chain-evidence").textContent = label;
-        document.getElementById("evidence-status").textContent = label;
-        ui.applyState(statusEl, statusMessage, label, label + ". Searchability is not a control verdict.");
+        const presented = ui.evidencePresentation(data) || {state: String(data.evidence_state || "NOT VERIFIED"), message: "Search remains authoritative."};
+        document.getElementById("chain-evidence").textContent = presented.state;
+        document.getElementById("evidence-status").textContent = presented.state;
+        ui.applyState(statusEl, statusMessage, presented.state, presented.message);
       });
 
       fetch("/api/target-health").then(r => r.json().then(data => ({ok: r.ok, data: data}))).then(function (result) {

@@ -138,7 +138,7 @@ The commands above start the **local Docker lab**. **External Splunk** is not st
 6. Read the lab’s ATTACK and RETEST comparison as a controlled pair, not as proof the system is safe or fully compromised.
 7. Continue in Academy order. Do not stop at the L5 Capstone. Complete the Splunk Defender Bridge, then L6 through L10 and the optional Mastery Check.
 
-Workshop pages may show canonical specimen ids. Those are REPLAY or reference evidence. They are not the launch you just executed. Use the `run.id` Attack Service minted for this session.
+Workshop pages may show canonical specimen ids. Those are REPLAY or reference evidence. They are not the launch you just executed. Use the `run.id` Attack Service minted for this session. A Search that returns zero rows for a documented REPLAY id means this Splunk volume does not contain that historical copy. The lab does not invent those events on upgrade.
 
 ## LIVE, REPLAY, static reasoning, and simulated data
 
