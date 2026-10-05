@@ -39,26 +39,26 @@ OUT_XML = (
 )
 CURRICULUM = ROOT / "learning" / "academy" / "curriculum.json"
 
-PI_URL = "/en-US/app/agentsec/ws_lab_pi_001"
+PI_URL = "/app/agentsec/ws_lab_pi_001"
 MARK_URL = "/en-US/static/app/agentsec/agentsec-mark.svg"
 MARK_SIZE = 64
 SEARCH_URL = "/en-US/app/search/search"
-ATTACK_URL = "/en-US/app/agentsec/open_attack?path=/"
-CAPSTONE_URL = "/en-US/app/agentsec/ws_lab_agentsec_capstone"
-BRIDGE_URL = "/en-US/app/agentsec/ws_lab_splunk_defender_bridge"
-BLUE_TEAM_URL = "/en-US/app/agentsec/ws_lab_blue_team_incident"
-DETECTION_URL = "/en-US/app/agentsec/ws_lab_detection_engineering"
-THREAT_MODEL_URL = "/en-US/app/agentsec/ws_lab_threat_modeling"
-IDENTITY_URL = "/en-US/app/agentsec/ws_lab_agent_identity_nhi"
-A2A_URL = "/en-US/app/agentsec/ws_lab_a2a_auth_delegation"
-HITL_URL = "/en-US/app/agentsec/ws_lab_hitl_approval"
-CREDENTIAL_URL = "/en-US/app/agentsec/ws_lab_credential_lifetime"
-RAG_PURPOSE_URL = "/en-US/app/agentsec/ws_lab_purpose_authorization"
-RECALL_URL = "/en-US/app/agentsec/ws_lab_recall_isolation"
-PRIVACY_URL = "/en-US/app/agentsec/ws_lab_privacy_data_governance"
-MULTI_STAGE_URL = "/en-US/app/agentsec/ws_lab_multi_stage_incident"
-ADVANCED_CAPSTONE_URL = "/en-US/app/agentsec/ws_lab_advanced_capstone"
-MASTERY_URL = "/en-US/app/agentsec/ws_agentsec_mastery"
+ATTACK_URL = "/app/agentsec/open_attack?path=/"
+CAPSTONE_URL = "/app/agentsec/ws_lab_agentsec_capstone"
+BRIDGE_URL = "/app/agentsec/ws_lab_splunk_defender_bridge"
+BLUE_TEAM_URL = "/app/agentsec/ws_lab_blue_team_incident"
+DETECTION_URL = "/app/agentsec/ws_lab_detection_engineering"
+THREAT_MODEL_URL = "/app/agentsec/ws_lab_threat_modeling"
+IDENTITY_URL = "/app/agentsec/ws_lab_agent_identity_nhi"
+A2A_URL = "/app/agentsec/ws_lab_a2a_auth_delegation"
+HITL_URL = "/app/agentsec/ws_lab_hitl_approval"
+CREDENTIAL_URL = "/app/agentsec/ws_lab_credential_lifetime"
+RAG_PURPOSE_URL = "/app/agentsec/ws_lab_purpose_authorization"
+RECALL_URL = "/app/agentsec/ws_lab_recall_isolation"
+PRIVACY_URL = "/app/agentsec/ws_lab_privacy_data_governance"
+MULTI_STAGE_URL = "/app/agentsec/ws_lab_multi_stage_incident"
+ADVANCED_CAPSTONE_URL = "/app/agentsec/ws_lab_advanced_capstone"
+MASTERY_URL = "/app/agentsec/ws_agentsec_mastery"
 
 
 def _mode_line(labs: list[dict]) -> str:
@@ -109,13 +109,13 @@ The runtime (AcmeBank) is the enforcement point. Attack Service is a closed laun
 
 **Primary action:** begin [Direct Prompt Injection]({PI_URL}).
 
-**Your path:** open [Your path](/en-US/app/agentsec/learner_path). It shows NOT STARTED, IN PROGRESS, and INVESTIGATED for this browser. That list is navigation. It is not a Splunk index and not a security verdict. Reset on that page clears only the list.
+**Your path:** open [Your path](/app/agentsec/learner_path). It shows NOT STARTED, IN PROGRESS, and INVESTIGATED for this browser. That list is navigation. It is not a Splunk index and not a security verdict. Reset on that page clears only the list.
 
 **How a lesson works:** LEARN → LAUNCH or select a specimen → paste or select the run.id → read the inline SPL and table → interpret → compare → conclude → continue.
 
 **If you already know agents, tools, and RAG:** skip ORIENT prose. Open Direct Prompt Injection, launch it, and paste the fresh run.id into **LIVE run.id**. Search remains the advanced notebook (Path A). Mastery Check is after the labs, not a shortcut around launching.
 
-After the labs, [Mastery Check]({MASTERY_URL}) is optional self-assessment. It is not a certificate and not a score. [Arena](/en-US/app/agentsec/ws_agentsec_arena) is optional exploration after the guided path. It uses the same evidence rules.
+After the labs, [Mastery Check]({MASTERY_URL}) is optional self-assessment. It is not a certificate and not a score. [Arena](/app/agentsec/ws_agentsec_arena) is optional exploration after the guided path. It uses the same evidence rules.
 """,
         title="START LEARNING",
     )
@@ -320,19 +320,19 @@ Open [Memory Ownership and Isolation]({RECALL_URL}) after RAG purpose and before
 
 **AI Asset Inventory** — documented component list. You cannot govern what you cannot inventory. The list is not a Cisco AI-BOM, not trust, and not authorization.
 
-Open [AI Asset Inventory](/en-US/app/agentsec/ws_lab_asset_inventory) after Memory Isolation and before Component Provenance.
+Open [AI Asset Inventory](/app/agentsec/ws_lab_asset_inventory) after Memory Isolation and before Component Provenance.
 
 **Component Provenance** — a known component is not trusted, a scanned component is not safe, and an identified component is not authorized. The Ollama `latest` tag remains unpinned because no digest was measured.
 
-Open [Component Provenance](/en-US/app/agentsec/ws_lab_component_provenance) after the inventory and before Code Agent Bounds.
+Open [Component Provenance](/app/agentsec/ws_lab_component_provenance) after the inventory and before Code Agent Bounds.
 
 **Code Agent Bounds** — simulated code-generation authority. A read grant is not an install. No GitHub credential is used.
 
-Open [Code Agent Bounds](/en-US/app/agentsec/ws_lab_code_agent_bounds) after provenance and before Change Bounds.
+Open [Code Agent Bounds](/app/agentsec/ws_lab_code_agent_bounds) after provenance and before Change Bounds.
 
 **Change Bounds** — simulated operations authority. Inspect scope is not delete authority. A started action is not a completed change. No cloud credential is used.
 
-Open [Change Bounds](/en-US/app/agentsec/ws_lab_change_bounds) after Code Agent Bounds and before the multi-stage incident.
+Open [Change Bounds](/app/agentsec/ws_lab_change_bounds) after Code Agent Bounds and before the multi-stage incident.
 
 **L9 Multi-stage agentic attack, investigation and defense** — {levels['L9']['learn']} Effort: {levels['L9']['effort']}. Exit: {levels['L9']['exit']}.
 

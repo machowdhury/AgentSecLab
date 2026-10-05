@@ -1,0 +1,15 @@
+{
+  "note": "Splunk serves AgentSec dashboard JavaScript from /<locale>/static/@<splunk build>.<push>-<app build>/app/agentsec/<file>. The app build segment is [install] build in splunk_app/agentsec/default/app.conf and is the only part AgentSec controls. Changing a file under splunk_app/agentsec/appserver/static/ without changing the app build leaves the deployed URL identical, so a browser can keep an older cached copy. Update with: python3 scripts/static_cache_identity.py --write",
+  "app_build": 4,
+  "assets_sha256": "589e739d0798fb445993a1879e2e44eea48d1425f209b370d223576b5624eac9",
+  "history": [
+    {
+      "app_build": 3,
+      "assets_sha256": "e50fe6fcbc68a418f38b6ccffb6bfdcf8e980cad92bca6af3113ab9c5ef1001d"
+    },
+    {
+      "app_build": 4,
+      "assets_sha256": "589e739d0798fb445993a1879e2e44eea48d1425f209b370d223576b5624eac9"
+    }
+  ]
+}

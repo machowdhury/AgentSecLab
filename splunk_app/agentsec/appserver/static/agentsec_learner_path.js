@@ -9,224 +9,224 @@
     "title": "Direct Prompt Injection",
     "level": "L1",
     "mode": "LIVE",
-    "href": "/en-US/app/agentsec/ws_lab_pi_001"
+    "href": "/app/agentsec/ws_lab_pi_001"
   },
   {
     "id": "ws_lab_mcp_001",
     "title": "Tool Authorization",
     "level": "L1",
     "mode": "LIVE",
-    "href": "/en-US/app/agentsec/ws_lab_mcp_001"
+    "href": "/app/agentsec/ws_lab_mcp_001"
   },
   {
     "id": "ws_lab_mcp_003",
     "title": "Scope Escalation",
     "level": "L1",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_mcp_003"
+    "href": "/app/agentsec/ws_lab_mcp_003"
   },
   {
     "id": "ws_lab_mcp_004",
     "title": "Parameter / Resource Authorization",
     "level": "L1",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_mcp_004"
+    "href": "/app/agentsec/ws_lab_mcp_004"
   },
   {
     "id": "ws_lab_rag_context",
     "title": "RAG / Retrieved Context",
     "level": "L2",
     "mode": "LIVE",
-    "href": "/en-US/app/agentsec/ws_lab_rag_context"
+    "href": "/app/agentsec/ws_lab_rag_context"
   },
   {
     "id": "ws_lab_memory_security",
     "title": "Persistent Memory",
     "level": "L2",
     "mode": "LIVE",
-    "href": "/en-US/app/agentsec/ws_lab_memory_security"
+    "href": "/app/agentsec/ws_lab_memory_security"
   },
   {
     "id": "ws_lab_mcp_005",
     "title": "Tool Result Trust",
     "level": "L2",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_mcp_005"
+    "href": "/app/agentsec/ws_lab_mcp_005"
   },
   {
     "id": "ws_lab_mcp_catalog",
     "title": "Tool Catalog",
     "level": "L2",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_mcp_catalog"
+    "href": "/app/agentsec/ws_lab_mcp_catalog"
   },
   {
     "id": "ws_lab_scanner_runtime_evidence",
     "title": "Scanner + Runtime Evidence",
     "level": "L2",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_scanner_runtime_evidence"
+    "href": "/app/agentsec/ws_lab_scanner_runtime_evidence"
   },
   {
     "id": "ws_lab_external_evaluation_garak",
     "title": "External Security Toolbox",
     "level": "L2",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_external_evaluation_garak"
+    "href": "/app/agentsec/ws_lab_external_evaluation_garak"
   },
   {
     "id": "ws_lab_agent_goal_integrity",
     "title": "Goal / Instruction Integrity",
     "level": "L3",
     "mode": "LIVE",
-    "href": "/en-US/app/agentsec/ws_lab_agent_goal_integrity"
+    "href": "/app/agentsec/ws_lab_agent_goal_integrity"
   },
   {
     "id": "ws_lab_agent_delegation",
     "title": "Agent Identity / Delegation",
     "level": "L3",
     "mode": "LIVE",
-    "href": "/en-US/app/agentsec/ws_lab_agent_delegation"
+    "href": "/app/agentsec/ws_lab_agent_delegation"
   },
   {
     "id": "ws_lab_mcp_006",
     "title": "Confused Deputy",
     "level": "L3",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_mcp_006"
+    "href": "/app/agentsec/ws_lab_mcp_006"
   },
   {
     "id": "ws_lab_agentsec_capstone",
     "title": "Lending Assistant Investigation",
     "level": "L5",
     "mode": "LIVE",
-    "href": "/en-US/app/agentsec/ws_lab_agentsec_capstone"
+    "href": "/app/agentsec/ws_lab_agentsec_capstone"
   },
   {
     "id": "ws_lab_splunk_defender_bridge",
     "title": "Splunk Defender Bridge",
     "level": "checkpoint",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_splunk_defender_bridge"
+    "href": "/app/agentsec/ws_lab_splunk_defender_bridge"
   },
   {
     "id": "ws_lab_blue_team_incident",
     "title": "AcmeBank Incident AI-2026-001",
     "level": "L6",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_blue_team_incident"
+    "href": "/app/agentsec/ws_lab_blue_team_incident"
   },
   {
     "id": "ws_lab_detection_engineering",
     "title": "Detection Engineering \u2014 Prove Your Coverage",
     "level": "checkpoint",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_detection_engineering"
+    "href": "/app/agentsec/ws_lab_detection_engineering"
   },
   {
     "id": "ws_lab_threat_modeling",
     "title": "AcmeBank Agentic Customer Operations Platform",
     "level": "L7",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_threat_modeling"
+    "href": "/app/agentsec/ws_lab_threat_modeling"
   },
   {
     "id": "ws_lab_agent_identity_nhi",
     "title": "Agent Identity and Non-Human IAM",
     "level": "checkpoint",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_agent_identity_nhi"
+    "href": "/app/agentsec/ws_lab_agent_identity_nhi"
   },
   {
     "id": "ws_lab_a2a_auth_delegation",
     "title": "A2A Authentication and Delegation",
     "level": "checkpoint",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_a2a_auth_delegation"
+    "href": "/app/agentsec/ws_lab_a2a_auth_delegation"
   },
   {
     "id": "ws_lab_hitl_approval",
     "title": "Human Approval and Action Binding",
     "level": "checkpoint",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_hitl_approval"
+    "href": "/app/agentsec/ws_lab_hitl_approval"
   },
   {
     "id": "ws_lab_credential_lifetime",
     "title": "Short-Lived Credential Lifetime",
     "level": "checkpoint",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_credential_lifetime"
+    "href": "/app/agentsec/ws_lab_credential_lifetime"
   },
   {
     "id": "ws_lab_privacy_data_governance",
     "title": "AcmeBank Incident PRIV-2026-001",
     "level": "L8",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_privacy_data_governance"
+    "href": "/app/agentsec/ws_lab_privacy_data_governance"
   },
   {
     "id": "ws_lab_purpose_authorization",
     "title": "RAG Purpose Authorization",
     "level": "checkpoint",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_purpose_authorization"
+    "href": "/app/agentsec/ws_lab_purpose_authorization"
   },
   {
     "id": "ws_lab_recall_isolation",
     "title": "Memory Ownership and Isolation",
     "level": "checkpoint",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_recall_isolation"
+    "href": "/app/agentsec/ws_lab_recall_isolation"
   },
   {
     "id": "ws_lab_asset_inventory",
     "title": "AI Asset Inventory",
     "level": "checkpoint",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_asset_inventory"
+    "href": "/app/agentsec/ws_lab_asset_inventory"
   },
   {
     "id": "ws_lab_component_provenance",
     "title": "Component Provenance",
     "level": "checkpoint",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_component_provenance"
+    "href": "/app/agentsec/ws_lab_component_provenance"
   },
   {
     "id": "ws_lab_code_agent_bounds",
     "title": "Code Agent Bounds",
     "level": "checkpoint",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_code_agent_bounds"
+    "href": "/app/agentsec/ws_lab_code_agent_bounds"
   },
   {
     "id": "ws_lab_change_bounds",
     "title": "Change Bounds",
     "level": "checkpoint",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_change_bounds"
+    "href": "/app/agentsec/ws_lab_change_bounds"
   },
   {
     "id": "ws_lab_multi_stage_incident",
     "title": "Acme Bank Incident AGENT-2026-009",
     "level": "L9",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_multi_stage_incident"
+    "href": "/app/agentsec/ws_lab_multi_stage_incident"
   },
   {
     "id": "ws_lab_advanced_capstone",
     "title": "Acme Bank Capstone MASTER-2026-001",
     "level": "L10",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_lab_advanced_capstone"
+    "href": "/app/agentsec/ws_lab_advanced_capstone"
   },
   {
     "id": "ws_agentsec_mastery",
     "title": "Mastery Check",
     "level": "L10",
     "mode": "REPLAY",
-    "href": "/en-US/app/agentsec/ws_agentsec_mastery"
+    "href": "/app/agentsec/ws_agentsec_mastery"
   }
 ];
 

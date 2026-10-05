@@ -32,7 +32,7 @@
     "viz_how": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# How to work a challenge\n\n1. Read the **security question**.\n2. Stay on **Path A**. Open [Splunk Search](/en-US/app/search/search).\n3. Start with `index=agentsec_telemetry sourcetype=otel:agentic:json` and a quoted `agentsec.run.id` when a specimen is given.\n4. Use Hint 1, then Hint 2, only if you are stuck.\n5. Open Path B after you have a draft answer. Studio 10.2 cannot hide Path B. That is a product limit, not a security gate.\n6. Classify claims: SUPPORTED, CORROBORATED, NOT PROVEN, INCORRECT.\n7. Take the next challenge. Skip FOUNDATIONAL if you already know the vocabulary — go to PRACTITIONER.\n\n**LIVE** means you mint a fresh run.id in [Attack Service](/en-US/app/agentsec/open_attack?path=/). **REPLAY** means a canonical specimen already in the index. Never present REPLAY as a launch you just minted.\n\nIf you have not taken the labs yet, start at [Home](/en-US/app/agentsec/ws_agentsec_home) then [Direct Prompt Injection](/en-US/app/agentsec/ws_lab_pi_001).\n",
+        "markdown": "# How to work a challenge\n\n1. Read the **security question**.\n2. Stay on **Path A**. Open [Splunk Search](/en-US/app/search/search).\n3. Start with `index=agentsec_telemetry sourcetype=otel:agentic:json` and a quoted `agentsec.run.id` when a specimen is given.\n4. Use Hint 1, then Hint 2, only if you are stuck.\n5. Open Path B after you have a draft answer. Studio 10.2 cannot hide Path B. That is a product limit, not a security gate.\n6. Classify claims: SUPPORTED, CORROBORATED, NOT PROVEN, INCORRECT.\n7. Take the next challenge. Skip FOUNDATIONAL if you already know the vocabulary — go to PRACTITIONER.\n\n**LIVE** means you mint a fresh run.id in [Attack Service](/app/agentsec/open_attack?path=/). **REPLAY** means a canonical specimen already in the index. Never present REPLAY as a launch you just minted.\n\nIf you have not taken the labs yet, start at [Home](/app/agentsec/ws_agentsec_home) then [Direct Prompt Injection](/app/agentsec/ws_lab_pi_001).\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -152,7 +152,7 @@
     "viz_capstone_readout": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# Capstone 15-point readout\n\nProduce this after [Lending Assistant Investigation](/en-US/app/agentsec/ws_lab_agentsec_capstone) ATTACK and RETEST. Prefer fresh LIVE ids. If you use the official historical recall ids, label them REPLAY.\n\n1. Attack objective\n2. Attacker-controlled input\n3. Server-owned security configuration\n4. Relevant trust boundaries\n5. Relevant controls\n6. Actual PDP\n7. ATTACK authorization\n8. ATTACK execution\n9. RETEST authorization\n10. RETEST execution\n11. What remained identical\n12. What changed\n13. Why the outcome changed\n14. What Splunk proves\n15. What Splunk cannot prove\n\nAnswer key (self-check, not auto-graded): attacker controls retrieved/memory fixture bytes; server owns grants/profile; RAG and memory OBSERVE; CTRL-MCP-001 is the tool PDP; ATTACK overlay ALLOW + handler 1; RETEST DENY tool_not_granted + handler 0; same ungranted request; different ExperimentContext; Splunk copies a complete index; Splunk does not enforce, authenticate, or prove completeness from HEC 200; Goal/Identity 0 rows does not mean those domains never fail; one RETEST is not universal RAG/memory resistance.\n",
+        "markdown": "# Capstone 15-point readout\n\nProduce this after [Lending Assistant Investigation](/app/agentsec/ws_lab_agentsec_capstone) ATTACK and RETEST. Prefer fresh LIVE ids. If you use the official historical recall ids, label them REPLAY.\n\n1. Attack objective\n2. Attacker-controlled input\n3. Server-owned security configuration\n4. Relevant trust boundaries\n5. Relevant controls\n6. Actual PDP\n7. ATTACK authorization\n8. ATTACK execution\n9. RETEST authorization\n10. RETEST execution\n11. What remained identical\n12. What changed\n13. Why the outcome changed\n14. What Splunk proves\n15. What Splunk cannot prove\n\nAnswer key (self-check, not auto-graded): attacker controls retrieved/memory fixture bytes; server owns grants/profile; RAG and memory OBSERVE; CTRL-MCP-001 is the tool PDP; ATTACK overlay ALLOW + handler 1; RETEST DENY tool_not_granted + handler 0; same ungranted request; different ExperimentContext; Splunk copies a complete index; Splunk does not enforce, authenticate, or prove completeness from HEC 200; Goal/Identity 0 rows does not mean those domains never fail; one RETEST is not universal RAG/memory resistance.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -168,15 +168,6 @@
         "fontSize": "large"
       },
       "title": "RUBRIC"
-    },
-    "viz_guide_shell": {
-      "type": "splunk.markdown",
-      "title": "Guided path",
-      "options": {
-        "markdown": "# Where you are\n\n**L10 · Advanced capstone and mastery** · Mastery Check · step 32 of 32 · REPLAY\n\n# What you are learning\n\nCheck what you can explain. This is not a certificate and not a security verdict.\n\n# What you do now\n\n1. Follow this workshop's own specimen or question. It does not mint a run.id.\n2. Use the searches already on the later tabs.\n3. Keep simulated, historical, and measured claims in the words this workshop already uses.\n\n# What to investigate\n\nWhat question is this workshop asking, and which claim does the evidence still leave open?\n\n# What a row means\n\nA `decision` value is a control result. `executed=true` on a start or complete event is execution evidence. Those are different events. A decision row does not prove a handler ran. An execution row does not prove a downstream resource changed.\n\n# What this does not prove\n\nA control decision is not execution. Execution is not a measured downstream resource change. An empty table is not DENY. HEC HTTP 200 is not this table. One RETEST is not universal protection. Progress on Your path is not a security verdict.\n\n# States you may see\n\n**NO RUN.ID** — the box is empty. Launch or select a run, then enter its run.id.\n\n**NO INDEXED RESULTS YET** — zero rows after a real id. Indexing can lag. This is not DENY.\n\n**RUN DENIED** — a control event whose decision is DENY. That is a security result. An empty table is not this state.\n\n**RUN FAILED**, **BACKEND UNAVAILABLE**, and **RUN TIMED OUT** are launcher states. They are not DENY and they are not an empty table.\n\n**NO MATCHING EVIDENCE** — Splunk returned no row for this id. Do not invent the reason.\n\n# SPL used\n\nThis workshop does not add a new run.id search on this tab.\n\nNo new run.id search is added on this tab.\n\n# Conclude\n\nWrite one sentence: what the control decided, and whether a separate event shows execution. Then say one thing the evidence does not prove.\n\n# Next\n\n[Arena (optional)](/en-US/app/agentsec/ws_agentsec_arena)\n\nRecord navigation on [Your path](/en-US/app/agentsec/learner_path). Opening this page does not mark the workshop investigated.\n",
-        "fontSize": "large",
-        "fontColor": "#17202A"
-      }
     }
   },
   "layout": {
@@ -197,21 +188,11 @@
         },
         "structure": [
           {
-            "item": "viz_guide_shell",
-            "type": "block",
-            "position": {
-              "x": 0,
-              "y": 0,
-              "w": 1440,
-              "h": 640
-            }
-          },
-          {
             "item": "viz_intro",
             "type": "block",
             "position": {
               "x": 0,
-              "y": 660,
+              "y": 0,
               "w": 1440,
               "h": 360
             }
@@ -221,7 +202,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 1020,
+              "y": 360,
               "w": 720,
               "h": 520
             }
@@ -231,7 +212,7 @@
             "type": "block",
             "position": {
               "x": 720,
-              "y": 1020,
+              "y": 360,
               "w": 720,
               "h": 520
             }
