@@ -1179,7 +1179,166 @@ DET-MCP-001 remains disabled and checks only DENY-then-start. Silence is not SAF
         title="EVIDENCE DETAIL",
     )
 
-    mission_structure = [block("viz_workbench_mission", 0, 0, FULL, 520)]
+    # --- Evidence notebook -------------------------------------------------
+    # One cell per question: what is asked, what the answer shows, and what it
+    # still does not prove. The queries underneath are the real indexed SPL.
+    notebook_cells = [
+        (
+            "viz_nb_q1",
+            """
+            # Question 1 — Did the agent request a tool it was not granted?
+
+            Read `gen_ai.tool.name` next to the server-owned grant. The normal AcmeBank path is
+            `lookup_policy` with scope `policy:read`. Anything else is outside what this agent was
+            delegated.
+
+            **WHAT THE ANSWER SHOWS** — which tool the agent asked for, under which principal and
+            agent id, on this run.id.
+
+            **WHAT IT DOES NOT PROVE** — nothing about whether the request succeeded. A request is
+            not a grant, and the tool name alone says nothing about authorization or execution.
+            """,
+        ),
+        (
+            "viz_nb_q2",
+            """
+            # Question 2 — What did CTRL-MCP-001 decide?
+
+            Isolate `event.name=agentsec.control.decision` and read
+            `agentsec.control.decision` with `agentsec.control.reason`.
+
+            **WHAT THE ANSWER SHOWS** — the decision the policy decision point actually reached, and
+            the reason it recorded. This is the authorization fact.
+
+            **WHAT IT DOES NOT PROVE** — that the handler ran, or that it did not. ALLOW is not
+            execution. DENY on its own is not proof that nothing else executed. ERROR is neither.
+            """,
+        ),
+        (
+            "viz_nb_q3",
+            """
+            # Question 3 — What scope was requested, and what scope was allowed?
+
+            Compare `agentsec.mcp.requested_scope` with `agentsec.mcp.allowed_scope` on the same
+            decision event. The allowed value is server-owned; the agent cannot edit it.
+
+            **WHAT THE ANSWER SHOWS** — the exact authority gap, in the runtime's own words. This is
+            why the decision came out the way it did.
+
+            **WHAT IT DOES NOT PROVE** — that the gap was enforced. The vulnerable profile records
+            the same gap and still fails open. Enforcement is Question 4.
+            """,
+        ),
+        (
+            "viz_nb_q4",
+            """
+            # Question 4 — Did the tool handler actually begin?
+
+            Look for `agentsec.mcp.started`, then `agentsec.mcp.completed` or
+            `agentsec.mcp.failed`. Start is the execution fact. Completed is success after a start.
+            Failed is execution followed by an error — not prevention.
+
+            **WHAT THE ANSWER SHOWS** — whether a handler began on this copy of the evidence.
+
+            **WHAT IT DOES NOT PROVE** — non-execution. Absence of `mcp.started` here is
+            corroboration only, and only once Question 5 says the copy is complete. Runtime handler
+            count stays authoritative for proving a handler never ran.
+            """,
+        ),
+        (
+            "viz_nb_q5",
+            """
+            # Question 5 — Is the evidence complete enough to conclude anything?
+
+            Count what arrived before interpreting what is missing. Establish the indexed event
+            count for this run.id and compare it against the local evidence bundle.
+
+            **WHAT THE ANSWER SHOWS** — whether you are reading a complete copy or a partial one.
+
+            **WHAT IT DOES NOT PROVE** — safety. An empty search is not SAFE, HEC returning HTTP 200
+            is not indexed evidence, and a silent DET-MCP-001 is not a clean result. Until this
+            question is answered, every absence above is NOT MEASURED rather than NOT HAPPENED.
+            """,
+        ),
+    ]
+    for cell_id, body in notebook_cells:
+        add_md(cell_id, body)
+
+    # --- Live ATTACK vs RETEST on the learner's own run ids ----------------
+    # No new input: the learner's two runs are discriminated by the indexed
+    # agentsec.testbed.mode, so the most recent ATTACK and RETEST line up on their own.
+    live_pair_spl = """index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed) "gen_ai.tool.name"="lookup_customer_tier"
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
+| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)
+| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)
+| eval is_started=if(event_name="agentsec.mcp.started",1,0)
+| eval is_completed=if(event_name="agentsec.mcp.completed",1,0)
+| eval is_failed=if(event_name="agentsec.mcp.failed",1,0)
+| stats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name="agentsec.control.decision",decision,null()))) as decision, latest(eval(if(event_name="agentsec.control.decision",reason,null()))) as reason, latest(eval(if(event_name="agentsec.control.decision",requested_scope,null()))) as requested_scope, latest(eval(if(event_name="agentsec.control.decision",allowed_scope,null()))) as allowed_scope, latest(eval(if(event_name="agentsec.control.decision",profile,null()))) as profile, latest(eval(if(event_name="agentsec.control.decision",mode,null()))) as mode, values(tool) as tool, dc(_raw) as indexed_events, latest(_time) as last_seen by run_id
+| eval execution_state=case(has_completed=1,"mcp.completed",has_failed=1,"mcp.failed",has_started=1,"mcp.started",decision="ALLOW","ALLOW_execution_not_proven_in_this_copy",1=1,"no_mcp_execution_event")
+| eval scope_gap=if(requested_scope==allowed_scope,"requested == allowed","requested != allowed")
+| where mode="ATTACK" OR mode="RETEST"
+| sort - last_seen
+| dedup mode
+| eval last_seen=strftime(last_seen,"%Y-%m-%d %H:%M:%S")
+| table mode, run_id, profile, tool, requested_scope, allowed_scope, scope_gap, decision, reason, execution_state, indexed_events, last_seen
+| sort mode"""
+    data_sources.update(
+        dict((search_ds("ds_live_pair", "Q-MCP-LIVE-PAIR", live_pair_spl),))
+    )
+    add_md(
+        "viz_live_pair_intro",
+        """
+        # Compare your two real runs
+
+        Run ATTACK, then RETEST, in the Attack Service workbench. Each mints its own `run.id`. The
+        table below is real indexed evidence: the most recent ATTACK and the most recent RETEST
+        against `lookup_customer_tier`, matched on the indexed `agentsec.testbed.mode`. No specimen
+        ids and no pasted values are involved.
+
+        Check the two `run_id` values against the ones the workbench minted for you, and confirm
+        they **differ**. Two identical ids, or one row instead of two, means you are not looking at
+        your own pair — and a missing row is unsearchable evidence, not a safe result. Answer
+        Question 5 before reading anything into a gap.
+        """,
+    )
+    add_table(
+        "viz_live_pair",
+        "ds_live_pair",
+        "ATTACK ↔ RETEST (your live run.ids)",
+        "One row per run.id. `decision` is the control fact; `execution_state` is the execution "
+        "fact; they are read separately. `indexed_events` is completeness, not safety.",
+        no_data=(
+            "No indexed events were found for the run.ids entered above. That is not DENY and not "
+            "proof of prevention. Check that both ids are pasted, then re-check evidence readiness."
+        ),
+    )
+
+    # Owned here on purpose. This block used to live only in the generated XML, so
+    # re-running this script silently deleted it. tests/unit/test_visual_learning.py
+    # requires it to stay first on the first tab at 1440x200.
+    visualizations["viz_flow_diagram"] = {
+        "type": "splunk.image",
+        "title": "Architecture flow",
+        "description": (
+            "A tool request meets CTRL-MCP-001 before the handler. ALLOW is not execution."
+        ),
+        "options": {
+            "src": "/en-US/static/app/agentsec/flows/flow-lab-mcp-001.svg",
+            "preserveAspectRatio": True,
+        },
+    }
+
+    mission_structure = [
+        block("viz_flow_diagram", 0, 0, FULL, 200),
+        block("viz_workbench_mission", 0, 208, FULL, 520),
+    ]
     investigate_structure = [
         block("viz_workbench_investigate", 0, 0, FULL, 520),
         block("viz_prove_what_id", 0, 520, FULL, 230),
@@ -1188,18 +1347,26 @@ DET-MCP-001 remains disabled and checks only DENY-then-start. Silence is not SAF
         block("viz_observe_authz", 0, 1390, HALF, 300),
         block("viz_observe_tool", HALF, 1390, HALF, 300),
     ]
+    # Notebook cell, then the evidence that answers it, then the next cell.
     evidence_structure = [
         block("viz_workbench_evidence", 0, 0, FULL, 260),
-        block("viz_attack_what_id", 0, 260, HALF, 240),
-        block("viz_retest_what_id", HALF, 260, HALF, 240),
-        block("viz_attack_what_dec", 0, 500, HALF, 280),
-        block("viz_retest_what_dec", HALF, 500, HALF, 280),
-        block("viz_attack_authz", 0, 780, HALF, 280),
-        block("viz_retest_authz", HALF, 780, HALF, 280),
-        block("viz_attack_exec", 0, 1060, HALF, 300),
-        block("viz_retest_exec", HALF, 1060, HALF, 300),
-        block("viz_detect_live", 0, 1360, HALF, 340),
-        block("viz_detect_sim", HALF, 1360, HALF, 340),
+        block("viz_nb_q1", 0, 260, FULL, 240),
+        block("viz_attack_what_id", 0, 500, HALF, 240),
+        block("viz_retest_what_id", HALF, 500, HALF, 240),
+        block("viz_nb_q2", 0, 740, FULL, 240),
+        block("viz_attack_what_dec", 0, 980, HALF, 280),
+        block("viz_retest_what_dec", HALF, 980, HALF, 280),
+        block("viz_nb_q3", 0, 1260, FULL, 240),
+        block("viz_attack_authz", 0, 1500, HALF, 280),
+        block("viz_retest_authz", HALF, 1500, HALF, 280),
+        block("viz_nb_q4", 0, 1780, FULL, 260),
+        block("viz_attack_exec", 0, 2040, HALF, 300),
+        block("viz_retest_exec", HALF, 2040, HALF, 300),
+        block("viz_nb_q5", 0, 2340, FULL, 260),
+        block("viz_detect_live", 0, 2600, HALF, 340),
+        block("viz_detect_sim", HALF, 2600, HALF, 340),
+        block("viz_live_pair_intro", 0, 2940, FULL, 280),
+        block("viz_live_pair", 0, 3220, FULL, 320),
     ]
     primary_ids = {
         row["item"]
@@ -1272,7 +1439,7 @@ DET-MCP-001 remains disabled and checks only DENY-then-start. Silence is not SAF
             "layoutDefinitions": {
                 "layout_mission": layout(mission_structure, 540),
                 "layout_investigate": layout(investigate_structure, 1710),
-                "layout_evidence": layout(evidence_structure, 1720),
+                "layout_evidence": layout(evidence_structure, 3560),
                 "layout_path_b": layout(path_b_structure, path_b_y + 40, display="fit-to-width"),
             },
         },

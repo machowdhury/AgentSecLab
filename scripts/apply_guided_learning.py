@@ -331,6 +331,49 @@ def _search(name: str, query: str) -> dict:
     }
 
 
+# Semantic tones for the two columns a learner misreads most often. Owned here
+# because this script owns viz_guide_events and viz_guide_summary; previously the
+# formatting existed only in the generated artifacts and any regeneration lost it.
+# No green: a decision is never presented as a safe outcome.
+EVIDENCE_COLUMN_FORMAT = {
+    "decision": {
+        "rowBackgroundColors": '> table | seriesByName("decision") | matchValue(decisionBackgrounds)',
+        "rowColors": '> table | seriesByName("decision") | matchValue(decisionText)',
+    },
+    "executed": {
+        "rowBackgroundColors": '> table | seriesByName("executed") | matchValue(executedBackgrounds)',
+        "rowColors": '> table | seriesByName("executed") | matchValue(executedText)',
+    },
+}
+
+EVIDENCE_CONTEXT = {
+    "decisionBackgrounds": [
+        {"match": "ALLOW", "value": "#E8EEF5"},
+        {"match": "DENY", "value": "#F6EBD8"},
+        {"match": "ERROR", "value": "#F8E6E6"},
+        {"match": "OBSERVE", "value": "#F0F3F6"},
+    ],
+    "decisionText": [
+        {"match": "ALLOW", "value": "#3568A8"},
+        {"match": "DENY", "value": "#B7791F"},
+        {"match": "ERROR", "value": "#C62828"},
+        {"match": "OBSERVE", "value": "#3D4654"},
+    ],
+    "executedBackgrounds": [
+        {"match": "true", "value": "#0B1F33"},
+        {"match": "false", "value": "#EEF1F4"},
+        {"match": "1", "value": "#0B1F33"},
+        {"match": "0", "value": "#EEF1F4"},
+    ],
+    "executedText": [
+        {"match": "true", "value": "#FFFFFF"},
+        {"match": "false", "value": "#3D4654"},
+        {"match": "1", "value": "#FFFFFF"},
+        {"match": "0", "value": "#3D4654"},
+    ],
+}
+
+
 def _table(title: str, description: str, source: str) -> dict:
     return {
         "type": "splunk.table",
@@ -347,7 +390,9 @@ def _table(title: str, description: str, source: str) -> dict:
             "headerBackgroundColor": "#0B1F33",
             "headerTextColor": "#FFFFFF",
             "noDataMessage": NO_DATA,
+            "columnFormat": json.loads(json.dumps(EVIDENCE_COLUMN_FORMAT)),
         },
+        "context": json.loads(json.dumps(EVIDENCE_CONTEXT)),
     }
 
 
@@ -422,8 +467,19 @@ def apply_guide(definition: dict, row: dict) -> None:
         blocks.append(_block("viz_guide_events", 660, 420, width))
         blocks.append(_block("viz_guide_summary", 1100, 280, width))
         shift = 1400
+    # The architecture flow image has to stay first on the tab
+    # (tests/unit/test_visual_learning.py), so lift it above the guide blocks
+    # instead of letting the guide push it down the page.
+    flow = next((i for i in structure if i.get("item") == "viz_flow_diagram"), None)
+    if flow is not None:
+        structure.remove(flow)
+        flow_offset = int(flow["position"]["h"]) + 8
+        flow["position"]["y"] = 0
+        # Only the guide blocks move down past the image. Content the generator
+        # already authored below the image keeps its existing relationship to it.
+        _shift(blocks, flow_offset)
     _shift(structure, shift)
-    layout["structure"] = blocks + structure
+    layout["structure"] = ([flow] if flow is not None else []) + blocks + structure
 
 
 def _load_xml_definition(text: str) -> dict:

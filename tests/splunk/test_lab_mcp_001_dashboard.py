@@ -158,6 +158,9 @@ def test_datasources_are_validated_spl_with_token_bind_only():
         "ds_what_attack_dec",
         "ds_what_retest_id",
         "ds_what_retest_dec",
+        # ATTACK vs RETEST over the learner's own live runs, matched on the
+        # indexed testbed mode rather than a pasted or packaged run.id.
+        "ds_live_pair",
     }
     assert set(definition["dataSources"]) - {"ds_guide_events", "ds_guide_summary"} == set(expected) | extra
 
