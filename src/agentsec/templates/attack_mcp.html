@@ -32,16 +32,44 @@
       <a href="#advanced">Evidence / Advanced</a>
     </nav>
 
+    <section class="business-story" aria-labelledby="business-heading">
+      <div class="business-story__brand" aria-hidden="true"><span>ACME</span><strong>BANK</strong><small>WORLD 1 · THE BUSINESS STORY</small></div>
+      <div class="business-story__body">
+        <h2 id="business-heading">Begin with the expected customer behaviour.</h2>
+        <p>A customer submits a home-loan application to AcmeBank. To answer lending questions the
+        AcmeBank MCP policy agent is permitted to call one tool, <code>{{ mcp_policy.allowed_tools }}</code>,
+        with scope <code>{{ mcp_policy.allowed_scopes }}</code>. That is the normal, authorized path and
+        it is what the BASELINE specimen exercises.</p>
+        <p>You are about to investigate what happens when the same agent requests
+        <code>{{ mcp_request.tool }}</code> with scope <code>{{ mcp_request.requested_scope }}</code> —
+        a tool the runtime knows about but has <strong>not</strong> granted to this agent.</p>
+      </div>
+    </section>
+
+    <ol class="loop-stepper" aria-label="Learning loop for this workshop">
+      <li data-stage="UNDERSTAND"><span>1</span>Understand</li>
+      <li data-stage="PREDICT" class="loop-stepper__current" id="loop-current"><span>2</span>Predict</li>
+      <li data-stage="ATTACK"><span>3</span>Attack</li>
+      <li data-stage="OBSERVE"><span>4</span>Observe</li>
+      <li data-stage="INVESTIGATE"><span>5</span>Investigate</li>
+      <li data-stage="RETEST"><span>6</span>Retest</li>
+      <li data-stage="COMPARE"><span>7</span>Compare</li>
+      <li data-stage="EXPLAIN"><span>8</span>Explain</li>
+    </ol>
+
     <section class="mission" aria-labelledby="security-question">
-      <p class="eyebrow">Security question</p>
+      <p class="eyebrow">WORLD 2 · AI / SECURITY — your mission</p>
       <h2 id="security-question">Can the agent invoke a tool outside the authority granted to it?</h2>
+      <p class="mission-concept"><strong>Core concept — authorization is not execution.</strong>
+      A control deciding ALLOW is one fact. A handler actually beginning is a second, separate fact.
+      Each needs its own evidence.</p>
       <div class="mission-grid">
-        <div><span>Attacker influence</span><strong>Tool request, scope, arguments</strong></div>
-        <div><span>Requested operation</span><strong><code>{{ mcp_request.tool }}</code></strong></div>
+        <div><span>Normal behaviour</span><strong><code>{{ mcp_policy.allowed_tools }}</code> · granted</strong></div>
+        <div><span>Requested operation</span><strong><code>{{ mcp_request.tool }}</code> · ungranted</strong></div>
         <div><span>Requested scope</span><strong><code>{{ mcp_request.requested_scope }}</code></strong></div>
         <div><span>Server-owned authority</span><strong><code>{{ mcp_policy.allowed_tools }}</code> · <code>{{ mcp_policy.allowed_scopes }}</code></strong></div>
-        <div><span>Policy decision point</span><strong>CTRL-MCP-001 · AcmeBank runtime</strong></div>
-        <div><span>Expected change</span><strong>Predict before you launch</strong></div>
+        <div><span>Control under test</span><strong>CTRL-MCP-001 · AcmeBank runtime</strong></div>
+        <div><span>Attacker influence</span><strong>Tool request, scope, arguments only</strong></div>
       </div>
       <p class="semantic-line"><strong>REQUEST ≠ GRANT</strong><span>ALLOW ≠ EXECUTION</span><span>SPLUNK ≠ ENFORCEMENT</span></p>
     </section>
@@ -58,11 +86,11 @@
         <p id="status-live" class="status-message" aria-live="polite">Choose ATTACK or RETEST. The browser cannot send profile, grants, tools, scope, or policy.</p>
 
         <div class="mode-actions" aria-label="LIVE experiment actions">
-          <button class="btn btn-danger" id="fire-attack" type="button" data-mode="ATTACK" data-specimen="{{ specimen_attack }}">
+          <button class="btn btn-danger" id="fire-attack" type="button" disabled data-mode="ATTACK" data-specimen="{{ specimen_attack }}">
             Run ATTACK
             <small>Known-ungranted request · vulnerable profile</small>
           </button>
-          <button class="btn btn-primary" id="fire-retest" type="button" data-mode="RETEST" data-specimen="{{ specimen_retest }}">
+          <button class="btn btn-primary" id="fire-retest" type="button" disabled data-mode="RETEST" data-specimen="{{ specimen_retest }}">
             Run RETEST
             <small>Same request · defended profile</small>
           </button>
@@ -85,7 +113,8 @@
               <label class="choice-card"><input type="radio" name="predict-execution" value="NO"> NO</label>
               <label class="choice-card"><input type="radio" name="predict-execution" value="UNKNOWN" checked> UNKNOWN</label>
             </div>
-            <p class="prediction-recorded" id="prediction-recorded" aria-live="polite">Select a control guess and an execution guess. You can change them before launch.</p>
+            <p class="prediction-recorded" id="prediction-recorded" aria-live="polite">Select a control guess and an execution guess, then record them. UNKNOWN is an honest answer and is accepted.</p>
+            <button class="btn btn-secondary" id="record-prediction" type="button">Record prediction and unlock launch</button>
           </fieldset>
         </form>
       </section>
@@ -106,6 +135,46 @@
         <p class="run-help" id="copy-feedback" aria-live="polite">run.id correlates this experiment across runtime, local evidence, telemetry, and Splunk.</p>
       </section>
     </div>
+
+    <section class="facts-section" aria-labelledby="facts-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">WORLD 2 · observe independent facts</p>
+          <h2 id="facts-heading">Five states, measured separately</h2>
+        </div>
+        <p>Each state has its own evidence. None of them is derived from another.</p>
+      </div>
+      <div class="fact-pair">
+        <article class="fact-card" id="fact-decision" data-tone="muted">
+          <span class="fact-card__label">Control decision</span>
+          <strong class="fact-card__value" id="fact-decision-value">NOT MEASURED</strong>
+          <p class="fact-card__detail" id="fact-decision-detail">CTRL-MCP-001 has not been exercised in this tab.</p>
+        </article>
+        <div class="fact-pair__not-equal" aria-label="is not the same as"><span aria-hidden="true">≠</span></div>
+        <article class="fact-card" id="fact-execution" data-tone="muted">
+          <span class="fact-card__label">Execution evidence</span>
+          <strong class="fact-card__value" id="fact-execution-value">NOT MEASURED</strong>
+          <p class="fact-card__detail" id="fact-execution-detail">Established from the runtime handler count, never from the decision.</p>
+        </article>
+      </div>
+      <div class="fact-row">
+        <article class="fact-card fact-card--compact" id="fact-terminal" data-tone="muted">
+          <span class="fact-card__label">Launcher terminal state</span>
+          <strong class="fact-card__value" id="fact-terminal-value">NOT RUN</strong>
+          <p class="fact-card__detail">Where the run stopped. Not a security verdict.</p>
+        </article>
+        <article class="fact-card fact-card--compact" id="fact-evidence" data-tone="muted">
+          <span class="fact-card__label">Splunk evidence readiness</span>
+          <strong class="fact-card__value" id="fact-evidence-value">NOT MEASURED</strong>
+          <p class="fact-card__detail">Indexed-search confirmation. HEC HTTP 200 is not this.</p>
+        </article>
+        <article class="fact-card fact-card--compact" id="fact-learning" data-tone="muted">
+          <span class="fact-card__label">Your prediction</span>
+          <strong class="fact-card__value" id="fact-learning-value">NOT RECORDED</strong>
+          <p class="fact-card__detail">Browser-local learning state. Never sent to the runtime.</p>
+        </article>
+      </div>
+    </section>
 
     <section class="decision-section" aria-labelledby="decision-heading">
       <div class="section-heading">
@@ -199,26 +268,55 @@
         const picked = predictionForm ? predictionForm.querySelector('input[name="' + name + '"]:checked') : null;
         return picked ? picked.value : "UNKNOWN";
       }
-      function rememberPrediction() {
-        ui.savePrediction("LAB-MCP-001", {
-          control: selectedValue("predict-control"),
-          execution: selectedValue("predict-execution")
+      let predictionRecorded = false;
+
+      /* Looks the buttons up on each call so this can run before they are declared below. */
+      function syncLaunchGate() {
+        ["fire-attack", "fire-retest"].forEach(function (id) {
+          const button = document.getElementById(id);
+          if (button) button.disabled = !predictionRecorded;
         });
+      }
+
+      function rememberPrediction() {
+        const control = selectedValue("predict-control");
+        const execution = selectedValue("predict-execution");
+        ui.savePrediction("LAB-MCP-001", {control: control, execution: execution});
         const recorded = document.getElementById("prediction-recorded");
         if (recorded) {
-          recorded.textContent = "PREDICTION RECORDED in this browser. Control " + selectedValue("predict-control") + ", execution " + selectedValue("predict-execution") + ". Still changeable before launch. Not sent to Splunk and not graded.";
+          recorded.textContent = predictionRecorded
+            ? "PREDICTION RECORDED in this browser. Control " + control + ", execution " + execution
+              + ". Still changeable before launch. Not sent to the runtime, not sent to Splunk, not graded."
+            : "Control " + control + ", execution " + execution
+              + " selected. Record them to unlock ATTACK and RETEST.";
         }
+        const card = document.getElementById("fact-learning");
+        if (card) {
+          card.dataset.tone = predictionRecorded ? "neutral" : "muted";
+          document.getElementById("fact-learning-value").textContent =
+            predictionRecorded ? "CONTROL " + control + " · EXECUTION " + execution : "NOT RECORDED";
+        }
+        syncLaunchGate();
       }
       if (predictionForm) {
         predictionForm.addEventListener("change", rememberPrediction);
+        const recordButton = document.getElementById("record-prediction");
+        if (recordButton) {
+          recordButton.addEventListener("click", function () {
+            predictionRecorded = true;
+            rememberPrediction();
+            setStage("ATTACK");
+          });
+        }
         const stored = ui.predictionFor("LAB-MCP-001");
         if (stored) {
           const controlInput = predictionForm.querySelector('input[name="predict-control"][value="' + stored.control + '"]');
           const executionInput = predictionForm.querySelector('input[name="predict-execution"][value="' + stored.execution + '"]');
           if (controlInput) controlInput.checked = true;
           if (executionInput) executionInput.checked = true;
-          rememberPrediction();
+          predictionRecorded = true;
         }
+        rememberPrediction();
       }
       const attackButton = document.getElementById("fire-attack");
       const retestButton = document.getElementById("fire-retest");
@@ -264,6 +362,60 @@
         if (presented) return presented.state;
         if (!data) return "NOT MEASURED";
         return data.evidence_state ? String(data.evidence_state) : "NOT VERIFIED";
+      }
+
+      function terminalLabel(data) {
+        const runtime = data && data.runtime ? data.runtime : {};
+        const value = data && data.runtime_status ? data.runtime_status : runtime.terminal;
+        return value ? String(value) : "NOT MEASURED";
+      }
+
+      function setStage(stage) {
+        const items = document.querySelectorAll(".loop-stepper li");
+        Array.prototype.forEach.call(items, function (item) {
+          item.classList.toggle("loop-stepper__current", item.dataset.stage === stage);
+        });
+      }
+
+      function paintFact(id, value, detail, tone) {
+        const card = document.getElementById(id);
+        if (!card) return;
+        card.dataset.tone = tone;
+        const valueEl = document.getElementById(id + "-value");
+        if (valueEl) valueEl.textContent = value;
+        const detailEl = document.getElementById(id + "-detail");
+        if (detailEl && detail) detailEl.textContent = detail;
+      }
+
+      /* Each dimension is painted from its own source. None is derived from another. */
+      function paintIndependentFacts(data) {
+        const controlDecision = decision(data);
+        paintFact(
+          "fact-decision",
+          controlDecision,
+          "CTRL-MCP-001 · " + reason(data) + ". A control decision is not execution.",
+          controlDecision === "ALLOW" ? "allow"
+            : controlDecision === "DENY" ? "deny"
+            : controlDecision === "ERROR" ? "error" : "muted"
+        );
+
+        const executed = executionLabel(data);
+        paintFact(
+          "fact-execution",
+          executed,
+          "Runtime handler count " + handlerCount(data) + ". Established from execution evidence, not from the decision.",
+          executed === "EXECUTED" ? "executed" : "muted"
+        );
+
+        paintFact("fact-terminal", terminalLabel(data), null, "neutral");
+
+        const evidence = evidenceLabel(data);
+        paintFact(
+          "fact-evidence",
+          evidence,
+          null,
+          evidence === "EVIDENCE READY" || evidence === "EVIDENCE CONFIRMED" ? "indexed" : "muted"
+        );
       }
 
       function relationship(a, b) {
@@ -339,19 +491,20 @@
           document.getElementById("open-search-primary").href = url;
           document.getElementById("starter-spl").value = data.search_handoff.starter_spl || "";
         }
-        const controlDecision = decision(data);
-        const state = data.error_class === "ERROR" ? "ERROR" :
-          controlDecision === "DENY" ? "DENIED" :
-          data.evidence_state === "EVIDENCE_READY" ? "EVIDENCE READY" : "COMPLETED";
+        paintIndependentFacts(data);
+        /* The pill reports the launcher only. Control decision, execution, terminal state and
+           evidence readiness are reported as separate facts so they cannot contradict a summary. */
+        const launcherState = data.error_class === "ERROR" ? "ERROR" : "RUN COMPLETE";
         const message = data.error_class === "ERROR"
           ? (data.detail || "Launch failed") + " This is ERROR, not control DENY."
-          : controlDecision + " from runtime; handler count " + handlerCount(data) +
-            "; evidence " + evidenceLabel(data) + ".";
-        ui.applyState(statusEl, statusMessage, state, message);
+          : mode + " finished. Read the control decision, execution evidence, terminal state and "
+            + "evidence readiness below as four separate facts; none is inferred from another.";
+        ui.applyState(statusEl, statusMessage, launcherState, message);
         if (runId) {
           ui.captureLaunch(data, mode, "LAB-MCP-001");
         }
         renderComparison();
+        setStage(last.ATTACK && last.RETEST ? "COMPARE" : "OBSERVE");
       }
 
       async function launch(mode, specimenId) {
@@ -410,7 +563,15 @@
         const presented = ui.evidencePresentation(data) || {state: String(data.evidence_state || "NOT VERIFIED"), message: "Search remains authoritative."};
         document.getElementById("chain-evidence").textContent = presented.state;
         document.getElementById("evidence-status").textContent = presented.state;
-        ui.applyState(statusEl, statusMessage, presented.state, presented.message);
+        /* Evidence readiness updates its own card. It does not restate the launcher pill. */
+        paintFact(
+          "fact-evidence",
+          presented.state,
+          null,
+          presented.state === "EVIDENCE READY" || presented.state === "EVIDENCE CONFIRMED" ? "indexed" : "muted"
+        );
+        ui.applyState(statusEl, statusMessage, "RUN COMPLETE", presented.message);
+        setStage("INVESTIGATE");
       });
 
       fetch("/api/target-health").then(r => r.json().then(data => ({ok: r.ok, data: data}))).then(function (result) {
