@@ -5,7 +5,7 @@
 | | |
 |---|---|
 | Starting commit | `2495ee91f9037a29207e9049aed897bc8eb0fd66` |
-| Ending commit | `69816600319f20e8acccec257fbb6944d2dd6af2` |
+| Ending commit | `f8d92dd7cdca4163b645df1138f9eb93fd74fb5a` (code: `6981660`, repair: `f8d92dd`) |
 | Branch | `develop`, pushed to `origin/develop` |
 | Schema | `1.9.0` unchanged |
 | ExternalEvidence | `1.0.0` unchanged |
@@ -142,6 +142,17 @@ uv run --extra test python -m pytest tests -q --tb=line -m "not live_ollama and 
 Generator idempotence verified separately: re-running the three generators
 leaves `git diff` byte-identical, and `scripts/static_cache_identity.py --check`
 exits `0` afterwards.
+
+### Correction during verification
+
+`6981660` was pushed with `viz_guide_shell` missing from
+`ws_agentsec_mastery.xml` and `learning/academy/mastery.definition.json`. The
+`build_*_dashboard.py` scripts rebuild a definition from scratch and drop the
+guide shell that `apply_guided_learning.py` adds, so `apply_guided_learning.py`
+must run last; I ran them in the wrong order while checking idempotence.
+`tests/splunk/test_guided_learning.py` caught it. Repaired in `f8d92dd` by
+regenerating in the correct order. Both files now differ from the pre-task
+baseline `2495ee9` only by the locale rewrite.
 
 ## Evidence classification
 
