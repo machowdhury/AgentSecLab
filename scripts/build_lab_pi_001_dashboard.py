@@ -46,7 +46,7 @@ HALF = 720
 THIRD = 480
 
 SEARCH_URL = "/en-US/app/search/search"
-ATTACK_URL = "/en-US/app/agentsec/open_attack?path=/"
+ATTACK_URL = "/app/agentsec/open_attack?path=/"
 EMPTY_STANDARD = (
     "No indexed event matched this evidence question. That is not SAFE, not TRUSTED, "
     "not blocked, not prevented, and not proof there was no attack."

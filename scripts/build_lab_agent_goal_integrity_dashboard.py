@@ -44,7 +44,7 @@ TASK_HASH = "sha256:6f95aaf2adf5b37b11e35805f9bbbb24fdb34f38435590b5042d7c406bdf
 INSTRUCTION_HASH = "sha256:15a1c5fa3724419b21b854623c594dba28bf4f357efe39c932084374a8cbe5e2"
 PROPOSED_HASH = "sha256:6326e3be47ecf73831a06be2b718f42219e0c950d4c989de23aa558bfdc01b34"
 GOAL_SNAPSHOT = "sha256:56ebf3bf964a45b39931007bfa4e3d3de20535d42c44cfabf7635bf421ed8b3d"
-ATTACK_URL = "/en-US/app/agentsec/open_attack?path=/labs/LAB-AGENT-GOAL-INTEGRITY-001"
+ATTACK_URL = "/app/agentsec/open_attack?path=/labs/LAB-AGENT-GOAL-INTEGRITY-001"
 SEARCH_URL = "/en-US/app/search/search"
 INV_PATH = ROOT / "learning" / "level_1" / "LAB-AGENT-GOAL-INTEGRITY-001" / "investigations.json"
 

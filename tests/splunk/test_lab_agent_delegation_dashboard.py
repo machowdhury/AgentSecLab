@@ -276,5 +276,6 @@ def test_path_a_path_b_and_live_vs_replay():
     )
     assert "| Role |" not in markdown
     assert "| run.id |" not in markdown
-    assert "/en-US/app/agentsec/open_attack?path=/labs/LAB-AGENT-DELEGATION-001" in markdown
+    assert "/app/agentsec/open_attack?path=/labs/LAB-AGENT-DELEGATION-001" in markdown
+    assert "/en-US/app/agentsec/open_attack" not in markdown
     assert "Studio tokens" in markdown or "Studio cannot receive" in markdown

@@ -235,8 +235,8 @@ def _query(token: str, summary: bool) -> str:
 
 
 def _guide_markdown(row: dict, token: str | None, live: bool) -> str:
-    nxt = f"/en-US/app/agentsec/{row['next_view']}"
-    path = "/en-US/app/agentsec/learner_path"
+    nxt = f"/app/agentsec/{row['next_view']}"
+    path = "/app/agentsec/learner_path"
     if live:
         do = (
             "1. Open Attack Service and launch this LIVE lab.\n"
@@ -268,7 +268,7 @@ def _guide_markdown(row: dict, token: str | None, live: bool) -> str:
     spl = f"```\n{_query(token, False)}\n```" if token else "No new run.id search is added on this tab."
     launch = ""
     if live:
-        launch = f"\n\nLaunch: [Attack Service](/en-US/app/agentsec/open_attack?path=/labs/{row['lab_id']})"
+        launch = f"\n\nLaunch: [Attack Service](/app/agentsec/open_attack?path=/labs/{row['lab_id']})"
     return f"""# Where you are
 
 **{row['level_id']} · {row['level_title']}** · {row['title']} · step {row['position']} of {row['total']} · {row['mode']}
@@ -452,7 +452,7 @@ def write_arena() -> None:
         ("Lending Assistant Investigation", "/labs/LAB-AGENTSEC-CAPSTONE-001"),
     ]
     links = "\n".join(
-        f"- [{title}](/en-US/app/agentsec/open_attack?path={path})" for title, path in labs
+        f"- [{title}](/app/agentsec/open_attack?path={path})" for title, path in labs
     )
     markdown = f"""# Arena
 
@@ -468,7 +468,7 @@ Use the same LIVE launchers. There is no separate curriculum and no extra grant.
 
 {links}
 
-Return to [Home](/en-US/app/agentsec/ws_agentsec_home) or [Your path](/en-US/app/agentsec/learner_path) when you want the guided sequence again.
+Return to [Home](/app/agentsec/ws_agentsec_home) or [Your path](/app/agentsec/learner_path) when you want the guided sequence again.
 """
     definition = {
         "title": "Arena",
@@ -510,134 +510,19 @@ def write_path(rows: list[dict]) -> None:
             "title": row["title"],
             "level": row["level_id"],
             "mode": row["mode"],
-            "href": f"/en-US/app/agentsec/{row['view']}",
+            "href": f"/app/agentsec/{row['view']}",
         }
         for row in rows
     ]
-    js = f"""/* Learner navigation state for this browser. Not indexed evidence. */
-(function (window) {{
-  "use strict";
-  var KEY = "agentsec.learner.progress.v1";
-  var STATES = ["NOT STARTED", "IN PROGRESS", "INVESTIGATED"];
-  var CATALOG = {json.dumps(catalog, indent=2)};
-
-  function read() {{
-    try {{
-      var raw = window.localStorage.getItem(KEY);
-      var parsed = raw ? JSON.parse(raw) : {{}};
-      var workshops = parsed && parsed.workshops ? parsed.workshops : {{}};
-      return {{workshops: workshops}};
-    }} catch (err) {{
-      return {{workshops: {{}}}};
-    }}
-  }}
-
-  function write(data) {{
-    window.localStorage.setItem(KEY, JSON.stringify({{workshops: data.workshops || {{}}}}));
-  }}
-
-  function stateFor(id) {{
-    var value = read().workshops[id];
-    return STATES.indexOf(value) === -1 ? "NOT STARTED" : value;
-  }}
-
-  function setState(id, state) {{
-    if (STATES.indexOf(state) === -1) {{
-      throw new Error("progress state is not a security result");
-    }}
-    var data = read();
-    data.workshops[id] = state;
-    write(data);
-    return state;
-  }}
-
-  function reset() {{
-    window.localStorage.removeItem(KEY);
-  }}
-
-  function summary() {{
-    var counts = {{"NOT STARTED": 0, "IN PROGRESS": 0, "INVESTIGATED": 0}};
-    CATALOG.forEach(function (row) {{
-      counts[stateFor(row.id)] += 1;
-    }});
-    return counts;
-  }}
-
-  function render(root) {{
-    var data = read();
-    root.replaceChildren();
-    var intro = document.createElement("p");
-    intro.textContent = "LAST KNOWN CLIENT STATE for learning navigation. Not indexed evidence. Not a control decision.";
-    root.appendChild(intro);
-    var counts = summary();
-    var tally = document.createElement("p");
-    tally.id = "agentsec-progress-tally";
-    tally.textContent = "INVESTIGATED " + counts["INVESTIGATED"] + " · IN PROGRESS " + counts["IN PROGRESS"] + " · NOT STARTED " + counts["NOT STARTED"];
-    root.appendChild(tally);
-    CATALOG.forEach(function (row) {{
-      var item = document.createElement("section");
-      var heading = document.createElement("h3");
-      var link = document.createElement("a");
-      link.href = row.href;
-      link.textContent = row.level + " · " + row.title + " · " + row.mode;
-      heading.appendChild(link);
-      item.appendChild(heading);
-      var status = document.createElement("p");
-      status.id = "status-" + row.id;
-      status.textContent = stateFor(row.id);
-      item.appendChild(status);
-      ["IN PROGRESS", "INVESTIGATED"].forEach(function (state) {{
-        var button = document.createElement("button");
-        button.type = "button";
-        button.textContent = state === "IN PROGRESS" ? "Mark in progress" : "Mark investigated";
-        button.addEventListener("click", function () {{
-          setState(row.id, state);
-          render(root);
-        }});
-        item.appendChild(button);
-      }});
-      root.appendChild(item);
-    }});
-    var reset = document.createElement("button");
-    reset.type = "button";
-    reset.id = "agentsec-progress-reset";
-    reset.textContent = "Reset learning progress";
-    reset.addEventListener("click", function () {{
-      reset();
-      render(root);
-    }});
-    root.appendChild(reset);
-    var note = document.createElement("p");
-    note.textContent = "Reset clears this browser list only. It does not delete Splunk data, Attack Service records, or security decisions.";
-    root.appendChild(note);
-  }}
-
-  window.AgentSecProgress = {{
-    KEY: KEY,
-    STATES: STATES,
-    CATALOG: CATALOG,
-    read: read,
-    setState: setState,
-    reset: reset,
-    summary: summary,
-    stateFor: stateFor
-  }};
-
-  if (typeof document !== "undefined" && document.addEventListener) {{
-  document.addEventListener("DOMContentLoaded", function () {{
-    var root = document.getElementById("agentsec-progress");
-    if (!root) {{
-      return;
-    }}
-    var style = document.createElement("style");
-    style.textContent = "#agentsec-progress button:focus{{outline:3px solid #0B1F33;outline-offset:2px}}";
-    document.head.appendChild(style);
-    render(root);
-  }});
-  }}
-}})(window);
-"""
-    PATH_JS.write_text(js, encoding="utf-8")
+    # The curriculum owns the catalog only. Rendering, styling and the Splunk
+    # dashboard-ready lifecycle in agentsec_learner_path.js are maintained by hand,
+    # so splice the catalog in instead of regenerating the whole file.
+    source = PATH_JS.read_text(encoding="utf-8")
+    marker = "  var CATALOG = "
+    start = source.index(marker)
+    end = source.index("\n];\n", start) + len("\n];\n")
+    block = marker + json.dumps(catalog, indent=2) + ";\n"
+    PATH_JS.write_text(source[:start] + block + source[end:], encoding="utf-8")
     xml = """<?xml version="1.0" encoding="utf-8"?>
 <dashboard version="1.1" script="agentsec_learner_path.js" hideEdit="true">
   <label>Your path</label>

@@ -28,7 +28,7 @@ OUT_XML = (
 )
 INV_PATH = ROOT / "learning" / "level_1" / "LAB-AGENT-DELEGATION-001" / "investigations.json"
 SEARCH_URL = "/en-US/app/search/search"
-ATTACK_URL = "/en-US/app/agentsec/open_attack?path=/labs/LAB-AGENT-DELEGATION-001"
+ATTACK_URL = "/app/agentsec/open_attack?path=/labs/LAB-AGENT-DELEGATION-001"
 
 BG = "#F6F8FB"
 NAVY = "#0B1F33"
