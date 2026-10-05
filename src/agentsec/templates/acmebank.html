@@ -53,14 +53,45 @@
       </details>
     </section>
 
-    <details class="card secondary">
-      <summary>How this application is processed</summary>
-      <p class="muted">Four sequential roles in one process (not A2A). Security checks run in AcmeBank, not in Splunk.</p>
-      <ol>
+    <details class="card secondary" id="behind-the-ai">
+      <summary>See how the AI did this</summary>
+      <p class="evidence-label">DOCUMENTED architecture. This section describes how AcmeBank is built.
+      It is not measured evidence from your run. Measured facts for your run live in the
+      <code>run.id</code> above and in Splunk.</p>
+
+      <h3>What handled your application</h3>
+      <p class="muted">Four sequential roles in one process (not A2A). Each role is a governed model
+      call. Security checks run in AcmeBank, not in Splunk.</p>
+      <ol class="behind-flow">
         {% for agent in agents %}
-        <li>{{ agent.name }}</li>
+        <li><strong>{{ agent.name }}</strong><span>{{ agent.description }}</span></li>
         {% endfor %}
       </ol>
+
+      <h3>The part you are about to investigate</h3>
+      <p class="muted">An AI agent can also ask to use a <em>tool</em> — code that reaches real data or
+      takes a real action. Tool requests do not go straight through. They pass a control first.</p>
+      <ol class="behind-flow behind-flow--tool">
+        <li><strong>Customer request</strong><span>A person asks AcmeBank for something.</span></li>
+        <li><strong>AcmeBank</strong><span>Accepts the request over HTTP and starts a run with its own <code>run.id</code>.</span></li>
+        <li><strong>AI agent</strong><span>Decides it needs data and requests a tool with a scope.</span></li>
+        <li><strong>CTRL-MCP-001</strong><span>The policy decision point. Compares the request against authority the server owns. The agent cannot edit it.</span></li>
+        <li><strong>Authorized tool only</strong><span>On ALLOW the handler may begin. On DENY the handler never begins.</span></li>
+        <li><strong>Customer data</strong><span>Reached only through a tool that was actually allowed to run.</span></li>
+        <li><strong>Response</strong><span>Returned to the customer.</span></li>
+      </ol>
+
+      <h3>Words you will need</h3>
+      <dl class="behind-glossary">
+        <dt>Tool</dt><dd>Code an agent can ask to run. It reaches real data or performs a real action, so it is where authority matters.</dd>
+        <dt>MCP</dt><dd>Model Context Protocol — the convention by which an agent asks a server for a tool. Asking is not the same as being granted.</dd>
+        <dt>Control decision</dt><dd>What the policy decision point concluded: ALLOW, DENY or ERROR. It is a decision, not an outcome.</dd>
+        <dt>Execution</dt><dd>Whether the handler actually began. This is a separate fact and needs its own evidence. ALLOW does not prove execution, and DENY alone does not prove nothing else ran.</dd>
+        <dt>Telemetry</dt><dd>Structured records AcmeBank emits as the run proceeds, tied together by <code>run.id</code>.</dd>
+        <dt>What Splunk is doing</dt><dd>Indexing that telemetry so you can reconstruct the run afterwards. Splunk observes. It does not authorize anything.</dd>
+      </dl>
+
+      <p><a class="btn btn-primary" id="go-workbench" href="/labs/LAB-MCP-001">Investigate tool authorization in the AgentSec workshop</a></p>
     </details>
     <section class="card">
       <h2>This browser tab</h2>
@@ -85,6 +116,15 @@
     document.getElementById("copy-run-id").addEventListener("click", function () {
       ui.copyFromInput(runInput);
     });
+
+    /* The Attack Service listens on its own port. Follow whichever host the learner
+       actually used so this works unchanged on a remote deployment. */
+    (function () {
+      const link = document.getElementById("go-workbench");
+      if (!link) return;
+      const page = window.location;
+      link.href = page.protocol + "//" + page.hostname + ":5001" + link.getAttribute("href");
+    }());
 
     function bankMessage(state, data) {
       if (state === "RUNNING") {

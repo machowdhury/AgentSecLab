@@ -470,3 +470,65 @@ details.secondary summary {
     font-size: 1.35rem;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * "See how the AI did this" — documented architecture, not run evidence.
+ * ------------------------------------------------------------------ */
+
+.evidence-label {
+  margin: 0 0 1rem;
+  padding: .6rem .8rem;
+  border-left: 4px solid var(--accent-teal);
+  background: #E6F1F1;
+  color: var(--text-secondary);
+  font-size: .85rem;
+  line-height: 1.5;
+}
+
+#behind-the-ai h3 {
+  margin: 1.25rem 0 .4rem;
+  color: var(--chrome-navy);
+  font-size: 1rem;
+}
+
+.behind-flow {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.behind-flow li {
+  margin-bottom: .5rem;
+  line-height: 1.5;
+}
+
+.behind-flow strong {
+  display: block;
+  color: var(--chrome-navy);
+}
+
+.behind-flow span {
+  color: var(--text-secondary);
+  font-size: .88rem;
+}
+
+.behind-flow--tool li::marker {
+  color: var(--accent-teal);
+  font-weight: 700;
+}
+
+.behind-glossary {
+  margin: 0;
+}
+
+.behind-glossary dt {
+  margin-top: .6rem;
+  color: var(--chrome-navy);
+  font-weight: 700;
+}
+
+.behind-glossary dd {
+  margin: .15rem 0 0;
+  color: var(--text-secondary);
+  font-size: .9rem;
+  line-height: 1.5;
+}
