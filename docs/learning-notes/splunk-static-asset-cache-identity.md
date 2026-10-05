@@ -86,6 +86,11 @@ sees stale behaviour and believes a defect still exists.
   `agentsec_learner_path.js` from a stale template, so running it reverted both
   the styling work and the dashboard-ready lifecycle fix. The generator now
   splices in only the catalog it owns, and a test asserts idempotence.
+* Running the generators in the wrong order. `scripts/build_*_dashboard.py`
+  rebuild a dashboard definition from scratch and drop the guide shell that
+  `scripts/apply_guided_learning.py` adds, so `apply_guided_learning.py` must
+  run last. `tests/splunk/test_guided_learning.py` catches the mistake, which is
+  why the suite has to be run after regenerating anything.
 * `splunk_app/static_cache_identity.json` is a repository contract. It proves
   nothing about a deployed URL. Only an HTTP request to the running Splunk does.
 
