@@ -55,6 +55,12 @@ from agentsec.rag.fixtures import (
 )
 from agentsec.settings import get_settings
 
+#: The committed REPLAY baseline specimen for LAB-MCP-001. BASELINE is recorded
+#: evidence only: the launch contract is ATTACK and RETEST, so the Workbench
+#: links to this recording and never offers to launch a baseline. A test pins
+#: this to the value the Studio selector offers, so the two cannot drift.
+MCP_BASELINE_REPLAY_RUN_ID = "163d11e2-e751-4282-9406-19b490542ed4"
+
 logger = logging.getLogger("agentsec.attack")
 
 TEMPLATE_DIR = Path(__file__).resolve().parent / "templates"
@@ -494,6 +500,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
             technique_id=technique_id,
             expected_defended=expected_defended,
             hunt_hint=hunt_hint,
+            mcp_baseline_run_id=MCP_BASELINE_REPLAY_RUN_ID,
             mcp_request={
                 "tool": attack_ctx.tool if attack_ctx else "",
                 "requested_scope": attack_ctx.requested_scope if attack_ctx else "",

@@ -98,9 +98,13 @@ def _all_markdown() -> str:
 # --- structure -------------------------------------------------------------
 
 
-def test_investigate_opens_with_the_notebook_header():
+def test_investigate_opens_with_the_journey_map_then_the_notebook_header():
+    """CONTRACT CHANGE (P0-D): a journey map now sits above the header so the
+    learner sees where INVESTIGATE falls before reading the notebook. The
+    header must still be the very next panel, ahead of every question cell."""
     items = _items()
-    assert items[0] == "viz_nb_header"
+    assert items[0] == "viz_journey_investigate"
+    assert items[1] == "viz_nb_header"
     header = _markdown("viz_nb_header")
     assert "AgentSec Investigation Notebook" in header
     assert "LAB-MCP-001" in header
@@ -302,7 +306,10 @@ def test_notebook_queries_the_run_the_learner_selected():
     inputs = WORKSHOP["inputs"]
     text_inputs = [v for v in inputs.values() if v["type"] == "input.text"]
     assert len(text_inputs) == 1, "the single LIVE run.id box is the invariant"
-    assert text_inputs[0]["title"] == "LIVE run.id"
+    # CONTRACT CHANGE (P0-C): the box is still the single LIVE run.id input, but
+    # its title now says it is the learner's own evidence. See test_evidence_source_*.
+    assert text_inputs[0]["title"].startswith("LIVE")
+    assert "run.id" in text_inputs[0]["title"]
 
 
 # --- decision and execution stay separate ----------------------------------
@@ -475,7 +482,12 @@ def test_run_id_handoff_does_not_fake_an_unsupported_token_binding():
     assert "/en-US/app/agentsec/ws_lab_mcp_001" in doc["workshop_url"]
     assert "live_run_id" not in doc["workshop_url"], "a token in the URL would be ignored"
     assert workshop_url("LAB-UNKNOWN") is None
-    assert "has no supported way for this page to fill that field" in WORKBENCH
+    # CONTRACT CHANGE (P0-B): the plain workshop URL still carries no token, but
+    # the Workbench now offers a separate, validated deep link (investigate_url)
+    # whose prefill is SUPPORTED WITH CONSTRAINTS, and it must say so honestly
+    # and keep the manual fallback.
+    assert "not a documented guarantee" in WORKBENCH
+    assert "paste the copied run.id" in WORKBENCH
 
 
 def test_handoff_lands_on_the_tab_the_workbench_promises():

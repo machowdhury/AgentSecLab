@@ -47,7 +47,7 @@ THIRD = 480
 SEARCH_URL = "/en-US/app/search/search"
 ATTACK_URL = "/app/agentsec/open_attack?path=/labs/LAB-MCP-001"
 EMPTY_HUNT = (
-    "Investigate specimen defaults to the BASELINE specimen so this page is not an error "
+    "Evidence to investigate defaults to the BASELINE specimen so this page is not an error "
     "state. Custom run.id is available from Search. Zero rows means "
     "no matching indexed events for that id. Zero rows is not DENY and is not "
     "proof the handler never ran."
@@ -200,7 +200,7 @@ def question_md(inv: dict, number: int, spl_file: str) -> str:
 
 {inv["starter_guidance"]}
 
-1. Copy the fresh LIVE run.id from Attack Service, or use Investigate specimen for canonical REPLAY.
+1. Copy the fresh LIVE run.id from Attack Service, or use Evidence to investigate for canonical REPLAY.
 2. [Open Splunk Search]({SEARCH_URL})
 3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.
 4. Filter quoted `agentsec.run.id`. Execute. Read the fields yourself.
@@ -242,7 +242,7 @@ This is **Path B — show solution**. Open it only after you tried Path A in Sea
 
 **SOLUTION SPL** (`{hunt}`)
 
-Copy this into Search. Replace `$run_id$` with the LIVE UUID, or leave the token for Investigate specimen REPLAY.
+Copy this into Search. Replace `$run_id$` with the LIVE UUID, or leave the token for Evidence to investigate REPLAY.
 
 ```
 {bound}
@@ -421,6 +421,56 @@ def what_decision_spl(token: str) -> str:
 #: below, so the two cannot drift. It is not a run.id and matches no event.
 LIVE_RUN_NONE = "none"
 INVESTIGATE_GAP = 8  # px between stacked INVESTIGATE panels
+JOURNEY_H = 300  # px; measured in the rendered page, see the report
+
+#: Learner-facing names for the two evidence-source controls.
+#:
+#: The old title "Investigate specimen" and the options "Attack" / "Retest" read
+#: like actions, and a human walkthrough showed a learner could reasonably
+#: believe choosing "Attack" launches one. These controls choose which
+#: evidence to READ. LIVE evidence is the learner's own run; REPLAY evidence is
+#: a recorded specimen. The words LIVE and REPLAY stay in both titles because
+#: the difference is the whole point.
+SELECTOR_TITLE = "REPLAY evidence to read (recorded, not your run)"
+LIVE_TITLE = "LIVE evidence: your run.id (filled by the Workbench link)"
+SELECTOR_LABELS = {
+    "baseline": "Baseline evidence: normal behavior (REPLAY)",
+    "attack": "Attack evidence: vulnerable experiment (REPLAY)",
+    "retest": "Retest evidence: defended experiment (REPLAY)",
+}
+
+
+#: The ten-step learning journey, in the three groups the UX spec uses.
+JOURNEY_GROUPS = (
+    ("UNDERSTAND", ("LEARN", "BASELINE")),
+    ("TEST", ("PREDICT", "ATTACK", "OBSERVE")),
+    ("PROVE", ("INVESTIGATE", "DEFEND", "RETEST", "COMPARE", "EXPLAIN")),
+)
+
+
+def journey_markdown(here: str, *, just_done: str, next_step: str) -> str:
+    """A map of the whole journey with the current step marked.
+
+    Dashboard Studio cannot hold progress state across the AgentSec web app and
+    Splunk (different origins, and Studio has no supported storage), so this is a
+    surface-local MAP, not a tracker: the same ten steps appear on every
+    surface and only the marker moves. The marker is a word and a symbol, not a
+    colour, and nothing here implies a step passed or failed. Your Path remains
+    the place that remembers progress.
+    """
+    parts = []
+    for group, steps in JOURNEY_GROUPS:
+        marked = [f"▶ **{s} (you are here)** ◀" if s == here else s for s in steps]
+        parts.append(f"**{group}:** " + " › ".join(marked))
+    strip = "  \n".join(parts)
+    return f"""# Your journey — Tool Authorization
+
+{strip}
+
+**You are here:** {here}. **Just done:** {just_done} **Next:** {next_step}
+
+BASELINE is recommended and uses recorded (REPLAY) evidence. DEFEND is an explanation step: the server chooses the defended profile, you do not apply it. This strip is a map, not saved progress. **Your Path** is where your progress is remembered.
+"""
 
 
 def notebook_base(event_filter: str = "") -> str:
@@ -725,7 +775,7 @@ Splunk does **not** send this. Studio does **not** POST. Open Attack Service, la
 
 [Open Attack Service (LIVE launch)]({ATTACK_URL})
 
-**Validated vulnerable REPLAY:** `{ATTACK_ID}`. Choose **Attack — vulnerable / malicious** in Investigate specimen for that copy.
+**Validated vulnerable REPLAY:** `{ATTACK_ID}`. Choose **Attack evidence: vulnerable experiment (REPLAY)** in the REPLAY evidence selector to read that recorded copy. Choosing it reads recorded evidence; it does not run an experiment.
 
 **Next:** HUNT Path A on the fresh ATTACK `run.id`, then DEFEND, then Launch RETEST (LIVE).
 """,
@@ -817,7 +867,7 @@ Two paths. Path A is the default. Path B is an answer key, not a replacement.
 
 **Path B — Show solution (optional):** copyable SPL from existing Q-MCP hunts, bound REPLAY table, explanation, limitations. Open it only after Path A. It is an answer key, not policy.
 
-Investigate specimen is canonical **REPLAY**. Fresh LIVE run.id comes from Attack Service Search handoff. Studio tokens are not auto-bound.
+Evidence to investigate is canonical **REPLAY**. Fresh LIVE run.id comes from Attack Service Search handoff. Studio tokens are not auto-bound.
 
 Do not search until Attack Service reports **EVIDENCE READY** (or you have measured searchable events). HEC success is not ready.
 
@@ -1191,6 +1241,24 @@ Validated references: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST
     )
 
     add_md(
+        "viz_journey_mission",
+        journey_markdown(
+            "LEARN",
+            just_done="you opened the workshop.",
+            next_step="read the mission, optionally read the BASELINE evidence, then PREDICT and ATTACK in the Workbench.",
+        ),
+        title="YOUR JOURNEY",
+    )
+    add_md(
+        "viz_journey_investigate",
+        journey_markdown(
+            "INVESTIGATE",
+            just_done="the experiment finished and its evidence now exists. Your prediction stays in the Workbench tab that made it.",
+            next_step="answer the five questions from the evidence, then go back to the Workbench for DEFEND and RETEST.",
+        ),
+        title="YOUR JOURNEY",
+    )
+    add_md(
         "viz_workbench_mission",
         f"""
 # Mission — Tool Authorization
@@ -1207,7 +1275,7 @@ The attacker can influence the requested tool, scope, and arguments in the close
 
 ## What you are determining
 
-The agent is granted `lookup_policy` / `policy:read`. The experiment requests `lookup_customer_tier` / `customer:read`, which this agent is not granted.
+The agent is granted `lookup_policy` / `policy:read`. That is the normal path, and the **BASELINE** specimen shows it. The ATTACK and RETEST experiments request a different tool, `lookup_customer_tier` / `customer:read`, which this agent is not granted.
 
 Determine, from evidence rather than expectation:
 
@@ -1219,9 +1287,11 @@ Predict each answer in the Attack Service workbench **before** you launch. The o
 
 **REQUEST != GRANT · ALLOW != EXECUTION · SPLUNK != ENFORCEMENT**
 
-[Run the LIVE experiment in Attack Service]({ATTACK_URL})
+**BASELINE is recommended, not required.** It is recorded (REPLAY) evidence of normal behavior. Read it first on the **INVESTIGATE** tab by choosing *Baseline evidence* in the REPLAY selector, so you know what "normal" looks like before you test anything. You cannot launch a baseline from here.
 
-Then bring your fresh `run.id` to **INVESTIGATE**, which is the guided Investigation Notebook for this lab. Canonical REPLAY specimens remain available in **Investigate specimen** if you have not run the experiment yet.
+**NEXT:** [Open the Workbench to PREDICT and run ATTACK]({ATTACK_URL}). The Workbench brings you back to **INVESTIGATE** with your own run already selected.
+
+The two controls at the top of the INVESTIGATE tab **choose evidence to read**. Neither one runs an experiment.
 """,
         title="MISSION",
     )
@@ -1270,7 +1340,7 @@ What this tab adds that the notebook does not:
 
 - The canonical **REPLAY specimens** for ATTACK and RETEST shown together, so
   you can see the shape of each outcome without running anything.
-- The **Investigate specimen** panels bound to the dropdown above.
+- The **Evidence to investigate** panels bound to the dropdown above.
 - The **DET-MCP-001** detector panels.
 
 Read control decision separately from handler execution. `ALLOW` does not prove start. `DENY` alone does not prove non-execution. Runtime handler count is authoritative in this lab; indexed `mcp.started` corroborates a complete copy.
@@ -1437,19 +1507,34 @@ every field and every full value on screen at any width.
 
 ## LAB-MCP-001 — MCP Tool Authorization
 
-You are reconstructing one real run from indexed evidence. Work down the five
-questions in order. Each cell shows the SPL it runs, so you can check the
-answer against the query that produced it.
+**YOU ARE HERE: INVESTIGATE.** You are reconstructing one real run from indexed
+evidence. Work down the five questions in order. The searches run for you; you
+do not have to type or execute anything to see a result.
 
-**Which run is being investigated.** **LIVE run.id** above reads `none` until you
-change it. To investigate your own run, click in the box, select everything in it
-(`Ctrl+A` / `Cmd+A`), paste your fresh `run.id` and press Enter. While it reads
-`none`, every cell investigates the canonical REPLAY specimen chosen in
-**Investigate specimen**. The state panel below reports which one it resolved to.
+**WHICH EVIDENCE IS BEING READ.** The two controls above **choose evidence**.
+Neither one runs an experiment.
 
-Every cell prints the complete query it runs, with your run.id already filled
-in. Copy any of them into Splunk Search and you will reproduce that cell's
-table. This is the query behind the state panel:
+- **LIVE evidence** is your own experiment. The Workbench link fills in the
+  LIVE box with your `run.id`. It reads `none` until then.
+- **REPLAY evidence** is a recorded specimen (Baseline, Attack or Retest). It
+  is not your run.
+- **Rule:** if the LIVE box holds a run.id, that run is read. If it reads
+  `none`, the REPLAY choice is read. Right now: LIVE = `$live_run_id$`,
+  REPLAY = `$run_id$`. The state panel below reports which one resolved.
+
+**IF THE BOX IS NOT FILLED IN** (for example you opened this tab yourself),
+click in the LIVE box, select everything in it (`Ctrl+A` / `Cmd+A`), paste
+your fresh `run.id` and press Enter. The run.id is technical metadata. The
+Workbench shows it and has a Copy button.
+
+**WHICH RUN IS THIS?** Do not assume. Questions 1 to 3 establish from the
+evidence which tool this run requested, what CTRL-MCP-001 decided, and whether
+the handler started. Do not decide from the name of the specimen.
+
+**TECHNICAL REPRODUCTION.** Each cell prints the exact SPL its table runs, with
+your run.id already filled in. You never have to run it. Copy it into Splunk
+Search only if you want to reproduce a table yourself. This is the query behind
+the state panel:
 
 ```text
 <<SPL>>
@@ -1459,9 +1544,10 @@ table. This is the query behind the state panel:
 
 A customer applied for a home loan. To answer lending questions the AcmeBank MCP
 policy agent is granted exactly one tool, `lookup_policy`, with scope
-`policy:read`. The run you are investigating requested `lookup_customer_tier`
-with scope `customer:read` — a tool the runtime **knows about** but has not
-granted to this agent.
+`policy:read`. Other tools exist in the runtime catalogue, for example
+`lookup_customer_tier` with scope `customer:read`, but they are **not granted** to
+this agent. Whether the run you are reading requested a granted tool is exactly
+what Questions 1 to 3 establish.
 
 **KNOWN TOOL != GRANTED TOOL.** A tool appearing in the catalogue is not
 authority to call it.
@@ -1496,14 +1582,8 @@ system alongside session history. Keep your answers somewhere you control.
 authorized. The decision is a separate fact from the request, and it has to be
 read from the control event rather than assumed from what the agent attempted.
 
-**QUERY.** This is the SPL the table below runs — the whole query, not a
-summary of it. Studio executes it automatically when the token resolves, and
-fills in the run.id you selected. Copy it into Splunk Search and you will get
-the same table.
-
-```text
-<<SPL>>
-```
+**READ THE RESULT TABLE BELOW.** Studio runs the search for you when the run
+resolves. You do not have to type or execute anything.
 
 **WHAT THE EVIDENCE SUPPORTS.** Read `decision` and `reason` from the row
 below. That is what CTRL-MCP-001 returned for this run — ALLOW, DENY, ERROR or
@@ -1515,6 +1595,14 @@ Question 2 is a separate query because it is a separate fact.
 
 **YOUR OBSERVATION.** Write down the decision and the reason in your own words
 before moving on. Not saved by this page.
+
+**TECHNICAL REPRODUCTION (SPL).** This is the whole query the result table
+runs, not a summary of it, with your run selection filled in. You never have to
+run it. Copy it into Splunk Search to reproduce the same table.
+
+```text
+<<SPL>>
+```
 """,
             nb_decision_spl,
         ),
@@ -1540,13 +1628,10 @@ different events. A control can return ALLOW and the handler can still never
 start; a control can return DENY while something else in the run proceeds.
 Neither can be inferred from the other.
 
-**QUERY.** This is the whole query, exactly as it runs. Read it and check the
-claim yourself: it never references `agentsec.control.decision`. Execution is
-established from execution events alone.
-
-```text
-<<SPL>>
-```
+**READ THE RESULT TABLE BELOW.** Execution is established from execution events
+alone. The search behind it never references `agentsec.control.decision`, and
+you can check that claim yourself in the technical reproduction at the end of
+this cell.
 
 **WHAT THE EVIDENCE SUPPORTS.** `agentsec.mcp.started` is handler start.
 `agentsec.mcp.completed` is success after a start. `agentsec.mcp.failed` is a
@@ -1561,6 +1646,13 @@ Attack Service workbench is the authoritative source for non-execution.
 
 **YOUR OBSERVATION.** Which execution events exist for this run, and what does
 their absence or presence let you say? Not saved by this page.
+
+**TECHNICAL REPRODUCTION (SPL).** The whole query, exactly as it runs. You never
+have to run it.
+
+```text
+<<SPL>>
+```
 """,
             nb_execution_spl,
         ),
@@ -1590,11 +1682,7 @@ scope the server granted it?
 to use it. Catalogue visibility and authority are different things, and
 conflating them is the whole substance of this lab.
 
-**QUERY.** The whole query, exactly as it runs.
-
-```text
-<<SPL>>
-```
+**READ THE RESULT TABLE BELOW.** Compare the requested scope with the allowed scope.
 
 **WHAT THE EVIDENCE SUPPORTS.** Both `requested_scope` and `allowed_scope` are
 OBSERVED runtime fields on the indexed control event — the runtime reported the
@@ -1602,10 +1690,11 @@ grant it evaluated against, so the comparison below is evidence, not assumption.
 
 **WHERE THE GRANT ITSELF COMES FROM.** The grant is **DOCUMENTED configuration**,
 not a runtime event. `src/agentsec/mcp` defines the agent's allowed tool as
-`lookup_policy` with scope `policy:read`. `lookup_customer_tier` /
-`customer:read` is a known tool that is not granted to this agent. Treat that as
-lab configuration you can read in the repository, not as something this query
-discovered.
+`lookup_policy` with scope `policy:read`. Other catalogue tools, such as
+`lookup_customer_tier` / `customer:read`, are known but not granted to this agent.
+Treat that as lab configuration you can read in the repository, not as something
+this query discovered. Compare it with the tool and scope this run actually
+requested.
 
 **WHAT THIS DOES NOT PROVE.** A scope mismatch does not by itself tell you what
 the control decided, or whether anything executed. Those are Questions 1 and 2.
@@ -1613,6 +1702,13 @@ the control decided, or whether anything executed. Those are Questions 1 and 2.
 
 **YOUR OBSERVATION.** State the requested capability, the granted capability,
 and whether they match. Not saved by this page.
+
+**TECHNICAL REPRODUCTION (SPL).** The whole query, exactly as it runs. You never
+have to run it.
+
+```text
+<<SPL>>
+```
 """,
             nb_scope_spl,
         ),
@@ -1638,13 +1734,8 @@ and whether they match. Not saved by this page.
 can point at. Reading the whole ordered sequence is also how you notice what is
 *missing* — and whether a gap is meaningful or just unsearchable.
 
-**QUERY.** No event filter — everything indexed for the selected run, in order.
-This is the whole query. Every column in the table below is created by a line
-you can see here.
-
-```text
-<<SPL>>
-```
+**READ THE RESULT TABLE BELOW.** No event filter: everything indexed for the
+selected run, in order.
 
 **WHAT THE EVIDENCE SUPPORTS.** The ordered list below is what this run actually
 produced in the index. Read it rather than recalling what a run of this kind
@@ -1658,6 +1749,13 @@ Evidence completeness is its own question.
 
 **YOUR OBSERVATION.** Write the sequence down. Which events are present, and
 which are absent that you expected? Not saved by this page.
+
+**TECHNICAL REPRODUCTION (SPL).** The whole query. Every column in the table
+above is created by a line you can see here. You never have to run it.
+
+```text
+<<SPL>>
+```
 """,
             nb_timeline_spl,
         ),
@@ -1736,7 +1834,10 @@ you do there changes a control decision: **SPLUNK != ENFORCEMENT.**
 
     # viz_flow_diagram is not created here. scripts/apply_workshop_flows.py owns it
     # for every workshop and must run after this script.
-    mission_structure = [block("viz_workbench_mission", 0, 0, FULL, 520)]
+    mission_structure = [
+        block("viz_journey_mission", 0, 0, FULL, JOURNEY_H),
+        block("viz_workbench_mission", 0, JOURNEY_H + INVESTIGATE_GAP, FULL, 600),
+    ]
     # INVESTIGATE is the guided notebook: question cell, then the evidence that
     # answers that question, then the next question. The learner meets one
     # result table at a time instead of five at once.
@@ -1746,7 +1847,8 @@ you do there changes a control decision: **SPLUNK != ENFORCEMENT.**
     # 1024px window plus margin (inner scrollHeight - clientHeight on the
     # rendered page), not guesses.
     investigate_panels = [
-        ("viz_nb_header", 760),
+        ("viz_journey_investigate", JOURNEY_H),
+        ("viz_nb_header", 1000),
         ("viz_nb_state", 220),
         ("viz_nb1_q", 620),
         ("viz_nb1_r", 240),
@@ -1868,14 +1970,17 @@ is not a supported extension. The gate is the warning you are reading.
         "inputs": {
             "input_run_id": {
                 "type": "input.dropdown",
-                "title": "Investigate specimen",
+                # This control SELECTS recorded evidence. It does not run an
+                # experiment, and "Attack" in an option label names which recorded
+                # run to read, not an action.
+                "title": SELECTOR_TITLE,
                 "options": {
                     "token": "run_id",
                     "defaultValue": BASELINE_ID,
                     "items": [
-                        {"label": "Baseline — defended / normal", "value": BASELINE_ID},
-                        {"label": "Attack — vulnerable / malicious", "value": ATTACK_ID},
-                        {"label": "Retest — defended / malicious", "value": RETEST_ID},
+                        {"label": SELECTOR_LABELS["baseline"], "value": BASELINE_ID},
+                        {"label": SELECTOR_LABELS["attack"], "value": ATTACK_ID},
+                        {"label": SELECTOR_LABELS["retest"], "value": RETEST_ID},
                     ],
                 },
             },
@@ -1884,7 +1989,7 @@ is not a supported extension. The gate is the warning you are reading.
             # input when it is absent. See LIVE_RUN_NONE for why empty is wrong here.
             "input_live_run": {
                 "type": "input.text",
-                "title": "LIVE run.id",
+                "title": LIVE_TITLE,
                 "options": {"token": "live_run_id", "defaultValue": LIVE_RUN_NONE},
             },
         },
@@ -1910,7 +2015,7 @@ is not a supported extension. The gate is the warning you are reading.
                 ],
             },
             "layoutDefinitions": {
-                "layout_mission": layout(mission_structure, 540),
+                "layout_mission": layout(mission_structure, JOURNEY_H + INVESTIGATE_GAP + 620),
                 "layout_investigate": layout(investigate_structure, investigate_height),
                 "layout_evidence": layout(evidence_structure, 2982),
                 "layout_path_b": layout(path_b_structure, path_b_y + 40, display="fit-to-width"),

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from urllib.parse import quote, urlencode
 
 from agentsec.workshop_flows import LAB_TO_LANDING_TAB, LAB_TO_VIEW
@@ -127,7 +128,7 @@ def rewrite_learner_navigation(url: str, page_origin: str) -> str:
     return url
 
 
-__all__ = ["handoff_doc", "starter_spl", "workshop_url"]
+__all__ = ["handoff_doc", "investigate_url", "starter_spl", "workshop_url"]
 
 
 def workshop_url(lab_id: str | None, *, splunk_web: str = DEFAULT_SPLUNK_WEB) -> str | None:
@@ -151,6 +152,54 @@ def workshop_url(lab_id: str | None, *, splunk_web: str = DEFAULT_SPLUNK_WEB) ->
     url = f"{splunk_web.rstrip('/')}/en-US/app/agentsec/{view}"
     tab = LAB_TO_LANDING_TAB.get(lab_id or "")
     return f"{url}?tab={tab}" if tab else url
+
+
+#: Labs whose Studio view defines a text input bound to this token. Only these
+#: may receive a prefilled run.id; any other token would be silently ignored.
+LAB_TO_LIVE_RUN_TOKEN = {
+    "LAB-MCP-001": "live_run_id",
+}
+
+#: A run.id minted by the launcher is a canonical UUID. Anything else is not
+#: forwarded: the value lands in a Dashboard Studio token that is substituted
+#: into SPL, so the only safe input is one that cannot contain a quote, space,
+#: pipe or bracket.
+_RUN_ID_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+)
+
+#: Evidence class for the URL prefill. It was OBSERVED on one deployment and
+#: browser (``form.<token>=`` populated the input, the unprefixed form did not).
+#: It was not found in Splunk's documentation, so it is not a platform guarantee.
+STUDIO_URL_PREFILL_STATUS = (
+    "OBSERVED / SUPPORTED WITH CONSTRAINTS: form.<token> URL prefill populated the "
+    "input on the measured deployment; not located in Splunk documentation. "
+    "Manual paste remains the fallback."
+)
+
+
+def investigate_url(
+    lab_id: str | None,
+    run_id: str,
+    *,
+    splunk_web: str = DEFAULT_SPLUNK_WEB,
+) -> str | None:
+    """Workshop URL that lands on the lab's landing tab with the run.id prefilled.
+
+    Uses the ``form.`` prefix. The unprefixed ``live_run_id=`` form was measured
+    to be ignored, so it is never generated. Returns None (callers fall back to
+    ``workshop_url`` plus manual paste) when the lab has no such input or the
+    run.id is not a UUID. Nothing from the caller is forwarded except the
+    percent-encoded run.id; the token name and tab come from fixed tables.
+    """
+    token = LAB_TO_LIVE_RUN_TOKEN.get(lab_id or "")
+    base = workshop_url(lab_id, splunk_web=splunk_web)
+    if token is None or base is None or not isinstance(run_id, str):
+        return None
+    if not _RUN_ID_RE.fullmatch(run_id):
+        return None
+    separator = "&" if "?" in base else "?"
+    return f"{base}{separator}{urlencode({'form.' + token: run_id}, quote_via=quote)}"
 
 
 def search_url(run_id: str, *, splunk_web: str = DEFAULT_SPLUNK_WEB) -> str:
@@ -247,12 +296,22 @@ def handoff_doc(
         # Guided notebook first. Native Search stays available as the advanced
         # path, but it is no longer the only thing offered after a run.
         "workshop_url": workshop_url(lab_id, splunk_web=splunk_web),
+        # Prefilled deep link where the lab's view has a bound LIVE input; None
+        # otherwise. workshop_url above stays token-free as the manual fallback.
+        "investigate_url": investigate_url(lab_id, run_id, splunk_web=splunk_web),
+        "investigate_url_status": (
+            STUDIO_URL_PREFILL_STATUS
+            if investigate_url(lab_id, run_id, splunk_web=splunk_web)
+            else "NOT AVAILABLE for this lab: paste the run.id."
+        ),
         "reused_hunts": list(hunts),
+        # "studio_token_binding" is about writing a Studio token from code, which
+        # stays unsupported. The URL prefill above is a separate, constrained path.
         "studio_token_binding": "NOT SUPPORTED / DO NOT BUILD",
         "instructions": [
             "Copy the run.id.",
-            "Open the guided workshop (workshop_url) and paste it into LIVE run.id on INVESTIGATE.",
-            "Studio cannot accept the run.id from the URL, so the paste is required.",
+            "Open investigate_url if present: it lands on INVESTIGATE with the run.id prefilled.",
+            "Otherwise open the guided workshop (workshop_url) and paste the run.id into LIVE run.id on INVESTIGATE.",
             "Work the five notebook questions before opening native Search.",
             "Native Search (search_url) is the advanced path. Paste the starter query there.",
             inspect,

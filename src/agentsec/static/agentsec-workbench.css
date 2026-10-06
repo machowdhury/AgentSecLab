@@ -1103,3 +1103,210 @@
     font-size: .72rem;
   }
 }
+
+/* --- Learner journey (P0). State is carried by a word and a glyph, never by
+   colour alone, and no step is styled as passed or failed. ------------------- */
+
+.journey,
+.baseline-step,
+.experiment-complete,
+.launcher-details,
+.explain-step {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(11, 31, 51, .05);
+}
+
+.journey {
+  margin: 0 0 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.journey__title {
+  margin: 0 0 .75rem;
+  font-size: 1.05rem;
+}
+
+.journey__groups {
+  display: grid;
+  grid-template-columns: 2fr 3fr 5fr;
+  gap: .75rem;
+}
+
+.journey__group h3 {
+  margin: 0 0 .35rem;
+  color: var(--text-secondary);
+  font-size: .875rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.journey__group ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.journey__group li {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  min-height: 2.25rem;
+  padding: .3rem .7rem;
+  border: 1px dashed #7A8794;
+  border-radius: 6px;
+  background: #FFFFFF;
+  color: var(--text-primary);
+  font-size: .9375rem;
+  font-weight: 600;
+}
+
+.journey__group li span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: #EEF1F4;
+  color: var(--text-primary);
+  font-size: .8125rem;
+  font-weight: 800;
+}
+
+.journey__group li small {
+  color: var(--text-secondary);
+  font-size: .8125rem;
+  font-weight: 600;
+}
+
+.journey__group li.journey__current {
+  border: 2px solid var(--chrome-navy);
+  background: var(--chrome-navy);
+  color: #FFFFFF;
+}
+
+.journey__group li.journey__current::before {
+  content: "\25B6";
+  font-size: .75rem;
+}
+
+.journey__group li.journey__current span {
+  background: #FFFFFF;
+  color: var(--chrome-navy);
+}
+
+.journey__group li.journey__current small {
+  color: #E3EAF1;
+}
+
+.journey__now {
+  margin: .85rem 0 .25rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.journey__sep {
+  margin: 0 .5rem;
+}
+
+.journey__note {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: .875rem;
+}
+
+.baseline-step,
+.explain-step {
+  margin: 0 0 1rem;
+  padding: 1rem 1.25rem;
+  border-style: dashed;
+}
+
+.baseline-step p,
+.explain-step p,
+.explain-step li,
+.defend-step p {
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.defend-step {
+  margin: 1rem 0;
+  padding: .85rem 1rem;
+  border: 1px dashed var(--chrome-navy);
+  border-radius: 6px;
+  background: #F4F7FA;
+}
+
+.experiment-complete {
+  margin: 0 0 1rem;
+  padding: 1rem 1.25rem;
+  border: 2px solid var(--chrome-navy);
+}
+
+.experiment-complete h3 {
+  margin: 0 0 .35rem;
+  font-size: 1.25rem;
+}
+
+.experiment-complete p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.complete-prediction {
+  color: var(--text-secondary);
+}
+
+.launcher-details {
+  margin: 0 0 1rem;
+  padding: .25rem 1rem 1rem;
+  border-style: dashed;
+}
+
+.launcher-details > summary {
+  min-height: 2.75rem;
+  padding: .6rem 0;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.launcher-details__warning {
+  margin: 0 0 1rem;
+  font-size: .9375rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .journey__groups {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 680px) {
+  .journey__group ol {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .journey * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Status text on white. The shared warning amber (#B7791F) is 3.64:1 on white,
+   below the 4.5:1 normal-text target, so the Workbench uses a darker amber of the
+   same hue family. The word is still the signal; colour only reinforces it. */
+.workbench-page .status[data-state="RUNNING"],
+.workbench-page .status[data-state="LAUNCHING"],
+.workbench-page .status[data-state="WAITING FOR SPLUNK"] {
+  color: #7A4E00;
+}

@@ -124,7 +124,12 @@ def test_learner_views_use_dropdown_not_uuid_text():
             if inp["type"] == "input.text":
                 # LIVE paste box. REPLAY stays on specimen dropdowns.
                 # Empty default so the bound search does not show a specimen answer first.
-                assert inp["title"] == "LIVE run.id", f"{name} {inp['title']}"
+                if name == "ws_lab_mcp_001.xml":
+                    # CONTRACT CHANGE (P0-C): LAB-MCP-001 is the golden path and its
+                    # LIVE box names itself as the learner's own evidence.
+                    assert inp["title"].startswith("LIVE") and "run.id" in inp["title"], name
+                else:
+                    assert inp["title"] == "LIVE run.id", f"{name} {inp['title']}"
                 assert inp["options"]["token"] == "live_run_id"
                 # Empty everywhere except LAB-MCP-001, whose notebook needs a real
                 # sentinel because Studio never runs a search on an empty token.
@@ -134,7 +139,10 @@ def test_learner_views_use_dropdown_not_uuid_text():
                 text_inputs.append(inp)
                 continue
             assert inp["type"] == "input.dropdown", f"{name} {inp}"
-            assert "Investigate" in inp["title"], f"{name} {inp['title']}"
+            if name == "ws_lab_mcp_001.xml":
+                assert inp["title"].startswith("REPLAY evidence"), f"{name} {inp['title']}"
+            else:
+                assert "Investigate" in inp["title"], f"{name} {inp['title']}"
             items = inp["options"]["items"]
             assert items, name
             for item in items:
