@@ -161,6 +161,13 @@ def test_datasources_are_validated_spl_with_token_bind_only():
         # ATTACK vs RETEST over the learner's own live runs, matched on the
         # indexed testbed mode rather than a pasted or packaged run.id.
         "ds_live_pair",
+        # Investigation Notebook on INVESTIGATE. Each one answers exactly one
+        # of the five questions against whichever run the learner selected.
+        "ds_nb_state",
+        "ds_nb_decision",
+        "ds_nb_execution",
+        "ds_nb_scope",
+        "ds_nb_timeline",
     }
     assert set(definition["dataSources"]) - {"ds_guide_events", "ds_guide_summary"} == set(expected) | extra
 
@@ -318,7 +325,10 @@ def test_hunt_is_stacked_path_a_path_b():
     path_b = definition["layout"]["layoutDefinitions"]["layout_path_b"]
     assert path_a["options"]["display"] == "auto-scale"
     assert path_b["options"]["display"] == "fit-to-width"
-    assert any(row["item"] == "viz_workbench_investigate" for row in path_a["structure"])
+    # INVESTIGATE is now the Investigation Notebook. The old Path A prose block
+    # became PATH B reference material rather than the learner's entry point.
+    assert any(row["item"] == "viz_nb_header" for row in path_a["structure"])
+    assert any(row["item"] == "viz_path_a_reference" for row in path_b["structure"])
     assert any(row["item"] == "viz_i1_sol" for row in path_b["structure"])
     assert "viz_hunt_md" not in definition["visualizations"]
     assert "ATTACK != ALERT" in blob or "ATTACK != ALERT" in blob.replace("**", "")

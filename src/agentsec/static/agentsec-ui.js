@@ -379,7 +379,7 @@
       pairEl.textContent = "No ATTACK and RETEST pair for this lab in this tab. LAST KNOWN CLIENT STATE. Not indexed evidence.";
       return;
     }
-    pairEl.textContent = "Paired from this tab for " + labId + ": ATTACK " + pair.attack.runId + " · RETEST " + pair.retest.runId + ". LAST KNOWN CLIENT STATE. Not indexed evidence. The comparison table still waits for launches on this page.";
+    pairEl.textContent = "Paired from this tab for " + labId + ": ATTACK " + pair.attack.runId + " · RETEST " + pair.retest.runId + ". LAST KNOWN CLIENT STATE. Not indexed evidence. Splunk remains the evidence authority.";
   }
 
   function refreshLauncherRecords(listEl) {
