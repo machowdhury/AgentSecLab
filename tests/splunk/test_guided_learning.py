@@ -87,13 +87,25 @@ def test_curriculum_order_has_a_next_step_and_guide_metadata():
         assert "http://localhost" not in shell
 
 
+#: LIVE workshops default the LIVE run.id box to empty so the bound search shows
+#: no specimen answer before the learner has run anything. The one exception is
+#: LAB-MCP-001, whose Investigation Notebook deliberately offers a specimen
+#: fallback. Dashboard Studio treats an EMPTY token as unset and then never runs
+#: any search that references it ("Set token value to render visualization"),
+#: so that lab needs a real sentinel value. It is "none": not a run.id, matching
+#: no event, so the guide search still shows nothing. Measured on the deployed
+#: dashboard: empty default -> 55 unrendered notebook panels; adding the
+#: documented defaults.tokens stanza with an empty value -> 60.
+LIVE_DEFAULT_EXCEPTIONS = {"ws_lab_mcp_001": "none"}
+
+
 def test_live_workshops_bind_an_empty_run_id_to_an_inline_search():
     for view in LIVE_VIEWS:
         definition = _definition(view)
         text = next(
             inp for inp in definition["inputs"].values() if inp["type"] == "input.text"
         )
-        assert text["options"]["defaultValue"] == ""
+        assert text["options"]["defaultValue"] == LIVE_DEFAULT_EXCEPTIONS.get(view, "")
         query = definition["dataSources"]["ds_guide_events"]["options"]["query"]
         assert '"agentsec.run.id"="$live_run_id$"' in query
         assert 'where "$live_run_id$"!=""' in query

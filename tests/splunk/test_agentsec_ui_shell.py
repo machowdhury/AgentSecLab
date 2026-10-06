@@ -126,7 +126,11 @@ def test_learner_views_use_dropdown_not_uuid_text():
                 # Empty default so the bound search does not show a specimen answer first.
                 assert inp["title"] == "LIVE run.id", f"{name} {inp['title']}"
                 assert inp["options"]["token"] == "live_run_id"
-                assert inp["options"]["defaultValue"] == ""
+                # Empty everywhere except LAB-MCP-001, whose notebook needs a real
+                # sentinel because Studio never runs a search on an empty token.
+                # See LIVE_DEFAULT_EXCEPTIONS in test_guided_learning.py.
+                expected = "none" if name == "ws_lab_mcp_001.xml" else ""
+                assert inp["options"]["defaultValue"] == expected, name
                 text_inputs.append(inp)
                 continue
             assert inp["type"] == "input.dropdown", f"{name} {inp}"

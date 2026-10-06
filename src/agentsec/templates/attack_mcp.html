@@ -137,7 +137,7 @@
           <button class="btn btn-secondary" id="copy-run-id" type="button" disabled>Copy Run ID</button>
         </div>
         <p class="run-help" id="copy-feedback" aria-live="polite">run.id correlates this experiment across runtime, local evidence, telemetry, and Splunk.</p>
-        <p class="run-help">Investigate evidence copies the run.id and opens the guided Investigation Notebook on the workshop's INVESTIGATE tab. Paste it into <strong>LIVE run.id</strong> there: Dashboard Studio has no supported way for this page to fill that field for you.</p>
+        <p class="run-help">Investigate evidence copies the run.id and opens the guided Investigation Notebook on the workshop's INVESTIGATE tab. There, click in <strong>LIVE run.id</strong>, select the <code>none</code> in it (Ctrl+A / Cmd+A), paste, and press Enter: Dashboard Studio has no supported way for this page to fill that field for you.</p>
         <details class="advanced-search">
           <summary>Advanced — open native Splunk Search instead</summary>
           <p>Native Search is the analyst workbench and answers questions the notebook does not. Work the five guided questions first.</p>
@@ -593,8 +593,8 @@
           if (!runOutput.dataset.value) return;
           copyRunId().then(function (copied) {
             document.getElementById("copy-feedback").textContent = copied
-              ? "Run ID copied. Paste it into LIVE run.id on the INVESTIGATE tab."
-              : "Copy failed. Copy the visible run.id and paste it into LIVE run.id.";
+              ? "Run ID copied. In LIVE run.id on the INVESTIGATE tab, select the existing text and paste."
+              : "Copy failed. Copy the visible run.id, then select the existing text in LIVE run.id and paste.";
           });
         });
       });

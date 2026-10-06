@@ -407,21 +407,36 @@ def what_decision_spl(token: str) -> str:
     )
 
 
+#: What the LIVE run.id box holds until the learner replaces it.
+#:
+#: It cannot be empty. Dashboard Studio treats an empty token as unset, and a
+#: search that references an unset token does not run at all: the panel shows
+#: "Set token value to render visualization". Splunk documents this (Defaults
+#: for tokens), and it was measured on the deployed dashboard twice: an empty
+#: input default left every notebook panel blank (55 messages), and adding the
+#: documented defaults.tokens stanza with an empty value changed nothing (60).
+#: The notebook promises that a learner who has not run anything yet reads the
+#: canonical REPLAY specimen, so the "no live run" state needs a real value.
+#: This constant is that value. It is read by the input default AND by the SPL
+#: below, so the two cannot drift. It is not a run.id and matches no event.
+LIVE_RUN_NONE = "none"
+
+
 def notebook_base(event_filter: str = "") -> str:
     """Base search for the Investigation Notebook, bound to the selected run.
 
     The learner may arrive with a fresh LIVE run.id from the workbench, or with
     nothing typed and a REPLAY specimen chosen in the dropdown. Rather than add
     a third input, both existing tokens are offered to the index and the newer
-    one wins. When live_run_id is empty it matches nothing, so the OR collapses
-    to the specimen on its own.
+    one wins. While live_run_id still holds LIVE_RUN_NONE it matches no event, so
+    the OR collapses to the specimen on its own.
     """
     extra = f" {event_filter}" if event_filter else ""
     return (
         "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0"
         f' ("agentsec.run.id"="$live_run_id$" OR "agentsec.run.id"="$run_id$"){extra}\n'
         "| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n"
-        '| eval selected_run=if("$live_run_id$"!="","$live_run_id$","$run_id$")\n'
+        f'| eval selected_run=if("$live_run_id$"=="{LIVE_RUN_NONE}","$run_id$","$live_run_id$")\n'
         "| where run_id==selected_run"
     )
 
@@ -1420,10 +1435,11 @@ You are reconstructing one real run from indexed evidence. Work down the five
 questions in order. Each cell shows the SPL it runs, so you can check the
 answer against the query that produced it.
 
-**Which run is being investigated.** Paste a fresh `run.id` into **LIVE run.id**
-above to investigate your own run. Leave it empty to investigate the canonical
-REPLAY specimen chosen in **Investigate specimen**. Whichever is set drives every
-cell on this tab — the state panel below reports which one it resolved to.
+**Which run is being investigated.** **LIVE run.id** above reads `none` until you
+change it. To investigate your own run, click in the box, select everything in it
+(`Ctrl+A` / `Cmd+A`), paste your fresh `run.id` and press Enter. While it reads
+`none`, every cell investigates the canonical REPLAY specimen chosen in
+**Investigate specimen**. The state panel below reports which one it resolved to.
 
 Every cell prints the complete query it runs, with your run.id already filled
 in. Copy any of them into Splunk Search and you will reproduce that cell's
@@ -1827,9 +1843,6 @@ is not a supported extension. The gate is the warning you are reading.
                 },
                 "splunk.markdown": {"options": {"fontColor": TEXT, "fontSize": "large"}},
             },
-            # EXPERIMENT H1: does a documented token default make an empty LIVE
-            # run.id count as "set"? See notes in the remediation report.
-            "tokens": {"default": {"live_run_id": {"value": ""}}},
         },
         "inputs": {
             "input_run_id": {
@@ -1845,6 +1858,14 @@ is not a supported extension. The gate is the warning you are reading.
                     ],
                 },
             },
+            # Defined here, not left to apply_guided_learning, because that shared
+            # injector defaults every LIVE lab's box to empty and only adds the
+            # input when it is absent. See LIVE_RUN_NONE for why empty is wrong here.
+            "input_live_run": {
+                "type": "input.text",
+                "title": "LIVE run.id",
+                "options": {"token": "live_run_id", "defaultValue": LIVE_RUN_NONE},
+            },
         },
         "dataSources": data_sources,
         "visualizations": visualizations,
@@ -1856,6 +1877,7 @@ is not a supported extension. The gate is the warning you are reading.
             },
             "globalInputs": [
                 "input_run_id",
+                "input_live_run",
             ],
             "tabs": {
                 "options": {"barPosition": "top"},
