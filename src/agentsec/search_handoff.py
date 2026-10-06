@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from urllib.parse import quote, urlencode
 
+from agentsec.workshop_flows import LAB_TO_VIEW
+
 DEFAULT_SPLUNK_WEB = "http://127.0.0.1:8000"
 LOOPBACK_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
 STARTER_EARLIEST = "-1h"
@@ -125,6 +127,26 @@ def rewrite_learner_navigation(url: str, page_origin: str) -> str:
     return url
 
 
+__all__ = ["handoff_doc", "starter_spl", "workshop_url"]
+
+
+def workshop_url(lab_id: str | None, *, splunk_web: str = DEFAULT_SPLUNK_WEB) -> str | None:
+    """Guided workshop for a lab, which is where investigation should start.
+
+    No token is appended. Dashboard Studio has no supported mechanism for an
+    external page to set an input token by URL, so a run.id in the query string
+    would be silently ignored and the learner would trust a field that never
+    filled. The run.id is handed over by clipboard instead.
+
+    The lab-to-view mapping is owned by workshop_flows, which is the module that
+    writes those views. A second copy here drifted the first time it was written.
+    """
+    view = LAB_TO_VIEW.get(lab_id or "")
+    if view is None:
+        return None
+    return f"{splunk_web.rstrip('/')}/en-US/app/agentsec/{view}"
+
+
 def search_url(run_id: str, *, splunk_web: str = DEFAULT_SPLUNK_WEB) -> str:
     query = "search " + starter_spl(run_id)
     encoded = urlencode({"q": query}, quote_via=quote)
@@ -216,12 +238,17 @@ def handoff_doc(
         "copy_run_id": run_id,
         "starter_spl": spl,
         "search_url": search_url(run_id, splunk_web=splunk_web),
+        # Guided notebook first. Native Search stays available as the advanced
+        # path, but it is no longer the only thing offered after a run.
+        "workshop_url": workshop_url(lab_id, splunk_web=splunk_web),
         "reused_hunts": list(hunts),
         "studio_token_binding": "NOT SUPPORTED / DO NOT BUILD",
         "instructions": [
             "Copy the run.id.",
-            "Open Splunk Search (Search & Reporting, or the search_url).",
-            "Paste the starter query. Confirm the run.id matches.",
+            "Open the guided workshop (workshop_url) and paste it into LIVE run.id on INVESTIGATE.",
+            "Studio cannot accept the run.id from the URL, so the paste is required.",
+            "Work the five notebook questions before opening native Search.",
+            "Native Search (search_url) is the advanced path. Paste the starter query there.",
             inspect,
             f"Reuse {' / '.join(hunts[:2])} after substituting this run.id. Do not create a new detector.",
             "This fresh LIVE id is not the canonical REPLAY dropdown.",

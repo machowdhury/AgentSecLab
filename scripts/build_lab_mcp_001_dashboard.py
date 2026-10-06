@@ -407,6 +407,31 @@ def what_decision_spl(token: str) -> str:
     )
 
 
+def notebook_base(event_filter: str = "") -> str:
+    """Base search for the Investigation Notebook, bound to the selected run.
+
+    The learner may arrive with a fresh LIVE run.id from the workbench, or with
+    nothing typed and a REPLAY specimen chosen in the dropdown. Rather than add
+    a third input, both existing tokens are offered to the index and the newer
+    one wins. When live_run_id is empty it matches nothing, so the OR collapses
+    to the specimen on its own.
+    """
+    extra = f" {event_filter}" if event_filter else ""
+    return (
+        "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0"
+        f' ("agentsec.run.id"="$live_run_id$" OR "agentsec.run.id"="$run_id$"){extra}\n'
+        "| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n"
+        '| eval selected_run=if("$live_run_id$"!="","$live_run_id$","$run_id$")\n'
+        "| where run_id==selected_run"
+    )
+
+
+NB_EXECUTION_EVENTS = (
+    '("event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed'
+    ' OR "event.name"=agentsec.mcp.failed OR "event.name"=agentsec.pipeline.stopped)'
+)
+
+
 def build() -> dict:
     q_who = bind_run_id(load_spl("Q-MCP-WHO.spl"), "run_id")
     q_authz = bind_run_id(load_spl("Q-MCP-AUTHZ.spl"), "run_id")
@@ -1124,22 +1149,33 @@ PRINCIPAL → AGENT → REQUEST → CTRL-MCP-001 → HANDLER → TELEMETRY → S
 
 The attacker can influence the requested tool, scope, and arguments in the closed specimen. The browser cannot supply profile, grants, policy, or the authorization decision.
 
-**ATTACK expectation:** known-ungranted `lookup_customer_tier` / `customer:read`; labeled vulnerable fail-open ALLOW; runtime handler count 1.
+## What you are determining
 
-**RETEST expectation:** same request fingerprint; defended DENY `tool_not_granted`; runtime handler count 0.
+The agent is granted `lookup_policy` / `policy:read`. The experiment requests `lookup_customer_tier` / `customer:read`, which this agent is not granted.
+
+Determine, from evidence rather than expectation:
+
+1. Whether CTRL-MCP-001 authorizes the requested tool.
+2. Whether separate runtime evidence shows the handler executed.
+3. What differs between the ATTACK run and the RETEST run.
+
+Predict each answer in the Attack Service workbench **before** you launch. The outcomes are deliberately not stated here — a prediction you have already been given the answer to teaches nothing.
 
 **REQUEST != GRANT · ALLOW != EXECUTION · SPLUNK != ENFORCEMENT**
 
 [Run the LIVE experiment in Attack Service]({ATTACK_URL})
 
-Canonical REPLAY specimens remain available in **Investigate specimen**. Fresh LIVE evidence must be investigated in Splunk Search with the fresh run.id.
+Then bring your fresh `run.id` to **INVESTIGATE**, which is the guided Investigation Notebook for this lab. Canonical REPLAY specimens remain available in **Investigate specimen** if you have not run the experiment yet.
 """,
         title="MISSION",
     )
+    # Retained as PATH B reference material. The learner-facing investigation is
+    # now the Investigation Notebook on INVESTIGATE, which runs the SPL for them
+    # instead of telling them to retype it into Search.
     add_md(
-        "viz_workbench_investigate",
+        "viz_path_a_reference",
         f"""
-# Path A — Investigation story
+# Path A — Investigation story (reference)
 
 Use the selected REPLAY specimen below, or open Search and replace `PASTE-LIVE-RUN-ID` with the fresh UUID from Attack Service.
 
@@ -1168,101 +1204,31 @@ The tables below are supporting evidence, not separate missions. Empty is not DE
     add_md(
         "viz_workbench_evidence",
         """
-# Evidence detail and ATTACK ↔ RETEST
+# Evidence explorer — the raw structured view
+
+**This tab is not the guided investigation.** The question-driven notebook for
+your own run lives on **INVESTIGATE**. Start there. Come here when you already
+know what you are looking for and want the underlying tables side by side.
+
+What this tab adds that the notebook does not:
+
+- The canonical **REPLAY specimens** for ATTACK and RETEST shown together, so
+  you can see the shape of each outcome without running anything.
+- The **Investigate specimen** panels bound to the dropdown above.
+- The **DET-MCP-001** detector panels.
 
 Read control decision separately from handler execution. `ALLOW` does not prove start. `DENY` alone does not prove non-execution. Runtime handler count is authoritative in this lab; indexed `mcp.started` corroborates a complete copy.
 
-The ATTACK and RETEST panels use canonical REPLAY ids. For a fresh LIVE pair, repeat Path A in Search for both run.ids and verify the input fingerprints match. Fingerprint equality proves only equality of the canonical object represented by that hash.
+The ATTACK and RETEST panels use canonical REPLAY ids, not your run. Fingerprint equality proves only equality of the canonical object represented by that hash.
 
 DET-MCP-001 remains disabled and checks only DENY-then-start. Silence is not SAFE.
 """,
-        title="EVIDENCE DETAIL",
+        title="EVIDENCE EXPLORER",
     )
 
-    # --- Evidence notebook -------------------------------------------------
-    # One cell per question: what is asked, what the answer shows, and what it
-    # still does not prove. The queries underneath are the real indexed SPL.
-    notebook_cells = [
-        (
-            "viz_nb_q1",
-            """
-            # Question 1 — Did the agent request a tool it was not granted?
-
-            Read `gen_ai.tool.name` next to the server-owned grant. The normal AcmeBank path is
-            `lookup_policy` with scope `policy:read`. Anything else is outside what this agent was
-            delegated.
-
-            **WHAT THE ANSWER SHOWS** — which tool the agent asked for, under which principal and
-            agent id, on this run.id.
-
-            **WHAT IT DOES NOT PROVE** — nothing about whether the request succeeded. A request is
-            not a grant, and the tool name alone says nothing about authorization or execution.
-            """,
-        ),
-        (
-            "viz_nb_q2",
-            """
-            # Question 2 — What did CTRL-MCP-001 decide?
-
-            Isolate `event.name=agentsec.control.decision` and read
-            `agentsec.control.decision` with `agentsec.control.reason`.
-
-            **WHAT THE ANSWER SHOWS** — the decision the policy decision point actually reached, and
-            the reason it recorded. This is the authorization fact.
-
-            **WHAT IT DOES NOT PROVE** — that the handler ran, or that it did not. ALLOW is not
-            execution. DENY on its own is not proof that nothing else executed. ERROR is neither.
-            """,
-        ),
-        (
-            "viz_nb_q3",
-            """
-            # Question 3 — What scope was requested, and what scope was allowed?
-
-            Compare `agentsec.mcp.requested_scope` with `agentsec.mcp.allowed_scope` on the same
-            decision event. The allowed value is server-owned; the agent cannot edit it.
-
-            **WHAT THE ANSWER SHOWS** — the exact authority gap, in the runtime's own words. This is
-            why the decision came out the way it did.
-
-            **WHAT IT DOES NOT PROVE** — that the gap was enforced. The vulnerable profile records
-            the same gap and still fails open. Enforcement is Question 4.
-            """,
-        ),
-        (
-            "viz_nb_q4",
-            """
-            # Question 4 — Did the tool handler actually begin?
-
-            Look for `agentsec.mcp.started`, then `agentsec.mcp.completed` or
-            `agentsec.mcp.failed`. Start is the execution fact. Completed is success after a start.
-            Failed is execution followed by an error — not prevention.
-
-            **WHAT THE ANSWER SHOWS** — whether a handler began on this copy of the evidence.
-
-            **WHAT IT DOES NOT PROVE** — non-execution. Absence of `mcp.started` here is
-            corroboration only, and only once Question 5 says the copy is complete. Runtime handler
-            count stays authoritative for proving a handler never ran.
-            """,
-        ),
-        (
-            "viz_nb_q5",
-            """
-            # Question 5 — Is the evidence complete enough to conclude anything?
-
-            Count what arrived before interpreting what is missing. Establish the indexed event
-            count for this run.id and compare it against the local evidence bundle.
-
-            **WHAT THE ANSWER SHOWS** — whether you are reading a complete copy or a partial one.
-
-            **WHAT IT DOES NOT PROVE** — safety. An empty search is not SAFE, HEC returning HTTP 200
-            is not indexed evidence, and a silent DET-MCP-001 is not a clean result. Until this
-            question is answered, every absence above is NOT MEASURED rather than NOT HAPPENED.
-            """,
-        ),
-    ]
-    for cell_id, body in notebook_cells:
-        add_md(cell_id, body)
+    # The five evidence-notebook cells that used to live here were replaced by
+    # the real Investigation Notebook on the INVESTIGATE tab, which runs its own
+    # SPL against the learner's selected run instead of narrating REPLAY tables.
 
     # --- Live ATTACK vs RETEST on the learner's own run ids ----------------
     # No new input: the learner's two runs are discriminated by the indexed
@@ -1321,46 +1287,449 @@ DET-MCP-001 remains disabled and checks only DENY-then-start. Silence is not SAF
         ),
     )
 
+    # --- AgentSec Investigation Notebook (INVESTIGATE tab) -----------------
+    # Five cells. Each one asks a question, shows the SPL that answers it,
+    # renders the real result, and states the evidence boundary. Nothing here
+    # asserts an outcome: the answer comes from the learner's own run.
+    nb_state_spl = (
+        notebook_base()
+        + """
+| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
+| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)
+| stats dc(_raw) as indexed_events, values(mode) as mode, values(profile) as profile by run_id
+| eval evidence_state="INDEXED EVIDENCE PRESENT"
+| table run_id, mode, profile, indexed_events, evidence_state"""
+    )
+    nb_decision_spl = (
+        notebook_base('"event.name"=agentsec.control.decision')
+        + """
+| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| table run_id, control_id, tool, decision, reason"""
+    )
+    nb_execution_spl = (
+        notebook_base(NB_EXECUTION_EVENTS)
+        + """
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)
+| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
+| table sequence, event_name, tool, executed
+| sort sequence"""
+    )
+    nb_scope_spl = (
+        notebook_base('"event.name"=agentsec.control.decision')
+        + """
+| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)
+| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)
+| eval scope_relationship=if(requested_scope==allowed_scope,"requested == allowed","requested != allowed")
+| table run_id, tool, requested_scope, allowed_scope, scope_relationship"""
+    )
+    nb_timeline_spl = (
+        notebook_base()
+        + """
+| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
+| eval event_name=mvindex(mvdedup('event.name'),0)
+| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)
+| table _time, sequence, event_name, control_id, decision, executed
+| sort sequence"""
+    )
+    data_sources.update(
+        dict(
+            (
+                search_ds("ds_nb_state", "Q-MCP-NB-STATE", nb_state_spl),
+                search_ds("ds_nb_decision", "Q-MCP-NB-DECISION", nb_decision_spl),
+                search_ds("ds_nb_execution", "Q-MCP-NB-EXECUTION", nb_execution_spl),
+                search_ds("ds_nb_scope", "Q-MCP-NB-SCOPE", nb_scope_spl),
+                search_ds("ds_nb_timeline", "Q-MCP-NB-TIMELINE", nb_timeline_spl),
+            )
+        )
+    )
+
+    nb_no_evidence = (
+        "No indexed events for the selected run.id. That is NOT PROVEN either way: it means this "
+        "query found nothing, not that nothing happened. Check the run.id, then evidence readiness."
+    )
+
+    add_md(
+        "viz_nb_header",
+        f"""
+# AgentSec Investigation Notebook
+
+## LAB-MCP-001 — MCP Tool Authorization
+
+You are reconstructing one real run from indexed evidence. Work down the five
+questions in order. Each cell shows the SPL it runs, so you can check the
+answer against the query that produced it.
+
+**Which run is being investigated.** Paste a fresh `run.id` into **LIVE run.id**
+above to investigate your own run. Leave it empty to investigate the canonical
+REPLAY specimen chosen in **Investigate specimen**. Whichever is set drives every
+cell on this tab — the state panel below reports which one it resolved to.
+
+### Business context — what happened at AcmeBank
+
+A customer applied for a home loan. To answer lending questions the AcmeBank MCP
+policy agent is granted exactly one tool, `lookup_policy`, with scope
+`policy:read`. The run you are investigating requested `lookup_customer_tier`
+with scope `customer:read` — a tool the runtime **knows about** but has not
+granted to this agent.
+
+**KNOWN TOOL != GRANTED TOOL.** A tool appearing in the catalogue is not
+authority to call it.
+
+Your observations in this notebook are **not saved**. Dashboard Studio has no
+supported learner-note store, and inventing one would create a second state
+system alongside session history. Keep your answers somewhere you control.
+""",
+        title="INVESTIGATION NOTEBOOK",
+    )
+    add_table(
+        "viz_nb_state",
+        "ds_nb_state",
+        "Selected run — mode, profile and evidence state",
+        "Resolved from the tokens above. `mode` and `profile` are read from the indexed events "
+        "themselves, not asserted by this page. `indexed_events` is how many events this run has "
+        "in the index; it is a count, not a completeness guarantee.",
+        no_data=nb_no_evidence,
+    )
+
+    add_md(
+        "viz_nb1_q",
+        """
+# 1 of 5 — What did the control decide?
+
+**QUESTION.** What did CTRL-MCP-001 decide for the requested tool?
+
+**WHY THIS MATTERS.** An agent requesting a tool does not mean the request was
+authorized. The decision is a separate fact from the request, and it has to be
+read from the control event rather than assumed from what the agent attempted.
+
+**QUERY.** This is the SPL the table below runs. Studio executes it
+automatically when the token resolves; there is no separate run step.
+
+```text
+... "event.name"=agentsec.control.decision
+| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)
+| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
+| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
+| table run_id, control_id, tool, decision, reason
+```
+
+**WHAT THE EVIDENCE SUPPORTS.** Read `decision` and `reason` from the row
+below. That is what CTRL-MCP-001 returned for this run — ALLOW, DENY, ERROR or
+OBSERVE — and `reason` is the control's own explanation.
+
+**WHAT THIS DOES NOT PROVE.** The decision alone does not prove the requested
+tool executed, and it does not prove nothing else ran. **ALLOW != EXECUTION.**
+Question 2 is a separate query because it is a separate fact.
+
+**YOUR OBSERVATION.** Write down the decision and the reason in your own words
+before moving on. Not saved by this page.
+""",
+    )
+    add_table(
+        "viz_nb1_r",
+        "ds_nb_decision",
+        "Result — CTRL-MCP-001 decision for this run",
+        "The control fact only. Execution is answered by Question 2.",
+        no_data=nb_no_evidence,
+    )
+
+    add_md(
+        "viz_nb2_q",
+        """
+# 2 of 5 — Did downstream execution occur?
+
+**QUESTION.** Did the MCP handler actually start for this run?
+
+**WHY THIS MATTERS.** An authorization decision and an execution are two
+different events. A control can return ALLOW and the handler can still never
+start; a control can return DENY while something else in the run proceeds.
+Neither can be inferred from the other.
+
+**QUERY.** Note what this query does *not* reference: it never reads
+`agentsec.control.decision`. Execution is established from execution events.
+
+```text
+... ("event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed
+     OR "event.name"=agentsec.mcp.failed OR "event.name"=agentsec.pipeline.stopped)
+| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)
+| table sequence, event_name, tool, executed
+| sort sequence
+```
+
+**WHAT THE EVIDENCE SUPPORTS.** `agentsec.mcp.started` is handler start.
+`agentsec.mcp.completed` is success after a start. `agentsec.mcp.failed` is a
+start followed by an error. `agentsec.pipeline.stopped` means the run was halted
+before the handler. Read which of these are present below.
+
+**WHAT THIS DOES NOT PROVE.** An absent `mcp.started` in Splunk is corroborating
+evidence of non-execution, not proof of it: this is an indexed copy, and a
+missing event can mean a missing copy. The runtime handler count shown in the
+Attack Service workbench is the authoritative source for non-execution.
+**CONTROL DECISION != EXECUTION.**
+
+**YOUR OBSERVATION.** Which execution events exist for this run, and what does
+their absence or presence let you say? Not saved by this page.
+""",
+    )
+    add_table(
+        "viz_nb2_r",
+        "ds_nb_execution",
+        "Result — execution evidence for this run",
+        "Execution events only. No row here means this query matched nothing, which is weaker "
+        "than proof that the handler never ran.",
+        no_data=(
+            "No MCP execution event and no pipeline.stopped matched for this run.id. That is NOT "
+            "PROVEN as non-execution on its own — confirm against the runtime handler count."
+        ),
+    )
+
+    add_md(
+        "viz_nb3_q",
+        """
+# 3 of 5 — What was requested, and was it granted?
+
+**QUESTION.** What capability did the agent request, and was it inside the
+scope the server granted it?
+
+**WHY THIS MATTERS.** An agent may know a tool exists without being authorized
+to use it. Catalogue visibility and authority are different things, and
+conflating them is the whole substance of this lab.
+
+**QUERY.**
+
+```text
+... "event.name"=agentsec.control.decision
+| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)
+| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)
+| eval scope_relationship=if(requested_scope==allowed_scope,
+        "requested == allowed","requested != allowed")
+| table run_id, tool, requested_scope, allowed_scope, scope_relationship
+```
+
+**WHAT THE EVIDENCE SUPPORTS.** Both `requested_scope` and `allowed_scope` are
+OBSERVED runtime fields on the indexed control event — the runtime reported the
+grant it evaluated against, so the comparison below is evidence, not assumption.
+
+**WHERE THE GRANT ITSELF COMES FROM.** The grant is **DOCUMENTED configuration**,
+not a runtime event. `src/agentsec/mcp` defines the agent's allowed tool as
+`lookup_policy` with scope `policy:read`. `lookup_customer_tier` /
+`customer:read` is a known tool that is not granted to this agent. Treat that as
+lab configuration you can read in the repository, not as something this query
+discovered.
+
+**WHAT THIS DOES NOT PROVE.** A scope mismatch does not by itself tell you what
+the control decided, or whether anything executed. Those are Questions 1 and 2.
+**KNOWN TOOL != GRANTED TOOL.**
+
+**YOUR OBSERVATION.** State the requested capability, the granted capability,
+and whether they match. Not saved by this page.
+""",
+    )
+    add_table(
+        "viz_nb3_r",
+        "ds_nb_scope",
+        "Result — requested scope vs granted scope (OBSERVED)",
+        "Both scopes are indexed runtime fields. The granted tool list itself is DOCUMENTED "
+        "configuration and is described in the cell above, not queried here.",
+        no_data=nb_no_evidence,
+    )
+
+    add_md(
+        "viz_nb4_q",
+        """
+# 4 of 5 — What was actually indexed for this run?
+
+**QUESTION.** What sequence of evidence exists for this run.id?
+
+**WHY THIS MATTERS.** A security conclusion should be traceable to events you
+can point at. Reading the whole ordered sequence is also how you notice what is
+*missing* — and whether a gap is meaningful or just unsearchable.
+
+**QUERY.** No event filter. Everything indexed for the selected run, in order.
+
+```text
+... ("agentsec.run.id"="$live_run_id$" OR "agentsec.run.id"="$run_id$")
+| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
+| table _time, sequence, event_name, control_id, decision, executed
+| sort sequence
+```
+
+**WHAT THE EVIDENCE SUPPORTS.** The ordered list below is what this run actually
+produced in the index. Read it rather than recalling what a run of this kind
+usually looks like — different profiles produce different sequences, and that
+difference is the finding.
+
+**WHAT THIS DOES NOT PROVE.** The count of rows is not a completeness
+guarantee. HEC accepting an event is not the same as the event being
+searchable, so an absent row may be an absent copy rather than an absent action.
+Evidence completeness is its own question.
+
+**YOUR OBSERVATION.** Write the sequence down. Which events are present, and
+which are absent that you expected? Not saved by this page.
+""",
+    )
+    add_table(
+        "viz_nb4_r",
+        "ds_nb_timeline",
+        "Result — ordered event timeline for this run",
+        "Every indexed event for the selected run.id, ordered by agentsec.sequence.",
+        no_data=nb_no_evidence,
+    )
+
+    add_md(
+        "viz_nb5_q",
+        """
+# 5 of 5 — What can you legitimately conclude?
+
+**QUESTION.** Given only the evidence above, what will you claim?
+
+**WHY THIS MATTERS.** The gap between what happened and what you can show is
+where incident reporting goes wrong. A claim you cannot trace to an event is an
+assumption wearing a conclusion's clothes.
+
+**WRITE FOUR THINGS.**
+
+1. What CTRL-MCP-001 decided, from Question 1.
+2. Whether separate evidence shows downstream execution, from Question 2.
+3. What changed between ATTACK and RETEST, from the comparison below — only if
+   both runs are present.
+4. One thing this evidence does **not** prove.
+
+**USE THE CLAIM VOCABULARY.** Label each statement:
+
+- **PROVEN** — the evidence cannot be true and the claim false.
+- **SUPPORTED** — the evidence is consistent with the claim and weighs for it.
+- **OBSERVED** — you saw this specific fact; you are not generalising from it.
+- **NOT PROVEN** — you cannot establish this either way from what you have.
+
+**WHAT YOU SHOULD NOT WRITE.** "System compromised", "attack successful",
+"system secure" and "retest successful" are all claims about a whole system.
+One tool-authorization run does not reach any of them.
+
+**WHAT THIS DOES NOT PROVE.** Even with both runs in front of you, this evidence
+covers one tool, one agent and one request shape. A DENY here says nothing about
+the next request, a different tool, or a different lab. A matching pair of runs
+shows the control behaved differently under two profiles; it does not show the
+control is correct in general, and it does not prove nothing else executed.
+**ATTACK != UNIVERSAL COMPROMISE · RETEST != UNIVERSAL SECURITY.**
+
+**YOUR OBSERVATION.** Write the four statements with their labels. Not saved by
+this page.
+""",
+    )
+
+    add_md(
+        "viz_nb_advanced",
+        f"""
+# Advanced investigation — open in Splunk Search
+
+The notebook above is the classroom. Native Search is the analyst workbench, and
+you should move to it once you want to ask a question this page does not.
+
+Start from the base search and add your own clauses:
+
+```text
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"="YOUR-RUN-ID"
+```
+
+[Open Splunk Search]({SEARCH_URL}) · [Run another experiment in the Attack Service]({ATTACK_URL})
+
+Native Search is an addition to this notebook, not a replacement for it. Nothing
+you do there changes a control decision: **SPLUNK != ENFORCEMENT.**
+""",
+        title="ADVANCED",
+    )
+
     # viz_flow_diagram is not created here. scripts/apply_workshop_flows.py owns it
     # for every workshop and must run after this script.
     mission_structure = [block("viz_workbench_mission", 0, 0, FULL, 520)]
+    # INVESTIGATE is the guided notebook: question cell, then the evidence that
+    # answers that question, then the next question. The learner meets one
+    # result table at a time instead of five at once.
     investigate_structure = [
-        block("viz_workbench_investigate", 0, 0, FULL, 520),
-        block("viz_prove_what_id", 0, 520, FULL, 230),
-        block("viz_prove_what_dec", 0, 750, FULL, 260),
-        block("viz_observe_seq", 0, 1010, FULL, 380),
-        block("viz_observe_authz", 0, 1390, HALF, 300),
-        block("viz_observe_tool", HALF, 1390, HALF, 300),
+        block("viz_nb_header", 0, 0, FULL, 760),
+        block("viz_nb_state", 0, 768, FULL, 220),
+        block("viz_nb1_q", 0, 996, FULL, 620),
+        block("viz_nb1_r", 0, 1624, FULL, 240),
+        block("viz_nb2_q", 0, 1872, FULL, 700),
+        block("viz_nb2_r", 0, 2580, FULL, 280),
+        block("viz_nb3_q", 0, 2868, FULL, 720),
+        block("viz_nb3_r", 0, 3596, FULL, 240),
+        block("viz_nb4_q", 0, 3844, FULL, 640),
+        block("viz_nb4_r", 0, 4492, FULL, 380),
+        block("viz_nb5_q", 0, 4880, FULL, 720),
+        block("viz_live_pair_intro", 0, 5608, FULL, 280),
+        block("viz_live_pair", 0, 5896, FULL, 320),
+        block("viz_nb_advanced", 0, 6224, FULL, 380),
     ]
-    # Notebook cell, then the evidence that answers it, then the next cell.
+    # EVIDENCE is the raw explorer: the canonical REPLAY specimens side by side,
+    # plus the detector panels. It answers "what does this evidence look like in
+    # general", where INVESTIGATE answers "what happened on my run".
     evidence_structure = [
-        block("viz_workbench_evidence", 0, 0, FULL, 260),
-        block("viz_nb_q1", 0, 260, FULL, 240),
-        block("viz_attack_what_id", 0, 500, HALF, 240),
-        block("viz_retest_what_id", HALF, 500, HALF, 240),
-        block("viz_nb_q2", 0, 740, FULL, 240),
-        block("viz_attack_what_dec", 0, 980, HALF, 280),
-        block("viz_retest_what_dec", HALF, 980, HALF, 280),
-        block("viz_nb_q3", 0, 1260, FULL, 240),
-        block("viz_attack_authz", 0, 1500, HALF, 280),
-        block("viz_retest_authz", HALF, 1500, HALF, 280),
-        block("viz_nb_q4", 0, 1780, FULL, 260),
-        block("viz_attack_exec", 0, 2040, HALF, 300),
-        block("viz_retest_exec", HALF, 2040, HALF, 300),
-        block("viz_nb_q5", 0, 2340, FULL, 260),
-        block("viz_detect_live", 0, 2600, HALF, 340),
-        block("viz_detect_sim", HALF, 2600, HALF, 340),
-        block("viz_live_pair_intro", 0, 2940, FULL, 280),
-        block("viz_live_pair", 0, 3220, FULL, 320),
+        block("viz_workbench_evidence", 0, 0, FULL, 300),
+        block("viz_attack_what_id", 0, 308, HALF, 240),
+        block("viz_retest_what_id", HALF, 308, HALF, 240),
+        block("viz_attack_what_dec", 0, 556, HALF, 280),
+        block("viz_retest_what_dec", HALF, 556, HALF, 280),
+        block("viz_attack_authz", 0, 844, HALF, 280),
+        block("viz_retest_authz", HALF, 844, HALF, 280),
+        block("viz_attack_exec", 0, 1132, HALF, 300),
+        block("viz_retest_exec", HALF, 1132, HALF, 300),
+        block("viz_prove_what_id", 0, 1440, FULL, 230),
+        block("viz_prove_what_dec", 0, 1678, FULL, 260),
+        block("viz_observe_seq", 0, 1946, FULL, 380),
+        block("viz_observe_authz", 0, 2334, HALF, 300),
+        block("viz_observe_tool", HALF, 2334, HALF, 300),
+        block("viz_detect_live", 0, 2642, HALF, 340),
+        block("viz_detect_sim", HALF, 2642, HALF, 340),
     ]
+    # Studio cannot conditionally hide a panel, so this tab cannot be gated by
+    # the platform. The gate it can have is an honest one: the tab is named
+    # ANSWERS, nothing links here before prediction, and this banner is the
+    # first thing on the page.
+    add_md(
+        "viz_path_b_gate",
+        """
+# Stop — this tab contains the answers
+
+Everything below is an **answer key**. It states what CTRL-MCP-001 decides and
+what the execution evidence shows for each mode.
+
+Reading it before you predict and run removes the only part of this lab that
+teaches anything. A prediction you already know the answer to is not a
+prediction.
+
+## Do these first
+
+1. Record your prediction in the Attack Service workbench.
+2. Launch ATTACK, then RETEST.
+3. Work through the five questions on **INVESTIGATE** using your own `run.id`.
+
+Come back here afterwards to check your reasoning, or if you are stuck and have
+already committed to an answer.
+
+**This tab cannot lock itself.** Dashboard Studio has no supported mechanism to
+hide a panel until a condition is met, and faking one with injected JavaScript
+is not a supported extension. The gate is the warning you are reading.
+""",
+        title="ANSWER KEY — READ AFTER PREDICTING",
+    )
     primary_ids = {
         row["item"]
         for row in mission_structure + investigate_structure + evidence_structure
     }
-    path_b_structure: list[dict] = []
-    path_b_y = 0
+    path_b_structure: list[dict] = [block("viz_path_b_gate", 0, 0, FULL, 560)]
+    path_b_y = 560
     for viz_id, viz in visualizations.items():
-        if viz_id in primary_ids:
+        if viz_id in primary_ids or viz_id == "viz_path_b_gate":
             continue
         is_table = viz["type"] == "splunk.table"
         height = 300 if is_table else 520
@@ -1423,8 +1792,8 @@ DET-MCP-001 remains disabled and checks only DENY-then-start. Silence is not SAF
             },
             "layoutDefinitions": {
                 "layout_mission": layout(mission_structure, 540),
-                "layout_investigate": layout(investigate_structure, 1710),
-                "layout_evidence": layout(evidence_structure, 3560),
+                "layout_investigate": layout(investigate_structure, 6604),
+                "layout_evidence": layout(evidence_structure, 2982),
                 "layout_path_b": layout(path_b_structure, path_b_y + 40, display="fit-to-width"),
             },
         },

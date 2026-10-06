@@ -195,7 +195,8 @@ def test_live_rag_attack_and_retest_via_attack_service(acme_client):
     assert "content" not in calls[0][1]
     assert set(calls[0][1]) <= {"document_id", "user_id", "experiment_id"}
     assert "Q-RAG-CONTEXT-AUTHORITY" in a["search_handoff"]["reused_hunts"]
-    assert "document.id" in a["search_handoff"]["instructions"][3]
+    # Lab-specific inspect guidance, wherever it sits in the list.
+    assert any("document.id" in line for line in a["search_handoff"]["instructions"])
     coded = coded_policy()
     assert coded.allowed_tools == ALLOWED_TOOLS == frozenset({"lookup_policy"})
 

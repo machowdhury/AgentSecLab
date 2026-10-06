@@ -131,10 +131,16 @@
         </div>
         <output id="run-id" class="run-id" aria-live="polite">Launch an experiment to mint a UUID</output>
         <div class="compact-actions">
+          <a class="btn btn-primary" id="open-notebook" href="/en-US/app/agentsec/ws_lab_mcp_001" target="_blank" rel="noopener noreferrer">Investigate evidence</a>
           <button class="btn btn-secondary" id="copy-run-id" type="button" disabled>Copy Run ID</button>
-          <a class="btn btn-secondary" id="open-search" href="/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Investigate in Splunk</a>
         </div>
         <p class="run-help" id="copy-feedback" aria-live="polite">run.id correlates this experiment across runtime, local evidence, telemetry, and Splunk.</p>
+        <p class="run-help">Investigate evidence copies the run.id and opens the guided Investigation Notebook on the workshop's INVESTIGATE tab. Paste it into <strong>LIVE run.id</strong> there: Dashboard Studio has no supported way for this page to fill that field for you.</p>
+        <details class="advanced-search">
+          <summary>Advanced — open native Splunk Search instead</summary>
+          <p>Native Search is the analyst workbench and answers questions the notebook does not. Work the five guided questions first.</p>
+          <p><a id="open-search" href="/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Open Splunk Search</a></p>
+        </details>
       </section>
     </div>
 
@@ -217,10 +223,14 @@
     <section class="next-section" aria-labelledby="next-heading">
       <div>
         <p class="eyebrow">Next investigation</p>
-        <h2 id="next-heading">Reconstruct WHO → REQUEST → AUTHZ → EXECUTION → EVIDENCE</h2>
-        <p>Start with the fresh run.id in Splunk Search. Confirm completeness before interpreting an absent event.</p>
+        <h2 id="next-heading">Answer five questions against your own run</h2>
+        <p>The guided Investigation Notebook on the workshop's INVESTIGATE tab walks you through
+        what the control decided, whether anything executed, what was requested versus granted,
+        what was actually indexed, and what you can legitimately conclude. Each cell shows the SPL
+        it runs. Confirm completeness before interpreting an absent event.</p>
+        <p class="muted">Native Splunk Search stays available as advanced investigation, next to the run.id above.</p>
       </div>
-      <a class="btn btn-primary" id="open-search-primary" href="/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Open Splunk Search</a>
+      <a class="btn btn-primary" id="open-notebook-primary" href="/en-US/app/agentsec/ws_lab_mcp_001" target="_blank" rel="noopener noreferrer">Investigate evidence</a>
     </section>
 
     <details class="advanced" id="advanced">
@@ -490,8 +500,17 @@
         if (data.search_handoff) {
           const url = ui.learnerHref(data.search_handoff.search_url || "/en-US/app/search/search");
           document.getElementById("open-search").href = url;
-          document.getElementById("open-search-primary").href = url;
           document.getElementById("starter-spl").value = data.search_handoff.starter_spl || "";
+          /* The workshop URL is server-built so the notebook, not Search, is the
+             default next step. Studio cannot take the run.id from the URL, so the
+             id goes to the clipboard and the learner pastes it into LIVE run.id. */
+          const workshop = ui.learnerHref(
+            data.search_handoff.workshop_url || "/en-US/app/agentsec/ws_lab_mcp_001"
+          );
+          ["open-notebook", "open-notebook-primary"].forEach(function (id) {
+            const link = document.getElementById(id);
+            if (link) link.href = workshop;
+          });
         }
         paintIndependentFacts(data);
         /* The pill reports the launcher only. Control decision, execution, terminal state and
@@ -537,23 +556,45 @@
 
       attackButton.addEventListener("click", () => launch("ATTACK", attackButton.dataset.specimen));
       retestButton.addEventListener("click", () => launch("RETEST", retestButton.dataset.specimen));
-      copyButton.addEventListener("click", async function () {
+
+      async function copyRunId() {
         const value = runOutput.dataset.value || "";
-        if (!value) return;
-        let copied = false;
+        if (!value) return false;
         try {
           await navigator.clipboard.writeText(value);
-          copied = true;
+          return true;
         } catch (_error) {
           const range = document.createRange();
           range.selectNodeContents(runOutput);
           window.getSelection().removeAllRanges();
           window.getSelection().addRange(range);
-          copied = document.execCommand("copy");
+          const copied = document.execCommand("copy");
           window.getSelection().removeAllRanges();
+          return copied;
         }
+      }
+
+      copyButton.addEventListener("click", async function () {
+        if (!runOutput.dataset.value) return;
+        const copied = await copyRunId();
         document.getElementById("copy-feedback").textContent =
           copied ? "Run ID copied. Use it to correlate this experiment." : "Copy failed. Select the visible run.id manually.";
+      });
+
+      /* Studio will not accept the run.id from a URL, so the most we can do is put
+         it on the clipboard as the learner leaves for the notebook. The link still
+         navigates if the copy fails; the notebook also accepts manual entry. */
+      ["open-notebook", "open-notebook-primary"].forEach(function (id) {
+        const link = document.getElementById(id);
+        if (!link) return;
+        link.addEventListener("click", function () {
+          if (!runOutput.dataset.value) return;
+          copyRunId().then(function (copied) {
+            document.getElementById("copy-feedback").textContent = copied
+              ? "Run ID copied. Paste it into LIVE run.id on the INVESTIGATE tab."
+              : "Copy failed. Copy the visible run.id and paste it into LIVE run.id.";
+          });
+        });
       });
       probeButton.addEventListener("click", async function () {
         const runId = probeButton.dataset.runId;
@@ -582,6 +623,53 @@
       }).catch(function () {
         document.getElementById("runtime-health").textContent = "RUNTIME · UNREACHABLE";
       });
+
+      /* The comparison used to read "Not run" after a reload while session history
+         still listed a finished ATTACK and RETEST, which is two surfaces disagreeing
+         about the same runs. Session history keeps only summary fields, so instead of
+         widening it into a second copy of the launch payload, the full record is read
+         back from the launcher it already came from. If the record is gone the row
+         stays NOT MEASURED, which is true rather than reassuring. */
+      (function restoreComparison() {
+        const pair = ui.pairSessionRuns(ui.readSessionRuns(), "LAB-MCP-001");
+        if (!pair) return;
+        const summary = document.getElementById("comparison-summary");
+        if (summary) {
+          summary.textContent =
+            "Restoring the ATTACK and RETEST recorded in this tab from the launcher.";
+        }
+        Promise.all(["attack", "retest"].map(function (which) {
+          const runId = pair[which] && pair[which].runId;
+          if (!runId) return Promise.resolve(null);
+          return fetch("/api/launches/" + encodeURIComponent(runId))
+            .then(function (response) { return response.ok ? response.json() : null; })
+            .catch(function () { return null; });
+        })).then(function (records) {
+          const restored = [];
+          [["ATTACK", records[0]], ["RETEST", records[1]]].forEach(function (entry) {
+            if (entry[1] && entry[1].run_id) {
+              last[entry[0]] = entry[1];
+              restored.push(entry[0]);
+            }
+          });
+          if (!restored.length) {
+            if (summary) {
+              summary.textContent =
+                "This tab recorded ATTACK " + pair.attack.runId + " and RETEST " + pair.retest.runId
+                + ", but the launcher no longer holds their records, so the comparison below cannot "
+                + "be rebuilt. That is a missing record, not a missing run. Splunk still has the "
+                + "indexed evidence for both run.ids.";
+            }
+            return;
+          }
+          renderComparison();
+          if (summary && restored.length === 1) {
+            summary.textContent =
+              "Restored " + restored[0] + " only. The other run's launcher record is no longer "
+              + "available, so its column stays NOT MEASURED.";
+          }
+        });
+      }());
     }());
   </script>
 </body>

@@ -162,7 +162,7 @@ def test_lab_emits_no_llm_events_so_no_surface_may_claim_a_call_count(settings, 
     notebook = " ".join(
         viz["options"]["markdown"]
         for viz_id, viz in WORKSHOP["visualizations"].items()
-        if viz_id.startswith("viz_nb_")
+        if viz_id.startswith("viz_nb") and viz["type"] == "splunk.markdown"
     )
     assert "llm" not in notebook.lower(), "a notebook cell asks about model calls"
 
@@ -202,15 +202,17 @@ def test_behind_the_ai_is_labelled_documented_not_measured():
 
 
 def test_evidence_notebook_states_what_each_answer_does_not_prove():
+    """The notebook cells moved to INVESTIGATE and now run their own SPL, so
+    the question/boundary pairing is asserted on the new cell ids."""
     cells = [
-        viz["options"]["markdown"]
-        for viz_id, viz in WORKSHOP["visualizations"].items()
-        if viz_id.startswith("viz_nb_q")
+        WORKSHOP["visualizations"][f"viz_nb{n}_q"]["options"]["markdown"] for n in range(1, 6)
     ]
     assert len(cells) == 5, "expected five notebook questions"
     for cell in cells:
-        assert "WHAT THE ANSWER SHOWS" in cell
-        assert "WHAT IT DOES NOT PROVE" in cell
+        assert "**QUESTION.**" in cell
+        assert "**WHY THIS MATTERS.**" in cell or "**WHY IT MATTERS.**" in cell
+        assert "**WHAT THIS DOES NOT PROVE.**" in cell or "does not prove" in cell
+        assert "**YOUR OBSERVATION.**" in cell
 
 
 # --- remote safety ---------------------------------------------------------
