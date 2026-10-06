@@ -13,9 +13,14 @@ get the orientation band only, so an empty token cannot search the index.
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from agentsec.workshop_flows import apply_table_format  # noqa: E402
+
 CURRICULUM_PATH = ROOT / "learning" / "academy" / "curriculum.json"
 NAV_PATH = ROOT / "splunk_app" / "agentsec" / "default" / "data" / "ui" / "nav" / "default.xml"
 VIEWS = ROOT / "splunk_app" / "agentsec" / "default" / "data" / "ui" / "views"
@@ -331,51 +336,8 @@ def _search(name: str, query: str) -> dict:
     }
 
 
-# Semantic tones for the two columns a learner misreads most often. Owned here
-# because this script owns viz_guide_events and viz_guide_summary; previously the
-# formatting existed only in the generated artifacts and any regeneration lost it.
-# No green: a decision is never presented as a safe outcome.
-EVIDENCE_COLUMN_FORMAT = {
-    "decision": {
-        "rowBackgroundColors": '> table | seriesByName("decision") | matchValue(decisionBackgrounds)',
-        "rowColors": '> table | seriesByName("decision") | matchValue(decisionText)',
-    },
-    "executed": {
-        "rowBackgroundColors": '> table | seriesByName("executed") | matchValue(executedBackgrounds)',
-        "rowColors": '> table | seriesByName("executed") | matchValue(executedText)',
-    },
-}
-
-EVIDENCE_CONTEXT = {
-    "decisionBackgrounds": [
-        {"match": "ALLOW", "value": "#E8EEF5"},
-        {"match": "DENY", "value": "#F6EBD8"},
-        {"match": "ERROR", "value": "#F8E6E6"},
-        {"match": "OBSERVE", "value": "#F0F3F6"},
-    ],
-    "decisionText": [
-        {"match": "ALLOW", "value": "#3568A8"},
-        {"match": "DENY", "value": "#B7791F"},
-        {"match": "ERROR", "value": "#C62828"},
-        {"match": "OBSERVE", "value": "#3D4654"},
-    ],
-    "executedBackgrounds": [
-        {"match": "true", "value": "#0B1F33"},
-        {"match": "false", "value": "#EEF1F4"},
-        {"match": "1", "value": "#0B1F33"},
-        {"match": "0", "value": "#EEF1F4"},
-    ],
-    "executedText": [
-        {"match": "true", "value": "#FFFFFF"},
-        {"match": "false", "value": "#3D4654"},
-        {"match": "1", "value": "#FFFFFF"},
-        {"match": "0", "value": "#3D4654"},
-    ],
-}
-
-
 def _table(title: str, description: str, source: str) -> dict:
-    return {
+    viz = {
         "type": "splunk.table",
         "title": title,
         "description": description,
@@ -390,10 +352,13 @@ def _table(title: str, description: str, source: str) -> dict:
             "headerBackgroundColor": "#0B1F33",
             "headerTextColor": "#FFFFFF",
             "noDataMessage": NO_DATA,
-            "columnFormat": json.loads(json.dumps(EVIDENCE_COLUMN_FORMAT)),
         },
-        "context": json.loads(json.dumps(EVIDENCE_CONTEXT)),
     }
+    # Same decision/executed semantics every other evidence table uses. These
+    # tables are created here, after apply_workshop_flows.py has run, so they
+    # have to ask for the formatting themselves.
+    apply_table_format(viz)
+    return viz
 
 
 def _block(item: str, y: int, h: int, width: int) -> dict:

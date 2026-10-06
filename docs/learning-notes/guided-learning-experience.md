@@ -10,7 +10,15 @@ A learner was getting lost in a large menu and was sent to Splunk Search for the
 
 ## How does it work?
 
-`learning/academy/curriculum.json` is the order. `scripts/apply_guided_learning.py` writes the grouped navigation and a guide band on the first tab of each workshop. A LIVE workshop adds an empty **LIVE run.id** text token. The table searches `agentsec_telemetry` only when that token is non-empty. A REPLAY workshop that already has an Investigate specimen reuses that token. A workshop with no run token gets the orientation band only.
+`learning/academy/curriculum.json` is the order. `scripts/apply_guided_learning.py` writes the grouped navigation and a guide band on the first tab of each workshop.
+
+Dashboard artifacts are produced by a three-stage pipeline, and the order is load-bearing:
+
+1. `scripts/build_lab_*_dashboard.py` — rebuilds one workshop definition from scratch, discarding anything the later stages added.
+2. `scripts/apply_workshop_flows.py` — stamps `viz_flow_diagram` onto the top of tab one and applies the ALLOW/DENY and executed column semantics to existing evidence tables, for all 31 workshops.
+3. `scripts/apply_guided_learning.py` — must run last. It adds the guide shell and the guide tables, and pins the flow image above its own blocks.
+
+Stage 2 existed as `agentsec.workshop_flows` but had no caller, so every build script silently deleted the architecture image from its view and nothing put it back. `tests/splunk/test_generator_owns_mcp_workshop_surface.py` now proves the stage restores all 31 after a simulated rebuild and that running it twice changes nothing. A LIVE workshop adds an empty **LIVE run.id** text token. The table searches `agentsec_telemetry` only when that token is non-empty. A REPLAY workshop that already has an Investigate specimen reuses that token. A workshop with no run token gets the orientation band only.
 
 Your path is a classic Splunk view, `learner_path`, with app JavaScript. It stores NOT STARTED, IN PROGRESS, and INVESTIGATED in `localStorage`. Reset removes that key. It does not delete an index.
 
