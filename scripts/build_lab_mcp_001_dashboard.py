@@ -1280,14 +1280,14 @@ DET-MCP-001 remains disabled and checks only DENY-then-start. Silence is not SAF
 | eval is_started=if(event_name="agentsec.mcp.started",1,0)
 | eval is_completed=if(event_name="agentsec.mcp.completed",1,0)
 | eval is_failed=if(event_name="agentsec.mcp.failed",1,0)
-| stats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name="agentsec.control.decision",decision,null()))) as decision, latest(eval(if(event_name="agentsec.control.decision",reason,null()))) as reason, latest(eval(if(event_name="agentsec.control.decision",requested_scope,null()))) as requested_scope, latest(eval(if(event_name="agentsec.control.decision",allowed_scope,null()))) as allowed_scope, latest(eval(if(event_name="agentsec.control.decision",profile,null()))) as profile, latest(eval(if(event_name="agentsec.control.decision",mode,null()))) as mode, values(tool) as tool, dc(_raw) as indexed_events, latest(_time) as last_seen by run_id
+| stats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name="agentsec.control.decision",decision,null()))) as decision, latest(eval(if(event_name="agentsec.control.decision",reason,null()))) as reason, latest(eval(if(event_name="agentsec.control.decision",requested_scope,null()))) as requested_scope, latest(eval(if(event_name="agentsec.control.decision",allowed_scope,null()))) as allowed_scope, latest(eval(if(event_name="agentsec.control.decision",profile,null()))) as profile, latest(eval(if(event_name="agentsec.control.decision",mode,null()))) as mode, values(tool) as tool, dc(_raw) as matched_events, latest(_time) as last_seen by run_id
 | eval execution_state=case(has_completed=1,"mcp.completed",has_failed=1,"mcp.failed",has_started=1,"mcp.started",decision="ALLOW","ALLOW_execution_not_proven_in_this_copy",1=1,"no_mcp_execution_event")
 | eval scope_gap=if(requested_scope==allowed_scope,"requested == allowed","requested != allowed")
 | where mode="ATTACK" OR mode="RETEST"
 | sort - last_seen
 | dedup mode
 | eval last_seen=strftime(last_seen,"%Y-%m-%d %H:%M:%S")
-| table mode, run_id, profile, tool, requested_scope, allowed_scope, scope_gap, decision, reason, execution_state, indexed_events, last_seen
+| table mode, run_id, profile, tool, requested_scope, allowed_scope, scope_gap, decision, reason, execution_state, matched_events, last_seen
 | sort mode"""
     data_sources.update(
         dict((search_ds("ds_live_pair", "Q-MCP-LIVE-PAIR", live_pair_spl),))
@@ -1313,7 +1313,8 @@ DET-MCP-001 remains disabled and checks only DENY-then-start. Silence is not SAF
         "ds_live_pair",
         "ATTACK ↔ RETEST (your live run.ids)",
         "One row per run.id. `decision` is the control fact; `execution_state` is the execution "
-        "fact; they are read separately. `indexed_events` is completeness, not safety.",
+        "fact; they are read separately. `matched_events` counts only the events this query "
+        "matched, so it is smaller than the run total and is not a completeness answer.",
         no_data=(
             "No indexed events were found for the run.ids entered above. That is not DENY and not "
             "proof of prevention. Check that both ids are pasted, then re-check evidence readiness."
