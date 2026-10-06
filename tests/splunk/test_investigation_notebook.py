@@ -722,3 +722,61 @@ def test_no_jupyter_or_second_query_engine_was_introduced():
         assert viz["type"] in {"splunk.markdown", "splunk.table", "splunk.image"}
     for ds in DS.values():
         assert ds["type"] == "ds.search"
+
+
+# --- the pre-run specimen fallback actually engages ---------------------------
+#
+# Found only in a real browser. With the LIVE run.id box empty, Dashboard Studio
+# treats the token as unset and never runs a search that references it, so the
+# documented fallback ("investigate the canonical specimen until you have a run")
+# rendered 55 "Set token value to render visualization" panels. Splunk documents
+# this under "Defaults for tokens". An empty defaults.tokens value did not help
+# (60 panels). These tests pin the contract that does work.
+
+LIVE_INPUT = WORKSHOP["inputs"]["input_live_run"]
+NOTEBOOK_SPLS = [DS[ds_id]["options"]["query"] for ds_id in NOTEBOOK_SOURCES]
+
+
+def test_live_run_box_has_a_non_empty_default():
+    """An empty default is the bug. Studio never runs a search on an unset token."""
+    default = LIVE_INPUT["options"]["defaultValue"]
+    assert default, "an empty LIVE run.id default leaves every notebook panel unrendered"
+    assert LIVE_INPUT["options"]["token"] == "live_run_id"
+    assert "input_live_run" in WORKSHOP["layout"]["globalInputs"]
+
+
+def test_the_default_is_the_constant_the_sql_tests_against():
+    """One constant feeds both sides, so the input and the SPL cannot drift."""
+    default = LIVE_INPUT["options"]["defaultValue"]
+    for query in NOTEBOOK_SPLS:
+        assert f'if("$live_run_id$"=="{default}","$run_id$","$live_run_id$")' in query
+
+
+def test_the_default_can_never_be_mistaken_for_a_run_id():
+    """It must match no event, or the fallback would silently investigate a run."""
+    default = LIVE_INPUT["options"]["defaultValue"]
+    assert not re.fullmatch(r"[0-9a-fA-F]{8}-[0-9a-fA-F-]{27}", default)
+    for pack in (ROOT / "learning" / "level_1" / "LAB-MCP-001" / "specimens").glob("*.jsonl"):
+        for line in pack.read_text(encoding="utf-8").splitlines():
+            event = json.loads(line)
+            assert event.get("agentsec.run.id") != default
+
+
+def test_no_notebook_search_is_left_depending_on_an_empty_token():
+    """The old test, `$live_run_id$ != ""`, can never be true once a default exists."""
+    for query in NOTEBOOK_SPLS:
+        assert '"$live_run_id$"!=""' not in query
+
+
+def test_an_empty_token_default_is_not_reintroduced_by_a_defaults_stanza():
+    """Measured to do nothing; keeping dead configuration only misleads."""
+    assert "tokens" not in WORKSHOP.get("defaults", {})
+
+
+def test_workbench_tells_the_learner_to_replace_the_default_before_pasting():
+    """A prefilled box appends a paste unless the text is selected first."""
+    assert "select the <code>none</code>" in WORKBENCH
+    assert "select the existing text" in WORKBENCH
+    header = _markdown("viz_nb_header")
+    assert "reads `none`" in header and "select everything" in header
+    assert "Leave it empty" not in _all_markdown()
