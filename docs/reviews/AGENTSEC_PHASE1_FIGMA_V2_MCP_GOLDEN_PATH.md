@@ -23,23 +23,29 @@ Implementation report for the LAB-MCP-001 reference journey.
 **CONDITIONAL — REMEDIATION REQUIRED BEFORE INDEPENDENT PILOT**
 
 The evidence chain at the heart of the golden path is implemented and verified
-live against real indexed telemetry. Two things block an independent pilot:
+live against real indexed telemetry. **One** thing now blocks an independent
+pilot:
 
 1. **Every click-dependent behaviour is NOT TESTED.** This was the agreed
-   validation scope. See §7 for the browser checklist that closes it.
-2. **The System/Build Information surface was not implemented.** See §6.3.
+   validation scope — I have SSM shell access to the host but no browser, so
+   the rendered interaction gates cannot be observed by me at all. See §7 for
+   the checklist that closes it.
 
-Neither is an architectural or evidence blocker. The runtime, control,
-telemetry and SPL layers are sound and measured.
+This is not an architectural or evidence blocker. The runtime, control,
+telemetry and SPL layers are sound and measured. The verdict stays CONDITIONAL
+rather than READY because "the DOM contains the right markup" is not the same
+claim as "a learner can complete the journey," and only the second one
+qualifies a pilot.
 
-Two items originally listed here as blockers were closed after this report was
-first written, and are verified live on the host:
+The three items originally listed here as blockers have all been closed since
+this report was first written, each verified live on the host:
 
-- AcmeBank being unreachable by a remote learner — resolved in `8c195d4` by
-  serving WORLD 1 read-only from the Attack Service, without exposing AcmeBank.
-  See §6.1.
+- AcmeBank unreachable by a remote learner — resolved in `8c195d4` by serving
+  WORLD 1 read-only from the Attack Service, without exposing AcmeBank. §6.1.
 - The unowned flow image across 30 other views — resolved in `fe8934a` by
-  giving `agentsec.workshop_flows` a named pipeline stage. See §6.2.
+  giving `agentsec.workshop_flows` a named pipeline stage. §6.2.
+- System/Build Information not implemented — resolved in `7c08b2d` as a bounded
+  BUILD tab on Home, build identity only, no live service health. §6.3.
 
 ---
 
@@ -341,11 +347,53 @@ declared canvas height is smaller than its content bottom, because
 `apply_guided_learning` adds roughly 1400px without bumping the height. This
 predates the golden path work and changing it would touch every view.
 
-### 6.3 System / Build Information surface — NOT IMPLEMENTED
+### 6.3 System / Build Information surface — RESOLVED (`7c08b2d`)
 
-In scope per the brief and not built. No partial version was shipped and
-nothing was faked. The underlying facts (app build 4, version 1.1.0, schema
-1.9.0, external contract 1.0.0) are all available; only the surface is missing.
+Implemented as a fifth **BUILD** tab on the Home view, bounded exactly as the
+mapping doc required: packaged identity only, no live service health.
+
+Every value is read at dashboard build time from the file that owns it. A
+literal here would drift the moment one of those files changed, and the panel
+would then assert a build the lab is not running — the exact confusion the
+app-build URL segment exists to resolve.
+
+| Fact | Source of truth |
+| --- | --- |
+| AgentSec version 1.1.0 | `pyproject.toml` |
+| Splunk app build 4 | `[install] build` in `app.conf` |
+| Static asset digest `589e739d0798fb44…` | `splunk_app/static_cache_identity.json` |
+| Telemetry schema 1.9.0 | `agentsec.experiment.SCHEMA_VERSION` |
+| ExternalEvidence contract 1.0.0 | `agentsec.external_evidence.contract` |
+| 11 levels, 19 labs, 12 checkpoints | `learning/academy/curriculum.json` |
+
+Live service health is deliberately absent. Studio cannot poll a non-Splunk
+endpoint, so a Ready/Degraded card would be fiction, and it would collapse
+three independent facts. A second panel states the required separation —
+**SERVICE HEALTH ≠ EVIDENCE READINESS ≠ MODEL QUALITY** — with the four
+specific non-implications: Attack Service HTTP 200 does not prove a lab works,
+HEC health does not prove indexing, a listed Ollama model does not prove
+generation quality, and the degraded KV Store (§6.4) does not mean the Academy
+is unavailable.
+
+The change is purely additive: the four existing tabs are byte-identical and no
+visualization was removed.
+
+`tests/splunk/test_build_information_panel.py` (18 tests) asserts each value
+against its source file read independently, so drift fails rather than passing
+quietly. Verified by bumping the app build and the asset digest without
+regenerating — both are caught.
+
+Verified on the host after deploy (MEASURED): the deployed view carries tabs
+`START, ORIENT, PATH, SPLUNK, BUILD`, the panel reports app build **4**, and
+`/opt/splunk/etc/apps/agentsec/default/app.conf` also reports build **4**, so
+the panel and the running instance agree.
+
+**One defect worth recording.** The first draft rendered the facts as a GFM
+table. Splunk Studio markdown does not render GFM tables, so a learner would
+have seen raw pipe characters. This was caught by the pre-existing
+`test_no_gfm_tables_in_studio_markdown`, not by me. Replaced with the
+definition-list form the mapping doc had specified, and the constraint is now
+pinned locally for this panel as well.
 
 ### 6.4 Splunk KV Store
 
@@ -392,6 +440,13 @@ Attack Workbench, `http://<host>:5001/labs/LAB-MCP-001`:
    as".
 
 Splunk workshop, `http://<host>:8000/en-US/app/agentsec/ws_lab_mcp_001`:
+
+9a. Home shows a fifth **BUILD** tab, and it reports app build **4** — the same
+    value as the `@<splunk build>.<push>-4` segment in the static URL your
+    browser actually requested for `agentsec_learner_path.js`. If those two
+    disagree, you are looking at a cached copy.
+9b. The BUILD tab shows no service status cards and no "Run checks" button, and
+    the separation panel renders as prose, not raw `|` pipes.
 
 10. MISSION shows the architecture image first, above the guided panel.
 11. EVIDENCE shows the five notebook cells interleaved with their evidence, and
