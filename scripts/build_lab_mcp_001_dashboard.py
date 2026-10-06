@@ -1826,7 +1826,10 @@ is not a supported extension. The gate is the warning you are reading.
                     }
                 },
                 "splunk.markdown": {"options": {"fontColor": TEXT, "fontSize": "large"}},
-            }
+            },
+            # EXPERIMENT H1: does a documented token default make an empty LIVE
+            # run.id count as "set"? See notes in the remediation report.
+            "tokens": {"default": {"live_run_id": {"value": ""}}},
         },
         "inputs": {
             "input_run_id": {

@@ -21,6 +21,13 @@
           "fontSize": "large"
         }
       }
+    },
+    "tokens": {
+      "default": {
+        "live_run_id": {
+          "value": ""
+        }
+      }
     }
   },
   "inputs": {
