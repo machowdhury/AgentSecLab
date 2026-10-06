@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgentSec Phase 1 — learner UX proposal (static mockup)</title>
+<style>
+/* DESIGN PROPOSAL ONLY. Static HTML mockup. Not part of the product, not shipped, no script. */
+:root{
+  --ink:#0B1F33; --ink-2:#17202A; --muted:#4A5663; --line:#D9E0E7; --page:#F6F8FB; --card:#FFFFFF;
+  --teal:#00585D; --teal-tint:#E1F2F2; --brand-teal:#007F86;
+  --info:#234E8A; --info-tint:#E8EEF5;        /* ALLOW-style: informational, never "good" */
+  --warn:#7A4E00; --warn-tint:#F6EBD8;        /* DENY-style: informational, never "safe" */
+  --gray:#3D4654; --gray-tint:#EEF1F4;
+  --w1:#5B4636; --w1-tint:#F1EBE4;            /* world 1 business */
+  --w2:#2F3E8F; --w2-tint:#E9ECF8;            /* world 2 AI / security */
+  --w3:#00585D; --w3-tint:#E1F2F2;            /* world 3 observability */
+  --focus:#00585D;
+  font-family: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#E7ECF1;color:var(--ink-2);font-size:16px;line-height:1.5}
+a{color:var(--teal)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;box-shadow:0 0 0 5px #fff}
+.doc{max-width:1320px;margin:0 auto;padding:24px}
+.doc h1{margin:0 0 8px;font-size:28px;color:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+.tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;font-weight:700;border:1px solid var(--line);background:#fff}
+.tag.app{background:var(--teal-tint);color:var(--teal);border-color:#9fd0d2}
+.tag.studio{background:var(--w2-tint);color:var(--w2);border-color:#b5bce8}
+.tag.constrained{background:var(--warn-tint);color:var(--warn);border-color:#e3c898}
+.frame{margin:28px auto;background:#fff;border:1px solid #b9c4cf;box-shadow:0 1px 3px rgba(11,31,51,.12);width:max-content;max-width:100%}
+.frame-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:8px 14px;background:var(--ink);color:#fff;font-size:14px}
+.frame-bar b{font-size:15px}
+.canvas{background:var(--page);padding:24px}
+.w1280{width:1280px}.w390{width:390px}.w1000{width:1000px}
+.row{display:flex;gap:20px;align-items:flex-start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:20px}
+.eyebrow{margin:0 0 6px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--teal)}
+h2{margin:0 0 8px;font-size:26px;line-height:1.25;color:var(--ink)}
+h3{margin:0 0 6px;font-size:18px;color:var(--ink)}
+p{margin:0 0 10px}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;background:var(--gray-tint);padding:1px 5px;border-radius:3px}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 18px;border-radius:6px;font-size:16px;font-weight:700;border:2px solid var(--ink);background:#fff;color:var(--ink);text-decoration:none}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.disabled{border-color:#9aa6b2;color:#5b6773;background:#eef1f4}
+.btn small{font-weight:400;font-size:14px}
+/* world chips */
+.world{display:inline-block;padding:2px 10px;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:.04em}
+.w-1{background:var(--w1-tint);color:var(--w1);border:1px solid #d9c9b8}
+.w-2{background:var(--w2-tint);color:var(--w2);border:1px solid #b5bce8}
+.w-3{background:var(--w3-tint);color:var(--w3);border:1px solid #9fd0d2}
+/* LIVE / REPLAY badges: differ by shape, border style and word, not only colour */
+.live{display:inline-flex;gap:8px;align-items:center;background:var(--ink);color:#fff;padding:4px 12px;border-radius:4px;font-weight:800;letter-spacing:.04em;font-size:15px}
+.live::before{content:"●";font-size:12px}
+.replay{display:inline-flex;gap:8px;align-items:center;background:#fff;color:var(--ink);padding:2px 12px;border-radius:4px;font-weight:800;letter-spacing:.04em;font-size:15px;border:2px dashed var(--ink)}
+.replay::before{content:"⟲";font-size:15px}
+/* progress rail */
+.rail{list-style:none;margin:0;padding:0;display:flex}
+.rail li{flex:1;position:relative;text-align:center;padding-top:0;font-size:14px}
+.rail li::before{content:"";position:absolute;top:19px;left:-50%;width:100%;height:3px;background:var(--line);z-index:0}
+.rail li:first-child::before{display:none}
+.rail li.done::before,.rail li.current::before{background:var(--ink)}
+.dot{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;font-weight:800;background:#fff;border:3px solid #9aa6b2;color:var(--muted);font-size:16px}
+.rail .done .dot{background:var(--ink);border-color:var(--ink);color:#fff}
+.rail .current .dot{border-color:var(--teal);box-shadow:0 0 0 4px var(--teal-tint);color:var(--teal);background:#fff}
+.rail .next .dot{border-color:var(--ink);color:var(--ink)}
+.rail .lbl{display:block;margin-top:6px;font-weight:700;color:var(--ink-2);letter-spacing:.03em}
+.rail .later .lbl{color:var(--muted);font-weight:600}
+.rail .st{display:block;font-size:13px;color:var(--muted)}
+.rail .current .st{color:var(--teal);font-weight:800}
+.vrail{list-style:none;margin:0;padding:0}
+.vrail li{display:flex;gap:12px;align-items:center;padding:6px 0;font-size:15px}
+.vrail .dot{width:30px;height:30px;font-size:14px;border-width:2px}
+.vrail .done .dot{background:var(--ink);border-color:var(--ink);color:#fff}
+.vrail .current .dot{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-tint);color:var(--teal)}
+.vrail .current{font-weight:800}
+/* next-step bar */
+.next-bar{display:flex;gap:16px;align-items:center;justify-content:space-between;background:var(--teal-tint);border:1px solid #9fd0d2;border-left:6px solid var(--teal);border-radius:6px;padding:14px 18px}
+.next-bar b{color:var(--teal)}
+/* three-column facts */
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:14px 0}
+.three>div{border:1px solid var(--line);border-radius:6px;padding:12px;background:#fff}
+.three h4{margin:0 0 4px;font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+/* radio cards */
+.choices{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 14px}
+.choice{min-width:96px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--line);border-radius:6px;padding:8px 14px;font-weight:700;background:#fff}
+.choice.on{border-color:var(--ink);background:var(--ink);color:#fff}
+.choice.on::before{content:"◉"}
+.choice::before{content:"○"}
+/* semantic status pills: text always present */
+.pill{display:inline-block;padding:2px 10px;border-radius:4px;font-weight:800;font-size:14px;letter-spacing:.03em}
+.pill.allow{background:var(--info-tint);color:var(--info);border:1px solid #b6c8e0}
+.pill.deny{background:var(--warn-tint);color:var(--warn);border:1px solid #e3c898}
+.pill.yes{background:var(--ink);color:#fff}
+.pill.no{background:var(--gray-tint);color:var(--gray);border:1px solid #cfd6dd}
+/* compare table */
+table.cmp{width:100%;border-collapse:collapse;font-size:16px;background:#fff}
+table.cmp th,table.cmp td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}
+table.cmp thead th{background:var(--ink);color:#fff;font-size:15px;letter-spacing:.05em}
+table.cmp tbody th{background:var(--gray-tint);width:24%;font-weight:700}
+table.cmp td.note{color:var(--muted);font-size:14px}
+.disclosure{border:1px solid var(--line);border-radius:6px;background:#fff;margin-top:12px}
+.disclosure>summary{cursor:pointer;padding:12px 14px;font-weight:700;min-height:44px}
+.disclosure[open]>summary{border-bottom:1px solid var(--line)}
+.disclosure .body{padding:12px 14px}
+pre.spl{margin:0;background:#101c28;color:#e8eef5;padding:14px;border-radius:4px;font-size:14px;line-height:1.5;overflow-x:auto;white-space:pre}
+/* notebook cell (Studio-constrained) */
+.cell{background:#fff;border:1px solid var(--line);border-left:6px solid var(--w3);border-radius:4px}
+.cell>section{padding:12px 18px;border-top:1px solid var(--line)}
+.cell>section:first-child{border-top:0}
+.cell .k{display:block;font-size:13px;font-weight:800;letter-spacing:.07em;color:var(--w3);text-transform:uppercase;margin-bottom:2px}
+.cell .k.no{color:var(--warn)}
+.cell .prompt{background:var(--page);border:1px dashed #9aa6b2}
+.cell .cap{background:var(--ink);color:#fff;border-radius:4px;padding:6px 12px;font-size:14px}
+.cell .cap code{background:#2c4157;color:#fff}
+.cell.spl-demoted pre{font-size:13px}
+.note-box{border:1px solid #e3c898;background:var(--warn-tint);color:#4d3000;border-radius:4px;padding:8px 12px;font-size:14px}
+.banner-live{display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--ink);color:#fff;border-radius:6px;padding:14px 18px}
+.banner-live .live{background:#fff;color:var(--ink)}
+.banner-replay{display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:#fff;border:2px dashed var(--ink);border-radius:6px;padding:14px 18px}
+.field{border:1px solid #7a8794;background:#fff;border-radius:4px;padding:8px 10px;min-height:40px;font-size:15px}
+.label{display:block;font-size:14px;font-weight:700;margin-bottom:4px}
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--line);flex-wrap:wrap}
+.tabs span{padding:10px 16px;font-weight:700;font-size:15px;color:var(--muted)}
+.tabs .on{color:var(--ink);border-bottom:4px solid var(--teal);margin-bottom:-2px}
+.hdr{background:var(--ink);color:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.hdr b{font-size:20px}
+.hdr .meta{display:flex;gap:8px;flex-wrap:wrap;font-size:14px}
+.hdr .meta span{border:1px solid #5b7188;padding:2px 10px;border-radius:999px}
+.stack>*+*{margin-top:16px}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cols-main{display:grid;grid-template-columns:1fr 340px;gap:20px}
+.checklist{list-style:none;margin:0;padding:0;font-size:15px}
+.checklist li{padding:4px 0}
+.checklist li::before{content:"○ ";font-weight:800}
+.checklist li.d::before{content:"✓ "}
+.checklist li.c::before{content:"● ";color:var(--teal)}
+.kbd{border:1px solid #9aa6b2;border-bottom-width:2px;border-radius:4px;padding:0 6px;font-size:13px;background:#fff}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="doc">
+  <h1>AgentSec Phase 1 — learner UX proposal</h1>
+  <p><b>DESIGN PROPOSAL. Static mockup, not the product.</b> It changes nothing in the validated application (b68d0dd).
+  Frames show layout, hierarchy and wording. Evidence values come from <b>MEASURED</b> fresh runs on 2026-10-06
+  (ATTACK <span class="mono">12f0269f-b06c-4db8-a224-6c42bc9521c0</span>, RETEST <span class="mono">ea25befa-900b-4a2b-b04c-cbb09e7ae4a3</span>)
+  and the <b>REPLAYED</b> baseline specimen <span class="mono">163d11e2-e751-4282-9406-19b490542ed4</span>. Nothing is invented; LAB-MCP-001 has no LLM events and none are drawn.
+  Learner choices (predictions, checklist ticks) are example selections of <b>learning state</b>, never evidence.</p>
+  <div class="legend">
+    <span class="tag app">SURFACE · AgentSec web app (Flask) — full layout freedom</span>
+    <span class="tag studio">SURFACE · Dashboard Studio — markdown/table/image/input only</span>
+    <span class="tag constrained">SUPPORTED WITH CONSTRAINTS — read the frame note</span>
+  </div>
+</div>
+
+<!-- ============================ FRAME 01 ============================ -->
+<section class="frame w1280" aria-label="Frame 01 progress rail">
+  <div class="frame-bar"><b>FRAME 01</b> Progress rail + world chips · desktop 1280 and narrow 390 <span class="tag app">AgentSec web app</span></div>
+  <div class="canvas stack">
+    <div class="card">
+      <p class="eyebrow">Desktop rail — state is shown by shape, border and a word, never by green or red</p>
+      <ol class="rail" aria-label="Learning loop, step 4 of 9">
+        <li class="done"><span class="dot" aria-hidden="true">✓</span><span class="lbl">LEARN</span><span class="st">Done</span></li>
+        <li class="done"><span class="dot" aria-hidden="true">✓</span><span class="lbl">BASELINE</span><span class="st">Done</span></li>
+        <li class="done"><span class="dot" aria-hidden="true">✓</span><span class="lbl">PREDICT</span><span class="st">Done</span></li>
+        <li class="current" aria-current="step"><span class="dot" aria-hidden="true">4</span><span class="lbl">ATTACK</span><span class="st">You are here</span></li>
+        <li class="next"><span class="dot" aria-hidden="true">5</span><span class="lbl">INVESTIGATE</span><span class="st">Next</span></li>
+        <li class="later"><span class="dot" aria-hidden="true">6</span><span class="lbl">DEFEND</span><span class="st">Later</span></li>
+        <li class="later"><span class="dot" aria-hidden="true">7</span><span class="lbl">RETEST</span><span class="st">Later</span></li>
+        <li class="later"><span class="dot" aria-hidden="true">8</span><span class="lbl">COMPARE</span><span class="st">Later</span></li>
+        <li class="later"><span class="dot" aria-hidden="true">9</span><span class="lbl">EXPLAIN</span><span class="st">Later</span></li>
+      </ol>
+      <p class="small muted" style="margin-top:14px">Rail state is <b>learning state</b> held in this browser tab. It is not evidence and not a control decision. Hovering or focusing a step shows what completes it.</p>
+    </div>
+    <div class="row">
+      <div class="card" style="flex:1">
+        <p class="eyebrow">Three-world chips — shown in every step header</p>
+        <p><span class="world w-1">WORLD 1 · BUSINESS</span> AcmeBank, the customer's intent</p>
+        <p><span class="world w-2">WORLD 2 · AI / SECURITY</span> agent request, authorization, tools, controls</p>
+        <p><span class="world w-3">WORLD 3 · OBSERVABILITY</span> runtime evidence, Splunk investigation</p>
+        <p style="margin-top:12px"><span class="live">LIVE · YOUR EXPERIMENT</span>&nbsp; <span class="replay">REPLAY · RECORDED EXAMPLE</span></p>
+        <p class="small muted">LIVE is solid with a filled dot. REPLAY is dashed with a rewind glyph. Neither relies on colour.</p>
+      </div>
+      <div class="card w390" style="width:390px;flex:none">
+        <p class="eyebrow">Narrow rail (390) — collapses to one line, expands on demand</p>
+        <p style="margin-bottom:6px"><b>Step 4 of 9 · ATTACK</b> <span class="small muted">Next: INVESTIGATE</span></p>
+        <details class="disclosure" open style="margin-top:6px">
+          <summary>All 9 steps</summary>
+          <div class="body">
+            <ol class="vrail">
+              <li class="done"><span class="dot">✓</span>LEARN</li>
+              <li class="done"><span class="dot">✓</span>BASELINE</li>
+              <li class="done"><span class="dot">✓</span>PREDICT</li>
+              <li class="current"><span class="dot">4</span>ATTACK — you are here</li>
+              <li><span class="dot">5</span>INVESTIGATE — next</li>
+              <li><span class="dot">6</span>DEFEND</li>
+              <li><span class="dot">7</span>RETEST</li>
+              <li><span class="dot">8</span>COMPARE</li>
+              <li><span class="dot">9</span>EXPLAIN</li>
+            </ol>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FRAME 02 ============================ -->
+<section class="frame w1280" aria-label="Frame 02 baseline and predict">
+  <div class="frame-bar"><b>FRAME 02</b> Step 2 BASELINE · Step 3 PREDICT · desktop <span class="tag app">AgentSec web app</span></div>
+  <div class="canvas stack">
+    <div class="row">
+      <article class="card" style="flex:1">
+        <p class="eyebrow">Step 2 of 9 · BASELINE &nbsp;<span class="world w-2">WORLD 2</span> <span class="world w-3">WORLD 3</span></p>
+        <h2>Before you attack, learn what normal looks like</h2>
+        <p>A customer applies for a home loan. To answer lending questions the AcmeBank policy agent is granted exactly one tool:
+        <code>lookup_policy</code> with scope <code>policy:read</code>. That request is <b>normal</b>: the control decides, the handler starts, the telemetry records it.</p>
+        <p class="mono" style="display:block;padding:8px 10px">normal loan workflow → agent needs policy information → lookup_policy is granted → observe normal evidence</p>
+        <div class="banner-replay" style="margin:12px 0">
+          <span class="replay">REPLAY · RECORDED EXAMPLE</span>
+          <span>Recorded by AgentSec on 2026-09-12. You are not running this; you are studying it.</span>
+        </div>
+        <p><a class="btn primary" href="#">Inspect the recorded baseline evidence →</a>
+           &nbsp;<a class="btn" href="#">I have seen normal behavior — continue</a></p>
+        <p class="small muted">The baseline is supplied as a recorded example so you can study normal behavior without running anything.</p>
+        <div class="next-bar" style="margin-top:12px"><span><b>Baseline established.</b> Next: test what happens when the agent requests a known tool it was <b>not</b> granted.</span></div>
+      </article>
+      <aside class="card" style="width:340px;flex:none">
+        <h3>Why this step matters</h3>
+        <p class="small">You cannot judge an attack result without knowing the normal result. Baseline gives you something to compare against.</p>
+        <h3 style="margin-top:14px">Your progress</h3>
+        <ul class="checklist"><li class="d">LEARN</li><li class="c">BASELINE</li><li>PREDICT</li><li>ATTACK</li></ul>
+      </aside>
+    </div>
+    <div class="row">
+      <article class="card" style="flex:1">
+        <p class="eyebrow">Step 3 of 9 · PREDICT &nbsp;<span class="world w-2">WORLD 2</span></p>
+        <h2>Two separate questions. Authorization is not execution.</h2>
+        <p>The next experiment asks the agent to use <code>lookup_customer_tier</code>. The runtime knows that tool but it is <b>not</b> granted to this agent.</p>
+        <div class="cols2">
+          <div>
+            <p class="label" id="q1">1 · What should the control do?</p>
+            <div class="choices" role="radiogroup" aria-labelledby="q1"><span class="choice">ALLOW</span><span class="choice on">DENY</span><span class="choice">ERROR</span><span class="choice">UNSURE</span></div>
+          </div>
+          <div>
+            <p class="label" id="q2">2 · Do you think the tool will actually execute?</p>
+            <div class="choices" role="radiogroup" aria-labelledby="q2"><span class="choice">YES</span><span class="choice on">NO</span><span class="choice">UNSURE</span></div>
+          </div>
+        </div>
+        <p class="small muted">Example selection shown. Stays in this browser tab. Learning state, not evidence; not graded; never sent to Splunk or the runtime.</p>
+        <p><a class="btn primary" href="#">Record prediction and unlock ATTACK</a></p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FRAME 03 ============================ -->
+<section class="frame w1280" aria-label="Frame 03 attack before and after">
+  <div class="frame-bar"><b>FRAME 03</b> Step 4 ATTACK · before run and after run · desktop <span class="tag app">AgentSec web app</span></div>
+  <div class="canvas stack">
+    <div class="hdr"><div><span style="font-size:13px;letter-spacing:.06em">AGENTSEC · AI SECURITY EXPERIMENT WORKBENCH</span><br><b>Tool Authorization · LAB-MCP-001</b></div>
+      <div class="meta"><span>LIVE LAB</span><span>Rail = learning state</span></div></div>
+    <ol class="rail" aria-label="Step 4 of 9"><li class="done"><span class="dot">✓</span><span class="lbl">LEARN</span></li><li class="done"><span class="dot">✓</span><span class="lbl">BASELINE</span></li><li class="done"><span class="dot">✓</span><span class="lbl">PREDICT</span></li><li class="current"><span class="dot">4</span><span class="lbl">ATTACK</span><span class="st">You are here</span></li><li class="next"><span class="dot">5</span><span class="lbl">INVESTIGATE</span></li><li class="later"><span class="dot">6</span><span class="lbl">DEFEND</span></li><li class="later"><span class="dot">7</span><span class="lbl">RETEST</span></li><li class="later"><span class="dot">8</span><span class="lbl">COMPARE</span></li><li class="later"><span class="dot">9</span><span class="lbl">EXPLAIN</span></li></ol>
+
+    <article class="card">
+      <p class="eyebrow">Step 4 of 9 · ATTACK &nbsp;<span class="world w-2">WORLD 2 · AI / SECURITY</span></p>
+      <h2>Ask the agent for a tool it was not granted</h2>
+      <p>This experiment attempts to make the agent use a <b>known but ungranted</b> tool: <code>lookup_customer_tier</code> (scope <code>customer:read</code>). It sends one request, once, under the vulnerable profile.</p>
+      <div class="three">
+        <div><h4>What you do</h4>Click <b>Run ATTACK experiment</b>. The browser sends only the closed launch request.</div>
+        <div><h4>What gets recorded</h4>A new <code>run.id</code> and the runtime events for this request, indexed in Splunk as <b>LIVE</b> evidence.</div>
+        <div><h4>What it will not tell you</h4>It will not say whether the attack "worked". You find that out in the next step by investigating the evidence.</div>
+      </div>
+      <p><a class="btn primary" href="#">Run ATTACK experiment <small>one request · vulnerable profile</small></a></p>
+      <p class="small muted">Your recorded prediction: control <b>DENY</b> · execution <b>NO</b>. This button is dark, not red: an ATTACK run is an experiment, not a proven compromise.</p>
+    </article>
+
+    <div class="muted small" style="text-align:center">▼ the same step after the button is pressed ▼</div>
+
+    <article class="card">
+      <p class="eyebrow">Step 4 of 9 · ATTACK · complete</p>
+      <h2>ATTACK experiment complete.</h2>
+      <div class="banner-live" style="margin:8px 0 12px"><span class="live">LIVE · YOUR EXPERIMENT</span><span>Attack / vulnerable profile · recorded and indexed in Splunk</span></div>
+      <div class="next-bar">
+        <span><b>Next:</b> investigate what actually happened. The launcher only says the run finished; it does not say what the control decided or whether anything executed.</span>
+        <a class="btn primary" href="#">Investigate your ATTACK evidence →</a>
+      </div>
+      <details class="disclosure" open>
+        <summary>Technical details (practitioner)</summary>
+        <div class="body">
+          <p class="small"><b>run.id</b> <span class="mono">12f0269f-b06c-4db8-a224-6c42bc9521c0</span> &nbsp;<a class="btn" style="min-height:36px;padding:4px 12px" href="#">Copy run.id</a>&nbsp;<a class="btn" style="min-height:36px;padding:4px 12px" href="#">Open native Splunk Search</a></p>
+          <p class="small muted">The button above opens the notebook already pointed at this run.id (a Splunk <code>form.live_run_id</code> URL token). If the field is ever empty, paste the copied run.id. Launcher status is not a security verdict.</p>
+        </div>
+      </details>
+    </article>
+  </div>
+</section>
+
+<!-- ============================ FRAME 04 narrow ============================ -->
+<section class="frame w390" aria-label="Frame 04 narrow attack complete">
+  <div class="frame-bar"><b>FRAME 04</b> ATTACK complete · narrow 390 <span class="tag app">Web app</span></div>
+  <div class="canvas stack" style="padding:14px">
+    <div><b>Step 4 of 9 · ATTACK</b> <span class="small muted">Next: INVESTIGATE</span></div>
+    <article class="card" style="padding:14px">
+      <p class="eyebrow">ATTACK · complete</p>
+      <h2 style="font-size:22px">ATTACK experiment complete.</h2>
+      <p><span class="live">LIVE · YOUR EXPERIMENT</span></p>
+      <p class="small">Attack / vulnerable profile. Recorded and indexed.</p>
+      <div class="next-bar" style="display:block"><p><b>Next:</b> investigate what actually happened.</p><a class="btn primary" style="width:100%;justify-content:center" href="#">Investigate your ATTACK evidence →</a></div>
+      <details class="disclosure"><summary>Technical details</summary><div class="body small">run.id, Copy run.id, Open native Splunk Search</div></details>
+    </article>
+  </div>
+</section>
+
+<!-- ============================ FRAME 05 ============================ -->
+<section class="frame w1280" aria-label="Frame 05 studio evidence header">
+  <div class="frame-bar"><b>FRAME 05</b> INVESTIGATE header · evidence source · LIVE and REPLAY states <span class="tag studio">Dashboard Studio</span> <span class="tag constrained">inputs, markdown, one search-driven state panel</span></div>
+  <div class="canvas stack">
+    <div class="cols2">
+      <div class="stack">
+        <p class="eyebrow">State A — arrived from the lab with a LIVE run (deep link)</p>
+        <div class="card" style="padding:14px"><span class="small muted">Studio band, static text:</span> <b>Step 5 of 9 · INVESTIGATE</b> — <span class="world w-3">WORLD 3 · OBSERVABILITY</span><br><span class="small muted">Your progress ticks live in the lab page. Studio cannot read it.</span></div>
+        <div class="row" style="gap:12px">
+          <div style="flex:1"><span class="label">Recorded example (REPLAY) — used only when no LIVE run is loaded</span><div class="field">Baseline — normal behavior ▾</div></div>
+          <div style="flex:1"><span class="label">Your experiment run.id (LIVE) — advanced</span><div class="field mono" style="font-size:13px">12f0269f-b06c-4db8-a224-6c42bc9521c0</div></div>
+        </div>
+        <div class="banner-live"><span class="live">LIVE · YOUR EXPERIMENT</span><div><b>Attack / vulnerable profile</b><br><span class="small">7 events indexed for this run · technical: run 12f0269f-b06c-4db8-a224-6c42bc9521c0</span></div></div>
+        <p class="small muted">Derived from the run's own events (<code>agentsec.testbed.mode</code>, <code>agentsec.security.profile</code>, a count of indexed events). A count is not a completeness guarantee.</p>
+      </div>
+      <div class="stack">
+        <p class="eyebrow">State B — no LIVE run loaded (field reads <code>none</code>)</p>
+        <div class="card" style="padding:14px"><span class="small muted">Studio band, static text:</span> <b>Step 2 of 9 · BASELINE (REPLAY)</b> — <span class="small muted">the same band reads "Step 5 of 9 · INVESTIGATE" when you arrive with your own run</span></div>
+        <div class="row" style="gap:12px">
+          <div style="flex:1"><span class="label">Recorded example (REPLAY) — used only when no LIVE run is loaded</span><div class="field">Baseline — normal behavior ▾</div></div>
+          <div style="flex:1"><span class="label">Your experiment run.id (LIVE) — advanced</span><div class="field mono">none</div></div>
+        </div>
+        <div class="banner-replay"><span class="replay">REPLAY · RECORDED EXAMPLE</span><div><b>Baseline evidence — normal behavior</b><br><span class="small">Recorded by AgentSec on 2026-09-12. Not your experiment. To investigate your own run, press <b>Investigate your ATTACK evidence</b> in the lab.</span></div></div>
+        <p class="small muted">Dropdown options: <b>Baseline evidence — normal behavior</b> · <b>Attack evidence — vulnerable experiment</b> · <b>Retest evidence — defended experiment</b>. None of them launches anything.</p>
+      </div>
+    </div>
+    <div class="card" style="padding:0">
+      <div class="tabs"><span class="on">MISSION · learn</span><span>INVESTIGATE · your evidence</span><span>EVIDENCE · raw explorer (optional)</span><span>ANSWER KEY · spoilers</span></div>
+      <p class="small muted" style="padding:8px 14px;margin:0">Tab titles only are renamed. Tab ids and links are unchanged. ANSWER KEY keeps its warning banner because Studio cannot lock a tab.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FRAME 06 ============================ -->
+<section class="frame w1280" aria-label="Frame 06 notebook cell">
+  <div class="frame-bar"><b>FRAME 06</b> Investigation cell 2 of 5 · result first, SPL last <span class="tag studio">Dashboard Studio</span> <span class="tag constrained">separate markdown + table blocks stacked; no collapsing</span></div>
+  <div class="canvas">
+    <div class="cell">
+      <section><span class="k">2 of 5 · Question</span><h2 style="margin:0">Did downstream execution occur?</h2><span class="world w-3">WORLD 3 · OBSERVABILITY</span></section>
+      <section><span class="k">Why it matters</span>An authorization decision and an execution are two different events. A control can return ALLOW and the handler can still never start; a control can return DENY while something else in the run proceeds. <b>CONTROL DECISION ≠ EXECUTION.</b></section>
+      <section class="prompt"><span class="k">Before you look — your hypothesis</span>Write down what you expect: will an <code>agentsec.mcp.started</code> event exist for this run? <span class="muted small">(Not saved. Dashboard Studio has no learner-note store.)</span></section>
+      <section>
+        <span class="k">Evidence result — execution events for this run</span>
+        <div class="cap">Independent of Cell 1: this query never reads <code>agentsec.control.decision</code>.</div>
+        <table class="cmp" style="margin-top:8px"><thead><tr><th>sequence</th><th>event_name</th><th>tool</th><th>executed</th></tr></thead>
+        <tbody><tr><td>4</td><td>agentsec.mcp.started</td><td>lookup_customer_tier</td><td><span class="pill yes">true</span></td></tr>
+        <tr><td>5</td><td>agentsec.mcp.completed</td><td>lookup_customer_tier</td><td><span class="pill yes">true</span></td></tr></tbody></table>
+        <p class="small muted" style="margin-top:6px">Values from the MEASURED ATTACK run. A RETEST run would instead show <code>agentsec.pipeline.stopped</code> and no <code>mcp.started</code>.</p>
+      </section>
+      <section class="prompt"><span class="k">Your observation</span>Which execution events exist, and what does their presence or absence let you say? <span class="muted small">(Not saved.)</span></section>
+      <section><span class="k">What the evidence supports</span><code>agentsec.mcp.started</code> is handler start; <code>agentsec.mcp.completed</code> is success after a start. Both are present for this run, so the handler began and completed.</section>
+      <section><span class="k no">What this does not prove</span>It does not show what the handler returned or that nothing else ran. An absent <code>mcp.started</code> in Splunk would be corroboration of non-execution, not proof: it is an indexed copy.</section>
+      <section><span class="k">Next question</span><b>3 of 5 — What was requested, and was it granted?</b> Requested scope against the scope the server granted.</section>
+      <section class="spl-demoted">
+        <span class="k" style="color:var(--muted)">How to verify — SPL used (optional)</span>
+        <p class="small">The result above is already computed. You do not need to run this. Select and copy it into native Search to reproduce the table, or use the panel's <b>Open in Search</b> icon.</p>
+<pre class="spl">index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 ("agentsec.run.id"="12f0269f-…" OR …)
+  ("event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed
+   OR "event.name"=agentsec.mcp.failed OR "event.name"=agentsec.pipeline.stopped)
+| eval run_id=mvindex(mvdedup('agentsec.run.id'),0) …
+| table sequence, event_name, tool, executed | sort sequence</pre>
+        <p class="small muted" style="margin:6px 0 0">Mockup abbreviates the printed SPL with “…”. The product keeps the full, exact printed query (single source of truth with the executed query). No Copy button: Dashboard Studio cannot host one.</p>
+      </section>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FRAME 07 ============================ -->
+<section class="frame w1280" aria-label="Frame 07 defend and retest">
+  <div class="frame-bar"><b>FRAME 07</b> Step 6 DEFEND · Step 7 RETEST · desktop <span class="tag app">AgentSec web app</span></div>
+  <div class="canvas stack">
+    <div class="row">
+      <article class="card" style="flex:1">
+        <p class="eyebrow">Step 6 of 9 · DEFEND &nbsp;<span class="world w-2">WORLD 2</span></p>
+        <h2>What control changes?</h2>
+        <p>In the vulnerable run, <code>CTRL-MCP-001</code> met a known tool that is not in the agent's grant and chose ALLOW because the lab profile is intentionally <b>fail-open</b>. The defended profile enforces the grant.</p>
+        <div class="three">
+          <div><h4>What changed</h4>The control's profile: fail-open → enforce the grant. The request stays identical.</div>
+          <div><h4>Why it should matter</h4>The decision, not the model, is what keeps the handler from starting.</div>
+          <div><h4>What we expect to change</h4>The decision, whether <code>mcp.started</code> appears, and whether <code>pipeline.stopped</code> appears.</div>
+        </div>
+        <p class="small muted">There is no switch to flip here: the defended profile is selected by the server. This step explains it; it does not claim the system is now secure.</p>
+        <p><a class="btn primary" href="#">I understand what changed — continue to RETEST</a></p>
+      </article>
+    </div>
+    <article class="card">
+      <p class="eyebrow">Step 7 of 9 · RETEST &nbsp;<span class="world w-2">WORLD 2</span></p>
+      <h2>We changed the control. Now repeat the same malicious request.</h2>
+      <p>Same tool <code>lookup_customer_tier</code>, same scope, same single request. Only the control's profile differs.</p>
+      <p><a class="btn primary" href="#">Run RETEST experiment <small>same request · defended profile</small></a></p>
+      <div class="next-bar" style="margin-top:12px"><span><b>After it runs:</b> “RETEST experiment complete. Now compare what actually changed.” RETEST is evidence about one experiment, not a verdict that the system is secure, safe or fixed.</span></div>
+    </article>
+  </div>
+</section>
+
+<!-- ============================ FRAME 08 ============================ -->
+<section class="frame w1280" aria-label="Frame 08 compare">
+  <div class="frame-bar"><b>FRAME 08</b> Step 8 COMPARE · desktop <span class="tag app">AgentSec web app</span> <span class="tag studio">same rows exist in Studio Cell 5</span></div>
+  <div class="canvas stack">
+    <article class="card">
+      <p class="eyebrow">Step 8 of 9 · COMPARE &nbsp;<span class="world w-3">WORLD 3 · OBSERVABILITY</span></p>
+      <h2>What actually changed between ATTACK and RETEST?</h2>
+      <table class="cmp" aria-label="ATTACK versus RETEST">
+        <thead><tr><th scope="col">Evidence</th><th scope="col"><span class="live" style="background:#fff;color:var(--ink)">LIVE</span> ATTACK · vulnerable profile</th><th scope="col"><span class="live" style="background:#fff;color:var(--ink)">LIVE</span> RETEST · defended profile</th><th scope="col">How it was established</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Requested tool</th><td><code>lookup_customer_tier</code> · <code>customer:read</code></td><td><code>lookup_customer_tier</code> · <code>customer:read</code></td><td class="note">Same request both times.</td></tr>
+          <tr><th scope="row">Granted tool</th><td><code>lookup_policy</code> · <code>policy:read</code></td><td><code>lookup_policy</code> · <code>policy:read</code></td><td class="note">DOCUMENTED configuration, not a runtime event.</td></tr>
+          <tr><th scope="row">Control decision (CTRL-MCP-001)</th><td><span class="pill allow">ALLOW</span><br><span class="small muted">vulnerable_profile_fail_open …</span></td><td><span class="pill deny">DENY</span><br><span class="small muted">tool_not_granted</span></td><td class="note"><code>agentsec.control.decision</code>. A decision, not an execution.</td></tr>
+          <tr><th scope="row">Execution started?</th><td><span class="pill yes">YES</span> mcp.started 1</td><td><span class="pill no">NO</span> mcp.started 0</td><td class="note">Execution events only (Cell 2). Absence in Splunk corroborates; it does not prove.</td></tr>
+          <tr><th scope="row">Pipeline stopped?</th><td><span class="pill no">NO</span> pipeline.stopped 0</td><td><span class="pill yes">YES</span> pipeline.stopped 1</td><td class="note"><code>agentsec.pipeline.stopped</code></td></tr>
+          <tr><th scope="row">Observed outcome</th><td>handler started and completed</td><td>run halted before the handler</td><td class="note">Read from the rows above, not inferred from a decision.</td></tr>
+          <tr><th scope="row">Events indexed</th><td>7</td><td>6</td><td class="note">A count, not a completeness guarantee.</td></tr>
+        </tbody>
+      </table>
+      <div class="cols2" style="margin-top:14px">
+        <div class="card"><h3>Check your prediction</h3><p class="small">You predicted control <b>DENY</b>, execution <b>NO</b> for the ATTACK. Evidence for ATTACK: control <b>ALLOW</b>, execution <b>YES</b>. <span class="muted">Learning state compared with measured evidence; the prediction is not evidence.</span></p></div>
+        <div class="card"><h3>Do not conclude</h3><p class="small">One request, one tool, one agent. A DENY says nothing about the next request. ATTACK ≠ universal compromise. RETEST ≠ universal security. This lab emits no LLM events.</p></div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="frame w390" aria-label="Frame 08b narrow compare">
+  <div class="frame-bar"><b>FRAME 08b</b> COMPARE · narrow 390 <span class="tag app">Web app</span></div>
+  <div class="canvas stack" style="padding:14px">
+    <article class="card" style="padding:14px">
+      <p class="eyebrow">Step 8 of 9 · COMPARE</p>
+      <h2 style="font-size:21px">What actually changed?</h2>
+      <p class="small muted">Rows become stacked cards so neither run is clipped.</p>
+      <div class="card" style="padding:10px;margin-bottom:10px"><h3 style="font-size:16px">Control decision</h3><p style="margin:0"><b>ATTACK</b> <span class="pill allow">ALLOW</span><br><b>RETEST</b> <span class="pill deny">DENY</span></p></div>
+      <div class="card" style="padding:10px;margin-bottom:10px"><h3 style="font-size:16px">Execution started?</h3><p style="margin:0"><b>ATTACK</b> <span class="pill yes">YES</span> mcp.started 1<br><b>RETEST</b> <span class="pill no">NO</span> mcp.started 0</p></div>
+      <div class="card" style="padding:10px"><h3 style="font-size:16px">Pipeline stopped?</h3><p style="margin:0"><b>ATTACK</b> <span class="pill no">NO</span><br><b>RETEST</b> <span class="pill yes">YES</span></p></div>
+    </article>
+  </div>
+</section>
+
+<!-- ============================ FRAME 09 ============================ -->
+<section class="frame w1280" aria-label="Frame 09 explain">
+  <div class="frame-bar"><b>FRAME 09</b> Step 9 EXPLAIN / PROVE · desktop <span class="tag app">AgentSec web app</span></div>
+  <div class="canvas stack">
+    <article class="card">
+      <p class="eyebrow">Step 9 of 9 · EXPLAIN &nbsp;<span class="world w-3">WORLD 3</span></p>
+      <h2>Explain it like a security reviewer</h2>
+      <p class="small muted">Write your own answers somewhere you control. AgentSec does not save them, grade them or treat them as evidence.</p>
+      <div class="cols2">
+        <div class="card"><h3>1 · What happened?</h3><p class="small muted">Under the vulnerable profile, the agent requested an ungranted tool. State what the control decided and whether the handler started.</p></div>
+        <div class="card"><h3>2 · What evidence supports that?</h3><p class="small muted">Name the events and the run.id you read them from.</p></div>
+        <div class="card"><h3>3 · What does the evidence not prove?</h3><p class="small muted">Think: other requests, other tools, completeness of an indexed copy.</p></div>
+        <div class="card"><h3>4 · What changed after the control?</h3><p class="small muted">Compare decision, execution and pipeline.stopped.</p></div>
+      </div>
+      <div class="card" style="margin-top:12px"><h3>5 · What can you safely claim?</h3>
+        <p class="small">“In these two runs, with this request, the control returned ALLOW under the vulnerable profile and the handler started; under the defended profile it returned DENY and the handler did not start.”</p>
+        <p class="small muted" style="margin:0">Not safe to claim: “the system is secure”, “the attack always works”, “DENY means nothing else ran”.</p></div>
+      <div class="next-bar" style="margin-top:14px"><span><b>Finished?</b> Mark this workshop on <b>Your Path</b>. INVESTIGATED means you marked the workshop, not that the system is safe.</span><a class="btn primary" href="#">Open Your Path →</a></div>
+      <p class="small muted">Marking happens on Your Path because progress is stored in the Splunk site's own browser storage, which this page cannot write.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ============================ FRAME 10 ============================ -->
+<section class="frame w1280" aria-label="Frame 10 diagram system">
+  <div class="frame-bar"><b>FRAME 10</b> Diagram grammar · desktop left-to-right · narrow vertical <span class="tag studio">SVG in Studio image</span> <span class="tag app">same SVG in web app</span></div>
+  <div class="canvas stack">
+    <div class="card">
+      <p class="eyebrow">Grammar — each element differs by border, glyph and label, not only by colour</p>
+      <svg viewBox="0 0 1232 150" width="1232" role="img" aria-label="Diagram grammar legend" style="max-width:100%;height:auto">
+        <g font-family="system-ui,Segoe UI,sans-serif" font-size="15" fill="#17202A">
+          <rect x="4" y="30" width="124" height="56" rx="8" fill="#fff" stroke="#0B1F33" stroke-width="2"/><text x="66" y="62" text-anchor="middle" font-weight="700">ACTOR</text><text x="66" y="112" text-anchor="middle" font-size="13">person / agent</text>
+          <rect x="148" y="30" width="124" height="56" rx="8" fill="#fff" stroke="#0B1F33" stroke-width="2" stroke-dasharray="6 4"/><text x="210" y="62" text-anchor="middle" font-weight="700">REQUEST</text><text x="210" y="112" text-anchor="middle" font-size="13">data, not authority</text>
+          <rect x="292" y="30" width="124" height="56" rx="4" fill="#0B1F33" stroke="#0B1F33" stroke-width="2"/><rect x="298" y="36" width="112" height="44" rx="2" fill="none" stroke="#fff" stroke-width="1.5"/><text x="354" y="62" text-anchor="middle" font-weight="800" fill="#fff">CONTROL</text><text x="354" y="112" text-anchor="middle" font-size="13">PDP · decides</text>
+          <rect x="436" y="30" width="124" height="56" rx="8" fill="#fff" stroke="#00585D" stroke-width="5"/><text x="498" y="62" text-anchor="middle" font-weight="700">EXECUTION</text><text x="498" y="112" text-anchor="middle" font-size="13">handler starts</text>
+          <rect x="580" y="30" width="124" height="56" rx="2" fill="#EEF1F4" stroke="#3D4654" stroke-width="2"/><rect x="580" y="30" width="10" height="56" fill="#3D4654"/><text x="647" y="62" text-anchor="middle" font-weight="800">■ STOP</text><text x="647" y="112" text-anchor="middle" font-size="13">halted before handler</text>
+          <rect x="724" y="30" width="124" height="56" rx="8" fill="#fff" stroke="#4A5663" stroke-width="2" stroke-dasharray="2 4"/><text x="786" y="62" text-anchor="middle" font-weight="700">◫ EVIDENCE</text><text x="786" y="112" text-anchor="middle" font-size="13">Splunk observes</text>
+          <rect x="868" y="30" width="124" height="56" rx="2" fill="#fff" stroke="#4A5663" stroke-width="2"/><rect x="874" y="36" width="112" height="44" fill="none" stroke="#4A5663" stroke-width="1"/><text x="930" y="62" text-anchor="middle" font-weight="700">↗ EXTERNAL</text><text x="930" y="112" text-anchor="middle" font-size="13">outside AcmeBank</text>
+          <rect x="1012" y="22" width="216" height="72" rx="14" fill="none" stroke="#2F3E8F" stroke-width="2" stroke-dasharray="10 6"/><text x="1120" y="62" text-anchor="middle" font-weight="700" fill="#2F3E8F">TRUST BOUNDARY</text><text x="1120" y="112" text-anchor="middle" font-size="13">enforcement edge</text>
+        </g></svg>
+      <p class="small muted">Decision branch: <b>ALLOW ━━▶</b> solid arrow, <b>DENY ╌╌▶</b> dashed arrow. No green for allow, no red for attack or deny.</p>
+    </div>
+
+    <div class="card">
+      <p class="eyebrow">LAB-MCP-001 authorization flow — desktop left-to-right (viewBox 1232 × 440)</p>
+      <svg viewBox="0 0 1232 440" width="1232" role="img" aria-labelledby="ltr-t ltr-d" style="max-width:100%;height:auto">
+        <title id="ltr-t">Tool authorization flow, left to right</title>
+        <desc id="ltr-d">A user or agent makes a tool request. CTRL-MCP-001 decides ALLOW, DENY or ERROR. After ALLOW the handler starts. After DENY execution stops. Telemetry observes downstream and does not authorize.</desc>
+        <defs>
+          <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#0B1F33"/></marker>
+          <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#4A5663"/></marker>
+        </defs>
+        <g font-family="system-ui,Segoe UI,sans-serif" fill="#17202A">
+          <rect x="560" y="40" width="660" height="270" rx="16" fill="none" stroke="#2F3E8F" stroke-width="2" stroke-dasharray="10 6"/>
+          <text x="576" y="64" font-size="15" font-weight="700" fill="#2F3E8F">TRUST BOUNDARY · AcmeBank runtime (enforcement)</text>
+
+          <rect x="12" y="100" width="220" height="90" rx="10" fill="#fff" stroke="#0B1F33" stroke-width="2"/>
+          <text x="24" y="124" font-size="13" font-weight="700" fill="#5B4636">WORLD 1</text>
+          <text x="122" y="152" text-anchor="middle" font-size="18" font-weight="700">USER / AGENT</text><text x="122" y="176" text-anchor="middle" font-size="15">customer intent</text>
+
+          <rect x="290" y="100" width="220" height="90" rx="10" fill="#fff" stroke="#0B1F33" stroke-width="2" stroke-dasharray="7 5"/>
+          <text x="302" y="124" font-size="13" font-weight="700" fill="#2F3E8F">WORLD 2</text>
+          <text x="400" y="152" text-anchor="middle" font-size="18" font-weight="700">TOOL REQUEST</text><text x="400" y="176" text-anchor="middle" font-size="15">tool • scope • arguments</text>
+
+          <rect x="600" y="92" width="270" height="106" rx="4" fill="#0B1F33"/><rect x="607" y="99" width="256" height="92" rx="2" fill="none" stroke="#fff" stroke-width="1.5"/>
+          <text x="614" y="116" font-size="13" font-weight="700" fill="#cfe4e6">WORLD 2 · PDP</text>
+          <text x="735" y="146" text-anchor="middle" font-size="19" font-weight="800" fill="#fff">CTRL-MCP-001</text><text x="735" y="172" text-anchor="middle" font-size="16" fill="#fff">ALLOW / DENY / ERROR</text>
+
+          <rect x="950" y="100" width="250" height="90" rx="10" fill="#fff" stroke="#00585D" stroke-width="5"/>
+          <text x="962" y="124" font-size="13" font-weight="700" fill="#2F3E8F">WORLD 2</text>
+          <text x="1075" y="152" text-anchor="middle" font-size="18" font-weight="700">HANDLER START</text><text x="1075" y="176" text-anchor="middle" font-size="15">only after ALLOW</text>
+
+          <rect x="600" y="236" width="250" height="60" rx="2" fill="#EEF1F4" stroke="#3D4654" stroke-width="2"/><rect x="600" y="236" width="12" height="60" fill="#3D4654"/>
+          <text x="735" y="262" text-anchor="middle" font-size="18" font-weight="800">■ EXECUTION STOPS</text><text x="735" y="284" text-anchor="middle" font-size="15">pipeline.stopped</text>
+
+          <path d="M232 145 H284" stroke="#0B1F33" stroke-width="3" fill="none" marker-end="url(#a)"/>
+          <path d="M510 145 H594" stroke="#0B1F33" stroke-width="3" fill="none" marker-end="url(#a)"/>
+          <path d="M870 145 H944" stroke="#0B1F33" stroke-width="3" fill="none" marker-end="url(#a)"/>
+          <text x="907" y="134" text-anchor="middle" font-size="16" font-weight="800">ALLOW</text>
+          <path d="M735 198 V230" stroke="#3D4654" stroke-width="3" stroke-dasharray="7 5" fill="none" marker-end="url(#g)"/>
+          <text x="748" y="220" font-size="16" font-weight="800" fill="#3D4654">DENY</text>
+
+          <rect x="12" y="340" width="1208" height="80" rx="10" fill="#fff" stroke="#4A5663" stroke-width="2" stroke-dasharray="2 5"/>
+          <text x="26" y="364" font-size="13" font-weight="700" fill="#00585D">WORLD 3 · OBSERVABILITY</text>
+          <text x="616" y="392" text-anchor="middle" font-size="18" font-weight="700">◫ TELEMETRY — Splunk observes downstream evidence</text>
+          <text x="616" y="412" text-anchor="middle" font-size="15">It records what happened. It does not make the authorization decision.</text>
+          <path d="M860 198 V336" stroke="#4A5663" stroke-width="2" stroke-dasharray="2 5" fill="none" marker-end="url(#g)"/>
+          <path d="M1075 190 V336" stroke="#4A5663" stroke-width="2" stroke-dasharray="2 5" fill="none" marker-end="url(#g)"/>
+          <path d="M735 296 V336" stroke="#4A5663" stroke-width="2" stroke-dasharray="2 5" fill="none" marker-end="url(#g)"/>
+        </g>
+      </svg>
+      <p class="small muted">Typography in the viewBox: primary labels 18–19px, supporting text 15–16px, tags 13px. At a full-width Studio panel the SVG scales up, so rendered text is larger still. The control is the only filled node; nothing is green or red.</p>
+    </div>
+
+    <div class="row">
+      <div class="card" style="width:390px;flex:none">
+        <p class="eyebrow">Narrow vertical reflow (390)</p>
+        <svg viewBox="0 0 360 700" width="360" role="img" aria-labelledby="v-t v-d" style="max-width:100%;height:auto">
+          <title id="v-t">Tool authorization flow, vertical</title>
+          <desc id="v-d">User or agent, tool request, CTRL-MCP-001 deciding ALLOW or DENY. ALLOW leads to handler start; DENY leads to execution stops. Telemetry observes.</desc>
+          <defs><marker id="va" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#0B1F33"/></marker><marker id="vg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#4A5663"/></marker></defs>
+          <g font-family="system-ui,Segoe UI,sans-serif" fill="#17202A">
+            <rect x="60" y="8" width="240" height="64" rx="10" fill="#fff" stroke="#0B1F33" stroke-width="2"/><text x="180" y="36" text-anchor="middle" font-size="17" font-weight="700">USER / AGENT</text><text x="180" y="58" text-anchor="middle" font-size="15">customer intent</text>
+            <path d="M180 72 V100" stroke="#0B1F33" stroke-width="3" marker-end="url(#va)"/>
+            <rect x="60" y="104" width="240" height="64" rx="10" fill="#fff" stroke="#0B1F33" stroke-width="2" stroke-dasharray="7 5"/><text x="180" y="132" text-anchor="middle" font-size="17" font-weight="700">TOOL REQUEST</text><text x="180" y="154" text-anchor="middle" font-size="15">tool • scope • arguments</text>
+            <path d="M180 168 V196" stroke="#0B1F33" stroke-width="3" marker-end="url(#va)"/>
+            <rect x="40" y="200" width="280" height="84" rx="4" fill="#0B1F33"/><rect x="46" y="206" width="268" height="72" rx="2" fill="none" stroke="#fff" stroke-width="1.5"/><text x="180" y="236" text-anchor="middle" font-size="18" font-weight="800" fill="#fff">CTRL-MCP-001</text><text x="180" y="262" text-anchor="middle" font-size="16" fill="#fff">ALLOW / DENY / ERROR</text>
+            <path d="M110 284 V340" stroke="#0B1F33" stroke-width="3" marker-end="url(#va)"/><text x="42" y="318" font-size="16" font-weight="800">ALLOW</text>
+            <path d="M250 284 V340" stroke="#3D4654" stroke-width="3" stroke-dasharray="7 5" marker-end="url(#vg)"/><text x="262" y="318" font-size="16" font-weight="800" fill="#3D4654">DENY</text>
+            <rect x="10" y="344" width="170" height="84" rx="10" fill="#fff" stroke="#00585D" stroke-width="5"/><text x="95" y="378" text-anchor="middle" font-size="16" font-weight="700">HANDLER</text><text x="95" y="400" text-anchor="middle" font-size="15">only after ALLOW</text>
+            <rect x="190" y="344" width="160" height="84" rx="2" fill="#EEF1F4" stroke="#3D4654" stroke-width="2"/><rect x="190" y="344" width="10" height="84" fill="#3D4654"/><text x="278" y="378" text-anchor="middle" font-size="16" font-weight="800">■ STOPS</text><text x="278" y="400" text-anchor="middle" font-size="15">pipeline.stopped</text>
+            <path d="M95 428 V500" stroke="#4A5663" stroke-width="2" stroke-dasharray="2 5" marker-end="url(#vg)"/><path d="M270 428 V500" stroke="#4A5663" stroke-width="2" stroke-dasharray="2 5" marker-end="url(#vg)"/>
+            <rect x="10" y="504" width="340" height="100" rx="10" fill="#fff" stroke="#4A5663" stroke-width="2" stroke-dasharray="2 5"/><text x="180" y="538" text-anchor="middle" font-size="17" font-weight="700">◫ TELEMETRY</text><text x="180" y="562" text-anchor="middle" font-size="15">Splunk observes downstream.</text><text x="180" y="584" text-anchor="middle" font-size="15">It does not authorize.</text>
+          </g></svg>
+      </div>
+      <div class="card" style="flex:1">
+        <h3>Rules this frame demonstrates</h3>
+        <ul class="small">
+          <li>Left-to-right on desktop; the branch drops down so the eye reads one line, then one fork.</li>
+          <li>The PDP is the only filled, double-bordered node. Execution has a heavy teal outline. Stop has a gray bar plus a ■ glyph.</li>
+          <li>ALLOW is a solid arrow; DENY is dashed. Both are labelled in words.</li>
+          <li>Telemetry sits below the boundary, drawn dotted, with dotted arrows in. Splunk receives; it never decides.</li>
+          <li>Narrow screens reflow vertically in a separate SVG. They do not shrink the wide one.</li>
+        </ul>
+        <p class="small muted">Studio constraint: the Studio image panel cannot switch SVGs by viewport. Studio uses the wide file only. The web app can serve both. Media queries inside one SVG are unverified in a Studio image panel and treated as unsupported until tested.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</body>
+</html>
