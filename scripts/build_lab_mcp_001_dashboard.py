@@ -420,6 +420,7 @@ def what_decision_spl(token: str) -> str:
 #: This constant is that value. It is read by the input default AND by the SPL
 #: below, so the two cannot drift. It is not a run.id and matches no event.
 LIVE_RUN_NONE = "none"
+INVESTIGATE_GAP = 8  # px between stacked INVESTIGATE panels
 
 
 def notebook_base(event_filter: str = "") -> str:
@@ -1307,9 +1308,10 @@ DET-MCP-001 remains disabled and checks only DENY-then-start. Silence is not SAF
 | where mode="ATTACK" OR mode="RETEST"
 | sort - last_seen
 | dedup mode
+| sort mode
 | eval last_seen=strftime(last_seen,"%Y-%m-%d %H:%M:%S")
 | table mode, run_id, profile, tool, requested_scope, allowed_scope, scope_gap, decision, reason, execution_state, matched_events, last_seen
-| sort mode"""
+| transpose 0 header_field=mode column_name=field"""
     data_sources.update(
         dict((search_ds("ds_live_pair", "Q-MCP-LIVE-PAIR", live_pair_spl),))
     )
@@ -1334,9 +1336,13 @@ more since.
 ```
 
 Check the two `run_id` values against the ones the workbench minted for you, and confirm
-they **differ**. Two identical ids, or one row instead of two, means you are not looking at
-your own pair — and a missing row is unsearchable evidence, not a safe result. Answer
+they **differ**. Two identical ids, or one column instead of two, means you are not looking at
+your own pair — and a missing column is unsearchable evidence, not a safe result. Answer
 Question 5 before reading anything into a gap.
+
+The query ends in `transpose`, so each field is a row and each run is a column. Twelve
+fields side by side across two runs would not fit a normal window; this orientation keeps
+every field and every full value on screen at any width.
 """,
             live_pair_spl,
         ),
@@ -1345,7 +1351,7 @@ Question 5 before reading anything into a gap.
         "viz_live_pair",
         "ds_live_pair",
         "ATTACK ↔ RETEST (your live run.ids)",
-        "One row per run.id. `decision` is the control fact; `execution_state` is the execution "
+        "One column per run.id, one row per field. `decision` is the control fact; `execution_state` is the execution "
         "fact; they are read separately. `matched_events` counts only the events this query "
         "matched, so it is smaller than the run total and is not a completeness answer.",
         no_data=(
@@ -1734,31 +1740,46 @@ you do there changes a control decision: **SPLUNK != ENFORCEMENT.**
     # INVESTIGATE is the guided notebook: question cell, then the evidence that
     # answers that question, then the next question. The learner meets one
     # result table at a time instead of five at once.
-    investigate_structure = [
-        block("viz_nb_header", 0, 0, FULL, 760),
-        block("viz_nb_state", 0, 768, FULL, 220),
-        block("viz_nb1_q", 0, 996, FULL, 620),
-        block("viz_nb1_r", 0, 1624, FULL, 240),
-        block("viz_nb2_q", 0, 1872, FULL, 700),
-        block("viz_nb2_r", 0, 2580, FULL, 280),
-        block("viz_nb3_q", 0, 2868, FULL, 720),
-        block("viz_nb3_r", 0, 3596, FULL, 240),
-        block("viz_nb4_q", 0, 3844, FULL, 640),
-        block("viz_nb4_r", 0, 4492, FULL, 380),
-        block("viz_nb5_q", 0, 4880, FULL, 720),
-        # 760: the intro now prints the whole comparison query (seventeen lines,
-        # one of them very long) as well as the prose around it.
-        block("viz_live_pair_intro", 0, 5608, FULL, 760),
-        # 640, not 320. This table is twelve columns wide and one of them holds
-        # the full fail-open reason, which is a long sentence. At 320 the text
-        # wrapped and pushed the RETEST row past the panel edge, so the panel
-        # showed one row while the cell above told the learner to compare two.
-        # The row was in the DOM and invisible on screen, which is the worst
-        # version of this bug. Height is the supported fix: no column is
-        # dropped and no evidence is truncated.
-        block("viz_live_pair", 0, 6376, FULL, 640),
-        block("viz_nb_advanced", 0, 7024, FULL, 380),
+    # Panels are stacked, not hand-positioned: every offset follows from the
+    # heights above it, so raising one panel can no longer overlap the next or
+    # leave the canvas too short. Heights below are MEASURED minimums at a
+    # 1024px window plus margin (inner scrollHeight - clientHeight on the
+    # rendered page), not guesses.
+    investigate_panels = [
+        ("viz_nb_header", 760),
+        ("viz_nb_state", 220),
+        ("viz_nb1_q", 620),
+        ("viz_nb1_r", 240),
+        ("viz_nb2_q", 700),
+        ("viz_nb2_r", 280),
+        ("viz_nb3_q", 720),
+        ("viz_nb3_r", 240),
+        ("viz_nb4_q", 640),
+        # 600, was 380. At 1280px this table needed 43px more than its box and
+        # at 1024px 163px more, so the learner had to scroll inside the panel
+        # to reach the later events of the very timeline Cell 4 asks them to
+        # read in order. 600 covers a seven-event ATTACK run at 1024px.
+        ("viz_nb4_r", 600),
+        ("viz_nb5_q", 720),
+        # 920, was 760. The intro prints the whole comparison query, which wraps
+        # more as the window narrows; at 1024px it overflowed 760 by 98px.
+        ("viz_live_pair_intro", 920),
+        # The comparison is transposed (one column per run, one row per field).
+        # Twelve columns across, one holding the long fail-open reason, did not
+        # fit: at 1024px it overflowed 35px vertically and 127px horizontally,
+        # which hid last_seen and made the learner scroll inside the panel to
+        # find the RETEST row. Two value columns keep every field and every
+        # full value on screen at any width, with no column dropped and no
+        # value truncated.
+        ("viz_live_pair", 640),
+        ("viz_nb_advanced", 380),
     ]
+    investigate_structure = []
+    _y = 0
+    for _item, _h in investigate_panels:
+        investigate_structure.append(block(_item, 0, _y, FULL, _h))
+        _y += _h + INVESTIGATE_GAP
+    investigate_height = _y - INVESTIGATE_GAP
     # EVIDENCE is the raw explorer: the canonical REPLAY specimens side by side,
     # plus the detector panels. It answers "what does this evidence look like in
     # general", where INVESTIGATE answers "what happened on my run".
@@ -1890,7 +1911,7 @@ is not a supported extension. The gate is the warning you are reading.
             },
             "layoutDefinitions": {
                 "layout_mission": layout(mission_structure, 540),
-                "layout_investigate": layout(investigate_structure, 7404),
+                "layout_investigate": layout(investigate_structure, investigate_height),
                 "layout_evidence": layout(evidence_structure, 2982),
                 "layout_path_b": layout(path_b_structure, path_b_y + 40, display="fit-to-width"),
             },

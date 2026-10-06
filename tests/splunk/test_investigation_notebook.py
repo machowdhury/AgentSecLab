@@ -623,32 +623,65 @@ def _block(viz_id: str) -> dict:
     raise AssertionError(f"{viz_id} is not on INVESTIGATE")
 
 
-def test_comparison_panel_has_room_for_both_runs():
-    """Cell 5 tells the learner to compare two rows; one was off-panel.
+# MEASURED, not guessed: for each panel, the box height plus the amount its
+# content overflowed it (scrollHeight - clientHeight) in a real Chrome window at
+# 1024px wide, read from the rendered Splunk page. A panel shorter than this
+# makes the learner scroll inside the panel to reach evidence.
+#   viz_live_pair_intro: 760 + 98  -> 858   (printed comparison query wraps)
+#   viz_nb4_r:           380 + 163 -> 543   (event timeline rows wrap)
+MEASURED_MIN_HEIGHT_AT_1024 = {"viz_live_pair_intro": 858, "viz_nb4_r": 543}
 
-    The table is twelve columns wide and one holds the full fail-open reason,
-    a long sentence that wraps. At 320px the wrapped ATTACK row pushed RETEST
-    past the panel edge at both 1920 and 1024. The row stayed in the DOM, so
-    only looking at the rendered page caught it.
-    """
-    panel = _block("viz_live_pair")
-    columns = DS["ds_live_pair"]["options"]["query"].rsplit("| table", 1)[1].split("\n")[0]
-    column_count = len(columns.split(","))
-    assert column_count >= 10, "this guard assumes a wide table"
-    # Two wrapped rows plus header, title and description. Measured against the
-    # rendering that clipped at 320.
-    assert panel["position"]["h"] >= 560, (
-        f"{column_count} columns including a long reason string will not fit in "
-        f"{panel['position']['h']}px without hiding the RETEST row"
+
+@pytest.mark.parametrize("panel_id,minimum", sorted(MEASURED_MIN_HEIGHT_AT_1024.items()))
+def test_panels_are_not_shorter_than_their_measured_content(panel_id, minimum):
+    height = _block(panel_id)["position"]["h"]
+    assert height >= minimum, (
+        f"{panel_id} is {height}px; its content measured {minimum}px at a 1024px window, "
+        "so the learner would have to scroll inside the panel"
     )
 
 
+def test_comparison_table_is_transposed_so_width_cannot_clip_it():
+    """Twelve columns did not fit at 1024px: 127px of horizontal and 35px of
+    vertical overflow hid last_seen and the RETEST row. One column per run and
+    one row per field removes the dependence on window width without dropping a
+    field or truncating a value."""
+    query = DS["ds_live_pair"]["options"]["query"]
+    lines = query.splitlines()
+    assert lines[-1] == "| transpose 0 header_field=mode column_name=field"
+    assert query.count("| transpose") == 1
+    table_at = max(i for i, line in enumerate(lines) if line.startswith("| table "))
+    sort_at = max(i for i, line in enumerate(lines) if line.startswith("| sort mode"))
+    assert sort_at < table_at, "ATTACK must sort before RETEST before the table is turned"
+    assert table_at == len(lines) - 2, "transpose must directly consume the table"
+
+
 def test_comparison_panel_keeps_every_evidence_column():
-    """Height was the fix. Dropping columns would have hidden evidence instead."""
+    """Transposing re-orients the table; it must not drop a field."""
     table_clause = DS["ds_live_pair"]["options"]["query"].rsplit("| table", 1)[1].split("\n")[0]
     columns = {c.strip() for c in table_clause.split(",")}
     assert {"mode", "run_id", "decision", "reason", "execution_state"} <= columns
     assert {"requested_scope", "allowed_scope", "scope_gap"} <= columns
+    assert {"profile", "tool", "matched_events", "last_seen"} <= columns
+
+
+def test_comparison_prose_matches_the_transposed_orientation():
+    """The cell must not tell the learner to look for rows that are now columns."""
+    intro = " ".join(VIZ["viz_live_pair_intro"]["options"]["markdown"].split())
+    assert "one column instead of two" in intro and "a missing column" in intro
+    assert "one row instead of two" not in intro
+    description = VIZ["viz_live_pair"]["description"]
+    assert description.startswith("One column per run.id, one row per field")
+    assert "One row per run.id" not in description
+
+
+def test_investigate_panels_are_stacked_with_a_constant_gap():
+    """Offsets follow from heights, so raising one panel cannot overlap another."""
+    rows = INVESTIGATE["structure"]
+    assert rows[0]["position"]["y"] == 0
+    for upper, lower in zip(rows, rows[1:]):
+        expected = upper["position"]["y"] + upper["position"]["h"] + 8
+        assert lower["position"]["y"] == expected, f"{lower['item']} is not stacked under {upper['item']}"
 
 
 def test_investigate_canvas_is_tall_enough_for_its_panels():
