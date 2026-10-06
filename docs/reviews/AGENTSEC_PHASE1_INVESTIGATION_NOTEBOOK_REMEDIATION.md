@@ -4,13 +4,13 @@
 |---|---|
 | Date | 2026-10-05 |
 | Branch | `develop` |
-| Commit | `7ca0dcd` |
+| Commit | `820c93b` |
 | AgentSec version | 1.1.0 |
 | Runtime schema | 1.9.0 (unchanged) |
 | ExternalEvidence contract | 1.0.0 (unchanged) |
 | Splunk app build | 4 (unchanged) |
 | Lab | LAB-MCP-001 — MCP Tool Authorization |
-| Verdict | **CONDITIONAL — NOTEBOOK REMEDIATION INCOMPLETE** |
+| Verdict | **READY FOR INDEPENDENT NOTEBOOK RE-VALIDATION** |
 
 ---
 
@@ -189,61 +189,114 @@ initially had no explicit evidence boundary. The boundary was added to the cell.
 
 ## 7. Deployment
 
+Host `3.17.29.24`, instance `i-03e570d023ce16d6f`, region `us-east-2`.
+
 | Check | Result | Class |
 |---|---|---|
-| Pushed to `origin/develop` | `7ca0dcd` | OBSERVED |
+| Pushed to `origin/develop` | `820c93b` | OBSERVED |
 | `origin/main` untouched | `0178c70` | OBSERVED |
-| Deployed SHA on EC2 | `7ca0dcd` matches | OBSERVED |
+| Deployed SHA on EC2 | matches | OBSERVED |
 | Splunk view deployed | 12 `viz_nb*`, 5 `ds_nb_*` present in container | OBSERVED |
 | Deployed view byte-identical to repo | sha256 `6716c79324ac846e…` both sides | MEASURED |
 | Splunk app build / cache identity | 4, unchanged | OBSERVED |
-| Attack Service template | **see §8** | — |
-| Real ATTACK run | **NOT MEASURED** | — |
-| Real RETEST run | **NOT MEASURED** | — |
-| Indexed evidence for those runs | **NOT MEASURED** | — |
-| Browser verification | **NOT TESTED** | — |
+| Attack Service template rebuilt | `open-notebook` + `open-notebook-primary` served; `open-search-primary` count **0**; advanced disclosure present; Studio limitation stated | MEASURED |
+| Real ATTACK run | `60c48d65-7681-4c73-bf81-569348b84a80` | MEASURED |
+| Real RETEST run | `71514710-5eca-45ca-9eaf-b385200b2c01` | MEASURED |
+| All five searches parse and return rows | 10/10, 0 problems | MEASURED |
+| AcmeBank listener | still `127.0.0.1:5000` | OBSERVED |
+| Browser rendering | **NOT TESTED** | — |
 
-## 8. Why the verdict is CONDITIONAL
+### 7.1 Notebook SPL executed against live indexed data
 
-Three things are outstanding and none of them should be reported as done.
+`scripts/verify_investigation_notebook_spl.py` reads the five searches out of
+the shipped definition, binds `$live_run_id$` the way Studio does, and runs
+them. Result: **ALL CELLS RETURNED ROWS, 0 problems.**
 
-**8.1 The Attack Service was serving a stale template.** The first deployment
-used `--refresh-app` without `--build`. The Splunk side refreshed correctly, but
-the Flask image did not, so the deployed workbench still contained
-`open-search-primary` and no advanced-search disclosure. An image rebuild was
-started; **its result is not yet confirmed in this report.** Until a rebuilt
-container is observed serving `open-notebook-primary`, the §15 handoff is
-NOT VERIFIED in the deployed environment.
+**ATTACK `60c48d65` — 7 indexed events, profile `vulnerable`**
 
-**8.2 No real ATTACK or RETEST run was captured for this commit.** The
-verification attempts failed on operational errors (wrong container name, wrong
-route path, root-owned temp files) and then on the stale image. Previous runs
-corroborate the runtime, but those are REPLAYED relative to this commit, not
-MEASURED on it. The notebook SPL has therefore **not been executed against live
-indexed data** — it is validated by syntax and field-name review only.
+| Cell | Rows | What the learner sees |
+|---|---|---|
+| 1 decision | 1 | `CTRL-MCP-001` · `lookup_customer_tier` · **ALLOW** · `vulnerable_profile_fail_open:…` |
+| 2 execution | 2 | seq 4 `agentsec.mcp.started` executed=true; seq 5 `agentsec.mcp.completed` executed=true |
+| 3 scope | 1 | requested `customer:read` vs allowed `policy:read` → `requested != allowed` |
+| 4 timeline | 7 | `run.started → hop.started → control.decision → mcp.started → mcp.completed → hop.completed → run.completed` |
+| LLM events | 0 | as the notebook states |
 
-**8.3 Nothing was verified in a browser.** No claim of browser PASS is made.
-Specifically unverified: that Studio renders all twelve panels; that the five
-searches return rows; that the canvas height shows no dead space; that the
-clipboard copy fires on the notebook link; that the comparison rehydrate works
-after a real reload; and the **real physical keyboard run-id entry** check
-required by §14.
+**RETEST `71514710` — 6 indexed events, profile `defended`**
+
+| Cell | Rows | What the learner sees |
+|---|---|---|
+| 1 decision | 1 | `CTRL-MCP-001` · `lookup_customer_tier` · **DENY** · `tool_not_granted` |
+| 2 execution | 1 | seq 4 `agentsec.pipeline.stopped` — and **no** `mcp.started` |
+| 3 scope | 1 | identical to ATTACK: `requested != allowed` |
+| 4 timeline | 6 | `run.started → hop.started → control.decision → pipeline.stopped → hop.completed → run.completed` |
+| LLM events | 0 | as the notebook states |
+
+Three teaching points land on real data rather than on prose:
+
+Cell 2 distinguishes the two runs **without reading the decision field at all**.
+It shows execution events on ATTACK and a `pipeline.stopped` on RETEST. A
+learner can answer "did it run?" from execution evidence alone, which is the
+whole point of separating the two questions.
+
+Cell 3 returns **the same row for both runs**: `requested != allowed` either
+way. The scope mismatch existed in the ATTACK too — the vulnerable profile did
+not fail to notice it, it noticed and allowed anyway. That is a materially
+better lesson than "the defended run spotted the mismatch", and it is visible
+only because the cell is run against both.
+
+Cell 4 shows `control.decision` carrying `executed=false` at sequence 3 in both
+runs, with execution appearing separately at sequence 4. The telemetry itself
+distinguishes deciding from doing.
+
+### 7.2 Two fail-safe behaviours observed in passing
+
+While building the verification, two malformed launch requests were rejected
+rather than defaulted:
+
+- omitting `specimen_id` → `unknown_specimen`, `ERROR`, "specimen_id is not
+  allowlisted for this lab"
+- omitting `execution` → `unknown_execution`, `ERROR`, "execution must be live.
+  Replay is not a launch."
+
+Neither request produced a run. This is INV-008 behaving correctly: missing
+security context did not produce a permissive default. OBSERVED, incidental to
+this work, not a designed test.
+
+## 8. What is still not proven
+
+**Nothing was verified in a browser.** No claim of browser PASS is made. The
+searches are proven to parse and return rows, which is not the same as Studio
+laying them out correctly.
+
+Specifically unverified: that Studio renders all twelve panels without error;
+that the declared canvas height of 6604 shows no dead space or clipping; that
+the clipboard copy fires on the notebook link; that the comparison rehydrate
+survives a real reload; and the **real physical keyboard run-id entry** check
+required by §14, which is deliberately not satisfied by a dispatched event.
+
+**An operational finding worth keeping.** The first deployment used
+`--refresh-app` without `--build`. Splunk refreshed; the Flask image did not,
+so the workbench kept serving the old template while every other signal said
+the deploy succeeded. Template-only changes still need `--build`. This was
+caught only because the deployed HTML was grepped rather than assumed.
 
 ## 9. Re-validation checklist
 
-1. Confirm the rebuilt Attack Service serves `open-notebook-primary` and the
-   advanced-search disclosure, and no longer serves `open-search-primary`.
-2. Run a real ATTACK and a real RETEST on this commit; record both run.ids.
-3. Confirm both run.ids are searchable in `agentsec_telemetry`.
-4. Open INVESTIGATE; type one run.id into **LIVE run.id using a real physical
-   keyboard**, not a dispatched browser event.
-5. Confirm all five result panels return rows for that run.
-6. Confirm cell 2 reports execution independently of cell 1's decision.
-7. Confirm MISSION reveals no outcome before prediction.
-8. Confirm PATH B shows the answer-key warning first.
+1. Open INVESTIGATE and confirm all twelve panels render, in order, with no
+   Studio error and no dead space at the bottom of the 6604px canvas.
+2. Type `60c48d65-7681-4c73-bf81-569348b84a80` into **LIVE run.id using a real
+   physical keyboard**, not a dispatched browser event.
+3. Confirm all five panels populate with the §7.1 ATTACK values.
+4. Repeat with the RETEST id and confirm cell 2 shows `pipeline.stopped` and no
+   `mcp.started`.
+5. Confirm MISSION reveals no outcome before prediction.
+6. Confirm PATH B shows the answer-key warning first.
+7. From the workbench, click **Investigate evidence** and confirm it opens the
+   notebook and that the run.id is on the clipboard.
+8. Confirm native Search is still reachable under the advanced disclosure.
 9. Reload the workbench and confirm the comparison rehydrates and does not
    contradict session history.
-10. Confirm the notebook link copies the run.id.
 
 ## 10. Phase boundary
 
@@ -253,8 +306,9 @@ No Phase 2 work was started. `LAB-GOV-004`, `CTRL-RUNTIME-004`, `LAB-DATA-003`,
 
 ---
 
-**VERDICT: CONDITIONAL — NOTEBOOK REMEDIATION INCOMPLETE**
+**VERDICT: READY FOR INDEPENDENT NOTEBOOK RE-VALIDATION**
 
-The notebook is built, tested and deployed to Splunk. It is not proven in the
-deployed Attack Service, not exercised against a live run on this commit, and
-not browser-verified.
+The notebook is built, tested, deployed, and its five searches have been
+executed against live indexed evidence from a real ATTACK and a real RETEST on
+this commit. Browser rendering is the remaining unverified surface and is what
+the independent re-validation in §9 is for.
