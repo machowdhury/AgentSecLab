@@ -200,12 +200,12 @@ def question_md(inv: dict, number: int, spl_file: str) -> str:
 
 {inv["starter_guidance"]}
 
-1. Copy the fresh LIVE run.id from Attack Service, or use Evidence to investigate for canonical REPLAY.
+1. Copy your LIVE run.id from the Attack Service Workbench, or use a recorded REPLAY example from the INVESTIGATE tab.
 2. [Open Splunk Search]({SEARCH_URL})
 3. Constrain `index=agentsec_telemetry sourcetype=otel:agentic:json`.
 4. Filter quoted `agentsec.run.id`. Execute. Read the fields yourself.
 
-Studio cannot receive a fresh LIVE run.id. That handoff is Search, not a token write.
+The Workbench's **Investigate evidence** link fills the LIVE box on the INVESTIGATE tab for you. Splunk Search is a separate app, so here you enter the run.id yourself.
 
 Starter (paste your LIVE run.id; do not search `index=*`):
 
@@ -431,13 +431,21 @@ JOURNEY_H = 300  # px; measured in the rendered page, see the report
 #: evidence to READ. LIVE evidence is the learner's own run; REPLAY evidence is
 #: a recorded specimen. The words LIVE and REPLAY stay in both titles because
 #: the difference is the whole point.
-SELECTOR_TITLE = "REPLAY evidence to read (recorded, not your run)"
-LIVE_TITLE = "LIVE evidence: your run.id (filled by the Workbench link)"
+#:
+#: P0.1: Dashboard Studio truncates a control title at about 28 characters at
+#: 1024 and 1920 px ("REPLAY evidence to read (rec..."), which cut off the very
+#: words that said "recorded, not your run". The titles and option labels are
+#: now short enough to survive, and the sentence that says which evidence is
+#: CURRENT lives in the CURRENT EVIDENCE table, which Studio does not truncate.
+SELECTOR_TITLE = "REPLAY example"
+LIVE_TITLE = "LIVE: your run.id"
 SELECTOR_LABELS = {
-    "baseline": "Baseline evidence: normal behavior (REPLAY)",
-    "attack": "Attack evidence: vulnerable experiment (REPLAY)",
-    "retest": "Retest evidence: defended experiment (REPLAY)",
+    "baseline": "Baseline example",
+    "attack": "Attack example",
+    "retest": "Retest example",
 }
+#: Hard ceiling for any control title or option label (characters). Pinned by a test.
+CONTROL_TEXT_MAX = 24
 
 
 #: The ten-step learning journey, in the three groups the UX spec uses.
@@ -775,7 +783,7 @@ Splunk does **not** send this. Studio does **not** POST. Open Attack Service, la
 
 [Open Attack Service (LIVE launch)]({ATTACK_URL})
 
-**Validated vulnerable REPLAY:** `{ATTACK_ID}`. Choose **Attack evidence: vulnerable experiment (REPLAY)** in the REPLAY evidence selector to read that recorded copy. Choosing it reads recorded evidence; it does not run an experiment.
+**Validated vulnerable REPLAY:** `{ATTACK_ID}`. Choose **Attack example** in the **REPLAY example** selector to read that recorded copy. Choosing it reads recorded evidence; it does not run an experiment.
 
 **Next:** HUNT Path A on the fresh ATTACK `run.id`, then DEFEND, then Launch RETEST (LIVE).
 """,
@@ -1253,8 +1261,8 @@ Validated references: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST
         "viz_journey_investigate",
         journey_markdown(
             "INVESTIGATE",
-            just_done="the experiment finished and its evidence now exists. Your prediction stays in the Workbench tab that made it.",
-            next_step="answer the five questions from the evidence, then go back to the Workbench for DEFEND and RETEST.",
+            just_done="if you came from the Workbench, your experiment finished and its evidence exists, and your prediction stays in the Workbench tab. If you opened this tab yourself, you are reading a recorded REPLAY example.",
+            next_step="check CURRENT EVIDENCE above, answer the five questions from that evidence, then go back to the Workbench for DEFEND and RETEST.",
         ),
         title="YOUR JOURNEY",
     )
@@ -1281,13 +1289,13 @@ Determine, from evidence rather than expectation:
 
 1. Whether CTRL-MCP-001 authorizes the requested tool.
 2. Whether separate runtime evidence shows the handler executed.
-3. What differs between the ATTACK run and the RETEST run.
+3. Whether anything differs between the ATTACK run and the RETEST run, and if so, what.
 
 Predict each answer in the Attack Service workbench **before** you launch. The outcomes are deliberately not stated here — a prediction you have already been given the answer to teaches nothing.
 
 **REQUEST != GRANT · ALLOW != EXECUTION · SPLUNK != ENFORCEMENT**
 
-**BASELINE is recommended, not required.** It is recorded (REPLAY) evidence of normal behavior. Read it first on the **INVESTIGATE** tab by choosing *Baseline evidence* in the REPLAY selector, so you know what "normal" looks like before you test anything. You cannot launch a baseline from here.
+**BASELINE is recommended, not required.** It is recorded (REPLAY) evidence of normal behavior. Read it first on the **INVESTIGATE** tab by choosing *Baseline example* in the **REPLAY example** selector (that selector is already on Baseline until you have a LIVE run), so you know what "normal" looks like before you test anything. You cannot launch a baseline from here.
 
 **NEXT:** [Open the Workbench to PREDICT and run ATTACK]({ATTACK_URL}). The Workbench brings you back to **INVESTIGATE** with your own run already selected.
 
@@ -1436,12 +1444,14 @@ every field and every full value on screen at any width.
     # asserts an outcome: the answer comes from the learner's own run.
     nb_state_spl = (
         notebook_base()
-        + """
+        + f"""
 | eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)
 | eval profile=mvindex(mvdedup('agentsec.security.profile'),0)
 | stats dc(_raw) as indexed_events, values(mode) as mode, values(profile) as profile by run_id
 | eval evidence_state="INDEXED EVIDENCE PRESENT"
-| table run_id, mode, profile, indexed_events, evidence_state"""
+| eval current_evidence=if("$live_run_id$"=="{LIVE_RUN_NONE}","REPLAY: a recorded "+mode+" example, not your run","LIVE: your own "+mode+" experiment")
+| eval selector_in_use=if("$live_run_id$"=="{LIVE_RUN_NONE}","REPLAY example selector","LIVE box (the REPLAY example selector is ignored)")
+| table current_evidence, selector_in_use, run_id, mode, profile, indexed_events, evidence_state"""
     )
     nb_decision_spl = (
         notebook_base('"event.name"=agentsec.control.decision')
@@ -1511,16 +1521,19 @@ every field and every full value on screen at any width.
 evidence. Work down the five questions in order. The searches run for you; you
 do not have to type or execute anything to see a result.
 
-**WHICH EVIDENCE IS BEING READ.** The two controls above **choose evidence**.
-Neither one runs an experiment.
+**WHICH EVIDENCE IS BEING READ.** The **CURRENT EVIDENCE** table at the top of
+this tab says, in words, whether you are reading LIVE or REPLAY evidence. The
+two controls above **choose evidence**. Neither one runs an experiment.
 
-- **LIVE evidence** is your own experiment. The Workbench link fills in the
-  LIVE box with your `run.id`. It reads `none` until then.
-- **REPLAY evidence** is a recorded specimen (Baseline, Attack or Retest). It
-  is not your run.
+- **LIVE** is your own experiment. The Workbench link fills in the LIVE box
+  with your `run.id`. It reads `none` until then.
+- **REPLAY example** is a recorded specimen (Baseline, Attack or Retest). It is
+  not your run. While a LIVE run.id is set, the REPLAY example selector is
+  ignored, even though it still shows a name such as Baseline.
 - **Rule:** if the LIVE box holds a run.id, that run is read. If it reads
-  `none`, the REPLAY choice is read. Right now: LIVE = `$live_run_id$`,
-  REPLAY = `$run_id$`. The state panel below reports which one resolved.
+  `none`, the REPLAY example is read. Right now: LIVE = `$live_run_id$`,
+  REPLAY example = `$run_id$`. The CURRENT EVIDENCE table reports which one
+  resolved.
 
 **IF THE BOX IS NOT FILLED IN** (for example you opened this tab yourself),
 click in the LIVE box, select everything in it (`Ctrl+A` / `Cmd+A`), paste
@@ -1534,7 +1547,7 @@ the handler started. Do not decide from the name of the specimen.
 **TECHNICAL REPRODUCTION.** Each cell prints the exact SPL its table runs, with
 your run.id already filled in. You never have to run it. Copy it into Splunk
 Search only if you want to reproduce a table yourself. This is the query behind
-the state panel:
+the CURRENT EVIDENCE table:
 
 ```text
 <<SPL>>
@@ -1563,10 +1576,10 @@ system alongside session history. Keep your answers somewhere you control.
     add_table(
         "viz_nb_state",
         "ds_nb_state",
-        "Selected run — mode, profile and evidence state",
-        "Resolved from the tokens above. `mode` and `profile` are read from the indexed events "
-        "themselves, not asserted by this page. `indexed_events` is how many events this run has "
-        "in the index; it is a count, not a completeness guarantee.",
+        "CURRENT EVIDENCE: what every table on this tab reads",
+        "Resolved from the LIVE and REPLAY example controls above. `mode` and `profile` are read from the "
+        "indexed events themselves, not asserted by this page. `indexed_events` is how many events this "
+        "run has in the index; it is a count, not a completeness guarantee.",
         no_data=nb_no_evidence,
     )
 
@@ -1590,7 +1603,7 @@ below. That is what CTRL-MCP-001 returned for this run — ALLOW, DENY, ERROR or
 OBSERVE — and `reason` is the control's own explanation.
 
 **WHAT THIS DOES NOT PROVE.** The decision alone does not prove the requested
-tool executed, and it does not prove nothing else ran. **ALLOW != EXECUTION.**
+tool executed. It also says nothing about whether any other tool ran. **ALLOW != EXECUTION.**
 Question 2 is a separate query because it is a separate fact.
 
 **YOUR OBSERVATION.** Write down the decision and the reason in your own words
@@ -1802,7 +1815,7 @@ One tool-authorization run does not reach any of them.
 covers one tool, one agent and one request shape. A DENY here says nothing about
 the next request, a different tool, or a different lab. A matching pair of runs
 shows the control behaved differently under two profiles; it does not show the
-control is correct in general, and it does not prove nothing else executed.
+control is correct in general, and it says nothing about whether any other tool executed.
 **ATTACK != UNIVERSAL COMPROMISE · RETEST != UNIVERSAL SECURITY.**
 
 **YOUR OBSERVATION.** Write the four statements with their labels. Not saved by
@@ -1847,9 +1860,11 @@ you do there changes a control decision: **SPLUNK != ENFORCEMENT.**
     # 1024px window plus margin (inner scrollHeight - clientHeight on the
     # rendered page), not guesses.
     investigate_panels = [
+        # P0.1: CURRENT EVIDENCE comes first so the learner sees whether this tab
+        # reads LIVE or REPLAY before any prose or journey text.
+        ("viz_nb_state", 220),
         ("viz_journey_investigate", JOURNEY_H),
         ("viz_nb_header", 1000),
-        ("viz_nb_state", 220),
         ("viz_nb1_q", 620),
         ("viz_nb1_r", 240),
         ("viz_nb2_q", 700),

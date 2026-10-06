@@ -103,8 +103,10 @@ def test_investigate_opens_with_the_journey_map_then_the_notebook_header():
     learner sees where INVESTIGATE falls before reading the notebook. The
     header must still be the very next panel, ahead of every question cell."""
     items = _items()
-    assert items[0] == "viz_journey_investigate"
-    assert items[1] == "viz_nb_header"
+    # CONTRACT CHANGE (P0.1-F2): CURRENT EVIDENCE is now the first panel.
+    assert items[0] == "viz_nb_state"
+    assert items[1] == "viz_journey_investigate"
+    assert items[2] == "viz_nb_header"
     header = _markdown("viz_nb_header")
     assert "AgentSec Investigation Notebook" in header
     assert "LAB-MCP-001" in header

@@ -152,8 +152,10 @@ def test_workbench_does_not_forward_arbitrary_query_parameters():
 
 def test_selector_says_it_selects_recorded_evidence_and_does_not_run_anything():
     selector = WORKSHOP["inputs"]["input_run_id"]
-    assert "REPLAY" in selector["title"] and "not your run" in selector["title"]
-    assert all("(REPLAY)" in item["label"] for item in selector["options"]["items"])
+    # CONTRACT CHANGE (P0.1-F2): "recorded, not your run" moved out of the
+    # truncated control title into the CURRENT EVIDENCE table.
+    assert "REPLAY" in selector["title"]
+    assert all("example" in item["label"] for item in selector["options"]["items"])
     live = WORKSHOP["inputs"]["input_live_run"]
     assert "LIVE" in live["title"]
     assert live["options"]["defaultValue"] == "none"
