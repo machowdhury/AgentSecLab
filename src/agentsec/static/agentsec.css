@@ -532,3 +532,13 @@ details.secondary summary {
   font-size: .9rem;
   line-height: 1.5;
 }
+
+.readonly-sample {
+  margin: .6rem 0 0;
+  padding: .7rem .9rem;
+  border-left: 3px solid var(--border);
+  background: var(--bg-page);
+  color: var(--text-secondary);
+  font-size: .9rem;
+  line-height: 1.55;
+}

@@ -9,6 +9,7 @@ import requests
 from flask import Flask, jsonify, render_template, request
 
 from agentsec.academy import lab_row, next_lab
+from agentsec.agents import PIPELINE_ORDER
 from agentsec.attacks import ATK_002
 from agentsec.experiment_context import LAB_CAPSTONE, LAB_GOAL, LAB_IDENTITY, LAB_MCP, LAB_MEMORY, LAB_PI, LAB_RAG, lookup_experiment
 from agentsec.goal.fixtures import (
@@ -552,6 +553,28 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
         """Same-origin profile probe. Browser cannot CORS-fetch AcmeBank /health."""
         status, body = client.health()
         return jsonify(body), status
+
+    @app.get("/acmebank")
+    def acmebank_read_only():
+        """Read-only render of the AcmeBank customer page, so WORLD 1 is readable.
+
+        AcmeBank binds to loopback on the lab host and is intentionally not
+        reachable from a browser; it is a deliberately vulnerable target. This
+        route renders the same template with submission removed. It is not an
+        HTTP proxy: there is no caller-supplied upstream and no path, query or
+        body is forwarded, so it adds no request-forgery surface. Only the
+        profile and model labels come from the target, over the fixed /health
+        probe this service already makes.
+        """
+        _, health = client.health()
+        return render_template(
+            "acmebank.html",
+            profile=health.get("security.profile", "NOT MEASURED"),
+            model=health.get("ollama_model", "NOT MEASURED"),
+            version=settings.version,
+            agents=PIPELINE_ORDER,
+            read_only=True,
+        )
 
     @app.get("/api/labs/<lab_id>")
     def lab_manifest_api(lab_id: str):

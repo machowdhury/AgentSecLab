@@ -141,6 +141,7 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
             model=runtime.settings.ollama_model,
             agents=PIPELINE_ORDER,
             version=runtime.settings.version,
+            read_only=False,
         )
 
     @app.get("/api/v1/agents")
