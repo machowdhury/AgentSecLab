@@ -23,16 +23,23 @@ Implementation report for the LAB-MCP-001 reference journey.
 **CONDITIONAL — REMEDIATION REQUIRED BEFORE INDEPENDENT PILOT**
 
 The evidence chain at the heart of the golden path is implemented and verified
-live against real indexed telemetry. Three things block an independent pilot:
+live against real indexed telemetry. Two things block an independent pilot:
 
-1. **AcmeBank is not reachable by a remote learner.** The journey's documented
-   first step cannot be opened from a browser outside the host. See §6.1.
-2. **Every click-dependent behaviour is NOT TESTED.** This was the agreed
+1. **Every click-dependent behaviour is NOT TESTED.** This was the agreed
    validation scope. See §7 for the browser checklist that closes it.
-3. **The System/Build Information surface was not implemented.** See §6.3.
+2. **The System/Build Information surface was not implemented.** See §6.3.
 
-None of these is an architectural or evidence blocker. The runtime, control,
+Neither is an architectural or evidence blocker. The runtime, control,
 telemetry and SPL layers are sound and measured.
+
+Two items originally listed here as blockers were closed after this report was
+first written, and are verified live on the host:
+
+- AcmeBank being unreachable by a remote learner — resolved in `8c195d4` by
+  serving WORLD 1 read-only from the Attack Service, without exposing AcmeBank.
+  See §6.1.
+- The unowned flow image across 30 other views — resolved in `fe8934a` by
+  giving `agentsec.workshop_flows` a named pipeline stage. See §6.2.
 
 ---
 
@@ -260,26 +267,79 @@ with the description saying so, and redeployed.
 
 ## 6. Open items
 
-### 6.1 AcmeBank is not reachable by a remote learner — BLOCKER for the pilot
+### 6.1 AcmeBank is not reachable by a remote learner — RESOLVED (`8c195d4`)
 
 `docker-compose.yml` binds AcmeBank to `127.0.0.1:5000:5000` with no
 `AGENTSEC_BIND_ADDRESS`, unlike Splunk Web (8000) and the Attack Service (5001).
 Confirmed on the host: `agentsec_acmebank|127.0.0.1:5000->5000/tcp`, and
 `curl http://3.17.29.24:5000/` fails **even from the host itself**. (MEASURED)
 
-So the documented journey's first step — "learner enters AcmeBank" — cannot be
-opened from a remote browser. `tests/security/test_remote_listener_bindings.py`
+So the documented journey's first step — "learner enters AcmeBank" — could not
+be opened from a remote browser. `tests/security/test_remote_listener_bindings.py`
 locks this binding deliberately, and exposing a deliberately vulnerable LLM
-target publicly would be a security regression, so **this was not changed**.
+target publicly would be a security regression, so **the binding was not
+changed**.
 
-Mitigation already in place: the business story now also opens the Attack
-Service workbench, which *is* remote-reachable, so a remote learner still gets
-the WORLD 1 → WORLD 2 framing. The pilot decision is whether AcmeBank's own UI
-is required, and if so how it should be reached without a public listener.
+Resolved instead by rendering WORLD 1 read-only from the Attack Service, which
+already listens on 5001: `GET /acmebank` returns the same template with
+`read_only=True`. No form, no submit button, no `/process` call, no script at
+all. This is not an HTTP proxy — there is no caller-supplied upstream and no
+path, query or body is forwarded — so it adds no request-forgery surface from
+the browser into the lab host. No new listener and no new firewall rule.
 
-### 6.2 Thirty views still carry an unowned flow image
+Only the profile and model labels come from the target, over the fixed
+`/health` probe the Attack Service already makes. They render `NOT MEASURED`
+when AcmeBank is unreachable rather than asserting a profile the page cannot
+see.
 
-See §4. Not fixed here.
+Live on the host after deploy (MEASURED):
+
+| Check | Result |
+| --- | --- |
+| `GET http://3.17.29.24:5001/acmebank` | HTTP 200, 5449 bytes |
+| `POST http://3.17.29.24:5001/acmebank` | HTTP 405 |
+| `GET http://3.17.29.24:5000/` | connection refused — still unexposed |
+| Rendered profile / model | `defended` / `llama3.2:1b` — probed, not asserted |
+| Loan form, `/process`, any `<script>` | absent |
+
+`tests/security/test_acmebank_read_only_view.py` (17 tests) pins GET-only,
+upstream rejection, the absent form and script, and that AcmeBank's own page is
+unchanged. The guards were verified to fail when the route is mutated into a
+POST-accepting proxy and when the form is shipped.
+
+### 6.2 Thirty views carried an unowned flow image — RESOLVED (`fe8934a`)
+
+See §4. The diagnosis in §4 was incomplete: the logic *did* exist, in
+`src/agentsec/workshop_flows.py`, which owns `viz_flow_diagram` and the
+decision/executed colour semantics for all 31 workshops. The real defect was
+narrower and worse — `apply_dashboards()` and `write_svgs()` had **no caller
+anywhere**, so they ran once and nothing re-applied them.
+
+Fixed by adding `scripts/apply_workshop_flows.py` as a named pipeline stage and
+establishing the order:
+
+```
+build_lab_*_dashboard.py  ->  apply_workshop_flows.py  ->  apply_guided_learning.py
+```
+
+The duplication introduced in `1ed98f3` was removed: the hardcoded flow block in
+the LAB-MCP-001 build script, and the `EVIDENCE_COLUMN_FORMAT` /
+`EVIDENCE_CONTEXT` copies in `apply_guided_learning`, which were byte-identical
+to the canonical constants.
+
+One artifact change fell out of this: the LAB-MCP-001 mission canvas height
+moves 540 → 748, because `_insert_flow_viz` bumps it by the image height and the
+hardcoded block did not. 748 matches the convention every other workshop uses.
+
+Tests now cover all 31 views, not just the one this phase touched: the stage
+restores every workshop after a simulated rebuild, and running it twice changes
+nothing. Verified the flow image is absent when the stage is skipped, so the
+guard is load-bearing.
+
+Separate pre-existing item, **not fixed**: on all 31 workshops the first tab's
+declared canvas height is smaller than its content bottom, because
+`apply_guided_learning` adds roughly 1400px without bumping the height. This
+predates the golden path work and changing it would touch every view.
 
 ### 6.3 System / Build Information surface — NOT IMPLEMENTED
 
