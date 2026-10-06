@@ -1321,25 +1321,9 @@ DET-MCP-001 remains disabled and checks only DENY-then-start. Silence is not SAF
         ),
     )
 
-    # Owned here on purpose. This block used to live only in the generated XML, so
-    # re-running this script silently deleted it. tests/unit/test_visual_learning.py
-    # requires it to stay first on the first tab at 1440x200.
-    visualizations["viz_flow_diagram"] = {
-        "type": "splunk.image",
-        "title": "Architecture flow",
-        "description": (
-            "A tool request meets CTRL-MCP-001 before the handler. ALLOW is not execution."
-        ),
-        "options": {
-            "src": "/en-US/static/app/agentsec/flows/flow-lab-mcp-001.svg",
-            "preserveAspectRatio": True,
-        },
-    }
-
-    mission_structure = [
-        block("viz_flow_diagram", 0, 0, FULL, 200),
-        block("viz_workbench_mission", 0, 208, FULL, 520),
-    ]
+    # viz_flow_diagram is not created here. scripts/apply_workshop_flows.py owns it
+    # for every workshop and must run after this script.
+    mission_structure = [block("viz_workbench_mission", 0, 0, FULL, 520)]
     investigate_structure = [
         block("viz_workbench_investigate", 0, 0, FULL, 520),
         block("viz_prove_what_id", 0, 520, FULL, 230),

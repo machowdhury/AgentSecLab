@@ -1,16 +1,20 @@
-"""Regression guard: regenerating LAB-MCP-001 must not destroy learner surface.
+"""Regression guard: regenerating a workshop must not destroy learner surface.
 
-Three pieces of the Tool Authorization workshop used to exist only inside the
-generated artifacts, with no generator producing them:
+Three pieces of every workshop are stamped on after the build script runs:
 
-  * viz_flow_diagram        the architecture image pinned to the top of MISSION
+  * viz_flow_diagram        the architecture image pinned to the top of tab one
   * viz_guide_events        semantic ALLOW/DENY and executed column formatting
   * viz_guide_summary       the same formatting on the summary table
 
-Running scripts/build_lab_mcp_001_dashboard.py silently deleted all three, and
-nothing failed until a later test happened to read them. These tests run the
-real generators into a scratch copy of the repository artifacts and assert the
-surface survives, so the generators stay the owners.
+The logic lives in agentsec.workshop_flows, but nothing in the pipeline called
+it, so every scripts/build_lab_*_dashboard.py silently deleted the image and
+the colour semantics from its view and the loss was invisible until an
+unrelated test happened to read them. scripts/apply_workshop_flows.py now gives
+that work a named stage.
+
+Pipeline order, enforced here:
+
+    build_lab_*_dashboard.py -> apply_workshop_flows.py -> apply_guided_learning.py
 """
 
 from __future__ import annotations
@@ -24,15 +28,23 @@ from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[2]
-VIEW = ROOT / "splunk_app/agentsec/default/data/ui/views/ws_lab_mcp_001.xml"
-DEFINITION = ROOT / "learning/level_1/LAB-MCP-001/dashboard.definition.json"
-BUILD = ROOT / "scripts/build_lab_mcp_001_dashboard.py"
-GUIDED = ROOT / "scripts/apply_guided_learning.py"
+from agentsec.workshop_flows import FLOWS, LAB_TO_VIEW, LEARNING, VIEWS, asset_name
 
-# apply_guided_learning.py must run last; the build scripts rebuild definitions
-# from scratch and drop viz_guide_shell.
-GENERATOR_ORDER = (BUILD, GUIDED)
+ROOT = Path(__file__).resolve().parents[2]
+VIEW = VIEWS / "ws_lab_mcp_001.xml"
+DEFINITION = LEARNING / "LAB-MCP-001" / "dashboard.definition.json"
+
+BUILD = ROOT / "scripts/build_lab_mcp_001_dashboard.py"
+FLOWS_STAGE = ROOT / "scripts/apply_workshop_flows.py"
+GUIDED = ROOT / "scripts/apply_guided_learning.py"
+PIPELINE = (BUILD, FLOWS_STAGE, GUIDED)
+
+
+def _run(script: Path) -> None:
+    result = subprocess.run(
+        [sys.executable, str(script)], cwd=ROOT, capture_output=True, text=True
+    )
+    assert result.returncode == 0, f"{script.name} failed: {result.stderr}"
 
 
 def _definition(text: str) -> dict:
@@ -41,21 +53,23 @@ def _definition(text: str) -> dict:
     return json.loads(match.group(1))
 
 
+def _all_artifacts() -> list[Path]:
+    paths = []
+    for flow in FLOWS:
+        paths.append(LEARNING / flow["lab"] / "dashboard.definition.json")
+        paths.append(VIEWS / f"{LAB_TO_VIEW[flow['lab']]}.xml")
+    return paths
+
+
 @pytest.fixture(scope="module")
 def regenerated(tmp_path_factory) -> dict:
-    """Run the real generators, then restore the working tree."""
+    """Run the real pipeline, then restore the working tree."""
     backup = tmp_path_factory.mktemp("baseline")
     for path in (VIEW, DEFINITION):
         shutil.copy2(path, backup / path.name)
     try:
-        for script in GENERATOR_ORDER:
-            result = subprocess.run(
-                [sys.executable, str(script)],
-                cwd=ROOT,
-                capture_output=True,
-                text=True,
-            )
-            assert result.returncode == 0, f"{script.name} failed: {result.stderr}"
+        for script in PIPELINE:
+            _run(script)
         produced = {
             "view": VIEW.read_text(encoding="utf-8"),
             "definition": json.loads(DEFINITION.read_text(encoding="utf-8")),
@@ -94,8 +108,7 @@ def test_guided_shell_survives_regeneration(regenerated):
 @pytest.mark.parametrize("viz_id", ["viz_guide_events", "viz_guide_summary"])
 def test_semantic_evidence_formatting_survives_regeneration(regenerated, viz_id):
     viz = regenerated["view_definition"]["visualizations"][viz_id]
-    column_format = viz["options"]["columnFormat"]
-    assert set(column_format) == {"decision", "executed"}
+    assert set(viz["options"]["columnFormat"]) == {"decision", "executed"}
 
     context = viz["context"]
     decision_text = {row["match"]: row["value"] for row in context["decisionText"]}
@@ -109,3 +122,82 @@ def test_semantic_evidence_formatting_survives_regeneration(regenerated, viz_id)
     executed_background = {row["match"]: row["value"] for row in context["executedBackgrounds"]}
     assert executed_background["true"] == "#0B1F33"
     assert executed_background["false"] == "#EEF1F4"
+
+
+def test_every_workshop_currently_carries_its_flow_image():
+    """All 31, not just the one this phase touched."""
+    for flow in FLOWS:
+        definition = json.loads(
+            (LEARNING / flow["lab"] / "dashboard.definition.json").read_text(encoding="utf-8")
+        )
+        viz = definition["visualizations"].get("viz_flow_diagram")
+        assert viz is not None, f"{flow['lab']} lost its architecture flow"
+        assert viz["options"]["src"].endswith(asset_name(flow["lab"]))
+
+
+def test_flow_stage_restores_every_workshop_after_a_build_script_wipes_it(tmp_path):
+    """The debt this stage exists to close.
+
+    Simulates what any build_lab_*_dashboard.py does: rebuild a definition with
+    no flow image. The stage must put all 31 back without being told which.
+    """
+    artifacts = _all_artifacts()
+    backup = tmp_path / "artifacts"
+    backup.mkdir()
+    saved = {}
+    for index, path in enumerate(artifacts):
+        copy = backup / f"{index}-{path.name}"
+        shutil.copy2(path, copy)
+        saved[path] = copy
+    try:
+        stripped = []
+        for flow in FLOWS:
+            path = LEARNING / flow["lab"] / "dashboard.definition.json"
+            definition = json.loads(path.read_text(encoding="utf-8"))
+            if definition["visualizations"].pop("viz_flow_diagram", None) is None:
+                continue
+            first = definition["layout"]["tabs"]["items"][0]["layoutId"]
+            canvas = definition["layout"]["layoutDefinitions"][first]
+            canvas["structure"] = [
+                item for item in canvas["structure"] if item["item"] != "viz_flow_diagram"
+            ]
+            for item in canvas["structure"]:
+                item["position"]["y"] = int(item["position"]["y"]) - 208
+            canvas["options"]["height"] = int(canvas["options"]["height"]) - 208
+            path.write_text(
+                json.dumps(definition, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+            )
+            stripped.append(flow["lab"])
+
+        assert len(stripped) == len(FLOWS), "expected every workshop to have one to strip"
+
+        _run(FLOWS_STAGE)
+
+        for flow in FLOWS:
+            definition = json.loads(
+                (LEARNING / flow["lab"] / "dashboard.definition.json").read_text(encoding="utf-8")
+            )
+            viz = definition["visualizations"].get("viz_flow_diagram")
+            assert viz is not None, f"{flow['lab']} was not restored"
+            assert viz["options"]["src"].endswith(asset_name(flow["lab"]))
+            first = definition["layout"]["tabs"]["items"][0]["layoutId"]
+            structure = definition["layout"]["layoutDefinitions"][first]["structure"]
+            assert structure[0]["item"] == "viz_flow_diagram", flow["lab"]
+            xml = (VIEWS / f"{LAB_TO_VIEW[flow['lab']]}.xml").read_text(encoding="utf-8")
+            assert "viz_flow_diagram" in xml, flow["lab"]
+    finally:
+        for path, copy in saved.items():
+            shutil.copy2(copy, path)
+
+
+def test_flow_stage_is_idempotent():
+    """Running it twice must not shift the canvas or duplicate the block."""
+    before = {path: path.read_bytes() for path in _all_artifacts()}
+    _run(FLOWS_STAGE)
+    try:
+        after = {path: path.read_bytes() for path in _all_artifacts()}
+        drifted = [path.name for path in before if before[path] != after[path]]
+        assert not drifted, f"apply_workshop_flows.py is not idempotent: {drifted}"
+    finally:
+        for path, data in before.items():
+            path.write_bytes(data)
