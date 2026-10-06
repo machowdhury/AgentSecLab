@@ -111,8 +111,11 @@ def test_grid_workshop_tabs_and_tokens():
     assert SPECIMEN_IDS["retest_run_id"] in item_values
     hunt = [inp for inp in definition["inputs"].values() if inp["options"]["token"] == "run_id"][0]
     assert hunt["options"]["defaultValue"] == SPECIMEN_IDS["baseline_run_id"]
-    assert hunt["title"] == "Investigate specimen"
-    assert {inp["title"] for inp in definition["inputs"].values()} - {"LIVE run.id"} == {"Investigate specimen"}
+    # CONTRACT CHANGE (P0-C): "Investigate specimen" read like an action. The
+    # controls are now named for what they do: choose evidence to read.
+    assert hunt["title"].startswith("REPLAY evidence")
+    live_titles = {inp["title"] for inp in definition["inputs"].values() if inp["options"]["token"] == "live_run_id"}
+    assert len(live_titles) == 1 and next(iter(live_titles)).startswith("LIVE")
 
 
 def test_datasources_are_validated_spl_with_token_bind_only():

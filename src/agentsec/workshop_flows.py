@@ -152,6 +152,15 @@ FLOWS: list[dict] = [
             ("execution", "HANDLER START — only after ALLOW"),
             ("telemetry", "TELEMETRY — Splunk observes"),
         ],
+        # Golden path: drawn left-to-right at 1440 x 200 so the labels are large
+        # enough to read without zoom. Same five nodes, same order as "steps".
+        "horizontal": [
+            ("source", "USER / AGENT", "asks for a tool"),
+            ("observe", "TOOL REQUEST", "tool · scope · arguments"),
+            ("control", "CTRL-MCP-001", "ALLOW / DENY / ERROR"),
+            ("execution", "HANDLER START", "only after ALLOW"),
+            ("telemetry", "TELEMETRY", "Splunk observes"),
+        ],
     },
     {
         "lab": "LAB-MCP-003",
@@ -674,7 +683,80 @@ def asset_url(lab: str) -> str:
     return f"/en-US/static/app/agentsec/flows/{asset_name(lab)}"
 
 
+#: Wide layout for the golden-path lab. Same 1440 x 200 box the vertical image
+#: occupies in Dashboard Studio, so the shared layout contract is unchanged.
+HORIZONTAL_W = 1440
+HORIZONTAL_H = 200
+
+
+def _render_horizontal(flow: dict) -> str:
+    """Left-to-right flow with the control drawn as a branch point.
+
+    Grammar: the control is the only filled node; execution has a heavy teal
+    border; DENY/ERROR ends the path at a stop bar, so the picture cannot be read
+    as "everything proceeds to the handler". Splunk is last and drawn as a
+    dashed observer: it receives copies of events and never sits on the decision
+    path. Colour is never the only signal (words, borders, dashes and a stop bar
+    carry meaning), and there is no green or red.
+    """
+    nodes = flow["horizontal"]
+    count = len(nodes)
+    margin = 30
+    gap = 60
+    box_w = (HORIZONTAL_W - 2 * margin - gap * (count - 1)) // count
+    box_y, box_h = 22, 96
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {HORIZONTAL_W} {HORIZONTAL_H}" role="img" aria-labelledby="title desc">',
+        f'<title id="title">{_xml(flow["title"])}</title>',
+        f'<desc id="desc">{_xml(flow["desc"])}</desc>',
+        f'<rect width="{HORIZONTAL_W}" height="{HORIZONTAL_H}" fill="{PAGE}"/>',
+        '<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">'
+        f'<path d="M0 0 L10 5 L0 10 z" fill="{TEXT}"/></marker></defs>',
+        '<g font-family="system-ui, Segoe UI, sans-serif" fill="#17202A">',
+    ]
+    control_cx = None
+    for index, (kind, title, sub) in enumerate(nodes):
+        x = margin + index * (box_w + gap)
+        fill, stroke, dash, text_fill = _kind_style(kind)
+        stroke_w = 4 if kind == "execution" else 2
+        dash_attr = ' stroke-dasharray="6 4"' if dash or kind == "telemetry" else ""
+        parts.append(
+            f'<rect x="{x}" y="{box_y}" width="{box_w}" height="{box_h}" rx="6" fill="{fill}" '
+            f'stroke="{stroke}" stroke-width="{stroke_w}"{dash_attr}/>'
+        )
+        cx = x + box_w // 2
+        parts.append(
+            f'<text x="{cx}" y="{box_y + 42}" text-anchor="middle" font-size="19" font-weight="700" fill="{text_fill}">{_xml(title)}</text>'
+        )
+        parts.append(
+            f'<text x="{cx}" y="{box_y + 70}" text-anchor="middle" font-size="16" fill="{text_fill}">{_xml(sub)}</text>'
+        )
+        if kind == "control":
+            control_cx = cx
+        if index < count - 1:
+            ax1, ax2 = x + box_w + 4, x + box_w + gap - 4
+            ay = box_y + box_h // 2
+            nxt_dashed = nodes[index + 1][0] == "telemetry"
+            dash_line = ' stroke-dasharray="6 5"' if nxt_dashed else ""
+            parts.append(
+                f'<line x1="{ax1}" y1="{ay}" x2="{ax2}" y2="{ay}" stroke="{TEXT}" stroke-width="3"{dash_line} marker-end="url(#arrow)"/>'
+            )
+    if control_cx is not None:
+        # DENY / ERROR branch: leaves the control and ends at a stop bar. No arrow
+        # reaches the handler from here.
+        stub_top = box_y + box_h
+        parts.append(f'<line x1="{control_cx}" y1="{stub_top}" x2="{control_cx}" y2="156" stroke="{TEXT}" stroke-width="3" stroke-dasharray="6 5"/>')
+        parts.append(f'<line x1="{control_cx - 34}" y1="160" x2="{control_cx + 34}" y2="160" stroke="{TEXT}" stroke-width="6"/>')
+        parts.append(
+            f'<text x="{control_cx + 46}" y="167" font-size="16" font-weight="700" fill="{TEXT}">DENY / ERROR: the path ends here, no handler starts</text>'
+        )
+    parts.append("</g></svg>\n")
+    return "\n".join(parts)
+
+
 def render_flow_svg(flow: dict) -> str:
+    if flow.get("horizontal"):
+        return _render_horizontal(flow)
     steps = flow["steps"]
     width = 880
     top = 28

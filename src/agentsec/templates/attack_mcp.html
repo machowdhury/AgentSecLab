@@ -50,16 +50,52 @@
       </div>
     </section>
 
-    <ol class="loop-stepper" aria-label="Learning loop for this workshop">
-      <li data-stage="UNDERSTAND"><span>1</span>Understand</li>
-      <li data-stage="PREDICT" class="loop-stepper__current" id="loop-current"><span>2</span>Predict</li>
-      <li data-stage="ATTACK"><span>3</span>Attack</li>
-      <li data-stage="OBSERVE"><span>4</span>Observe</li>
-      <li data-stage="INVESTIGATE"><span>5</span>Investigate</li>
-      <li data-stage="RETEST"><span>6</span>Retest</li>
-      <li data-stage="COMPARE"><span>7</span>Compare</li>
-      <li data-stage="EXPLAIN"><span>8</span>Explain</li>
-    </ol>
+    <section class="journey" aria-labelledby="journey-heading">
+      <h2 id="journey-heading" class="journey__title">Your journey · Tool Authorization</h2>
+      <div class="journey__groups">
+        <div class="journey__group">
+          <h3>Understand</h3>
+          <ol>
+            <li data-stage="LEARN"><span>1</span>Learn</li>
+            <li data-stage="BASELINE"><span>2</span>Baseline <small>recommended · REPLAY</small></li>
+          </ol>
+        </div>
+        <div class="journey__group">
+          <h3>Test</h3>
+          <ol>
+            <li data-stage="PREDICT" class="journey__current" aria-current="step"><span>3</span>Predict</li>
+            <li data-stage="ATTACK"><span>4</span>Attack</li>
+            <li data-stage="OBSERVE"><span>5</span>Observe</li>
+          </ol>
+        </div>
+        <div class="journey__group">
+          <h3>Prove</h3>
+          <ol>
+            <li data-stage="INVESTIGATE"><span>6</span>Investigate</li>
+            <li data-stage="DEFEND"><span>7</span>Defend</li>
+            <li data-stage="RETEST"><span>8</span>Retest</li>
+            <li data-stage="COMPARE"><span>9</span>Compare</li>
+            <li data-stage="EXPLAIN"><span>10</span>Explain</li>
+          </ol>
+        </div>
+      </div>
+      <p class="journey__now" aria-live="polite">
+        <strong>You are here:</strong> <span id="journey-here">PREDICT</span>
+        <span class="journey__sep" aria-hidden="true">·</span>
+        <strong>Next:</strong> <span id="journey-next">Choose a guess for each of the two questions, then record them.</span>
+      </p>
+      <p class="journey__note">This map shows where you are on this page. It is not saved progress: <strong>Your Path</strong> remembers progress, and the workshop tab shows the same ten steps from its side.</p>
+    </section>
+
+    <section class="baseline-step" id="baseline-step" aria-labelledby="baseline-heading">
+      <p class="eyebrow">STEP · BASELINE · recommended, not required</p>
+      <h2 id="baseline-heading">See normal behavior first</h2>
+      <p>BASELINE is the agent making its one granted request, <code>{{ mcp_policy.allowed_tools }}</code>.
+      Knowing what normal looks like makes the experiment below easier to read. It is
+      <strong>recorded (REPLAY) evidence</strong>, not something you launch: the experiment buttons below run ATTACK and RETEST only.</p>
+      <p><a class="btn btn-secondary" id="open-baseline" href="/en-US/app/agentsec/ws_lab_mcp_001?tab=layout_investigate&amp;form.run_id={{ mcp_baseline_run_id|urlencode }}" target="_blank" rel="noopener noreferrer">Read the BASELINE evidence (REPLAY)</a>
+      <span class="muted">Opens the INVESTIGATE tab with the recorded baseline selected. Skip it if you already know the normal path.</span></p>
+    </section>
 
     <section class="mission" aria-labelledby="security-question">
       <p class="eyebrow">WORLD 2 · AI / SECURITY — your mission</p>
@@ -87,37 +123,47 @@
           </div>
           <span class="status" id="ui-status" data-state="READY">READY</span>
         </div>
-        <p id="status-live" class="status-message" aria-live="polite">Choose ATTACK or RETEST. The browser cannot send profile, grants, tools, scope, or policy.</p>
+        <p id="status-live" class="status-message" aria-live="polite">Predict first, then run ATTACK. The browser cannot send profile, grants, tools, scope, or policy.</p>
 
         <div class="mode-actions" aria-label="LIVE experiment actions">
-          <button class="btn btn-danger" id="fire-attack" type="button" disabled data-mode="ATTACK" data-specimen="{{ specimen_attack }}">
+          <button class="btn btn-primary" id="fire-attack" type="button" disabled data-mode="ATTACK" data-specimen="{{ specimen_attack }}">
             Run ATTACK
-            <small>Known-ungranted request · vulnerable profile</small>
+            <small>Starts a LIVE experiment · known-ungranted request · vulnerable profile</small>
           </button>
-          <button class="btn btn-primary" id="fire-retest" type="button" disabled data-mode="RETEST" data-specimen="{{ specimen_retest }}">
+          <button class="btn btn-secondary" id="fire-retest" type="button" disabled data-mode="RETEST" data-specimen="{{ specimen_retest }}">
             Run RETEST
-            <small>Same request · defended profile</small>
+            <small>Starts a LIVE experiment · same request · defended profile</small>
           </button>
+        </div>
+
+        <div class="defend-step" id="defend-step">
+          <p class="eyebrow">STEP · DEFEND · an explanation, not a control</p>
+          <p><strong>What changes in RETEST.</strong> Nothing about the request changes: the same tool, scope and arguments are sent.
+          What changes is the <strong>server-owned security profile</strong> that CTRL-MCP-001 runs under. You cannot switch it from this
+          page, and neither can the browser: the profile is chosen on the server, which is why there is no "apply defense" button.</p>
+          <p>Before you run RETEST, ask: <em>if the control now enforces what it was configured to enforce, what should change in the
+          decision, and what should change in whether the handler starts?</em> RETEST then repeats the same request. It shows how
+          this one request behaved under this profile. It does not show the system is secure.</p>
         </div>
 
         <form id="learner-prediction" class="prediction">
           <fieldset>
-            <legend>Predict before you click</legend>
-            <p>Choose a control guess and an execution guess. This stays in this browser tab. It is not sent to Splunk, not graded, and not a control decision.</p>
-            <p id="predict-control-label">Will the control:</p>
+            <legend>STEP · PREDICT — before you click</legend>
+            <p>Two separate questions. They are different facts, so answer each one on its own. This stays in this browser tab. It is not sent to Splunk, not graded, and not a control decision.</p>
+            <p id="predict-control-label"><strong>1. What should the control decide?</strong></p>
             <div class="choice-row" role="radiogroup" aria-labelledby="predict-control-label">
               <label class="choice-card"><input type="radio" name="predict-control" value="ALLOW"> ALLOW</label>
               <label class="choice-card"><input type="radio" name="predict-control" value="DENY"> DENY</label>
               <label class="choice-card"><input type="radio" name="predict-control" value="ERROR"> ERROR</label>
-              <label class="choice-card"><input type="radio" name="predict-control" value="UNKNOWN" checked> UNKNOWN</label>
+              <label class="choice-card"><input type="radio" name="predict-control" value="UNKNOWN" checked> UNSURE</label>
             </div>
-            <p id="predict-execution-label">Will execution occur:</p>
+            <p id="predict-execution-label"><strong>2. Do you think downstream execution will occur?</strong></p>
             <div class="choice-row" role="radiogroup" aria-labelledby="predict-execution-label">
               <label class="choice-card"><input type="radio" name="predict-execution" value="YES"> YES</label>
               <label class="choice-card"><input type="radio" name="predict-execution" value="NO"> NO</label>
-              <label class="choice-card"><input type="radio" name="predict-execution" value="UNKNOWN" checked> UNKNOWN</label>
+              <label class="choice-card"><input type="radio" name="predict-execution" value="UNKNOWN" checked> UNSURE</label>
             </div>
-            <p class="prediction-recorded" id="prediction-recorded" aria-live="polite">Select a control guess and an execution guess, then record them. UNKNOWN is an honest answer and is accepted.</p>
+            <p class="prediction-recorded" id="prediction-recorded" aria-live="polite">Select a guess for each question, then record them. UNSURE is an honest answer and is accepted.</p>
             <button class="btn btn-secondary" id="record-prediction" type="button">Record prediction and unlock launch</button>
           </fieldset>
         </form>
@@ -126,18 +172,26 @@
       <section class="run-panel" aria-labelledby="run-heading">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Investigation artifact</p>
+            <p class="eyebrow">Technical metadata</p>
             <h2 id="run-heading">Current run.id</h2>
           </div>
           <span id="run-mode-label">NOT RUN</span>
         </div>
+        <div class="experiment-complete" id="experiment-complete" hidden tabindex="-1">
+          <p class="eyebrow" id="complete-eyebrow">EXPERIMENT COMPLETE</p>
+          <h3 id="complete-heading">ATTACK EXPERIMENT COMPLETE</h3>
+          <p id="complete-body">Evidence has been generated. Your prediction is locked. Now determine what actually happened from the evidence.</p>
+          <p id="complete-prediction" class="complete-prediction"></p>
+          <a class="btn btn-primary" id="open-notebook-complete" href="/en-US/app/agentsec/ws_lab_mcp_001?tab=layout_investigate" target="_blank" rel="noopener noreferrer">Investigate evidence →</a>
+        </div>
+        <p class="run-help">The run.id identifies this one experiment in the evidence. You do not normally need to copy it: <strong>Investigate evidence</strong> opens the notebook with this run already selected.</p>
         <output id="run-id" class="run-id" aria-live="polite">Launch an experiment to mint a UUID</output>
         <div class="compact-actions">
           <a class="btn btn-primary" id="open-notebook" href="/en-US/app/agentsec/ws_lab_mcp_001?tab=layout_investigate" target="_blank" rel="noopener noreferrer">Investigate evidence</a>
           <button class="btn btn-secondary" id="copy-run-id" type="button" disabled>Copy Run ID</button>
         </div>
         <p class="run-help" id="copy-feedback" aria-live="polite">run.id correlates this experiment across runtime, local evidence, telemetry, and Splunk.</p>
-        <p class="run-help">Investigate evidence copies the run.id and opens the guided Investigation Notebook on the workshop's INVESTIGATE tab. There, click in <strong>LIVE run.id</strong>, select the <code>none</code> in it (Ctrl+A / Cmd+A), paste, and press Enter: Dashboard Studio has no supported way for this page to fill that field for you.</p>
+        <p class="run-help"><strong>Fallback.</strong> Dashboard Studio prefilling from a link was observed to work on this deployment but is not a documented guarantee. If the <strong>LIVE evidence</strong> box on the INVESTIGATE tab still reads <code>none</code>, click in it, select the existing text, that is, select the <code>none</code> (Ctrl+A / Cmd+A), paste the copied run.id, and press Enter. Clicking Investigate evidence also copies the run.id for this purpose.</p>
         <details class="advanced-search">
           <summary>Advanced — open native Splunk Search instead</summary>
           <p>Native Search is the analyst workbench and answers questions the notebook does not. Work the five guided questions first.</p>
@@ -146,6 +200,11 @@
       </section>
     </div>
 
+    <details class="launcher-details" id="launcher-details">
+      <summary>Launcher result details (technical) — open after you have investigated</summary>
+      <p class="launcher-details__warning"><strong>This reveals the control decision and the execution outcome the launcher
+      recorded.</strong> Opening it before you have read the evidence turns your investigation into a lookup. It stays here, not
+      hidden, because it is also the fastest way to troubleshoot a failed launch. Splunk evidence remains the thing you are learning to read.</p>
     <section class="facts-section" aria-labelledby="facts-heading">
       <div class="section-heading">
         <div>
@@ -221,10 +280,30 @@
         </table>
       </div>
     </section>
+    <section>
+      <h2>This browser tab</h2>
+      <p>LAST KNOWN CLIENT STATE. Not indexed evidence. A reload keeps this list in this tab. Search remains the evidence authority.</p>
+      <ul class="fact-list" id="session-history" data-agentsec-managed="1" data-lab-id="LAB-MCP-001"></ul>
+      <p id="session-pair"></p>
+    </section>
+    </details>
+
+    <section class="explain-step" id="explain-step" aria-labelledby="explain-heading">
+      <p class="eyebrow">STEP · EXPLAIN · say it in your own words</p>
+      <h2 id="explain-heading">What can you legitimately claim?</h2>
+      <p>After you have investigated both runs, write down (the page does not save it):</p>
+      <ol>
+        <li>What did CTRL-MCP-001 decide in each run, and what reason did it give?</li>
+        <li>What separate evidence shows whether the handler started, in each run?</li>
+        <li>What changed between ATTACK and RETEST, and what did not?</li>
+        <li>What does this evidence <strong>not</strong> prove?</li>
+      </ol>
+      <p class="muted">Careful wording matters: one request under one profile does not show a system is compromised, and it does not show a system is secure.</p>
+    </section>
 
     <section class="next-section" aria-labelledby="next-heading">
       <div>
-        <p class="eyebrow">Next investigation</p>
+        <p class="eyebrow">STEP · INVESTIGATE</p>
         <h2 id="next-heading">Answer five questions against your own run</h2>
         <p>The guided Investigation Notebook on the workshop's INVESTIGATE tab walks you through
         what the control decided, whether anything executed, what was requested versus granted,
@@ -263,12 +342,6 @@
         </section>
       </div>
     </details>
-    <section>
-      <h2>This browser tab</h2>
-      <p>LAST KNOWN CLIENT STATE. Not indexed evidence. A reload keeps this list in this tab. Search remains the evidence authority.</p>
-      <ul class="fact-list" id="session-history" data-agentsec-managed="1" data-lab-id="LAB-MCP-001"></ul>
-      <p id="session-pair"></p>
-    </section>
   </main>
 
   <script src="{{ url_for('static', filename='agentsec-ui.js') }}"></script>
@@ -384,11 +457,66 @@
         return value ? String(value) : "NOT MEASURED";
       }
 
+      /* Surface-local journey map. It marks where the learner is on THIS page; it
+         is not stored and not shared with the Splunk workshop, which is a different
+         origin. Current step is marked by a word and a symbol, never by colour alone,
+         and no step is ever marked passed or failed. */
+      const JOURNEY_NEXT = {
+        LEARN: "Optionally read the BASELINE evidence, then predict.",
+        BASELINE: "Read the recorded baseline if you want, then predict.",
+        PREDICT: "Choose a guess for each of the two questions, then record them.",
+        ATTACK: "Prediction recorded. Run ATTACK.",
+        OBSERVE: "The experiment finished and evidence exists. Investigate that evidence.",
+        INVESTIGATE: "Answer the five notebook questions from the evidence, then come back here to read DEFEND and run RETEST.",
+        DEFEND: "Read what changes in RETEST, then run RETEST.",
+        RETEST: "RETEST finished and evidence exists. Investigate that evidence.",
+        COMPARE: "Compare the two runs in the notebook and in Launcher result details, then EXPLAIN in your own words.",
+        EXPLAIN: "Say what the evidence supports and what it does not prove."
+      };
+
       function setStage(stage) {
-        const items = document.querySelectorAll(".loop-stepper li");
+        const items = document.querySelectorAll(".journey li");
         Array.prototype.forEach.call(items, function (item) {
-          item.classList.toggle("loop-stepper__current", item.dataset.stage === stage);
+          const current = item.dataset.stage === stage;
+          item.classList.toggle("journey__current", current);
+          if (current) item.setAttribute("aria-current", "step"); else item.removeAttribute("aria-current");
         });
+        const here = document.getElementById("journey-here");
+        const next = document.getElementById("journey-next");
+        if (here) here.textContent = stage;
+        if (next) next.textContent = JOURNEY_NEXT[stage] || "";
+      }
+
+      /* The prediction is locked once an experiment has run, so it cannot be edited
+         after the evidence is known. It stays readable. */
+      function lockPrediction() {
+        if (!predictionForm) return;
+        Array.prototype.forEach.call(predictionForm.querySelectorAll("input, button"), function (el) {
+          el.disabled = true;
+        });
+        const recorded = document.getElementById("prediction-recorded");
+        if (recorded) {
+          recorded.textContent = "PREDICTION LOCKED: control " + selectedValue("predict-control").replace("UNKNOWN", "UNSURE")
+            + ", execution " + selectedValue("predict-execution").replace("UNKNOWN", "UNSURE")
+            + ". It was recorded before the experiment ran and is kept in this browser tab only.";
+        }
+      }
+
+      function showComplete(mode, ok) {
+        const card = document.getElementById("experiment-complete");
+        if (!card) return;
+        if (!ok) { card.hidden = true; return; }
+        const retest = mode === "RETEST";
+        document.getElementById("complete-heading").textContent = mode + " EXPERIMENT COMPLETE";
+        document.getElementById("complete-body").textContent = retest
+          ? "Evidence has been generated for the same request under the defended profile. Now determine from the evidence what that profile changed, and what it did not."
+          : "Evidence has been generated. Your prediction is locked. Now determine what actually happened from the evidence.";
+        document.getElementById("complete-prediction").textContent =
+          "Your prediction: control " + selectedValue("predict-control").replace("UNKNOWN", "UNSURE")
+          + " · execution " + selectedValue("predict-execution").replace("UNKNOWN", "UNSURE")
+          + ". The outcome is deliberately not shown here.";
+        card.hidden = false;
+        card.focus();
       }
 
       function paintFact(id, value, detail, tone) {
@@ -503,13 +631,17 @@
           const url = ui.learnerHref(data.search_handoff.search_url || "/en-US/app/search/search");
           document.getElementById("open-search").href = url;
           document.getElementById("starter-spl").value = data.search_handoff.starter_spl || "";
-          /* The workshop URL is server-built so the notebook, not Search, is the
-             default next step. Studio cannot take the run.id from the URL, so the
-             id goes to the clipboard and the learner pastes it into LIVE run.id. */
+          /* The URLs are server-built so the notebook, not Search, is the default next
+             step. investigate_url carries the run.id as form.live_run_id, which was
+             OBSERVED to prefill the Studio input (SUPPORTED WITH CONSTRAINTS, not a
+             documented guarantee). When the server did not supply it, fall back to
+             the plain workshop URL; the run.id is also copied for manual paste. */
           const workshop = ui.learnerHref(
-            data.search_handoff.workshop_url || "/en-US/app/agentsec/ws_lab_mcp_001?tab=layout_investigate"
+            data.search_handoff.investigate_url
+              || data.search_handoff.workshop_url
+              || "/en-US/app/agentsec/ws_lab_mcp_001?tab=layout_investigate"
           );
-          ["open-notebook", "open-notebook-primary"].forEach(function (id) {
+          ["open-notebook", "open-notebook-primary", "open-notebook-complete"].forEach(function (id) {
             const link = document.getElementById(id);
             if (link) link.href = workshop;
           });
@@ -518,16 +650,20 @@
         /* The pill reports the launcher only. Control decision, execution, terminal state and
            evidence readiness are reported as separate facts so they cannot contradict a summary. */
         const launcherState = data.error_class === "ERROR" ? "ERROR" : "RUN COMPLETE";
-        const message = data.error_class === "ERROR"
+        const failed = data.error_class === "ERROR";
+        const message = failed
           ? (data.detail || "Launch failed") + " This is ERROR, not control DENY."
-          : mode + " finished. Read the control decision, execution evidence, terminal state and "
-            + "evidence readiness below as four separate facts; none is inferred from another.";
+          : mode + " experiment finished and evidence has been generated. Investigate that evidence to find out what happened.";
         ui.applyState(statusEl, statusMessage, launcherState, message);
         if (runId) {
           ui.captureLaunch(data, mode, "LAB-MCP-001");
         }
         renderComparison();
-        setStage(last.ATTACK && last.RETEST ? "COMPARE" : "OBSERVE");
+        showComplete(mode, !failed && Boolean(runId));
+        if (!failed && runId) {
+          lockPrediction();
+          setStage(last.ATTACK && last.RETEST ? "COMPARE" : (mode === "RETEST" ? "RETEST" : "OBSERVE"));
+        }
       }
 
       async function launch(mode, specimenId) {
@@ -583,18 +719,19 @@
           copied ? "Run ID copied. Use it to correlate this experiment." : "Copy failed. Select the visible run.id manually.";
       });
 
-      /* Studio will not accept the run.id from a URL, so the most we can do is put
-         it on the clipboard as the learner leaves for the notebook. The link still
-         navigates if the copy fails; the notebook also accepts manual entry. */
-      ["open-notebook", "open-notebook-primary"].forEach(function (id) {
+      /* The link carries the run.id (see investigate_url). The run.id is also put on
+         the clipboard as the fallback, because the URL prefill is an observed
+         behavior, not a documented guarantee. The link navigates either way. */
+      ["open-notebook", "open-notebook-primary", "open-notebook-complete"].forEach(function (id) {
         const link = document.getElementById(id);
         if (!link) return;
         link.addEventListener("click", function () {
+          setStage("INVESTIGATE");
           if (!runOutput.dataset.value) return;
           copyRunId().then(function (copied) {
             document.getElementById("copy-feedback").textContent = copied
-              ? "Run ID copied. In LIVE run.id on the INVESTIGATE tab, select the existing text and paste."
-              : "Copy failed. Copy the visible run.id, then select the existing text in LIVE run.id and paste.";
+              ? "Run ID also copied as a fallback. If the LIVE evidence box on INVESTIGATE still reads none, select the none and paste."
+              : "Copy failed. If the LIVE evidence box still reads none, copy the visible run.id, select the none and paste.";
           });
         });
       });
@@ -616,7 +753,6 @@
           presented.state === "EVIDENCE READY" || presented.state === "EVIDENCE CONFIRMED" ? "indexed" : "muted"
         );
         ui.applyState(statusEl, statusMessage, "RUN COMPLETE", presented.message);
-        setStage("INVESTIGATE");
       });
 
       fetch("/api/target-health").then(r => r.json().then(data => ({ok: r.ok, data: data}))).then(function (result) {
@@ -667,11 +803,18 @@
           renderComparison();
           if (summary && restored.length === 1) {
             summary.textContent =
-              "Restored " + restored[0] + " only. The other run's launcher record is no longer "
+              "Restored " + restored[0]               + " only. The other run's launcher record is no longer "
               + "available, so its column stays NOT MEASURED.";
           }
         });
       }());
+
+      /* A reload after an experiment must not reopen the prediction, and the journey
+         map should not say PREDICT when this tab has already run something. */
+      if (ui.readSessionRuns().some(function (row) { return row && row.labId === "LAB-MCP-001"; })) {
+        lockPrediction();
+        setStage("OBSERVE");
+      }
     }());
   </script>
 </body>

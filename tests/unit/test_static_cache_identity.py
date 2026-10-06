@@ -86,7 +86,10 @@ def test_changed_asset_under_an_unchanged_build_is_detected(tmp_path: Path, caps
 def test_app_build_is_not_the_product_version():
     text = APP_CONF.read_text(encoding="utf-8")
     assert "version = 1.1.0" in text
-    assert "build = 4" in text
+    # CONTRACT CHANGE (P0-F): the LAB-MCP-001 flow diagram (a packaged static
+    # asset) changed, so the repository contract requires the app build to move
+    # 4 -> 5. The product version above is unchanged.
+    assert "build = 5" in text
 
 
 def test_every_browser_served_asset_is_covered_by_the_digest():
