@@ -239,10 +239,29 @@ def _query(token: str, summary: bool) -> str:
     )
 
 
+#: Labs whose Workbench hands the LIVE run.id to a Studio text input through the
+#: URL. Must equal agentsec.search_handoff.LAB_TO_LIVE_RUN_TOKEN (a test pins it).
+#: Every other lab still has no such handoff, so "Studio cannot receive that id"
+#: stays true for them.
+DEEP_LINK_LABS = frozenset({"LAB-MCP-001"})
+
 def _guide_markdown(row: dict, token: str | None, live: bool) -> str:
     nxt = f"/app/agentsec/{row['next_view']}"
     path = "/app/agentsec/learner_path"
-    if live:
+    if live and row["lab_id"] in DEEP_LINK_LABS:
+        # The Workbench "Investigate evidence" handoff opens the INVESTIGATE tab with
+        # the LIVE box filled in (form.live_run_id). That mechanism was OBSERVED to
+        # work and is SUPPORTED WITH CONSTRAINTS: it is not a documented Splunk
+        # guarantee, so manual entry stays as the fallback and is said to be one.
+        do = (
+            "1. Open the Attack Service Workbench, record your prediction, and run the experiment.\n"
+            "2. Choose **Investigate evidence** in the Workbench. It opens the INVESTIGATE tab with your LIVE run filled in.\n"
+            "3. Read the question, the table and the SPL on the INVESTIGATE tab.\n"
+            "4. If the **LIVE: your run.id** box still reads `none`, enter your LIVE run.id by hand. That is a fallback for recovery, not the normal path. "
+            "The prefill is observed Dashboard Studio behavior, not a documented Splunk guarantee."
+        )
+        question = "What happened during this run, and where did a control decision stop or continue relative to execution?"
+    elif live:
         do = (
             "1. Open Attack Service and launch this LIVE lab.\n"
             "2. Copy the fresh run.id from the launcher.\n"

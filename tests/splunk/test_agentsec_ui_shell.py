@@ -140,7 +140,8 @@ def test_learner_views_use_dropdown_not_uuid_text():
                 continue
             assert inp["type"] == "input.dropdown", f"{name} {inp}"
             if name == "ws_lab_mcp_001.xml":
-                assert inp["title"].startswith("REPLAY evidence"), f"{name} {inp['title']}"
+                # CONTRACT CHANGE (P0.1-F2): the title was shortened so Studio cannot truncate it.
+                assert inp["title"].startswith("REPLAY"), f"{name} {inp['title']}"
             else:
                 assert "Investigate" in inp["title"], f"{name} {inp['title']}"
             items = inp["options"]["items"]

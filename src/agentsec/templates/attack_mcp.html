@@ -136,16 +136,6 @@
           </button>
         </div>
 
-        <div class="defend-step" id="defend-step">
-          <p class="eyebrow">STEP · DEFEND · an explanation, not a control</p>
-          <p><strong>What changes in RETEST.</strong> Nothing about the request changes: the same tool, scope and arguments are sent.
-          What changes is the <strong>server-owned security profile</strong> that CTRL-MCP-001 runs under. You cannot switch it from this
-          page, and neither can the browser: the profile is chosen on the server, which is why there is no "apply defense" button.</p>
-          <p>Before you run RETEST, ask: <em>if the control now enforces what it was configured to enforce, what should change in the
-          decision, and what should change in whether the handler starts?</em> RETEST then repeats the same request. It shows how
-          this one request behaved under this profile. It does not show the system is secure.</p>
-        </div>
-
         <form id="learner-prediction" class="prediction">
           <fieldset>
             <legend>STEP · PREDICT — before you click</legend>
@@ -167,6 +157,17 @@
             <button class="btn btn-secondary" id="record-prediction" type="button">Record prediction and unlock launch</button>
           </fieldset>
         </form>
+
+        <!-- DEFEND is explanation only and is revealed after an experiment has run (see revealDefend), so it is read after the vulnerable behavior has been investigated, never before PREDICT. -->
+        <div class="defend-step" id="defend-step" hidden>
+          <p class="eyebrow">STEP · DEFEND · after you have investigated ATTACK · an explanation, not a control</p>
+          <p><strong>What changes in RETEST.</strong> Nothing about the request changes: the same tool, scope and arguments are sent.
+          What changes is the <strong>server-owned security profile</strong> that CTRL-MCP-001 runs under. You cannot switch it from this
+          page, and neither can the browser: the profile is chosen on the server, which is why there is no "apply defense" button.</p>
+          <p>Before you run RETEST, ask: <em>if the control now enforces what it was configured to enforce, what should change in the
+          decision, and what should change in whether the handler starts?</em> RETEST then repeats the same request. It shows how
+          this one request behaved under this profile. It does not show the system is secure.</p>
+        </div>
       </section>
 
       <section class="run-panel" aria-labelledby="run-heading">
@@ -191,7 +192,7 @@
           <button class="btn btn-secondary" id="copy-run-id" type="button" disabled>Copy Run ID</button>
         </div>
         <p class="run-help" id="copy-feedback" aria-live="polite">run.id correlates this experiment across runtime, local evidence, telemetry, and Splunk.</p>
-        <p class="run-help"><strong>Fallback.</strong> Dashboard Studio prefilling from a link was observed to work on this deployment but is not a documented guarantee. If the <strong>LIVE evidence</strong> box on the INVESTIGATE tab still reads <code>none</code>, click in it, select the existing text, that is, select the <code>none</code> (Ctrl+A / Cmd+A), paste the copied run.id, and press Enter. Clicking Investigate evidence also copies the run.id for this purpose.</p>
+        <p class="run-help"><strong>Fallback.</strong> Dashboard Studio prefilling from a link was observed to work on this deployment but is not a documented guarantee. If the <strong>LIVE: your run.id</strong> box on the INVESTIGATE tab still reads <code>none</code>, click in it, select the existing text, that is, select the <code>none</code> (Ctrl+A / Cmd+A), paste the copied run.id, and press Enter. Clicking Investigate evidence also copies the run.id for this purpose.</p>
         <details class="advanced-search">
           <summary>Advanced — open native Splunk Search instead</summary>
           <p>Native Search is the analyst workbench and answers questions the notebook does not. Work the five guided questions first.</p>
@@ -502,10 +503,19 @@
         }
       }
 
+      /* DEFEND is an explanation, not a control. It stays out of the page until an
+         experiment has run, so the learner meets it after the vulnerable behavior,
+         not before PREDICT. It reveals no outcome. */
+      function revealDefend() {
+        const defend = document.getElementById("defend-step");
+        if (defend) defend.hidden = false;
+      }
+
       function showComplete(mode, ok) {
         const card = document.getElementById("experiment-complete");
         if (!card) return;
         if (!ok) { card.hidden = true; return; }
+        revealDefend();
         const retest = mode === "RETEST";
         document.getElementById("complete-heading").textContent = mode + " EXPERIMENT COMPLETE";
         document.getElementById("complete-body").textContent = retest
@@ -730,8 +740,8 @@
           if (!runOutput.dataset.value) return;
           copyRunId().then(function (copied) {
             document.getElementById("copy-feedback").textContent = copied
-              ? "Run ID also copied as a fallback. If the LIVE evidence box on INVESTIGATE still reads none, select the none and paste."
-              : "Copy failed. If the LIVE evidence box still reads none, copy the visible run.id, select the none and paste.";
+              ? "Run ID also copied as a fallback. If the LIVE: your run.id box on INVESTIGATE still reads none, select the none and paste."
+              : "Copy failed. If the LIVE: your run.id box still reads none, copy the visible run.id, select the none and paste.";
           });
         });
       });
@@ -813,6 +823,7 @@
          map should not say PREDICT when this tab has already run something. */
       if (ui.readSessionRuns().some(function (row) { return row && row.labId === "LAB-MCP-001"; })) {
         lockPrediction();
+        revealDefend();
         setStage("OBSERVE");
       }
     }());

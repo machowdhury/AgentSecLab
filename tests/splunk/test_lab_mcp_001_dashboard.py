@@ -113,7 +113,8 @@ def test_grid_workshop_tabs_and_tokens():
     assert hunt["options"]["defaultValue"] == SPECIMEN_IDS["baseline_run_id"]
     # CONTRACT CHANGE (P0-C): "Investigate specimen" read like an action. The
     # controls are now named for what they do: choose evidence to read.
-    assert hunt["title"].startswith("REPLAY evidence")
+    # CONTRACT CHANGE (P0.1-F2): shortened to survive Studio title truncation.
+    assert hunt["title"].startswith("REPLAY")
     live_titles = {inp["title"] for inp in definition["inputs"].values() if inp["options"]["token"] == "live_run_id"}
     assert len(live_titles) == 1 and next(iter(live_titles)).startswith("LIVE")
 
