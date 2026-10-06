@@ -360,6 +360,17 @@ Everything below depends on a rendered browser and was outside the agreed
 validation scope. **None of it has been observed.** Treat each as NOT TESTED
 rather than passing.
 
+WORLD 1 read-only view, `http://<host>:5001/acmebank`:
+
+0a. The page renders with AcmeBank's header and the read-only notice, and there
+    is no loan textarea or Submit button anywhere on it.
+0b. "See how the AI did this" expands and shows the four pipeline roles, the
+    seven-node tool path and the glossary.
+0c. The workbench link at the bottom of that disclosure returns to
+    `/labs/LAB-MCP-001` on the same host and port, with no port rewrite.
+0d. The header reads the live profile and model, not `NOT MEASURED`, while the
+    lab is up.
+
 Attack Workbench, `http://<host>:5001/labs/LAB-MCP-001`:
 
 1. ATTACK and RETEST are visibly disabled on load, and "Record prediction and
