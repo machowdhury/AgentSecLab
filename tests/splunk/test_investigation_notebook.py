@@ -43,14 +43,23 @@ RESULT_SOURCES = {
 NOTEBOOK_SOURCES = ["ds_nb_state", *RESULT_SOURCES.values()]
 
 #: Cells that print a query, and the data source that query belongs to.
-#: The header prints the state-panel query; cell 5 is synthesis and runs none.
+#: The header prints the state-panel query. Cell 5's question is synthesis, but
+#: the comparison table that sits under it runs a real search, so the panel that
+#: introduces that table prints it. An earlier version of this comment said cell
+#: 5 "runs none"; the comparison table does run one, and it was the one query on
+#: the tab the learner could not read.
 QUERY_CELLS = {
     "viz_nb_header": "ds_nb_state",
     "viz_nb1_q": "ds_nb_decision",
     "viz_nb2_q": "ds_nb_execution",
     "viz_nb3_q": "ds_nb_scope",
     "viz_nb4_q": "ds_nb_timeline",
+    "viz_live_pair_intro": "ds_live_pair",
 }
+
+#: The live pair selects by mode and recency, so it deliberately carries no
+#: run.id token. Every other printed query is bound to the selected run.
+RUN_BOUND_CELLS = {k: v for k, v in QUERY_CELLS.items() if v != "ds_live_pair"}
 
 
 def _items() -> list[str]:
@@ -188,9 +197,65 @@ def test_displayed_spl_carries_the_run_selection_the_table_used():
     Studio substitutes these tokens in markdown exactly as it does in a search,
     so what the learner copies already names the run they are looking at.
     """
-    for viz_id in QUERY_CELLS:
+    for viz_id in RUN_BOUND_CELLS:
         block = _query_blocks(viz_id)[0]
         assert "$live_run_id$" in block and "$run_id$" in block
+
+
+def test_every_search_on_investigate_is_printed_verbatim():
+    """Drift protection derived from the layout, not from a hand-kept list.
+
+    Walk every panel on the INVESTIGATE canvas. Any panel backed by a search
+    must have that search's exact text printed in some markdown panel on the
+    same canvas. A search added later without a printed twin fails here even if
+    nobody remembers to extend QUERY_CELLS.
+    """
+    printed = []
+    for item in _items():
+        viz = VIZ[item]
+        if viz.get("type") == "splunk.markdown":
+            printed.extend(_query_blocks(item))
+
+    executed = {}
+    for item in _items():
+        primary = VIZ[item].get("dataSources", {}).get("primary")
+        if primary and DS[primary]["type"] == "ds.search":
+            executed[primary] = DS[primary]["options"]["query"]
+
+    assert executed, "no searches found on INVESTIGATE; the walk is broken"
+    for ds_id, query in sorted(executed.items()):
+        assert query in printed, f"{ds_id} runs on INVESTIGATE but its query is not printed"
+
+    # And nothing a cell presents as "the query behind this table" is printed
+    # without running: a decorative query is a claim. The Advanced panel is the
+    # one named exception. It is a starter for native Search with a
+    # YOUR-RUN-ID placeholder, it feeds no table, and it says so.
+    for item in _items():
+        if item == "viz_nb_advanced":
+            continue
+        for block in _query_blocks(item) if VIZ[item].get("type") == "splunk.markdown" else []:
+            assert block in executed.values(), f"{item} prints a query that no search runs"
+
+    advanced = _markdown("viz_nb_advanced")
+    assert "YOUR-RUN-ID" in advanced, "the advanced starter must stay visibly a template"
+    assert "Start from the base search and add your own clauses" in advanced
+    assert "this query" not in advanced.lower() and "table below" not in advanced.lower()
+
+
+def test_comparison_query_is_printed_beside_the_table_it_produces():
+    """Cell 5's table must not run a query the learner cannot read."""
+    assert VIZ["viz_live_pair"]["dataSources"]["primary"] == "ds_live_pair"
+    blocks = _query_blocks("viz_live_pair_intro")
+    assert blocks == [DS["ds_live_pair"]["options"]["query"]]
+    items = _items()
+    assert items.index("viz_live_pair") == items.index("viz_live_pair_intro") + 1
+
+
+def test_comparison_query_is_not_bound_to_a_run_id_token():
+    """It selects by mode and recency; a token here would be a different query."""
+    block = _query_blocks("viz_live_pair_intro")[0]
+    assert "$live_run_id$" not in block and "$run_id$" not in block
+    assert "testbed.mode" in block
 
 
 def test_cell_four_prints_every_column_it_renders():
@@ -250,6 +315,22 @@ def test_execution_question_never_reads_the_control_decision():
     for event in ("agentsec.mcp.started", "agentsec.mcp.completed", "agentsec.mcp.failed"):
         assert event in query
     assert "agentsec.pipeline.stopped" in query
+
+
+def test_execution_question_decision_independence_holds_for_the_printed_query():
+    """Prove it on what the learner reads, and on every spelling of the field.
+
+    The executed query is the printed query (see the drift tests), but this
+    asserts the invariant on the printed text directly so a future change that
+    breaks the one-string design cannot also hide a decision read.
+    """
+    printed = _query_blocks("viz_nb2_q")
+    assert len(printed) == 1
+    for text in (printed[0], DS["ds_nb_execution"]["options"]["query"]):
+        lowered = text.lower()
+        assert "control.decision" not in lowered
+        assert "control.id" not in lowered
+        assert "decision" not in lowered, "the execution question must not touch any decision field"
 
 
 def test_decision_question_does_not_answer_execution():

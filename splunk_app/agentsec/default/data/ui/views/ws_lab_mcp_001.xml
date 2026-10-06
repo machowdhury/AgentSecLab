@@ -1403,7 +1403,7 @@
     "viz_live_pair_intro": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# Compare your two real runs\n\nRun ATTACK, then RETEST, in the Attack Service workbench. Each mints its own `run.id`. The\ntable below is real indexed evidence: the most recent ATTACK and the most recent RETEST\nagainst `lookup_customer_tier`, matched on the indexed `agentsec.testbed.mode`. No specimen\nids and no pasted values are involved.\n\nCheck the two `run_id` values against the ones the workbench minted for you, and confirm\nthey **differ**. Two identical ids, or one row instead of two, means you are not looking at\nyour own pair — and a missing row is unsearchable evidence, not a safe result. Answer\nQuestion 5 before reading anything into a gap.\n",
+        "markdown": "# Compare your two real runs\n\nRun ATTACK, then RETEST, in the Attack Service workbench. Each mints its own `run.id`. The\ntable below is real indexed evidence: the most recent ATTACK and the most recent RETEST\nagainst `lookup_customer_tier`, matched on the indexed `agentsec.testbed.mode`. No specimen\nids and no pasted values are involved.\n\n**QUERY.** This is the whole query the table below runs, exactly as it runs. It takes no\nrun.id: it selects by mode and recency, so pasted into Splunk Search it returns the latest\nATTACK and RETEST as of the moment you run it, which is your pair unless you have launched\nmore since.\n\n```text\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed) \"gen_ai.tool.name\"=\"lookup_customer_tier\"\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| stats max(is_started) as has_started, max(is_completed) as has_completed, max(is_failed) as has_failed, latest(eval(if(event_name=\"agentsec.control.decision\",decision,null()))) as decision, latest(eval(if(event_name=\"agentsec.control.decision\",reason,null()))) as reason, latest(eval(if(event_name=\"agentsec.control.decision\",requested_scope,null()))) as requested_scope, latest(eval(if(event_name=\"agentsec.control.decision\",allowed_scope,null()))) as allowed_scope, latest(eval(if(event_name=\"agentsec.control.decision\",profile,null()))) as profile, latest(eval(if(event_name=\"agentsec.control.decision\",mode,null()))) as mode, values(tool) as tool, dc(_raw) as matched_events, latest(_time) as last_seen by run_id\n| eval execution_state=case(has_completed=1,\"mcp.completed\",has_failed=1,\"mcp.failed\",has_started=1,\"mcp.started\",decision=\"ALLOW\",\"ALLOW_execution_not_proven_in_this_copy\",1=1,\"no_mcp_execution_event\")\n| eval scope_gap=if(requested_scope==allowed_scope,\"requested == allowed\",\"requested != allowed\")\n| where mode=\"ATTACK\" OR mode=\"RETEST\"\n| sort - last_seen\n| dedup mode\n| eval last_seen=strftime(last_seen,\"%Y-%m-%d %H:%M:%S\")\n| table mode, run_id, profile, tool, requested_scope, allowed_scope, scope_gap, decision, reason, execution_state, matched_events, last_seen\n| sort mode\n```\n\nCheck the two `run_id` values against the ones the workbench minted for you, and confirm\nthey **differ**. Two identical ids, or one row instead of two, means you are not looking at\nyour own pair — and a missing row is unsearchable evidence, not a safe result. Answer\nQuestion 5 before reading anything into a gap.\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -1926,7 +1926,7 @@
           "display": "auto-scale",
           "gutterSize": 8,
           "width": 1440,
-          "height": 6924
+          "height": 7404
         },
         "structure": [
           {
@@ -2046,7 +2046,7 @@
               "x": 0,
               "y": 5608,
               "w": 1440,
-              "h": 280
+              "h": 760
             }
           },
           {
@@ -2054,7 +2054,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 5896,
+              "y": 6376,
               "w": 1440,
               "h": 640
             }
@@ -2064,7 +2064,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 6544,
+              "y": 7024,
               "w": 1440,
               "h": 380
             }
