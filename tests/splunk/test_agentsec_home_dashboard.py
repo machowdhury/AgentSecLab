@@ -82,7 +82,7 @@ def test_home_is_academy_landing_not_stale_directory():
         if viz["type"] == "splunk.markdown"
     )
     labels = [item["label"] for item in definition["layout"]["tabs"]["items"]]
-    assert labels == ["START", "ORIENT", "PATH", "SPLUNK"]
+    assert labels == ["START", "ORIENT", "PATH", "SPLUNK", "BUILD"]
     assert "Start here" in markdown
     assert "Direct Prompt Injection" in markdown
     assert "Agent Identity / Delegation" in markdown

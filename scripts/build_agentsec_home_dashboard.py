@@ -38,6 +38,9 @@ OUT_XML = (
     / "ws_agentsec_home.xml"
 )
 CURRICULUM = ROOT / "learning" / "academy" / "curriculum.json"
+APP_CONF = ROOT / "splunk_app" / "agentsec" / "default" / "app.conf"
+STATIC_IDENTITY = ROOT / "splunk_app" / "static_cache_identity.json"
+PYPROJECT = ROOT / "pyproject.toml"
 
 PI_URL = "/app/agentsec/ws_lab_pi_001"
 MARK_URL = "/en-US/static/app/agentsec/agentsec-mark.svg"
@@ -69,8 +72,48 @@ def _mode_line(labs: list[dict]) -> str:
     return "\n".join(lines)
 
 
+def build_facts() -> dict:
+    """Read build identity from the files that own it, never from a literal.
+
+    A hardcoded version here would drift the moment one of these changed and
+    the panel would then assert a build the lab is not running.
+    """
+    import configparser
+    import re
+
+    parser = configparser.ConfigParser()
+    parser.read_string(APP_CONF.read_text(encoding="utf-8"))
+    app_build = parser["install"]["build"].strip()
+
+    identity = json.loads(STATIC_IDENTITY.read_text(encoding="utf-8"))
+    pyproject = re.search(
+        r'^version\s*=\s*"([^"]+)"', PYPROJECT.read_text(encoding="utf-8"), re.M
+    )
+    assert pyproject, "pyproject.toml has no version"
+
+    sys.path.insert(0, str(ROOT / "src"))
+    from agentsec.experiment import SCHEMA_VERSION
+    from agentsec.external_evidence.contract import EXTERNAL_CONTRACT_VERSION
+
+    curriculum = json.loads(CURRICULUM.read_text(encoding="utf-8"))
+    levels = curriculum.get("levels", [])
+    return {
+        "product_version": pyproject.group(1),
+        "app_build": app_build,
+        "assets_sha256": identity["assets_sha256"],
+        "schema_version": SCHEMA_VERSION,
+        "external_contract_version": EXTERNAL_CONTRACT_VERSION,
+        "levels": len(levels),
+        "labs": len(
+            {lab["lab_id"] for level in levels for lab in level.get("labs", [])}
+        ),
+        "checkpoints": len(curriculum.get("checkpoints", [])),
+    }
+
+
 def build() -> dict:
     curriculum = json.loads(CURRICULUM.read_text(encoding="utf-8"))
+    facts = build_facts()
     visualizations: dict[str, dict] = {}
 
     def add_md(viz_id: str, body: str, title: str | None = None) -> str:
@@ -435,6 +478,88 @@ Schema remains **1.9.0**. One packaged detector exists: DET-MCP-001 (disabled, D
         title="CHECK",
     )
 
+    # Build identity only. Live service health is deliberately absent: Studio
+    # cannot poll a non-Splunk endpoint, and a green card here would be read as
+    # proof the lab works. Every value is read from the file that owns it.
+    visualizations.update(
+        dict(
+            (
+                markdown(
+                    "viz_build_identity",
+                    f"""
+                    # Build information
+
+                    DOCUMENTED build identity, read from this repository at
+                    dashboard build time. It describes **what is packaged**, not
+                    whether anything is currently running or working.
+
+                    Each value is followed by the file that owns it, so you can
+                    check any of them yourself.
+
+                    - **AgentSec version — {facts["product_version"]}**
+                      from `pyproject.toml`
+                    - **Splunk app build — {facts["app_build"]}**
+                      from `[install] build` in `app.conf`
+                    - **Static asset digest — {facts["assets_sha256"][:16]}…**
+                      from `splunk_app/static_cache_identity.json`
+                    - **Telemetry schema — {facts["schema_version"]}**
+                      from `agentsec.experiment.SCHEMA_VERSION`
+                    - **ExternalEvidence contract — {facts["external_contract_version"]}**
+                      from `agentsec.external_evidence.contract`
+                    - **Curriculum — {facts["levels"]} levels, {facts["labs"]} labs, {facts["checkpoints"]} checkpoints**
+                      from `learning/academy/curriculum.json`
+
+                    ## Why the app build matters
+
+                    Splunk serves this app's JavaScript from
+                    `/<locale>/static/@<splunk build>.<push>-<app build>/app/agentsec/<file>`.
+                    The app build is the only segment AgentSec controls. Changing a
+                    static file without changing it leaves the deployed URL identical,
+                    so a browser can keep serving an older cached copy. If a page
+                    behaves like an older version, compare the app build above with
+                    the one in the URL your browser actually requested.
+                    """,
+                    title="BUILD IDENTITY",
+                ),
+            )
+        )
+    )
+    visualizations.update(
+        dict(
+            (
+                markdown(
+                    "viz_build_separation",
+                    """
+                    # What this panel does not tell you
+
+                    **SERVICE HEALTH ≠ EVIDENCE READINESS ≠ MODEL QUALITY.**
+
+                    These are three independent facts. A build identity panel
+                    reports none of them, and collapsing them is how a lab gets
+                    called working when it is not.
+
+                    - **Attack Service HTTP 200 does not prove a lab works.** It
+                      proves a web server answered. The control may not have run.
+                    - **HEC health does not prove indexing.** Acceptance by the
+                      receiver is not the same as a searchable event. Only a search
+                      that returns your `run.id` proves indexing.
+                    - **A listed Ollama model does not prove generation quality.** A
+                      model being present says nothing about whether its output is
+                      useful, or even whether a call completed.
+                    - **A degraded KV Store does not mean the Academy is
+                      unavailable.** This deployment's KV Store is degraded because
+                      the bundled MongoDB does not match the host kernel. Workshops,
+                      searches and evidence are unaffected.
+
+                    To know whether your own run produced evidence, search for its
+                    `run.id`. Nothing on this page is a substitute for that.
+                    """,
+                    title="SEPARATION OF CONCERNS",
+                ),
+            )
+        )
+    )
+
     return {
         "title": "Home",
         "description": (
@@ -478,6 +603,13 @@ Schema remains **1.9.0**. One packaged detector exists: DET-MCP-001 (disabled, D
                     ],
                     1060,
                 ),
+                "layout_build": layout(
+                    [
+                        block("viz_build_identity", 0, 0, FULL, 700),
+                        block("viz_build_separation", 0, 708, FULL, 620),
+                    ],
+                    1328,
+                ),
             },
             "tabs": {
                 "options": {"barPosition": "top"},
@@ -486,6 +618,7 @@ Schema remains **1.9.0**. One packaged detector exists: DET-MCP-001 (disabled, D
                     {"layoutId": "layout_orient", "label": "ORIENT"},
                     {"layoutId": "layout_path", "label": "PATH"},
                     {"layoutId": "layout_splunk", "label": "SPLUNK"},
+                    {"layoutId": "layout_build", "label": "BUILD"},
                 ],
             },
         },
