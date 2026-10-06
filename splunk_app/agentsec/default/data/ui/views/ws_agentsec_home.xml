@@ -150,6 +150,26 @@
         "fontSize": "large"
       },
       "title": "CHECK"
+    },
+    "viz_build_identity": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Build information\n\nDOCUMENTED build identity, read from this repository at\ndashboard build time. It describes **what is packaged**, not\nwhether anything is currently running or working.\n\nEach value is followed by the file that owns it, so you can\ncheck any of them yourself.\n\n- **AgentSec version — 1.1.0**\n  from `pyproject.toml`\n- **Splunk app build — 4**\n  from `[install] build` in `app.conf`\n- **Static asset digest — 589e739d0798fb44…**\n  from `splunk_app/static_cache_identity.json`\n- **Telemetry schema — 1.9.0**\n  from `agentsec.experiment.SCHEMA_VERSION`\n- **ExternalEvidence contract — 1.0.0**\n  from `agentsec.external_evidence.contract`\n- **Curriculum — 11 levels, 19 labs, 12 checkpoints**\n  from `learning/academy/curriculum.json`\n\n## Why the app build matters\n\nSplunk serves this app's JavaScript from\n`/<locale>/static/@<splunk build>.<push>-<app build>/app/agentsec/<file>`.\nThe app build is the only segment AgentSec controls. Changing a\nstatic file without changing it leaves the deployed URL identical,\nso a browser can keep serving an older cached copy. If a page\nbehaves like an older version, compare the app build above with\nthe one in the URL your browser actually requested.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "BUILD IDENTITY"
+    },
+    "viz_build_separation": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# What this panel does not tell you\n\n**SERVICE HEALTH ≠ EVIDENCE READINESS ≠ MODEL QUALITY.**\n\nThese are three independent facts. A build identity panel\nreports none of them, and collapsing them is how a lab gets\ncalled working when it is not.\n\n- **Attack Service HTTP 200 does not prove a lab works.** It\n  proves a web server answered. The control may not have run.\n- **HEC health does not prove indexing.** Acceptance by the\n  receiver is not the same as a searchable event. Only a search\n  that returns your `run.id` proves indexing.\n- **A listed Ollama model does not prove generation quality.** A\n  model being present says nothing about whether its output is\n  useful, or even whether a call completed.\n- **A degraded KV Store does not mean the Academy is\n  unavailable.** This deployment's KV Store is degraded because\n  the bundled MongoDB does not match the host kernel. Workshops,\n  searches and evidence are unaffected.\n\nTo know whether your own run produced evidence, search for its\n`run.id`. Nothing on this page is a substitute for that.\n",
+        "fontColor": "#17202A",
+        "backgroundColor": "#FFFFFF",
+        "fontSize": "large"
+      },
+      "title": "SEPARATION OF CONCERNS"
     }
   },
   "layout": {
@@ -336,6 +356,38 @@
             }
           }
         ]
+      },
+      "layout_build": {
+        "type": "grid",
+        "options": {
+          "backgroundColor": "#F6F8FB",
+          "display": "auto-scale",
+          "gutterSize": 8,
+          "width": 1440,
+          "height": 1328
+        },
+        "structure": [
+          {
+            "item": "viz_build_identity",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 700
+            }
+          },
+          {
+            "item": "viz_build_separation",
+            "type": "block",
+            "position": {
+              "x": 0,
+              "y": 708,
+              "w": 1440,
+              "h": 620
+            }
+          }
+        ]
       }
     },
     "tabs": {
@@ -358,6 +410,10 @@
         {
           "layoutId": "layout_splunk",
           "label": "SPLUNK"
+        },
+        {
+          "layoutId": "layout_build",
+          "label": "BUILD"
         }
       ]
     }
