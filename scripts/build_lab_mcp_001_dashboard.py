@@ -431,6 +431,28 @@ NB_EXECUTION_EVENTS = (
     ' OR "event.name"=agentsec.mcp.failed OR "event.name"=agentsec.pipeline.stopped)'
 )
 
+#: Slot in a notebook cell body where the executed SPL is printed.
+SPL_SLOT = "<<SPL>>"
+
+
+def with_spl(body: str, spl: str) -> str:
+    """Print the executed query inside the cell that runs it.
+
+    The notebook tells the learner "this is the SPL the table below runs". That
+    claim only holds if there is one string, not a hand-copied summary beside a
+    real query. A summary drifts the moment either side is edited, and the
+    first version of this notebook did exactly that: the printed Cell 4 query
+    omitted the eval clauses, so pasting it into Search returned the right rows
+    with four empty columns.
+
+    Studio substitutes $live_run_id$ and $run_id$ in markdown the same way it
+    substitutes them in a search, so the text the learner copies is the text
+    that ran, with the same run selected.
+    """
+    if SPL_SLOT not in body:
+        raise ValueError("notebook cell body has no SPL slot")
+    return body.replace(SPL_SLOT, spl)
+
 
 def build() -> dict:
     q_who = bind_run_id(load_spl("Q-MCP-WHO.spl"), "run_id")
@@ -697,28 +719,37 @@ Splunk does **not** send this. Studio does **not** POST. Open Attack Service, la
         "viz_attack_what_id",
         "ds_what_attack_id",
         "What Happened? identity (indexed fields)",
-        cap_what_id + " Expect tool lookup_customer_tier, profile vulnerable, mode ATTACK.",
+        cap_what_id
+        + " Read tool, profile and mode to establish which experiment this copy is,"
+        " before you judge anything about its outcome.",
         no_data=empty_what,
     )
     add_table(
         "viz_attack_what_dec",
         "ds_what_attack_dec",
         "What Happened? decision (indexed fields)",
-        cap_what_dec + " Expect labeled fail-open ALLOW and execution_state mcp.completed. ALLOW is not a grant.",
+        cap_what_dec
+        + " Read decision and execution_state as two separate answers. Neither one"
+        " is evidence for the other.",
         no_data=empty_what,
     )
     add_table(
         "viz_attack_authz",
         "ds_q_authz_attack",
         "Q-MCP-AUTHZ",
-        cap_authz + " Expect labeled fail-open ALLOW. requested customer:read, allowed still policy:read.",
+        cap_authz
+        + " Compare requested_scope against allowed_scope, then read decision."
+        " Does the decision follow from the scopes, and what does that tell you"
+        " about this profile?",
         no_data=empty_control,
     )
     add_table(
         "viz_attack_exec",
         "ds_q_executed_attack",
         "Q-MCP-EXECUTED",
-        cap_executed + " Expect has_started=1 and execution_state=mcp.completed. Fail-open executed the handler; it did not create a grant.",
+        cap_executed
+        + " has_started answers whether the handler began. Answer it from this"
+        " table, not from what the control decided.",
         no_data=empty_tool,
     )
 
@@ -929,21 +960,27 @@ Do not describe `lookup_customer_tier` as malware. The defended result is unauth
         "viz_retest_what_id",
         "ds_what_retest_id",
         "What Happened? identity (indexed fields)",
-        cap_what_id + " Expect tool lookup_customer_tier, profile defended, mode RETEST.",
+        cap_what_id
+        + " Read tool, profile and mode. Compare them with the ATTACK row beside"
+        " this one: which fields changed, and which stayed the same?",
         no_data=empty_what,
     )
     add_table(
         "viz_retest_what_dec",
         "ds_what_retest_dec",
         "What Happened? decision (indexed fields)",
-        cap_what_dec + " Expect decision DENY, reason tool_not_granted, execution_state no_mcp_execution_event, outcome prevented.",
+        cap_what_dec
+        + " Read decision, reason and execution_state, then compare each one"
+        " against the ATTACK row. The request did not change between them.",
         no_data=empty_what,
     )
     add_table(
         "viz_retest_authz",
         "ds_q_authz_retest",
         "Q-MCP-AUTHZ",
-        cap_authz + " Expect DENY, tool_not_granted, outcome=prevented.",
+        cap_authz
+        + " The scopes are the same as the ATTACK row. Read decision and reason,"
+        " and work out what else must have differed.",
         no_data=empty_control,
     )
     add_table(
@@ -957,7 +994,10 @@ Do not describe `lookup_customer_tier` as malware. The defended result is unauth
         "viz_retest_exec",
         "ds_q_executed_retest",
         "Q-MCP-EXECUTED",
-        cap_executed + " Expect has_started=0 and execution_state=no_mcp_execution_event.",
+        cap_executed
+        + " Read has_started and execution_state. If the handler did not begin,"
+        " what is this copy able to prove on its own, and what still needs the"
+        " runtime handler count?",
         no_data=empty_tool,
     )
 
@@ -1358,7 +1398,8 @@ DET-MCP-001 remains disabled and checks only DENY-then-start. Silence is not SAF
 
     add_md(
         "viz_nb_header",
-        f"""
+        with_spl(
+            f"""
 # AgentSec Investigation Notebook
 
 ## LAB-MCP-001 — MCP Tool Authorization
@@ -1371,6 +1412,14 @@ answer against the query that produced it.
 above to investigate your own run. Leave it empty to investigate the canonical
 REPLAY specimen chosen in **Investigate specimen**. Whichever is set drives every
 cell on this tab — the state panel below reports which one it resolved to.
+
+Every cell prints the complete query it runs, with your run.id already filled
+in. Copy any of them into Splunk Search and you will reproduce that cell's
+table. This is the query behind the state panel:
+
+```text
+<<SPL>>
+```
 
 ### Business context — what happened at AcmeBank
 
@@ -1387,6 +1436,8 @@ Your observations in this notebook are **not saved**. Dashboard Studio has no
 supported learner-note store, and inventing one would create a second state
 system alongside session history. Keep your answers somewhere you control.
 """,
+            nb_state_spl,
+        ),
         title="INVESTIGATION NOTEBOOK",
     )
     add_table(
@@ -1401,7 +1452,8 @@ system alongside session history. Keep your answers somewhere you control.
 
     add_md(
         "viz_nb1_q",
-        """
+        with_spl(
+            """
 # 1 of 5 — What did the control decide?
 
 **QUESTION.** What did CTRL-MCP-001 decide for the requested tool?
@@ -1410,15 +1462,13 @@ system alongside session history. Keep your answers somewhere you control.
 authorized. The decision is a separate fact from the request, and it has to be
 read from the control event rather than assumed from what the agent attempted.
 
-**QUERY.** This is the SPL the table below runs. Studio executes it
-automatically when the token resolves; there is no separate run step.
+**QUERY.** This is the SPL the table below runs — the whole query, not a
+summary of it. Studio executes it automatically when the token resolves, and
+fills in the run.id you selected. Copy it into Splunk Search and you will get
+the same table.
 
 ```text
-... "event.name"=agentsec.control.decision
-| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)
-| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)
-| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)
-| table run_id, control_id, tool, decision, reason
+<<SPL>>
 ```
 
 **WHAT THE EVIDENCE SUPPORTS.** Read `decision` and `reason` from the row
@@ -1432,6 +1482,8 @@ Question 2 is a separate query because it is a separate fact.
 **YOUR OBSERVATION.** Write down the decision and the reason in your own words
 before moving on. Not saved by this page.
 """,
+            nb_decision_spl,
+        ),
     )
     add_table(
         "viz_nb1_r",
@@ -1443,7 +1495,8 @@ before moving on. Not saved by this page.
 
     add_md(
         "viz_nb2_q",
-        """
+        with_spl(
+            """
 # 2 of 5 — Did downstream execution occur?
 
 **QUESTION.** Did the MCP handler actually start for this run?
@@ -1453,15 +1506,12 @@ different events. A control can return ALLOW and the handler can still never
 start; a control can return DENY while something else in the run proceeds.
 Neither can be inferred from the other.
 
-**QUERY.** Note what this query does *not* reference: it never reads
-`agentsec.control.decision`. Execution is established from execution events.
+**QUERY.** This is the whole query, exactly as it runs. Read it and check the
+claim yourself: it never references `agentsec.control.decision`. Execution is
+established from execution events alone.
 
 ```text
-... ("event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed
-     OR "event.name"=agentsec.mcp.failed OR "event.name"=agentsec.pipeline.stopped)
-| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)
-| table sequence, event_name, tool, executed
-| sort sequence
+<<SPL>>
 ```
 
 **WHAT THE EVIDENCE SUPPORTS.** `agentsec.mcp.started` is handler start.
@@ -1478,6 +1528,8 @@ Attack Service workbench is the authoritative source for non-execution.
 **YOUR OBSERVATION.** Which execution events exist for this run, and what does
 their absence or presence let you say? Not saved by this page.
 """,
+            nb_execution_spl,
+        ),
     )
     add_table(
         "viz_nb2_r",
@@ -1493,7 +1545,8 @@ their absence or presence let you say? Not saved by this page.
 
     add_md(
         "viz_nb3_q",
-        """
+        with_spl(
+            """
 # 3 of 5 — What was requested, and was it granted?
 
 **QUESTION.** What capability did the agent request, and was it inside the
@@ -1503,15 +1556,10 @@ scope the server granted it?
 to use it. Catalogue visibility and authority are different things, and
 conflating them is the whole substance of this lab.
 
-**QUERY.**
+**QUERY.** The whole query, exactly as it runs.
 
 ```text
-... "event.name"=agentsec.control.decision
-| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)
-| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)
-| eval scope_relationship=if(requested_scope==allowed_scope,
-        "requested == allowed","requested != allowed")
-| table run_id, tool, requested_scope, allowed_scope, scope_relationship
+<<SPL>>
 ```
 
 **WHAT THE EVIDENCE SUPPORTS.** Both `requested_scope` and `allowed_scope` are
@@ -1532,6 +1580,8 @@ the control decided, or whether anything executed. Those are Questions 1 and 2.
 **YOUR OBSERVATION.** State the requested capability, the granted capability,
 and whether they match. Not saved by this page.
 """,
+            nb_scope_spl,
+        ),
     )
     add_table(
         "viz_nb3_r",
@@ -1544,7 +1594,8 @@ and whether they match. Not saved by this page.
 
     add_md(
         "viz_nb4_q",
-        """
+        with_spl(
+            """
 # 4 of 5 — What was actually indexed for this run?
 
 **QUESTION.** What sequence of evidence exists for this run.id?
@@ -1553,13 +1604,12 @@ and whether they match. Not saved by this page.
 can point at. Reading the whole ordered sequence is also how you notice what is
 *missing* — and whether a gap is meaningful or just unsearchable.
 
-**QUERY.** No event filter. Everything indexed for the selected run, in order.
+**QUERY.** No event filter — everything indexed for the selected run, in order.
+This is the whole query. Every column in the table below is created by a line
+you can see here.
 
 ```text
-... ("agentsec.run.id"="$live_run_id$" OR "agentsec.run.id"="$run_id$")
-| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
-| table _time, sequence, event_name, control_id, decision, executed
-| sort sequence
+<<SPL>>
 ```
 
 **WHAT THE EVIDENCE SUPPORTS.** The ordered list below is what this run actually
@@ -1575,6 +1625,8 @@ Evidence completeness is its own question.
 **YOUR OBSERVATION.** Write the sequence down. Which events are present, and
 which are absent that you expected? Not saved by this page.
 """,
+            nb_timeline_spl,
+        ),
     )
     add_table(
         "viz_nb4_r",
@@ -1667,8 +1719,15 @@ you do there changes a control decision: **SPLUNK != ENFORCEMENT.**
         block("viz_nb4_r", 0, 4492, FULL, 380),
         block("viz_nb5_q", 0, 4880, FULL, 720),
         block("viz_live_pair_intro", 0, 5608, FULL, 280),
-        block("viz_live_pair", 0, 5896, FULL, 320),
-        block("viz_nb_advanced", 0, 6224, FULL, 380),
+        # 640, not 320. This table is twelve columns wide and one of them holds
+        # the full fail-open reason, which is a long sentence. At 320 the text
+        # wrapped and pushed the RETEST row past the panel edge, so the panel
+        # showed one row while the cell above told the learner to compare two.
+        # The row was in the DOM and invisible on screen, which is the worst
+        # version of this bug. Height is the supported fix: no column is
+        # dropped and no evidence is truncated.
+        block("viz_live_pair", 0, 5896, FULL, 640),
+        block("viz_nb_advanced", 0, 6544, FULL, 380),
     ]
     # EVIDENCE is the raw explorer: the canonical REPLAY specimens side by side,
     # plus the detector panels. It answers "what does this evidence look like in
@@ -1792,7 +1851,7 @@ is not a supported extension. The gate is the warning you are reading.
             },
             "layoutDefinitions": {
                 "layout_mission": layout(mission_structure, 540),
-                "layout_investigate": layout(investigate_structure, 6604),
+                "layout_investigate": layout(investigate_structure, 6924),
                 "layout_evidence": layout(evidence_structure, 2982),
                 "layout_path_b": layout(path_b_structure, path_b_y + 40, display="fit-to-width"),
             },

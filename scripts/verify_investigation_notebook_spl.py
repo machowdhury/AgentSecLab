@@ -23,14 +23,33 @@ from __future__ import annotations
 import csv
 import io
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFINITION = ROOT / "learning" / "level_1" / "LAB-MCP-001" / "dashboard.definition.json"
-CELLS = ("ds_nb_state", "ds_nb_decision", "ds_nb_execution", "ds_nb_scope", "ds_nb_timeline")
+#: The markdown cell a learner reads, and the data source that cell's table
+#: runs. The query is taken from the *markdown*, so this script verifies the
+#: text on screen rather than the text behind it, and then proves the two are
+#: the same string before running anything.
+CELLS = (
+    ("viz_nb_header", "ds_nb_state"),
+    ("viz_nb1_q", "ds_nb_decision"),
+    ("viz_nb2_q", "ds_nb_execution"),
+    ("viz_nb3_q", "ds_nb_scope"),
+    ("viz_nb4_q", "ds_nb_timeline"),
+)
 CONTAINER = "agentsec_splunk"
+
+
+def displayed_spl(definition: dict, viz_id: str) -> str:
+    markdown = definition["visualizations"][viz_id]["options"]["markdown"]
+    blocks = re.findall(r"```text\n(.*?)\n```", markdown, re.S)
+    if len(blocks) != 1:
+        raise SystemExit(f"{viz_id} prints {len(blocks)} query blocks; expected 1")
+    return blocks[0]
 
 
 def splunk(spl: str) -> tuple[list[dict], str]:
@@ -67,19 +86,35 @@ def main() -> int:
         return 2
     definition = json.loads(DEFINITION.read_text(encoding="utf-8"))
     failures = 0
+
+    print(f"{'=' * 72}\nVISIBLE SPL == EXECUTED SPL\n{'=' * 72}")
+    for viz_id, ds_id in CELLS:
+        shown = displayed_spl(definition, viz_id)
+        executed = definition["dataSources"][ds_id]["options"]["query"]
+        same = shown == executed
+        print(f"-- {viz_id:16s} vs {ds_id:16s} {'IDENTICAL' if same else 'DRIFTED'}")
+        if not same:
+            failures += 1
+
     for mode, run_id in zip(("ATTACK", "RETEST"), sys.argv[1:3]):
         print(f"\n{'=' * 72}\n{mode}  run.id={run_id}\n{'=' * 72}")
-        for cell in CELLS:
-            rows, err = splunk(bind(definition["dataSources"][cell]["options"]["query"], run_id))
+        for viz_id, ds_id in CELLS:
+            # Run what the learner can see, not what the dashboard stores.
+            rows, err = splunk(bind(displayed_spl(definition, viz_id), run_id))
             if err:
-                print(f"\n-- {cell}: SPL ERROR\n   {err}")
+                print(f"\n-- {viz_id} ({ds_id}): SPL ERROR\n   {err}")
                 failures += 1
                 continue
-            print(f"\n-- {cell}: {len(rows)} row(s)")
+            print(f"\n-- {viz_id} ({ds_id}): {len(rows)} row(s)")
             if not rows:
                 failures += 1
             for row in rows[:12]:
-                print("   ", {k: v for k, v in row.items() if v})
+                # Blank columns are the defect this remediation exists to fix,
+                # so print every key, not only the populated ones.
+                print("   ", dict(row))
+                blank = [k for k, v in row.items() if not v]
+                if blank:
+                    print("    BLANK COLUMNS:", blank)
         # LAB-MCP-001 emits no LLM events. If that ever changes, the notebook's
         # "this lab produces no LLM activity" framing becomes a false statement.
         llm, _ = splunk(

@@ -42,6 +42,16 @@ RESULT_SOURCES = {
 }
 NOTEBOOK_SOURCES = ["ds_nb_state", *RESULT_SOURCES.values()]
 
+#: Cells that print a query, and the data source that query belongs to.
+#: The header prints the state-panel query; cell 5 is synthesis and runs none.
+QUERY_CELLS = {
+    "viz_nb_header": "ds_nb_state",
+    "viz_nb1_q": "ds_nb_decision",
+    "viz_nb2_q": "ds_nb_execution",
+    "viz_nb3_q": "ds_nb_scope",
+    "viz_nb4_q": "ds_nb_timeline",
+}
+
 
 def _items() -> list[str]:
     return [row["item"] for row in INVESTIGATE["structure"]]
@@ -49,6 +59,23 @@ def _items() -> list[str]:
 
 def _markdown(viz_id: str) -> str:
     return VIZ[viz_id]["options"]["markdown"]
+
+
+def _query_blocks(viz_id: str) -> list[str]:
+    """Fenced ```text blocks printed in a cell."""
+    return re.findall(r"```text\n(.*?)\n```", _markdown(viz_id), re.S)
+
+
+def _evidence_items() -> list[str]:
+    layout = WORKSHOP["layout"]["layoutDefinitions"]["layout_evidence"]
+    return [row["item"] for row in layout["structure"]]
+
+
+def _panel_text(viz_id: str) -> str:
+    viz = VIZ[viz_id]
+    return "\n".join(
+        [viz.get("title", ""), viz.get("description", ""), viz.get("options", {}).get("markdown", "")]
+    )
 
 
 def _all_markdown() -> str:
@@ -127,6 +154,55 @@ def test_spl_is_visible_in_the_question_cell(cell_id):
     cell = _markdown(cell_id)
     assert "```text" in cell, "no visible query block"
     assert "| eval" in cell or "event.name" in cell
+
+
+@pytest.mark.parametrize("viz_id,ds_id", sorted(QUERY_CELLS.items()))
+def test_displayed_spl_is_the_executed_spl(viz_id, ds_id):
+    """The printed query must be the query, not a summary of it.
+
+    The first notebook printed an abbreviated query beside the real one. Cell 4
+    was the worst case: pasted into Search verbatim it returned the right rows
+    with event_name, control_id, decision and executed all blank, because the
+    eval clauses that build those columns were not shown. A learning product
+    whose whole method is "check the claim against the evidence" cannot show a
+    query that does not reproduce its own table.
+    """
+    blocks = _query_blocks(viz_id)
+    assert len(blocks) == 1, f"{viz_id} should print exactly one query, found {len(blocks)}"
+    assert blocks[0] == DS[ds_id]["options"]["query"], (
+        f"{viz_id} displays SPL that differs from {ds_id}. These must be one string, "
+        "not two that are kept in step by hand."
+    )
+
+
+def test_every_notebook_search_is_printed_somewhere_in_the_notebook():
+    """No cell may run a query the learner cannot read."""
+    printed = {block for viz_id in QUERY_CELLS for block in _query_blocks(viz_id)}
+    for ds_id in NOTEBOOK_SOURCES:
+        assert DS[ds_id]["options"]["query"] in printed, f"{ds_id} runs unseen"
+
+
+def test_displayed_spl_carries_the_run_selection_the_table_used():
+    """A query a learner cannot bind to a run would not reproduce the table.
+
+    Studio substitutes these tokens in markdown exactly as it does in a search,
+    so what the learner copies already names the run they are looking at.
+    """
+    for viz_id in QUERY_CELLS:
+        block = _query_blocks(viz_id)[0]
+        assert "$live_run_id$" in block and "$run_id$" in block
+
+
+def test_cell_four_prints_every_column_it_renders():
+    """The regression that started this: a table clause with unshown evals."""
+    block = _query_blocks("viz_nb4_q")[0]
+    table_clause = [line for line in block.splitlines() if line.startswith("| table")]
+    assert table_clause, "cell 4 has no table clause"
+    columns = [c.strip() for c in table_clause[0][len("| table") :].split(",")]
+    for column in columns:
+        if column == "_time":
+            continue  # supplied by the index, not by an eval
+        assert f"| eval {column}=" in block, f"column {column} is rendered but never built"
 
 
 @pytest.mark.parametrize("ds_id", NOTEBOOK_SOURCES)
@@ -314,10 +390,61 @@ def test_run_id_handoff_does_not_fake_an_unsupported_token_binding():
 
     doc = handoff_doc("11111111-2222-3333-4444-555555555555", lab_id="LAB-MCP-001")
     assert doc["studio_token_binding"] == "NOT SUPPORTED / DO NOT BUILD"
-    assert doc["workshop_url"].endswith("/en-US/app/agentsec/ws_lab_mcp_001")
+    assert doc["workshop_url"].startswith("http")
+    assert "/en-US/app/agentsec/ws_lab_mcp_001" in doc["workshop_url"]
     assert "live_run_id" not in doc["workshop_url"], "a token in the URL would be ignored"
     assert workshop_url("LAB-UNKNOWN") is None
     assert "has no supported way for this page to fill that field" in WORKBENCH
+
+
+def test_handoff_lands_on_the_tab_the_workbench_promises():
+    """The workbench said INVESTIGATE; Studio opened the first tab, MISSION.
+
+    Studio opens a workshop on its first tab unless the URL names another. The
+    promise was on the page and the behaviour was not, so the learner arrived
+    holding a fresh run.id on a page with nowhere to paste it.
+    """
+    from agentsec.search_handoff import workshop_url
+    from agentsec.workshop_flows import LAB_TO_LANDING_TAB
+
+    promise = WORKBENCH.split('id="open-notebook-primary"', 1)[1]
+    assert "tab=layout_investigate" in WORKBENCH.split('id="open-notebook"', 1)[1][:400]
+    assert "tab=layout_investigate" in promise[:400]
+    assert "INVESTIGATE tab" in WORKBENCH, "the claim itself should still be made"
+    assert LAB_TO_LANDING_TAB["LAB-MCP-001"] == "layout_investigate"
+    assert workshop_url("LAB-MCP-001").endswith(
+        "/en-US/app/agentsec/ws_lab_mcp_001?tab=layout_investigate"
+    )
+
+
+def test_a_named_landing_tab_exists_in_the_view_it_names():
+    """Studio ignores an unknown tab id, silently restoring MISSION-first."""
+    import json as _json
+
+    from agentsec.workshop_flows import LAB_TO_LANDING_TAB, LAB_TO_VIEW
+
+    for lab_id, tab in LAB_TO_LANDING_TAB.items():
+        definition = _json.loads(
+            (ROOT / "learning" / "level_1" / lab_id / "dashboard.definition.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        assert tab in definition["layout"]["layoutDefinitions"], f"{lab_id} has no {tab}"
+        assert any(
+            item["layoutId"] == tab for item in definition["layout"]["tabs"]["items"]
+        ), f"{lab_id} does not expose {tab} as a tab"
+        assert lab_id in LAB_TO_VIEW
+
+
+def test_labs_without_a_promise_still_open_on_their_first_tab():
+    """Only redirect a learner where the product actually promised to."""
+    from agentsec.search_handoff import workshop_url
+    from agentsec.workshop_flows import LAB_TO_LANDING_TAB, LAB_TO_VIEW
+
+    for lab_id, view in LAB_TO_VIEW.items():
+        if lab_id in LAB_TO_LANDING_TAB:
+            continue
+        assert workshop_url(lab_id).endswith(f"/en-US/app/agentsec/{view}")
 
 
 def test_handoff_resolves_views_from_the_module_that_writes_them():
@@ -327,7 +454,7 @@ def test_handoff_resolves_views_from_the_module_that_writes_them():
 
     assert not hasattr(handoff, "WORKSHOP_VIEW_BY_LAB")
     for lab_id, view in LAB_TO_VIEW.items():
-        assert handoff.workshop_url(lab_id).endswith(f"/en-US/app/agentsec/{view}")
+        assert f"/en-US/app/agentsec/{view}" in handoff.workshop_url(lab_id)
 
 
 def test_every_workshop_url_points_at_a_view_that_ships():
@@ -339,6 +466,51 @@ def test_every_workshop_url_points_at_a_view_that_ships():
 
 
 # --- EVIDENCE is a different surface, not a duplicate ----------------------
+
+
+#: Phrasings that hand a learner the outcome before they investigate.
+#: PATH B may use them: it is labelled ANSWERS and opens with a gate. EVIDENCE
+#: may not: it sits between INVESTIGATE and PATH B with no warning at all.
+ANSWER_LEAKS = [
+    r"\bExpect\b",
+    r"decision (ALLOW|DENY)",
+    r"fail-open ALLOW",
+    r"reason tool_(not_)?granted",
+    r"execution_state\s*=\s*\S",
+    r"has_started\s*=\s*\d",
+    r"outcome\s*=?\s*prevented",
+]
+
+
+@pytest.mark.parametrize("pattern", ANSWER_LEAKS)
+def test_evidence_tab_guides_investigation_without_giving_the_answer(pattern):
+    """MISSION was cleaned and PATH B was gated; EVIDENCE was neither.
+
+    Panels here used to read "Expect decision DENY, reason tool_not_granted".
+    A learner one click from INVESTIGATE could read the conclusion before
+    forming one, which removes the only part of the lab that teaches.
+    """
+    offenders = [
+        viz_id
+        for viz_id in _evidence_items()
+        if re.search(pattern, _panel_text(viz_id), re.IGNORECASE)
+    ]
+    assert not offenders, f"EVIDENCE panels state the answer ({pattern}): {offenders}"
+
+
+def test_evidence_tab_still_tells_the_learner_what_to_read():
+    """Removing leakage must not strip the guidance that made it useful."""
+    guidance = " ".join(_panel_text(v) for v in _evidence_items()).lower()
+    for field in ("decision", "execution_state", "requested_scope", "allowed_scope", "has_started"):
+        assert field in guidance, f"EVIDENCE no longer points at {field}"
+    assert "compare" in guidance
+
+
+def test_answer_key_tab_may_still_state_outcomes():
+    """The gate exists so PATH B can be explicit. Do not sanitise it too."""
+    layout = WORKSHOP["layout"]["layoutDefinitions"]["layout_path_b"]
+    text = " ".join(_panel_text(row["item"]) for row in layout["structure"])
+    assert "Expect" in text
 
 
 def test_evidence_tab_is_the_raw_explorer_and_says_so():
@@ -361,6 +533,58 @@ def test_evidence_and_investigate_share_no_data_source():
 
 
 # --- architectural invariants (section 3) ----------------------------------
+
+
+def _block(viz_id: str) -> dict:
+    for row in INVESTIGATE["structure"]:
+        if row["item"] == viz_id:
+            return row
+    raise AssertionError(f"{viz_id} is not on INVESTIGATE")
+
+
+def test_comparison_panel_has_room_for_both_runs():
+    """Cell 5 tells the learner to compare two rows; one was off-panel.
+
+    The table is twelve columns wide and one holds the full fail-open reason,
+    a long sentence that wraps. At 320px the wrapped ATTACK row pushed RETEST
+    past the panel edge at both 1920 and 1024. The row stayed in the DOM, so
+    only looking at the rendered page caught it.
+    """
+    panel = _block("viz_live_pair")
+    columns = DS["ds_live_pair"]["options"]["query"].rsplit("| table", 1)[1].split("\n")[0]
+    column_count = len(columns.split(","))
+    assert column_count >= 10, "this guard assumes a wide table"
+    # Two wrapped rows plus header, title and description. Measured against the
+    # rendering that clipped at 320.
+    assert panel["position"]["h"] >= 560, (
+        f"{column_count} columns including a long reason string will not fit in "
+        f"{panel['position']['h']}px without hiding the RETEST row"
+    )
+
+
+def test_comparison_panel_keeps_every_evidence_column():
+    """Height was the fix. Dropping columns would have hidden evidence instead."""
+    table_clause = DS["ds_live_pair"]["options"]["query"].rsplit("| table", 1)[1].split("\n")[0]
+    columns = {c.strip() for c in table_clause.split(",")}
+    assert {"mode", "run_id", "decision", "reason", "execution_state"} <= columns
+    assert {"requested_scope", "allowed_scope", "scope_gap"} <= columns
+
+
+def test_investigate_canvas_is_tall_enough_for_its_panels():
+    """A panel taller than the canvas is unreachable however you scroll."""
+    canvas = WORKSHOP["layout"]["layoutDefinitions"]["layout_investigate"]
+    declared = canvas["options"]["height"]
+    lowest = max(row["position"]["y"] + row["position"]["h"] for row in canvas["structure"])
+    assert declared >= lowest, f"canvas {declared}px cannot show content ending at {lowest}px"
+
+
+def test_panels_on_investigate_do_not_overlap():
+    rows = sorted(INVESTIGATE["structure"], key=lambda r: r["position"]["y"])
+    for upper, lower in zip(rows, rows[1:]):
+        bottom = upper["position"]["y"] + upper["position"]["h"]
+        assert bottom <= lower["position"]["y"], (
+            f"{upper['item']} ends at {bottom} but {lower['item']} starts at {lower['position']['y']}"
+        )
 
 
 def test_runtime_contract_versions_are_unchanged():

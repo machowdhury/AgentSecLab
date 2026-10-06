@@ -159,8 +159,12 @@ services:
       - SPLUNK_HEC_INDEX=${SPLUNK_HEC_INDEX:-agentsec_telemetry}
       - SPLUNK_HEC_SOURCETYPE=${SPLUNK_HEC_SOURCETYPE:-otel:agentic:json}
       - SPLUNK_HEC_INPUT_NAME=${SPLUNK_HEC_INPUT_NAME:-agentsec-otel}
+      - AGENTSEC_SPECIMEN_ROOT=/specimens
     volumes:
       - ./scripts/splunk_hec_init.sh:/splunk_hec_init.sh:ro
+      # Committed canonical REPLAY packs. Seeded here because this service
+      # already owns the index and the HEC token.
+      - ./learning/level_1:/specimens:ro
     entrypoint: ["/bin/sh", "/splunk_hec_init.sh"]
     restart: on-failure:3
 

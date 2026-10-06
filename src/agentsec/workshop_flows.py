@@ -101,6 +101,21 @@ LAB_TO_VIEW = {
     "LAB-ADVANCED-CAPSTONE-MASTERY-001": "ws_lab_advanced_capstone",
 }
 
+#: Where a learner arriving from the Attack Service should land, per lab.
+#:
+#: Studio opens a workshop on its first tab. For most labs that is correct: the
+#: learner needs the mission before the evidence. LAB-MCP-001 is the exception
+#: because its Attack Service workbench explicitly promises to open the guided
+#: Investigation Notebook, and the learner arrives holding a fresh run.id with
+#: nothing left to read. Landing them on MISSION made that promise false.
+#:
+#: Only list a lab here when its workbench actually makes that promise, and
+#: only with a layoutId that exists in that lab's view. An unknown tab id is
+#: ignored by Studio, which would silently restore the old behaviour.
+LAB_TO_LANDING_TAB = {
+    "LAB-MCP-001": "layout_investigate",
+}
+
 # kind: source | boundary | control | execution | telemetry | observe
 FLOWS: list[dict] = [
     {

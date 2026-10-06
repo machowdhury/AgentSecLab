@@ -26,6 +26,8 @@
 
   <main id="main" class="workbench">
     <nav class="workbench-nav" aria-label="Experiment labs">
+      <!-- Plain nav: no run yet, so the learner still needs MISSION first.
+           Only the post-run "Investigate evidence" handoff opens INVESTIGATE. -->
       <a href="/en-US/app/agentsec/ws_lab_mcp_001">Academy workshop</a>
       {% if next_lab %}<span>Next: {{ next_lab.title }} ({{ next_lab.mode }})</span>{% endif %}
       <a href="/">All LIVE labs</a>
@@ -131,7 +133,7 @@
         </div>
         <output id="run-id" class="run-id" aria-live="polite">Launch an experiment to mint a UUID</output>
         <div class="compact-actions">
-          <a class="btn btn-primary" id="open-notebook" href="/en-US/app/agentsec/ws_lab_mcp_001" target="_blank" rel="noopener noreferrer">Investigate evidence</a>
+          <a class="btn btn-primary" id="open-notebook" href="/en-US/app/agentsec/ws_lab_mcp_001?tab=layout_investigate" target="_blank" rel="noopener noreferrer">Investigate evidence</a>
           <button class="btn btn-secondary" id="copy-run-id" type="button" disabled>Copy Run ID</button>
         </div>
         <p class="run-help" id="copy-feedback" aria-live="polite">run.id correlates this experiment across runtime, local evidence, telemetry, and Splunk.</p>
@@ -230,7 +232,7 @@
         it runs. Confirm completeness before interpreting an absent event.</p>
         <p class="muted">Native Splunk Search stays available as advanced investigation, next to the run.id above.</p>
       </div>
-      <a class="btn btn-primary" id="open-notebook-primary" href="/en-US/app/agentsec/ws_lab_mcp_001" target="_blank" rel="noopener noreferrer">Investigate evidence</a>
+      <a class="btn btn-primary" id="open-notebook-primary" href="/en-US/app/agentsec/ws_lab_mcp_001?tab=layout_investigate" target="_blank" rel="noopener noreferrer">Investigate evidence</a>
     </section>
 
     <details class="advanced" id="advanced">
@@ -505,7 +507,7 @@
              default next step. Studio cannot take the run.id from the URL, so the
              id goes to the clipboard and the learner pastes it into LIVE run.id. */
           const workshop = ui.learnerHref(
-            data.search_handoff.workshop_url || "/en-US/app/agentsec/ws_lab_mcp_001"
+            data.search_handoff.workshop_url || "/en-US/app/agentsec/ws_lab_mcp_001?tab=layout_investigate"
           );
           ["open-notebook", "open-notebook-primary"].forEach(function (id) {
             const link = document.getElementById(id);
