@@ -1300,19 +1300,31 @@ DET-MCP-001 remains disabled and checks only DENY-then-start. Silence is not SAF
     )
     add_md(
         "viz_live_pair_intro",
-        """
-        # Compare your two real runs
+        with_spl(
+            """
+# Compare your two real runs
 
-        Run ATTACK, then RETEST, in the Attack Service workbench. Each mints its own `run.id`. The
-        table below is real indexed evidence: the most recent ATTACK and the most recent RETEST
-        against `lookup_customer_tier`, matched on the indexed `agentsec.testbed.mode`. No specimen
-        ids and no pasted values are involved.
+Run ATTACK, then RETEST, in the Attack Service workbench. Each mints its own `run.id`. The
+table below is real indexed evidence: the most recent ATTACK and the most recent RETEST
+against `lookup_customer_tier`, matched on the indexed `agentsec.testbed.mode`. No specimen
+ids and no pasted values are involved.
 
-        Check the two `run_id` values against the ones the workbench minted for you, and confirm
-        they **differ**. Two identical ids, or one row instead of two, means you are not looking at
-        your own pair — and a missing row is unsearchable evidence, not a safe result. Answer
-        Question 5 before reading anything into a gap.
-        """,
+**QUERY.** This is the whole query the table below runs, exactly as it runs. It takes no
+run.id: it selects by mode and recency, so pasted into Splunk Search it returns the latest
+ATTACK and RETEST as of the moment you run it, which is your pair unless you have launched
+more since.
+
+```text
+<<SPL>>
+```
+
+Check the two `run_id` values against the ones the workbench minted for you, and confirm
+they **differ**. Two identical ids, or one row instead of two, means you are not looking at
+your own pair — and a missing row is unsearchable evidence, not a safe result. Answer
+Question 5 before reading anything into a gap.
+""",
+            live_pair_spl,
+        ),
     )
     add_table(
         "viz_live_pair",
@@ -1718,7 +1730,9 @@ you do there changes a control decision: **SPLUNK != ENFORCEMENT.**
         block("viz_nb4_q", 0, 3844, FULL, 640),
         block("viz_nb4_r", 0, 4492, FULL, 380),
         block("viz_nb5_q", 0, 4880, FULL, 720),
-        block("viz_live_pair_intro", 0, 5608, FULL, 280),
+        # 760: the intro now prints the whole comparison query (seventeen lines,
+        # one of them very long) as well as the prose around it.
+        block("viz_live_pair_intro", 0, 5608, FULL, 760),
         # 640, not 320. This table is twelve columns wide and one of them holds
         # the full fail-open reason, which is a long sentence. At 320 the text
         # wrapped and pushed the RETEST row past the panel edge, so the panel
@@ -1726,8 +1740,8 @@ you do there changes a control decision: **SPLUNK != ENFORCEMENT.**
         # The row was in the DOM and invisible on screen, which is the worst
         # version of this bug. Height is the supported fix: no column is
         # dropped and no evidence is truncated.
-        block("viz_live_pair", 0, 5896, FULL, 640),
-        block("viz_nb_advanced", 0, 6544, FULL, 380),
+        block("viz_live_pair", 0, 6376, FULL, 640),
+        block("viz_nb_advanced", 0, 7024, FULL, 380),
     ]
     # EVIDENCE is the raw explorer: the canonical REPLAY specimens side by side,
     # plus the detector panels. It answers "what does this evidence look like in
@@ -1851,7 +1865,7 @@ is not a supported extension. The gate is the warning you are reading.
             },
             "layoutDefinitions": {
                 "layout_mission": layout(mission_structure, 540),
-                "layout_investigate": layout(investigate_structure, 6924),
+                "layout_investigate": layout(investigate_structure, 7404),
                 "layout_evidence": layout(evidence_structure, 2982),
                 "layout_path_b": layout(path_b_structure, path_b_y + 40, display="fit-to-width"),
             },
