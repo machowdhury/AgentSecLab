@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from urllib.parse import quote, urlencode
 
-from agentsec.workshop_flows import LAB_TO_VIEW
+from agentsec.workshop_flows import LAB_TO_LANDING_TAB, LAB_TO_VIEW
 
 DEFAULT_SPLUNK_WEB = "http://127.0.0.1:8000"
 LOOPBACK_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
@@ -138,13 +138,19 @@ def workshop_url(lab_id: str | None, *, splunk_web: str = DEFAULT_SPLUNK_WEB) ->
     would be silently ignored and the learner would trust a field that never
     filled. The run.id is handed over by clipboard instead.
 
+    A lab may also name the tab the learner should land on. Studio otherwise
+    opens the first tab, which for LAB-MCP-001 meant arriving on MISSION while
+    the workbench had just promised the Investigation Notebook.
+
     The lab-to-view mapping is owned by workshop_flows, which is the module that
     writes those views. A second copy here drifted the first time it was written.
     """
     view = LAB_TO_VIEW.get(lab_id or "")
     if view is None:
         return None
-    return f"{splunk_web.rstrip('/')}/en-US/app/agentsec/{view}"
+    url = f"{splunk_web.rstrip('/')}/en-US/app/agentsec/{view}"
+    tab = LAB_TO_LANDING_TAB.get(lab_id or "")
+    return f"{url}?tab={tab}" if tab else url
 
 
 def search_url(run_id: str, *, splunk_web: str = DEFAULT_SPLUNK_WEB) -> str:
