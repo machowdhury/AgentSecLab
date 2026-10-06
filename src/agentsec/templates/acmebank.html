@@ -19,6 +19,18 @@
     </div>
   </header>
   <main id="main">
+{% if read_only %}
+    <p class="lede">This is WORLD 1, the business story: the ordinary application an AcmeBank customer sees. It is shown here read-only so you can read the business context before you investigate the AI behind it.</p>
+
+    <section class="card" aria-labelledby="readonly-heading" id="readonly-notice">
+      <h2 id="readonly-heading">Read-only view</h2>
+      <p class="evidence-label">DOCUMENTED business context. Nothing on this page runs, submits, or produces evidence.</p>
+      <p>The Attack Service is rendering AcmeBank's customer page for you. AcmeBank itself listens only on the lab host's loopback interface and is deliberately not reachable from a browser, because it is an intentionally vulnerable target.</p>
+      <p>Submitting a loan is therefore disabled here. Every real <code>run.id</code> in this curriculum is minted by the workshop launcher, which calls AcmeBank from inside the lab host.</p>
+      <p class="muted">A customer request below is shown as an example of the text AcmeBank would receive. It is not an input field.</p>
+      <blockquote class="readonly-sample">Hi, I'm Priya Chen. I'd like to apply for a home purchase loan of $420000. I'm employed full-time as a pharmacist, annual income about $118000, credit score around 740. Property is in Ottawa, Ontario.</blockquote>
+    </section>
+{% else %}
     <p class="lede">Submit a home purchase loan request. AcmeBank processes the application with four in-process roles. This page does not fire attacks.</p>
 
     <section class="card" aria-labelledby="apply-heading">
@@ -52,6 +64,7 @@
         <pre class="result-pre" id="result-json"></pre>
       </details>
     </section>
+{% endif %}
 
     <details class="card secondary" id="behind-the-ai">
       <summary>See how the AI did this</summary>
@@ -93,13 +106,19 @@
 
       <p><a class="btn btn-primary" id="go-workbench" href="/labs/LAB-MCP-001">Investigate tool authorization in the AgentSec workshop</a></p>
     </details>
+{% if not read_only %}
     <section class="card">
       <h2>This browser tab</h2>
       <p class="muted">LAST KNOWN CLIENT STATE. Not indexed evidence. A reload keeps this list in this tab.</p>
       <ul class="fact-list" id="session-history" data-agentsec-managed="1" data-lab-id="ACMEBANK"></ul>
       <p id="session-pair"></p>
     </section>
+{% endif %}
   </main>
+{% if read_only %}
+</body>
+</html>
+{% else %}
   <script src="{{ url_for('static', filename='agentsec-ui.js') }}"></script>
   <script>
     const ui = window.AgentSecUI;
@@ -191,3 +210,4 @@
   </script>
 </body>
 </html>
+{% endif %}
