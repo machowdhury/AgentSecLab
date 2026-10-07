@@ -421,8 +421,8 @@ def what_decision_spl(token: str) -> str:
 #: below, so the two cannot drift. It is not a run.id and matches no event.
 LIVE_RUN_NONE = "none"
 INVESTIGATE_GAP = 8  # px between stacked INVESTIGATE panels
-JOURNEY_H = 140  # px; first estimate, re-measured on the rendered page
-START_H = 560  # px; START tab content panel
+JOURNEY_H = 100  # layout units; MEASURED (content needs ~75 at 1920/1024/200%)
+START_H = 560  # layout units; sized for the narrowest measured case (1024 px / 200% zoom)
 INPUT_H = 100  # px; one in-canvas dropdown
 
 #: Learner-facing names for the two evidence-source controls.
@@ -1297,13 +1297,9 @@ Validated references: BASELINE `{BASELINE_ID}` · ATTACK `{ATTACK_ID}` · RETEST
         f"""
 # Can an AI agent use a tool it was never granted?
 
-You will test one request against AcmeBank's loan assistant. You **predict first**, then work out what happened from **evidence**.
+## [Open the guided lab →]({ATTACK_URL})
 
-## Your next action
-
-### [Open the guided lab →]({ATTACK_URL})
-
-The lab runs in the AgentSec Attack Service. Your experiment's evidence arrives in this Splunk notebook, opened for you. On the normal path you never type a run.id or a search.
+You will test one request against AcmeBank's loan assistant. You **predict first**, then work out what happened from **evidence**. The lab runs in the AgentSec Attack Service. Your experiment's evidence arrives in this Splunk notebook, opened for you. On the normal path you never type a run.id or a search.
 
 ## Your route
 
@@ -1501,7 +1497,7 @@ DET-MCP-001 remains disabled and checks only DENY-then-start. Silence is not SAF
 | eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)
 | eval your_answer="$nb_a1$"
 | where your_answer!="none"
-| eval check=case(your_answer=="UNSURE","UNSURE is a legitimate answer. Compare it with the record.",your_answer==decision,"MATCHES the control record","DIFFERS from the control record")
+| eval check=case(your_answer=="UNSURE","UNSURE is a legitimate answer. Compare it with the record.",your_answer==decision,"MATCHES the control record",1=1,"DIFFERS from the control record")
 | eval evidence_supports="CTRL-MCP-001 recorded decision="+coalesce(decision,"(not recorded)")+" with reason "+coalesce(reason,"(not recorded)")+" for tool "+coalesce(tool,"(not recorded)")+"."
 | table your_answer, decision, reason, check, evidence_supports"""
     )
@@ -1517,7 +1513,7 @@ DET-MCP-001 remains disabled and checks only DENY-then-start. Silence is not SAF
 | eval your_answer="$nb_a2$"
 | where your_answer!="none"
 | eval evidence_shows=if(started=1,"STARTED","NOT_STARTED")
-| eval check=case(your_answer=="UNSURE","UNSURE is a legitimate answer. Compare it with the record.",your_answer==evidence_shows,"MATCHES the indexed execution events","DIFFERS from the indexed execution events")
+| eval check=case(your_answer=="UNSURE","UNSURE is a legitimate answer. Compare it with the record.",your_answer==evidence_shows,"MATCHES the indexed execution events",1=1,"DIFFERS from the indexed execution events")
 | eval evidence_supports=case(started=1,"agentsec.mcp.started is present, so the handler began.",pipeline_stopped=1,"No agentsec.mcp.started and agentsec.pipeline.stopped is present. Consistent with the run halting before the handler. Corroboration, not proof.",1=1,"Neither agentsec.mcp.started nor agentsec.pipeline.stopped matched. NOT PROVEN either way.")
 | table your_answer, evidence_shows, started, completed, failed, pipeline_stopped, check, evidence_supports"""
     )
@@ -1530,7 +1526,7 @@ DET-MCP-001 remains disabled and checks only DENY-then-start. Silence is not SAF
 | eval scope_relationship=if(requested_scope==allowed_scope,"EQUAL","DIFFERENT")
 | eval your_answer="$nb_a3$"
 | where your_answer!="none"
-| eval check=case(your_answer=="UNSURE","UNSURE is a legitimate answer. Compare it with the record.",your_answer==scope_relationship,"MATCHES the indexed scopes","DIFFERS from the indexed scopes")
+| eval check=case(your_answer=="UNSURE","UNSURE is a legitimate answer. Compare it with the record.",your_answer==scope_relationship,"MATCHES the indexed scopes",1=1,"DIFFERS from the indexed scopes")
 | eval evidence_supports="requested_scope="+coalesce(requested_scope,"(not recorded)")+" and allowed_scope="+coalesce(allowed_scope,"(not recorded)")+" for tool "+coalesce(tool,"(not recorded)")+". Both are OBSERVED fields on the control event."
 | table your_answer, scope_relationship, requested_scope, allowed_scope, check, evidence_supports"""
     )
@@ -1936,41 +1932,42 @@ Native Search is an addition to this notebook, not a replacement for it. Nothing
     # The SPL is not here any more: it is printed verbatim on REFERENCE.
     # Panels are stacked, not hand-positioned: every offset follows from the
     # heights above it, so raising one panel can no longer overlap the next or
-    # leave the canvas too short. Heights below are first estimates for the P1
-    # layout and are re-measured on the rendered page (inner scrollHeight -
-    # clientHeight at 1024 and 1920 px) before release.
+    # leave the canvas too short. Heights below were MEASURED on the deployed
+    # Splunk 10.2 page at a 1024px window and at genuine 200% browser zoom (the
+    # narrowest cases that still reflow text); see
+    # tests/splunk/test_investigation_notebook.py::MEASURED_MIN_HEIGHT_NARROW.
     investigate_panels = [
         # P0.1: CURRENT EVIDENCE comes first so the learner sees whether this tab
         # reads LIVE or REPLAY before any prose or journey text.
         ("viz_nb_state", 220, "block"),
         ("viz_journey_investigate", JOURNEY_H, "block"),
-        ("viz_nb_header", 560, "block"),
-        ("viz_nb1_q", 300, "block"),
-        ("viz_nb1_r", 240, "block"),
+        ("viz_nb_header", 440, "block"),
+        ("viz_nb1_q", 180, "block"),
+        ("viz_nb1_r", 320, "block"),
         ("input_nb1", INPUT_H, "input"),
-        ("viz_nb1_fb", 240, "block"),
-        ("viz_nb1_limits", 460, "block"),
-        ("viz_nb2_q", 340, "block"),
-        ("viz_nb2_r", 280, "block"),
+        ("viz_nb1_fb", 360, "block"),
+        ("viz_nb1_limits", 170, "block"),
+        ("viz_nb2_q", 180, "block"),
+        ("viz_nb2_r", 190, "block"),
         ("input_nb2", INPUT_H, "input"),
-        ("viz_nb2_fb", 260, "block"),
-        ("viz_nb2_limits", 520, "block"),
-        ("viz_nb3_q", 300, "block"),
-        ("viz_nb3_r", 240, "block"),
+        ("viz_nb2_fb", 360, "block"),
+        ("viz_nb2_limits", 210, "block"),
+        ("viz_nb3_q", 180, "block"),
+        ("viz_nb3_r", 180, "block"),
         ("input_nb3", INPUT_H, "input"),
-        ("viz_nb3_fb", 260, "block"),
-        ("viz_nb3_limits", 600, "block"),
-        ("viz_nb4_q", 340, "block"),
-        # 600, was 380: at 1280px this table needed 43px more than its box and at
+        ("viz_nb3_fb", 360, "block"),
+        ("viz_nb3_limits", 200, "block"),
+        ("viz_nb4_q", 180, "block"),
+        # 650 (P1 measurement at 1024px and genuine 200%: needs ~643); was 600, 380 before: at 1280px this table needed 43px more than its box and at
         # 1024px 163px more, so the learner had to scroll inside the panel to reach
         # the later events of the very timeline Cell 4 asks them to read in order.
-        ("viz_nb4_r", 600, "block"),
-        ("viz_nb4_limits", 460, "block"),
-        ("viz_nb5_q", 460, "block"),
+        ("viz_nb4_r", 650, "block"),
+        ("viz_nb4_limits", 180, "block"),
+        ("viz_nb5_q", 210, "block"),
         # The comparison is transposed (one column per run, one row per field), so
         # every field and every full value stays on screen at any width.
-        ("viz_live_pair", 640, "block"),
-        ("viz_nb5_limits", 760, "block"),
+        ("viz_live_pair", 580, "block"),
+        ("viz_nb5_limits", 290, "block"),
     ]
     investigate_structure = []
     _y = 0
