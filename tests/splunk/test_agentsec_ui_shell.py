@@ -139,6 +139,19 @@ def test_learner_views_use_dropdown_not_uuid_text():
                 text_inputs.append(inp)
                 continue
             assert inp["type"] == "input.dropdown", f"{name} {inp}"
+            if name == "ws_lab_mcp_001.xml" and inp["options"]["token"].startswith("nb_a"):
+                # CONTRACT CHANGE: P1 learner-experience redesign
+                # OLD CONTRACT: every dropdown on this view chose a recorded REPLAY example.
+                # NEW CONTRACT: three in-canvas ANSWER dropdowns (nb_a1..nb_a3) also exist. They
+                #   hold the learner's interpretation, never evidence, so they default to the
+                #   closed sentinel "none", are titled by question number, and their labels may
+                #   equal their values (ALLOW / DENY / UNSURE are the vocabulary itself).
+                # WHY: input.radio is NOT SUPPORTED in Studio (D-2 spike); a dropdown is the
+                #   supported control. The REPLAY selector rule below still applies to the other.
+                assert inp["title"].startswith("Q"), f"{name} {inp['title']}"
+                assert inp["options"]["defaultValue"] == "none", name
+                assert inp["options"]["items"][0] == {"label": "Choose an answer", "value": "none"}
+                continue
             if name == "ws_lab_mcp_001.xml":
                 # CONTRACT CHANGE (P0.1-F2): the title was shortened so Studio cannot truncate it.
                 assert inp["title"].startswith("REPLAY"), f"{name} {inp['title']}"

@@ -922,7 +922,7 @@
           },
           {
             "match": "DENY",
-            "value": "#B7791F"
+            "value": "#7A4F0B"
           },
           {
             "match": "ERROR",
@@ -1025,7 +1025,7 @@
           },
           {
             "match": "DENY",
-            "value": "#B7791F"
+            "value": "#7A4F0B"
           },
           {
             "match": "ERROR",

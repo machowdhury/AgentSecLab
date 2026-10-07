@@ -31,12 +31,19 @@ REQUIRED_IDS = (
     "Q-MCP-RESULT",
     "Q-MCP-RESULT-TRUST",
 )
+# CONTRACT CHANGE: P1 learner-experience redesign (D-3)
+# OLD CONTRACT: MISSION / INVESTIGATE / EVIDENCE / PATH B · ANSWERS.
+# NEW CONTRACT: START / INVESTIGATE are the learner tabs; REFERENCE and REFERENCE · ANSWERS keep
+#   HUNT, DETECT, raw SPL, advanced Search, the raw explorer and the answer key reachable.
+# WHY: the old labels read as four equal destinations. Layout ids are unchanged.
 WORKSHOP_TABS = (
-    "MISSION",
+    "START",
     "INVESTIGATE",
-    "EVIDENCE",
-    "PATH B · ANSWERS",
+    "REFERENCE",
+    "REFERENCE · ANSWERS",
 )
+#: In-canvas answer controls (D-2: input.radio NOT SUPPORTED; input.dropdown SUPPORTED).
+NOTEBOOK_ANSWER_TOKENS = {"nb_a1", "nb_a2", "nb_a3"}
 PROHIBITED_FIELDS = (
     "agentsec.event.name",
     "agentsec.profile",
@@ -99,9 +106,18 @@ def test_grid_workshop_tabs_and_tokens():
     labels = [item["label"] for item in definition["layout"]["tabs"]["items"]]
     assert labels == list(WORKSHOP_TABS)
     tokens = {inp["options"]["token"] for inp in definition["inputs"].values()}
-    assert tokens == set(REQUIRED_TOKENS) | {"live_run_id"}
-    for input_id in definition["inputs"]:
-        assert input_id in definition["layout"]["globalInputs"]
+    assert tokens == set(REQUIRED_TOKENS) | {"live_run_id"} | NOTEBOOK_ANSWER_TOKENS
+    for input_id, inp in definition["inputs"].items():
+        if inp["options"]["token"] in NOTEBOOK_ANSWER_TOKENS:
+            # in-canvas: placed in INVESTIGATE's structure, not a global input
+            assert input_id not in definition["layout"]["globalInputs"]
+            placed = [
+                row for row in definition["layout"]["layoutDefinitions"]["layout_investigate"]["structure"]
+                if row["item"] == input_id
+            ]
+            assert len(placed) == 1 and placed[0]["type"] == "input"
+        else:
+            assert input_id in definition["layout"]["globalInputs"]
     hunt_inp = [inp for inp in definition["inputs"].values() if inp["options"]["token"] == "run_id"][0]
     assert hunt_inp["type"] == "input.dropdown"
     assert hunt_inp["options"]["defaultValue"] == SPECIMEN_IDS.get("run_id", SPECIMEN_IDS["baseline_run_id"])
@@ -172,6 +188,11 @@ def test_datasources_are_validated_spl_with_token_bind_only():
         "ds_nb_execution",
         "ds_nb_scope",
         "ds_nb_timeline",
+        # P1: one interpretation CHECK per question that has an answer control. Each is
+        # closed (no rows) until the learner chooses, and reads the same events as its result.
+        "ds_nb_decision_fb",
+        "ds_nb_execution_fb",
+        "ds_nb_scope_fb",
     }
     assert set(definition["dataSources"]) - {"ds_guide_events", "ds_guide_summary"} == set(expected) | extra
 
@@ -209,8 +230,17 @@ def test_visualizations_reference_existing_datasources_and_layouts():
     for layout in definition["layout"]["layoutDefinitions"].values():
         for item in layout["structure"]:
             layout_items.add(item["item"])
-            assert item["type"] == "block"
-    assert layout_items == viz_ids
+            assert item["type"] in {"block", "input"}
+            if item["type"] == "input":
+                assert item["item"] in definition["inputs"]
+    block_items = {
+        row["item"]
+        for layout in definition["layout"]["layoutDefinitions"].values()
+        for row in layout["structure"]
+        if row["type"] == "block"
+    }
+    assert block_items == viz_ids
+    assert layout_items - viz_ids == set(definition["inputs"]) & layout_items
     for viz_id, viz in definition["visualizations"].items():
         assert viz["type"] in {"splunk.markdown", "splunk.table", "splunk.image"}
         if viz["type"] == "splunk.table":
@@ -347,4 +377,4 @@ def test_reference_layout_centers_security_reasoning():
     assert "ALLOW != EXECUTION" in blob
     assert "SPLUNK != ENFORCEMENT" in blob
     labels = [row["label"] for row in definition["layout"]["tabs"]["items"]]
-    assert "PATH B · ANSWERS" in labels
+    assert "REFERENCE · ANSWERS" in labels  # CONTRACT CHANGE (P1): was "PATH B · ANSWERS"

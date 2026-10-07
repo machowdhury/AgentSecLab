@@ -180,10 +180,24 @@ def test_baseline_replay_constant_matches_the_dashboard_baseline():
 
 
 def test_workbench_journey_names_all_ten_steps_and_says_it_is_not_progress(workbench):
-    for step in ("Learn", "Baseline", "Predict", "Attack", "Observe", "Investigate", "Defend", "Retest", "Compare", "Explain"):
-        assert f"<span>" in workbench and step in workbench
-    assert "It is not saved progress" in workbench
-    assert "Your Path" in workbench
+    # CONTRACT CHANGE: P1 learner-experience redesign
+    # OLD CONTRACT: the Workbench showed a ten-step journey strip (Learn ... Explain) and said
+    #   "It is not saved progress".
+    # NEW CONTRACT: five phases (UNDERSTAND, TEST, INVESTIGATE, IMPROVE, PROVE) over eight
+    #   instructional steps. OBSERVE is NOT a destination (attack-complete is a state
+    #   transition). The page says where the place is kept (this browser tab) and never claims
+    #   saved learning progress.
+    # WHY: locked P1 information architecture; ten equal destinations were the learner problem.
+    rail = workbench.split('id="phase-rail"')[1].split("</ol>")[0]
+    for phase in ("Understand", "Test", "Investigate", "Improve", "Prove"):
+        assert phase.lower() in rail.lower()
+    assert "Predict" in rail and "Attack" in rail and "Defend" in rail and "Retest" in rail
+    assert "Compare" in rail and "Explain" in rail and "Baseline" in rail
+    assert "Observe" not in rail and "OBSERVE" not in rail
+    assert "STEP 3 OF 8" in workbench and "of 10" not in workbench
+    assert "remembered in this browser tab" in workbench
+    assert "saved progress" not in workbench.lower() or "not saved progress" in workbench.lower()
+    assert "Your path" in workbench
 
 
 def test_journey_does_not_mark_investigate_done_automatically(workbench):
@@ -195,11 +209,17 @@ def test_journey_does_not_mark_investigate_done_automatically(workbench):
 def test_studio_journey_strip_is_surface_local_and_names_replay_baseline():
     for viz_id in ("viz_journey_mission", "viz_journey_investigate"):
         text = _md(viz_id)
-        for step in ("LEARN", "BASELINE", "PREDICT", "ATTACK", "OBSERVE", "INVESTIGATE", "DEFEND", "RETEST", "COMPARE", "EXPLAIN"):
+        # # CONTRACT CHANGE: P1 learner-experience redesign
+        # OLD CONTRACT: a ten-word strip LEARN..EXPLAIN naming REPLAY and "you do not apply it".
+        # NEW CONTRACT: the locked five-phase map (UNDERSTAND, TEST, INVESTIGATE, IMPROVE,
+        #   PROVE); OBSERVE is a state transition, not a destination; the map is not progress.
+        # WHY: D-3 / locked IA. REPLAY and the baseline are asserted on the START panel below.
+        for step in ("UNDERSTAND", "TEST", "INVESTIGATE", "IMPROVE", "PROVE"):
             assert step in text
-        assert "map, not saved progress" in text
-        assert "REPLAY" in text
-        assert "you do not apply it" in text
+        assert "OBSERVE" not in text
+        assert "not saved progress" in text
+    assert "REPLAY" in _md("viz_workbench_mission")
+    assert "do not run it" in _md("viz_workbench_mission")
 
 
 def test_baseline_is_replay_only_and_never_launchable(workbench):
@@ -232,7 +252,11 @@ def test_prediction_is_two_separate_questions_with_unsure(workbench):
     execution = re.findall(r'name="predict-execution" value="([A-Z]+)"', workbench)
     assert control == ["ALLOW", "DENY", "ERROR", "UNKNOWN"]
     assert execution == ["YES", "NO", "UNKNOWN"]
-    assert workbench.count("> UNSURE</label>") == 2
+    # CONTRACT CHANGE: P1 learner-experience redesign
+    # OLD CONTRACT: two "> UNSURE</label>" radios in the legacy choice-card markup.
+    # NEW CONTRACT: two UNSURE options in the academy "opt" cards (one per question).
+    # WHY: new prediction markup; the substantive rule (UNSURE exists for BOTH questions) is kept.
+    assert workbench.count("UNSURE</span>") == 2
     assert "Two separate questions" in workbench
 
 
@@ -254,12 +278,22 @@ def test_launcher_result_details_are_collapsed_and_warned(workbench):
 
 
 def test_completion_card_leads_with_investigation_not_the_outcome(workbench):
-    card = workbench.split('id="experiment-complete"')[1].split("</div>")[0]
-    assert "Now determine what actually happened from the evidence" in card
+    # CONTRACT CHANGE: P1 learner-experience redesign
+    # OLD CONTRACT: the card was id="experiment-complete" and said "Now determine what actually
+    #   happened from the evidence".
+    # NEW CONTRACT: the card is id="attack-complete" (a STATE of the ATTACK step, not a ninth
+    #   destination), is hidden until a run exists, shows the two questions and the dominant CTA
+    #   "Investigate evidence", and still contains none of the outcome words in its static markup.
+    # WHY: the outcome must stay unrevealed on the normal path; only the wording moved.
+    card = workbench.split('id="attack-complete"')[1].split("</section>")[0]
+    assert "Now work out what actually happened" in card
     assert "Investigate evidence" in card
-    for outcome in ("DENY", "ALLOW", "denied", "allowed", "blocked", "executed", "succeeded"):
+    assert "What did the control decide?" in card and "Did downstream execution occur?" in card
+    for outcome in ("DENY", "ALLOW", "denied", "allowed", "blocked", "executed", "succeeded",
+                    "mcp.started", "mcp.completed"):
         assert outcome not in card, f"completion card leaks outcome word {outcome!r}"
-    assert " hidden" in workbench.split('id="experiment-complete"')[1].split(">")[0]
+    assert " hidden" in workbench.split('id="attack-complete"')[1].split(">")[0]
+    assert 'id="experiment-complete"' not in workbench
 
 
 # --- P0-F: diagram ----------------------------------------------------------

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 from agentsec.workshop_flows import (
@@ -43,6 +44,32 @@ def test_flow_svgs_are_valid_and_packaged():
         assert path.read_text(encoding="utf-8").startswith("<svg ")
 
 
+def _luminance(hex_colour: str) -> float:
+    r, g, b = (int(hex_colour.lstrip("#")[i:i + 2], 16) / 255 for i in (0, 2, 4))
+
+    def lin(c: float) -> float:
+        return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+
+    return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
+
+
+def _contrast(fg: str, bg: str) -> float:
+    hi, lo = sorted((_luminance(fg), _luminance(bg)), reverse=True)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def test_decision_text_pairs_meet_normal_text_contrast():
+    """MEASURED from the shipped constants, not asserted from a design file."""
+    from agentsec.workshop_flows import EVIDENCE_TABLE_CONTEXT  # noqa: PLC0415
+
+    background = {row["match"]: row["value"] for row in EVIDENCE_TABLE_CONTEXT["decisionBackgrounds"]}
+    for row in EVIDENCE_TABLE_CONTEXT["decisionText"]:
+        assert _contrast(row["value"], background[row["match"]]) >= 4.5, row["match"]
+    for row in EVIDENCE_TABLE_CONTEXT["executedText"]:
+        background_for = {r["match"]: r["value"] for r in EVIDENCE_TABLE_CONTEXT["executedBackgrounds"]}
+        assert _contrast(row["value"], background_for[row["match"]]) >= 4.5, row["match"]
+
+
 def test_dashboards_reference_flow_images_and_table_format():
     for flow in FLOWS:
         definition = json.loads((LEARNING / flow["lab"] / "dashboard.definition.json").read_text(encoding="utf-8"))
@@ -65,7 +92,15 @@ def test_dashboards_reference_flow_images_and_table_format():
             assert events["options"]["columnFormat"]["executed"] == EVIDENCE_TABLE_COLUMN_FORMAT["executed"]
             assert events["context"]["decisionText"][0]["match"] == "ALLOW"
             assert events["context"]["decisionText"][0]["value"] == "#3568A8"
-            assert events["context"]["decisionText"][1]["value"] == "#B7791F"
+            # CONTRACT CHANGE: P1 learner-experience redesign (D-4)
+            # OLD CONTRACT: DENY text was #B7791F, MEASURED at 3.08:1 on its #F6EBD8 row
+            #   background (below the 4.5:1 minimum for normal text).
+            # NEW CONTRACT: DENY text is #7A4F0B (MEASURED 6.03:1 on the same background).
+            #   The word DENY is still the cell content, so colour is not the only carrier.
+            # WHY: readability; the semantic mapping (ALLOW informational, DENY amber,
+            #   ERROR red, no success green) is unchanged.
+            assert events["context"]["decisionText"][1]["value"] == "#7A4F0B"
+            assert _contrast("#7A4F0B", "#F6EBD8") >= 4.5
             assert "#2E7D32" not in json.dumps(events["context"])
 
 
@@ -76,8 +111,16 @@ def test_prediction_controls_stay_browser_only():
     for html in (attack, mcp):
         assert 'name="predict-control"' in html
         assert 'name="predict-execution"' in html
-        assert "choice-card" in html
-        assert "PREDICTION RECORDED" in html or "prediction-recorded" in html
+        # CONTRACT CHANGE: P1 learner-experience redesign
+        # OLD CONTRACT: both lab pages used the shared "choice-card" markup for prediction radios.
+        # NEW CONTRACT: LAB-MCP-001 uses the approved academy "opt" cards (agentsec-academy.css);
+        #   the other lab keeps "choice-card". Both remain radio inputs with no default selection.
+        # WHY: the approved P1 design replaces the MCP prediction layout; other labs are out of scope.
+        assert ("choice-card" in html) or ('class="opt"' in html)
+    inputs = re.findall(r'<input[^>]*name="predict-(?:control|execution)"[^>]*>', mcp, re.S)
+    assert inputs and not any(" checked" in tag for tag in inputs), "MCP: no pre-selected prediction"
+    for html in (attack, mcp):
+        assert "PREDICTION RECORDED" in html or "prediction-recorded" in html or "Prediction locked" in html
         assert "not sent to Splunk" in html
         assert "not graded" in html
         assert "not a control decision" in html

@@ -76,16 +76,25 @@ def test_stale_statement_is_absent_from_the_owning_sources_for_this_lab():
 
 def test_deep_link_workflow_is_described_truthfully():
     text = _studio_text()
-    assert "Investigate evidence" in text
-    # normal path is the Workbench link; manual entry is named as fallback
-    assert "fallback" in text.lower()
+    assert "Investigate evidence" in text or "Open the guided lab" in text
+    # normal path is the lab link; manual entry is named as recovery only
+    # CONTRACT CHANGE: P1 learner-experience redesign
+    # OLD CONTRACT: manual entry was called a "fallback". NEW CONTRACT: it is called
+    #   "Recovery only ... not the normal path". WHY: same meaning, clearer learner wording.
+    assert "recovery only" in text.lower()
+    assert "not the normal path" in text.lower()
 
 
 def test_guide_steps_name_the_workbench_link_as_the_normal_path():
-    text = _md("viz_guide_shell")
-    assert "Investigate evidence" in text
-    assert "recovery" in text and "not the normal path" in text
+    # CONTRACT CHANGE: P1 learner-experience redesign
+    # OLD CONTRACT: a generic guide shell (viz_guide_shell) carried this statement.
+    # NEW CONTRACT: LAB-MCP-001 no longer renders a generic guide (AUTHORED_START_LABS); the
+    #   authored notebook header carries the same statement. WHY: D-3, one journey only.
+    text = _md("viz_nb_header") + _md("viz_workbench_mission")
+    assert "recovery" in text.lower() and "not the normal path" in text
+    assert "Open the guided lab" in text
     assert STALE not in text
+    assert "viz_guide_shell" not in VIZ
 
 
 def test_no_invented_formal_support_claim_for_form_prefill():
@@ -143,8 +152,12 @@ def test_current_evidence_panel_is_first_on_investigate():
 def test_current_evidence_states_live_or_replay_from_the_token_not_the_dropdown():
     query = DS["ds_nb_state"]["options"]["query"]
     assert "current_evidence" in query
-    assert '"LIVE: your own "' in query
-    assert '"REPLAY: a recorded "' in query
+    # CONTRACT CHANGE: P1 learner-experience redesign
+    # OLD CONTRACT: "LIVE: your own " / "REPLAY: a recorded ". NEW CONTRACT: the em-dash wording
+    #   the brief requires: "LIVE — your ATTACK experiment" / "REPLAY — recorded BASELINE example".
+    assert '"LIVE — your "' in query
+    assert '"REPLAY — recorded "' in query
+    assert '+mode+" experiment"' in query and '+mode+" example (not your run)"' in query
     assert 'if("$live_run_id$"=="none"' in query
     assert "not your run" in query
 
@@ -157,8 +170,13 @@ def test_current_evidence_does_not_read_the_control_decision_event():
 
 
 def test_visible_spl_equals_executed_spl_for_the_state_panel():
+    # CONTRACT CHANGE: P1 learner-experience redesign
+    # OLD CONTRACT: the SPL was printed in the notebook header. NEW CONTRACT: it is printed in the
+    #   REFERENCE panel, and the INVESTIGATE tab shows only the table. Visible == executed still holds.
     query = DS["ds_nb_state"]["options"]["query"]
-    assert query in _md("viz_nb_header")
+    assert query in _md("viz_ref_state")
+    investigate = {row["item"] for row in WORKSHOP["layout"]["layoutDefinitions"]["layout_investigate"]["structure"]}
+    assert "viz_ref_state" not in investigate and "viz_nb_state" in investigate
 
 
 def test_header_explains_that_the_replay_selector_is_ignored_while_live_is_set():
@@ -176,6 +194,10 @@ def test_workbench_fallback_names_the_renamed_live_box(workbench):
 
 
 def test_mission_does_not_reveal_attack_decision_execution_or_retest_answer():
+    # CONTRACT CHANGE: P1 learner-experience redesign
+    # OLD CONTRACT: also required the sentence "deliberately not stated here".
+    # NEW CONTRACT: START no longer discusses outcomes at all, so there is nothing to disclaim.
+    #   Every spoiler phrase must still be absent. WHY: one screen, one objective, one action.
     mission = _md("viz_workbench_mission") + _md("viz_journey_mission")
     for spoiler in (
         "will be denied",
@@ -189,25 +211,39 @@ def test_mission_does_not_reveal_attack_decision_execution_or_retest_answer():
         "reason=",
     ):
         assert spoiler.lower() not in mission.lower(), spoiler
-    assert "deliberately not stated here" in mission
 
 
 def test_mission_states_the_determination_as_questions():
+    # CONTRACT CHANGE: P1 learner-experience redesign
+    # OLD CONTRACT: START listed three "Whether ..." determinations under "What you are determining".
+    # NEW CONTRACT: START frames ONE question as its title and gives ONE next action; the two
+    #   independent prediction questions live in the guided lab's PREDICT step (asserted in
+    #   tests/unit/test_p1_web_experience.py). WHY: one screen, one objective, one dominant action.
     mission = _md("viz_workbench_mission")
-    section = mission.split("## What you are determining")[1].split("Predict each answer")[0]
-    assert section.count("Whether") >= 3
+    assert mission.splitlines()[0].endswith("?")
+    assert mission.count("Open the guided lab") == 1
+    assert "You **predict first**" in mission
 
 
 def test_journey_order_is_pinned_in_every_journey_strip():
+    # CONTRACT CHANGE: P1 learner-experience redesign
+    # OLD CONTRACT: the ten-word LEARN..EXPLAIN order. NEW CONTRACT: the locked five-phase order.
+    phases = ["UNDERSTAND", "TEST", "INVESTIGATE", "IMPROVE", "PROVE"]
     for viz_id in ("viz_journey_mission", "viz_journey_investigate"):
-        words = re.findall(r"\b(" + "|".join(JOURNEY) + r")\b", _md(viz_id).split("**You are here:**")[0])
-        assert words == JOURNEY, viz_id
+        strip = _md(viz_id).split("\n\n")[0]
+        words = re.findall(r"\b(START|" + "|".join(phases) + r")\b", strip)
+        assert [w for w in words if w != "START"] == phases, viz_id
 
 
 def test_investigate_journey_does_not_claim_the_experiment_just_finished_unconditionally():
+    # CONTRACT CHANGE: P1 learner-experience redesign
+    # OLD CONTRACT: the strip said "if you came from the Workbench" and "REPLAY example".
+    # NEW CONTRACT: the strip never claims the experiment just finished; the CURRENT EVIDENCE
+    #   panel states LIVE or REPLAY from the token, and the header says both are possible.
     text = _md("viz_journey_investigate")
-    assert "if you came from the Workbench" in text
-    assert "REPLAY example" in text
+    assert "just finished" not in text and "your experiment" not in text.lower()
+    header = _md("viz_nb_header")
+    assert "REPLAY — a recorded example" in header and "LIVE — your own experiment" in header
 
 
 def test_defend_is_hidden_until_the_experiment_is_complete(workbench):
@@ -222,11 +258,17 @@ def test_defend_follows_the_prediction_in_page_order(workbench):
 
 
 def test_defend_is_revealed_only_from_the_completion_path():
+    # CONTRACT CHANGE: P1 learner-experience redesign
+    # OLD CONTRACT: a revealDefend() function was called from the completion and reload paths.
+    # NEW CONTRACT: DEFEND is a wizard step. canEnter("defend") requires a recorded ATTACK run
+    #   (live or restored); direct navigation falls back to the nearest allowed step.
+    # WHY: the single-page reveal was replaced by step gating; the property (no DEFEND before an
+    #   ATTACK run exists) is preserved and still tested.
     source = TEMPLATE.read_text(encoding="utf-8")
-    calls = [m.start() for m in re.finditer(r"revealDefend\(\)", source)]
-    # one definition plus the completion and reload call sites
-    assert len(calls) == 3
-    assert "function revealDefend" in source
+    assert "revealDefend" not in source
+    assert "function canEnter" in source and "function fallbackStep" in source
+    gate = source.split("function canEnter", 1)[1].split("}", 1)[0]
+    assert "defend" in gate and "ATTACK" in gate
 
 
 # --- Evidence integrity -----------------------------------------------------

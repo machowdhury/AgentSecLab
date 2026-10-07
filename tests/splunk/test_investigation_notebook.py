@@ -34,36 +34,51 @@ VIZ = WORKSHOP["visualizations"]
 DS = WORKSHOP["dataSources"]
 
 CELL_IDS = [f"viz_nb{n}_q" for n in range(1, 6)]
+#: CONTRACT CHANGE: P1 learner-experience redesign
+#: OLD CONTRACT: a notebook cell was ONE markdown panel (question + WHY + printed SPL +
+#:   observation + evidence boundary) followed by one result table.
+#: NEW CONTRACT: a cell is several panels in the order QUESTION -> WHY IT MATTERS ->
+#:   EVIDENCE RESULT -> YOUR INTERPRETATION -> WHAT THE EVIDENCE SUPPORTS -> WHAT THIS DOES
+#:   NOT PROVE -> NEXT. The question panel carries QUESTION/WHY; the "limits" panel carries
+#:   OBSERVATION/SUPPORTS/DOES NOT PROVE/NEXT. The SPL moved to the REFERENCE tab.
+#: WHY: ONE SCREEN -> ONE LEARNING OBJECTIVE. Visible SPL == executed SPL is NOT loosened;
+#:   it is asserted against the REFERENCE panels below.
+LIMIT_IDS = {n: f"viz_nb{n}_limits" for n in range(1, 6)}
 RESULT_SOURCES = {
     "viz_nb1_r": "ds_nb_decision",
     "viz_nb2_r": "ds_nb_execution",
     "viz_nb3_r": "ds_nb_scope",
     "viz_nb4_r": "ds_nb_timeline",
 }
-NOTEBOOK_SOURCES = ["ds_nb_state", *RESULT_SOURCES.values()]
-
-#: Cells that print a query, and the data source that query belongs to.
-#: The header prints the state-panel query. Cell 5's question is synthesis, but
-#: the comparison table that sits under it runs a real search, so the panel that
-#: introduces that table prints it. An earlier version of this comment said cell
-#: 5 "runs none"; the comparison table does run one, and it was the one query on
-#: the tab the learner could not read.
-QUERY_CELLS = {
-    "viz_nb_header": "ds_nb_state",
-    "viz_nb1_q": "ds_nb_decision",
-    "viz_nb2_q": "ds_nb_execution",
-    "viz_nb3_q": "ds_nb_scope",
-    "viz_nb4_q": "ds_nb_timeline",
-    "viz_live_pair_intro": "ds_live_pair",
+#: The interpretation CHECK tables (P1). Each reads the SAME events as its result table.
+CHECK_SOURCES = {
+    "viz_nb1_fb": "ds_nb_decision_fb",
+    "viz_nb2_fb": "ds_nb_execution_fb",
+    "viz_nb3_fb": "ds_nb_scope_fb",
 }
+NOTEBOOK_SOURCES = ["ds_nb_state", *RESULT_SOURCES.values(), *CHECK_SOURCES.values()]
 
-#: The live pair selects by mode and recency, so it deliberately carries no
-#: run.id token. Every other printed query is bound to the selected run.
-RUN_BOUND_CELLS = {k: v for k, v in QUERY_CELLS.items() if v != "ds_live_pair"}
+#: REFERENCE panels that print queries, and the data sources each one prints, in order.
+#: The live pair selects by mode and recency, so it deliberately carries no run.id token.
+QUERY_CELLS = {
+    "viz_ref_state": ["ds_nb_state"],
+    "viz_ref_nb1": ["ds_nb_decision", "ds_nb_decision_fb"],
+    "viz_ref_nb2": ["ds_nb_execution", "ds_nb_execution_fb"],
+    "viz_ref_nb3": ["ds_nb_scope", "ds_nb_scope_fb"],
+    "viz_ref_nb4": ["ds_nb_timeline"],
+    "viz_live_pair_intro": ["ds_live_pair"],
+}
+RUN_BOUND_CELLS = {k: v for k, v in QUERY_CELLS.items() if v != ["ds_live_pair"]}
 
 
 def _items() -> list[str]:
-    return [row["item"] for row in INVESTIGATE["structure"]]
+    """Panels (not in-canvas inputs). Inputs are checked separately."""
+    return [row["item"] for row in INVESTIGATE["structure"] if row.get("type") == "block"]
+
+
+def _reference_items() -> list[str]:
+    layout = WORKSHOP["layout"]["layoutDefinitions"]["layout_evidence"]
+    return [row["item"] for row in layout["structure"]]
 
 
 def _markdown(viz_id: str) -> str:
@@ -82,9 +97,10 @@ def _evidence_items() -> list[str]:
 
 def _panel_text(viz_id: str) -> str:
     viz = VIZ[viz_id]
-    return "\n".join(
-        [viz.get("title", ""), viz.get("description", ""), viz.get("options", {}).get("markdown", "")]
-    )
+    markdown = re.sub(r"```text\n.*?\n```", "", viz.get("options", {}).get("markdown", ""), flags=re.S)
+    # CONTRACT CHANGE (P1): REFERENCE now hosts printed SPL. A query is a definition, not an
+    # expectation, so the answer-leak guard reads the prose around it, not the code block.
+    return "\n".join([viz.get("title", ""), viz.get("description", ""), markdown])
 
 
 def _all_markdown() -> str:
@@ -137,13 +153,17 @@ def test_five_investigation_questions_exist_in_order():
     assert len(CELL_IDS) == 5
 
 
-@pytest.mark.parametrize("cell_id", CELL_IDS)
-def test_every_cell_has_the_full_notebook_shape(cell_id):
-    cell = _markdown(cell_id)
-    assert "**QUESTION.**" in cell
-    assert "**WHY THIS MATTERS.**" in cell
-    assert "**YOUR OBSERVATION.**" in cell
-    assert "**WHAT THIS DOES NOT PROVE.**" in cell, "a cell has no evidence boundary"
+@pytest.mark.parametrize("number", range(1, 6))
+def test_every_cell_has_the_full_notebook_shape(number):
+    question = _markdown(f"viz_nb{number}_q")
+    limits = _markdown(LIMIT_IDS[number])
+    assert "**QUESTION.**" in question
+    assert "**WHY THIS MATTERS.**" in question
+    assert "**EVIDENCE RESULT.**" in question
+    assert "**YOUR OBSERVATION.**" in limits
+    assert "**WHAT THE EVIDENCE SUPPORTS.**" in limits
+    assert "**WHAT THIS DOES NOT PROVE.**" in limits, "a cell has no evidence boundary"
+    assert "**NEXT.**" in limits
 
 
 @pytest.mark.parametrize("viz_id,ds_id", sorted(RESULT_SOURCES.items()))
@@ -163,16 +183,23 @@ def test_result_table_follows_its_question_cell():
 # --- the SPL is visible and real -------------------------------------------
 
 
-@pytest.mark.parametrize("cell_id", CELL_IDS[:4])
-def test_spl_is_visible_in_the_question_cell(cell_id):
-    """A learner can read the query that produced the answer."""
-    cell = _markdown(cell_id)
-    assert "```text" in cell, "no visible query block"
-    assert "| eval" in cell or "event.name" in cell
+@pytest.mark.parametrize("cell_id", CELL_IDS)
+def test_spl_is_not_in_the_question_cell_but_on_reference(cell_id):
+    """CONTRACT CHANGE: P1 learner-experience redesign
+    OLD CONTRACT: the question cell printed its SPL (test_spl_is_visible_in_the_question_cell).
+    NEW CONTRACT: no INVESTIGATE panel prints SPL; every query is printed on REFERENCE.
+    WHY: SPL before the interpretation buried the question. Reproducibility is unchanged and is
+      asserted by test_displayed_spl_is_the_executed_spl on the REFERENCE panels.
+    """
+    assert "```text" not in _markdown(cell_id)
+    assert "```text" not in _markdown(LIMIT_IDS[int(cell_id[6])])
+    printed = [b for ref in QUERY_CELLS for b in _query_blocks(ref)]
+    assert printed, "REFERENCE prints no queries"
+    assert any("| eval" in b or "event.name" in b for b in printed)
 
 
-@pytest.mark.parametrize("viz_id,ds_id", sorted(QUERY_CELLS.items()))
-def test_displayed_spl_is_the_executed_spl(viz_id, ds_id):
+@pytest.mark.parametrize("viz_id,ds_ids", sorted(QUERY_CELLS.items()))
+def test_displayed_spl_is_the_executed_spl(viz_id, ds_ids):
     """The printed query must be the query, not a summary of it.
 
     The first notebook printed an abbreviated query beside the real one. Cell 4
@@ -181,13 +208,17 @@ def test_displayed_spl_is_the_executed_spl(viz_id, ds_id):
     eval clauses that build those columns were not shown. A learning product
     whose whole method is "check the claim against the evidence" cannot show a
     query that does not reproduce its own table.
+
+    CONTRACT CHANGE (P1): the printed blocks now live on REFERENCE and a panel may print
+    more than one query (result + CHECK), in order. The string equality is unchanged.
     """
     blocks = _query_blocks(viz_id)
-    assert len(blocks) == 1, f"{viz_id} should print exactly one query, found {len(blocks)}"
-    assert blocks[0] == DS[ds_id]["options"]["query"], (
-        f"{viz_id} displays SPL that differs from {ds_id}. These must be one string, "
-        "not two that are kept in step by hand."
-    )
+    assert len(blocks) == len(ds_ids), f"{viz_id} prints {len(blocks)} queries, expected {len(ds_ids)}"
+    for block, ds_id in zip(blocks, ds_ids):
+        assert block == DS[ds_id]["options"]["query"], (
+            f"{viz_id} displays SPL that differs from {ds_id}. These must be one string, "
+            "not two that are kept in step by hand."
+        )
 
 
 def test_every_notebook_search_is_printed_somewhere_in_the_notebook():
@@ -204,20 +235,20 @@ def test_displayed_spl_carries_the_run_selection_the_table_used():
     so what the learner copies already names the run they are looking at.
     """
     for viz_id in RUN_BOUND_CELLS:
-        block = _query_blocks(viz_id)[0]
-        assert "$live_run_id$" in block and "$run_id$" in block
+        for block in _query_blocks(viz_id):
+            assert "$live_run_id$" in block and "$run_id$" in block
 
 
 def test_every_search_on_investigate_is_printed_verbatim():
     """Drift protection derived from the layout, not from a hand-kept list.
 
-    Walk every panel on the INVESTIGATE canvas. Any panel backed by a search
-    must have that search's exact text printed in some markdown panel on the
-    same canvas. A search added later without a printed twin fails here even if
-    nobody remembers to extend QUERY_CELLS.
+    Walk every panel on the INVESTIGATE canvas. Any panel backed by a search must have that
+    search's exact text printed in some markdown panel on the REFERENCE canvas (CONTRACT
+    CHANGE, P1: it used to be printed on INVESTIGATE itself). A search added later without a
+    printed twin fails here even if nobody remembers to extend QUERY_CELLS.
     """
     printed = []
-    for item in _items():
+    for item in _reference_items():
         viz = VIZ[item]
         if viz.get("type") == "splunk.markdown":
             printed.extend(_query_blocks(item))
@@ -230,17 +261,20 @@ def test_every_search_on_investigate_is_printed_verbatim():
 
     assert executed, "no searches found on INVESTIGATE; the walk is broken"
     for ds_id, query in sorted(executed.items()):
-        assert query in printed, f"{ds_id} runs on INVESTIGATE but its query is not printed"
+        assert query in printed, f"{ds_id} runs on INVESTIGATE but its query is not printed on REFERENCE"
 
-    # And nothing a cell presents as "the query behind this table" is printed
-    # without running: a decorative query is a claim. The Advanced panel is the
-    # one named exception. It is a starter for native Search with a
+    # Nothing on INVESTIGATE prints a query at all, and nothing REFERENCE presents as "the
+    # query behind this table" is printed without running: a decorative query is a claim. The
+    # Advanced panel is the one named exception. It is a starter for native Search with a
     # YOUR-RUN-ID placeholder, it feeds no table, and it says so.
     for item in _items():
+        if VIZ[item].get("type") == "splunk.markdown":
+            assert not _query_blocks(item), f"{item} prints SPL on INVESTIGATE"
+    for item in _reference_items():
         if item == "viz_nb_advanced":
             continue
         for block in _query_blocks(item) if VIZ[item].get("type") == "splunk.markdown" else []:
-            assert block in executed.values(), f"{item} prints a query that no search runs"
+            assert block in {q["options"]["query"] for q in DS.values()}, f"{item} prints a query that no search runs"
 
     advanced = _markdown("viz_nb_advanced")
     assert "YOUR-RUN-ID" in advanced, "the advanced starter must stay visibly a template"
@@ -249,12 +283,13 @@ def test_every_search_on_investigate_is_printed_verbatim():
 
 
 def test_comparison_query_is_printed_beside_the_table_it_produces():
-    """Cell 5's table must not run a query the learner cannot read."""
+    """Cell 5's table must not run a query the learner cannot read (CONTRACT CHANGE, P1:
+    the query is printed on REFERENCE; the table stays on INVESTIGATE)."""
     assert VIZ["viz_live_pair"]["dataSources"]["primary"] == "ds_live_pair"
     blocks = _query_blocks("viz_live_pair_intro")
     assert blocks == [DS["ds_live_pair"]["options"]["query"]]
-    items = _items()
-    assert items.index("viz_live_pair") == items.index("viz_live_pair_intro") + 1
+    assert "viz_live_pair" in _items()
+    assert "viz_live_pair_intro" in _reference_items()
 
 
 def test_comparison_query_is_not_bound_to_a_run_id_token():
@@ -266,7 +301,7 @@ def test_comparison_query_is_not_bound_to_a_run_id_token():
 
 def test_cell_four_prints_every_column_it_renders():
     """The regression that started this: a table clause with unshown evals."""
-    block = _query_blocks("viz_nb4_q")[0]
+    block = _query_blocks("viz_ref_nb4")[0]
     table_clause = [line for line in block.splitlines() if line.startswith("| table")]
     assert table_clause, "cell 4 has no table clause"
     columns = [c.strip() for c in table_clause[0][len("| table") :].split(",")]
@@ -329,13 +364,13 @@ def test_execution_question_never_reads_the_control_decision():
 def test_execution_question_decision_independence_holds_for_the_printed_query():
     """Prove it on what the learner reads, and on every spelling of the field.
 
-    The executed query is the printed query (see the drift tests), but this
-    asserts the invariant on the printed text directly so a future change that
-    breaks the one-string design cannot also hide a decision read.
+    CONTRACT CHANGE (P1): the printed queries are the REFERENCE ones and now include the
+    interpretation CHECK query. BOTH must be free of any decision field; the CHECK table is
+    part of "Cell 2" and must not collapse the two facts either.
     """
-    printed = _query_blocks("viz_nb2_q")
-    assert len(printed) == 1
-    for text in (printed[0], DS["ds_nb_execution"]["options"]["query"]):
+    printed = _query_blocks("viz_ref_nb2")
+    assert len(printed) == 2
+    for text in (*printed, DS["ds_nb_execution"]["options"]["query"], DS["ds_nb_execution_fb"]["options"]["query"]):
         lowered = text.lower()
         assert "control.decision" not in lowered
         assert "control.id" not in lowered
@@ -349,15 +384,13 @@ def test_decision_question_does_not_answer_execution():
 
 
 def test_cells_teach_the_two_inequalities():
-    cell1 = _markdown("viz_nb1_q")
-    cell2 = _markdown("viz_nb2_q")
-    assert "ALLOW != EXECUTION" in cell1
-    assert "CONTROL DECISION != EXECUTION" in cell2
+    assert "ALLOW != EXECUTION" in _markdown(LIMIT_IDS[1])
+    assert "CONTROL DECISION != EXECUTION" in _markdown(LIMIT_IDS[2])
 
 
 def test_requested_versus_granted_is_taught_with_honest_evidence_origin():
     """The scopes are OBSERVED; the grant list is DOCUMENTED configuration."""
-    cell = _markdown("viz_nb3_q")
+    cell = _markdown(LIMIT_IDS[3])
     assert "KNOWN TOOL != GRANTED TOOL" in cell
     assert "DOCUMENTED configuration" in cell
     assert "OBSERVED" in cell
@@ -380,14 +413,14 @@ def test_timeline_is_data_driven_not_a_hardcoded_expected_sequence():
 
 
 def test_conclusion_uses_the_claim_vocabulary():
-    cell = _markdown("viz_nb5_q")
+    cell = _markdown(LIMIT_IDS[5])
     for word in ("PROVEN", "SUPPORTED", "OBSERVED", "NOT PROVEN"):
         assert word in cell
 
 
 def test_conclusion_refuses_the_whole_system_verdicts():
-    cell = _markdown("viz_nb5_q")
-    assert "should not write" in cell.lower()
+    cell = _markdown(LIMIT_IDS[5])
+    assert "do not write" in cell.lower()
     for forbidden in ("compromised", "secure"):
         assert forbidden in cell.lower(), "the overclaim is not named, so it is not warned against"
     assert "ATTACK != UNIVERSAL COMPROMISE" in cell
@@ -423,9 +456,16 @@ def test_mission_states_the_question_not_the_answer():
 
 
 def test_mission_asks_the_learner_to_determine_the_outcome():
+    """CONTRACT CHANGE: P1 learner-experience redesign
+    OLD CONTRACT: the mission said "Determine" and "Predict".
+    NEW CONTRACT: the short START panel says the learner predicts first and then works out what
+      happened from evidence. It still states no outcome (see the leak tests above).
+    WHY: ONE SCREEN -> ONE LEARNING OBJECTIVE -> ONE DOMINANT NEXT ACTION.
+    """
     mission = _markdown("viz_workbench_mission")
-    assert "Determine" in mission
-    assert "Predict" in mission or "predict" in mission
+    assert "predict first" in mission
+    assert "work out what happened from **evidence**" in mission
+    assert "Open the guided lab" in mission
 
 
 # --- PATH B does not undermine prediction (section 18) ---------------------
@@ -442,8 +482,11 @@ def test_path_b_opens_with_the_answer_key_warning():
 
 
 def test_path_b_tab_is_labelled_as_answers():
+    """CONTRACT CHANGE: P1 (D-3). The learner tabs are START and INVESTIGATE; the answer key is
+    a REFERENCE tab and is still labelled as answers."""
     labels = [tab["label"] for tab in WORKSHOP["layout"]["tabs"]["items"]]
-    assert "PATH B · ANSWERS" in labels
+    assert labels == ["START", "INVESTIGATE", "REFERENCE", "REFERENCE · ANSWERS"]
+    assert "PATH B · ANSWERS" not in labels
 
 
 def test_notebook_does_not_link_the_learner_to_the_answers():
@@ -641,9 +684,11 @@ def _block(viz_id: str) -> dict:
 # content overflowed it (scrollHeight - clientHeight) in a real Chrome window at
 # 1024px wide, read from the rendered Splunk page. A panel shorter than this
 # makes the learner scroll inside the panel to reach evidence.
-#   viz_live_pair_intro: 760 + 98  -> 858   (printed comparison query wraps)
 #   viz_nb4_r:           380 + 163 -> 543   (event timeline rows wrap)
-MEASURED_MIN_HEIGHT_AT_1024 = {"viz_live_pair_intro": 858, "viz_nb4_r": 543}
+# CONTRACT CHANGE (P1): viz_live_pair_intro (858) moved to REFERENCE and now prints only the
+# query; its P1 height is pinned from a P1 measurement in
+# test_p1_measured_panel_heights_hold below, not from the retired combined panel.
+MEASURED_MIN_HEIGHT_AT_1024 = {"viz_nb4_r": 543}
 
 
 @pytest.mark.parametrize("panel_id,minimum", sorted(MEASURED_MIN_HEIGHT_AT_1024.items()))
@@ -681,8 +726,8 @@ def test_comparison_panel_keeps_every_evidence_column():
 
 def test_comparison_prose_matches_the_transposed_orientation():
     """The cell must not tell the learner to look for rows that are now columns."""
-    intro = " ".join(VIZ["viz_live_pair_intro"]["options"]["markdown"].split())
-    assert "one column instead of two" in intro and "a missing column" in intro
+    intro = " ".join(VIZ["viz_nb5_q"]["options"]["markdown"].split())
+    assert "one column per run.id" in intro and "A missing column" in intro
     assert "one row instead of two" not in intro
     description = VIZ["viz_live_pair"]["description"]
     assert description.startswith("One column per run.id, one row per field")
