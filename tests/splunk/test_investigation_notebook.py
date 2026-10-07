@@ -723,6 +723,23 @@ def test_p1_measured_panel_heights_hold(panel_id, minimum):
     )
 
 
+#: REFERENCE prose panels, MEASURED the same way (1024px window and 200% zoom). The raw explorer
+#: tables below them are unchanged P0 panels and keep their P0 heights (PRE-EXISTING; listed in the
+#: P1 report as remaining debt).
+MEASURED_MIN_HEIGHT_REFERENCE = {
+    "viz_ref_nb2": 890,
+    "viz_live_pair_intro": 759,
+    "viz_workbench_evidence": 323,
+}
+
+
+@pytest.mark.parametrize("panel_id,minimum", sorted(MEASURED_MIN_HEIGHT_REFERENCE.items()))
+def test_p1_measured_reference_panel_heights_hold(panel_id, minimum):
+    rows = WORKSHOP["layout"]["layoutDefinitions"]["layout_evidence"]["structure"]
+    height = next(row["position"]["h"] for row in rows if row["item"] == panel_id)
+    assert height >= minimum, (panel_id, height, minimum)
+
+
 def test_comparison_table_is_transposed_so_width_cannot_clip_it():
     """Twelve columns did not fit at 1024px: 127px of horizontal and 35px of
     vertical overflow hid last_seen and the RETEST row. One column per run and
