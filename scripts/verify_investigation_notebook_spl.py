@@ -30,26 +30,34 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFINITION = ROOT / "learning" / "level_1" / "LAB-MCP-001" / "dashboard.definition.json"
-#: The markdown cell a learner reads, and the data source that cell's table
-#: runs. The query is taken from the *markdown*, so this script verifies the
-#: text on screen rather than the text behind it, and then proves the two are
-#: the same string before running anything.
+#: P1: the printed SPL moved from the INVESTIGATE cells to the REFERENCE panels
+#: (CONTRACT CHANGE: P1 learner-experience redesign). Each REFERENCE panel prints the
+#: EVIDENCE RESULT query first and, for questions 1-3, the CHECK query second. The
+#: query is taken from the *markdown*, so this script verifies the text on screen and
+#: proves it equals the executed data source before running anything.
 CELLS = (
-    ("viz_nb_header", "ds_nb_state"),
-    ("viz_nb1_q", "ds_nb_decision"),
-    ("viz_nb2_q", "ds_nb_execution"),
-    ("viz_nb3_q", "ds_nb_scope"),
-    ("viz_nb4_q", "ds_nb_timeline"),
+    ("viz_ref_state", "ds_nb_state", 0),
+    ("viz_ref_nb1", "ds_nb_decision", 0),
+    ("viz_ref_nb2", "ds_nb_execution", 0),
+    ("viz_ref_nb3", "ds_nb_scope", 0),
+    ("viz_ref_nb4", "ds_nb_timeline", 0),
+)
+#: (printed panel, CHECK data source, answer token). Run with "UNSURE" so the check
+#: always has a row to prove it parses; it asserts no expected decision.
+CHECK_CELLS = (
+    ("viz_ref_nb1", "ds_nb_decision_fb", "nb_a1"),
+    ("viz_ref_nb2", "ds_nb_execution_fb", "nb_a2"),
+    ("viz_ref_nb3", "ds_nb_scope_fb", "nb_a3"),
 )
 CONTAINER = "agentsec_splunk"
 
 
-def displayed_spl(definition: dict, viz_id: str) -> str:
+def displayed_spl(definition: dict, viz_id: str, index: int = 0) -> str:
     markdown = definition["visualizations"][viz_id]["options"]["markdown"]
     blocks = re.findall(r"```text\n(.*?)\n```", markdown, re.S)
-    if len(blocks) != 1:
-        raise SystemExit(f"{viz_id} prints {len(blocks)} query blocks; expected 1")
-    return blocks[0]
+    if index >= len(blocks):
+        raise SystemExit(f"{viz_id} prints {len(blocks)} query blocks; expected index {index}")
+    return blocks[index]
 
 
 def splunk(spl: str) -> tuple[list[dict], str]:
@@ -88,19 +96,26 @@ def main() -> int:
     failures = 0
 
     print(f"{'=' * 72}\nVISIBLE SPL == EXECUTED SPL\n{'=' * 72}")
-    for viz_id, ds_id in CELLS:
-        shown = displayed_spl(definition, viz_id)
+    for viz_id, ds_id, idx in CELLS:
+        shown = displayed_spl(definition, viz_id, idx)
         executed = definition["dataSources"][ds_id]["options"]["query"]
         same = shown == executed
         print(f"-- {viz_id:16s} vs {ds_id:16s} {'IDENTICAL' if same else 'DRIFTED'}")
         if not same:
             failures += 1
+    for viz_id, ds_id, _token in CHECK_CELLS:
+        shown = displayed_spl(definition, viz_id, 1)
+        executed = definition["dataSources"][ds_id]["options"]["query"]
+        same = shown == executed
+        print(f"-- {viz_id:16s} vs {ds_id:20s} {'IDENTICAL' if same else 'DRIFTED'}")
+        if not same:
+            failures += 1
 
     for mode, run_id in zip(("ATTACK", "RETEST"), sys.argv[1:3]):
         print(f"\n{'=' * 72}\n{mode}  run.id={run_id}\n{'=' * 72}")
-        for viz_id, ds_id in CELLS:
+        for viz_id, ds_id, idx in CELLS:
             # Run what the learner can see, not what the dashboard stores.
-            rows, err = splunk(bind(displayed_spl(definition, viz_id), run_id))
+            rows, err = splunk(bind(displayed_spl(definition, viz_id, idx), run_id))
             if err:
                 print(f"\n-- {viz_id} ({ds_id}): SPL ERROR\n   {err}")
                 failures += 1
@@ -115,6 +130,15 @@ def main() -> int:
                 blank = [k for k, v in row.items() if not v]
                 if blank:
                     print("    BLANK COLUMNS:", blank)
+        # CHECK tables: closed when the answer is "none", one row once an answer is chosen.
+        for viz_id, ds_id, token in CHECK_CELLS:
+            shown = displayed_spl(definition, viz_id, 1)
+            closed, err_c = splunk(bind(shown, run_id).replace(f"${token}$", "none"))
+            opened, err_o = splunk(bind(shown, run_id).replace(f"${token}$", "UNSURE"))
+            ok = not err_c and not err_o and len(closed) == 0 and len(opened) >= 1
+            print(f"\n-- CHECK {ds_id}: closed={len(closed)} row(s), open={len(opened)} row(s) {'OK' if ok else 'PROBLEM'}")
+            if not ok:
+                failures += 1
         # LAB-MCP-001 emits no LLM events. If that ever changes, the notebook's
         # "this lab produces no LLM activity" framing becomes a false statement.
         llm, _ = splunk(

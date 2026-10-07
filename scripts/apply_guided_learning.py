@@ -391,7 +391,17 @@ def _shift(structure: list, dy: int) -> None:
             position["y"] = int(position["y"]) + dy
 
 
+#: Labs whose first tab is authored by their own generator. P1 replaced the generic
+#: ten-section guide on LAB-MCP-001 with a short START tab (one question, one action),
+#: because the generic guide put a wall of prose in front of the learner's first click.
+#: The investigation itself (CURRENT EVIDENCE and the five questions) is unchanged and
+#: lives on INVESTIGATE. Every other lab still receives the generic guide.
+AUTHORED_START_LABS = frozenset({"LAB-MCP-001"})
+
+
 def apply_guide(definition: dict, row: dict) -> None:
+    if row["lab_id"] in AUTHORED_START_LABS:
+        return
     if "viz_guide_shell" in definition.get("visualizations", {}):
         options = definition["visualizations"]["viz_guide_shell"].setdefault("options", {})
         options["fontSize"] = "large"

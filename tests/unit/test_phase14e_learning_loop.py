@@ -194,7 +194,12 @@ def test_mcp_attack_page_is_closed_launcher():
     client = app.test_client()
     html = client.get("/labs/LAB-MCP-001").get_data(as_text=True)
     assert "Tool Authorization" in html
-    assert "AI Security Experiment Workbench" in html
+    # CONTRACT CHANGE: P1 learner-experience redesign
+    # OLD CONTRACT: the page header read "AI Security Experiment Workbench".
+    # NEW CONTRACT: the page is the guided academy wizard: AgentSec brand bar, the lab
+    #   chip "LIVE LAB", and the five-phase rail. It is still a CLOSED launcher.
+    # WHY: P1 replaced the workbench chrome; the closed-launcher assertions below are unchanged.
+    assert "AgentSec" in html and "LIVE LAB" in html and 'id="phase-rail"' in html
     assert "Run ATTACK" in html
     assert "Run RETEST" in html
     assert "Security decision chain" in html

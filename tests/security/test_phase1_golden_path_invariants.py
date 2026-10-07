@@ -204,8 +204,15 @@ def test_behind_the_ai_is_labelled_documented_not_measured():
 def test_evidence_notebook_states_what_each_answer_does_not_prove():
     """The notebook cells moved to INVESTIGATE and now run their own SPL, so
     the question/boundary pairing is asserted on the new cell ids."""
+    # CONTRACT CHANGE: P1 learner-experience redesign
+    # OLD CONTRACT: the boundary sentence sat in the same panel as the question.
+    # NEW CONTRACT: the boundary sentence is its own panel (viz_nbN_limits) directly after the
+    #   result, so the learner reads "what this does not prove" after the evidence. Each question
+    #   plus its limits panel together must still carry both halves. Nothing is removed.
+    viz = WORKSHOP["visualizations"]
     cells = [
-        WORKSHOP["visualizations"][f"viz_nb{n}_q"]["options"]["markdown"] for n in range(1, 6)
+        viz[f"viz_nb{n}_q"]["options"]["markdown"] + "\n" + viz[f"viz_nb{n}_limits"]["options"]["markdown"]
+        for n in range(1, 6)
     ]
     assert len(cells) == 5, "expected five notebook questions"
     for cell in cells:

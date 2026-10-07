@@ -26,6 +26,11 @@ BORDER = "#D9E0E7"
 WHITE = "#FFFFFF"
 INFO = "#3568A8"
 WARNING = "#B7791F"
+#: DENY text on the DENY row background (#F6EBD8). P1 D-4: MEASURED 3.08:1 with WARNING,
+#: below the 4.5:1 minimum for normal text. #7A4F0B measures 6.03:1 on the same
+#: background and stays in the amber family. Not a "secure red": DENY is a recorded
+#: decision, not a verdict, and colour is never the only carrier (the word is the cell).
+DENY_TEXT = "#7A4F0B"
 MUTED = "#8AA0B4"
 
 # ALLOW stays informational. Do not treat it as success/green.
@@ -38,7 +43,7 @@ EVIDENCE_TABLE_CONTEXT = {
     ],
     "decisionText": [
         {"match": "ALLOW", "value": INFO},
-        {"match": "DENY", "value": WARNING},
+        {"match": "DENY", "value": DENY_TEXT},
         {"match": "ERROR", "value": "#C62828"},
         {"match": "OBSERVE", "value": SECONDARY},
     ],
@@ -897,6 +902,12 @@ def _write_view_xml(view_name: str, definition: dict) -> None:
     )
 
 
+#: Tables that carry the shared decision/executed formatting. The two guide tables are
+#: injected by apply_guided_learning.py; the two LAB-MCP-001 notebook tables are the
+#: INVESTIGATE tab's decision readouts (P1: the generic guide no longer sits on that lab).
+FORMATTED_TABLES = frozenset({"viz_guide_events", "viz_guide_summary", "viz_nb1_r", "viz_nb1_fb"})
+
+
 def apply_dashboards() -> dict:
     tables_changed = 0
     views_updated = 0
@@ -905,7 +916,7 @@ def apply_dashboards() -> dict:
         json_path = LEARNING / lab / "dashboard.definition.json"
         definition = json.loads(json_path.read_text(encoding="utf-8"))
         for viz_id, viz in definition.get("visualizations", {}).items():
-            if viz_id in {"viz_guide_events", "viz_guide_summary"}:
+            if viz_id in FORMATTED_TABLES:
                 if apply_table_format(viz):
                     tables_changed += 1
         _insert_flow_viz(definition, flow)

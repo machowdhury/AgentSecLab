@@ -67,6 +67,21 @@ def test_navigation_is_about_twelve_curriculum_groups():
     assert (VIEWS / "ws_agentsec_arena.xml").is_file()
 
 
+#: Views whose first tab is authored by their own generator (P1). Must equal
+#: scripts/apply_guided_learning.py AUTHORED_START_LABS mapped to view names.
+AUTHORED_START_VIEWS = frozenset({"ws_lab_mcp_001"})
+
+
+def test_authored_start_views_match_the_script_constant():
+    import importlib.util  # noqa: PLC0415
+
+    spec = importlib.util.spec_from_file_location("apply_guided_learning", ROOT / "scripts" / "apply_guided_learning.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert module.AUTHORED_START_LABS == frozenset({"LAB-MCP-001"})
+    assert AUTHORED_START_VIEWS == frozenset({"ws_lab_mcp_001"})
+
+
 def test_curriculum_order_has_a_next_step_and_guide_metadata():
     curriculum = json.loads(CURRICULUM.read_text(encoding="utf-8"))
     assert curriculum["schema_version"] == "1.9.0"
@@ -75,6 +90,15 @@ def test_curriculum_order_has_a_next_step_and_guide_metadata():
     assert len(views) == len(set(views))
     for view in views:
         definition = _definition(view)
+        if view in AUTHORED_START_VIEWS:
+            # CONTRACT CHANGE: P1 learner-experience redesign
+            # OLD CONTRACT: every view carried the generic viz_guide_shell.
+            # NEW CONTRACT: LAB-MCP-001 is exempt; its START tab is authored by its generator
+            #   (scripts/apply_guided_learning.py AUTHORED_START_LABS) and must NOT also carry
+            #   the generic guide. It must still have a first tab and a next step in the curriculum.
+            assert "viz_guide_shell" not in definition["visualizations"], view
+            assert "viz_workbench_mission" in definition["visualizations"], view
+            continue
         shell = definition["visualizations"]["viz_guide_shell"]["options"]["markdown"]
         assert "Where you are" in shell
         assert "What you are learning" in shell
@@ -106,6 +130,11 @@ def test_live_workshops_bind_an_empty_run_id_to_an_inline_search():
             inp for inp in definition["inputs"].values() if inp["type"] == "input.text"
         )
         assert text["options"]["defaultValue"] == LIVE_DEFAULT_EXCEPTIONS.get(view, "")
+        if view in AUTHORED_START_VIEWS:
+            # CONTRACT CHANGE (P1): no generic guide search on this lab; the box and its
+            # "none" sentinel are unchanged and are what the notebook searches read.
+            assert text["options"]["token"] == "live_run_id"
+            continue
         query = definition["dataSources"]["ds_guide_events"]["options"]["query"]
         assert '"agentsec.run.id"="$live_run_id$"' in query
         assert 'where "$live_run_id$"!=""' in query

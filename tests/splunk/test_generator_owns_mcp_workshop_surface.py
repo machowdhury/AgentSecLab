@@ -101,19 +101,32 @@ def test_architecture_flow_survives_regeneration(regenerated):
 
 
 def test_guided_shell_survives_regeneration(regenerated):
-    """apply_guided_learning.py running last is what keeps this present."""
-    assert "viz_guide_shell" in regenerated["view_definition"]["visualizations"]
+    """apply_guided_learning.py running last keeps the START tab authored, not generic.
+
+    CONTRACT CHANGE: P1 learner-experience redesign
+    OLD CONTRACT: viz_guide_shell (the generic ten-section guide) was present on LAB-MCP-001.
+    NEW CONTRACT: LAB-MCP-001 is in AUTHORED_START_LABS. Its first tab is the generator's own
+      short START panel and the generic guide must NOT be re-injected on top of it.
+    WHY: ONE SCREEN -> ONE LEARNING OBJECTIVE -> ONE DOMINANT NEXT ACTION. Every other lab
+      still receives the generic guide (tests/splunk/test_guided_learning.py).
+    """
+    visualizations = regenerated["view_definition"]["visualizations"]
+    assert "viz_guide_shell" not in visualizations
+    assert "viz_guide_events" not in visualizations
+    assert "viz_workbench_mission" in visualizations
 
 
-@pytest.mark.parametrize("viz_id", ["viz_guide_events", "viz_guide_summary"])
+@pytest.mark.parametrize("viz_id", ["viz_nb1_r", "viz_nb1_fb"])
 def test_semantic_evidence_formatting_survives_regeneration(regenerated, viz_id):
+    """CONTRACT CHANGE: P1. The formatted tables are now the INVESTIGATE decision readouts
+    (the generic guide tables no longer exist on this lab). The semantic rules are unchanged."""
     viz = regenerated["view_definition"]["visualizations"][viz_id]
     assert set(viz["options"]["columnFormat"]) == {"decision", "executed"}
 
     context = viz["context"]
     decision_text = {row["match"]: row["value"] for row in context["decisionText"]}
     assert decision_text["ALLOW"] == "#3568A8"
-    assert decision_text["DENY"] == "#B7791F"
+    assert decision_text["DENY"] == "#7A4F0B"  # CONTRACT CHANGE (P1 D-4): was #B7791F, 3.08:1
     assert decision_text["ERROR"] == "#C62828"
 
     # ALLOW is a control decision, never a safe outcome, so no success green.

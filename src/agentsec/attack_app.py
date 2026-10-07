@@ -61,6 +61,23 @@ from agentsec.settings import get_settings
 #: this to the value the Studio selector offers, so the two cannot drift.
 MCP_BASELINE_REPLAY_RUN_ID = "163d11e2-e751-4282-9406-19b490542ed4"
 
+#: Facts the inline BASELINE screen may state. They are REPLAYED evidence: a
+#: transcription of the committed specimen pack
+#: learning/level_1/LAB-MCP-001/specimens/<run.id>.jsonl, not a live
+#: measurement and not a runtime lookup. The attack-service container does not
+#: mount the specimen packs, so a test (tests/unit/test_p1_mcp_baseline.py)
+#: reads the pack and fails if any value here stops matching it. Nothing here
+#: may be edited to fit a design: change the pack and the test first.
+MCP_BASELINE_REPLAY_FACTS = {
+    "run_id": MCP_BASELINE_REPLAY_RUN_ID,
+    "tool": "lookup_policy",
+    "decision": "ALLOW",
+    "reason": "tool_granted",
+    "handler_started": True,
+    "handler_completed": True,
+    "event_count": 7,
+}
+
 logger = logging.getLogger("agentsec.attack")
 
 TEMPLATE_DIR = Path(__file__).resolve().parent / "templates"
@@ -501,6 +518,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
             expected_defended=expected_defended,
             hunt_hint=hunt_hint,
             mcp_baseline_run_id=MCP_BASELINE_REPLAY_RUN_ID,
+            mcp_baseline=MCP_BASELINE_REPLAY_FACTS,
             mcp_request={
                 "tool": attack_ctx.tool if attack_ctx else "",
                 "requested_scope": attack_ctx.requested_scope if attack_ctx else "",

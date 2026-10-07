@@ -96,7 +96,14 @@ def test_mcp_reference_workbench_is_guided_closed_and_accessible():
 
     assert 'href="#main"' in html
     assert "<h1>Tool Authorization</h1>" in html
-    assert "Can the agent invoke a tool outside the authority granted to it?" in html
+    # CONTRACT CHANGE: P1 learner-experience redesign
+    # OLD CONTRACT: the page led with "Can the agent invoke a tool outside the authority granted to it?"
+    # NEW CONTRACT: the page leads with the plain-language lab question; the formal question
+    #   is still present under the "Understand the attack" disclosure.
+    # WHY: ONE SCREEN -> ONE LEARNING OBJECTIVE; the formal wording is progressive disclosure, not deleted.
+    assert "Can an AI agent use a tool it was never granted?" in html
+    assert "Understand the attack" in html
+    assert "Lab safety" in html and "Technical details" in html
     assert ">Principal<" in html and ">Authorization<" in html and ">Execution<" in html
     assert "Run ATTACK" in html and "Run RETEST" in html
     assert "Copy Run ID" in html

@@ -261,7 +261,13 @@ def test_attack_service_academy_strip_is_educational_not_authority():
     assert "Tool Authorization" in html
     assert "profile: profile" not in html
     mcp = client.get("/labs/LAB-MCP-001").get_data(as_text=True)
-    assert "Scope Escalation" in mcp
+    # CONTRACT CHANGE: P1 learner-experience redesign
+    # OLD CONTRACT: the MCP page named the next lab ("Scope Escalation") in an academy strip.
+    # NEW CONTRACT: the MCP wizard ends at EXPLAIN with a single "Finish this lab" action to
+    #   Your path, which owns the curriculum order and the next lab. The page still labels its
+    #   baseline as REPLAY.
+    # WHY: ONE SCREEN -> ONE LEARNING OBJECTIVE; curriculum navigation belongs to Your path.
+    assert "learner_path" in mcp and "Finish this lab" in mcp
     assert "REPLAY" in mcp
     cap = client.get("/labs/LAB-AGENTSEC-CAPSTONE-001").get_data(as_text=True)
     assert "Capstone is the last LIVE launcher." in cap
