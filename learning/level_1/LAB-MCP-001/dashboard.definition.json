@@ -375,21 +375,21 @@
       "type": "ds.search",
       "name": "Q-MCP-NB-DECISION-CHECK",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval your_answer=\"$nb_a1$\"\n| where your_answer!=\"none\"\n| eval check=case(your_answer==\"UNSURE\",\"UNSURE is a legitimate answer. Compare it with the record.\",your_answer==decision,\"MATCHES the control record\",\"DIFFERS from the control record\")\n| eval evidence_supports=\"CTRL-MCP-001 recorded decision=\"+coalesce(decision,\"(not recorded)\")+\" with reason \"+coalesce(reason,\"(not recorded)\")+\" for tool \"+coalesce(tool,\"(not recorded)\")+\".\"\n| table your_answer, decision, reason, check, evidence_supports"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval your_answer=\"$nb_a1$\"\n| where your_answer!=\"none\"\n| eval check=case(your_answer==\"UNSURE\",\"UNSURE is a legitimate answer. Compare it with the record.\",your_answer==decision,\"MATCHES the control record\",1=1,\"DIFFERS from the control record\")\n| eval evidence_supports=\"CTRL-MCP-001 recorded decision=\"+coalesce(decision,\"(not recorded)\")+\" with reason \"+coalesce(reason,\"(not recorded)\")+\" for tool \"+coalesce(tool,\"(not recorded)\")+\".\"\n| table your_answer, decision, reason, check, evidence_supports"
       }
     },
     "ds_nb_execution_fb": {
       "type": "ds.search",
       "name": "Q-MCP-NB-EXECUTION-CHECK",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") (\"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed OR \"event.name\"=agentsec.pipeline.stopped)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eval is_stopped=if(event_name=\"agentsec.pipeline.stopped\",1,0)\n| stats max(is_started) as started, max(is_completed) as completed, max(is_failed) as failed, max(is_stopped) as pipeline_stopped by run_id\n| eval your_answer=\"$nb_a2$\"\n| where your_answer!=\"none\"\n| eval evidence_shows=if(started=1,\"STARTED\",\"NOT_STARTED\")\n| eval check=case(your_answer==\"UNSURE\",\"UNSURE is a legitimate answer. Compare it with the record.\",your_answer==evidence_shows,\"MATCHES the indexed execution events\",\"DIFFERS from the indexed execution events\")\n| eval evidence_supports=case(started=1,\"agentsec.mcp.started is present, so the handler began.\",pipeline_stopped=1,\"No agentsec.mcp.started and agentsec.pipeline.stopped is present. Consistent with the run halting before the handler. Corroboration, not proof.\",1=1,\"Neither agentsec.mcp.started nor agentsec.pipeline.stopped matched. NOT PROVEN either way.\")\n| table your_answer, evidence_shows, started, completed, failed, pipeline_stopped, check, evidence_supports"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") (\"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed OR \"event.name\"=agentsec.pipeline.stopped)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eval is_stopped=if(event_name=\"agentsec.pipeline.stopped\",1,0)\n| stats max(is_started) as started, max(is_completed) as completed, max(is_failed) as failed, max(is_stopped) as pipeline_stopped by run_id\n| eval your_answer=\"$nb_a2$\"\n| where your_answer!=\"none\"\n| eval evidence_shows=if(started=1,\"STARTED\",\"NOT_STARTED\")\n| eval check=case(your_answer==\"UNSURE\",\"UNSURE is a legitimate answer. Compare it with the record.\",your_answer==evidence_shows,\"MATCHES the indexed execution events\",1=1,\"DIFFERS from the indexed execution events\")\n| eval evidence_supports=case(started=1,\"agentsec.mcp.started is present, so the handler began.\",pipeline_stopped=1,\"No agentsec.mcp.started and agentsec.pipeline.stopped is present. Consistent with the run halting before the handler. Corroboration, not proof.\",1=1,\"Neither agentsec.mcp.started nor agentsec.pipeline.stopped matched. NOT PROVEN either way.\")\n| table your_answer, evidence_shows, started, completed, failed, pipeline_stopped, check, evidence_supports"
       }
     },
     "ds_nb_scope_fb": {
       "type": "ds.search",
       "name": "Q-MCP-NB-SCOPE-CHECK",
       "options": {
-        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval scope_relationship=if(requested_scope==allowed_scope,\"EQUAL\",\"DIFFERENT\")\n| eval your_answer=\"$nb_a3$\"\n| where your_answer!=\"none\"\n| eval check=case(your_answer==\"UNSURE\",\"UNSURE is a legitimate answer. Compare it with the record.\",your_answer==scope_relationship,\"MATCHES the indexed scopes\",\"DIFFERS from the indexed scopes\")\n| eval evidence_supports=\"requested_scope=\"+coalesce(requested_scope,\"(not recorded)\")+\" and allowed_scope=\"+coalesce(allowed_scope,\"(not recorded)\")+\" for tool \"+coalesce(tool,\"(not recorded)\")+\". Both are OBSERVED fields on the control event.\"\n| table your_answer, scope_relationship, requested_scope, allowed_scope, check, evidence_supports"
+        "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval scope_relationship=if(requested_scope==allowed_scope,\"EQUAL\",\"DIFFERENT\")\n| eval your_answer=\"$nb_a3$\"\n| where your_answer!=\"none\"\n| eval check=case(your_answer==\"UNSURE\",\"UNSURE is a legitimate answer. Compare it with the record.\",your_answer==scope_relationship,\"MATCHES the indexed scopes\",1=1,\"DIFFERS from the indexed scopes\")\n| eval evidence_supports=\"requested_scope=\"+coalesce(requested_scope,\"(not recorded)\")+\" and allowed_scope=\"+coalesce(allowed_scope,\"(not recorded)\")+\" for tool \"+coalesce(tool,\"(not recorded)\")+\". Both are OBSERVED fields on the control event.\"\n| table your_answer, scope_relationship, requested_scope, allowed_scope, check, evidence_supports"
       }
     }
   },
@@ -1477,7 +1477,7 @@
     "viz_workbench_mission": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "# Can an AI agent use a tool it was never granted?\n\nYou will test one request against AcmeBank's loan assistant. You **predict first**, then work out what happened from **evidence**.\n\n## Your next action\n\n### [Open the guided lab →](/app/agentsec/open_attack?path=/labs/LAB-MCP-001)\n\nThe lab runs in the AgentSec Attack Service. Your experiment's evidence arrives in this Splunk notebook, opened for you. On the normal path you never type a run.id or a search.\n\n## Your route\n\nUNDERSTAND (baseline) › TEST (predict, attack) › INVESTIGATE (here, in Splunk) › IMPROVE (defend, retest) › PROVE (compare, explain)\n\n**Already ran your ATTACK?** Open the **INVESTIGATE** tab. The lab link opens it with your run loaded.\n\n**Baseline.** The normal-behavior baseline is shown inside the guided lab as recorded (REPLAY) evidence. You do not run it. To read the full recorded baseline in Splunk, [open the recorded BASELINE example](/app/agentsec/ws_lab_mcp_001?tab=layout_investigate&form.run_id=163d11e2-e751-4282-9406-19b490542ed4).\n\nSPL, HUNT, DETECT and the answer key are under the **REFERENCE** tabs. You do not need them to finish the lab.\n\n**REQUEST != GRANT · ALLOW != EXECUTION · SPLUNK != ENFORCEMENT**\n",
+        "markdown": "# Can an AI agent use a tool it was never granted?\n\n## [Open the guided lab →](/app/agentsec/open_attack?path=/labs/LAB-MCP-001)\n\nYou will test one request against AcmeBank's loan assistant. You **predict first**, then work out what happened from **evidence**. The lab runs in the AgentSec Attack Service. Your experiment's evidence arrives in this Splunk notebook, opened for you. On the normal path you never type a run.id or a search.\n\n## Your route\n\nUNDERSTAND (baseline) › TEST (predict, attack) › INVESTIGATE (here, in Splunk) › IMPROVE (defend, retest) › PROVE (compare, explain)\n\n**Already ran your ATTACK?** Open the **INVESTIGATE** tab. The lab link opens it with your run loaded.\n\n**Baseline.** The normal-behavior baseline is shown inside the guided lab as recorded (REPLAY) evidence. You do not run it. To read the full recorded baseline in Splunk, [open the recorded BASELINE example](/app/agentsec/ws_lab_mcp_001?tab=layout_investigate&form.run_id=163d11e2-e751-4282-9406-19b490542ed4).\n\nSPL, HUNT, DETECT and the answer key are under the **REFERENCE** tabs. You do not need them to finish the lab.\n\n**REQUEST != GRANT · ALLOW != EXECUTION · SPLUNK != ENFORCEMENT**\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -1966,7 +1966,7 @@
     "viz_ref_nb1": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "## Question 1 — the control's decision\n\n**EVIDENCE RESULT query**\n\n```text\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| table run_id, control_id, tool, decision, reason\n```\n\n**CHECK query** (runs after you choose an interpretation; `$nb_a1$` is your choice)\n\n```text\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval your_answer=\"$nb_a1$\"\n| where your_answer!=\"none\"\n| eval check=case(your_answer==\"UNSURE\",\"UNSURE is a legitimate answer. Compare it with the record.\",your_answer==decision,\"MATCHES the control record\",\"DIFFERS from the control record\")\n| eval evidence_supports=\"CTRL-MCP-001 recorded decision=\"+coalesce(decision,\"(not recorded)\")+\" with reason \"+coalesce(reason,\"(not recorded)\")+\" for tool \"+coalesce(tool,\"(not recorded)\")+\".\"\n| table your_answer, decision, reason, check, evidence_supports\n```\n",
+        "markdown": "## Question 1 — the control's decision\n\n**EVIDENCE RESULT query**\n\n```text\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| table run_id, control_id, tool, decision, reason\n```\n\n**CHECK query** (runs after you choose an interpretation; `$nb_a1$` is your choice)\n\n```text\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval your_answer=\"$nb_a1$\"\n| where your_answer!=\"none\"\n| eval check=case(your_answer==\"UNSURE\",\"UNSURE is a legitimate answer. Compare it with the record.\",your_answer==decision,\"MATCHES the control record\",1=1,\"DIFFERS from the control record\")\n| eval evidence_supports=\"CTRL-MCP-001 recorded decision=\"+coalesce(decision,\"(not recorded)\")+\" with reason \"+coalesce(reason,\"(not recorded)\")+\" for tool \"+coalesce(tool,\"(not recorded)\")+\".\"\n| table your_answer, decision, reason, check, evidence_supports\n```\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -1976,7 +1976,7 @@
     "viz_ref_nb2": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "## Question 2 — execution\n\nThese queries never reference `agentsec.control.decision`. Execution is established from execution events alone.\n\n**EVIDENCE RESULT query**\n\n```text\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") (\"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed OR \"event.name\"=agentsec.pipeline.stopped)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| table sequence, event_name, tool, executed\n| sort sequence\n```\n\n**CHECK query** (`$nb_a2$` is your choice)\n\n```text\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") (\"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed OR \"event.name\"=agentsec.pipeline.stopped)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eval is_stopped=if(event_name=\"agentsec.pipeline.stopped\",1,0)\n| stats max(is_started) as started, max(is_completed) as completed, max(is_failed) as failed, max(is_stopped) as pipeline_stopped by run_id\n| eval your_answer=\"$nb_a2$\"\n| where your_answer!=\"none\"\n| eval evidence_shows=if(started=1,\"STARTED\",\"NOT_STARTED\")\n| eval check=case(your_answer==\"UNSURE\",\"UNSURE is a legitimate answer. Compare it with the record.\",your_answer==evidence_shows,\"MATCHES the indexed execution events\",\"DIFFERS from the indexed execution events\")\n| eval evidence_supports=case(started=1,\"agentsec.mcp.started is present, so the handler began.\",pipeline_stopped=1,\"No agentsec.mcp.started and agentsec.pipeline.stopped is present. Consistent with the run halting before the handler. Corroboration, not proof.\",1=1,\"Neither agentsec.mcp.started nor agentsec.pipeline.stopped matched. NOT PROVEN either way.\")\n| table your_answer, evidence_shows, started, completed, failed, pipeline_stopped, check, evidence_supports\n```\n",
+        "markdown": "## Question 2 — execution\n\nThese queries never reference `agentsec.control.decision`. Execution is established from execution events alone.\n\n**EVIDENCE RESULT query**\n\n```text\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") (\"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed OR \"event.name\"=agentsec.pipeline.stopped)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval executed=mvindex(mvdedup('agentsec.operation.executed'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| table sequence, event_name, tool, executed\n| sort sequence\n```\n\n**CHECK query** (`$nb_a2$` is your choice)\n\n```text\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") (\"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed OR \"event.name\"=agentsec.pipeline.stopped)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eval is_completed=if(event_name=\"agentsec.mcp.completed\",1,0)\n| eval is_failed=if(event_name=\"agentsec.mcp.failed\",1,0)\n| eval is_stopped=if(event_name=\"agentsec.pipeline.stopped\",1,0)\n| stats max(is_started) as started, max(is_completed) as completed, max(is_failed) as failed, max(is_stopped) as pipeline_stopped by run_id\n| eval your_answer=\"$nb_a2$\"\n| where your_answer!=\"none\"\n| eval evidence_shows=if(started=1,\"STARTED\",\"NOT_STARTED\")\n| eval check=case(your_answer==\"UNSURE\",\"UNSURE is a legitimate answer. Compare it with the record.\",your_answer==evidence_shows,\"MATCHES the indexed execution events\",1=1,\"DIFFERS from the indexed execution events\")\n| eval evidence_supports=case(started=1,\"agentsec.mcp.started is present, so the handler began.\",pipeline_stopped=1,\"No agentsec.mcp.started and agentsec.pipeline.stopped is present. Consistent with the run halting before the handler. Corroboration, not proof.\",1=1,\"Neither agentsec.mcp.started nor agentsec.pipeline.stopped matched. NOT PROVEN either way.\")\n| table your_answer, evidence_shows, started, completed, failed, pipeline_stopped, check, evidence_supports\n```\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -1986,7 +1986,7 @@
     "viz_ref_nb3": {
       "type": "splunk.markdown",
       "options": {
-        "markdown": "## Question 3 — requested versus granted scope\n\n**EVIDENCE RESULT query**\n\n```text\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval scope_relationship=if(requested_scope==allowed_scope,\"requested == allowed\",\"requested != allowed\")\n| table run_id, tool, requested_scope, allowed_scope, scope_relationship\n```\n\n**CHECK query** (`$nb_a3$` is your choice)\n\n```text\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval scope_relationship=if(requested_scope==allowed_scope,\"EQUAL\",\"DIFFERENT\")\n| eval your_answer=\"$nb_a3$\"\n| where your_answer!=\"none\"\n| eval check=case(your_answer==\"UNSURE\",\"UNSURE is a legitimate answer. Compare it with the record.\",your_answer==scope_relationship,\"MATCHES the indexed scopes\",\"DIFFERS from the indexed scopes\")\n| eval evidence_supports=\"requested_scope=\"+coalesce(requested_scope,\"(not recorded)\")+\" and allowed_scope=\"+coalesce(allowed_scope,\"(not recorded)\")+\" for tool \"+coalesce(tool,\"(not recorded)\")+\". Both are OBSERVED fields on the control event.\"\n| table your_answer, scope_relationship, requested_scope, allowed_scope, check, evidence_supports\n```\n",
+        "markdown": "## Question 3 — requested versus granted scope\n\n**EVIDENCE RESULT query**\n\n```text\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval scope_relationship=if(requested_scope==allowed_scope,\"requested == allowed\",\"requested != allowed\")\n| table run_id, tool, requested_scope, allowed_scope, scope_relationship\n```\n\n**CHECK query** (`$nb_a3$` is your choice)\n\n```text\nindex=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=\"$live_run_id$\" OR \"agentsec.run.id\"=\"$run_id$\") \"event.name\"=agentsec.control.decision\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval selected_run=if(\"$live_run_id$\"==\"none\",\"$run_id$\",\"$live_run_id$\")\n| where run_id==selected_run\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval scope_relationship=if(requested_scope==allowed_scope,\"EQUAL\",\"DIFFERENT\")\n| eval your_answer=\"$nb_a3$\"\n| where your_answer!=\"none\"\n| eval check=case(your_answer==\"UNSURE\",\"UNSURE is a legitimate answer. Compare it with the record.\",your_answer==scope_relationship,\"MATCHES the indexed scopes\",1=1,\"DIFFERS from the indexed scopes\")\n| eval evidence_supports=\"requested_scope=\"+coalesce(requested_scope,\"(not recorded)\")+\" and allowed_scope=\"+coalesce(allowed_scope,\"(not recorded)\")+\" for tool \"+coalesce(tool,\"(not recorded)\")+\". Both are OBSERVED fields on the control event.\"\n| table your_answer, scope_relationship, requested_scope, allowed_scope, check, evidence_supports\n```\n",
         "fontColor": "#17202A",
         "backgroundColor": "#FFFFFF",
         "fontSize": "large"
@@ -2084,7 +2084,7 @@
           "display": "auto-scale",
           "gutterSize": 8,
           "width": 1440,
-          "height": 916
+          "height": 876
         },
         "structure": [
           {
@@ -2104,7 +2104,7 @@
               "x": 0,
               "y": 208,
               "w": 1440,
-              "h": 140
+              "h": 100
             }
           },
           {
@@ -2112,7 +2112,7 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 356,
+              "y": 316,
               "w": 1440,
               "h": 560
             }
@@ -2126,7 +2126,7 @@
           "display": "auto-scale",
           "gutterSize": 8,
           "width": 1440,
-          "height": 8704
+          "height": 6224
         },
         "structure": [
           {
@@ -2146,7 +2146,7 @@
               "x": 0,
               "y": 228,
               "w": 1440,
-              "h": 140
+              "h": 100
             }
           },
           {
@@ -2154,9 +2154,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 376,
+              "y": 336,
               "w": 1440,
-              "h": 560
+              "h": 440
             }
           },
           {
@@ -2164,9 +2164,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 944,
+              "y": 784,
               "w": 1440,
-              "h": 300
+              "h": 180
             }
           },
           {
@@ -2174,9 +2174,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 1252,
+              "y": 972,
               "w": 1440,
-              "h": 240
+              "h": 320
             }
           },
           {
@@ -2184,7 +2184,7 @@
             "type": "input",
             "position": {
               "x": 0,
-              "y": 1500,
+              "y": 1300,
               "w": 1440,
               "h": 100
             }
@@ -2194,9 +2194,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 1608,
+              "y": 1408,
               "w": 1440,
-              "h": 240
+              "h": 360
             }
           },
           {
@@ -2204,9 +2204,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 1856,
+              "y": 1776,
               "w": 1440,
-              "h": 460
+              "h": 170
             }
           },
           {
@@ -2214,9 +2214,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 2324,
+              "y": 1954,
               "w": 1440,
-              "h": 340
+              "h": 180
             }
           },
           {
@@ -2224,9 +2224,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 2672,
+              "y": 2142,
               "w": 1440,
-              "h": 280
+              "h": 190
             }
           },
           {
@@ -2234,7 +2234,7 @@
             "type": "input",
             "position": {
               "x": 0,
-              "y": 2960,
+              "y": 2340,
               "w": 1440,
               "h": 100
             }
@@ -2244,9 +2244,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 3068,
+              "y": 2448,
               "w": 1440,
-              "h": 260
+              "h": 360
             }
           },
           {
@@ -2254,9 +2254,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 3336,
+              "y": 2816,
               "w": 1440,
-              "h": 520
+              "h": 210
             }
           },
           {
@@ -2264,9 +2264,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 3864,
+              "y": 3034,
               "w": 1440,
-              "h": 300
+              "h": 180
             }
           },
           {
@@ -2274,9 +2274,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 4172,
+              "y": 3222,
               "w": 1440,
-              "h": 240
+              "h": 180
             }
           },
           {
@@ -2284,7 +2284,7 @@
             "type": "input",
             "position": {
               "x": 0,
-              "y": 4420,
+              "y": 3410,
               "w": 1440,
               "h": 100
             }
@@ -2294,9 +2294,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 4528,
+              "y": 3518,
               "w": 1440,
-              "h": 260
+              "h": 360
             }
           },
           {
@@ -2304,9 +2304,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 4796,
+              "y": 3886,
               "w": 1440,
-              "h": 600
+              "h": 200
             }
           },
           {
@@ -2314,9 +2314,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 5404,
+              "y": 4094,
               "w": 1440,
-              "h": 340
+              "h": 180
             }
           },
           {
@@ -2324,9 +2324,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 5752,
+              "y": 4282,
               "w": 1440,
-              "h": 600
+              "h": 650
             }
           },
           {
@@ -2334,9 +2334,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 6360,
+              "y": 4940,
               "w": 1440,
-              "h": 460
+              "h": 180
             }
           },
           {
@@ -2344,9 +2344,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 6828,
+              "y": 5128,
               "w": 1440,
-              "h": 460
+              "h": 210
             }
           },
           {
@@ -2354,9 +2354,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 7296,
+              "y": 5346,
               "w": 1440,
-              "h": 640
+              "h": 580
             }
           },
           {
@@ -2364,9 +2364,9 @@
             "type": "block",
             "position": {
               "x": 0,
-              "y": 7944,
+              "y": 5934,
               "w": 1440,
-              "h": 760
+              "h": 290
             }
           }
         ]

@@ -64,7 +64,7 @@ def splunk(spl: str) -> tuple[list[dict], str]:
     collapsed = " ".join(line.strip() for line in spl.splitlines() if line.strip())
     inner = (
         "/opt/splunk/bin/splunk search "
-        + json.dumps(collapsed)
+        + json.dumps(collapsed, ensure_ascii=False)
         + ' -auth "admin:${SPLUNK_PASSWORD}" -output csv -maxout 200'
     )
     proc = subprocess.run(
@@ -78,6 +78,11 @@ def splunk(spl: str) -> tuple[list[dict], str]:
         line for line in (proc.stderr or "").splitlines()
         if line.strip() and not line.startswith(noise)
     )
+    # The Splunk CLI reports SPL errors on stdout, not only stderr. Surface them: an
+    # empty result with a hidden error looks exactly like "no evidence".
+    out_err = [ln for ln in proc.stdout.splitlines() if ln.startswith("Error in ") or "Error in '" in ln]
+    if out_err:
+        err = (err + "\n" + "\n".join(out_err)).strip()
     if proc.returncode != 0:
         return [], err or f"exit {proc.returncode}"
     return list(csv.DictReader(io.StringIO(proc.stdout))), err
@@ -135,6 +140,8 @@ def main() -> int:
             shown = displayed_spl(definition, viz_id, 1)
             closed, err_c = splunk(bind(shown, run_id).replace(f"${token}$", "none"))
             opened, err_o = splunk(bind(shown, run_id).replace(f"${token}$", "UNSURE"))
+            if err_c or err_o:
+                print("   SPL ERROR:", (err_c or err_o)[:300])
             ok = not err_c and not err_o and len(closed) == 0 and len(opened) >= 1
             print(f"\n-- CHECK {ds_id}: closed={len(closed)} row(s), open={len(opened)} row(s) {'OK' if ok else 'PROBLEM'}")
             if not ok:

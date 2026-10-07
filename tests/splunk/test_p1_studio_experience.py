@@ -168,3 +168,49 @@ def test_panels_do_not_overlap_in_any_layout():
                 if y2 >= y1:
                     break
                 assert x2 >= x0 + w0 or x0 >= x2 + w2, (layout_id, item, other)
+
+
+def _split_top_level(args: str) -> list[str]:
+    parts, depth, quote, cur = [], 0, False, []
+    for ch in args:
+        if ch == '"':
+            quote = not quote
+        if not quote:
+            if ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+            elif ch == "," and depth == 0:
+                parts.append("".join(cur))
+                cur = []
+                continue
+        cur.append(ch)
+    parts.append("".join(cur))
+    return parts
+
+
+def _case_calls(spl: str) -> list[str]:
+    calls, i = [], 0
+    while (i := spl.find("case(", i)) != -1:
+        j, depth, quote = i + 5, 1, False
+        while depth:
+            ch = spl[j]
+            if ch == '"':
+                quote = not quote
+            elif not quote:
+                depth += ch == "("
+                depth -= ch == ")"
+            j += 1
+        calls.append(spl[i + 5 : j - 1])
+        i = j
+    return calls
+
+
+@pytest.mark.parametrize("ds_id", sorted(DS))
+def test_every_spl_case_call_has_condition_value_pairs(ds_id):
+    """REGRESSION (found live on Splunk 10.2): `case(a,"x",b,"y","z")` has an odd number of
+    arguments and Splunk rejects it with "Error in 'EvalCommand': The arguments to the 'case'
+    function are invalid". The three CHECK queries shipped with that defect because offline
+    tests never parsed the SPL. A final default needs an explicit `1=1,` condition."""
+    for call in _case_calls(DS[ds_id]["options"]["query"]):
+        assert len(_split_top_level(call)) % 2 == 0, (ds_id, call[:120])

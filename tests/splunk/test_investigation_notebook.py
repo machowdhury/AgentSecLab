@@ -680,23 +680,42 @@ def _block(viz_id: str) -> dict:
     raise AssertionError(f"{viz_id} is not on INVESTIGATE")
 
 
-# MEASURED, not guessed: for each panel, the box height plus the amount its
-# content overflowed it (scrollHeight - clientHeight) in a real Chrome window at
-# 1024px wide, read from the rendered Splunk page. A panel shorter than this
-# makes the learner scroll inside the panel to reach evidence.
-#   viz_nb4_r:           380 + 163 -> 543   (event timeline rows wrap)
-# CONTRACT CHANGE (P1): viz_live_pair_intro (858) moved to REFERENCE and now prints only the
-# query; its P1 height is pinned from a P1 measurement in
-# test_p1_measured_panel_heights_hold below, not from the retired combined panel.
-MEASURED_MIN_HEIGHT_AT_1024 = {"viz_nb4_r": 543}
+# MEASURED, not guessed (evidence class: MEASURED, deployed Splunk 10.2, live ATTACK run).
+# Minimum LAYOUT height each INVESTIGATE panel needs so its content does not overflow the box,
+# taken as the larger of two real Chrome conditions: a 1024px window and genuine 200% browser
+# zoom (chrome.tabs.setZoom, CSS viewport 960px). Rendered content height * canvas scale / 0.965
+# (the measured rendered-px per layout-unit) gives layout units. At 1920px every panel has room
+# to spare; the Studio grid has fixed heights and does not reflow (SPLUNK PLATFORM CONSTRAINT).
+# CONTRACT CHANGE (P1): the P0 single entry {"viz_nb4_r": 543} is replaced by a P1 measurement of
+# every INVESTIGATE panel whose content height depends on width. viz_live_pair_intro (858) moved
+# to REFERENCE and now prints only the query.
+MEASURED_MIN_HEIGHT_NARROW = {
+    "viz_nb_state": 192,
+    "viz_nb_header": 415,
+    "viz_nb1_q": 139,
+    "viz_nb2_q": 139,
+    "viz_nb3_q": 155,
+    "viz_nb4_q": 155,
+    "viz_nb1_r": 295,
+    "viz_nb2_r": 163,
+    "viz_nb3_r": 150,
+    "viz_nb4_r": 618,
+    "viz_live_pair": 544,
+    "viz_nb1_limits": 145,
+    "viz_nb2_limits": 181,
+    "viz_nb3_limits": 165,
+    "viz_nb4_limits": 152,
+    "viz_nb5_q": 176,
+    "viz_nb5_limits": 262,
+}
 
 
-@pytest.mark.parametrize("panel_id,minimum", sorted(MEASURED_MIN_HEIGHT_AT_1024.items()))
-def test_panels_are_not_shorter_than_their_measured_content(panel_id, minimum):
+@pytest.mark.parametrize("panel_id,minimum", sorted(MEASURED_MIN_HEIGHT_NARROW.items()))
+def test_p1_measured_panel_heights_hold(panel_id, minimum):
     height = _block(panel_id)["position"]["h"]
     assert height >= minimum, (
-        f"{panel_id} is {height}px; its content measured {minimum}px at a 1024px window, "
-        "so the learner would have to scroll inside the panel"
+        f"{panel_id} is {height} layout units; its content measured {minimum} at a 1024px window "
+        "and at 200% zoom, so the learner would have to scroll inside the panel"
     )
 
 
