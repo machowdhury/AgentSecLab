@@ -314,3 +314,137 @@ True 200% visual usability (NOT TESTED), widths below 1024, keyboard-only and sc
 ## Git
 
 Documentation-only commit for this section. No tag, no release, no merge to main, no application code change.
+
+---
+
+# P0.1 REMEDIATION AND LIVE REQUALIFICATION
+
+Evidence labels: MEASURED (executed and observed this session), OBSERVED (seen in a real browser), DOCUMENTED (stated in repo/docs), NOT TESTED. Nothing in this section is REPLAYED or SIMULATED as a new live run; the ATTACK and RETEST below were launched through the learner workflow on the deployed stack and verified independently in Splunk. Earlier run.ids (`db3e1c85-...`, `a16e6531-...`) are not used as proof of this candidate.
+
+## Identity
+
+| Item | Value |
+| --- | --- |
+| Starting SHA (develop = origin/develop) | `5421979` (verified before work; origin/develop was not ahead) |
+| Previous deployed repo SHA | `db406fe` (application implementation SHA `a42d7bf`) |
+| P0.1 implementation SHA | `b616af9` ("fix: clarify Phase 1 learner evidence workflow") |
+| Deployed repo SHA (EC2, via SSM) | `b616af9` (MEASURED: `git rev-parse HEAD` on host) |
+| Splunk app build | 5 (unchanged; installed app.conf in container: build = 5, version = 1.1.0) |
+| AgentSec | 1.1.0 |
+| Schema | 1.9.0 (MEASURED in the running attack-service container) |
+| ExternalEvidence | 1.0.0 (`EXTERNAL_CONTRACT_VERSION`, unchanged) |
+| origin/main | `0178c70e20cfe0152648e2aafb8e607280625c40` (unchanged, not merged) |
+
+Build identity: no file under `splunk_app/agentsec/appserver/static/` changed, so no build bump or cache-identity regeneration was required. `scripts/static_cache_identity.py --check` exits 0 (MEASURED). Dashboard view XML and the Flask template are not covered by the static cache identity; the template required `lab-up.sh --build`, which was run.
+
+## Files changed (10)
+
+`scripts/build_lab_mcp_001_dashboard.py` (owning source), `scripts/apply_guided_learning.py` (owning source for the shared guide text), generated `learning/level_1/LAB-MCP-001/dashboard.definition.json` and `splunk_app/agentsec/default/data/ui/views/ws_lab_mcp_001.xml` (regenerated in pipeline order: build_lab_mcp_001 -> apply_workshop_flows -> apply_guided_learning), `src/agentsec/templates/attack_mcp.html`, and tests: new `tests/splunk/test_p0_1_learner_evidence.py` (26 tests), plus four contract-change edits in `test_agentsec_ui_shell.py`, `test_lab_mcp_001_dashboard.py`, `test_investigation_notebook.py`, `test_learner_ux_p0.py`. Each edit carries a `CONTRACT CHANGE (P0.1-F2)` comment. No assertion was weakened to make code pass: the changed assertions pin the new titles/order that the brief required, and stronger semantic tests were added.
+
+## F1 stale MISSION copy: FIXED
+
+- The statement "Studio cannot receive that id on its own" was shared guided-learning text that contradicted the deployed deep link. It lives in `scripts/apply_guided_learning.py`; the Path A prose in `build_lab_mcp_001_dashboard.py` repeated it ("Studio cannot receive a fresh LIVE run.id"). Both owning sources were fixed, not the generated output.
+- `apply_guided_learning.py` now has `DEEP_LINK_LABS = {"LAB-MCP-001"}` (pinned by a test to equal `search_handoff.LAB_TO_LIVE_RUN_TOKEN`). For that lab the steps say: Workbench -> predict -> run -> **Investigate evidence** -> read INVESTIGATE; entering the run.id by hand is a recovery fallback, "not the normal path". The text states the prefill is "observed Dashboard Studio behavior, not a documented Splunk guarantee".
+- Classification stays SUPPORTED WITH CONSTRAINTS; no formal-support claim was added (test).
+- Other labs keep their manual-paste sentence because they have no handoff (test).
+- OBSERVED on the deployed MISSION tab at 1920 and 1024: `Studio cannot receive` is absent.
+
+## F2 evidence selector confusion: FIXED (within Studio semantics)
+
+Studio cannot hide or relabel a dropdown from state, and a dropdown cannot offer "none". So the page no longer relies on the dropdown to say what is current:
+
+- Control titles shortened to survive Studio truncation: `REPLAY example`, `LIVE: your run.id`; options `Baseline example`, `Attack example`, `Retest example` (all <= 24 characters, pinned by `CONTROL_TEXT_MAX`). OBSERVED not clipped at 1920, 1024 and 200%.
+- A **CURRENT EVIDENCE** table is now the first panel on INVESTIGATE. Its SPL (the same string printed in the notebook header, so VISIBLE == EXECUTED) derives `current_evidence` from the LIVE token: `LIVE: your own ATTACK experiment` or `REPLAY: a recorded BASELINE example, not your run`, plus `selector_in_use` (`LIVE box (the REPLAY example selector is ignored)`), run_id, mode, profile, indexed_events. The mode/profile come from indexed events, not from the page.
+- The notebook header says in words that while a LIVE run.id is set the REPLAY selector is ignored "even though it still shows a name such as Baseline".
+- Limitation (PLATFORM): the dropdown itself still displays "Baseline example" while LIVE is read. It is subordinate and labelled, but not removable in Studio. The CURRENT EVIDENCE row is the authoritative statement.
+- OBSERVED (deployed, LIVE ATTACK): row reads `LIVE: your own ATTACK experiment | LIVE box (the REPLAY example selector is ignored) | a850e8c3-... | ATTACK | vulnerable | 7`. After manual entry of the RETEST id at 200%, the row flips to `LIVE: your own RETEST experiment`.
+- The no-evidence case is unchanged: no row -> the existing "NOT PROVEN" message.
+
+## F3 200% zoom: PASS WITH PLATFORM CONSTRAINT
+
+Method (MEASURED): Chrome for Testing + a local test extension calling `chrome.tabs.setZoom(tab, 2.0)`; no CSS transforms; screenshots via CDP so they are not cropped. Window 1920x1080 (outer), `innerWidth` 960, `innerHeight` 496, `devicePixelRatio` 2.
+
+| Check | Result |
+| --- | --- |
+| Workbench horizontal overflow | none (960 vs 960); 9 Tab stops reach "Record prediction"; real clicks on both radios and Record unlock ATTACK; ATTACK button fully in viewport after scroll |
+| INVESTIGATE document overflow | none (960 vs 960) |
+| Studio scroll region | **132 CSS px high of 496** (about 27%); total content 8332 px |
+| Reach all five cells | YES. Wheel scrolling with the pointer over the page margin reached cells 1-4 (first fully visible at scrollTop 1485, 2340, 3330, 4320) and keyboard PageDown reached cell 5 (5635) and Advanced (7935) up to the end (8200). |
+| Controls | LIVE box: real click, select all, type RETEST id, Enter -> CURRENT EVIDENCE flipped to RETEST. REPLAY dropdown opens with three options. EVIDENCE tab reachable by click. |
+| Text readable | yes in the CDP screenshots (OBSERVED); the CURRENT EVIDENCE row needs a few px of scroll because the region is short |
+
+Cause (A/B/C/D): mostly **B, Splunk chrome**: Splunk's global bar, three rows of app navigation, the Studio title/description, the input row and the tab bar consume about 365 of 496 CSS px. A small part is **A**: AgentSec's 11-group navigation wraps to three rows at 960 CSS px. I did not change the navigation (its shape is pinned by a test and is an information-architecture decision, so it is P1 debt). Not an automation artifact (C): geometry and screenshots agree.
+
+Additional OBSERVED platform behavior: in my first run the wheel stopped at scrollTop 2172 because the pointer rested over a result table with its own scroll container. Moving the pointer to the margin, or using the keyboard, continued. A learner with the pointer over a table must move it to keep wheel-scrolling.
+
+Verdict: **PASS WITH PLATFORM CONSTRAINT**. Completion is possible and nothing is unreachable, but the experience is cramped. No AgentSec code was changed for F3. WCAG-style reflow at 320 CSS px (400%) was NOT TESTED.
+
+## F4-F10 dispositions
+
+| ID | Disposition | Reason |
+| --- | --- | --- |
+| F4 stale "WAITING FOR INDEXING" in Workbench launcher block | DEFER P1 | State is painted by shared `agentsec-ui.js`/`attack.html` code used by many labs; fix needs a static-asset build bump and cross-lab regression coverage. Block is collapsed. Not re-measured this session. |
+| F5 journey "Just done" wrong on REPLAY-only INVESTIGATE; blank space | FIXED (copy) / DEFER P1 (blank space) | "Just done" is now conditional ("if you came from the Workbench ... If you opened this tab yourself, you are reading a recorded REPLAY example"). Panel height left alone to avoid clipping at narrow widths. |
+| F6 Cell 5 pair shows earlier RETEST | DEFER P1 (by design) | Evidence semantics ("most recent"); changing it is an evidence change. Not touched. |
+| F7 double negative | FIXED | Two occurrences reworded: "It also says nothing about whether any other tool ran". Test added. |
+| F8 diagram sub-label size | DEFER P1 | Shared flow-image geometry is pinned across all 31 labs. |
+| F9 DEFEND before PREDICT; duplicate buttons; ATTACK stays enabled | DEFEND FIXED; remainder DEFER P1 | DEFEND is now a hidden block revealed only after an experiment completes (see journey order). Duplicate "Investigate evidence" buttons and enabled ATTACK left for P1. |
+| F10 transient Splunk `launcher/home` 503/404 | PLATFORM LIMITATION | Observed again in the console after restart; Splunk's own endpoint, no AgentSec asset error. |
+
+## MISSION outcome leakage: reviewed, one wording change
+
+The report previously located "fail-open ALLOW" bullets on MISSION; that was wrong. They are on the gated PATH B tab, not MISSION. Reviewed the deployed MISSION text: it states the granted tool, that ATTACK/RETEST request an ungranted tool (the attack setup, needed to predict), and then asks three determinations as questions. It states no ATTACK decision, no execution outcome and no RETEST answer ("The outcomes are deliberately not stated here"). Change: item 3 "What differs between the ATTACK run and the RETEST run" presupposed a difference; it now reads "Whether anything differs ... and if so, what." My crude browser regex flagged "handler executed" only inside the question "Whether separate runtime evidence shows the handler executed". Regression tests pin the absence of outcome phrases and the question form.
+
+## Journey order: verified
+
+Order `LEARN -> BASELINE -> PREDICT -> ATTACK -> OBSERVE -> INVESTIGATE -> DEFEND -> RETEST -> COMPARE -> EXPLAIN` is pinned in both Studio journey strips (test) and OBSERVED in the browser. In the Workbench the DEFEND block was moved after the prediction form and is `hidden` until an experiment completes. MEASURED on the deployed page: DEFEND visible before prediction = false; visible after ATTACK complete = true; 0 interactive elements inside it. Remaining ordering debt: a learner who reloads the page gets DEFEND revealed again from stored session state (by design).
+
+## Tests
+
+- Focused: `tests/splunk/test_p0_1_learner_evidence.py`, 26 tests, passed; areas: stale text absent (generated and owning source), truthful deep-link description, no formal-support claim, DEEP_LINK_LABS pin, other labs unchanged, control-text length ceiling, LIVE/REPLAY naming, selector labels do not mimic current evidence, CURRENT EVIDENCE first and token-driven, visible SPL equals executed SPL, Cell 2 excludes `agentsec.control.decision`, MISSION no outcome phrases / question form, journey order, conditional "Just done", DEFEND hidden/ordered/revealed only from completion, no LLM/Phase 2 content, no double negative, app 1.1.0 / schema 1.9.0 / ExternalEvidence 1.0.0.
+- Full suite: `pytest tests -m "not live_ollama and not live_splunk"`: **1392 passed, 3 deselected** (MEASURED, exit 0). Baseline was 1366; the difference is the 26 new tests. Live Splunk/Ollama markers were not run.
+
+## Fresh live qualification (deployed `b616af9`)
+
+Run through the learner workflow in a real browser (AcmeBank -> Behind AI -> MCP workshop -> BASELINE -> PREDICT (DENY / NO) -> ATTACK -> Investigate evidence -> DEFEND -> RETEST -> Investigate evidence -> COMPARE -> EXPLAIN). New runs:
+
+- ATTACK `a850e8c3-bcb3-4c2a-99f6-f3a347cb9329`
+- RETEST `4d34746a-bcb9-4f4e-9c4b-50508799a94d`
+
+Independent Splunk verification (MEASURED, in-container REST on the host over SSM, not through the dashboard):
+
+| run | total indexed | decision | reason | mcp.started | mcp.completed | pipeline.stopped | LLM events |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| ATTACK | 7 | ALLOW | `vulnerable_profile_fail_open:CTRL-MCP-001 ... lab profile intentionally returns ALLOW (fail-open) so the handler executes` | 1 | 1 | 0 | 0 |
+| RETEST | 6 | DENY | `tool_not_granted` | 0 | 0 | 1 | 0 |
+
+Positive controls: the same LLM counter finds 64 LLM events across 8 other runs (so a zero is meaningful); the started/stopped counters return 1/0 and 0/1 on canonical specimens. The Cell 2 data source does not reference `agentsec.control.decision`. Local evidence packs exist for both runs. Interpretation limits: one request, one profile; ALLOW != execution evidence in itself (here separate mcp.started shows execution); DENY here is supported by pipeline.stopped and absence of mcp.started, not by the DENY label alone. LAB-MCP-001 has zero LLM events and nothing on the surfaces claims otherwise.
+
+Prediction recorded DENY / NO was not revealed or graded; the completion card said "The outcome is deliberately not shown here". The prediction was my scripted guess, not a learner outcome.
+
+## Deep link, LIVE vs REPLAY, no UUID paste
+
+- ATTACK and RETEST "Investigate evidence" links: URL `...?tab=layout_investigate&form.live_run_id=<run.id>` (plus Studio-appended `form.run_id=<baseline>`); landed on INVESTIGATE with the LIVE box holding the run.id (OBSERVED), no `none<id>` concatenation, no token-editing UI, CURRENT EVIDENCE showing LIVE and the correct mode. No UUID copy/paste was used in the normal flow.
+- BASELINE link opened INVESTIGATE with `form.run_id` = the baseline REPLAY id and LIVE = `none`.
+- Workbench did not reveal the decision or execution outcome before investigation (completion card text above; details collapsed).
+- Stale statement absent on INVESTIGATE (checked on both runs).
+
+## Responsive (OBSERVED)
+
+| Width | Result |
+| --- | --- |
+| 1920 | no horizontal overflow on Workbench or Studio; CURRENT EVIDENCE row, journey, mission, prediction, next-step action, diagram, comparison readable |
+| 1024 | no horizontal overflow (1024 vs 1024); short control titles not clipped; CURRENT EVIDENCE table wraps cell text but stays readable; diagram left-to-right; prediction and next step reachable |
+| 200% | see F3 |
+
+## Regressions (the 19 established P0 behaviors)
+
+OBSERVED or pinned by the unchanged P0 tests (39 in `test_learner_ux_p0.py`, all passing): golden path with real clicks; BASELINE REPLAY-only and recommended; both prediction questions required; control vs execution separated; completion does not reveal the answer; decision details collapsed; DEFEND explanatory with no fake control; deep link; no UUID paste; LIVE vs REPLAY distinguished; MCP diagram left-to-right with DENY/ERROR termination; Splunk observer not authorizer; LAB-MCP-001 zero LLM events; Cell 2 independent of `control.decision`; schema 1.9.0; ExternalEvidence 1.0.0. Not re-measured visually this session: Home/Your Path and other labs (their generated files did not change).
+
+## Remaining P1 debt
+
+Result-first / SPL-second restructuring; shared evidence-table DENY contrast (about 3.08:1, ~13 labs, not re-measured); Studio journey panel blank space; AgentSec three-row navigation at narrow widths; Workbench F4 stale indexing state; duplicate "Investigate evidence" buttons; ATTACK stays enabled after completion; F8 diagram label size; 400% reflow, keyboard-only and screen-reader passes (NOT TESTED); EC2 root volume at 91% (96G, 9.0G free; observed, not acted on).
+
+## Git and remote state
+
+Implementation commit `b616af9` pushed to develop only. This report is a documentation-only follow-up commit. No tag, no release, no merge to main; origin/main remains `0178c70e20cfe0152648e2aafb8e607280625c40`. Untracked `.tmp-path-pre/` files pre-date this work and were not committed. Screenshots and helper scripts are scratch files outside the repo.
