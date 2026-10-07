@@ -205,3 +205,15 @@ def test_academy_css_has_no_text_below_14px_and_reflows():
     assert "@media (max-width:900px)" in css or "@media (max-width: 900px)" in css
     assert "prefers-reduced-motion" in css or "transition" not in css
     assert "[hidden]{display:none !important}" in css
+
+
+def test_academy_main_overrides_the_legacy_760px_reading_width():
+    """REGRESSION (found on the deployed app at 1920px): agentsec.css sets `main{max-width:var(--max-width)}`
+    (760px). The academy shell sets `main{width:min(1320px,...)}` but not `max-width`, so the card rendered
+    728px wide, wrapped the three story cards into tall columns, and pushed the primary CTA to y=1138 on a
+    1080px-high window. The approved design is a 1320px content column."""
+    css = ACADEMY_CSS.read_text(encoding="utf-8")
+    rule = re.search(r"body\.academy main\s*\{([^}]*)\}", css)
+    assert rule, "academy main rule missing"
+    assert "max-width:none" in rule.group(1).replace(" ", "")
+    assert "--content:min(1320px" in css.replace(" ", "")
