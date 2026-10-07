@@ -1985,10 +1985,10 @@ Native Search is an addition to this notebook, not a replacement for it. Nothing
         ("viz_ref_header", 220),
         ("viz_ref_state", 360),
         ("viz_ref_nb1", 760),
-        ("viz_ref_nb2", 820),
+        ("viz_ref_nb2", 920),
         ("viz_ref_nb3", 760),
         ("viz_ref_nb4", 500),
-        ("viz_live_pair_intro", 520),
+        ("viz_live_pair_intro", 800),
         ("viz_nb_advanced", 380),
     ]
     evidence_structure = []
@@ -1997,7 +1997,7 @@ Native Search is an addition to this notebook, not a replacement for it. Nothing
         evidence_structure.append(block(_item, 0, _ry, FULL, _h))
         _ry += _h + INVESTIGATE_GAP
     _raw = [
-        ("viz_workbench_evidence", 0, 0, FULL, 300),
+        ("viz_workbench_evidence", 0, 0, FULL, 360),
         ("viz_attack_what_id", 0, 308, HALF, 240),
         ("viz_retest_what_id", HALF, 308, HALF, 240),
         ("viz_attack_what_dec", 0, 556, HALF, 280),
@@ -2014,9 +2014,12 @@ Native Search is an addition to this notebook, not a replacement for it. Nothing
         ("viz_detect_live", 0, 2642, HALF, 340),
         ("viz_detect_sim", HALF, 2642, HALF, 340),
     ]
+    # P1: the explorer intro grew 60 units (measured: its text needs ~350 at 1024px and at
+    # 200% zoom); every raw-explorer panel below it moves down by the same amount.
+    _RAW_SHIFT = 60
     for _item, _x, _y0, _w, _h in _raw:
-        evidence_structure.append(block(_item, _x, _ry + _y0, _w, _h))
-    evidence_height = _ry + 2982
+        evidence_structure.append(block(_item, _x, _ry + _y0 + (_RAW_SHIFT if _y0 else 0), _w, _h))
+    evidence_height = _ry + 2982 + _RAW_SHIFT
     # Studio cannot conditionally hide a panel, so this tab cannot be gated by
     # the platform. The gate it can have is an honest one: the tab is named
     # ANSWERS, nothing links here before prediction, and this banner is the
