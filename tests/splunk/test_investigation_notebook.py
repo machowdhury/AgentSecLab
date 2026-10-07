@@ -707,6 +707,10 @@ MEASURED_MIN_HEIGHT_NARROW = {
     "viz_nb4_limits": 152,
     "viz_nb5_q": 176,
     "viz_nb5_limits": 262,
+    # CHECK tables, measured with an answer selected (they are closed until then).
+    "viz_nb1_fb": 358,
+    "viz_nb2_fb": 213,
+    "viz_nb3_fb": 275,
 }
 
 
