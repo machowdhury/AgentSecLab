@@ -177,3 +177,21 @@ body.academy table.cmp td.diff-cell::before{content:"Different";display:block;fo
 body.academy .opt{min-width:0;overflow-wrap:anywhere}
 body.academy .opt .t{flex-wrap:wrap}
 body.academy .opt:has(input:checked) .t:after{margin-left:0;flex-basis:100%}
+
+/* P1.1 (D-2): the Lock prediction CTA must be inside the first 1920x1080 viewport.
+ * Spacing only: both questions, every option, every description and the disabled-state
+ * explanation are unchanged. Scoped to the predict step so no other step moves. */
+body.academy #step-predict .lead{margin-bottom:16px}
+body.academy #step-predict .grid2{gap:16px}
+body.academy #step-predict .grid2 .panel{padding:12px 18px}
+body.academy #step-predict .q{margin-bottom:16px}
+body.academy #step-predict .q legend{margin-bottom:8px}
+body.academy #step-predict .opt{min-height:0;padding:10px 16px}
+body.academy #step-predict .opt:has(input:checked){padding:8px 14px}
+/* Keep "Selected" on the title line when it fits, so choosing an answer does not push the CTA down.
+ * It still wraps below the title when the option is narrow (the .t row is flex-wrap). */
+body.academy #step-predict .opt:has(input:checked) .t:after{flex-basis:auto;margin-left:auto}
+body.academy .rail-in{padding:10px 0 8px}
+body.academy .stepline{margin-top:6px}
+body.academy main{margin-top:24px}
+body.academy #step-predict .cta-row{margin-top:16px;padding-top:16px}
