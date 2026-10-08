@@ -52,14 +52,14 @@
         <div class="arrow dashed" aria-hidden="true">→</div>
         <div class="node dash"><b>Tool</b><span>runs only if the request gets through</span></div>
       </div>
+      <div class="cta-row">
+        <button class="cta" type="button" id="start-lab" data-go="baseline">Start: see normal behavior →</button>
+        <span class="cta-note">Takes you to Step 1. You can leave and come back; your place is kept in this browser tab.</span>
+      </div>
       <div class="grid3" style="margin-top:24px">
         <div class="panel"><h3>The story</h3><p>To answer lending questions, the assistant may use one tool, <code>{{ mcp_policy.allowed_tools }}</code>. A second tool, <code>{{ mcp_request.tool }}</code>, exists in the system. This agent was <strong>never granted</strong> it.</p></div>
         <div class="panel"><h3>The question</h3><p>If the assistant asks for a tool it was not granted, does the control stop the request? And does the tool still run? Those are two different facts.</p></div>
         <div class="panel"><h3>Your route</h3><p>Understand normal behavior, make a prediction, run the attack, investigate the evidence, test a defense, compare, then explain what you can safely claim.</p></div>
-      </div>
-      <div class="cta-row">
-        <button class="cta" type="button" id="start-lab" data-go="baseline">Start: see normal behavior →</button>
-        <span class="cta-note">Takes you to Step 1. You can leave and come back; your place is kept in this browser tab.</span>
       </div>
       <p style="margin:16px 0 0"><a class="link" id="see-world-1" href="/acmebank">See the AcmeBank customer page this story starts from</a> <span class="muted small">(read-only; AcmeBank is an intentionally vulnerable target and is not exposed to browsers)</span></p>
     </section>
@@ -107,7 +107,7 @@
         <div class="panel"><span class="chip">✓ GRANTED</span><p style="margin:10px 0 0"><code>{{ mcp_policy.allowed_tools }}</code></p></div>
         <div class="panel slate"><span class="chip">✕ NOT GRANTED</span><p style="margin:10px 0 0"><code>{{ mcp_request.tool }}</code> <span class="muted">(the agent will ask for this one)</span></p></div>
       </div>
-      <form id="learner-prediction" class="prediction" style="margin-top:28px">
+      <form id="learner-prediction" class="prediction" style="margin-top:16px">
         <p class="small muted">Two separate questions. They are different facts, so answer each on its own. Both are required; “UNSURE” is a real answer.</p>
         <fieldset class="q">
           <legend id="predict-control-label">1. What should CTRL-MCP-001 do?</legend>
