@@ -1,0 +1,74 @@
+{
+  "gate": "A",
+  "recorded_at_utc": "2026-10-09T13:43:54.816401+00:00",
+  "evidence_class": {
+    "splunk_index_on_disk": "OBSERVED",
+    "splunk_live_search": "NOT MEASURED",
+    "local_events_jsonl": "OBSERVED",
+    "netspout_port_collision": "MEASURED"
+  },
+  "connectivity": {
+    "agentsec_splunk_container": "exited 137 since 2026-10-03T00:26:03Z",
+    "docker_start_agentsec_splunk": "FAILED MEASURED: Bind for 127.0.0.1:8000 failed: port is already allocated",
+    "port_holder": "splunk-netspout-standalone (127.0.0.1:8000,8088-8089)",
+    "agentsec_compose": "no running services",
+    "replica_without_host_ports": "created; official entrypoint requires SPLUNK_PASSWORD env (not supplied); splunk binary start reached index validation then did not stay up for search",
+    "live_search_executed": false
+  },
+  "index_on_disk": {
+    "index_name": "agentsec_telemetry",
+    "path": "/opt/splunk/var/lib/splunk/agentsec_telemetry",
+    "size": "6.1M",
+    "dirty_database_flag": true,
+    "hot_bucket": "hot_v1_58",
+    "warm_buckets_inclusive": "db_1789182388_1789182309_0 through db_1790979353_1790902152_57",
+    "event_time_range_utc_from_bucket_names": {
+      "earliest": "2026-09-12T14:31:52Z",
+      "latest_closed_bucket": "2026-10-02T22:15:53Z",
+      "hot_bucket_present": true
+    },
+    "main_index_dat_present": true,
+    "indexes_validated_during_failed_start": [
+      "_audit",
+      "_internal",
+      "agentsec_telemetry",
+      "history",
+      "main",
+      "summary"
+    ]
+  },
+  "configured_not_live_proven": {
+    "macros.conf": "index=agentsec_telemetry sourcetype=otel:agentic:json",
+    "indexes.conf": "[agentsec_telemetry]",
+    "props.conf": "INDEXED_EXTRACTIONS=json and KV_MODE=json on otel:agentic:json",
+    "HEC_index_from_env_example": "agentsec_telemetry",
+    "note": "Configuration is DOCUMENTED. Live sourcetype/field extraction was not queried this session."
+  },
+  "candidate_fields_status_this_session": {
+    "agent.super_secret_field": "NOT VALIDATED; rejected in Phase 6C; not used",
+    "index=agentsec": "NOT VALIDATED as an index name; on-disk index is agentsec_telemetry",
+    "agentsec.run.id": "present in local events.jsonl OBSERVED; not live-searched",
+    "gen_ai.agent.id": "present in local events.jsonl OBSERVED; not live-searched",
+    "agentsec.control.decision": "present in local events.jsonl OBSERVED; not live-searched"
+  },
+  "historical_mcp005_local_packs": {
+    "A": "3013aa39-fe08-4b58-9898-f3abb092ac06 8 events schema 1.3.0",
+    "B": "f3f48182-df57-4b38-b069-17a199dc4939 13 events schema 1.3.0",
+    "C": "0ab10594-a7fc-48b6-81bf-4cbca54a64c6 12 events schema 1.3.0",
+    "F": "6fe7370c-a288-4634-91a5-d6c78b52bd01 8 events schema 1.3.0 no RESULT-001"
+  },
+  "current_runtime_schema": "1.9.0",
+  "certificate_side_effect": {
+    "class": "OBSERVED",
+    "unintended": true,
+    "new_files_mtime_utc": "2026-10-09T13:38:00Z approx",
+    "new_files": [
+      "dp_ca.pem",
+      "dp_ca.srl",
+      "server_dp.pem"
+    ],
+    "unchanged_server_pem_mtime": "2026-09-12T01:37:00Z approx",
+    "openssl_inspection": "NOT COMPLETED (openssl not on container PATH with overridden entrypoint)",
+    "required_verification_command": "openssl x509 -text -noout -in <certificate_file>"
+  }
+}

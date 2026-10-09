@@ -47,6 +47,7 @@ PROHIBITED = (
     "gen_ai.tool.call.arguments",
     "result.authorized",
     "trusted_result",
+    "agent.super_secret_field",
 )
 
 
