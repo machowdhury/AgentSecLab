@@ -147,6 +147,7 @@ main { display: block; max-width: 76rem; padding: 1.5rem; }
 .badge--ok { color: var(--green); background: var(--green-bg); }
 .badge--warn { color: var(--amber); background: var(--amber-bg); }
 .badge--muted { color: var(--muted); background: #eef1f4; }
+.badge--unavailable { color: var(--red); background: var(--red-bg); }
 .evidence-class { color: var(--muted); font-size: .875rem; }
 
 /* ---------- cards and lists ---------- */

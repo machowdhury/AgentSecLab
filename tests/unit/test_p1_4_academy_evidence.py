@@ -150,6 +150,11 @@ def test_live_record_is_labelled_live_with_its_source(tmp_path):
     record = _load(LIVE_ID, tmp_path, frozenset({LIVE_ID}))
     doc = ev.evidence_document(record, splunk_web="http://h:8000", launch_body={"mode": "ATTACK", "runtime": {"handler_invoke_count": 1}})
     assert doc["provenance"] == ev.LIVE
+    assert doc["synthetic"] is False
+    assert doc["evidence_state"] == "AVAILABLE"
+    assert doc["runtime_schema_expected"] == "1.9.0"
+    assert doc["external_evidence"]["contract_version"] == "1.0.0"
+    assert doc["external_evidence"]["applicable"] is False
     assert doc["source"] == f"artifacts/{LIVE_ID}/events.jsonl"
     assert "does not prove Splunk has indexed it" in doc["provenance_text"]
     assert doc["launch_response"]["runtime_handler_count"] == 1

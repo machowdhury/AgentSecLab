@@ -183,15 +183,23 @@
     if (name === "agentsec.hop.completed") return "Agent hop completed";
     return "Recorded event";
   }
+  function provenanceClass(value) {
+    if (value === "LIVE") return "badge--live";
+    if (value === "REPLAY") return "badge--replay";
+    if (value === "SYNTHETIC") return "badge--muted";
+    return "badge--unavailable";
+  }
   function provenanceBlock(doc) {
-    var badge = el("span", {className: "badge " + (doc.provenance === "LIVE" ? "badge--live" : "badge--replay"), text: doc.provenance});
+    var badge = el("span", {className: "badge " + provenanceClass(doc.provenance), text: doc.provenance});
     var facts = doc.facts;
+    var schema = doc.telemetry_schema_recorded || (facts && facts.schema_version_recorded) || "NOT MEASURED";
     var list = el("dl", {className: "facts-grid"}, [
       el("div", null, [el("dt", {text: "run.id"}), el("dd", null, [code(doc.run_id)])]),
       el("div", null, [el("dt", {text: "Source"}), el("dd", null, [code(doc.source)])]),
       el("div", null, [el("dt", {text: "Source sha256"}), el("dd", null, [code(doc.source_sha256)])]),
       el("div", null, [el("dt", {text: "Recorded"}), el("dd", {text: (facts.first_timestamp || "NOT MEASURED") + " to " + (facts.last_timestamp || "NOT MEASURED") + " (UTC)"})]),
       el("div", null, [el("dt", {text: "Recorded mode and profile"}), el("dd", {text: facts.testbed_mode + " · " + facts.security_profile})]),
+      el("div", null, [el("dt", {text: "Telemetry schema"}), el("dd", {text: schema + " (runtime expects " + (doc.runtime_schema_expected || "1.9.0") + ")"})]),
       el("div", null, [el("dt", {text: "Events in record"}), el("dd", {text: String(facts.event_count)})])
     ]);
     var block = el("div", {className: "provenance-card"}, [
@@ -200,6 +208,9 @@
     ]);
     if (doc.launch_response) {
       block.appendChild(el("p", {className: "form-note", text: "Launch response (independent source): runtime handler count " + doc.launch_response.runtime_handler_count + ". " + doc.launch_response.note}));
+    }
+    if (doc.external_evidence) {
+      block.appendChild(el("p", {className: "form-note", text: "ExternalEvidence " + doc.external_evidence.contract_version + ": " + doc.external_evidence.detail}));
     }
     facts.warnings.forEach(function (warning) { block.appendChild(el("p", {className: "callout callout--warn", text: warning})); });
     return block;
@@ -241,6 +252,12 @@
   }
   function errorText(data, fallback) {
     return (data && data.detail) ? data.detail + " (" + data.error + ")" : fallback;
+  }
+  function unavailableBlock(detail) {
+    return el("div", {className: "callout callout--warn"}, [
+      el("p", null, [el("span", {className: "badge badge--unavailable", text: "UNAVAILABLE"}), " ", el("span", {text: detail})]),
+      el("p", {text: "This is missing evidence, not a control decision and not a SYNTHETIC result."})
+    ]);
   }
   function fetchEvidence(runId) {
     return fetch("/api/academy/evidence/" + encodeURIComponent(runId), {headers: {"Accept": "application/json"}})
@@ -356,13 +373,16 @@
   var baselineButton = $("[data-load-baseline]");
   var baselineSlot = $('[data-evidence-slot="baseline"]');
   function loadBaseline() {
+    baselineSlot.setAttribute("aria-busy", "true");
     baselineSlot.replaceChildren(el("p", {className: "form-note", text: "Loading the recorded baseline…"}));
     fetchEvidence(REPLAY.BASELINE).then(function (doc) {
       renderEvidence(baselineSlot, doc);
+      baselineSlot.setAttribute("aria-busy", "false");
       state.baselineLoaded = true;
       save();
     }).catch(function (data) {
-      baselineSlot.replaceChildren(el("p", {className: "callout callout--warn", text: errorText(data, "The baseline could not be loaded. That is missing evidence, not a result.")}));
+      baselineSlot.setAttribute("aria-busy", "false");
+      baselineSlot.replaceChildren(unavailableBlock(errorText(data, "The baseline could not be loaded. That is missing evidence, not a result.")));
     });
   }
   baselineButton.addEventListener("click", loadBaseline);
@@ -441,7 +461,7 @@
     var decision = doc.facts.decision;
     card.replaceChildren(
       el("h3", {text: mode + " run"}),
-      el("p", null, [el("span", {className: "badge " + (doc.provenance === "LIVE" ? "badge--live" : "badge--replay"), text: doc.provenance}), " run.id ", code(doc.run_id), " ", copyButton, copyFeedback]),
+      el("p", null, [el("span", {className: "badge " + provenanceClass(doc.provenance), text: doc.provenance}), " run.id ", code(doc.run_id), " ", copyButton, copyFeedback]),
       el("p", {text: doc.facts.event_count + " events recorded. Investigate them to find out what happened."}),
       el("details", null, [
         el("summary", {text: "Show the recorded control decision now (the notebook asks you this)"}),
@@ -464,7 +484,7 @@
       card.hidden = false;
       var retry = el("button", {type: "button", className: "button button--secondary", text: "Try loading the evidence again"});
       retry.addEventListener("click", function () { adoptRun(mode, runId, provenance); });
-      card.replaceChildren(el("p", null, ["run.id ", code(runId)]), retry);
+      card.replaceChildren(unavailableBlock(errorText(data, "unknown error")), el("p", null, ["run.id ", code(runId)]), retry);
       return null;
     });
   }
@@ -474,15 +494,25 @@
     busy = true;
     syncControls();
     runStatus(mode, "Launching LIVE " + mode + ". Launch controls are disabled until it finishes.");
+    var controller = typeof AbortController === "function" ? new AbortController() : null;
+    var timer = window.setTimeout(function () { if (controller) controller.abort(); }, 45000);
     fetch("/api/launch", {
       method: "POST",
       headers: {"Content-Type": "application/json", "Accept": "application/json"},
-      body: JSON.stringify({lab_id: LAB, specimen_id: SPECIMEN[mode], mode: mode, execution: "live"})
+      body: JSON.stringify({lab_id: LAB, specimen_id: SPECIMEN[mode], mode: mode, execution: "live"}),
+      signal: controller ? controller.signal : undefined
     }).then(function (r) {
       return r.json().catch(function () { return {error_class: "ERROR", detail: "The response was not JSON."}; });
-    }).catch(function () {
-      return {error_class: "ERROR", detail: "The browser did not receive a usable response."};
+    }).catch(function (err) {
+      var timedOut = err && (err.name === "AbortError" || err.name === "TimeoutError");
+      return {
+        error_class: "ERROR",
+        detail: timedOut
+          ? "The runtime did not respond within 45 seconds. This is an ERROR, not a control decision. You can try again."
+          : "The browser did not receive a usable response. This is an ERROR, not a control decision. You can try again."
+      };
     }).then(function (data) {
+      window.clearTimeout(timer);
       busy = false;
       if (data.error_class === "ERROR" || !data.run_id) {
         runStatus(mode, "Launch failed: " + (data.detail || data.error || "unknown error") + ". This is an ERROR, not a control decision. Nothing was recorded; you can try again.");
@@ -602,7 +632,7 @@
     }).catch(function (data) {
       empty.hidden = false;
       body.hidden = true;
-      empty.textContent = "The ATTACK evidence could not be loaded: " + errorText(data, "unknown error") + ". That is missing evidence, not a result.";
+      empty.replaceChildren(unavailableBlock("The ATTACK evidence could not be loaded: " + errorText(data, "unknown error") + "."));
     });
   }
 
@@ -663,7 +693,7 @@
       renderCompare(doc);
       renderRecap(doc);
     }).catch(function (data) {
-      slot.replaceChildren(el("p", {className: "callout callout--warn", text: "The comparison could not be built: " + errorText(data, "unknown error") + ". Missing data is NOT MEASURED, not SAFE."}));
+      slot.replaceChildren(unavailableBlock("The comparison could not be built: " + errorText(data, "unknown error") + ". Missing data is NOT MEASURED, not SAFE."));
     });
   }
 

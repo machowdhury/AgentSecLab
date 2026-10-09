@@ -22,24 +22,28 @@ from __future__ import annotations
 
 import pytest
 
-from agentsec.attack_app import create_app
+from agentsec.attack_app import AcmeBankClient, create_app
 from agentsec.bank_app import create_app as create_bank_app
 
 ROUTE = "/acmebank"
 FORBIDDEN_HOSTS = ("localhost", "127.0.0.1", "3.17.29.24")
 
 
+def _unreachable_app():
+    """Pin the unreachable case so a live lab on :5000 cannot hide NOT MEASURED."""
+    return create_app(AcmeBankClient("http://acmebank.example:5000", get_fn=lambda _p: (503, {"error": "down"})))
+
+
 @pytest.fixture(scope="module")
 def page() -> str:
-    client = create_app().test_client()
-    response = client.get(ROUTE)
+    response = _unreachable_app().test_client().get(ROUTE)
     assert response.status_code == 200
     return response.get_data(as_text=True)
 
 
 @pytest.fixture(scope="module")
 def client():
-    return create_app().test_client()
+    return _unreachable_app().test_client()
 
 
 @pytest.mark.parametrize("method", ["post", "put", "patch", "delete"])

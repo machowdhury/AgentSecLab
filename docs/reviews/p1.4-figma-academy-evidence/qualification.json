@@ -1,0 +1,158 @@
+{
+  "started": "2026-10-09T16:45:43.529279+00:00",
+  "base_url": "http://127.0.0.1:5001",
+  "pages": {
+    "home": {
+      "path": "/academy",
+      "http": 200,
+      "title": "Home \u00b7 AgentSec Academy",
+      "h1": "Learn to investigate how AI agents actually behave.",
+      "geometry": {
+        "innerWidth": 1920,
+        "innerHeight": 1080,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "overflowX": 0
+      },
+      "clipped": [],
+      "screenshot": "artifacts/p1.4-figma-academy-20261009/screenshots/home_1920.png",
+      "sha256": "882066003689568495d0894cc17c18a98e29ecf4c08075671037013dd00b107d"
+    },
+    "foundations": {
+      "path": "/academy/foundations",
+      "http": 200,
+      "title": "AI & Agent Foundations \u00b7 AgentSec Academy",
+      "h1": "Understand AI before you secure it.",
+      "geometry": {
+        "innerWidth": 1920,
+        "innerHeight": 1080,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "overflowX": 0
+      },
+      "clipped": [],
+      "screenshot": "artifacts/p1.4-figma-academy-20261009/screenshots/foundations_1920.png",
+      "sha256": "468111f76376be2f5d698ef329b796c5a3f9df74e65a6ae837ca4f3b97a20e98"
+    },
+    "path": {
+      "path": "/academy/path",
+      "http": 200,
+      "title": "Your Learning Path \u00b7 AgentSec Academy",
+      "h1": "Your Learning Path",
+      "geometry": {
+        "innerWidth": 1920,
+        "innerHeight": 1080,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "overflowX": 0
+      },
+      "clipped": [],
+      "screenshot": "artifacts/p1.4-figma-academy-20261009/screenshots/path_1920.png",
+      "sha256": "96d3358f4b4777af2acc31cb0ad0943bbfddf1e244895102440d19b61a80725c"
+    },
+    "status": {
+      "path": "/academy/status",
+      "http": 200,
+      "title": "System Status \u00b7 AgentSec Academy",
+      "h1": "System Status",
+      "geometry": {
+        "innerWidth": 1920,
+        "innerHeight": 1080,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "overflowX": 0
+      },
+      "clipped": [],
+      "screenshot": "artifacts/p1.4-figma-academy-20261009/screenshots/status_1920.png",
+      "sha256": "012384e553150acb374c89d2d55c751b48eb4a6346110f7eb0a627bd6e1433e2"
+    },
+    "workshop": {
+      "path": "/academy/labs/LAB-MCP-001",
+      "http": 200,
+      "title": "MCP Tool Authorization workshop \u00b7 AgentSec Academy",
+      "h1": "MCP Tool Authorization",
+      "geometry": {
+        "innerWidth": 1920,
+        "innerHeight": 1080,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "overflowX": 0
+      },
+      "clipped": [],
+      "screenshot": "artifacts/p1.4-figma-academy-20261009/screenshots/workshop_1920.png",
+      "sha256": "bd35176dc3c7da624a4b6765f506da6ca9135b426253b165f4827ae1f2a0839e"
+    },
+    "home_1024": {
+      "geometry": {
+        "innerWidth": 1024,
+        "innerHeight": 768,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1024,
+        "clientWidth": 1024,
+        "overflowX": 0
+      },
+      "clipped": [],
+      "sha256": "431f005e97c18dd816adaad754d408347712654bd302834b2f9f4b61d4ef8a11"
+    },
+    "workshop_320": {
+      "geometry": {
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "devicePixelRatio": 1,
+        "scrollWidth": 320,
+        "clientWidth": 320,
+        "overflowX": 0
+      },
+      "overflowX": 0,
+      "clipped": [],
+      "sha256": "c443086a73b861ca77029b1316dfbfd5423c1c3fdad429fbcaf0aba637be009a"
+    }
+  },
+  "workflow": {
+    "mode": "REPLAY",
+    "attack_run_id": "5e8f55f3-eb46-47ee-b979-b72d9c9b1f49",
+    "retest_run_id": "7a1d37b5-d589-4dfd-8322-25ebd0152dbc",
+    "attack_has_replay_badge": true,
+    "compare_has_allow_and_deny": true,
+    "complete": true,
+    "screenshot_sha256": "bfc552d1a6c87fbc1dcee28bad73e468dbd788674cc499f8ba627344c4ad46a5",
+    "page_errors": []
+  },
+  "zoom": {
+    "zoom200_standin": {
+      "method": "viewport_standin",
+      "geometry": {
+        "innerWidth": 960,
+        "innerHeight": 540,
+        "devicePixelRatio": 1,
+        "scrollWidth": 960,
+        "clientWidth": 960,
+        "overflowX": 0
+      },
+      "overflowX": 0,
+      "clipped": [],
+      "sha256": "1fda5e584527030f401aa048a65580268c27fea4f664d7ff6607cf263d299d28"
+    },
+    "zoom400_standin": {
+      "method": "viewport_standin",
+      "geometry": {
+        "innerWidth": 480,
+        "innerHeight": 270,
+        "devicePixelRatio": 1,
+        "scrollWidth": 480,
+        "clientWidth": 480,
+        "overflowX": 0
+      },
+      "overflowX": 0,
+      "clipped": [],
+      "sha256": "8943cfd4bfa04b017b52defcc6887353e90d393394f554888ded34a0eddd1720"
+    }
+  },
+  "ended": "2026-10-09T16:45:50.863375+00:00",
+  "screen_reader": "UNTESTED"
+}

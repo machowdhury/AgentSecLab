@@ -27,14 +27,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import quote, urlencode
 
+from agentsec.external_evidence.contract import EXTERNAL_CONTRACT_VERSION
 from agentsec.replay_specimens import SPECIMEN_FILE_SUFFIX, specimen_dir
 from agentsec.search_handoff import INDEX, SOURCETYPE, workshop_url
 
 LAB_ID = "LAB-MCP-001"
 CONTROL_ID = "CTRL-MCP-001"
+RUNTIME_SCHEMA = "1.9.0"
 
 REPLAY = "REPLAY"
 LIVE = "LIVE"
+SYNTHETIC = "SYNTHETIC"
+UNAVAILABLE = "UNAVAILABLE"
 
 NOT_MEASURED = "NOT MEASURED"
 NOT_OBSERVED = "NOT OBSERVED"
@@ -392,12 +396,24 @@ def evidence_document(record: RunRecord, *, splunk_web: str, launch_body: dict |
         "run_id": record.run_id,
         "provenance": record.provenance,
         "provenance_text": provenance_text(record),
+        "evidence_state": "AVAILABLE",
         "source": record.source,
         "source_sha256": record.sha256,
+        "telemetry_schema_recorded": facts["schema_version_recorded"],
+        "runtime_schema_expected": RUNTIME_SCHEMA,
+        "external_evidence": {
+            "contract_version": EXTERNAL_CONTRACT_VERSION,
+            "applicable": False,
+            "detail": (
+                "LAB-MCP-001 evidence is runtime telemetry. It is not an ExternalEvidence "
+                "finding, evaluation, inventory, or assessment record."
+            ),
+        },
         "facts": facts,
         "events": display_events(record),
         "splunk": splunk_links(record, facts, splunk_web),
         "not_authorization": True,
+        "synthetic": False,
     }
     if record.provenance == LIVE and launch_body is not None:
         runtime = launch_body.get("runtime") if isinstance(launch_body.get("runtime"), dict) else {}
@@ -487,6 +503,13 @@ def compare_document(attack: RunRecord, retest: RunRecord, *, splunk_web: str) -
     spl = run_spl([attack.run_id, retest.run_id], earliest, latest)
     return {
         "lab_id": LAB_ID,
+        "evidence_state": "AVAILABLE",
+        "synthetic": False,
+        "external_evidence": {
+            "contract_version": EXTERNAL_CONTRACT_VERSION,
+            "applicable": False,
+            "detail": "Comparison is of runtime telemetry, not ExternalEvidence records.",
+        },
         "attack": {"run_id": attack.run_id, "provenance": attack.provenance, "source": attack.source},
         "retest": {"run_id": retest.run_id, "provenance": retest.provenance, "source": retest.source},
         "rows": rows,
@@ -527,6 +550,9 @@ __all__ = [
     "OBSERVED",
     "REPLAY",
     "REPLAY_ROLES",
+    "RUNTIME_SCHEMA",
+    "SYNTHETIC",
+    "UNAVAILABLE",
     "RunRecord",
     "compare_document",
     "derive_facts",
