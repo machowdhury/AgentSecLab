@@ -1,0 +1,24 @@
+{
+  "run_id": "557f2404-57c1-465a-a128-639072d42c5e",
+  "n": 1,
+  "rows": [
+    {
+      "run_id": "557f2404-57c1-465a-a128-639072d42c5e",
+      "profile": "vulnerable",
+      "mode": "ATTACK",
+      "initial_tool": "lookup_policy",
+      "initial_decision": "ALLOW",
+      "server_owned_allowed_scope": "policy:read",
+      "result_trust_decision": "ALLOW",
+      "result_trust_reason": "vulnerable_profile_fail_open:result_derived_grant",
+      "derived_authority": "present",
+      "followon_tool": "lookup_customer_tier",
+      "followon_requested_scope": "customer:read",
+      "followon_coded_allowed_scope": "policy:read",
+      "followon_control_preview": "{\"arguments\": {\"customer_id\": \"cust-001\"}, \"authority_source\": \"result-derived overlay\", \"requested_scope\": \"customer:read\", \"server_owned_allowed_tools\": \"lookup_policy\", \"tool\": \"lookup_customer_tie",
+      "followon_decision": "ALLOW",
+      "followon_reason": "vulnerable_profile_fail_open:result_derived_grant",
+      "followon_execution_observation": "mcp.completed_observed"
+    }
+  ]
+}

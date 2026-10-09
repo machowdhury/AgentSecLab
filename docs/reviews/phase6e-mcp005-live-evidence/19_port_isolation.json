@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-09T15:09:48.685758+00:00",
+  "agentsec_splunk_web": "127.0.0.1:8000",
+  "agentsec_splunk_hec": "127.0.0.1:8088",
+  "login_http": 200,
+  "hec_health": {
+    "text": "HEC is healthy",
+    "code": 17
+  },
+  "unrelated_apps_modified": false,
+  "network": "agentseclab_agentsec_mesh"
+}

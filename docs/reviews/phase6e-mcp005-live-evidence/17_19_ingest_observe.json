@@ -1,0 +1,21 @@
+{
+  "utc": "2026-10-09T15:08:17.570980+00:00",
+  "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=-1h source=agentsec-phase6e-runtime-hec | eval rid=mvindex(mvdedup('agentsec.run.id'),0) | eval ver=mvindex(mvdedup('agentsec.schema.version'),0) | stats dc(_raw) as n by rid, ver",
+  "rows": [
+    {
+      "rid": "557f2404-57c1-465a-a128-639072d42c5e",
+      "ver": "1.9.0",
+      "n": "13"
+    },
+    {
+      "rid": "8ff200bc-c090-43c1-a354-bf54c47b8be5",
+      "ver": "1.9.0",
+      "n": "12"
+    },
+    {
+      "rid": "d99b66fd-3404-4152-bc6c-f91209c85b68",
+      "ver": "1.9.0",
+      "n": "8"
+    }
+  ]
+}

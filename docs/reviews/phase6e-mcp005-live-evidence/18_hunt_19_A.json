@@ -1,0 +1,24 @@
+{
+  "run_id": "d99b66fd-3404-4152-bc6c-f91209c85b68",
+  "n": 1,
+  "rows": [
+    {
+      "run_id": "d99b66fd-3404-4152-bc6c-f91209c85b68",
+      "profile": "defended",
+      "mode": "BASELINE",
+      "initial_tool": "lookup_policy",
+      "initial_decision": "ALLOW",
+      "server_owned_allowed_scope": "policy:read",
+      "result_trust_decision": "OBSERVE",
+      "result_trust_reason": "result_is_data",
+      "derived_authority": "absent",
+      "followon_tool": "",
+      "followon_requested_scope": "",
+      "followon_coded_allowed_scope": "",
+      "followon_control_preview": "",
+      "followon_decision": "",
+      "followon_reason": "",
+      "followon_execution_observation": "no_followon"
+    }
+  ]
+}
