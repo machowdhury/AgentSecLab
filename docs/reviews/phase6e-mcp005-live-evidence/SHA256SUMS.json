@@ -22,5 +22,10 @@
   "14_det_mcp_001_indexwide.json": "fe116aab0e73defb73765705a1fcb17bf6ce14e8a5050a29ab49b7cfb2457e4c",
   "15_field_classification.json": "93836bd57988df3090f1f9e592f72dcec7df0eb09fcf1921745ca0178dd593c1",
   "16_certificate_forensics.json": "6dfa39746cb3fa4e95db570b0d2e0ede8e16990875838f9074e91a34de0fffa1",
+  "17_19_ingest_observe.json": "b1085b85ce1425384cbbb96e2795dc4c75af529dfaad5a94adcbefc7f266f00d",
+  "18_hunt_19_A.json": "06b6a42d846c17b5a664be36549cf30c56df9b1e355cc3a48416d9831f158218",
+  "18_hunt_19_B.json": "df455164a26f70df362c1562d92cfb0d40056d379e44dbe8ed95ad83a3547994",
+  "18_hunt_19_C.json": "f3872286b26af4d1c7f635834ba8739effd62f4d909f15aabeb4e69bc59e78a2",
+  "19_port_isolation.json": "e2d8f4aa1ee5b9d5a12846249f54bc47394e0bb365a98296e54607d23841cb23",
   "synthetic_19_runs.json": "c9b7837f76aa0ba286c6fb5b9cc445c07281ef076f6c3166af0d78f4cdc0ba56"
 }
