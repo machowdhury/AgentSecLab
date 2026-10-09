@@ -76,6 +76,8 @@ def test_launch_body_is_the_closed_contract_without_prediction():
     assert bodies == ['{lab_id: LAB, specimen_id: SPECIMEN[mode], mode: mode, execution: "live"}']
     assert source.count('fetch("/api/launch"') == 1
     assert "prediction" not in bodies[0]
+    assert "45000" in source
+    assert "did not respond within 45 seconds" in source
 
 
 def test_evidence_endpoint_refuses_runs_this_service_did_not_launch(app, tmp_path):
@@ -132,6 +134,7 @@ def test_workshop_keeps_the_lab_boundary_statements(app):
         "Not a notable-event pack",
         "Splunk does not ALLOW or DENY a tool",
         "only policy decision point",
+        "does not publish MCP-005 detections",
     ):
         assert statement in start
 
@@ -156,9 +159,42 @@ def test_status_never_claims_splunk_indexing(app):
     splunk = checks["Splunk indexing"]
     assert splunk["state"] == "NOT CHECKED"
     assert splunk["evidence"] == "UNTESTED"
+    reach = checks["Splunk Web (reachability)"]
+    assert reach["state"] in {"AVAILABLE", "UNAVAILABLE"}
+    assert reach["evidence"] == "MEASURED"
+    assert "127.0.0.1" not in reach["detail"]
+    assert "splunk:8000" not in reach["detail"]
+
+
+def test_evidence_errors_are_unavailable_not_synthetic(app):
+    body = app.test_client().get("/api/academy/evidence/11111111-2222-4333-8444-555555555555").get_json()
+    assert body["error_class"] == "ERROR"
+    assert body["provenance"] == "UNAVAILABLE"
+    assert body["evidence_state"] == "UNAVAILABLE"
+    assert body["synthetic"] is False
+
+
+def test_academy_does_not_publish_rejected_or_unapproved_mcp005_content():
+    shipped = SCRIPT.read_text(encoding="utf-8") + "".join(p.read_text(encoding="utf-8") for p in TEMPLATES.glob("*.html"))
+    assert "agent.super_secret_field" not in shipped
+    assert "Q-MCP-RESULT-AUTHORITY" not in shipped
+    assert "validated 2026-10-09" not in shipped.lower()
 
 
 def test_status_reports_an_unreachable_runtime_as_unavailable(tmp_path):
     application = create_app(AcmeBankClient("http://acmebank.example:5000", get_fn=lambda _p: (503, {"error": "down"})), launch_kwargs={"artifacts_dir": tmp_path})
     checks = {c["name"]: c for c in application.test_client().get("/api/academy/status").get_json()["checks"]}
     assert checks["AcmeBank runtime"]["state"] == "UNAVAILABLE"
+
+
+def test_status_reports_a_degraded_runtime_as_available(tmp_path):
+    application = create_app(
+        AcmeBankClient(
+            "http://acmebank.example:5000",
+            get_fn=lambda _p: (200, {"status": "degraded", "security.profile": "defended", "ollama_reachable": False, "ollama_model": "label"}),
+        ),
+        launch_kwargs={"artifacts_dir": tmp_path},
+    )
+    checks = {c["name"]: c for c in application.test_client().get("/api/academy/status").get_json()["checks"]}
+    assert checks["AcmeBank runtime"]["state"] == "AVAILABLE"
+    assert "degraded" in checks["AcmeBank runtime"]["detail"]

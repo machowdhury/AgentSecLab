@@ -9,6 +9,9 @@ remains the only policy decision point; nothing here can grant or deny a tool.
 
 from __future__ import annotations
 
+import os
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 from flask import Flask, abort, jsonify, render_template, request
@@ -33,6 +36,7 @@ LAB_BOUNDARIES = (
     "DET-MCP-001 is packaged disabled. This workshop does not enable it. Not a notable-event pack.",
     "Recorded examples are REPLAY: real historical runs, not runs you just launched.",
     "Missing evidence is NOT MEASURED or NOT OBSERVED. It is never SAFE.",
+    "This workshop is LAB-MCP-001. It does not publish MCP-005 detections, new Splunk searches, or dashboards.",
 )
 
 #: LIVE labs that have an existing Attack Service page outside the Academy.
@@ -97,6 +101,57 @@ def _no_store(response):
     return response
 
 
+def probe_splunk_web(timeout: float = 3.0) -> dict:
+    """Reachability only. Never reports indexing, and never returns internal URLs."""
+    candidates = []
+    internal = os.environ.get("AGENTSEC_SPLUNK_INTERNAL_URL")
+    if internal:
+        candidates.append(internal)
+    candidates.extend(
+        (
+            "http://agentsec_splunk:8000",
+            "http://splunk:8000",
+            "http://host.docker.internal:8000",
+            "http://127.0.0.1:8000",
+        )
+    )
+    seen: set[str] = set()
+    last_error = "no candidate responded"
+    for base in candidates:
+        base = base.rstrip("/")
+        if base in seen:
+            continue
+        seen.add(base)
+        url = base + "/en-US/account/login"
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "AgentSecAcademy-status"})
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                code = resp.getcode()
+            if 200 <= code < 400:
+                return {
+                    "name": "Splunk Web (reachability)",
+                    "state": "AVAILABLE",
+                    "detail": (
+                        f"Splunk Web answered HTTP {code}. That is reachability only. "
+                        "It does not prove a run is indexed."
+                    ),
+                    "evidence": "MEASURED",
+                }
+            last_error = f"HTTP {code}"
+        except (urllib.error.URLError, TimeoutError, OSError):
+            last_error = "unreachable"
+            continue
+    return {
+        "name": "Splunk Web (reachability)",
+        "state": "UNAVAILABLE",
+        "detail": (
+            "Splunk Web did not answer. Search links may fail until it is available. "
+            f"Last probe: {last_error}. Indexing remains NOT CHECKED."
+        ),
+        "evidence": "MEASURED",
+    }
+
+
 def _curriculum_levels() -> list[dict]:
     levels = []
     for level in load_curriculum()["levels"]:
@@ -151,7 +206,14 @@ def register_academy(app: Flask, *, launcher, client, artifacts_dir: Path, versi
 
     def error(exc: evidence.EvidenceError):
         response = jsonify(
-            {"error": exc.code, "error_class": "ERROR", "evidence_state": "ERROR", "detail": exc.detail}
+            {
+                "error": exc.code,
+                "error_class": "ERROR",
+                "evidence_state": evidence.UNAVAILABLE,
+                "provenance": evidence.UNAVAILABLE,
+                "synthetic": False,
+                "detail": exc.detail,
+            }
         )
         response.status_code = exc.status
         return _no_store(response)
@@ -235,17 +297,22 @@ def register_academy(app: Flask, *, launcher, client, artifacts_dir: Path, versi
             }
         )
         status, body = client.health()
-        healthy = status == 200 and body.get("status") == "healthy"
+        runtime_state = body.get("status") if status == 200 else None
+        reachable = status == 200 and runtime_state in {"healthy", "degraded"}
+        if reachable:
+            runtime_detail = (
+                f"Security profile {body.get('security.profile', 'NOT MEASURED')}; runtime reports "
+                f"{runtime_state}; model reachable={body.get('ollama_reachable', 'NOT MEASURED')} "
+                f"(label {body.get('ollama_model', 'NOT MEASURED')}). Reachability is not model quality. "
+                "MCP tool-path launches do not require the model."
+            )
+        else:
+            runtime_detail = "The runtime health check failed. LIVE launches will return an ERROR, not a decision."
         checks.append(
             {
                 "name": "AcmeBank runtime",
-                "state": "AVAILABLE" if healthy else "UNAVAILABLE",
-                "detail": (
-                    f"Security profile {body.get('security.profile', 'NOT MEASURED')}; model label "
-                    f"{body.get('ollama_model', 'NOT MEASURED')}. Health is reachability, not model quality."
-                    if healthy
-                    else "The runtime health check failed. LIVE launches will return an ERROR, not a decision."
-                ),
+                "state": "AVAILABLE" if reachable else "UNAVAILABLE",
+                "detail": runtime_detail,
                 "evidence": "MEASURED",
             }
         )
@@ -273,13 +340,14 @@ def register_academy(app: Flask, *, launcher, client, artifacts_dir: Path, versi
                 "evidence": "MEASURED",
             }
         )
+        checks.append(probe_splunk_web())
         checks.append(
             {
                 "name": "Splunk indexing",
                 "state": "NOT CHECKED",
                 "detail": (
-                    "This page does not query Splunk. Indexed evidence is confirmed in Splunk with the run's search "
-                    "link. Reachability would not prove indexing anyway."
+                    "This page does not query Splunk indexes. Indexed evidence is confirmed in Splunk with the run's "
+                    "search link. Reachability would not prove indexing anyway."
                 ),
                 "evidence": "UNTESTED",
                 "href": splunk_web().rstrip("/") + "/en-US/app/search/search",
