@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-09T14:47:08.552777+00:00",
+  "openssl": "x509 -text -noout on certificate-only extracts; keys not committed",
+  "CERTIFICATE_CHANGE_BASELINE_UNAVAILABLE_for_dp_pre_6D": true,
+  "server_pem_unchanged_since_2026_09_12": true,
+  "dp_certs_regenerated_at_official_start_2026_10_09T14_06Z": true,
+  "algorithms": "RSA 2048 / sha256WithRSAEncryption on all inspected certs",
+  "lab_self_signed": true,
+  "ca_pem_expires": "2027-01-28",
+  "server_fingerprint_sha256": "8BE68B7CC8631C896DAC5966924D4E77689B9AE2B3B873781D5872BD3BF2E7E1",
+  "server_dp_fingerprint_sha256": "55B8039EEBF2646C16C53E723ABE2EF6D62BE708371DB59399C5807DD7C7774B",
+  "dp_ca_fingerprint_sha256": "4EDACF20F649E33A2014D898ED4734F795ACE2B5C26F73E23D82F407FC6AA01E",
+  "common_ca_fingerprint_sha256": "F399502563EFCC58BEEC80AB206DE3B8CEA2D1B8603519AD7158E2C442374D46"
+}

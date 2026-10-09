@@ -1,0 +1,24 @@
+{
+  "name": "13_completeness_mcp005",
+  "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 (\"agentsec.run.id\"=3013aa39-fe08-4b58-9898-f3abb092ac06 OR \"agentsec.run.id\"=f3f48182-df57-4b38-b069-17a199dc4939 OR \"agentsec.run.id\"=0ab10594-a7fc-48b6-81bf-4cbca54a64c6 OR \"agentsec.run.id\"=6fe7370c-a288-4634-91a5-d6c78b52bd01) | eval rid=mvindex(mvdedup('agentsec.run.id'),0) | stats dc(_raw) as n by rid",
+  "utc": "2026-10-09T14:39:35.806513+00:00",
+  "n": 4,
+  "rows": [
+    {
+      "rid": "0ab10594-a7fc-48b6-81bf-4cbca54a64c6",
+      "n": "12"
+    },
+    {
+      "rid": "3013aa39-fe08-4b58-9898-f3abb092ac06",
+      "n": "8"
+    },
+    {
+      "rid": "6fe7370c-a288-4634-91a5-d6c78b52bd01",
+      "n": "8"
+    },
+    {
+      "rid": "f3f48182-df57-4b38-b069-17a199dc4939",
+      "n": "13"
+    }
+  ]
+}

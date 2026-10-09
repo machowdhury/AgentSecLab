@@ -1,0 +1,29 @@
+{
+  "name": "03_mcp005_runs",
+  "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.attack.id\"=MCP-005 | eval rid=mvindex(mvdedup('agentsec.run.id'),0) | eval ver=mvindex(mvdedup('agentsec.schema.version'),0) | stats dc(_raw) as events by rid, ver",
+  "utc": "2026-10-09T14:36:35.250543+00:00",
+  "status": "ok",
+  "n": 4,
+  "rows": [
+    {
+      "rid": "0ab10594-a7fc-48b6-81bf-4cbca54a64c6",
+      "ver": "1.3.0",
+      "events": "12"
+    },
+    {
+      "rid": "3013aa39-fe08-4b58-9898-f3abb092ac06",
+      "ver": "1.3.0",
+      "events": "8"
+    },
+    {
+      "rid": "6fe7370c-a288-4634-91a5-d6c78b52bd01",
+      "ver": "1.3.0",
+      "events": "8"
+    },
+    {
+      "rid": "f3f48182-df57-4b38-b069-17a199dc4939",
+      "ver": "1.3.0",
+      "events": "13"
+    }
+  ]
+}

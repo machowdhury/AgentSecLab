@@ -1,0 +1,11 @@
+{
+  "name": "11_det_B",
+  "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=f3f48182-df57-4b38-b069-17a199dc4939 | stats dc(_raw) as n",
+  "utc": "2026-10-09T14:39:04.880433+00:00",
+  "n": 1,
+  "rows": [
+    {
+      "n": "13"
+    }
+  ]
+}

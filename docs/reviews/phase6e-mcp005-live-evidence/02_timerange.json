@@ -1,0 +1,27 @@
+{
+  "name": "02_timerange",
+  "query": "index=agentsec_telemetry earliest=0 latest=now | stats min(_time) as earliest max(_time) as latest count by sourcetype",
+  "utc": "2026-10-09T14:36:30.147253+00:00",
+  "status": "ok",
+  "n": 3,
+  "rows": [
+    {
+      "sourcetype": "agentsec:external:evaluation",
+      "earliest": "1790306088",
+      "latest": "1790306088",
+      "count": "8"
+    },
+    {
+      "sourcetype": "agentsec:scanner:finding",
+      "earliest": "1789537013",
+      "latest": "1789537015",
+      "count": "27"
+    },
+    {
+      "sourcetype": "otel:agentic:json",
+      "earliest": "1789182309",
+      "latest": "1790979693",
+      "count": "1929"
+    }
+  ]
+}

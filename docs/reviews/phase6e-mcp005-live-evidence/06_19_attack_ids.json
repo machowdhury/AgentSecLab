@@ -1,0 +1,36 @@
+{
+  "name": "06_19_attack_ids",
+  "query": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 | eval aid=mvindex(mvdedup('agentsec.attack.id'),0) | eval ver=mvindex(mvdedup('agentsec.schema.version'),0) | where ver=\"1.9.0\" | stats dc(_raw) as events by aid",
+  "utc": "2026-10-09T14:37:41.140904+00:00",
+  "n": 7,
+  "rows": [
+    {
+      "aid": "A2A-001",
+      "events": "95"
+    },
+    {
+      "aid": "ATK-001",
+      "events": "44"
+    },
+    {
+      "aid": "ATK-002",
+      "events": "192"
+    },
+    {
+      "aid": "GOAL-001",
+      "events": "130"
+    },
+    {
+      "aid": "MCP-002",
+      "events": "143"
+    },
+    {
+      "aid": "MEMORY-001",
+      "events": "248"
+    },
+    {
+      "aid": "RAG-001",
+      "events": "541"
+    }
+  ]
+}

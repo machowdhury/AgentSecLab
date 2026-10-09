@@ -1,0 +1,33 @@
+{
+  "name": "01_eventcount",
+  "query": "| eventcount summarize=false index=*",
+  "utc": "2026-10-09T14:36:25.178834+00:00",
+  "status": "ok",
+  "n": 4,
+  "rows": [
+    {
+      "count": "1964",
+      "provider": "local",
+      "server": "f2e67082af2f",
+      "index": "agentsec_telemetry"
+    },
+    {
+      "count": "0",
+      "provider": "local",
+      "server": "f2e67082af2f",
+      "index": "history"
+    },
+    {
+      "count": "36",
+      "provider": "local",
+      "server": "f2e67082af2f",
+      "index": "main"
+    },
+    {
+      "count": "0",
+      "provider": "local",
+      "server": "f2e67082af2f",
+      "index": "summary"
+    }
+  ]
+}
