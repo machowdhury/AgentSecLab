@@ -24,6 +24,7 @@
   </header>
   <main id="main">
     <nav class="lab-switch" aria-label="Experiment labs">
+      <a href="/academy">AgentSec Academy</a>
       {% for row in labs %}
       <a href="{{ row.href }}"{% if row.lab_id == lab_id %} aria-current="page"{% endif %}>{{ row.title }}</a>
       {% endfor %}

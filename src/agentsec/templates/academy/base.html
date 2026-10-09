@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}AgentSec Academy{% endblock %} · AgentSec Academy</title>
+  <link rel="icon" href="/static/agentsec-favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/academy.css">
+</head>
+<body data-page="{{ page }}">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="shell">
+    <header class="masthead">
+      <a class="brand" href="/academy">
+        <img src="/static/agentsec-mark.svg" alt="" width="32" height="32">
+        <span><strong>AgentSec</strong><small>Security Academy</small></span>
+      </a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" data-menu-toggle>
+        <span aria-hidden="true">☰</span> Menu
+      </button>
+    </header>
+    <nav class="sidebar" id="primary-nav" aria-label="Academy">
+      <ul class="nav-list">
+        <li><a href="/academy" {% if nav_page == 'home' %}aria-current="page"{% endif %}>Home</a></li>
+        <li><a href="/academy/foundations" {% if nav_page == 'foundations' %}aria-current="page"{% endif %}>AI &amp; Agent Foundations</a></li>
+        <li><a href="/academy/path" {% if nav_page == 'path' %}aria-current="page"{% endif %}>Your Learning Path</a></li>
+        <li><a href="/academy/labs/LAB-MCP-001" {% if nav_page == 'workshop' %}aria-current="page"{% endif %}>MCP Workshop</a></li>
+        <li><a href="/academy/status" {% if nav_page == 'status' %}aria-current="page"{% endif %}>System Status</a></li>
+      </ul>
+      <p class="nav-heading" id="more-heading">Other surfaces</p>
+      <ul class="nav-list nav-list--secondary" aria-labelledby="more-heading">
+        <li><a href="/acmebank">AcmeBank customer view</a></li>
+        <li><a href="/en-US/app/search/search" data-splunk-link>Splunk Search (advanced)</a></li>
+      </ul>
+      <p class="nav-foot">Learning lab. Not production authentication. Progress stays in this browser.</p>
+    </nav>
+    <div class="content">
+      <div class="topbar">
+        <nav aria-label="Breadcrumb" class="breadcrumb">
+          <ol>
+            <li><a href="/academy">Academy</a></li>
+            {% block crumbs %}{% endblock %}
+          </ol>
+        </nav>
+        <p class="topbar-note">Version {{ version }}</p>
+      </div>
+      <main id="main" tabindex="-1">
+        {% block main %}{% endblock %}
+      </main>
+    </div>
+  </div>
+  <script src="/static/academy.js"></script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+{% extends "academy/base.html" %}
+{% block title %}Home{% endblock %}
+{% block crumbs %}<li><a href="/academy" aria-current="page">Home</a></li>{% endblock %}
+{% block main %}
+<section class="hero" aria-labelledby="hero-title">
+  <p class="eyebrow">Hands-on agentic AI security academy</p>
+  <h1 id="hero-title">Learn to investigate how AI agents actually behave.</h1>
+  <p class="lead">AgentSecLab is a learning range. You predict what a security control will do, run a real experiment against a deliberately vulnerable lab, and prove what happened from recorded evidence.</p>
+  <div class="actions">
+    <a class="button button--primary" href="/academy/labs/LAB-MCP-001">Start the MCP workshop</a>
+    <a class="button button--secondary" href="/academy/foundations">New here? Start with AI basics</a>
+  </div>
+  <p class="principle"><strong>Core principle:</strong> a control decision is not execution, and execution is not proven until you can point to the event that records it.</p>
+</section>
+
+<section class="section" aria-labelledby="objectives-title">
+  <h2 id="objectives-title">What you will be able to do</h2>
+  <ul class="card-grid card-grid--4">
+    <li class="card"><h3>Explain the system</h3><p>Describe how an agent, its tools and a security control fit together, in plain language.</p></li>
+    <li class="card"><h3>Predict before you look</h3><p>Commit to what you expect a control to decide before any evidence is shown.</p></li>
+    <li class="card"><h3>Investigate evidence</h3><p>Answer security questions from real events and name the event behind each answer.</p></li>
+    <li class="card"><h3>Compare and explain</h3><p>Compare an ATTACK and a RETEST run and separate what was observed from what you infer.</p></li>
+  </ul>
+</section>
+
+<section class="section" aria-labelledby="beginner-title">
+  <h2 id="beginner-title">First time here?</h2>
+  <p>You do not need an AI or security background. Follow this route in order.</p>
+  <ol class="route">
+    <li><a href="/academy/foundations"><span class="route-n">1</span><span><strong>Understand</strong> how models, agents and tools work</span></a></li>
+    <li><a href="/academy/labs/LAB-MCP-001#start"><span class="route-n">2</span><span><strong>Meet the lab</strong> and its boundaries</span></a></li>
+    <li><a href="/academy/labs/LAB-MCP-001#predict"><span class="route-n">3</span><span><strong>Predict</strong> what the control will decide</span></a></li>
+    <li><a href="/academy/labs/LAB-MCP-001#investigate"><span class="route-n">4</span><span><strong>Investigate</strong> your first run</span></a></li>
+  </ol>
+</section>
+
+<section class="section" aria-labelledby="workshops-title">
+  <h2 id="workshops-title">Workshops</h2>
+  <ul class="card-grid card-grid--3">
+    <li class="card card--feature">
+      <p class="card-meta"><span class="badge badge--live">LIVE or REPLAY</span> Level 1 · LAB-MCP-001</p>
+      <h3>MCP Tool Authorization</h3>
+      <p>An assistant asks for a tool it was never granted. Did the control allow it, did the tool run, and which event proves each fact?</p>
+      <p class="card-progress">Your progress: <strong data-progress-for="LAB-MCP-001">Not started</strong></p>
+      <a class="button button--primary" href="/academy/labs/LAB-MCP-001">Open the workshop</a>
+    </li>
+    {% for lab in other_live %}
+    <li class="card">
+      <p class="card-meta"><span class="badge badge--live">LIVE</span> {{ lab.level_title }}</p>
+      <h3>{{ lab.title }}</h3>
+      <p>Runs on the existing Attack Service page. Not yet redesigned for the Academy; progress there is not tracked here.</p>
+      <a class="button button--secondary" href="{{ lab.href }}">Open {{ lab.title }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+  <p><a href="/academy/path">See every lab on your learning path</a></p>
+</section>
+
+<section class="section" aria-labelledby="readiness-title">
+  <h2 id="readiness-title">System readiness</h2>
+  <p>Checked live by this page. Reachability is not proof of indexed evidence.</p>
+  <ul class="status-list" data-status-summary aria-live="polite">
+    <li>Checking…</li>
+  </ul>
+  <p><a href="/academy/status">Open System Status</a></p>
+</section>
+{% endblock %}

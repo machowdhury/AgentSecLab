@@ -14,6 +14,7 @@ COPY learning/academy/curriculum.json ./learning/academy/curriculum.json
 RUN mkdir -p /app/learning/level_1/LAB-PI-001 /app/learning/level_1/LAB-MCP-001 /app/learning/level_1/LAB-RAG-CONTEXT /app/learning/level_1/LAB-MEMORY-001 /app/learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001 /app/learning/level_1/LAB-AGENT-DELEGATION-001 /app/learning/level_1/LAB-AGENTSEC-CAPSTONE-001
 COPY learning/level_1/LAB-PI-001/lab-manifest.json ./learning/level_1/LAB-PI-001/lab-manifest.json
 COPY learning/level_1/LAB-MCP-001/lab-manifest.json ./learning/level_1/LAB-MCP-001/lab-manifest.json
+COPY learning/level_1/LAB-MCP-001/specimens/ ./learning/level_1/LAB-MCP-001/specimens/
 COPY learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json ./learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json
 COPY learning/level_1/LAB-MEMORY-001/lab-manifest.json ./learning/level_1/LAB-MEMORY-001/lab-manifest.json
 COPY learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json ./learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json

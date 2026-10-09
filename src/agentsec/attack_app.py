@@ -9,6 +9,7 @@ import requests
 from flask import Flask, jsonify, render_template, request
 
 from agentsec.academy import lab_row, next_lab
+from agentsec.academy_web import register_academy
 from agentsec.agents import PIPELINE_ORDER
 from agentsec.attacks import ATK_002
 from agentsec.experiment_context import LAB_CAPSTONE, LAB_GOAL, LAB_IDENTITY, LAB_MCP, LAB_MEMORY, LAB_PI, LAB_RAG, lookup_experiment
@@ -64,9 +65,9 @@ MCP_BASELINE_REPLAY_RUN_ID = "163d11e2-e751-4282-9406-19b490542ed4"
 #: Facts the inline BASELINE screen may state. They are REPLAYED evidence: a
 #: transcription of the committed specimen pack
 #: learning/level_1/LAB-MCP-001/specimens/<run.id>.jsonl, not a live
-#: measurement and not a runtime lookup. The attack-service container does not
-#: mount the specimen packs, so a test (tests/unit/test_p1_mcp_baseline.py)
-#: reads the pack and fails if any value here stops matching it. Nothing here
+#: measurement and not a runtime lookup. A test
+#: (tests/unit/test_p1_web_experience.py) reads the committed pack and fails if
+#: any value here stops matching it. Nothing here
 #: may be edited to fit a design: change the pack and the test first.
 MCP_BASELINE_REPLAY_FACTS = {
     "run_id": MCP_BASELINE_REPLAY_RUN_ID,
@@ -212,6 +213,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
     app.config["AGENTSEC_ATTACK_CLIENT"] = client
     launcher = LaunchService(client, settings, **(launch_kwargs or {}))
     app.config["AGENTSEC_LAUNCH_SERVICE"] = launcher
+    register_academy(app, launcher=launcher, client=client, artifacts_dir=launcher.artifacts_dir, version=settings.version)
 
     @app.get("/health")
     def health():

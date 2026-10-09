@@ -1,0 +1,46 @@
+{% extends "academy/base.html" %}
+{% block title %}Your Learning Path{% endblock %}
+{% block crumbs %}<li><a href="/academy/path" aria-current="page">Your Learning Path</a></li>{% endblock %}
+{% block main %}
+<header class="page-header">
+  <p class="eyebrow">Curriculum</p>
+  <h1>Your Learning Path</h1>
+  <p class="lead">Progress is stored only in this browser. It records that you completed the learning workflow. It is not indexed security evidence and not a security verdict.</p>
+</header>
+
+<section class="next-up" aria-labelledby="next-title">
+  <h2 id="next-title">Next up</h2>
+  <p><strong>MCP Tool Authorization</strong> (LAB-MCP-001). Your progress: <strong data-progress-for="LAB-MCP-001">Not started</strong>.</p>
+  <dl class="facts-inline">
+    <div><dt>Prerequisite</dt><dd>Recommended: <a href="/academy/foundations">AI &amp; Agent Foundations</a></dd></div>
+    <div><dt>Completion criteria</dt><dd>Investigate an ATTACK run, view the RETEST comparison, and write your explanation.</dd></div>
+  </dl>
+  <a class="button button--primary" href="/academy/labs/LAB-MCP-001" data-continue-link>Continue</a>
+</section>
+
+<p class="callout">Only LAB-MCP-001 runs inside the Academy today. Other labs open their existing page (Attack Service or Splunk). Their progress is <strong>not tracked here</strong>.</p>
+
+{% for level in levels %}{% if level.labs %}
+<section class="level" aria-labelledby="level-{{ level.id }}">
+  <h2 id="level-{{ level.id }}"><span class="level-id">{{ level.id }}</span> {{ level.title }}</h2>
+  <ul class="lab-list">
+    {% for lab in level.labs %}
+    <li class="lab-row">
+      <span class="lab-title"><strong>{{ lab.title }}</strong> <small>{{ lab.lab_id }}</small></span>
+      <span class="badge {{ 'badge--live' if lab.mode == 'LIVE' else 'badge--replay' }}">{{ lab.mode }}</span>
+      <span class="lab-surface">Opens in: {{ lab.surface | title if lab.surface != 'SPLUNK' else 'Splunk' }}</span>
+      <span class="lab-status">{% if lab.lab_id == 'LAB-MCP-001' %}<strong data-progress-for="LAB-MCP-001">Not started</strong>{% else %}Not tracked here{% endif %}</span>
+      <a href="{{ lab.href }}" {% if lab.surface == 'SPLUNK' %}data-splunk-link{% endif %}>Open<span class="visually-hidden"> {{ lab.title }}</span></a>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}{% endfor %}
+
+<section class="section" aria-labelledby="reset-title">
+  <h2 id="reset-title">Browser progress</h2>
+  <p>Clear the Academy progress and workshop answers stored on this device. It does not touch any run or any evidence.</p>
+  <button type="button" class="button button--secondary" data-reset-progress>Reset browser progress</button>
+  <p class="form-note" role="status" data-reset-feedback></p>
+</section>
+{% endblock %}
