@@ -1,0 +1,14 @@
+{
+  "initial_attack_status": "ATTACK run ready (LIVE). 7 events recorded.",
+  "switch_visible_on_attack": true,
+  "attack_card": "ATTACK run\n\nREPLAY run.id 5e8f55f3-eb46-47ee-b979-b72d9c9b1f49 Copy run.id\n\n7 events recorded. Investigate them to find out what happened.\n\nShow the recorded control decision now (the notebook asks you this)\nAdvanced: verify in Splunk\nSearch this run in Splunk (advanced; opens Splunk Search with the run.id and time range filled in)\nOpen the Studio workshop for this run (advanced)\n\nAdvanced and opt",
+  "attack_is_replay": true,
+  "attack_badge_live": false,
+  "retest_replay_enabled": false,
+  "retest_card": "RETEST run\n\nREPLAY run.id 7a1d37b5-d589-4dfd-8322-25ebd0152dbc Copy run.id\n\n6 events recorded. Investigate them to find out what happened.\n\nShow the recorded control decision now (the notebook asks you this)\nAdvanced: verify in Splunk\nSearch this run in Splunk (advanced; opens Splunk Search with the run.id and time range filled in)\nOpen the Studio workshop for this run (advanced)\n\nAdvanced and opt",
+  "retest_is_replay": true,
+  "compare_has_allow_deny": true,
+  "compare_has_different": true,
+  "complete": "Workflow complete. This records that you finished the learning workflow in this browser. It is not a security verdict.",
+  "after_reload_complete_or_runs": "ATTACK run ready (REPLAY). 7 events recorded."
+}
