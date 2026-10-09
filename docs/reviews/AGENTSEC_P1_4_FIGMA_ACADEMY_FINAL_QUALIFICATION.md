@@ -22,8 +22,8 @@ Required accessibility gates that need a human or Chrome zoom-extension session 
 | Known P1.4 implementation | `f4f4807` |
 | Local concurrent checkpoint already on develop | `10682b88f344b17505f08f217977ba96428702a0` |
 | Implementation SHA | `aff4468aef45af6f484bd64ad933bbe12dadf867` |
-| Final report SHA | recorded after this file is committed |
-| Final remote SHA | `origin/develop` matched local after the implementation push; re-verified after the report push |
+| Final report SHA | `e9a9e7e1cf5b6558d0ad7bad0988e8829aa6b6f3` |
+| Final remote SHA | `e9a9e7e1cf5b6558d0ad7bad0988e8829aa6b6f3` (`develop` = `origin/develop`) |
 | Deployed Attack Service | image `sha256:a0873455016c48f31835a06d796c6691e1345bfbcae70f175085a1ad5c89c02c` built from `aff4468` source |
 | Deployed Splunk | original `agentsec_splunk`, healthy, ports unchanged |
 
