@@ -23,7 +23,7 @@ Academy status reports Optional model (Ollama) as **DEGRADED**, not FAILED. MCP 
 | Expected starting HEAD | `99ee64af9a213bb1dc8656455016e66a9241c631` |
 | Measured starting HEAD | `99ee64af9a213bb1dc8656455016e66a9241c631` = `origin/develop` |
 | Working tree at start | clean, 0/0 |
-| Implementation / report commit | recorded after this file is committed (see git log on `develop`) |
+| Implementation SHA | `df60d9555926a7683759f0778255872b8c32c0f5` |
 | Runtime schema | **1.9.0** |
 | ExternalEvidence | **1.0.0**, applicable=false for LAB-MCP-001 |
 
