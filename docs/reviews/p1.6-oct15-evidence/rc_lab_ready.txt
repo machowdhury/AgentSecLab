@@ -1,0 +1,43 @@
+$ ./scripts/lab-ready.sh   (run 2026-10-09 ~22:22 UTC, P1.6 RC qualification; exit code 0)
+[lab-ready] Checking required containers...
+[lab-ready] splunk_app_init completed successfully.
+[lab-ready] WARN: splunk_hec_init state='exited 1'. Continuing if HEC health is 200.
+[lab-ready] Checking AgentSec app files inside Splunk...
+[lab-ready] AgentSec app files including Home, Capstone, and Mastery Check XML are present.
+[lab-ready] Splunk Web login page HTTP 200.
+[lab-ready] Checking index agentsec_telemetry...
+[lab-ready] Index agentsec_telemetry exists.
+[lab-ready] Checking HEC...
+[lab-ready] HEC health HTTP 200.
+[lab-ready] Checking OTel collector can reach HEC on the mesh...
+[lab-ready] Mesh HEC health from a collector-network client HTTP 200.
+[lab-ready] Checking Dashboard Studio view is loaded...
+[lab-ready] Dashboard view ws_lab_pi_001 is available via Splunk REST.
+[lab-ready] Dashboard view ws_lab_mcp_001 is available via Splunk REST.
+[lab-ready] Dashboard view ws_lab_mcp_003 is available via Splunk REST.
+[lab-ready] Dashboard view ws_lab_mcp_004 is available via Splunk REST.
+[lab-ready] Dashboard view ws_lab_mcp_005 is available via Splunk REST.
+[lab-ready] Dashboard view ws_lab_mcp_006 is available via Splunk REST.
+[lab-ready] Dashboard view ws_lab_mcp_catalog is available via Splunk REST.
+[lab-ready] Dashboard view ws_lab_scanner_runtime_evidence is available via Splunk REST.
+[lab-ready] Dashboard view ws_lab_external_evaluation_garak is available via Splunk REST.
+[lab-ready] Dashboard view ws_lab_rag_context is available via Splunk REST.
+[lab-ready] Dashboard view ws_lab_memory_security is available via Splunk REST.
+[lab-ready] Dashboard view ws_lab_agent_goal_integrity is available via Splunk REST.
+[lab-ready] Dashboard view ws_lab_agent_delegation is available via Splunk REST.
+[lab-ready] Dashboard view ws_lab_agentsec_capstone is available via Splunk REST.
+[lab-ready] Dashboard view ws_agentsec_home is available via Splunk REST.
+[lab-ready] Dashboard view ws_agentsec_mastery is available via Splunk REST.
+[lab-ready] AcmeBank and Attack UI health HTTP 200.
+[lab-ready] SERVICE READY: containers, Splunk Web, HEC health, Academy views, AcmeBank HTTP, Attack Service HTTP.
+[lab-ready] NOT PROVEN: a given run.id is searchable. HEC HTTP 200 is not indexed evidence.
+[lab-ready] AcmeBank /health: {"lab.id":"agentsec-local","ollama_model":"llama3.2:1b","ollama_reachable":false,"security.profile":"defended","service":"acmebank","status":"degraded","testbed.mode.override":null,"version":"1.1.0"}
+[lab-ready] MODEL ABSENT: llama3.2:1b is required for LIVE generation and is not listed.
+[lab-ready] LIVE model-dependent generation is DEGRADED, not PASS.
+[lab-ready] Academy REPLAY does not need this model.
+[lab-ready] Command normally used: docker exec agentsec_ollama ollama pull llama3.2:1b
+[lab-ready] Certificate or TLS errors must be resolved at the host trust layer. Do not disable certificate verification.
+[lab-ready] Deployment mode: LOCAL
+[lab-ready] Academy: http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home
+[lab-ready] Attack Service: http://127.0.0.1:5001
+[lab-ready] Open these URLs on this computer. They are localhost bindings.

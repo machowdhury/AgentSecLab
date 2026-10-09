@@ -1,0 +1,35 @@
+{
+  "gate": "B",
+  "result": "UNTESTED",
+  "queried_at_utc": "2026-10-09T21:50:40Z",
+  "os": {
+    "product": "macOS",
+    "version": "27.0",
+    "build": "26A428"
+  },
+  "browser_for_supplementary_checks": "Chromium via Playwright (not VoiceOver)",
+  "voiceover_app": {
+    "present": true,
+    "cfbundle_short_version_string": "10",
+    "process_running": false
+  },
+  "testing_method": "Attempted: confirm VoiceOver.app exists and is not running. Did not enable VoiceOver. Did not drive VO rotor, headings, or speech via AppleScript. Automated axe/Playwright accessibility snapshots are not a VoiceOver substitute.",
+  "why_untested": "A genuine VoiceOver assessment requires an operator to hear and navigate the nine-step journey. Enabling VoiceOver unattended would not produce verifiable announcement transcripts. Results are not fabricated.",
+  "supplementary_not_voiceover": {
+    "academy_pages_skip_link_main_one_h1": "OBSERVED HTTP 200 on /academy, /foundations, /path, /status, /labs/LAB-MCP-001",
+    "playwright_keyboard_tests": "DOCUMENTED in tests/integration/test_p1_4_academy_browser.py (skip link, prediction keyboard, focus rings)",
+    "chrome_zoom_100_200_400": "MEASURED in P1.5; not re-run as VoiceOver"
+  },
+  "nine_step_voiceover": {
+    "heading_navigation": "UNTESTED",
+    "landmark_navigation": "UNTESTED",
+    "keyboard_focus_reading_order": "UNTESTED as VoiceOver; Playwright keyboard tests exist",
+    "accessible_names": "UNTESTED as VoiceOver",
+    "form_labels_errors": "UNTESTED as VoiceOver",
+    "dynamic_status_announcements": "UNTESTED as VoiceOver (aria-live present in markup)",
+    "evidence_table": "UNTESTED as VoiceOver",
+    "attack_retest_comparison": "UNTESTED as VoiceOver",
+    "modal_dialog": "UNTESTED (workshop has no modal dialog)",
+    "completion_feedback": "UNTESTED as VoiceOver"
+  }
+}

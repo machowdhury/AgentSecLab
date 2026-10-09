@@ -1,0 +1,226 @@
+{
+  "base": "http://127.0.0.1:5001",
+  "started_utc": "2026-10-09T22:17:22Z",
+  "replay": {
+    "auto_loaded_attack_status": "ATTACK run ready (LIVE). 7 events recorded.",
+    "baseline_provenance": "REPLAY REPLAY \u2014 a committed recording of a real historical run, re-indexed verbatim into Splunk at deployment. It is not a run you just launched and not a new measurement.",
+    "switch_visible_when_live_auto_loaded": true,
+    "attack_card": "REPLAY run.id 5e8f55f3-eb46-47ee-b979-b72d9c9b1f49 Copy run.id",
+    "switch_note": "This tab now shows the committed REPLAY packs. Say REPLAY out loud. The server durable LIVE index is unchanged. This is not a live launch.",
+    "attack_notebook": {
+      "q1": {
+        "question": "Question 1. What did CTRL-MCP-001 decide for this request?",
+        "record_shows": "ALLOW"
+      },
+      "q2": {
+        "question": "Question 2. Did the tool handler start?",
+        "record_shows": "Yes"
+      },
+      "q3": {
+        "question": "Question 3. Which event is the evidence for your answer to question 2?",
+        "record_shows": "agentsec.mcp.started"
+      },
+      "q4": {
+        "question": "Question 4. Was the requested scope within the granted scope?",
+        "record_shows": "No"
+      },
+      "q5": {
+        "question": "Question 5. How many LLM call events does this run's record contain?",
+        "record_shows": "0"
+      }
+    },
+    "retest_card": "REPLAY run.id 7a1d37b5-d589-4dfd-8322-25ebd0152dbc Copy run.id",
+    "compare": {
+      "caption": "ATTACK 5e8f55f3-eb46-47ee-b979-b72d9c9b1f49 (REPLAY) compared with RETEST 7a1d37b5-d589-4dfd-8322-25ebd0152dbc (REPLAY)",
+      "rows": {
+        "Recorded mode": [
+          "ATTACK",
+          "RETEST",
+          "DIFFERENT"
+        ],
+        "Security profile": [
+          "vulnerable",
+          "defended",
+          "DIFFERENT"
+        ],
+        "Requested tool": [
+          "lookup_customer_tier",
+          "lookup_customer_tier",
+          "SAME"
+        ],
+        "Requested scope": [
+          "customer:read",
+          "customer:read",
+          "SAME"
+        ],
+        "Granted scope": [
+          "policy:read",
+          "policy:read",
+          "SAME"
+        ],
+        "CTRL-MCP-001 decision": [
+          "ALLOW",
+          "DENY",
+          "DIFFERENT"
+        ],
+        "Decision reason": [
+          "vulnerable_profile_fail_open",
+          "tool_not_granted",
+          "DIFFERENT"
+        ],
+        "Tool handler started (mcp.started)": [
+          "OBSERVED",
+          "NOT OBSERVED",
+          "DIFFERENT"
+        ],
+        "Tool handler completed (mcp.completed)": [
+          "OBSERVED",
+          "NOT OBSERVED",
+          "DIFFERENT"
+        ],
+        "Pipeline stopped": [
+          "NOT OBSERVED",
+          "OBSERVED",
+          "DIFFERENT"
+        ],
+        "LLM call events in record": [
+          "0",
+          "0",
+          "SAME"
+        ],
+        "Events in record": [
+          "7",
+          "6",
+          "DIFFERENT"
+        ]
+      },
+      "warnings": [],
+      "observed": 5,
+      "inferred": 2
+    },
+    "complete_feedback": "Workflow complete. This records that you finished the learning workflow in this browser. It is not a security verdict.",
+    "seconds": 1.8,
+    "console_errors": []
+  },
+  "live": {
+    "auto_loaded_attack_status": "ATTACK run ready (LIVE). 7 events recorded.",
+    "launch_disabled_before_clear": true,
+    "launch_enabled_after_clear": true,
+    "attack_launch_utc": "2026-10-09T22:17:25Z",
+    "attack_seconds": 0.3,
+    "attack_status": "ATTACK run ready (LIVE). 7 events recorded.",
+    "attack_card": "LIVE run.id 82423ce2-fae2-4adf-a9eb-39dd10f6c97f Copy run.id",
+    "attack_run_id": "82423ce2-fae2-4adf-a9eb-39dd10f6c97f",
+    "attack_splunk_href": "http://127.0.0.1:8000/en-US/app/search/search?q=search%20index%3Dagentsec_telemetry%20sourcetype%3Dotel%3Aagentic%3Ajson%20earliest%3D1791583945%20latest%3D1791584545%20%22agentsec.run.id%22%3D%2282423ce2-fae2-4adf-a9eb-39dd10f6c97f%22",
+    "attack_notebook": {
+      "q1": {
+        "question": "Question 1. What did CTRL-MCP-001 decide for this request?",
+        "record_shows": "ALLOW"
+      },
+      "q2": {
+        "question": "Question 2. Did the tool handler start?",
+        "record_shows": "Yes"
+      },
+      "q3": {
+        "question": "Question 3. Which event is the evidence for your answer to question 2?",
+        "record_shows": "agentsec.mcp.started"
+      },
+      "q4": {
+        "question": "Question 4. Was the requested scope within the granted scope?",
+        "record_shows": "No"
+      },
+      "q5": {
+        "question": "Question 5. How many LLM call events does this run's record contain?",
+        "record_shows": "0"
+      }
+    },
+    "attack_provenance": "LIVE LIVE \u2014 the runtime event record written by the AcmeBank runtime for a run this Attack Service launched. This view reads that local record; it does not prove Splunk has indexed it. Confirm in Splunk.",
+    "retest_launch_utc": "2026-10-09T22:17:26Z",
+    "retest_seconds": 0.3,
+    "retest_status": "RETEST run ready (LIVE). 6 events recorded.",
+    "retest_card": "LIVE run.id 2c4e5738-d845-46f8-98d3-3193956c9876 Copy run.id",
+    "retest_run_id": "2c4e5738-d845-46f8-98d3-3193956c9876",
+    "compare": {
+      "caption": "ATTACK 82423ce2-fae2-4adf-a9eb-39dd10f6c97f (LIVE) compared with RETEST 2c4e5738-d845-46f8-98d3-3193956c9876 (LIVE)",
+      "rows": {
+        "Recorded mode": [
+          "ATTACK",
+          "RETEST",
+          "DIFFERENT"
+        ],
+        "Security profile": [
+          "vulnerable",
+          "defended",
+          "DIFFERENT"
+        ],
+        "Requested tool": [
+          "lookup_customer_tier",
+          "lookup_customer_tier",
+          "SAME"
+        ],
+        "Requested scope": [
+          "customer:read",
+          "customer:read",
+          "SAME"
+        ],
+        "Granted scope": [
+          "policy:read",
+          "policy:read",
+          "SAME"
+        ],
+        "CTRL-MCP-001 decision": [
+          "ALLOW",
+          "DENY",
+          "DIFFERENT"
+        ],
+        "Decision reason": [
+          "vulnerable_profile_fail_open",
+          "tool_not_granted",
+          "DIFFERENT"
+        ],
+        "Tool handler started (mcp.started)": [
+          "OBSERVED",
+          "NOT OBSERVED",
+          "DIFFERENT"
+        ],
+        "Tool handler completed (mcp.completed)": [
+          "OBSERVED",
+          "NOT OBSERVED",
+          "DIFFERENT"
+        ],
+        "Pipeline stopped": [
+          "NOT OBSERVED",
+          "OBSERVED",
+          "DIFFERENT"
+        ],
+        "LLM call events in record": [
+          "0",
+          "0",
+          "SAME"
+        ],
+        "Events in record": [
+          "7",
+          "6",
+          "DIFFERENT"
+        ]
+      },
+      "warnings": [],
+      "observed": 5,
+      "inferred": 2
+    },
+    "console_errors": []
+  },
+  "new_tab_adopts": {
+    "ATTACK": {
+      "run_id": "82423ce2-fae2-4adf-a9eb-39dd10f6c97f",
+      "provenance": "LIVE",
+      "recovered": true
+    },
+    "RETEST": {
+      "run_id": "2c4e5738-d845-46f8-98d3-3193956c9876",
+      "provenance": "LIVE",
+      "recovered": true
+    }
+  },
+  "finished_utc": "2026-10-09T22:17:28Z"
+}

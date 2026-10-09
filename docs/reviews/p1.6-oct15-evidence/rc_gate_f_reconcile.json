@@ -1,0 +1,238 @@
+{
+  "queried_at_utc": "2026-10-09T22:21:41Z",
+  "index": "agentsec_telemetry",
+  "sourcetype": "otel:agentic:json",
+  "runs": [
+    {
+      "run_id": "82423ce2-fae2-4adf-a9eb-39dd10f6c97f",
+      "provenance": "LIVE",
+      "local": {
+        "source": "artifacts/82423ce2-fae2-4adf-a9eb-39dd10f6c97f/events.jsonl",
+        "events": 7,
+        "decision": "ALLOW",
+        "reason_code": "vulnerable_profile_fail_open",
+        "mcp_started": 1,
+        "pipeline_stopped": 0,
+        "llm_events": 0,
+        "schema": [
+          "1.9.0"
+        ],
+        "first": "2026-10-09T22:17:25Z",
+        "last": "2026-10-09T22:17:25Z"
+      },
+      "splunk": {
+        "events": 7,
+        "distinct_raw": 7,
+        "decision_events": 1,
+        "decision_field_raw_values": "3",
+        "decision": "ALLOW",
+        "reason_code": "vulnerable_profile_fail_open",
+        "mcp_started": 1,
+        "pipeline_stopped": 0,
+        "llm_events": 0,
+        "schema": "1.9.0",
+        "first_epoch": "1791584245.514",
+        "last_epoch": "1791584245.526"
+      },
+      "reconciled": true
+    },
+    {
+      "run_id": "2c4e5738-d845-46f8-98d3-3193956c9876",
+      "provenance": "LIVE",
+      "local": {
+        "source": "artifacts/2c4e5738-d845-46f8-98d3-3193956c9876/events.jsonl",
+        "events": 6,
+        "decision": "DENY",
+        "reason_code": "tool_not_granted",
+        "mcp_started": 0,
+        "pipeline_stopped": 1,
+        "llm_events": 0,
+        "schema": [
+          "1.9.0"
+        ],
+        "first": "2026-10-09T22:17:26Z",
+        "last": "2026-10-09T22:17:26Z"
+      },
+      "splunk": {
+        "events": 6,
+        "distinct_raw": 6,
+        "decision_events": 1,
+        "decision_field_raw_values": "3",
+        "decision": "DENY",
+        "reason_code": "tool_not_granted",
+        "mcp_started": 0,
+        "pipeline_stopped": 1,
+        "llm_events": 0,
+        "schema": "1.9.0",
+        "first_epoch": "1791584246.080",
+        "last_epoch": "1791584246.086"
+      },
+      "reconciled": true
+    },
+    {
+      "run_id": "de60a91c-8aa0-411f-8731-2d79d760d427",
+      "provenance": "LIVE",
+      "local": {
+        "source": "artifacts/de60a91c-8aa0-411f-8731-2d79d760d427/events.jsonl",
+        "events": 7,
+        "decision": "ALLOW",
+        "reason_code": "vulnerable_profile_fail_open",
+        "mcp_started": 1,
+        "pipeline_stopped": 0,
+        "llm_events": 0,
+        "schema": [
+          "1.9.0"
+        ],
+        "first": "2026-10-09T21:36:05Z",
+        "last": "2026-10-09T21:36:05Z"
+      },
+      "splunk": {
+        "events": 7,
+        "distinct_raw": 7,
+        "decision_events": 1,
+        "decision_field_raw_values": "3",
+        "decision": "ALLOW",
+        "reason_code": "vulnerable_profile_fail_open",
+        "mcp_started": 1,
+        "pipeline_stopped": 0,
+        "llm_events": 0,
+        "schema": "1.9.0",
+        "first_epoch": "1791581765.592",
+        "last_epoch": "1791581765.612"
+      },
+      "reconciled": true
+    },
+    {
+      "run_id": "b8c432ff-6e2e-4cec-a259-78761b50b969",
+      "provenance": "LIVE",
+      "local": {
+        "source": "artifacts/b8c432ff-6e2e-4cec-a259-78761b50b969/events.jsonl",
+        "events": 6,
+        "decision": "DENY",
+        "reason_code": "tool_not_granted",
+        "mcp_started": 0,
+        "pipeline_stopped": 1,
+        "llm_events": 0,
+        "schema": [
+          "1.9.0"
+        ],
+        "first": "2026-10-09T21:36:05Z",
+        "last": "2026-10-09T21:36:05Z"
+      },
+      "splunk": {
+        "events": 6,
+        "distinct_raw": 6,
+        "decision_events": 1,
+        "decision_field_raw_values": "3",
+        "decision": "DENY",
+        "reason_code": "tool_not_granted",
+        "mcp_started": 0,
+        "pipeline_stopped": 1,
+        "llm_events": 0,
+        "schema": "1.9.0",
+        "first_epoch": "1791581765.808",
+        "last_epoch": "1791581765.813"
+      },
+      "reconciled": true
+    },
+    {
+      "run_id": "163d11e2-e751-4282-9406-19b490542ed4",
+      "provenance": "REPLAY",
+      "local": {
+        "source": "learning/level_1/LAB-MCP-001/specimens/163d11e2-e751-4282-9406-19b490542ed4.jsonl",
+        "events": 7,
+        "decision": "ALLOW",
+        "reason_code": "tool_granted",
+        "mcp_started": 1,
+        "pipeline_stopped": 0,
+        "llm_events": 0,
+        "schema": [
+          "1.1.0"
+        ],
+        "first": "2026-09-12T03:05:09Z",
+        "last": "2026-09-12T03:05:09Z"
+      },
+      "splunk": {
+        "events": 7,
+        "distinct_raw": 7,
+        "decision_events": 1,
+        "decision_field_raw_values": "3",
+        "decision": "ALLOW",
+        "reason_code": "tool_granted",
+        "mcp_started": 1,
+        "pipeline_stopped": 0,
+        "llm_events": 0,
+        "schema": "1.1.0",
+        "first_epoch": "1789182309.312",
+        "last_epoch": "1789182309.320"
+      },
+      "reconciled": true
+    },
+    {
+      "run_id": "5e8f55f3-eb46-47ee-b979-b72d9c9b1f49",
+      "provenance": "REPLAY",
+      "local": {
+        "source": "learning/level_1/LAB-MCP-001/specimens/5e8f55f3-eb46-47ee-b979-b72d9c9b1f49.jsonl",
+        "events": 7,
+        "decision": "ALLOW",
+        "reason_code": "vulnerable_profile_fail_open",
+        "mcp_started": 1,
+        "pipeline_stopped": 0,
+        "llm_events": 0,
+        "schema": [
+          "1.1.0"
+        ],
+        "first": "2026-09-12T03:05:29Z",
+        "last": "2026-09-12T03:05:29Z"
+      },
+      "splunk": {
+        "events": 7,
+        "distinct_raw": 7,
+        "decision_events": 1,
+        "decision_field_raw_values": "3",
+        "decision": "ALLOW",
+        "reason_code": "vulnerable_profile_fail_open",
+        "mcp_started": 1,
+        "pipeline_stopped": 0,
+        "llm_events": 0,
+        "schema": "1.1.0",
+        "first_epoch": "1789182329.482",
+        "last_epoch": "1789182329.488"
+      },
+      "reconciled": true
+    },
+    {
+      "run_id": "7a1d37b5-d589-4dfd-8322-25ebd0152dbc",
+      "provenance": "REPLAY",
+      "local": {
+        "source": "learning/level_1/LAB-MCP-001/specimens/7a1d37b5-d589-4dfd-8322-25ebd0152dbc.jsonl",
+        "events": 6,
+        "decision": "DENY",
+        "reason_code": "tool_not_granted",
+        "mcp_started": 0,
+        "pipeline_stopped": 1,
+        "llm_events": 0,
+        "schema": [
+          "1.1.0"
+        ],
+        "first": "2026-09-12T03:05:34Z",
+        "last": "2026-09-12T03:05:34Z"
+      },
+      "splunk": {
+        "events": 6,
+        "distinct_raw": 6,
+        "decision_events": 1,
+        "decision_field_raw_values": "3",
+        "decision": "DENY",
+        "reason_code": "tool_not_granted",
+        "mcp_started": 0,
+        "pipeline_stopped": 1,
+        "llm_events": 0,
+        "schema": "1.1.0",
+        "first_epoch": "1789182334.136",
+        "last_epoch": "1789182334.141"
+      },
+      "reconciled": true
+    }
+  ]
+}

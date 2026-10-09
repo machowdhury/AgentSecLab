@@ -445,6 +445,12 @@
       : "Your ATTACK was the recording, so the RETEST uses its recorded pair.";
     $('[data-launch="RETEST"]').disabled = busy || attackSource !== "LIVE" || hasRun("RETEST");
     $('[data-use-replay="RETEST"]').disabled = busy || attackSource !== "REPLAY" || hasRun("RETEST");
+    var switchBtn = $("[data-switch-replay]");
+    if (switchBtn) {
+      switchBtn.hidden = !(hasRun("ATTACK") && state.runs.ATTACK.provenance === "LIVE");
+    }
+    var freshBtn = $("[data-fresh-live]");
+    if (freshBtn) freshBtn.hidden = busy || !hasRun("ATTACK");
   }
 
   function runStatus(mode, text) { $('[data-run-status="' + mode + '"]').textContent = text; }
@@ -537,6 +543,58 @@
   }
   $all("[data-launch]").forEach(function (b) { b.addEventListener("click", function () { launch(b.getAttribute("data-launch")); }); });
   $all("[data-use-replay]").forEach(function (b) { b.addEventListener("click", function () { useReplay(b.getAttribute("data-use-replay")); }); });
+  function switchToReplayPair() {
+    if (!REPLAY.ATTACK || !REPLAY.RETEST) return;
+    compareDoc = null;
+    delete docs.ATTACK;
+    delete docs.RETEST;
+    state.runs.ATTACK = {run_id: REPLAY.ATTACK, provenance: "REPLAY"};
+    state.runs.RETEST = {run_id: REPLAY.RETEST, provenance: "REPLAY"};
+    save();
+    if (switchReplay) switchReplay.hidden = true;
+    syncControls();
+    paintStepper();
+    adoptRun("ATTACK", REPLAY.ATTACK, "REPLAY");
+    adoptRun("RETEST", REPLAY.RETEST, "REPLAY");
+    var note = $("[data-replay-switch-note]");
+    if (note) {
+      note.hidden = false;
+      note.textContent = "This tab now shows the committed REPLAY packs. Say REPLAY out loud. The server durable LIVE index is unchanged. This is not a live launch.";
+    }
+  }
+  var switchReplay = $("[data-switch-replay]");
+  if (switchReplay) {
+    switchReplay.addEventListener("click", function () { switchToReplayPair(); });
+  }
+
+  /* Clears this tab only. Server LIVE references and artifacts are untouched, and this
+   * tab stops re-adopting server slots so a new ATTACK is never paired with an older RETEST. */
+  function startFreshLive() {
+    if (busy) return;
+    state.runs = {};
+    state.compareViewed = false;
+    state.skipRehydrate = true;
+    compareDoc = null;
+    delete docs.ATTACK;
+    delete docs.RETEST;
+    save();
+    ["ATTACK", "RETEST"].forEach(function (mode) {
+      var card = $('[data-run-card="' + mode + '"]');
+      card.hidden = true;
+      card.replaceChildren();
+      runStatus(mode, "No " + mode + " run yet.");
+    });
+    var note = $("[data-replay-switch-note]");
+    if (note) {
+      note.hidden = false;
+      note.textContent = "This tab no longer shows a run. Server LIVE evidence is unchanged. Launch LIVE ATTACK to record a new run.id.";
+    }
+    syncControls();
+    paintStepper();
+    $('[data-launch="ATTACK"]').focus();
+  }
+  var freshLive = $("[data-fresh-live]");
+  if (freshLive) freshLive.addEventListener("click", startFreshLive);
 
   /* ---- notebook ---- */
   function bucket(count) { return count === 0 ? "0" : count <= 3 ? "1 to 3" : "4 or more"; }
@@ -714,14 +772,19 @@
   });
 
   function rehydrateFromServer() {
+    if (state.skipRehydrate) return Promise.resolve();
     return fetch("/api/academy/live-runs", {headers: {"Accept": "application/json"}})
       .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)); })
       .then(function (data) {
         var slots = (data && data.slots) || {};
+        var attackSlot = slots.ATTACK;
         ["ATTACK", "RETEST"].forEach(function (mode) {
           var slot = slots[mode];
           if (!slot || slot.status !== "complete" || !slot.run_id) return;
           if (hasRun(mode)) return;
+          /* Slots are the latest of each scenario independently; an older RETEST is not this ATTACK's retest. */
+          if (mode === "RETEST" && !(attackSlot && hasRun("ATTACK") && state.runs.ATTACK.run_id === attackSlot.run_id &&
+              String(slot.recorded_at) >= String(attackSlot.recorded_at))) return;
           state.runs[mode] = {run_id: slot.run_id, provenance: "LIVE", recovered: true};
         });
         save();

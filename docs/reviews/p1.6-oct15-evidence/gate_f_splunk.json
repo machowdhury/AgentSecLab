@@ -1,0 +1,50 @@
+{
+  "queried_at_utc": "2026-10-09T21:36:28.946798+00:00",
+  "index": "agentsec_telemetry",
+  "sourcetype": "otel:agentic:json",
+  "earliest": "0",
+  "runs": [
+    {
+      "label": "fresh_ATTACK",
+      "run_id": "de60a91c-8aa0-411f-8731-2d79d760d427",
+      "spl": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=de60a91c-8aa0-411f-8731-2d79d760d427 | stats count as n",
+      "splunk_count": 7,
+      "local_event_count": 7,
+      "decisions": [
+        {
+          "agentsec.control.decision": "ALLOW",
+          "agentsec.schema.version": "1.9.0",
+          "count": "6"
+        }
+      ]
+    },
+    {
+      "label": "fresh_RETEST",
+      "run_id": "b8c432ff-6e2e-4cec-a259-78761b50b969",
+      "spl": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=b8c432ff-6e2e-4cec-a259-78761b50b969 | stats count as n",
+      "splunk_count": 6,
+      "local_event_count": 6,
+      "decisions": [
+        {
+          "agentsec.control.decision": "DENY",
+          "agentsec.schema.version": "1.9.0",
+          "count": "6"
+        }
+      ]
+    },
+    {
+      "label": "replay_ATTACK",
+      "run_id": "5e8f55f3-eb46-47ee-b979-b72d9c9b1f49",
+      "spl": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=5e8f55f3-eb46-47ee-b979-b72d9c9b1f49 | stats count as n",
+      "splunk_count": 7,
+      "local_event_count": 7,
+      "decisions": [
+        {
+          "agentsec.control.decision": "ALLOW",
+          "agentsec.schema.version": "1.1.0",
+          "count": "6"
+        }
+      ]
+    }
+  ]
+}

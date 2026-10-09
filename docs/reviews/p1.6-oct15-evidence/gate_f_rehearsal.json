@@ -1,0 +1,147 @@
+{
+  "queried_at_utc": "2026-10-09T21:36:05.429503+00:00",
+  "pages": {
+    "/academy": {
+      "http": 200,
+      "bytes": 6578,
+      "has_h1": true,
+      "has_main": true,
+      "has_skip": true
+    },
+    "/academy/foundations": {
+      "http": 200,
+      "bytes": 7645,
+      "has_h1": true,
+      "has_main": true,
+      "has_skip": true
+    },
+    "/academy/path": {
+      "http": 200,
+      "bytes": 14265,
+      "has_h1": true,
+      "has_main": true,
+      "has_skip": true
+    },
+    "/academy/status": {
+      "http": 200,
+      "bytes": 3365,
+      "has_h1": true,
+      "has_main": true,
+      "has_skip": true
+    },
+    "/academy/labs/LAB-MCP-001": {
+      "http": 200,
+      "bytes": 22486,
+      "has_h1": true,
+      "has_main": true,
+      "has_skip": true
+    }
+  },
+  "replay": {
+    "BASELINE": {
+      "run_id": "163d11e2-e751-4282-9406-19b490542ed4",
+      "provenance": "REPLAY",
+      "decision": "ALLOW",
+      "handler": "OBSERVED",
+      "llm": 0,
+      "schema": "1.1.0",
+      "events": 7
+    },
+    "ATTACK": {
+      "run_id": "5e8f55f3-eb46-47ee-b979-b72d9c9b1f49",
+      "provenance": "REPLAY",
+      "decision": "ALLOW",
+      "handler": "OBSERVED",
+      "llm": 0,
+      "schema": "1.1.0",
+      "events": 7
+    },
+    "RETEST": {
+      "run_id": "7a1d37b5-d589-4dfd-8322-25ebd0152dbc",
+      "provenance": "REPLAY",
+      "decision": "DENY",
+      "handler": "NOT OBSERVED",
+      "llm": 0,
+      "schema": "1.1.0",
+      "events": 6
+    }
+  },
+  "replay_compare_decision": [
+    {
+      "attack": "ALLOW",
+      "label": "CTRL-MCP-001 decision",
+      "relation": "DIFFERENT",
+      "retest": "DENY"
+    },
+    {
+      "attack": "vulnerable_profile_fail_open",
+      "label": "Decision reason",
+      "relation": "DIFFERENT",
+      "retest": "tool_not_granted"
+    },
+    {
+      "attack": "OBSERVED",
+      "label": "Tool handler started (mcp.started)",
+      "relation": "DIFFERENT",
+      "retest": "NOT OBSERVED"
+    }
+  ],
+  "live": {
+    "ATTACK": {
+      "run_id": "de60a91c-8aa0-411f-8731-2d79d760d427",
+      "provenance": "LIVE",
+      "decision": "ALLOW",
+      "handler": "OBSERVED",
+      "llm": 0,
+      "schema": "1.9.0",
+      "events": 7,
+      "launch_hec_ok": false,
+      "launch_otlp_ok": true
+    },
+    "RETEST": {
+      "run_id": "b8c432ff-6e2e-4cec-a259-78761b50b969",
+      "provenance": "LIVE",
+      "decision": "DENY",
+      "handler": "NOT OBSERVED",
+      "llm": 0,
+      "schema": "1.9.0",
+      "events": 6,
+      "launch_hec_ok": false,
+      "launch_otlp_ok": true
+    }
+  },
+  "status_states": [
+    [
+      "Attack Service",
+      "AVAILABLE"
+    ],
+    [
+      "AcmeBank runtime",
+      "AVAILABLE"
+    ],
+    [
+      "Optional model (Ollama)",
+      "DEGRADED"
+    ],
+    [
+      "REPLAY evidence packs (LAB-MCP-001)",
+      "AVAILABLE"
+    ],
+    [
+      "LIVE runtime event records",
+      "AVAILABLE"
+    ],
+    [
+      "Splunk Web (reachability)",
+      "AVAILABLE"
+    ],
+    [
+      "Splunk indexing",
+      "NOT CHECKED"
+    ]
+  ],
+  "live_run_slots": {
+    "ATTACK": "de60a91c-8aa0-411f-8731-2d79d760d427",
+    "RETEST": "b8c432ff-6e2e-4cec-a259-78761b50b969"
+  }
+}

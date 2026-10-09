@@ -1,0 +1,85 @@
+{
+  "queried_at_utc": "2026-10-09T22:29:22Z",
+  "base": "http://127.0.0.1:5001",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa"
+  ],
+  "pages": {
+    "/academy": {
+      "violations": [],
+      "incomplete": [],
+      "passes": 19
+    },
+    "/academy/foundations": {
+      "violations": [],
+      "incomplete": [],
+      "passes": 21
+    },
+    "/academy/path": {
+      "violations": [],
+      "incomplete": [],
+      "passes": 26
+    },
+    "/academy/status": {
+      "violations": [],
+      "incomplete": [],
+      "passes": 28
+    },
+    "/academy/labs/LAB-MCP-001": {
+      "violations": [],
+      "incomplete": [],
+      "passes": 26
+    }
+  },
+  "workshop_steps": {
+    "start": {
+      "violations": [],
+      "incomplete": [],
+      "passes": 26
+    },
+    "baseline": {
+      "violations": [],
+      "incomplete": [],
+      "passes": 32
+    },
+    "predict": {
+      "violations": [],
+      "incomplete": [],
+      "passes": 28
+    },
+    "attack": {
+      "violations": [],
+      "incomplete": [],
+      "passes": 28
+    },
+    "investigate": {
+      "violations": [],
+      "incomplete": [],
+      "passes": 34
+    },
+    "defend": {
+      "violations": [],
+      "incomplete": [],
+      "passes": 30
+    },
+    "retest": {
+      "violations": [],
+      "incomplete": [],
+      "passes": 28
+    },
+    "compare": {
+      "violations": [],
+      "incomplete": [],
+      "passes": 30
+    },
+    "explain": {
+      "violations": [],
+      "incomplete": [],
+      "passes": 28
+    }
+  }
+}
