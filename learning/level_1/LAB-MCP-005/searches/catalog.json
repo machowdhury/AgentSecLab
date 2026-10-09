@@ -35,7 +35,8 @@
     "agentsec.mcp.allowed_tools",
     "gen_ai.tool.call.id",
     "result.authorized",
-    "trusted_result"
+    "trusted_result",
+    "agent.super_secret_field"
   ],
   "queries": [
     {

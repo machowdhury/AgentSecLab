@@ -1,0 +1,37 @@
+{
+  "phase": "6D",
+  "recorded_at_utc": "2026-10-09T13:25:08.993541+00:00",
+  "repository": "machowdhury/AgentSecLab",
+  "branch": "develop",
+  "starting_sha": "d0fb5a0cec3c3f1cafe3a677e0d237a3342aa641",
+  "origin_develop_sha": "d0fb5a0cec3c3f1cafe3a677e0d237a3342aa641",
+  "divergence": "0/0",
+  "workspace_path": "/Users/mahamudc/Documents/workspace/AgentSecLab",
+  "preserved_untracked_or_modified_not_in_scope": [
+    ".tmp-path-pre/",
+    "docker/Dockerfile.attack",
+    "src/agentsec/academy_evidence.py",
+    "src/agentsec/academy_web.py",
+    "src/agentsec/attack_app.py",
+    "src/agentsec/static/academy.css",
+    "src/agentsec/static/academy.js",
+    "src/agentsec/templates/academy/",
+    "src/agentsec/templates/attack.html",
+    "src/agentsec/templates/attack_mcp.html",
+    "tests/integration/test_p1_4_academy_browser.py",
+    "tests/security/test_p1_4_academy_security.py",
+    "tests/unit/test_p1_4_academy_evidence.py",
+    "tests/unit/test_p1_4_academy_pages.py"
+  ],
+  "rejected_query_immutable": {
+    "spl": "index=agentsec agent.super_secret_field=admin | stats count by agent.super_secret_field",
+    "reasons": [
+      "agent.super_secret_field was not validated",
+      "index=agentsec was not validated",
+      "No live search was executed",
+      "No performance result was measured",
+      "No detection outcome was established"
+    ]
+  },
+  "notes": "Baseline recorded before any Splunk start or file publication. P1.4 untracked files preserved."
+}
