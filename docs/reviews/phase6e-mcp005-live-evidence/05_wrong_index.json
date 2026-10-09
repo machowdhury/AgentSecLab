@@ -1,0 +1,12 @@
+{
+  "name": "05_wrong_index",
+  "query": "index=agentsec earliest=0 latest=now | stats count",
+  "utc": "2026-10-09T14:36:45.387338+00:00",
+  "status": "ok",
+  "n": 1,
+  "rows": [
+    {
+      "count": "0"
+    }
+  ]
+}

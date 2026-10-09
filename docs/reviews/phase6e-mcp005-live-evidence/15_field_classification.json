@@ -1,0 +1,542 @@
+{
+  "utc": "2026-10-09T14:46:41.518988+00:00",
+  "required_hunt_fields_observed": {
+    "event.name": true,
+    "agentsec.run.id": true,
+    "gen_ai.tool.name": true,
+    "agentsec.control.id": true,
+    "agentsec.control.decision": true,
+    "agentsec.control.reason": true,
+    "agentsec.mcp.requested_scope": true,
+    "agentsec.mcp.allowed_scope": true,
+    "agentsec.hop.index": true,
+    "agentsec.security.profile": true,
+    "agentsec.testbed.mode": true,
+    "agentsec.content.preview": true
+  },
+  "indexed_field_count": 84,
+  "fields": [
+    {
+      "field": "agentsec.attack.id",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "agentsec.content.hash",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "13",
+      "distinct_count": "6"
+    },
+    {
+      "field": "agentsec.content.influence.kind",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "13",
+      "distinct_count": "1"
+    },
+    {
+      "field": "agentsec.content.origin.id",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "13",
+      "distinct_count": "2"
+    },
+    {
+      "field": "agentsec.content.origin.type",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "13",
+      "distinct_count": "2"
+    },
+    {
+      "field": "agentsec.content.preview",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "13",
+      "distinct_count": "6"
+    },
+    {
+      "field": "agentsec.control.decision",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "9",
+      "distinct_count": "3"
+    },
+    {
+      "field": "agentsec.control.id",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "9",
+      "distinct_count": "2"
+    },
+    {
+      "field": "agentsec.control.reason",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "9",
+      "distinct_count": "4"
+    },
+    {
+      "field": "agentsec.control.type",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "9",
+      "distinct_count": "2"
+    },
+    {
+      "field": "agentsec.delegator.agent.id",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "9",
+      "distinct_count": "1"
+    },
+    {
+      "field": "agentsec.duration_ms",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "13",
+      "distinct_count": "8"
+    },
+    {
+      "field": "agentsec.error.message",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "2",
+      "distinct_count": "2"
+    },
+    {
+      "field": "agentsec.error.stage",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "2",
+      "distinct_count": "1"
+    },
+    {
+      "field": "agentsec.execution.mode",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "agentsec.hop.index",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "33",
+      "distinct_count": "2"
+    },
+    {
+      "field": "agentsec.incident.id",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "4"
+    },
+    {
+      "field": "agentsec.invariant.id{}",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "9",
+      "distinct_count": "5"
+    },
+    {
+      "field": "agentsec.lab.id",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "agentsec.mcp.allowed_resource.ids",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "7",
+      "distinct_count": "1"
+    },
+    {
+      "field": "agentsec.mcp.allowed_scope",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "6",
+      "distinct_count": "1"
+    },
+    {
+      "field": "agentsec.mcp.requested_scope",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "6",
+      "distinct_count": "2"
+    },
+    {
+      "field": "agentsec.mcp.resource.id",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "7",
+      "distinct_count": "1"
+    },
+    {
+      "field": "agentsec.mcp.result.provenance",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "4",
+      "distinct_count": "1"
+    },
+    {
+      "field": "agentsec.mcp.result.trust",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "4",
+      "distinct_count": "1"
+    },
+    {
+      "field": "agentsec.operation.attempted",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "19",
+      "distinct_count": "2"
+    },
+    {
+      "field": "agentsec.operation.executed",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "19",
+      "distinct_count": "2"
+    },
+    {
+      "field": "agentsec.operation.outcome",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "6",
+      "distinct_count": "3"
+    },
+    {
+      "field": "agentsec.operation.type",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "5"
+    },
+    {
+      "field": "agentsec.outcome",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "9",
+      "distinct_count": "5"
+    },
+    {
+      "field": "agentsec.principal.id",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "agentsec.principal.type",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "agentsec.run.id",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "4"
+    },
+    {
+      "field": "agentsec.schema.name",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "agentsec.schema.version",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "agentsec.security.profile",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "2"
+    },
+    {
+      "field": "agentsec.sequence",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "13"
+    },
+    {
+      "field": "agentsec.span.kind",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "4"
+    },
+    {
+      "field": "agentsec.stop.reason",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "2",
+      "distinct_count": "2"
+    },
+    {
+      "field": "agentsec.telemetry.fidelity",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "agentsec.testbed.mode",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "3"
+    },
+    {
+      "field": "agentsec.trust_boundary",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "23",
+      "distinct_count": "4"
+    },
+    {
+      "field": "agentsec.workflow.entry",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "deployment.environment",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "error.type",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "2",
+      "distinct_count": "1"
+    },
+    {
+      "field": "event.name",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "10"
+    },
+    {
+      "field": "eventtype",
+      "class": "UNVERIFIED",
+      "count": "0",
+      "distinct_count": "0"
+    },
+    {
+      "field": "extracted_sourcetype",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "gen_ai.agent.id",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "33",
+      "distinct_count": "1"
+    },
+    {
+      "field": "gen_ai.agent.name",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "31",
+      "distinct_count": "1"
+    },
+    {
+      "field": "gen_ai.operation.name",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "10",
+      "distinct_count": "1"
+    },
+    {
+      "field": "gen_ai.provider.name",
+      "class": "UNVERIFIED",
+      "count": "0",
+      "distinct_count": "0"
+    },
+    {
+      "field": "gen_ai.request.model",
+      "class": "UNVERIFIED",
+      "count": "0",
+      "distinct_count": "0"
+    },
+    {
+      "field": "gen_ai.response.model",
+      "class": "UNVERIFIED",
+      "count": "0",
+      "distinct_count": "0"
+    },
+    {
+      "field": "gen_ai.tool.name",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "19",
+      "distinct_count": "2"
+    },
+    {
+      "field": "gen_ai.usage.input_tokens",
+      "class": "UNVERIFIED",
+      "count": "0",
+      "distinct_count": "0"
+    },
+    {
+      "field": "gen_ai.usage.output_tokens",
+      "class": "UNVERIFIED",
+      "count": "0",
+      "distinct_count": "0"
+    },
+    {
+      "field": "gen_ai.workflow.name",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "host",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "index",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "linecount",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "mcp.method.name",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "16",
+      "distinct_count": "1"
+    },
+    {
+      "field": "meta.sourcetype",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "otel.log.severity.number",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "2"
+    },
+    {
+      "field": "otel.log.severity.text",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "2"
+    },
+    {
+      "field": "parent_span_id",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "33",
+      "distinct_count": "10"
+    },
+    {
+      "field": "punct",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "service.instance.id",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "4"
+    },
+    {
+      "field": "service.name",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "service.namespace",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "service.version",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "source",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "sourcetype",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "span_id",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "26"
+    },
+    {
+      "field": "splunk_server",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "splunk_server_group",
+      "class": "UNVERIFIED",
+      "count": "0",
+      "distinct_count": "0"
+    },
+    {
+      "field": "tag",
+      "class": "UNVERIFIED",
+      "count": "0",
+      "distinct_count": "0"
+    },
+    {
+      "field": "tag::eventtype",
+      "class": "UNVERIFIED",
+      "count": "0",
+      "distinct_count": "0"
+    },
+    {
+      "field": "telemetry.sdk.language",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "telemetry.sdk.name",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "telemetry.sdk.version",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "timestamp",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "trace_id",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "4"
+    },
+    {
+      "field": "user.id",
+      "class": "OBSERVED_IN_SPLUNK",
+      "count": "41",
+      "distinct_count": "1"
+    },
+    {
+      "field": "agentsec.mcp.allowed_tools",
+      "class": "NOT_AVAILABLE",
+      "count": "0",
+      "distinct_count": "0"
+    },
+    {
+      "field": "gen_ai.tool.call.id",
+      "class": "NOT_AVAILABLE",
+      "count": "0",
+      "distinct_count": "0"
+    },
+    {
+      "field": "agent.super_secret_field",
+      "class": "NOT_AVAILABLE",
+      "count": "0",
+      "distinct_count": "0"
+    }
+  ]
+}
