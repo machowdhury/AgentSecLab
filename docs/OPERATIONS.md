@@ -59,7 +59,7 @@ docker ps --filter name=agentsec_
 curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:5001/health
 curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:5000/health
 curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8000/en-US/account/login
-curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8088/services/collector/health/1.0
+curl -sk -o /dev/null -w "%{http_code}\n" https://127.0.0.1:8088/services/collector/health/1.0
 ```
 
 Schema on events: field `agentsec.schema.version` = `1.9.0`. Product version ≠ schema.

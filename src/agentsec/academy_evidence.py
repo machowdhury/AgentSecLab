@@ -167,8 +167,9 @@ def load_run(
     """Load one run the notebook is allowed to show.
 
     REPLAY: only the committed LAB-MCP-001 specimens. LIVE: only run.ids this
-    Attack Service launched for LAB-MCP-001 (``live_run_ids``). Any other id is
-    refused, so the endpoint cannot be used to browse the artifacts tree.
+    Attack Service launched for LAB-MCP-001, including IDs recovered from the
+    durable Academy LIVE index (``live_run_ids``). Any other id is refused, so
+    the endpoint cannot be used to browse the artifacts tree.
     """
     if not is_run_id(run_id):
         raise EvidenceError("malformed_run_id", 400, "A run.id is a lowercase UUID.")
@@ -190,7 +191,7 @@ def load_run(
         raise EvidenceError(
             "unknown_run",
             404,
-            "This Attack Service did not launch that run.id for LAB-MCP-001 since it last started. "
+            "This Attack Service has no durable LAB-MCP-001 LIVE reference for that run.id. "
             "Splunk may still hold its evidence; use the Splunk link.",
         )
     path = artifacts_dir / run_id / "events.jsonl"

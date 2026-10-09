@@ -1,0 +1,42 @@
+{
+  "queried_at_utc": "2026-10-09T18:15:13.260578+00:00",
+  "index": "agentsec_telemetry",
+  "sourcetype": "otel:agentic:json",
+  "earliest": "0",
+  "runs": [
+    {
+      "run_id": "4eab6700-f6c8-4979-b1e3-eb545a04ca5c",
+      "local_event_count": 7,
+      "splunk_count": 0,
+      "splunk_unique_raw": 0,
+      "spl_stats": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=4eab6700-f6c8-4979-b1e3-eb545a04ca5c | stats count as n dc(_raw) as unique_raw",
+      "spl_table": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=4eab6700-f6c8-4979-b1e3-eb545a04ca5c | table _time timestamp \"event.name\" \"agentsec.sequence\" \"agentsec.control.decision\" \"agentsec.schema.version\" | sort 0 agentsec.sequence",
+      "spl_names": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=4eab6700-f6c8-4979-b1e3-eb545a04ca5c | stats count by \"event.name\"",
+      "stats_rows": [
+        {
+          "n": "0",
+          "unique_raw": "0"
+        }
+      ],
+      "event_rows": [],
+      "name_rows": []
+    },
+    {
+      "run_id": "2343f9e1-a48e-45ed-886d-262ab321ad8f",
+      "local_event_count": 6,
+      "splunk_count": 0,
+      "splunk_unique_raw": 0,
+      "spl_stats": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=2343f9e1-a48e-45ed-886d-262ab321ad8f | stats count as n dc(_raw) as unique_raw",
+      "spl_table": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=2343f9e1-a48e-45ed-886d-262ab321ad8f | table _time timestamp \"event.name\" \"agentsec.sequence\" \"agentsec.control.decision\" \"agentsec.schema.version\" | sort 0 agentsec.sequence",
+      "spl_names": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=2343f9e1-a48e-45ed-886d-262ab321ad8f | stats count by \"event.name\"",
+      "stats_rows": [
+        {
+          "n": "0",
+          "unique_raw": "0"
+        }
+      ],
+      "event_rows": [],
+      "name_rows": []
+    }
+  ]
+}

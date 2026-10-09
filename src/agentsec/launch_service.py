@@ -20,7 +20,8 @@ from agentsec.evidence_readiness import (
     rollup_evidence,
     wait_for_searchable_evidence,
 )
-from agentsec.experiment_context import ExperimentContext, lookup_experiment, ROUTE_CAPSTONE, ROUTE_GOAL, ROUTE_IDENTITY, ROUTE_MCP, ROUTE_MEMORY, ROUTE_RAG
+from agentsec.academy_live_index import persist_live_run
+from agentsec.experiment_context import ExperimentContext, lookup_experiment, LAB_MCP, ROUTE_CAPSTONE, ROUTE_GOAL, ROUTE_IDENTITY, ROUTE_MCP, ROUTE_MEMORY, ROUTE_RAG
 from agentsec.lab_manifest import load_lab_manifest, prediction_for
 from agentsec.launch_catalog import (
     RETEST_SUPPORT,
@@ -317,6 +318,14 @@ class LaunchService:
         record.body = body
         with self._lock:
             self._records[run_id] = record
+        if row.lab_id == LAB_MCP:
+            persist_live_run(
+                self.artifacts_dir,
+                run_id=run_id,
+                scenario=row.mode,
+                profile=row.profile,
+                specimen_id=row.specimen_id,
+            )
         logger.info(
             "launch finished lab_id=%s specimen_id=%s run_id=%s evidence_state=%s",
             row.lab_id,

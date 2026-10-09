@@ -198,3 +198,7 @@ def test_status_reports_a_degraded_runtime_as_available(tmp_path):
     checks = {c["name"]: c for c in application.test_client().get("/api/academy/status").get_json()["checks"]}
     assert checks["AcmeBank runtime"]["state"] == "AVAILABLE"
     assert "degraded" in checks["AcmeBank runtime"]["detail"]
+    optional = checks["Optional model (Ollama)"]
+    assert optional["state"] == "DEGRADED"
+    assert optional["optional"] is True
+    assert "FAILED" not in optional["detail"] or "not FAILED" in optional["detail"]

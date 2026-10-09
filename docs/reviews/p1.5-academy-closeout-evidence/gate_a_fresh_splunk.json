@@ -1,0 +1,154 @@
+{
+  "queried_at_utc": "2026-10-09T18:26:51.430200+00:00",
+  "index": "agentsec_telemetry",
+  "sourcetype": "otel:agentic:json",
+  "earliest": "0",
+  "runs": [
+    {
+      "label": "fresh_ATTACK",
+      "run_id": "373bcc54-75bc-4923-bc0d-f6d14d35b1bb",
+      "spl": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=373bcc54-75bc-4923-bc0d-f6d14d35b1bb | stats count as n",
+      "splunk_count": 7,
+      "local_event_count": 7,
+      "names": [
+        {
+          "event.name": "agentsec.control.decision",
+          "count": "3"
+        },
+        {
+          "event.name": "agentsec.hop.completed",
+          "count": "3"
+        },
+        {
+          "event.name": "agentsec.hop.started",
+          "count": "3"
+        },
+        {
+          "event.name": "agentsec.mcp.completed",
+          "count": "3"
+        },
+        {
+          "event.name": "agentsec.mcp.started",
+          "count": "3"
+        },
+        {
+          "event.name": "agentsec.run.completed",
+          "count": "3"
+        },
+        {
+          "event.name": "agentsec.run.started",
+          "count": "3"
+        }
+      ],
+      "decisions": [
+        {
+          "agentsec.control.decision": "ALLOW",
+          "agentsec.schema.version": "1.9.0",
+          "count": "6"
+        }
+      ]
+    },
+    {
+      "label": "fresh_RETEST",
+      "run_id": "9cb93b54-b8d1-4194-8bef-d34c21d9dab0",
+      "spl": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=9cb93b54-b8d1-4194-8bef-d34c21d9dab0 | stats count as n",
+      "splunk_count": 6,
+      "local_event_count": 6,
+      "names": [
+        {
+          "event.name": "agentsec.control.decision",
+          "count": "3"
+        },
+        {
+          "event.name": "agentsec.hop.completed",
+          "count": "3"
+        },
+        {
+          "event.name": "agentsec.hop.started",
+          "count": "3"
+        },
+        {
+          "event.name": "agentsec.pipeline.stopped",
+          "count": "3"
+        },
+        {
+          "event.name": "agentsec.run.completed",
+          "count": "3"
+        },
+        {
+          "event.name": "agentsec.run.started",
+          "count": "3"
+        }
+      ],
+      "decisions": [
+        {
+          "agentsec.control.decision": "DENY",
+          "agentsec.schema.version": "1.9.0",
+          "count": "6"
+        }
+      ]
+    },
+    {
+      "label": "historical_ATTACK",
+      "run_id": "4eab6700-f6c8-4979-b1e3-eb545a04ca5c",
+      "spl": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=4eab6700-f6c8-4979-b1e3-eb545a04ca5c | stats count as n",
+      "splunk_count": 0,
+      "local_event_count": 7,
+      "names": [],
+      "decisions": []
+    },
+    {
+      "label": "historical_RETEST",
+      "run_id": "2343f9e1-a48e-45ed-886d-262ab321ad8f",
+      "spl": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=2343f9e1-a48e-45ed-886d-262ab321ad8f | stats count as n",
+      "splunk_count": 0,
+      "local_event_count": 6,
+      "names": [],
+      "decisions": []
+    },
+    {
+      "label": "replay_ATTACK_control",
+      "run_id": "5e8f55f3-eb46-47ee-b979-b72d9c9b1f49",
+      "spl": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=5e8f55f3-eb46-47ee-b979-b72d9c9b1f49 | stats count as n",
+      "splunk_count": 7,
+      "local_event_count": 7,
+      "names": [
+        {
+          "event.name": "agentsec.control.decision",
+          "count": "3"
+        },
+        {
+          "event.name": "agentsec.hop.completed",
+          "count": "3"
+        },
+        {
+          "event.name": "agentsec.hop.started",
+          "count": "3"
+        },
+        {
+          "event.name": "agentsec.mcp.completed",
+          "count": "3"
+        },
+        {
+          "event.name": "agentsec.mcp.started",
+          "count": "3"
+        },
+        {
+          "event.name": "agentsec.run.completed",
+          "count": "3"
+        },
+        {
+          "event.name": "agentsec.run.started",
+          "count": "3"
+        }
+      ],
+      "decisions": [
+        {
+          "agentsec.control.decision": "ALLOW",
+          "agentsec.schema.version": "1.1.0",
+          "count": "6"
+        }
+      ]
+    }
+  ]
+}
