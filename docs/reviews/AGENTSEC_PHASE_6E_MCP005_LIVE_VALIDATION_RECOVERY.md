@@ -239,6 +239,6 @@ Supported **for indexed 1.3.0 MCP-005** by live fields. Not a new detector. DET-
 
 ## 26. Final Git state
 
-Recorded after commit/push in the SHA table below (filled at closeout).
+Starting HEAD 547cc90ed504ffb473d74e55832c376312b13c3a. Implementation and report 4e19347f0e421405bf0e48bff1154517f240645d.
 
 Evidence: `docs/reviews/phase6e-mcp005-live-evidence/` (SHA256SUMS.json hash `a25a99ccd0b4ba2d8285ef23b0f2dd33758750eb3a370a8485f99d4adac62dd6`).
