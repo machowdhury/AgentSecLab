@@ -1,0 +1,52 @@
+{% extends "academy/base.html" %}
+{% block title %}AI &amp; Agent Foundations{% endblock %}
+{% block crumbs %}<li><a href="/academy/foundations" aria-current="page">AI &amp; Agent Foundations</a></li>{% endblock %}
+{% block main %}
+<header class="page-header">
+  <p class="eyebrow">Beginner route · No prerequisites</p>
+  <h1>Understand AI before you secure it.</h1>
+  <p class="lead">Four short lessons build the mental model you need for the MCP workshop. Read them in order. Each ends with the security idea you will test with real evidence.</p>
+</header>
+
+<nav class="toc" aria-labelledby="toc-title">
+  <h2 id="toc-title" class="toc-title">Lessons</h2>
+  <ol>
+    {% for lesson in lessons %}<li><a href="#lesson-{{ lesson.id }}">{{ lesson.title }}</a></li>{% endfor %}
+  </ol>
+</nav>
+
+{% for lesson in lessons %}
+<section class="lesson" id="lesson-{{ lesson.id }}" aria-labelledby="lesson-{{ lesson.id }}-title">
+  <p class="eyebrow">Lesson {{ loop.index }} of {{ lessons|length }}</p>
+  <h2 id="lesson-{{ lesson.id }}-title">{{ lesson.title }}</h2>
+  <p class="question"><strong>Start with a question:</strong> {{ lesson.question }}</p>
+  <h3>In plain language</h3>
+  <p>{{ lesson.concept }}</p>
+  <h3>How it flows</h3>
+  <ol class="flow" aria-label="{{ lesson.title }} flow">
+    {% for step in lesson.flow %}<li>{{ step }}</li>{% endfor %}
+  </ol>
+  <div class="callout callout--security">
+    <h3>Security connection</h3>
+    <p>{{ lesson.risk }}</p>
+  </div>
+</section>
+{% endfor %}
+
+<section class="section" aria-labelledby="vocab-title">
+  <h2 id="vocab-title">Words you will meet</h2>
+  <dl class="glossary">
+    <div><dt>Agent</dt><dd>A system that uses a model to choose and request actions.</dd></div>
+    <div><dt>Tool</dt><dd>A capability an agent can request, such as looking up a record.</dd></div>
+    <div><dt>Control</dt><dd>A mechanism that decides whether a requested action may proceed. In this lab: CTRL-MCP-001.</dd></div>
+    <div><dt>Telemetry</dt><dd>Events a system records while it works.</dd></div>
+    <div><dt>run.id</dt><dd>The identifier that ties every event of one experiment together.</dd></div>
+    <div><dt>LIVE / REPLAY</dt><dd>LIVE is a run launched now. REPLAY is a recording of a real past run.</dd></div>
+  </dl>
+</section>
+
+<div class="next-step">
+  <p>Ready? The workshop starts with the lab and its boundaries, then asks for your prediction.</p>
+  <a class="button button--primary" href="/academy/labs/LAB-MCP-001">Start your first guided lab</a>
+</div>
+{% endblock %}
