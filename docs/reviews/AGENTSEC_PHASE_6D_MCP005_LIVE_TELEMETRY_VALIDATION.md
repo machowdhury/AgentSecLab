@@ -18,8 +18,8 @@ This phase resolves conversation Phase 6C (invented SPL rejection). It is **not*
 | Starting SHA (6D begin, matched `origin/develop`) | `d0fb5a0cec3c3f1cafe3a677e0d237a3342aa641` |
 | Concurrent P1.4 commit preserved as parent (not modified by 6D) | `f4f480793e8ef89f4c5bd398d2f85469284bbf37` |
 | Implementation SHA | `591eb282c86c70dea06d3e3cca0c3932116b40b2` |
-| Report SHA | *(this commit; recorded after push)* |
-| Final remote SHA | *(recorded after report push)* |
+| Report SHA | `3359b511590d9d3dbe0695a64a398dcde52e0181` |
+| Final remote SHA | `3359b511590d9d3dbe0695a64a398dcde52e0181` |
 
 Starting-condition check: `develop` tracked `origin/develop` at `d0fb5a0` with divergence `0/0`. During the session a concurrent authorized P1.4 commit landed locally, then 6D implementation was stacked on top and pushed. P1.4 files were not edited by this phase after that commit.
 
