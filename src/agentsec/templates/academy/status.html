@@ -15,7 +15,7 @@
   <h2 id="limits-title">Known limitations</h2>
   <ul>
     <li>The Splunk Dashboard Studio workshop for LAB-MCP-001 is not fully mouse-operable at 400% browser zoom (P1.3). The Academy notebook is the accessible primary path; Studio is an advanced option.</li>
-    <li>LIVE evidence in the notebook is read from the runtime's local event record for runs launched by this service since it last started. After a restart, use Splunk for older LIVE runs.</li>
+    <li>LIVE evidence in the notebook is read from the runtime event record. Run.id references are stored in a durable Academy index under the artifacts directory so they can be rehydrated after Attack Service restart. Browser storage is convenience only.</li>
     <li>This service has no production authentication and is not multi-tenant.</li>
   </ul>
 </section>

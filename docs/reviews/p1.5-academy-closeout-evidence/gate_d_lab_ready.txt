@@ -1,0 +1,4 @@
+lab-ready.sh exit 0 against the already-running AgentSecLab stack (2026-10-09).
+splunk_hec_init remained exited 1; HEC HTTPS health 200 on 127.0.0.1:8088 and https://agentsec_splunk:8088 from a mesh client.
+MODEL ABSENT llama3.2:1b → LIVE generation DEGRADED, not FAILED. Academy MCP tool-path does not require the model.
+Clean compose down/up from empty was not executed. Splunk volumes and certificates were not recreated.

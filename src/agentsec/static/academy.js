@@ -126,6 +126,7 @@
   function stateClass(state) {
     if (state === "AVAILABLE") return "badge--ok";
     if (state === "NOT CHECKED") return "badge--muted";
+    if (state === "DEGRADED") return "badge--warn";
     return "badge--warn";
   }
   var detail = $("[data-status-detail]");
@@ -712,15 +713,33 @@
     feedback.textContent = "Workflow complete. This records that you finished the learning workflow in this browser. It is not a security verdict.";
   });
 
+  function rehydrateFromServer() {
+    return fetch("/api/academy/live-runs", {headers: {"Accept": "application/json"}})
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)); })
+      .then(function (data) {
+        var slots = (data && data.slots) || {};
+        ["ATTACK", "RETEST"].forEach(function (mode) {
+          var slot = slots[mode];
+          if (!slot || slot.status !== "complete" || !slot.run_id) return;
+          if (hasRun(mode)) return;
+          state.runs[mode] = {run_id: slot.run_id, provenance: "LIVE", recovered: true};
+        });
+        save();
+      })
+      .catch(function () { /* durable index unavailable: session state remains the only hint */ });
+  }
+
   /* ---- start up ---- */
   paintPrediction();
-  if (state.baselineLoaded) loadBaseline();
-  ["ATTACK", "RETEST"].forEach(function (mode) {
-    if (hasRun(mode)) {
-      runStatus(mode, mode + " run recorded in this tab (" + state.runs[mode].provenance + ").");
-      adoptRun(mode, state.runs[mode].run_id, state.runs[mode].provenance);
-    }
+  rehydrateFromServer().then(function () {
+    if (state.baselineLoaded) loadBaseline();
+    ["ATTACK", "RETEST"].forEach(function (mode) {
+      if (hasRun(mode)) {
+        runStatus(mode, mode + " run recorded in this tab (" + state.runs[mode].provenance + ").");
+        adoptRun(mode, state.runs[mode].run_id, state.runs[mode].provenance);
+      }
+    });
+    var initial = window.location.hash.slice(1) || state.step || "start";
+    show(ORDER.indexOf(initial) === -1 ? "start" : initial, {focus: Boolean(window.location.hash)});
   });
-  var initial = window.location.hash.slice(1) || state.step || "start";
-  show(ORDER.indexOf(initial) === -1 ? "start" : initial, {focus: Boolean(window.location.hash)});
 }());

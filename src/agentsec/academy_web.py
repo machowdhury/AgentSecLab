@@ -18,6 +18,7 @@ from flask import Flask, abort, jsonify, render_template, request
 
 from agentsec import academy_evidence as evidence
 from agentsec.academy import load_curriculum
+from agentsec.academy_live_index import get_ref, is_authorized, launch_body_from_ref, notebook_slots
 from agentsec.experiment_context import LAB_MCP, LAB_PI, lookup_experiment
 from agentsec.mcp.policy import coded_policy
 from agentsec.search_handoff import browser_splunk_web, workshop_url
@@ -194,6 +195,8 @@ def register_academy(app: Flask, *, launcher, client, artifacts_dir: Path, versi
         record = launcher.get_record(run_id) if evidence.is_run_id(run_id) else None
         if record is not None and record.lab_id == LAB_MCP and record.body:
             return frozenset({run_id})
+        if evidence.is_run_id(run_id) and is_authorized(artifacts_dir, run_id):
+            return frozenset({run_id})
         return frozenset()
 
     def load(run_id: str) -> tuple[evidence.RunRecord, dict | None]:
@@ -201,7 +204,11 @@ def register_academy(app: Flask, *, launcher, client, artifacts_dir: Path, versi
         body = None
         if record.provenance == evidence.LIVE:
             launch_record = launcher.get_record(run_id)
-            body = launch_record.body if launch_record is not None else None
+            if launch_record is not None:
+                body = launch_record.body
+            else:
+                ref = get_ref(artifacts_dir, run_id)
+                body = launch_body_from_ref(ref) if ref is not None else None
         return record, body
 
     def error(exc: evidence.EvidenceError):
@@ -273,6 +280,10 @@ def register_academy(app: Flask, *, launcher, client, artifacts_dir: Path, versi
             return error(exc)
         return _no_store(jsonify(evidence.evidence_document(record, splunk_web=splunk_web(), launch_body=body)))
 
+    @app.get("/api/academy/live-runs")
+    def academy_live_runs():
+        return _no_store(jsonify(notebook_slots(artifacts_dir)))
+
     @app.get("/api/academy/compare")
     def academy_compare():
         if set(request.args) - {"attack", "retest"}:
@@ -314,6 +325,32 @@ def register_academy(app: Flask, *, launcher, client, artifacts_dir: Path, versi
                 "state": "AVAILABLE" if reachable else "UNAVAILABLE",
                 "detail": runtime_detail,
                 "evidence": "MEASURED",
+            }
+        )
+        ollama_reachable = body.get("ollama_reachable") if status == 200 and isinstance(body, dict) else None
+        if ollama_reachable is True:
+            ollama_state, ollama_detail = (
+                "AVAILABLE",
+                (
+                    f"The configured model label {body.get('ollama_model', 'NOT MEASURED')} is present in the "
+                    "model catalog. Reachability is not model quality. MCP tool-path launches do not require it."
+                ),
+            )
+        else:
+            ollama_state, ollama_detail = (
+                "DEGRADED",
+                (
+                    "Optional AI enrichment is not serving the configured model (catalog empty or label absent). "
+                    "MCP tool-path launches do not require the model. This is DEGRADED, not FAILED."
+                ),
+            )
+        checks.append(
+            {
+                "name": "Optional model (Ollama)",
+                "state": ollama_state,
+                "detail": ollama_detail,
+                "evidence": "MEASURED",
+                "optional": True,
             }
         )
         packs = evidence.replay_pack_inventory()

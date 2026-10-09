@@ -1,0 +1,19 @@
+{
+  "queried_at_utc": "2026-10-09T18:25:57.225695+00:00",
+  "attack": {
+    "run_id": "373bcc54-75bc-4923-bc0d-f6d14d35b1bb",
+    "mode": "ATTACK",
+    "profile": "vulnerable",
+    "hec.ok": false,
+    "otlp.ok": true,
+    "local_event_count": 7
+  },
+  "retest": {
+    "run_id": "9cb93b54-b8d1-4194-8bef-d34c21d9dab0",
+    "mode": "RETEST",
+    "profile": "defended",
+    "hec.ok": false,
+    "otlp.ok": true,
+    "local_event_count": 6
+  }
+}

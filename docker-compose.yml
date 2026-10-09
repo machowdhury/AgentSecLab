@@ -118,7 +118,9 @@ services:
       - shared_telemetry:/var/log/agentsec
     command: ["--config=/etc/otelcol-contrib/config.yaml"]
     environment:
-      - SPLUNK_HEC_ENDPOINT=${SPLUNK_HEC_ENDPOINT:-http://splunk:8088/services/collector/event}
+      # Container DNS name, not the compose service alias (this host's Splunk
+      # endpoint has aliases=[]). HEC on this volume is TLS; HTTP is reset.
+      - SPLUNK_HEC_ENDPOINT=${SPLUNK_HEC_ENDPOINT:-https://agentsec_splunk:8088/services/collector/event}
       - SPLUNK_HEC_TOKEN=${SPLUNK_HEC_TOKEN}
       - SPLUNK_HEC_INDEX=${SPLUNK_HEC_INDEX:-agentsec_telemetry}
       - SPLUNK_HEC_SOURCETYPE=${SPLUNK_HEC_SOURCETYPE:-otel:agentic:json}

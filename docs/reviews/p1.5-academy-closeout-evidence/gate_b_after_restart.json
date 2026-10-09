@@ -1,0 +1,12 @@
+{
+  "checksums_unchanged": true,
+  "attack_service_restart": "docker restart agentsec_attack_service",
+  "slots_after": {
+    "ATTACK": "373bcc54-75bc-4923-bc0d-f6d14d35b1bb",
+    "RETEST": "9cb93b54-b8d1-4194-8bef-d34c21d9dab0"
+  },
+  "evidence_after": {
+    "ATTACK": {"provenance": "LIVE", "decision": "ALLOW", "handler": "OBSERVED", "llm": 0, "schema": "1.9.0"},
+    "RETEST": {"provenance": "LIVE", "decision": "DENY", "handler": "NOT OBSERVED", "llm": 0}
+  }
+}

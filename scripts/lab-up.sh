@@ -146,8 +146,14 @@ if [ "$REFRESH_APP" -eq 1 ]; then
     sleep 5
   done
 else
-  log "Starting stack (splunk_app_init copies the app before Splunk becomes ready)..."
-  $COMPOSE up -d
+  splunk_health="$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' agentsec_splunk 2>/dev/null || true)"
+  if [ "$splunk_health" = "healthy" ]; then
+    log "Splunk is already healthy. Starting AgentSec app services without recreating Splunk or its volumes."
+    $COMPOSE up -d --no-recreate ollama otel_collector acmebank attack_service
+  else
+    log "Starting stack (splunk_app_init copies the app before Splunk becomes ready)..."
+    $COMPOSE up -d
+  fi
 fi
 
 elapsed() {

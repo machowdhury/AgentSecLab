@@ -27,7 +27,7 @@ Without these, `lab-up.sh` / `lab-ready.sh` fail.
 | `OLLAMA_BASE_URL` | optional | Default mesh `http://ollama:11434` |
 | `SPLUNK_IMAGE` | non-secret | Default `splunk/splunk:10.2` |
 | `SPLUNK_PLATFORM` | non-secret | Default `linux/amd64` |
-| `SPLUNK_HEC_ENDPOINT` | non-secret | Mesh HEC URL |
+| `SPLUNK_HEC_ENDPOINT` | non-secret | Mesh HEC URL. Lab default is `https://agentsec_splunk:8088/services/collector/event` (container DNS + TLS). The compose service hostname `splunk` is not a reliable alias on this host. |
 | `SPLUNK_HEC_INDEX` | non-secret | `agentsec_telemetry` |
 | `SPLUNK_HEC_SOURCETYPE` | non-secret | `otel:agentic:json` |
 | `SPLUNK_HEC_SOURCE` | non-secret | collector source name |
