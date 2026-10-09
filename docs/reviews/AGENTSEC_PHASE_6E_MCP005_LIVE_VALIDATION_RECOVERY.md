@@ -264,6 +264,6 @@ The existing published hunt remains the lab artifact. Phase 6E confirms it still
 
 ## 26. Final Git state
 
-Starting HEAD `547cc90ed504ffb473d74e55832c376312b13c3a`. Prior 6E documentation `4e19347f0e421405bf0e48bff1154517f240645d`. Closeout commit recorded after push.
+Starting HEAD `547cc90ed504ffb473d74e55832c376312b13c3a`. Prior 6E documentation `4e19347f0e421405bf0e48bff1154517f240645d`. Isolation/1.9.0 closeout `fc9a13a8b6b43e2b8a25a7cb03715566306bd21d`.
 
 Evidence: `docs/reviews/phase6e-mcp005-live-evidence/` (`SHA256SUMS.json` digest `0cafd8e8fc820565ecaabd66d27708683414b99577a667465a2f80b01889379a`).
