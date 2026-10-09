@@ -32,6 +32,17 @@ def test_workshop_has_the_nine_steps_in_order(workshop):
     assert re.findall(r'data-step-link="(\w+)"', workshop) == STEPS
 
 
+def test_workshop_offers_a_session_only_replay_switch(workshop):
+    assert 'data-switch-replay hidden' in workshop
+    assert "Use the recorded pair in this tab (REPLAY)" in workshop
+    assert "data-replay-switch-note" in workshop
+
+
+def test_workshop_offers_a_session_only_fresh_live_reset(workshop):
+    assert "data-fresh-live hidden" in workshop
+    assert "Clear this tab and launch a fresh LIVE pair" in workshop
+
+
 @pytest.mark.parametrize("step", STEPS)
 def test_each_step_explains_doing_why_action_evidence_and_learning(workshop, step):
     section = workshop.split(f'id="step-{step}"')[1].split("<!--")[0]
@@ -71,6 +82,11 @@ def test_pages_have_landmarks_skip_link_and_one_h1(client, path):
 def test_menu_toggle_is_a_labelled_disclosure(client):
     html = client.get("/academy").get_data(as_text=True)
     assert re.search(r'<button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav"', html)
+
+
+def test_css_keeps_hidden_attribute_effective_on_buttons():
+    css = CSS.read_text(encoding="utf-8")
+    assert "[hidden] { display: none !important; }" in css
 
 
 def test_css_has_no_text_under_14px_and_keeps_focus_rings():

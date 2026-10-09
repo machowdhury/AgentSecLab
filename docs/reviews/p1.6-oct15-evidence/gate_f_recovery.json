@@ -1,0 +1,130 @@
+{
+  "queried_at_utc": "2026-10-09T21:50:40.127240+00:00",
+  "unknown_uuid": {
+    "status": 404,
+    "body": {
+      "detail": "This Attack Service has no durable LAB-MCP-001 LIVE reference for that run.id. Splunk may still hold its evidence; use the Splunk link.",
+      "error": "unknown_run",
+      "error_class": "ERROR",
+      "evidence_state": "UNAVAILABLE",
+      "provenance": "UNAVAILABLE",
+      "synthetic": false
+    }
+  },
+  "malformed": {
+    "status": 400,
+    "body": {
+      "detail": "A run.id is a lowercase UUID.",
+      "error": "malformed_run_id",
+      "error_class": "ERROR",
+      "evidence_state": "UNAVAILABLE",
+      "provenance": "UNAVAILABLE",
+      "synthetic": false
+    }
+  },
+  "compare_missing": {
+    "status": 404,
+    "body": {
+      "detail": "This Attack Service has no durable LAB-MCP-001 LIVE reference for that run.id. Splunk may still hold its evidence; use the Splunk link.",
+      "error": "unknown_run",
+      "error_class": "ERROR",
+      "evidence_state": "UNAVAILABLE",
+      "provenance": "UNAVAILABLE",
+      "synthetic": false
+    }
+  },
+  "live_runs": {
+    "status": 200,
+    "body": {
+      "evidence_mode": "LIVE",
+      "lab_id": "LAB-MCP-001",
+      "not_authorization": true,
+      "notes": [],
+      "runs": [
+        {
+          "artifact": "artifacts/373bcc54-75bc-4923-bc0d-f6d14d35b1bb/events.jsonl",
+          "evidence_mode": "LIVE",
+          "lab_id": "LAB-MCP-001",
+          "profile": "vulnerable",
+          "recorded_at": "2026-10-09T18:25:57Z",
+          "run_id": "373bcc54-75bc-4923-bc0d-f6d14d35b1bb",
+          "scenario": "ATTACK",
+          "schema_version": "1.9.0",
+          "specimen_id": "MCP-002",
+          "status": "complete"
+        },
+        {
+          "artifact": "artifacts/9cb93b54-b8d1-4194-8bef-d34c21d9dab0/events.jsonl",
+          "evidence_mode": "LIVE",
+          "lab_id": "LAB-MCP-001",
+          "profile": "defended",
+          "recorded_at": "2026-10-09T18:25:57Z",
+          "run_id": "9cb93b54-b8d1-4194-8bef-d34c21d9dab0",
+          "scenario": "RETEST",
+          "schema_version": "1.9.0",
+          "specimen_id": "MCP-002",
+          "status": "complete"
+        },
+        {
+          "artifact": "artifacts/de60a91c-8aa0-411f-8731-2d79d760d427/events.jsonl",
+          "evidence_mode": "LIVE",
+          "lab_id": "LAB-MCP-001",
+          "profile": "vulnerable",
+          "recorded_at": "2026-10-09T21:36:05Z",
+          "run_id": "de60a91c-8aa0-411f-8731-2d79d760d427",
+          "scenario": "ATTACK",
+          "schema_version": "1.9.0",
+          "specimen_id": "MCP-002",
+          "status": "complete"
+        },
+        {
+          "artifact": "artifacts/b8c432ff-6e2e-4cec-a259-78761b50b969/events.jsonl",
+          "evidence_mode": "LIVE",
+          "lab_id": "LAB-MCP-001",
+          "profile": "defended",
+          "recorded_at": "2026-10-09T21:36:05Z",
+          "run_id": "b8c432ff-6e2e-4cec-a259-78761b50b969",
+          "scenario": "RETEST",
+          "schema_version": "1.9.0",
+          "specimen_id": "MCP-002",
+          "status": "complete"
+        }
+      ],
+      "slots": {
+        "ATTACK": {
+          "artifact": "artifacts/de60a91c-8aa0-411f-8731-2d79d760d427/events.jsonl",
+          "evidence_mode": "LIVE",
+          "lab_id": "LAB-MCP-001",
+          "profile": "vulnerable",
+          "recorded_at": "2026-10-09T21:36:05Z",
+          "run_id": "de60a91c-8aa0-411f-8731-2d79d760d427",
+          "scenario": "ATTACK",
+          "schema_version": "1.9.0",
+          "specimen_id": "MCP-002",
+          "status": "complete"
+        },
+        "RETEST": {
+          "artifact": "artifacts/b8c432ff-6e2e-4cec-a259-78761b50b969/events.jsonl",
+          "evidence_mode": "LIVE",
+          "lab_id": "LAB-MCP-001",
+          "profile": "defended",
+          "recorded_at": "2026-10-09T21:36:05Z",
+          "run_id": "b8c432ff-6e2e-4cec-a259-78761b50b969",
+          "scenario": "RETEST",
+          "schema_version": "1.9.0",
+          "specimen_id": "MCP-002",
+          "status": "complete"
+        }
+      }
+    }
+  },
+  "splunk_unavailability": {
+    "executed": false,
+    "method": "ISOLATED not induced",
+    "reason": "would disrupt shared demo Splunk"
+  },
+  "slow_backend": {
+    "executed_live_timeout": false,
+    "contract": "45s AbortController ERROR not DENY"
+  }
+}

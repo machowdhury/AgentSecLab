@@ -1,0 +1,577 @@
+[
+  {
+    "run": "1920x1080@100",
+    "pages": {
+      "/academy": {
+        "iw": 1920,
+        "ih": 993,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true,
+        "shot": "deployed-1920x1080-z100-academy.png"
+      },
+      "/academy/foundations": {
+        "iw": 1920,
+        "ih": 993,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true,
+        "shot": "deployed-1920x1080-z100-academy_foundations.png"
+      },
+      "/academy/path": {
+        "iw": 1920,
+        "ih": 993,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true,
+        "shot": "deployed-1920x1080-z100-academy_path.png"
+      },
+      "/academy/status": {
+        "iw": 1920,
+        "ih": 993,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true,
+        "shot": "deployed-1920x1080-z100-academy_status.png"
+      },
+      "/academy/labs/LAB-MCP-001": {
+        "iw": 1920,
+        "ih": 993,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true,
+        "shot": "deployed-1920x1080-z100-academy_labs_LAB-MCP-001.png"
+      }
+    },
+    "workflow": {
+      "skipLinkFirst": true,
+      "skipFocus": {
+        "tag": "A",
+        "text": "Skip to main content",
+        "outline": "solid 3px",
+        "inView": true
+      },
+      "afterSkip": "main",
+      "startHeadingVisible": true,
+      "reachContinue": true,
+      "continueFocus": {
+        "tag": "BUTTON",
+        "text": "Continue to Baseline",
+        "outline": "solid 3px",
+        "inView": true
+      },
+      "baselineHeading": "h-baseline",
+      "lockFocus": {
+        "tag": "BUTTON",
+        "text": "Lock prediction and continue",
+        "outline": "solid 3px",
+        "inView": true
+      },
+      "attackHeading": "h-attack",
+      "liveAutoLoaded": true,
+      "reachSwitch": true,
+      "switchFocus": {
+        "tag": "BUTTON",
+        "text": "Use the recorded pair in this tab (REPLA",
+        "outline": "solid 3px",
+        "inView": true
+      },
+      "attackCard": "REPLAY run.id 5e8f55f3-eb46-47ee-b979-b72d9c9b1f49 Copy run.id",
+      "attackShot": "deployed-1920x1080-z100-wf-attack.png",
+      "attackLayout": {
+        "iw": 1920,
+        "ih": 993,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true
+      },
+      "investigateLayout": {
+        "iw": 1920,
+        "ih": 993,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true
+      },
+      "investigateShot": "deployed-1920x1080-z100-wf-investigate.png",
+      "defendLayout": {
+        "iw": 1920,
+        "ih": 993,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true
+      },
+      "retestCard": "REPLAY run.id 7a1d37b5-d589-4dfd-8322-25ebd0152dbc Copy run.id",
+      "compareDecisionRow": "CTRL-MCP-001 decision ALLOW DENY DIFFERENT",
+      "compareLayout": {
+        "iw": 1920,
+        "ih": 993,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true
+      },
+      "compareShot": "deployed-1920x1080-z100-wf-compare.png",
+      "completeFeedback": "Workflow complete. This records that you finished the learning workflow in this browser. It is not a security verdict.",
+      "explainLayout": {
+        "iw": 1920,
+        "ih": 993,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true
+      },
+      "explainShot": "deployed-1920x1080-z100-wf-explain.png"
+    },
+    "errors": []
+  },
+  {
+    "run": "1024x768@100",
+    "pages": {
+      "/academy": {
+        "iw": 1024,
+        "ih": 681,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true,
+        "shot": "deployed-1024x768-z100-academy.png"
+      },
+      "/academy/foundations": {
+        "iw": 1024,
+        "ih": 681,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true,
+        "shot": "deployed-1024x768-z100-academy_foundations.png"
+      },
+      "/academy/path": {
+        "iw": 1024,
+        "ih": 681,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true,
+        "shot": "deployed-1024x768-z100-academy_path.png"
+      },
+      "/academy/status": {
+        "iw": 1024,
+        "ih": 681,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true,
+        "shot": "deployed-1024x768-z100-academy_status.png"
+      },
+      "/academy/labs/LAB-MCP-001": {
+        "iw": 1024,
+        "ih": 681,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true,
+        "shot": "deployed-1024x768-z100-academy_labs_LAB-MCP-001.png"
+      }
+    },
+    "workflow": {
+      "skipLinkFirst": true,
+      "skipFocus": {
+        "tag": "A",
+        "text": "Skip to main content",
+        "outline": "solid 3px",
+        "inView": true
+      },
+      "afterSkip": "main",
+      "startHeadingVisible": true,
+      "reachContinue": true,
+      "continueFocus": {
+        "tag": "BUTTON",
+        "text": "Continue to Baseline",
+        "outline": "solid 3px",
+        "inView": true
+      },
+      "baselineHeading": "h-baseline",
+      "lockFocus": {
+        "tag": "BUTTON",
+        "text": "Lock prediction and continue",
+        "outline": "solid 3px",
+        "inView": true
+      },
+      "attackHeading": "h-attack",
+      "liveAutoLoaded": true,
+      "reachSwitch": true,
+      "switchFocus": {
+        "tag": "BUTTON",
+        "text": "Use the recorded pair in this tab (REPLA",
+        "outline": "solid 3px",
+        "inView": true
+      },
+      "attackCard": "REPLAY run.id 5e8f55f3-eb46-47ee-b979-b72d9c9b1f49 Copy run.id",
+      "attackShot": "deployed-1024x768-z100-wf-attack.png",
+      "attackLayout": {
+        "iw": 1024,
+        "ih": 681,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true
+      },
+      "investigateLayout": {
+        "iw": 1024,
+        "ih": 681,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true
+      },
+      "investigateShot": "deployed-1024x768-z100-wf-investigate.png",
+      "defendLayout": {
+        "iw": 1024,
+        "ih": 681,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true
+      },
+      "retestCard": "REPLAY run.id 7a1d37b5-d589-4dfd-8322-25ebd0152dbc Copy run.id",
+      "compareDecisionRow": "CTRL-MCP-001 decision ALLOW DENY DIFFERENT",
+      "compareLayout": {
+        "iw": 1024,
+        "ih": 681,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true
+      },
+      "compareShot": "deployed-1024x768-z100-wf-compare.png",
+      "completeFeedback": "Workflow complete. This records that you finished the learning workflow in this browser. It is not a security verdict.",
+      "explainLayout": {
+        "iw": 1024,
+        "ih": 681,
+        "dpr": 1,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true
+      },
+      "explainShot": "deployed-1024x768-z100-wf-explain.png"
+    },
+    "errors": []
+  },
+  {
+    "run": "1920x1080@200",
+    "pages": {
+      "/academy": {
+        "iw": 960,
+        "ih": 496,
+        "dpr": 2,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true,
+        "shot": "deployed-1920x1080-z200-academy.png"
+      },
+      "/academy/foundations": {
+        "iw": 960,
+        "ih": 496,
+        "dpr": 2,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true,
+        "shot": "deployed-1920x1080-z200-academy_foundations.png"
+      },
+      "/academy/path": {
+        "iw": 960,
+        "ih": 496,
+        "dpr": 2,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true,
+        "shot": "deployed-1920x1080-z200-academy_path.png"
+      },
+      "/academy/status": {
+        "iw": 960,
+        "ih": 496,
+        "dpr": 2,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true,
+        "shot": "deployed-1920x1080-z200-academy_status.png"
+      },
+      "/academy/labs/LAB-MCP-001": {
+        "iw": 960,
+        "ih": 496,
+        "dpr": 2,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true,
+        "shot": "deployed-1920x1080-z200-academy_labs_LAB-MCP-001.png"
+      }
+    },
+    "workflow": {
+      "skipLinkFirst": true,
+      "skipFocus": {
+        "tag": "A",
+        "text": "Skip to main content",
+        "outline": "solid 3px",
+        "inView": true
+      },
+      "afterSkip": "main",
+      "startHeadingVisible": true,
+      "reachContinue": true,
+      "continueFocus": {
+        "tag": "BUTTON",
+        "text": "Continue to Baseline",
+        "outline": "solid 3px",
+        "inView": true
+      },
+      "baselineHeading": "h-baseline",
+      "lockFocus": {
+        "tag": "BUTTON",
+        "text": "Lock prediction and continue",
+        "outline": "solid 3px",
+        "inView": true
+      },
+      "attackHeading": "h-attack",
+      "liveAutoLoaded": true,
+      "reachSwitch": true,
+      "switchFocus": {
+        "tag": "BUTTON",
+        "text": "Use the recorded pair in this tab (REPLA",
+        "outline": "solid 3px",
+        "inView": true
+      },
+      "attackCard": "REPLAY run.id 5e8f55f3-eb46-47ee-b979-b72d9c9b1f49 Copy run.id",
+      "attackShot": "deployed-1920x1080-z200-wf-attack.png",
+      "attackLayout": {
+        "iw": 960,
+        "ih": 496,
+        "dpr": 2,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true
+      },
+      "investigateLayout": {
+        "iw": 960,
+        "ih": 496,
+        "dpr": 2,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true
+      },
+      "investigateShot": "deployed-1920x1080-z200-wf-investigate.png",
+      "defendLayout": {
+        "iw": 960,
+        "ih": 496,
+        "dpr": 2,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true
+      },
+      "retestCard": "REPLAY run.id 7a1d37b5-d589-4dfd-8322-25ebd0152dbc Copy run.id",
+      "compareDecisionRow": "CTRL-MCP-001 decision ALLOW DENY DIFFERENT",
+      "compareLayout": {
+        "iw": 960,
+        "ih": 496,
+        "dpr": 2,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true
+      },
+      "compareShot": "deployed-1920x1080-z200-wf-compare.png",
+      "completeFeedback": "Workflow complete. This records that you finished the learning workflow in this browser. It is not a security verdict.",
+      "explainLayout": {
+        "iw": 960,
+        "ih": 496,
+        "dpr": 2,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": true
+      },
+      "explainShot": "deployed-1920x1080-z200-wf-explain.png"
+    },
+    "errors": []
+  },
+  {
+    "run": "1920x1080@400",
+    "pages": {
+      "/academy": {
+        "iw": 480,
+        "ih": 248,
+        "dpr": 4,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": false,
+        "shot": "deployed-1920x1080-z400-academy.png"
+      },
+      "/academy/foundations": {
+        "iw": 480,
+        "ih": 248,
+        "dpr": 4,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": false,
+        "shot": "deployed-1920x1080-z400-academy_foundations.png"
+      },
+      "/academy/path": {
+        "iw": 480,
+        "ih": 248,
+        "dpr": 4,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": false,
+        "shot": "deployed-1920x1080-z400-academy_path.png"
+      },
+      "/academy/status": {
+        "iw": 480,
+        "ih": 248,
+        "dpr": 4,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": false,
+        "shot": "deployed-1920x1080-z400-academy_status.png"
+      },
+      "/academy/labs/LAB-MCP-001": {
+        "iw": 480,
+        "ih": 248,
+        "dpr": 4,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": false,
+        "shot": "deployed-1920x1080-z400-academy_labs_LAB-MCP-001.png"
+      }
+    },
+    "workflow": {
+      "skipLinkFirst": true,
+      "skipFocus": {
+        "tag": "A",
+        "text": "Skip to main content",
+        "outline": "solid 3px",
+        "inView": true
+      },
+      "afterSkip": "main",
+      "startHeadingVisible": true,
+      "reachContinue": true,
+      "continueFocus": {
+        "tag": "BUTTON",
+        "text": "Continue to Baseline",
+        "outline": "solid 3px",
+        "inView": true
+      },
+      "baselineHeading": "h-baseline",
+      "lockFocus": {
+        "tag": "BUTTON",
+        "text": "Lock prediction and continue",
+        "outline": "solid 3px",
+        "inView": true
+      },
+      "attackHeading": "h-attack",
+      "liveAutoLoaded": true,
+      "reachSwitch": true,
+      "switchFocus": {
+        "tag": "BUTTON",
+        "text": "Use the recorded pair in this tab (REPLA",
+        "outline": "solid 3px",
+        "inView": true
+      },
+      "attackCard": "REPLAY run.id 5e8f55f3-eb46-47ee-b979-b72d9c9b1f49 Copy run.id",
+      "attackShot": "deployed-1920x1080-z400-wf-attack.png",
+      "attackLayout": {
+        "iw": 480,
+        "ih": 248,
+        "dpr": 4,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": false
+      },
+      "investigateLayout": {
+        "iw": 480,
+        "ih": 248,
+        "dpr": 4,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": false
+      },
+      "investigateShot": "deployed-1920x1080-z400-wf-investigate.png",
+      "defendLayout": {
+        "iw": 480,
+        "ih": 248,
+        "dpr": 4,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": false
+      },
+      "retestCard": "REPLAY run.id 7a1d37b5-d589-4dfd-8322-25ebd0152dbc Copy run.id",
+      "compareDecisionRow": "CTRL-MCP-001 decision ALLOW DENY DIFFERENT",
+      "compareLayout": {
+        "iw": 480,
+        "ih": 248,
+        "dpr": 4,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": false
+      },
+      "compareShot": "deployed-1920x1080-z400-wf-compare.png",
+      "completeFeedback": "Workflow complete. This records that you finished the learning workflow in this browser. It is not a security verdict.",
+      "explainLayout": {
+        "iw": 480,
+        "ih": 248,
+        "dpr": 4,
+        "overflowX": 0,
+        "clipped": [],
+        "offRight": 0,
+        "sidebarVisible": false
+      },
+      "explainShot": "deployed-1920x1080-z400-wf-explain.png",
+      "menuOpen": true,
+      "menuShot": "deployed-1920x1080-z400-menu-open.png",
+      "menuClosedFocusReturns": true
+    },
+    "errors": []
+  }
+]

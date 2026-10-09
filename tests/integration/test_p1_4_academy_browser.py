@@ -11,6 +11,7 @@ and at 400% is 480x270. Genuine browser zoom is qualified separately.
 
 from __future__ import annotations
 
+import json
 import threading
 
 import pytest
@@ -241,6 +242,109 @@ def test_narrow_menu_disclosure_opens_and_escape_returns_focus(page_factory, bas
     assert page.evaluate("document.activeElement.hasAttribute('data-menu-toggle')")
 
 
+def test_recovered_live_pair_can_switch_this_tab_to_replay(page_factory, base_url):
+    """Durable LIVE slots must not silently replace the recorded REPLAY pair.
+
+    The switch changes this browser tab only. It does not delete server LIVE index rows.
+    """
+    page = page_factory()
+
+    def handle_live_runs(route):
+        route.fulfill(
+            status=200,
+            content_type="application/json",
+            body=json.dumps(
+                {
+                    "slots": {
+                        "ATTACK": {
+                            "run_id": "aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa",
+                            "status": "complete",
+                        },
+                        "RETEST": {
+                            "run_id": "bbbbbbbb-2222-4222-8222-bbbbbbbbbbbb",
+                            "status": "complete",
+                        },
+                    }
+                }
+            ),
+        )
+
+    page.route("**/api/academy/live-runs", handle_live_runs)
+    page.goto(base_url + "/academy/labs/LAB-MCP-001")
+    _wait_status(page, "ATTACK", "LIVE")
+    page.get_by_role("button", name="Continue to Baseline").click()
+    page.get_by_role("button", name="Continue to Predict").click()
+    page.get_by_label("ALLOW", exact=True).check()
+    page.get_by_label("Yes", exact=True).check()
+    page.get_by_role("button", name="Lock prediction and continue").click()
+    switch = page.get_by_role("button", name="Use the recorded pair in this tab (REPLAY)")
+    assert switch.is_visible()
+    switch.click()
+    card = page.locator('[data-run-card="ATTACK"]')
+    card.locator("h3").wait_for()
+    assert ATTACK_REPLAY in card.inner_text()
+    assert "badge--replay" in card.locator(".badge").first.get_attribute("class")
+    note = page.locator("[data-replay-switch-note]")
+    assert "committed REPLAY" in note.inner_text()
+    assert "not a live launch" in note.inner_text().lower()
+    page.locator("[data-switch-replay]").wait_for(state="hidden")
+
+
+def _wait_status(page, mode, text):
+    # The Academy CSP forbids eval, so string wait_for_function predicates fail whenever they must poll.
+    sync_api.expect(page.locator(f'[data-run-status="{mode}"]')).to_contain_text(text)
+
+
+def _live_slots(attack_at, retest_at):
+    def handle(route):
+        route.fulfill(status=200, content_type="application/json", body=json.dumps({"slots": {
+            "ATTACK": {"run_id": "aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa", "status": "complete", "recorded_at": attack_at},
+            "RETEST": {"run_id": "bbbbbbbb-2222-4222-8222-bbbbbbbbbbbb", "status": "complete", "recorded_at": retest_at},
+        }}))
+    return handle
+
+
+def _lock_prediction(page):
+    page.goto(page.url.split("#")[0] + "#predict")
+    page.locator('input[name="predict-control"][value="ALLOW"]').check()
+    page.locator('input[name="predict-execution"][value="YES"]').check()
+    page.get_by_role("button", name="Lock prediction and continue").click()
+
+
+def test_recovered_live_pair_does_not_block_a_fresh_live_launch_mocked(page_factory, base_url):
+    """MOCKED live-runs index. Regression: recovered slots used to disable both LIVE launch buttons forever."""
+    page = page_factory()
+    page.route("**/api/academy/live-runs", _live_slots("2026-10-09T21:36:05Z", "2026-10-09T21:36:05Z"))
+    page.goto(base_url + "/academy/labs/LAB-MCP-001")
+    _wait_status(page, "ATTACK", "LIVE")
+    _lock_prediction(page)
+    assert page.get_by_role("button", name="Launch LIVE ATTACK").is_disabled()
+    fresh = page.get_by_role("button", name="Clear this tab and launch a fresh LIVE pair")
+    fresh.click()
+    assert page.get_by_role("button", name="Launch LIVE ATTACK").is_enabled()
+    assert page.evaluate("document.activeElement.getAttribute('data-launch')") == "ATTACK"
+    assert page.locator('[data-run-card="ATTACK"]').is_hidden()
+    assert page.locator('[data-run-status="ATTACK"]').inner_text() == "No ATTACK run yet."
+    assert "Server LIVE evidence is unchanged" in page.locator("[data-replay-switch-note]").inner_text()
+    assert fresh.is_hidden()
+    page.reload()
+    page.wait_for_load_state("networkidle")
+    page.goto(base_url + "/academy/labs/LAB-MCP-001#attack")
+    assert page.locator('[data-run-status="ATTACK"]').inner_text() == "No ATTACK run yet."
+    assert page.get_by_role("button", name="Launch LIVE ATTACK").is_enabled()
+
+
+def test_older_recovered_retest_is_not_paired_with_a_newer_attack_mocked(page_factory, base_url):
+    """MOCKED live-runs index: the RETEST slot predates the ATTACK slot, so it is not this ATTACK's retest."""
+    page = page_factory()
+    page.route("**/api/academy/live-runs", _live_slots("2026-10-09T22:00:00Z", "2026-10-09T18:25:57Z"))
+    page.goto(base_url + "/academy/labs/LAB-MCP-001")
+    _wait_status(page, "ATTACK", "LIVE")
+    assert page.locator('[data-run-status="RETEST"]').inner_text() == "No RETEST run yet."
+    stored = page.evaluate("JSON.parse(sessionStorage.getItem('agentsec.academy.mcp.v1')).runs")
+    assert "RETEST" not in stored and stored["ATTACK"]["run_id"].startswith("aaaaaaaa")
+
+
 def test_live_launch_double_click_sends_one_request_mocked(page_factory, base_url):
     """MOCKED: /api/launch is intercepted in the browser and answers with an ERROR."""
     page = page_factory()
@@ -258,7 +362,7 @@ def test_live_launch_double_click_sends_one_request_mocked(page_factory, base_ur
     page.get_by_role("button", name="Lock prediction and continue").click()
     page.get_by_role("button", name="Launch LIVE ATTACK").dblclick()
     status = page.locator('[data-run-status="ATTACK"]')
-    page.wait_for_function("document.querySelector('[data-run-status=\"ATTACK\"]').textContent.includes('Launch failed')")
+    _wait_status(page, "ATTACK", "Launch failed")
     assert len(posts) == 1
     assert posts[0] == {"lab_id": "LAB-MCP-001", "specimen_id": posts[0]["specimen_id"], "mode": "ATTACK", "execution": "live"}
     assert "ERROR, not a control decision" in status.inner_text()
