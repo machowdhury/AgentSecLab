@@ -1,6 +1,6 @@
 # AGENTSEC P1.6 — 15 October 2026 release-candidate qualification
 
-**Verdict: P1.6 CONDITIONAL GO — DEMONSTRATION READY WITH DOCUMENTED LIMITATIONS**
+**Verdict: P1.6 CONDITIONAL GO — READY WITH DISCLOSED LIMITATIONS**
 
 Scope: the 15–20 minute LAB-MCP-001 demonstration on the local AgentSec Docker stack. This is not a production-readiness qualification.
 
@@ -285,7 +285,7 @@ Uncommitted originals and the full screenshot sets are under `artifacts/p1.6-oct
 
 ## 16. 15 October GO / NO-GO
 
-**P1.6 CONDITIONAL GO — DEMONSTRATION READY WITH DOCUMENTED LIMITATIONS**
+**P1.6 CONDITIONAL GO — READY WITH DISCLOSED LIMITATIONS**
 
 Why not NO-GO:
 
