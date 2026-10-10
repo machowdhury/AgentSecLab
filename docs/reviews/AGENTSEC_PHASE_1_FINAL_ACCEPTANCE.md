@@ -2,7 +2,7 @@
 
 **Phase 1 verdict: PHASE 1 ACCEPTED WITH LIMITATIONS**
 
-**P1.6 verdict: CONDITIONAL GO — READY WITH DISCLOSED LIMITATIONS** (see `AGENTSEC_P1_6_OCT15_RELEASE_CANDIDATE_QUALIFICATION.md`)
+**P1.6 CONDITIONAL GO — READY WITH DISCLOSED LIMITATIONS** (see `AGENTSEC_P1_6_OCT15_RELEASE_CANDIDATE_QUALIFICATION.md`)
 
 Assessed 2026-10-09 on `develop`, starting from `f227708`. Earlier stage verdicts are quoted exactly as recorded and are not changed. The "Phase 1 assessment" column is this report's judgement, as of P1.6, using the evidence available now. Owner acceptance is a separate act and is listed under owner decisions.
 
@@ -23,7 +23,7 @@ Assessment labels: **Stage execution complete** (work done; no acceptance conclu
 | P1.3 400% Option A trial | `AGENTSEC_P1_3_400_PERCENT_ACCESSIBILITY_REMEDIATION.md` | "Acceptance: CONDITIONAL. Promotion: NO." | Not accepted (candidate not promoted; decision stands) | Mouse gate failed at 400% normal view; accepted dashboard unchanged |
 | P1.4 Figma Academy | `AGENTSEC_P1_4_FIGMA_ACADEMY_FINAL_QUALIFICATION.md` | "CONDITIONAL — FUNCTIONAL WITH DOCUMENTED LIMITATIONS" | Accepted with limitations | Its genuine-zoom gap was closed by P1.5 and re-measured on the deployed build in P1.6. VoiceOver remains UNTESTED. |
 | P1.5 reliability and accessibility close-out | `AGENTSEC_P1_5_ACADEMY_RELIABILITY_ACCESSIBILITY_CLOSEOUT.md` | "P1.5 CONDITIONAL — FUNCTIONAL WITH REMAINING QUALIFICATION GAPS" | Accepted with limitations | Its durable LIVE index introduced the LIVE-launch lock found in P1.6 (now fixed). HEC routing and persistence were re-measured in P1.6. |
-| P1.6 Oct 15 readiness | `AGENTSEC_P1_6_OCT15_RELEASE_CANDIDATE_QUALIFICATION.md` | "CONDITIONAL GO — READY WITH DISCLOSED LIMITATIONS" | Accepted with limitations | Rehearsal, 7/7 Splunk reconciliation, regression and accessibility automation MEASURED on the deployed build |
+| P1.6 Oct 15 readiness | `AGENTSEC_P1_6_OCT15_RELEASE_CANDIDATE_QUALIFICATION.md` | "P1.6 CONDITIONAL GO — READY WITH DISCLOSED LIMITATIONS" | Accepted with limitations | Rehearsal, 7/7 Splunk reconciliation, regression and accessibility automation MEASURED on the deployed build |
 
 Phase 1 is accepted with limitations because its central learning outcome now works end to end and is evidence-backed: a beginner can run one MCP authorization experiment through all nine steps, in REPLAY or LIVE, and reconcile it with Splunk. The open items are qualification gaps, not broken functionality.
 
