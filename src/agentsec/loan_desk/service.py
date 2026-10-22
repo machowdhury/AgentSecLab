@@ -41,7 +41,8 @@ class LoanDeskService:
         run_id = str(emitter.run_id)
         view = {"run_id": run_id, "applicant_id": app_id, "status": "RUNNING", "stop_reason": None, "error": None,
                 "application": {k: v for k, v in record.items()},
-                "model": {"name": self.model.name, "provider": "ollama", "proposal_source": self.model.source},
+                "model": {"name": self.model.name, "provider": "ollama", "proposal_source": self.model.source,
+                  "identity": self.model.identity() if hasattr(self.model, "identity") else {}},
                 "bounds": {"max_steps": MAX_STEPS, "tools": sorted(TOOLS)},
                 "steps": [], "final": None, "events": 0}
         steps = view["steps"]

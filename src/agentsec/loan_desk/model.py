@@ -53,8 +53,13 @@ class ChatModel(Protocol):
     def chat(self, messages: list[dict]) -> ModelReply: ...
 
 
-def configured_model_name(default: str) -> str:
-    return os.environ.get("LOANDESK_MODEL", "").strip() or default
+# Approved default (Batch 2 whole-loop benchmark: docs/reviews/batch2/agent_loop_benchmark.json). Override with LOANDESK_MODEL.
+DEFAULT_MODEL = "llama3.2:latest"
+RUNTIME_OPTIONS = {"temperature": 0.2, "num_predict": 300, "format": "json-schema(REPLY_SCHEMA)"}
+
+
+def configured_model_name() -> str:
+    return os.environ.get("LOANDESK_MODEL", "").strip() or DEFAULT_MODEL
 
 
 class OllamaChat:
@@ -62,6 +67,21 @@ class OllamaChat:
 
     def __init__(self, base_url: str, name: str, *, timeout: int = 60) -> None:
         self.base_url, self.name, self.timeout = base_url.rstrip("/"), name, timeout
+
+    def identity(self) -> dict:
+        """Resolved model identity as Ollama reports it (digest pins what actually ran). Empty when unreachable."""
+        try:
+            r = requests.get(f"{self.base_url}/api/tags", timeout=3)
+            want = self.name if ":" in self.name else self.name + ":latest"
+            for m in r.json().get("models", []):
+                if m.get("name") == want:
+                    d = m.get("details") or {}
+                    return {"name": want, "digest": m.get("digest"), "size_bytes": m.get("size"),
+                            "family": d.get("family"), "parameter_size": d.get("parameter_size"),
+                            "quantization": d.get("quantization_level"), "runtime": RUNTIME_OPTIONS}
+        except (requests.RequestException, ValueError):
+            pass
+        return {}
 
     def available(self) -> tuple[bool, str | None]:
         """Probe the same endpoint chat() uses, so the status shown can never disagree with the run."""
@@ -81,7 +101,7 @@ class OllamaChat:
             r = requests.post(
                 f"{self.base_url}/api/chat",
                 json={"model": self.name, "messages": messages, "stream": False, "format": REPLY_SCHEMA,
-                      "options": {"temperature": 0.2, "num_predict": 300}},
+                      "options": {"temperature": RUNTIME_OPTIONS["temperature"], "num_predict": RUNTIME_OPTIONS["num_predict"]}},
                 timeout=self.timeout,
             )
             if r.status_code == 404:
