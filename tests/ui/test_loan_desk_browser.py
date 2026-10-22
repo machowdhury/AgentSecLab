@@ -254,7 +254,7 @@ def test_outcome_facts_and_unverified_prose_are_shown_separately(page, serve):
     assert "BLOCKED (1 action)" in page.locator("#out-security-v").inner_text()
     assert page.locator("#out-business-v").inner_text().startswith("COMPLETE")
     ops = page.locator("#out-ops").inner_text()
-    assert "Proposed 3" in ops and "denied 1" in ops and "executed 2" in ops and "no denied action ran" in ops
+    assert "Proposed 4" in ops and "denied 1" in ops and "executed 3" in ops and "no denied action ran" in ops
     assert "resource_not_bound_to_run" in page.locator("#out-blocked").inner_text()
     facts = page.locator("#facts-list").inner_text()
     assert "Monthly payment at 5.2% (indicative)" in facts and "computed here" in facts and "38.5" not in facts
