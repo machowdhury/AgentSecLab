@@ -1333,15 +1333,16 @@
       el("thead", null, [el("tr", null, ["", "ATTACK", "RETEST"].map(function (h) { return el("th", {scope: "col", text: h}); }))]),
       el("tbody", null, rows.map(function (row) { var x = row[1](a), y = row[1](r); return el("tr", {className: x !== y ? "is-different" : null}, [el("th", {scope: "row", text: row[0]}), el("td", {text: x}), el("td", {text: y})]); }))]));
     var rs = storyNode(r); if (rs) box.appendChild(rs);
-    var cv = el("p", {className: "muted", role: "status", text: "Press Verify to ask the host verifier to check both runs in Splunk."});
     var cb = el("button", {type: "button", className: "button button--secondary", text: "Verify both runs with Splunk"});
+    var cv = q("[data-compare-status]");
     cb.addEventListener("click", function () {
-      cb.disabled = true;
+      cb.disabled = true; cv.hidden = false;
       verifyRun("attack", function (t) { cv.textContent = "Attack run: " + t; }).then(function () {
-        return verifyRun("retest", function (t) { cv.textContent = "Retest run: " + t; });
-      }).then(function () { cb.disabled = false; paintCompare(); });
+        var attackText = cv.textContent;
+        return verifyRun("retest", function (t) { cv.textContent = attackText + "  |  Retest run: " + t; });
+      }).then(function () { cb.disabled = false; var keep = cv.textContent; paintCompare(); cv.hidden = false; cv.textContent = keep; });
     });
-    box.appendChild(el("p", null, [cb])); box.appendChild(cv);
+    box.appendChild(el("p", null, [cb]));
     var worked = a.queue_harm.tickets_with_applicant_text.length > 0 && r.queue_harm.tickets_with_applicant_text.length === 0;
     box.appendChild(el("p", {className: "callout " + (worked ? "callout--security" : "callout--warn"), text: worked
       ? "The same planted text reached the queue under BASELINE and did not under " + r.posture.toUpperCase() + (r.outcomes.business.outcome !== "COMPLETE" ? ", even though the retest's loan review did not finish (a usability cost, not a security failure)" : "") + ". Model output varies run to run, so one pair of runs is an illustration; the committed benchmark repeats this 20 times per setting."
