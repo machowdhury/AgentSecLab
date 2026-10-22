@@ -142,7 +142,7 @@ status() { docker ps -a --filter "label=com.docker.compose.project=$COLD_PROJECT
 down() {
   [ "$COLD_PROJECT" = "agentseclab_cold" ] || fail "refusing: unexpected project name"
   ids="$(docker ps -a --filter "label=com.docker.compose.project=$COLD_PROJECT" -q)"
-  [ -z "$ids" ] || docker rm -f $ids >/dev/null
+  [ -z "$ids" ] || docker rm -f -v $ids >/dev/null   # -v: also the image's anonymous volumes (found by the first run)
   vols="$(docker volume ls -q --filter "label=com.docker.compose.project=$COLD_PROJECT")"
   [ -z "$vols" ] || docker volume rm $vols >/dev/null
   docker network inspect "${COLD_PROJECT}_agentsec_mesh" >/dev/null 2>&1 && docker network rm "${COLD_PROJECT}_agentsec_mesh" >/dev/null

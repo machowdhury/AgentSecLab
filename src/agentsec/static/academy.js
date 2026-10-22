@@ -932,8 +932,8 @@
     list.textContent = "";
     if (!rd) { readyBox.hidden = true; return; }
     readyBox.hidden = false;
-    [["Ollama is reachable from AcmeBank", rd.ollama_reachable], ["Model " + rd.model + " is installed", rd.model_installed]].forEach(function (c) {
-      list.appendChild(el("li", {className: c[1] ? "is-ok" : "is-bad"}, [el("strong", {text: c[1] ? "Ready: " : "Not ready: "}), document.createTextNode(c[0])]));
+    [["Ollama reachable from AcmeBank", rd.ollama_reachable], ["Model " + rd.model + " installed", rd.model_installed]].forEach(function (c) {
+      list.appendChild(el("li", {className: c[1] ? "is-ok" : "is-bad"}, [document.createTextNode(c[0] + ": "), el("strong", {text: c[1] ? "Ready" : "Not ready"})]));
     });
     if (rd.fix) {
       fix.hidden = false;
