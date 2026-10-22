@@ -78,14 +78,18 @@ def check(results, name, ok, detail):
 
 
 def verifier_identity(art):
-    pf = Path(art) / "loan_desk" / "verifier.pid"
-    out = {"v1_pidfile": pf.read_text().strip() if pf.exists() else None}
-    pid = out["v1_pidfile"]
-    if pid and pid.isdigit():
-        ps = sh("ps", "-p", pid, "-o", "pid=,ppid=,lstart=,command=", check=False)
-        out["ps"] = ps
-        out["is_verifier"] = "loan_desk_verifier.py" in ps
-        out["artifacts_arg"] = (re.search(r"--artifacts (\S+)", ps) or [None, None])[1]
+    """v2: pid in the host-only state dir (the v1 pidfile under artifacts/ is also read, for the migration)."""
+    state = Path(os.environ.get("AGENTSEC_VERIFIER_STATE_DIR") or Path.home() / ".local/state/agentsec/loan_desk")
+    out = {}
+    for label, pf in (("v2_pidfile", state / "verifier.pid"), ("v1_pidfile", Path(art) / "loan_desk" / "verifier.pid")):
+        pid = pf.read_text().strip() if pf.exists() else None
+        out[label] = pid
+        if pid and pid.isdigit():
+            ps = sh("ps", "-p", pid, "-o", "pid=,ppid=,lstart=,command=", check=False)
+            out[label + "_ps"] = ps
+            if "loan_desk_verifier.py" in ps:
+                out["is_verifier"], out["ps"], out["version"] = True, ps, label[:2]
+                out["artifacts_arg"] = (re.search(r"--artifacts (\S+)", ps) or [None, None])[1]
     return out
 
 
@@ -140,7 +144,10 @@ def preflight(a):
     ev["recent_non_health_requests"] = recent
     check(res, f"4 no learner activity in the last {a.quiet_minutes} minutes (non-health log lines)", sum(recent.values()) == 0 or a.allow_activity, recent)
 
-    check(res, "5a v1 signing material exists and is backed up (it is removed only after a validated cutover)", (src / ".bridge.key").exists() and any(n.endswith(".bridge.key") for n in listed), str(src / ".bridge.key"))
+    hostkey = Path.home() / ".local/state/agentsec/loan_desk/receipt.key"
+    legacy = (src / ".bridge.key").exists()
+    check(res, "5a signing material: the host key is private (0600) and no legacy key is in a container-visible path (or, if one is, it is backed up)", hostkey.exists() and oct(hostkey.stat().st_mode & 0o777) == "0o600" and (not legacy or any(n.endswith(".bridge.key") for n in listed)),
+          {"host_key": str(hostkey) if hostkey.exists() else "missing", "legacy_key_present": legacy})
     leaked = [f"{c}:{n}" for c in CONTAINERS.values() for n in before[c]["env_names"] if SECRET_NAME.search(n)]
     check(res, "6a no credential-named environment variable in either target container", not leaked, leaked or "none")
 

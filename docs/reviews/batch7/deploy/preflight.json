@@ -1,8 +1,8 @@
 {
  "backup": {
-  "file": "/Users/mahamudc/agentsec-backups/loan_desk-20261022-163010.tar.gz",
-  "files_in_archive": 25,
-  "files_on_disk": 24,
+  "file": "/Users/mahamudc/agentsec-backups/loan_desk-20261022-175637.tar.gz",
+  "files_in_archive": 54,
+  "files_on_disk": 46,
   "mode": "0600"
  },
  "before": {
@@ -29,14 +29,15 @@
     "PYTHON_VERSION"
    ],
    "health": "healthy",
-   "id": "e5d48fa05bfb",
-   "image": "f842f5855910",
+   "id": "e7392ee360fb",
+   "image": "354f3048b5ef",
    "mounts": [
-    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts->/app/artifacts:rw",
+    "bind:/host_mnt/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts->/app/artifacts:rw",
+    "bind:/host_mnt/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts/loan_desk/receipts->/app/artifacts/loan_desk/receipts:ro",
     "volume:agentseclab_shared_telemetry->/var/log/agentsec:rw"
    ],
-   "started": "2026-10-22T17:23:27.912851552Z",
-   "tag": "agentseclab-acmebank"
+   "started": "2026-10-22T20:36:00.191710634Z",
+   "tag": "agentseclab-acmebank:batch7-f4f8f5e"
   },
   "agentsec_attack_service": {
    "env_names": [
@@ -54,10 +55,11 @@
     "PYTHON_VERSION"
    ],
    "health": "healthy",
-   "id": "0afaab62479c",
-   "image": "1f7da726749d",
+   "id": "4dc5586e07d8",
+   "image": "8204acc82316",
    "mounts": [
     "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts->/app/artifacts:rw",
+    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts/loan_desk/receipts->/app/artifacts/loan_desk/receipts:ro",
     "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json->/app/learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json:ro",
     "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json->/app/learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json:ro",
     "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json->/app/learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json:ro",
@@ -66,8 +68,8 @@
     "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-PI-001/lab-manifest.json->/app/learning/level_1/LAB-PI-001/lab-manifest.json:ro",
     "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json->/app/learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json:ro"
    ],
-   "started": "2026-10-22T17:23:33.506840554Z",
-   "tag": "agentseclab-attack_service"
+   "started": "2026-10-22T20:36:05.802762554Z",
+   "tag": "agentseclab-attack_service:batch7-f4f8f5e"
   },
   "agentsec_ollama": {
    "env_names": [
@@ -178,13 +180,13 @@
    "check": "1a both target containers are up and healthy",
    "detail": {
     "agentsec_acmebank": [
-     "agentseclab-acmebank",
-     "f842f5855910",
+     "agentseclab-acmebank:batch7-f4f8f5e",
+     "354f3048b5ef",
      "healthy"
     ],
     "agentsec_attack_service": [
-     "agentseclab-attack_service",
-     "1f7da726749d",
+     "agentseclab-attack_service:batch7-f4f8f5e",
+     "8204acc82316",
      "healthy"
     ]
    },
@@ -206,30 +208,31 @@
   {
    "check": "1c containers mount the shared artifacts dir read-write and nothing from the Docker socket",
    "detail": [
-    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts->/app/artifacts:rw",
+    "bind:/host_mnt/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts->/app/artifacts:rw",
+    "bind:/host_mnt/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts/loan_desk/receipts->/app/artifacts/loan_desk/receipts:ro",
     "volume:agentseclab_shared_telemetry->/var/log/agentsec:rw"
    ],
    "pass": true
   },
   {
    "check": "1d the running verifier is the one the pidfile names (a loan_desk_verifier.py process)",
-   "detail": "66419     1 Thu 22 Oct 13:24:34 2026     python3 /Users/mahamudc/Documents/Projects/AgentSecLab-wt-baseline/scripts/loan_desk_verifier.py --artifacts /Users/mahamudc/Documents/Projects/AgentSecLab/artifacts",
+   "detail": "6099     1 Thu 22 Oct 16:39:58 2026     /Users/mahamudc/Documents/Projects/AgentSecLab-wt-baseline/.venv/bin/python /Users/mahamudc/Documents/Projects/AgentSecLab-wt-baseline/scripts/loan_desk_verifier.py --artifacts /Users/mahamudc/Documents/Projects/AgentSecLab/artifacts",
    "pass": true
   },
   {
    "check": "2a rollback anchors tagged for both images",
    "detail": {
-    "acmebank": "agentseclab-acmebank:pre-batch7-f842f5855910",
-    "attack_service": "agentseclab-attack_service:pre-batch7-1f7da726749d"
+    "acmebank": "agentseclab-acmebank:pre-batch7-354f3048b5ef",
+    "attack_service": "agentseclab-attack_service:pre-batch7-8204acc82316"
    },
    "pass": true
   },
   {
    "check": "2b artifacts/loan_desk backed up outside every repository (0600) and the archive lists every file",
    "detail": {
-    "file": "/Users/mahamudc/agentsec-backups/loan_desk-20261022-163010.tar.gz",
-    "files_in_archive": 25,
-    "files_on_disk": 24,
+    "file": "/Users/mahamudc/agentsec-backups/loan_desk-20261022-175637.tar.gz",
+    "files_in_archive": 54,
+    "files_on_disk": 46,
     "mode": "0600"
    },
    "pass": true
@@ -237,8 +240,8 @@
   {
    "check": "3 historical evidence is in Splunk and nothing here deletes it (counts recorded)",
    "detail": {
-    "events": "2029",
-    "runs": "84"
+    "events": "2709",
+    "runs": "150"
    },
    "pass": true
   },
@@ -251,8 +254,11 @@
    "pass": true
   },
   {
-   "check": "5a v1 signing material exists and is backed up (it is removed only after a validated cutover)",
-   "detail": "/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts/loan_desk/.bridge.key",
+   "check": "5a signing material: the host key is private (0600) and no legacy key is in a container-visible path (or, if one is, it is backed up)",
+   "detail": {
+    "host_key": "/Users/mahamudc/.local/state/agentsec/loan_desk/receipt.key",
+    "legacy_key_present": false
+   },
    "pass": true
   },
   {
@@ -317,18 +323,21 @@
   "agentsec_attack_service": 0
  },
  "rollback_anchors": {
-  "acmebank": "agentseclab-acmebank:pre-batch7-f842f5855910",
-  "attack_service": "agentseclab-attack_service:pre-batch7-1f7da726749d"
+  "acmebank": "agentseclab-acmebank:pre-batch7-354f3048b5ef",
+  "attack_service": "agentseclab-attack_service:pre-batch7-8204acc82316"
  },
  "splunk_before": {
-  "events": "2029",
-  "runs": "84"
+  "events": "2709",
+  "runs": "150"
  },
- "time": "2026-10-22T20:30:10Z",
+ "time": "2026-10-22T21:56:37Z",
  "verifier_identity": {
   "artifacts_arg": "/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts",
   "is_verifier": true,
-  "ps": "66419     1 Thu 22 Oct 13:24:34 2026     python3 /Users/mahamudc/Documents/Projects/AgentSecLab-wt-baseline/scripts/loan_desk_verifier.py --artifacts /Users/mahamudc/Documents/Projects/AgentSecLab/artifacts",
-  "v1_pidfile": "66419"
+  "ps": "6099     1 Thu 22 Oct 16:39:58 2026     /Users/mahamudc/Documents/Projects/AgentSecLab-wt-baseline/.venv/bin/python /Users/mahamudc/Documents/Projects/AgentSecLab-wt-baseline/scripts/loan_desk_verifier.py --artifacts /Users/mahamudc/Documents/Projects/AgentSecLab/artifacts",
+  "v1_pidfile": null,
+  "v2_pidfile": "6099",
+  "v2_pidfile_ps": "6099     1 Thu 22 Oct 16:39:58 2026     /Users/mahamudc/Documents/Projects/AgentSecLab-wt-baseline/.venv/bin/python /Users/mahamudc/Documents/Projects/AgentSecLab-wt-baseline/scripts/loan_desk_verifier.py --artifacts /Users/mahamudc/Documents/Projects/AgentSecLab/artifacts",
+  "version": "v2"
  }
 }
