@@ -9,6 +9,8 @@ from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request
 
+from agentsec.shell import shell_links
+
 from agentsec.agents import PIPELINE_ORDER
 from agentsec.experiment import (
     resolve_attack_id,
@@ -117,6 +119,10 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
     )
     app.config["SECRET_KEY"] = runtime.settings.flask_secret_key
     app.config["AGENTSEC_RUNTIME"] = runtime
+
+    @app.context_processor
+    def _shell_context():
+        return {"shell": shell_links(request.path, surface="acmebank_app")}
 
     @app.get("/health")
     def health():

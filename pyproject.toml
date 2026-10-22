@@ -18,6 +18,11 @@ dependencies = [
 test = [
   "pytest>=8.3.0",
 ]
+# Browser tests (tests/ui, scripts/ui_*.py). Needs a Chromium: set AGENTSEC_CHROMIUM or run `playwright install chromium`.
+ui = [
+  "playwright>=1.45",
+  "axe-playwright-python>=0.1.4",
+]
 
 [build-system]
 requires = ["setuptools>=69"]

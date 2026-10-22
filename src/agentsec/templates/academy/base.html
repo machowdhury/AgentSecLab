@@ -6,9 +6,11 @@
   <title>{% block title %}AgentSec Academy{% endblock %} · AgentSec Academy</title>
   <link rel="icon" href="/static/agentsec-favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/static/academy.css">
+  {% include "_shell_head.html" %}
 </head>
 <body data-page="{{ page }}">
   <a class="skip-link" href="#main">Skip to main content</a>
+  {% include "_shell_bar.html" %}
   <div class="shell">
     <header class="masthead">
       <a class="brand" href="/academy">

@@ -6,9 +6,11 @@
   <title>AgentSec — {{ capstone_workbench.title }}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec-workbench.css') }}">
+  {% include "_shell_head.html" %}
 </head>
 <body class="workbench-page capstone-workbench">
   <a class="skip-link" href="#main">Skip to investigation</a>
+  {% include "_shell_bar.html" %}
   <header class="workbench-header">
     <div class="workbench-header__inner">
       <div>

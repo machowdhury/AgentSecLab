@@ -7,9 +7,11 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec-workbench.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec-academy.css') }}">
+  {% include "_shell_head.html" %}
 </head>
 <body class="academy">
   <a class="skip-link" href="#main">Skip to the lesson</a>
+  {% include "_shell_bar.html" %}
   <div class="app">
   <header class="topbar">
     <div class="brand"><span class="mark" aria-hidden="true">A</span>AgentSec</div>

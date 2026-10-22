@@ -1,0 +1,13 @@
+{#- Shared surface bar. `shell` comes from each app's context processor (agentsec.shell). -#}
+<nav class="as-shell" aria-label="AgentSec surfaces" data-shell>
+  <div class="as-shell__inner">
+    <a class="as-shell__brand" href="/academy"{% if shell.service_port %} data-shell-port="{{ shell.service_port }}"{% endif %}><img src="/static/agentsec-mark.svg" alt="" width="24" height="24"><span>AgentSec</span></a>
+    <ul class="as-shell__list">
+      <li><a href="/academy"{% if shell.service_port %} data-shell-port="{{ shell.service_port }}"{% endif %}{% if shell.active == 'academy' %} aria-current="page"{% endif %}>Academy</a></li>
+      <li><a href="/"{% if shell.service_port %} data-shell-port="{{ shell.service_port }}"{% endif %}{% if shell.active == 'attack' %} aria-current="page"{% endif %}>Attack Service</a></li>
+      <li><a href="{{ shell.acmebank }}"{% if shell.active == 'acmebank' %} aria-current="page"{% endif %}>AcmeBank</a></li>
+      {% if shell_script|default(true) %}<li><a href="{{ shell.splunk_path }}" data-splunk-link>Splunk Studio</a></li>{% endif %}
+    </ul>
+    <span class="as-shell__note">Learning lab, not production</span>
+  </div>
+</nav>

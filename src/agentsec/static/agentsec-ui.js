@@ -112,6 +112,15 @@
       }
       nodes[i].setAttribute("href", learnerHref(raw, loc));
     }
+    // Shared surface bar on another origin (AcmeBank app -> Attack Service): complete the host from the browser.
+    var page = loc || window.location;
+    var hops = scope.querySelectorAll("a[data-shell-port]");
+    for (var j = 0; j < hops.length; j += 1) {
+      var port = hops[j].getAttribute("data-shell-port");
+      if (/^\d{2,5}$/.test(port)) {
+        hops[j].setAttribute("href", page.protocol + "//" + page.hostname + ":" + port + hops[j].getAttribute("href"));
+      }
+    }
   }
 
   function learnerRunState(data) {
