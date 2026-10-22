@@ -122,7 +122,7 @@
 <!-- 6 INVESTIGATE -->
 <section class="step" id="step-investigate" data-step="investigate" aria-labelledby="h-investigate" hidden>
   <h2 id="h-investigate" tabindex="-1"><span class="step-kicker">Step 6 of 10</span> Investigate: prove it in Splunk</h2>
-  {{ brief("Finding the attack run in Splunk and answering from recorded events.", "The page shows what AcmeBank emitted locally. Only Splunk shows what was indexed.", "Copy a search, run it in Splunk, then enter what you see.", "Three searches: the run's events, the policy decision for the review, and the filed note.", "Local evidence and Splunk evidence are different claims. Counting values instead of events inflates the number.") }}
+  {{ brief("Finding the attack run in Splunk and answering from recorded events.", "The page shows what AcmeBank emitted locally. Only Splunk shows what was indexed.", "Copy a search, run it in Splunk, then enter what you see.", "Three searches: the run's events, the policy decision for the review, and the filed note.", "Local evidence and Splunk evidence are different claims; the host verifier uses a fixed, read-only search and never gives this page a credential. Counting values instead of events inflates the number.") }}
   <p class="callout" data-evidence-state>No attack run yet.</p>
   <div data-spl-list></div>
   <form class="prediction" data-count-form>
@@ -130,7 +130,7 @@
     <input id="splunk-count" inputmode="numeric" autocomplete="off">
     <p class="field-error" data-count-error></p>
     <div class="mission-actions"><button type="submit" class="button button--secondary">Check my count</button>
-      <button type="button" class="button button--ghost" data-recheck-evidence>Re-check host verification</button></div>
+      <button type="button" class="button button--secondary" data-recheck-evidence>Verify with Splunk (host verifier)</button></div>
     <p data-count-result role="status"></p>
   </form>
   <form class="prediction" data-proof-form>

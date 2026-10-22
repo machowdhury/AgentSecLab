@@ -164,10 +164,15 @@
     $("ev-run").textContent = ev.run_id;
     $("ev-count").textContent = ev.event_count + " emitted by AcmeBank (LOCAL evidence, " + ev.schema + ")";
     var sp = ev.splunk || {}, node = $("ev-indexed"), msg = {
-      NOT_VERIFIED: "NOT VERIFIED. Only local evidence exists. Run the search below in Splunk, or ask the lab host to run: " + ev.host_check,
-      SPLUNK_VERIFIED: "SPLUNK-VERIFIED. Host check at " + sp.checked_at + ": " + sp.indexed_events + " indexed of " + sp.local_events + " local events, reconciled.",
+      NOT_VERIFIED: "NOT VERIFIED. " + (sp.detail || "Only local evidence exists.") + " Run the search below in Splunk, or press Verify with Splunk.",
+      PENDING: "VERIFYING… the host verifier is running fixed, read-only Splunk searches for this run.",
+      VERIFIER_OFFLINE: "NOT VERIFIED. The host verifier is not running, so nothing can confirm indexing.",
+      TIMED_OUT: "NOT VERIFIED. The host verifier did not answer in time. Try again.",
+      VERIFICATION_FAILED: "NOT VERIFIED. The host check could not complete: " + (sp.detail || "unknown"),
+      INVALID_RECORD: "NOT VERIFIED. A reconciliation record failed authentication and was ignored.",
+      SPLUNK_VERIFIED: "SPLUNK-VERIFIED by the host verifier at " + sp.checked_at + ": " + sp.indexed_events + " indexed of " + sp.local_events + " local events.",
       SPLUNK_MISMATCH: "SPLUNK MISMATCH. Indexed " + sp.indexed_events + " of " + sp.local_events + " local events: " + (sp.problems || []).join(", "),
-      STALE: "STALE. The last host check no longer matches this run's event count. Re-run the host check."
+      STALE: "STALE. The last host check no longer matches this run's event count."
     };
     node.textContent = msg[ev.indexed_status] || msg.NOT_VERIFIED;
     node.dataset.state = ev.indexed_status;
@@ -273,10 +278,22 @@
     setTimeout(function () { $(labelId).textContent = labelId === "copy-run" ? "Copy run.id" : "Copy search"; }, 1500);
   }
   $("refresh-ev").addEventListener("click", function () {
-    var id = $("ev-run").textContent;
+    var id = $("ev-run").textContent, btn = $("refresh-ev");
     if (!id) { return; }
-    fetch("/api/v1/loan-desk/runs/" + encodeURIComponent(id)).then(function (r) { return r.json(); }).then(render)
-      .catch(function () { $("ev-indexed").textContent = "Could not reach AcmeBank to re-check."; });
+    btn.disabled = true;
+    function settle(msg) { $("ev-indexed").textContent = msg; btn.disabled = false; }
+    fetch("/api/v1/loan-desk/runs/" + encodeURIComponent(id) + "/verify", { method: "POST" }).then(function (r) {
+      if (r.status === 503) { settle("NOT VERIFIED. The verifier is not installed on this lab."); return; }
+      if (r.status === 429) { settle("Please wait a few seconds before verifying again."); return; }
+      if (r.status !== 202) { settle("The verification request was not accepted (HTTP " + r.status + ")."); return; }
+      var t0 = Date.now();
+      (function tick() {
+        fetch("/api/v1/loan-desk/runs/" + encodeURIComponent(id)).then(function (x) { return x.json(); }).then(function (v) {
+          render(v);
+          if (v.evidence.indexed_status === "PENDING" && Date.now() - t0 < 160000) { setTimeout(tick, 2000); } else { btn.disabled = false; }
+        }).catch(function () { settle("Could not reach AcmeBank to read the result."); });
+      }());
+    }).catch(function () { settle("Could not reach AcmeBank to request verification."); });
   });
   $("copy-run").addEventListener("click", function () { copy("ev-run", "copy-run"); });
   $("copy-spl").addEventListener("click", function () { copy("ev-spl", "copy-spl"); });

@@ -75,6 +75,12 @@ def register_loan_desk_mission(app: Flask, *, acmebank_url: str, version: str) -
             launched.append(resp.get_json()["run_id"])
         return resp, status
 
+    @app.post("/api/missions/loan-desk/runs/<run_id>/verify")
+    def mission_verify(run_id: str):
+        if not RUN_ID.match(run_id) or run_id not in launched:
+            return _no_store(jsonify({"error": "unknown_run", "detail": "This service did not launch that run."})), 404
+        return upstream("POST", f"/api/v1/loan-desk/runs/{run_id}/verify")
+
     @app.get("/api/missions/loan-desk/runs/<run_id>")
     def mission_run(run_id: str):
         if not RUN_ID.match(run_id) or run_id not in launched:
