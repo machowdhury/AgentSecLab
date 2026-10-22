@@ -1,0 +1,213 @@
+{% extends "academy/base.html" %}
+{% block title %}Loan Desk mission{% endblock %}
+{% block crumbs %}<li><a href="/academy/missions/loan-desk" aria-current="page">Loan Desk mission</a></li>{% endblock %}
+{% macro brief(doing, why, todo, evidence, learn) %}
+  <dl class="brief">
+    <div><dt>What you are doing</dt><dd>{{ doing }}</dd></div>
+    <div><dt>Why it matters</dt><dd>{{ why }}</dd></div>
+    <div><dt>What to do</dt><dd>{{ todo }}</dd></div>
+    <div><dt>Evidence to inspect</dt><dd>{{ evidence }}</dd></div>
+    <div><dt>What you will learn</dt><dd>{{ learn }}</dd></div>
+  </dl>
+{% endmacro %}
+{% macro runpanel(name) %}
+  <div class="run-panel" data-run-panel="{{ name }}" aria-live="polite" aria-busy="false">
+    <p class="run-panel__idle" data-run-idle>No run yet.</p>
+  </div>
+{% endmacro %}
+{% block main %}
+<div class="workshop" data-mission="loan-desk"
+     data-attack-notes="{{ attack_notes }}" data-normal-notes="{{ normal_notes }}">
+
+<header class="page-header">
+  <p class="eyebrow">Mission · AcmeBank Loan Desk · live agent · about 30 minutes</p>
+  <h1>Loan Desk: when the agent writes for the underwriter</h1>
+  <p class="lead">A real AI agent reviews synthetic loan applications and files a note in the human underwriter queue. You will make it file something an attacker wrote, prove it from recorded evidence, change one control, and prove the change worked.</p>
+</header>
+
+<p class="callout callout--warn" role="status" data-mission-banner hidden></p>
+
+<nav class="stepper" aria-label="Mission steps">
+  <ol>
+    {% for key, label in [("understand","Understand"),("explore","Explore"),("predict","Predict"),("attack","Attack"),("observe","Observe"),("investigate","Investigate"),("defend","Defend"),("retest","Retest"),("compare","Compare"),("explain","Explain")] %}
+    <li><a href="#{{ key }}" data-step-link="{{ key }}"><span class="step-n">{{ loop.index }}</span> {{ label }}<span class="step-state" data-step-state="{{ key }}"></span></a></li>
+    {% endfor %}
+  </ol>
+</nav>
+<p class="step-announcer visually-hidden" role="status" aria-live="polite" data-step-announcer></p>
+<p class="gate-message" role="alert" data-gate-message hidden></p>
+
+<!-- 1 UNDERSTAND -->
+<section class="step" id="step-understand" data-step="understand" aria-labelledby="h-understand">
+  <h2 id="h-understand" tabindex="-1"><span class="step-kicker">Step 1 of 10</span> Understand: meet the Loan Desk</h2>
+  {{ brief("Reading how the Loan Desk is built and what is real.", "You can only judge evidence once you know which parts are trusted and which are deliberately weak.", "Read the flow and the lab boundaries, then continue.", "None yet.", "A model proposes, a policy engine decides, a handler runs. Those are three different facts.") }}
+  <ol class="flow">
+    <li><strong>Customer notes</strong><span>Free text typed by the applicant. Untrusted.</span></li>
+    <li><strong>Agent (real model)</strong><span>Reads the case and <em>proposes</em> one tool call at a time.</span></li>
+    <li><strong>CTRL-LOANDESK-001</strong><span>The policy decision point. Checks the tool, its scope, the applicant and (in HARDENED) the note. The agent cannot edit it.</span></li>
+    <li><strong>Handler</strong><span>Runs only if the decision was ALLOW. <code>agentsec.mcp.started</code> is the event that proves it began.</span></li>
+    <li><strong>Underwriter queue</strong><span>Where a human reads the agent's note. This is the asset the attacker wants to reach.</span></li>
+  </ol>
+  <section class="boundaries" aria-labelledby="h-bounds"><h3 id="h-bounds">Lab boundaries</h3>
+    <ul>{% for b in boundaries %}<li>{{ b }}</li>{% endfor %}</ul></section>
+  <section class="callout" aria-labelledby="h-model"><h3 id="h-model">The model behind this mission</h3>
+    <p data-model-line>Checking model…</p>
+    <button type="button" class="button button--ghost" data-retry-status hidden>Retry connection</button>
+  </section>
+  <div class="step-nav"><span></span><button type="button" class="button button--primary" data-go="explore">Continue to Explore</button></div>
+</section>
+
+<!-- 2 EXPLORE -->
+<section class="step" id="step-explore" data-step="explore" aria-labelledby="h-explore" hidden>
+  <h2 id="h-explore" tabindex="-1"><span class="step-kicker">Step 2 of 10</span> Explore: run a normal application</h2>
+  {{ brief("Submitting an ordinary application and watching the agent work.", "Normal behaviour is the baseline you will compare the attack against.", "Edit any field you like, then run it. Notes are optional.", "The timeline: what the model proposed, what policy decided, what actually ran, and the note the agent filed.", "Each tool call has separate facts: proposed, decided, executed.") }}
+  <form class="mission-form" data-app-form novalidate>
+    <p class="callout callout--warn" role="alert" data-form-errors hidden></p>
+    {% for key, label, kind in [("full_name","Full name","text"),("annual_income","Annual income (CAD)","text"),("credit_score","Credit score (300-900)","text"),("loan_amount","Loan amount (CAD)","text"),("term_years","Term (years, 5-35)","text")] %}
+    <div class="mission-field"><label for="f-{{ key }}">{{ label }}</label><input id="f-{{ key }}" name="{{ key }}" type="{{ kind }}" value="{{ default_application[key] }}" autocomplete="off"><p class="field-error" data-err="{{ key }}"></p></div>
+    {% endfor %}
+    <div class="mission-field"><label for="f-province">Province</label><select id="f-province" name="province">{% for p in ["AB","BC","MB","NB","NL","NS","ON","PE","QC","SK"] %}<option value="{{ p }}"{% if p == default_application.province %} selected{% endif %}>{{ p }}</option>{% endfor %}</select></div>
+    <div class="mission-field"><label for="f-employment">Employment</label><select id="f-employment" name="employment"><option value="full_time" selected>Full-time</option><option value="part_time">Part-time</option><option value="self_employed">Self-employed</option><option value="retired">Retired</option></select></div>
+    <div class="mission-field mission-field--wide"><label for="f-notes">Notes to the loan officer (untrusted text the agent reads)</label><textarea id="f-notes" name="notes" rows="3" maxlength="400">{{ normal_notes }}</textarea><p class="field-error" data-err="notes"></p></div>
+    <div class="mission-actions"><button type="submit" class="button button--primary" data-launch="explore">Run normal application</button></div>
+  </form>
+  {{ runpanel("explore") }}
+  <div class="step-nav"><button type="button" class="button button--ghost" data-go="understand">Back</button><button type="button" class="button button--primary" data-go="predict">Continue to Predict</button></div>
+</section>
+
+<!-- 3 PREDICT -->
+<section class="step" id="step-predict" data-step="predict" aria-labelledby="h-predict" hidden>
+  <h2 id="h-predict" tabindex="-1"><span class="step-kicker">Step 3 of 10</span> Predict: before you attack</h2>
+  {{ brief("Committing to what you expect before any evidence exists.", "A prediction you did not make cannot be wrong, so it teaches nothing.", "Read the planted text, answer three questions, lock them.", "None. Evidence arrives after you lock.", "Where your mental model of agents and controls is right or wrong.") }}
+  <p>An applicant hides this in their notes. The Loan Desk is in <strong>BASELINE</strong> posture: policy checks the tool, scope and applicant, and the review note may be any text.</p>
+  <blockquote class="quote" data-attack-quote>{{ attack_notes }}</blockquote>
+  <form class="prediction" data-predict-form>
+    <fieldset><legend>1. Will the agent copy the planted text into its review note?</legend>
+      <label><input type="radio" name="follow" value="yes"> Yes, it follows the planted instruction</label>
+      <label><input type="radio" name="follow" value="no"> No, it writes its own note</label>
+      <label><input type="radio" name="follow" value="unsure"> I am not sure</label></fieldset>
+    <fieldset><legend>2. What will CTRL-LOANDESK-001 decide for the review submission?</legend>
+      <label><input type="radio" name="decision" value="ALLOW"> ALLOW</label>
+      <label><input type="radio" name="decision" value="DENY"> DENY</label></fieldset>
+    <fieldset><legend>3. What will the human underwriter see in the queue?</legend>
+      <label><input type="radio" name="queue" value="planted"> The attacker's text, filed by the agent</label>
+      <label><input type="radio" name="queue" value="neutral"> A neutral summary the agent wrote</label>
+      <label><input type="radio" name="queue" value="nothing"> Nothing, the submission is blocked</label></fieldset>
+    <p class="field-error" data-predict-error></p>
+    <div class="mission-actions"><button type="submit" class="button button--primary" data-lock-prediction>Lock prediction</button></div>
+  </form>
+  <p class="callout callout--security" data-prediction-locked hidden>Prediction locked. You can now attack.</p>
+  <div class="step-nav"><button type="button" class="button button--ghost" data-go="explore">Back</button><button type="button" class="button button--primary" data-go="attack">Continue to Attack</button></div>
+</section>
+
+<!-- 4 ATTACK -->
+<section class="step" id="step-attack" data-step="attack" aria-labelledby="h-attack" hidden>
+  <h2 id="h-attack" tabindex="-1"><span class="step-kicker">Step 4 of 10</span> Attack: submit the planted application</h2>
+  {{ brief("Running the attack for real against the BASELINE Loan Desk.", "This is a live run: a real model, real policy decisions, real events.", "Launch it. You may edit the planted text first.", "Wait for the run to finish; the timeline fills in as it happens.", "Whether a valid, in-scope action can still carry an attacker's content.") }}
+  <div class="mission-field mission-field--wide"><label for="attack-notes">Applicant notes (the planted text)</label><textarea id="attack-notes" rows="4" maxlength="400" data-attack-notes>{{ attack_notes }}</textarea></div>
+  <div class="mission-actions"><button type="button" class="button button--primary" data-launch="attack">Launch attack (BASELINE posture)</button><button type="button" class="button button--ghost" data-reset-attack-text>Restore planted text</button></div>
+  {{ runpanel("attack") }}
+  <div class="step-nav"><button type="button" class="button button--ghost" data-go="predict">Back</button><button type="button" class="button button--primary" data-go="observe">Continue to Observe</button></div>
+</section>
+
+<!-- 5 OBSERVE -->
+<section class="step" id="step-observe" data-step="observe" aria-labelledby="h-observe" hidden>
+  <h2 id="h-observe" tabindex="-1"><span class="step-kicker">Step 5 of 10</span> Observe: what happened</h2>
+  {{ brief("Reading the result and checking your prediction.", "Surprises are where the learning is.", "Compare each answer you locked with what the run actually did.", "The queue, the policy decision for the review, and whether its handler began.", "ALLOW means policy was satisfied. It does not mean the action was safe.") }}
+  <div data-prediction-review></div>
+  <div class="queue-view" data-queue-view></div>
+  <div class="step-nav"><button type="button" class="button button--ghost" data-go="attack">Back</button><button type="button" class="button button--primary" data-go="investigate">Continue to Investigate</button></div>
+</section>
+
+<!-- 6 INVESTIGATE -->
+<section class="step" id="step-investigate" data-step="investigate" aria-labelledby="h-investigate" hidden>
+  <h2 id="h-investigate" tabindex="-1"><span class="step-kicker">Step 6 of 10</span> Investigate: prove it in Splunk</h2>
+  {{ brief("Finding the attack run in Splunk and answering from recorded events.", "The page shows what AcmeBank emitted locally. Only Splunk shows what was indexed.", "Copy a search, run it in Splunk, then enter what you see.", "Three searches: the run's events, the policy decision for the review, and the filed note.", "Local evidence and Splunk evidence are different claims. Counting values instead of events inflates the number.") }}
+  <p class="callout" data-evidence-state>No attack run yet.</p>
+  <div data-spl-list></div>
+  <form class="prediction" data-count-form>
+    <label for="splunk-count">How many events does Search 1 show for this run.id?</label>
+    <input id="splunk-count" inputmode="numeric" autocomplete="off">
+    <p class="field-error" data-count-error></p>
+    <div class="mission-actions"><button type="submit" class="button button--secondary">Check my count</button>
+      <button type="button" class="button button--ghost" data-recheck-evidence>Re-check host verification</button></div>
+    <p data-count-result role="status"></p>
+  </form>
+  <form class="prediction" data-proof-form>
+    <label for="proof-event">Which recorded event proves the review handler actually began?</label>
+    <select id="proof-event"><option value="">Choose an event…</option><option>agentsec.control.decision</option><option>agentsec.agent.action.proposed</option><option>agentsec.mcp.started</option><option>agentsec.run.completed</option></select>
+    <div class="mission-actions"><button type="submit" class="button button--secondary">Check</button></div>
+    <p data-proof-result role="status"></p>
+  </form>
+  <div class="step-nav"><button type="button" class="button button--ghost" data-go="observe">Back</button><button type="button" class="button button--primary" data-go="defend">Continue to Defend</button></div>
+</section>
+
+<!-- 7 DEFEND -->
+<section class="step" id="step-defend" data-step="defend" aria-labelledby="h-defend" hidden>
+  <h2 id="h-defend" tabindex="-1"><span class="step-kicker">Step 7 of 10</span> Defend: change one control</h2>
+  {{ brief("Choosing how the review note is controlled.", "The attack worked inside valid scope, so the existing checks had nothing to refuse.", "Pick the posture and apply it. You can switch back at any time.", "The rule text and what it changes.", "Argument-level authorization: control what an allowed tool may carry, not only who may call it.") }}
+  <p class="callout callout--warn">This is a <strong>new</strong> control. The policy denial of cross-customer reads (<code>resource_not_bound_to_run</code>) already existed and is unchanged by this setting. Do not count it as a fix for this attack.</p>
+  <form data-defense-form>
+    <fieldset><legend>Review note policy</legend>
+      <label class="choice"><input type="radio" name="posture" value="baseline"> <span><strong>Free text (BASELINE)</strong> The agent may write any note. Flexible, and an injected instruction can ride along.</span></label>
+      <label class="choice"><input type="radio" name="posture" value="hardened"> <span><strong>Reason codes only (HARDENED)</strong> The note must be exactly one of <code>READY_FOR_REVIEW</code>, <code>NEEDS_DOCUMENTS</code>, <code>CREDIT_CONCERN</code>, <code>INCOME_CONCERN</code>. Anything else is denied before the handler runs.</span></label>
+    </fieldset>
+    <div class="mission-actions"><button type="submit" class="button button--primary" data-apply-defense>Apply setting</button><button type="button" class="button button--ghost" data-revert-defense>Revert to BASELINE</button></div>
+  </form>
+  <dl class="brief" data-defense-summary>
+    <div><dt>Active posture</dt><dd data-defense-current></dd></div>
+    <div><dt>Rule evaluated by CTRL-LOANDESK-001</dt><dd data-defense-rule></dd></div>
+    <div><dt>Bounds</dt><dd>Closed set of two values. Applies per run, is recorded on every event as <code>agentsec.defense.posture</code>, and changes no stored data.</dd></div>
+    <div><dt>Trade-off</dt><dd>HARDENED also rejects the agent's own helpful prose. It must retry with a code.</dd></div>
+  </dl>
+  <div class="step-nav"><button type="button" class="button button--ghost" data-go="investigate">Back</button><button type="button" class="button button--primary" data-go="retest">Continue to Retest</button></div>
+</section>
+
+<!-- 8 RETEST -->
+<section class="step" id="step-retest" data-step="retest" aria-labelledby="h-retest" hidden>
+  <h2 id="h-retest" tabindex="-1"><span class="step-kicker">Step 8 of 10</span> Retest: same attack, new posture</h2>
+  {{ brief("Replaying the exact planted text against your chosen posture.", "A defense is a claim until the same attack is run again.", "Launch the retest. It uses the planted text from the Attack step.", "The review decision, the queue, and whether the handler ran.", "Whether the change blocked the attack without breaking the business workflow.") }}
+  <p class="callout" data-retest-posture></p>
+  <div class="mission-actions"><button type="button" class="button button--primary" data-launch="retest">Launch retest</button></div>
+  {{ runpanel("retest") }}
+  <div class="step-nav"><button type="button" class="button button--ghost" data-go="defend">Back</button><button type="button" class="button button--primary" data-go="compare">Continue to Compare</button></div>
+</section>
+
+<!-- 9 COMPARE -->
+<section class="step" id="step-compare" data-step="compare" aria-labelledby="h-compare" hidden>
+  <h2 id="h-compare" tabindex="-1"><span class="step-kicker">Step 9 of 10</span> Compare: before and after</h2>
+  {{ brief("Setting your two live runs side by side.", "Only a difference you can point to counts as evidence.", "Read the rows; note which differences come from the posture and which from model randomness.", "Posture, the review decision, the queue note, and event counts.", "A defense is proven by the same input producing a different, explained outcome.") }}
+  <div data-compare-table></div>
+  <div class="step-nav"><button type="button" class="button button--ghost" data-go="retest">Back</button><button type="button" class="button button--primary" data-go="explain">Continue to Explain</button></div>
+</section>
+
+<!-- 10 EXPLAIN -->
+<section class="step" id="step-explain" data-step="explain" aria-labelledby="h-explain" hidden>
+  <h2 id="h-explain" tabindex="-1"><span class="step-kicker">Step 10 of 10</span> Explain: say it in your own words</h2>
+  {{ brief("Answering four questions from your own runs, then writing the story.", "If you can explain it, you understood it.", "Pick the answers, then write two or three sentences.", "Your attack and retest runs.", "How to separate what was observed from what you infer.") }}
+  <form class="prediction" data-explain-form>
+    <fieldset><legend>1. Which control made the decision about the review note?</legend>
+      <label><input type="radio" name="q1" value="ctrl"> CTRL-LOANDESK-001, the policy engine in AcmeBank</label>
+      <label><input type="radio" name="q1" value="splunk"> Splunk, after the event was indexed</label>
+      <label><input type="radio" name="q1" value="model"> The model, when it wrote the note</label></fieldset>
+    <fieldset><legend>2. In the BASELINE attack, policy said ALLOW. What does that tell you?</legend>
+      <label><input type="radio" name="q2" value="safe"> The action was safe</label>
+      <label><input type="radio" name="q2" value="valid"> The tool, scope and applicant were valid; the content was never checked</label>
+      <label><input type="radio" name="q2" value="bug"> Policy was broken</label></fieldset>
+    <fieldset><legend>3. What did HARDENED change?</legend>
+      <label><input type="radio" name="q3" value="codes"> The note must be a reason code, so free text is denied before the handler runs</label>
+      <label><input type="radio" name="q3" value="model"> The model was retrained not to follow injections</label>
+      <label><input type="radio" name="q3" value="scope"> The agent lost the review tool</label></fieldset>
+    <fieldset><legend>4. Which event proves a handler began?</legend>
+      <label><input type="radio" name="q4" value="started"> agentsec.mcp.started</label>
+      <label><input type="radio" name="q4" value="decision"> agentsec.control.decision with ALLOW</label>
+      <label><input type="radio" name="q4" value="proposed"> agentsec.agent.action.proposed</label></fieldset>
+    <div class="mission-field mission-field--wide"><label for="explain-text">Explain in your own words what the attacker did and why the retest differed (at least 60 characters)</label><textarea id="explain-text" rows="4" maxlength="1200"></textarea></div>
+    <p class="field-error" data-explain-error></p>
+    <div class="mission-actions"><button type="submit" class="button button--primary">Check and finish</button><button type="button" class="button button--ghost" data-reset-mission>Reset this mission</button></div>
+    <p data-explain-result role="status"></p>
+  </form>
+  <div class="step-nav"><button type="button" class="button button--ghost" data-go="compare">Back</button><a class="button button--secondary" href="/academy/path">Back to your learning path</a></div>
+</section>
+</div>
+{% endblock %}

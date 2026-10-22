@@ -10,6 +10,7 @@ from flask import Flask, jsonify, render_template, request
 
 from agentsec.academy import lab_row, next_lab
 from agentsec.academy_web import register_academy
+from agentsec.mission_loan_desk import register_loan_desk_mission
 from agentsec.agents import PIPELINE_ORDER
 from agentsec.attacks import ATK_002
 from agentsec.framework_refs import references_for, retired_labels
@@ -221,6 +222,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
     launcher = LaunchService(client, settings, **(launch_kwargs or {}))
     app.config["AGENTSEC_LAUNCH_SERVICE"] = launcher
     register_academy(app, launcher=launcher, client=client, artifacts_dir=launcher.artifacts_dir, version=settings.version)
+    register_loan_desk_mission(app, acmebank_url=client.base_url, version=settings.version)
 
     @app.get("/health")
     def health():

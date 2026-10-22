@@ -259,3 +259,37 @@ details > summary { min-height: 44px; display: flex; align-items: center; cursor
 @media (forced-colors: active) {
   .badge, .button, .stepper a { border: 1px solid CanvasText; }
 }
+
+/* ---------- Loan Desk mission (tokens come from the shared Academy variables) ---------- */
+.flow { display: grid; gap: .5rem; padding-left: 1.25rem; margin: 1rem 0; }
+.flow li span { display: block; color: var(--muted); }
+.mission-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: .75rem 1rem; margin: 1rem 0; }
+.mission-field label { display: block; font-weight: 700; margin-bottom: .25rem; }
+.mission-field input, .mission-field select, .mission-field textarea, .prediction input[type="text"], #splunk-count, #proof-event, #explain-text, .spl {
+  width: 100%; font: inherit; padding: .55rem .6rem; border: 1px solid var(--line-strong); border-radius: 6px; background: #fff; color: var(--ink, #172536); min-height: 44px; }
+.mission-field--wide { grid-column: 1 / -1; }
+.mission-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .6rem; margin: .5rem 0; }
+.field-error { margin: .25rem 0 0; color: var(--red); font-size: .9rem; }
+.field-error:empty { display: none; }
+.prediction fieldset { border: 1px solid var(--line); border-radius: var(--radius); margin: 0 0 1rem; padding: .75rem 1rem; }
+.prediction legend { font-weight: 700; padding: 0 .35rem; }
+.prediction label, .choice { display: flex; gap: .5rem; align-items: flex-start; padding: .25rem 0; }
+.quote { margin: 1rem 0; padding: .75rem 1rem; border-left: 4px solid var(--amber); background: var(--amber-bg); font-family: var(--mono); font-size: .9rem; overflow-wrap: anywhere; }
+.run-panel { margin: 1rem 0; padding: 1rem; border: 1px dashed var(--line-strong); border-radius: var(--radius); background: var(--bg); }
+.run-panel .muted, .muted { color: var(--muted); }
+.outcomes { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: .6rem; margin: .5rem 0; }
+.outcome { display: grid; gap: .15rem; padding: .6rem .8rem; border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--panel); }
+.outcome--BLOCKED, .outcome--COMPLETE { border-color: var(--green); background: var(--green-bg); }
+.outcome--INCOMPLETE, .outcome--FAILED { border-color: var(--amber); background: var(--amber-bg); }
+.queue { margin: 1rem 0; padding: .75rem 1rem; border: 1px solid var(--navy); border-radius: var(--radius); background: var(--panel); }
+.queue h4 { margin: 0 0 .5rem; }
+.ticket { padding: .5rem .75rem; border: 1px solid var(--line-strong); border-radius: 6px; margin: .4rem 0; }
+.ticket--harm { border-color: var(--red); background: var(--red-bg); }
+.ticket__meta { margin: 0; color: var(--muted); font-size: .875rem; }
+.ticket__note { margin: .25rem 0; font-weight: 700; overflow-wrap: anywhere; }
+.ticket__flag { margin: 0; color: var(--red); font-weight: 700; }
+.spl-block { margin: 1rem 0; }
+.spl-block h4 { margin: 0 0 .35rem; }
+.spl { font-family: var(--mono); font-size: .875rem; }
+.choice { padding: .5rem; border: 1px solid var(--line); border-radius: 6px; margin: .4rem 0; }
+@media (prefers-reduced-motion: no-preference) { .run-panel { transition: background .2s; } }
