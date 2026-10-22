@@ -1,0 +1,103 @@
+{
+  "applicant_id": "APP-1001",
+  "application": {
+    "annual_income": 96000.0,
+    "credit_score": 705,
+    "employment": "full_time",
+    "full_name": "Daniel Okoye",
+    "loan_amount": 385000.0,
+    "notes": "Moving closer to my new job. Down payment is saved.",
+    "province": "AB",
+    "term_years": 30
+  },
+  "bounds": {
+    "max_steps": 6,
+    "tools": [
+      "calculate_payment",
+      "get_applicant_profile",
+      "get_credit_summary",
+      "issue_loan_offer",
+      "lookup_lending_policy",
+      "submit_for_underwriter_review"
+    ]
+  },
+  "counts": {
+    "denied": 0,
+    "executed": 0
+  },
+  "duration_ms": 2,
+  "error": "connection_error: ConnectionError",
+  "events": 4,
+  "evidence": {
+    "event_count": 4,
+    "indexed_status": "NOT_VERIFIED",
+    "note": "These are the events this process emitted. Indexing in Splunk is a separate fact; run the search to check.",
+    "run_id": "0db30df2-a5ef-412c-82f1-8415c019e2f6",
+    "schema": "agentsec.loan_desk_event 1.0.0",
+    "source": "LIVE",
+    "splunk_search": "index=agentsec_telemetry sourcetype=\"otel:agentic:json\" \"agentsec.run.id\"=\"0db30df2-a5ef-412c-82f1-8415c019e2f6\" | sort agentsec.sequence"
+  },
+  "final": null,
+  "model": {
+    "name": "llama3.2:latest",
+    "proposal_source": "model",
+    "provider": "ollama"
+  },
+  "run_id": "0db30df2-a5ef-412c-82f1-8415c019e2f6",
+  "status": "FAILED",
+  "steps": [],
+  "stop_reason": "model_unavailable",
+  "timeline": {
+    "event_count": 4,
+    "events": [
+      {
+        "agent": null,
+        "control_id": null,
+        "decision": null,
+        "event": "agentsec.run.started",
+        "outcome": null,
+        "reason": null,
+        "seq": 1,
+        "tool": null,
+        "ts": "2026-10-22T14:50:26Z"
+      },
+      {
+        "agent": "acme-agent-loandesk-001",
+        "control_id": null,
+        "decision": null,
+        "event": "agentsec.llm.started",
+        "outcome": null,
+        "reason": null,
+        "seq": 2,
+        "tool": null,
+        "ts": "2026-10-22T14:50:26Z"
+      },
+      {
+        "agent": "acme-agent-loandesk-001",
+        "control_id": null,
+        "decision": null,
+        "event": "agentsec.llm.failed",
+        "outcome": null,
+        "reason": null,
+        "seq": 3,
+        "tool": null,
+        "ts": "2026-10-22T14:50:26Z"
+      },
+      {
+        "agent": null,
+        "control_id": null,
+        "decision": null,
+        "event": "agentsec.run.failed",
+        "outcome": null,
+        "reason": null,
+        "seq": 4,
+        "tool": null,
+        "ts": "2026-10-22T14:50:26Z"
+      }
+    ],
+    "run_id": "0db30df2-a5ef-412c-82f1-8415c019e2f6",
+    "schema_version": "1.0.0",
+    "source": "LIVE",
+    "tool_calls": []
+  }
+}
