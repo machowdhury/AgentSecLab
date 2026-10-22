@@ -124,20 +124,23 @@ def splunk_status(d: Path, run_id: str, local_count: int, now: float | None = No
     req = _read_json(d / "requests" / f"{run_id}.json")
     res = _read_json(d / f"{run_id}.splunk.json")
     base = {"verifier": hb}
+    req_ok = req is not None and verify(key, req)
     if res is not None:
         if not verify(key, res) or res.get("run_id") != run_id:
             return {**base, "status": "INVALID_RECORD", "detail": "A reconciliation record failed authentication and was ignored."}
-        if req is None or not verify(key, req) or res.get("nonce") != req.get("nonce"):
+        if req_ok and res.get("nonce") == req.get("nonce"):
+            info = {"indexed_events": res.get("indexed_events"), "local_events": res.get("local_events"),
+                    "checked_at": res.get("checked_at"), "problems": res.get("problems", [])}
+            if res.get("error"):
+                return {**base, **info, "status": "VERIFICATION_FAILED", "detail": f"The host check could not complete: {res['error']}"}
+            if res.get("reconciled") is not True:
+                return {**base, **info, "status": "SPLUNK_MISMATCH"}
+            if res.get("local_events") != local_count:
+                return {**base, **info, "status": "STALE", "detail": "The run has more or fewer events than when it was checked."}
+            return {**base, **info, "status": "SPLUNK_VERIFIED"}
+        if not req_ok:
             return {**base, "status": "NOT_VERIFIED", "detail": "The record answers no current request from this lab."}
-        info = {"indexed_events": res.get("indexed_events"), "local_events": res.get("local_events"),
-                "checked_at": res.get("checked_at"), "problems": res.get("problems", [])}
-        if res.get("error"):
-            return {**base, **info, "status": "VERIFICATION_FAILED", "detail": f"The host check could not complete: {res['error']}"}
-        if res.get("reconciled") is not True:
-            return {**base, **info, "status": "SPLUNK_MISMATCH"}
-        if res.get("local_events") != local_count:
-            return {**base, **info, "status": "STALE", "detail": "The run has more or fewer events than when it was checked."}
-        return {**base, **info, "status": "SPLUNK_VERIFIED"}
+        # an authentic newer request is waiting: an older answer must not be shown as the current state
     if req is not None and verify(key, req):
         age = now - float(req.get("requested_at", 0))
         if age <= PENDING_TIMEOUT_S and hb == "ONLINE":
