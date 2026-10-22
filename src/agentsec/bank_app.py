@@ -923,6 +923,12 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
         view = desk.view(run_id)
         return (jsonify(view), 200) if view else (jsonify({"error": "unknown run"}), 404)
 
+    @app.post("/api/v1/loan-desk/runs/<run_id>/verify")
+    def loan_desk_verify(run_id: str):
+        code, detail = desk.request_verification(run_id)
+        status = {"REQUESTED": 202, "UNKNOWN_RUN": 404, "BAD_RUN": 404, "RATE_LIMITED": 429, "NOT_INSTALLED": 503}[code]
+        return jsonify({"request": code, **detail}), status
+
     @app.get("/api/v1/loan-desk/runs/<run_id>/events.ndjson")
     def loan_desk_events(run_id: str):
         body = desk.events_ndjson(run_id)

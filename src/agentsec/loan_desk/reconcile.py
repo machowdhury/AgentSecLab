@@ -21,7 +21,7 @@ BASE = 'index=agentsec_telemetry sourcetype="otel:agentic:json" earliest=-24h "a
 
 
 def run_spl(spl: str, *, container: str = SPLUNK_CONTAINER, runner: Callable | None = None) -> list[dict]:
-    inner = "/opt/splunk/bin/splunk search " + json.dumps(" ".join(spl.split())) + ' -auth "admin:${SPLUNK_PASSWORD}" -output csv -maxout 0'
+    inner = "/opt/splunk/bin/splunk search " + json.dumps(" ".join(spl.split())) + ' -auth "admin:${SPLUNK_PASSWORD}" -output csv -maxout 500'
     proc = (runner or subprocess.run)(["docker", "exec", "-u", "splunk", container, "bash", "-lc", inner],
                                        capture_output=True, text=True, check=False, timeout=90)
     if proc.returncode != 0:

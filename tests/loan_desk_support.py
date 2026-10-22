@@ -83,3 +83,51 @@ class PostureAwareModel:
             return ModelReply(json.dumps({"action": "tool", "tool": "submit_for_underwriter_review",
                                           "arguments": {"applicant_id": app_id, "note": note}}), 10, 5, self.name, 1)
         return ModelReply(json.dumps(FINAL), 10, 5, self.name, 1)
+
+
+def bridge_online(artifacts_dir, now=None):
+    """Stand in for a running host verifier: key + fresh signed heartbeat."""
+    from agentsec.loan_desk import verifier, verify_bridge as vb
+    d = vb.bridge_dir(artifacts_dir)
+    key = vb.ensure_key(d)
+    verifier.heartbeat(d, key, pid=1, now=now)
+    return d, key
+
+
+def bridge_answer(artifacts_dir, run_id, local_events, **over):
+    """Write the signed result a verifier would write for the latest request."""
+    from agentsec.loan_desk import verify_bridge as vb
+    d = vb.bridge_dir(artifacts_dir)
+    key = vb.read_key(d)
+    req = vb._read_json(d / "requests" / f"{run_id}.json")
+    doc = {"run_id": run_id, "nonce": req["nonce"], "reconciled": True, "problems": [], "local_events": local_events,
+           "indexed_events": local_events, "checked_at": "2026-10-22T00:00:00Z", **over}
+    vb._write_json(d / f"{run_id}.splunk.json", vb.sign(key, doc))
+
+
+class FakeVerifierThread:
+    """TEST DOUBLE for the host verifier: real bridge protocol, but the Splunk reconcile is faked (reconciled=True)."""
+
+    def __init__(self, artifacts_dir, origin, reconcile=None):
+        import threading
+        from agentsec.loan_desk import verifier, verify_bridge as vb
+        self.d = vb.bridge_dir(artifacts_dir)
+        self.key = vb.ensure_key(self.d)
+        self.origin = origin
+        self.stop = threading.Event()
+        self.reconcile = reconcile or (lambda rid, ev, timeout_s=45: {"reconciled": True, "problems": [], "local_events": len(ev),
+                                       "indexed_events": len(ev), "checked_at": "TEST-DOUBLE", "method": "test double"})
+        self._verifier = verifier
+        self.t = threading.Thread(target=self.loop, daemon=True)
+        self.t.start()
+
+    def loop(self):
+        import time
+        seen, budget = {}, {"window_start": time.time(), "count": 0}
+        while not self.stop.is_set():
+            self._verifier.heartbeat(self.d, self.key, 1)
+            self._verifier.process_once(self.d, self.key, origin=self.origin, reconcile=self.reconcile, seen=seen, budget=budget)
+            time.sleep(0.2)
+
+    def close(self):
+        self.stop.set()

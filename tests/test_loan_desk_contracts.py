@@ -383,30 +383,21 @@ def test_model_availability_probe_uses_the_clients_own_endpoint(monkeypatch):
 
 # ---------------------------------------------------------------- local vs Splunk-verified evidence
 
-def _record(svc, file_id, **over):
-    d = svc.settings.artifacts_dir / "loan_desk"
-    d.mkdir(parents=True, exist_ok=True)
-    n = svc.view(file_id)["events"]
-    rec = {"run_id": file_id, "reconciled": True, "problems": [], "local_events": n, "indexed_events": n,
-           "checked_at": "2026-10-22T00:00:00Z", **over}
-    (d / f"{file_id}.splunk.json").write_text(json.dumps(rec), encoding="utf-8")
-
-
-def test_evidence_is_local_until_a_host_record_says_otherwise(svc_factory):
+def test_evidence_is_local_until_the_authenticated_bridge_says_otherwise(svc_factory):
+    from tests.loan_desk_support import bridge_answer, bridge_online
     svc, v = run(svc_factory, [tool("get_applicant_profile", applicant_id="APP-1001"),
                                tool("get_credit_summary", applicant_id="APP-1001"), SUBMIT, FINAL])
-    rid = v["run_id"]
-    assert v["evidence"]["indexed_status"] == "NOT_VERIFIED"
-    _record(svc, rid)
+    rid, d = v["run_id"], svc.settings.artifacts_dir
+    assert v["evidence"]["indexed_status"] == "NOT_VERIFIED" and v["evidence"]["splunk"]["verifier"] == "NOT_INSTALLED"
+    bridge_online(d)
+    assert svc.view(rid)["evidence"]["indexed_status"] == "NOT_VERIFIED"  # online verifier alone verifies nothing
+    assert svc.request_verification(rid)[0] == "REQUESTED"
+    assert svc.view(rid)["evidence"]["indexed_status"] == "PENDING"
+    bridge_answer(d, rid, svc.view(rid)["events"])
     assert svc.view(rid)["evidence"]["indexed_status"] == "SPLUNK_VERIFIED"
-    _record(svc, rid, reconciled=False, indexed_events=3, problems=["count_mismatch local=9 indexed=3"])
-    assert svc.view(rid)["evidence"]["indexed_status"] == "SPLUNK_MISMATCH"
-    _record(svc, rid, local_events=1, indexed_events=1)
-    assert svc.view(rid)["evidence"]["indexed_status"] == "STALE"
-    (svc.settings.artifacts_dir / "loan_desk" / f"{rid}.splunk.json").write_text("{not json", encoding="utf-8")
-    assert svc.view(rid)["evidence"]["indexed_status"] == "NOT_VERIFIED"
-    _record(svc, rid, run_id="someone-else")  # a record for another run never counts
-    assert svc.view(rid)["evidence"]["indexed_status"] == "NOT_VERIFIED"
+    assert svc.request_verification(rid)[0] == "RATE_LIMITED"
+    assert svc.request_verification("11111111-1111-4111-8111-111111111111")[0] == "UNKNOWN_RUN"
+    assert svc.request_verification("../../etc")[0] == "UNKNOWN_RUN"
 
 
 def test_reconcile_detects_inflation_duplicates_and_gaps():

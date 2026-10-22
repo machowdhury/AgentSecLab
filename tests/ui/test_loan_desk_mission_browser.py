@@ -18,7 +18,7 @@ from werkzeug.serving import make_server  # noqa: E402
 
 from agentsec.attack_app import AcmeBankClient, create_app as create_attack  # noqa: E402
 from agentsec.bank_app import build_runtime, create_app as create_bank  # noqa: E402
-from tests.loan_desk_support import PostureAwareModel  # noqa: E402
+from tests.loan_desk_support import FakeVerifierThread, PostureAwareModel  # noqa: E402
 
 
 def _chromium():
@@ -49,6 +49,7 @@ def stack(settings):
     servers = []
 
     def start(model=None, bank_url=None):
+        start.bank_url = bank_url
         if bank_url is None:
             rt = build_runtime(settings, otel_enabled=False)
             rt.loan_desk_model = model or PostureAwareModel()
@@ -56,11 +57,13 @@ def stack(settings):
             threading.Thread(target=bank.serve_forever, daemon=True).start()
             servers.append(bank)
             bank_url = f"http://127.0.0.1:{bank.server_port}"
+            start.bank_url = bank_url
         attack = make_server("127.0.0.1", 0, create_attack(AcmeBankClient(bank_url)), threaded=True)
         threading.Thread(target=attack.serve_forever, daemon=True).start()
         servers.append(attack)
         return f"http://127.0.0.1:{attack.server_port}/academy/missions/loan-desk"
 
+    start.bank_url = None
     yield start
     for s in servers:
         s.shutdown()
@@ -93,7 +96,7 @@ def predict(pg):
     pg.click("[data-lock-prediction]")
 
 
-def test_the_full_ten_step_journey_with_a_real_before_and_after(page, stack):
+def test_the_full_ten_step_journey_with_a_real_before_and_after(page, stack, settings, request):
     page.goto(stack())
     page.wait_for_function("() => !document.querySelector('[data-model-line]').textContent.startsWith('Checking')")
     assert "scripted-test-double" in page.locator("[data-model-line]").inner_text() or "test_double" in page.locator("[data-model-line]").inner_text()
@@ -139,7 +142,7 @@ def test_the_full_ten_step_journey_with_a_real_before_and_after(page, stack):
     run_id = page.locator("[data-run-panel='attack'] code").first.inner_text()
     spl = page.locator(".spl").all()
     assert len(spl) == 3 and all(run_id in s.input_value() for s in spl)
-    assert "LOCAL evidence only" in page.locator("[data-evidence-state]").inner_text()
+    assert "NOT VERIFIED" in page.locator("[data-evidence-state]").inner_text() and "LOCAL evidence" in page.locator("[data-evidence-state]").inner_text()
     n = page.evaluate("document.querySelector('[data-run-panel=\"attack\"]').textContent.match(/Local evidence: (\\d+) events/)[1]")
     page.fill("#splunk-count", "abc"); page.click("[data-count-form] button[type=submit]")
     assert "whole number" in page.locator("[data-count-error]").inner_text()
@@ -152,6 +155,15 @@ def test_the_full_ten_step_journey_with_a_real_before_and_after(page, stack):
     page.select_option("#proof-event", "agentsec.mcp.started"); page.click("[data-proof-form] button")
     assert "Correct" in page.locator("[data-proof-result]").inner_text()
     assert page.locator("a:has-text('Open in Splunk')").first.get_attribute("href").startswith("http://127.0.0.1:8000/en-US/app/search/search?q=")
+    # verification without a running verifier is an explicit non-success
+    page.click("[data-recheck-evidence]")
+    page.wait_for_function("() => document.querySelector('[data-evidence-state]').textContent.includes('not installed')")
+    assert "SPLUNK-VERIFIED" not in page.locator("[data-evidence-state]").inner_text()
+    fake = FakeVerifierThread(settings.artifacts_dir, stack.bank_url)  # TEST DOUBLE verifier speaking the real bridge protocol
+    request.addfinalizer(fake.close)
+    page.wait_for_timeout(500)
+    page.click("[data-recheck-evidence]")
+    page.wait_for_function("() => document.querySelector('[data-evidence-state]').textContent.includes('SPLUNK-VERIFIED')", timeout=20000)
 
     # DEFEND, retest first without applying: still locked
     go(page, "defend")
@@ -170,7 +182,7 @@ def test_the_full_ten_step_journey_with_a_real_before_and_after(page, stack):
     table = page.locator("[data-compare-table]").inner_text()
     assert "ATTACK" in table and "RETEST" in table and "YES" in table
     assert page.locator("[data-compare-table] tr.is-different").count() >= 4
-    assert "did not under HARDENED" in page.locator("[data-compare-table] .callout").inner_text()
+    assert "did not under HARDENED" in page.locator("[data-compare-table] .callout").last.inner_text()
 
     # EXPLAIN: wrong answers are refused, then completion is recorded
     go(page, "explain")
@@ -202,7 +214,7 @@ def test_reversible_defense_returns_the_attack_to_working(page, stack):
     assert "expect the attack to work again" in page.locator("[data-retest-posture]").inner_text()
     page.click("[data-launch='retest']"); wait_run(page, "retest")
     go(page, "compare")
-    assert "do not show the defense working" in page.locator("[data-compare-table] .callout").inner_text()
+    assert "do not show the defense working" in page.locator("[data-compare-table] .callout").last.inner_text()
 
 
 def test_acmebank_down_is_a_visible_recoverable_state(page, stack):

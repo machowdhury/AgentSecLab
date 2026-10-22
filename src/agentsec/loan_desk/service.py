@@ -14,6 +14,7 @@ from agentsec.loan_desk.data import ApplicationStore, validate_application
 from agentsec.loan_desk.events import LoanDeskEmitter
 from agentsec.loan_desk.facts import build_facts, unsupported_figures
 from agentsec.loan_desk.model import ChatModel
+from agentsec.loan_desk import verify_bridge as vb
 from agentsec.loan_desk.tools import POSTURES, TOOLS
 from agentsec.settings import Settings
 from agentsec.timeline import build_timeline
@@ -111,28 +112,21 @@ class LoanDeskService:
             "schema": "agentsec.loan_desk_event 1.0.0",
             "splunk_search": f'index=agentsec_telemetry sourcetype="otel:agentic:json" "agentsec.run.id"="{run_id}" | sort agentsec.sequence',
             "indexed_status": splunk["status"], "splunk": splunk,
-            "host_check": f"python scripts/loan_desk_verify.py {run_id} --record artifacts/loan_desk",
-            "note": "LOCAL evidence = events AcmeBank emitted. SPLUNK-VERIFIED needs a host-side reconciliation record; "
-                    "this page cannot reach Splunk and never assumes indexing.",
+            "note": "LOCAL evidence = events AcmeBank emitted. SPLUNK-VERIFIED needs the host verifier to confirm; "
+                    "this service cannot reach Splunk and never assumes indexing.",
         }
         return out
 
     def _splunk_status(self, run_id: str, local_count: int) -> dict:
-        """Read the host-written reconciliation record, if any. Only runs this process created are looked up."""
-        path = Path(self.settings.artifacts_dir) / "loan_desk" / f"{run_id}.splunk.json"
-        try:
-            rec = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            return {"status": "NOT_VERIFIED"}
-        ok = (isinstance(rec, dict) and rec.get("run_id") == run_id and isinstance(rec.get("reconciled"), bool)
-              and isinstance(rec.get("local_events"), int) and isinstance(rec.get("indexed_events"), int))
-        if not ok:
-            return {"status": "NOT_VERIFIED", "detail": "unreadable reconciliation record ignored"}
-        base = {"indexed_events": rec["indexed_events"], "local_events": rec["local_events"],
-                "checked_at": rec.get("checked_at"), "problems": rec.get("problems", [])}
-        if rec["local_events"] != local_count:
-            return {**base, "status": "STALE", "detail": "the run has more or fewer events than when it was checked"}
-        return {**base, "status": "SPLUNK_VERIFIED" if rec["reconciled"] else "SPLUNK_MISMATCH"}
+        return vb.splunk_status(vb.bridge_dir(self.settings.artifacts_dir), run_id, local_count)
+
+    def request_verification(self, run_id: str) -> tuple[str, dict]:
+        """Ask the host verifier to reconcile one run this process created. Returns (code, detail)."""
+        with self._lock:
+            known = run_id in self._runs
+        if not known:
+            return "UNKNOWN_RUN", {}
+        return vb.request_verification(vb.bridge_dir(self.settings.artifacts_dir), run_id)
 
     def events_ndjson(self, run_id: str) -> str | None:
         import json
