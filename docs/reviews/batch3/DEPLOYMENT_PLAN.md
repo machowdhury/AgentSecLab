@@ -1,0 +1,16 @@
+# Gate 1 deployment plan (AcmeBank only)
+
+State before (read-only inspection, 2026-10-22):
+- Compose project `agentseclab`; config files = main tree docker-compose.yml + docker-compose.local.yml (+ .env). Develop tree is only *read*.
+- Running: agentsec_acmebank (image agentseclab-acmebank:latest = b69e230c4a46), attack_service, splunk, otel_collector, ollama. All healthy.
+- AcmeBank talks to HOST Ollama (host.docker.internal:11434); host models: llama3.2:latest a80c4f17acd5, llama3.2:1b, mistral.
+- Volumes (none removed or recreated): agentseclab_shared_telemetry, agentseclab_ollama_models, agentseclab_splunk_app_agentsec; bind ./artifacts.
+
+Operations (exactly these):
+1. docker tag agentseclab-acmebank:latest agentseclab-acmebank:pre-batch3-b69e230c4a46   (rollback anchor)
+2. docker build -f docker/Dockerfile.acmebank -t agentseclab-acmebank:batch3-a821a3a -t agentseclab-acmebank:latest  <feature worktree @ a821a3a>
+3. (cd main tree) docker compose -p agentseclab up -d --no-deps --no-build acmebank
+
+Affected: agentsec_acmebank container only (recreated, ~10 s outage on :5000). Not touched: splunk, otel_collector, ollama, attack_service, all volumes, .env, compose files.
+Rollback: docker tag agentseclab-acmebank:pre-batch3-b69e230c4a46 agentseclab-acmebank:latest && (cd main tree) docker compose -p agentseclab up -d --no-deps --no-build acmebank
+In-memory Loan Desk runs and the container's JSONL telemetry are lost/replaced with the container; indexed Splunk data is not affected.
