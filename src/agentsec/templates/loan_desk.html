@@ -112,11 +112,31 @@
           <p class="ld-live" id="live" aria-live="polite">Submit an application to start a review.</p>
         </section>
 
+        <section class="ld-card" aria-labelledby="outcome-h" id="outcome-card" hidden>
+          <h2 id="outcome-h">Outcome</h2>
+          <div class="ld-outcomes">
+            <div class="ld-out" id="out-security"><p class="ld-out__k">Security outcome</p><p class="ld-out__v" id="out-security-v"></p></div>
+            <div class="ld-out" id="out-business"><p class="ld-out__k">Business workflow</p><p class="ld-out__v" id="out-business-v"></p></div>
+          </div>
+          <p id="out-ops" class="ld-hint"></p>
+          <ul id="out-blocked" class="ld-blocked"></ul>
+        </section>
+
+        <section class="ld-card" aria-labelledby="facts-h" id="facts-card" hidden>
+          <h2 id="facts-h">Verified facts</h2>
+          <p class="ld-hint" id="facts-basis"></p>
+          <dl class="ld-facts" id="facts-list"></dl>
+          <h3 class="ld-h3">Rule-based screening</h3>
+          <ul class="ld-screen" id="screening"></ul>
+          <p class="ld-screen__v" id="screening-v"></p>
+        </section>
+
         <section class="ld-card" aria-labelledby="result-h" id="result-card" hidden>
-          <h2 id="result-h">Result</h2>
+          <h2 id="result-h">Model recommendation <span class="ld-tag ld-tag--warn">ADVISORY · NOT VERIFIED</span></h2>
           <p class="ld-reco" id="reco"></p>
-          <p id="summary"></p>
-          <p class="ld-hint" id="advisory">Advisory only. No loan was approved or offered. A human underwriter decides.</p>
+          <p class="ld-warn" id="claims-warn" hidden></p>
+          <p class="ld-prose" id="summary"></p>
+          <p class="ld-hint" id="advisory">Advisory only. No loan was approved or offered. A human underwriter decides. The text above is written by the model; only the Verified facts card is computed from tool data.</p>
         </section>
       </div>
     </div>

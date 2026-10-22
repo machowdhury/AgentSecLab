@@ -176,15 +176,52 @@
     $("ev-download").setAttribute("href", "/api/v1/loan-desk/runs/" + encodeURIComponent(ev.run_id) + "/events.ndjson");
   }
   var RECO = { PROCEED_TO_UNDERWRITER: "Proceed to underwriter", NEEDS_MORE_INFORMATION: "Needs more information", NOT_RECOMMENDED: "Not recommended" };
+  var SEC = { BLOCKED: "BLOCKED", NOTHING_BLOCKED: "Nothing needed blocking" };
+  var BIZ = { COMPLETE: "COMPLETE", INCOMPLETE: "INCOMPLETE", FAILED: "FAILED", RUNNING: "RUNNING" };
+  function renderOutcome(view) {
+    var o = view.outcomes, card = $("outcome-card");
+    var done = view.status !== "RUNNING";
+    card.hidden = !done;
+    if (!done) { return; }
+    $("out-security").dataset.v = o.security.outcome; $("out-business").dataset.v = o.business.outcome;
+    $("out-security-v").textContent = SEC[o.security.outcome] + (o.security.blocked.length ? " (" + o.security.blocked.length + " action" + (o.security.blocked.length > 1 ? "s" : "") + ")" : "");
+    $("out-business-v").textContent = BIZ[o.business.outcome] + (o.business.reason ? " · " + o.business.reason : "");
+    var p = o.operations;
+    $("out-ops").textContent = "Proposed " + p.proposed + " · authorized " + p.authorized + " · denied " + p.denied + " · executed " + p.executed +
+      (p.denied_but_executed ? " · DENIED-BUT-EXECUTED " + p.denied_but_executed + " (a control failure)" : " · no denied action ran");
+    var ul = $("out-blocked"); ul.textContent = "";
+    o.security.blocked.forEach(function (b) {
+      ul.appendChild(el("li", "", "Step " + b.step + " " + b.tool + ": " + b.reason + (b.executed ? " — EXECUTED ANYWAY" : " — handler did not run")));
+    });
+  }
+  function renderFacts(view) {
+    var f = view.facts, card = $("facts-card");
+    card.hidden = !(f && f.items && f.items.length);
+    if (card.hidden) { return; }
+    $("facts-basis").textContent = f.basis;
+    var dl = $("facts-list"); dl.textContent = "";
+    f.items.forEach(function (i) {
+      var v = typeof i.value === "number" ? i.value.toLocaleString("en-US", { maximumFractionDigits: 2 }) : i.value;
+      dl.appendChild(el("dt", "", i.label));
+      dl.appendChild(el("dd", "", v + (i.unit ? " " + i.unit : "") + "  ·  " + i.source));
+    });
+    var ul = $("screening"); ul.textContent = "";
+    f.screening.forEach(function (c) { var li = el("li", "", c.rule + ": " + c.result); li.dataset.r = c.result; ul.appendChild(li); });
+    $("screening-v").textContent = "Screening result: " + f.screening_result.replace(/_/g, " ");
+  }
   function render(view) {
     var st = $("run-status"); st.dataset.state = view.status; st.textContent = view.status;
     var ph = phaseFor(view); setPhase(ph[0], ph[1]);
     $("live").textContent = liveText(view);
-    renderTimeline(view); renderEvidence(view);
-    if (view.status === "COMPLETED" && view.final) {
+    renderTimeline(view); renderEvidence(view); renderOutcome(view); renderFacts(view);
+    var adv = view.advisory;
+    if (view.status === "COMPLETED" && adv) {
       $("result-card").hidden = false;
-      $("reco").textContent = RECO[view.final.recommendation] || view.final.recommendation;
-      $("summary").textContent = view.final.summary;
+      $("reco").textContent = (RECO[adv.recommendation] || adv.recommendation) + (adv.differs_from_screening ? " (differs from rule-based screening)" : "");
+      $("summary").textContent = adv.summary;
+      var w = $("claims-warn"), bad = adv.unsupported_figures || [];
+      w.hidden = bad.length === 0;
+      w.textContent = bad.length ? "Figures in this text that no tool result or computation supports: " + bad.join(", ") + ". Do not rely on them." : "";
     } else { $("result-card").hidden = true; }
   }
 
@@ -209,7 +246,7 @@
     var v = values(), errs = clientErrors(v);
     if (Object.keys(errs).length) { showErrors(errs); return; }
     $("submit").disabled = true; $("submit").textContent = "Submitting…"; $("loan-form").setAttribute("aria-busy", "true");
-    $("result-card").hidden = true; $("timeline-card").hidden = true; $("evidence-card").hidden = true;
+    ["result-card", "timeline-card", "evidence-card", "outcome-card", "facts-card"].forEach(function (id) { $(id).hidden = true; });
     var st = $("run-status"); st.dataset.state = "RUNNING"; st.textContent = "RUNNING";
     setPhase(0, false); $("live").textContent = "Submitting your application…";
     fetch("/api/v1/loan-desk/applications", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(v) })

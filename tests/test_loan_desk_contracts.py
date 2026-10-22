@@ -417,3 +417,54 @@ def test_reconcile_detects_inflation_duplicates_and_gaps():
     assert "duplicate_events_indexed" in reconcile(local, {**good, "events": 4})["problems"] + reconcile(local, {**good, "events": 4, "sequences": [1, 2, 3, 3]})["problems"]
     assert "count_mismatch local=3 indexed=2" in reconcile(local, {**good, "events": 2, "sequences": [1, 2]})["problems"]
     assert "sequence_set_mismatch" in reconcile(local, {**good, "sequences": [1, 2, 4]})["problems"]
+
+
+# ---------------------------------------------------------------- Gate 2: facts vs prose, outcomes
+
+def test_facts_are_computed_from_handler_data_not_model_prose(svc_factory):
+    lying = {**FINAL, "summary": "Debt service ratio is 38.5% and the monthly payment is $1,234.56 on this loan."}
+    _, v = run(svc_factory, [tool("get_applicant_profile", applicant_id="APP-1001"),
+                             tool("get_credit_summary", applicant_id="APP-1001"), lying])
+    by = {i["id"]: i for i in v["facts"]["items"]}
+    assert by["loan_amount"]["value"] == 420000 and by["credit_score"]["value"] == 740
+    assert by["monthly_payment"]["value"] == pytest.approx(handlers.monthly_payment(420000, 5.2, 25), abs=0.01)
+    assert by["payment_to_income"]["value"] == round(by["monthly_payment"]["value"] * 12 / 118000 * 100, 1)
+    assert all(i["status"] == "VERIFIED" and i["source"] for i in v["facts"]["items"])
+    assert v["advisory"]["label"] == "MODEL-WRITTEN, NOT VERIFIED"
+    assert set(v["advisory"]["unsupported_figures"]) == {"38.5%", "$1,234.56"}  # flagged, never promoted to a fact
+    assert "38.5" not in json.dumps(v["facts"])
+
+
+def test_supported_figures_are_not_flagged_and_unexecuted_tools_give_no_facts(svc_factory):
+    from agentsec.loan_desk.facts import build_facts, unsupported_figures
+    _, v = run(svc_factory, [tool("get_applicant_profile", applicant_id="APP-1001"),
+                             tool("get_credit_summary", applicant_id="APP-1001"), FINAL])
+    pay = next(i for i in v["facts"]["items"] if i["id"] == "monthly_payment")["value"]
+    ok = f"Income $118,000, score 740, payment {pay:,.2f} over 25 years; policy needs 600."
+    assert unsupported_figures(ok, v["facts"], {}) == []
+    empty = build_facts({})
+    assert empty["items"] == [] and empty["screening_result"] == "INSUFFICIENT_DATA"
+
+
+def test_screening_is_deterministic_and_flags_a_disagreeing_model(svc_factory):
+    weak = {**GOOD_FORM, "credit_score": 550, "annual_income": 20000, "loan_amount": 900000}
+    _, v = run(svc_factory, [tool("get_applicant_profile", applicant_id="APP-1001"),
+                             tool("get_credit_summary", applicant_id="APP-1001"), FINAL], form=weak)
+    assert v["facts"]["screening_result"] == "DOES_NOT_MEET_REFERENCE"
+    assert v["advisory"]["recommendation"] == "PROCEED_TO_UNDERWRITER" and v["advisory"]["differs_from_screening"] is True
+
+
+def test_blocked_attack_reports_security_and_business_outcomes_separately(svc_factory):
+    _, v = run(svc_factory, [tool("get_applicant_profile", applicant_id="APP-2002")])  # model never recovers
+    o = v["outcomes"]
+    assert o["security"]["outcome"] == "BLOCKED" and o["security"]["blocked"][0]["reason"] == "resource_not_bound_to_run"
+    assert o["business"] == {"outcome": "INCOMPLETE", "reason": "step_budget_exhausted"}
+    assert o["operations"]["proposed"] == 6 and o["operations"]["executed"] == 0 and o["operations"]["denied_but_executed"] == 0
+    assert v["advisory"] is None and v["facts"]["items"] == []
+
+
+def test_clean_run_has_nothing_blocked_and_unavailable_model_is_a_business_failure(svc_factory):
+    _, v = run(svc_factory, [tool("get_applicant_profile", applicant_id="APP-1001"), tool("get_credit_summary", applicant_id="APP-1001"), FINAL])
+    assert v["outcomes"]["security"]["outcome"] == "NOTHING_BLOCKED" and v["outcomes"]["business"]["outcome"] == "COMPLETE"
+    _, u = run(svc_factory, [], model=UnavailableModel())
+    assert u["outcomes"]["business"]["outcome"] == "FAILED" and u["outcomes"]["operations"]["proposed"] == 0

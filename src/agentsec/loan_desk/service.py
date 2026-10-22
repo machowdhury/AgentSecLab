@@ -12,12 +12,29 @@ from collections import OrderedDict
 from agentsec.loan_desk.agent import MAX_STEPS, run_agent
 from agentsec.loan_desk.data import ApplicationStore, validate_application
 from agentsec.loan_desk.events import LoanDeskEmitter
+from agentsec.loan_desk.facts import build_facts, unsupported_figures
 from agentsec.loan_desk.model import ChatModel
 from agentsec.loan_desk.tools import TOOLS
 from agentsec.settings import Settings
 from agentsec.timeline import build_timeline
 
 MAX_RUNS = 200
+
+
+def outcomes(view: dict, timeline: dict) -> dict:
+    """Security outcome and business-workflow outcome are different facts; both come from recorded decisions/events."""
+    calls = timeline["tool_calls"]
+    denied = [c for c in calls if c["decision"] == "DENY"]
+    executed = [c for c in calls if c["executed"]]
+    status = view.get("status")
+    business = {"COMPLETED": "COMPLETE", "INCOMPLETE": "INCOMPLETE", "FAILED": "FAILED", "RUNNING": "RUNNING"}.get(status, "RUNNING")
+    return {
+        "security": {"outcome": "BLOCKED" if denied else "NOTHING_BLOCKED",
+                     "blocked": [{"tool": c["tool"], "reason": c["reason"], "step": c["step"], "executed": c["executed"]} for c in denied]},
+        "business": {"outcome": business, "reason": view.get("stop_reason")},
+        "operations": {"proposed": len(calls), "authorized": len(calls) - len(denied), "denied": len(denied),
+                       "executed": len(executed), "denied_but_executed": sum(1 for c in denied if c["executed"])},
+    }
 
 
 class LoanDeskService:
@@ -70,6 +87,7 @@ class LoanDeskService:
             out = dict(base)
             out["steps"] = [dict(s) for s in base["steps"]]
         out["events"] = len(events)
+        out["outcomes"] = outcomes(out, build_timeline(events, run_id=run_id, source="LIVE"))
         out["timeline"] = build_timeline(events, run_id=run_id, source="LIVE")
         splunk = self._splunk_status(run_id, len(events))
         out["evidence"] = {
@@ -121,8 +139,15 @@ class LoanDeskService:
                 emitter.run_failed(error_type=result.stop_reason, message=result.error or result.stop_reason,
                                    stop_reason=result.stop_reason)
                 status = "FAILED"
+            facts = build_facts(result.results)
+            advisory = None
+            if result.final:
+                bad = unsupported_figures(result.final["summary"], facts, result.results)
+                advisory = {**result.final, "label": "MODEL-WRITTEN, NOT VERIFIED", "unsupported_figures": bad,
+                            "differs_from_screening": (result.final["recommendation"] == "PROCEED_TO_UNDERWRITER")
+                            != (facts["screening_result"] == "MEETS_REFERENCE")}
             patch = {"status": status, "stop_reason": result.stop_reason, "error": result.error,
-                     "final": result.final, "duration_ms": ms,
+                     "facts": facts, "advisory": advisory, "final": result.final, "duration_ms": ms,
                      "counts": {"executed": result.executed, "denied": result.denied}}
         except Exception as exc:  # never leave a run stuck in RUNNING
             patch = {"status": "FAILED", "stop_reason": "internal_error", "error": f"{type(exc).__name__}: {exc}"}
