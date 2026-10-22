@@ -1,0 +1,742 @@
+{
+  "schema_version": "1.0.0",
+  "provenance": "Domain and pillar links derived from lesson content and lab behavior by content review (31 entries, every quote verified verbatim against its file); tiers are assigned from lab capability. domain_confidence=review marks calls needing human confirmation. P6 'implemented' downgraded to 'partial' pending a verification control.",
+  "entries": [
+    {
+      "lab_id": "LAB-A2A-AUTH-DELEGATION",
+      "tier": "CONTENT-ONLY",
+      "primary_domain": "D04",
+      "secondary_domain": "D07",
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P2",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "splunk_app/agentsec/default/data/ui/views/ws_lab_a2a_auth_delegation.xml",
+          "quote": "What evidence would support authentication, what authority was delegated, what was requested"
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-ADVANCED-CAPSTONE-MASTERY-001",
+      "tier": "REPLAY",
+      "primary_domain": "D11",
+      "secondary_domain": "D12",
+      "domain_confidence": "review",
+      "pillars": [
+        {
+          "id": "P4",
+          "status": "partial"
+        },
+        {
+          "id": "P6",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/README.md",
+          "quote": "REPLAY mastery capstone for Acme Bank incident MASTER-2026-001."
+        }
+      ],
+      "name_vs_content": "differs: name gives no domain; content is incident investigation, detection and hunting"
+    },
+    {
+      "lab_id": "LAB-AGENT-DELEGATION-001",
+      "tier": "WORKBENCH",
+      "primary_domain": "D04",
+      "secondary_domain": "D07",
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P3",
+          "status": "implemented"
+        },
+        {
+          "id": "P6",
+          "status": "partial"
+        },
+        {
+          "id": "P2",
+          "status": "partial"
+        },
+        {
+          "id": "P4",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+          "quote": "DELEGATION CLAIM != AUTHORIZATION"
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-AGENT-GOAL-INTEGRITY-001",
+      "tier": "WORKBENCH",
+      "primary_domain": "D09",
+      "secondary_domain": "D02",
+      "domain_confidence": "review",
+      "pillars": [
+        {
+          "id": "P3",
+          "status": "implemented"
+        },
+        {
+          "id": "P6",
+          "status": "partial"
+        },
+        {
+          "id": "P4",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md",
+          "quote": "AUTHORIZED TOOL != AUTHORIZED GOAL"
+        }
+      ],
+      "name_vs_content": "differs: name sounds like prompt/instruction injection; control CTRL-GOAL-INTEGRITY-001 is task-integrity runtime governance"
+    },
+    {
+      "lab_id": "LAB-AGENT-IDENTITY-NHI",
+      "tier": "REPLAY",
+      "primary_domain": "D07",
+      "secondary_domain": null,
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P2",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "splunk_app/agentsec/default/data/ui/views/ws_lab_agent_identity_nhi.xml",
+          "quote": "Identity claim is not authentication."
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-AGENTSEC-CAPSTONE-001",
+      "tier": "WORKBENCH",
+      "primary_domain": "D10",
+      "secondary_domain": "D05",
+      "domain_confidence": "review",
+      "pillars": [
+        {
+          "id": "P3",
+          "status": "implemented"
+        },
+        {
+          "id": "P6",
+          "status": "partial"
+        },
+        {
+          "id": "P4",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/README.md",
+          "quote": "Integrated capstone. Not a new security domain."
+        }
+      ],
+      "name_vs_content": "differs: name gives no domain; content is reconstructing a retrieve-persist-recall-tool chain from evidence"
+    },
+    {
+      "lab_id": "LAB-ASSET-INVENTORY",
+      "tier": "CONTENT-ONLY",
+      "primary_domain": "D12",
+      "secondary_domain": null,
+      "domain_confidence": "review",
+      "pillars": [
+        {
+          "id": "P1",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "splunk_app/agentsec/default/data/ui/views/ws_lab_asset_inventory.xml",
+          "quote": "Documented component list. Not a Cisco AI-BOM."
+        }
+      ],
+      "name_vs_content": "differs: inventory suggests discovery; it is a documented static list, so assurance/posture rather than runtime discovery"
+    },
+    {
+      "lab_id": "LAB-BLUE-TEAM-INCIDENT-001",
+      "tier": "REPLAY",
+      "primary_domain": "D11",
+      "secondary_domain": "D10",
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P4",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/README.md",
+          "quote": "REPLAY blue-team investigation."
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-CHANGE-BOUNDS",
+      "tier": "CONTENT-ONLY",
+      "primary_domain": "D09",
+      "secondary_domain": null,
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P2",
+          "status": "partial"
+        },
+        {
+          "id": "P3",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "splunk_app/agentsec/default/data/ui/views/ws_lab_change_bounds.xml",
+          "quote": "Simulated change authority. No cloud credential."
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-CODE-AGENT-BOUNDS",
+      "tier": "CONTENT-ONLY",
+      "primary_domain": "D09",
+      "secondary_domain": null,
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P2",
+          "status": "partial"
+        },
+        {
+          "id": "P3",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "splunk_app/agentsec/default/data/ui/views/ws_lab_code_agent_bounds.xml",
+          "quote": "Simulated code-agent authority. No GitHub credential."
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-COMPONENT-PROVENANCE",
+      "tier": "CONTENT-ONLY",
+      "primary_domain": "D12",
+      "secondary_domain": "D09",
+      "domain_confidence": "review",
+      "pillars": [
+        {
+          "id": "P1",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "splunk_app/agentsec/default/data/ui/views/ws_lab_component_provenance.xml",
+          "quote": "Known is not trusted. Scanned is not safe."
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-CREDENTIAL-LIFETIME",
+      "tier": "CONTENT-ONLY",
+      "primary_domain": "D07",
+      "secondary_domain": null,
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P2",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "splunk_app/agentsec/default/data/ui/views/ws_lab_credential_lifetime.xml",
+          "quote": "Credential status is evidence the decision can consider. It is not the decision."
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-DETECTION-ENGINEERING",
+      "tier": "REPLAY",
+      "primary_domain": "D11",
+      "secondary_domain": null,
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P4",
+          "status": "partial"
+        },
+        {
+          "id": "P6",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "splunk_app/agentsec/default/data/ui/views/ws_lab_detection_engineering.xml",
+          "quote": "You are a detection engineer. You are not handed a finished detector."
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-EXTERNAL-EVALUATION-GARAK",
+      "tier": "CONTENT-ONLY",
+      "primary_domain": "D12",
+      "secondary_domain": "D02",
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P6",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-EXTERNAL-EVALUATION-GARAK/README.md",
+          "quote": "This bounded Tool Lab teaches how to operate and interpret an adversarial model"
+        }
+      ],
+      "name_vs_content": "differs: name suggests a tool/toolbox; content is adversarial model evaluation evidence (assurance)"
+    },
+    {
+      "lab_id": "LAB-HITL-APPROVAL",
+      "tier": "CONTENT-ONLY",
+      "primary_domain": "D09",
+      "secondary_domain": "D07",
+      "domain_confidence": "review",
+      "pillars": [
+        {
+          "id": "P2",
+          "status": "partial"
+        },
+        {
+          "id": "P3",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "splunk_app/agentsec/default/data/ui/views/ws_lab_hitl_approval.xml",
+          "quote": "CTRL-MCP-001 remains the tool decision."
+        }
+      ],
+      "name_vs_content": "differs: name suggests human oversight; content is binding an approval to the submitted action (runtime governance)"
+    },
+    {
+      "lab_id": "LAB-MCP-001",
+      "tier": "GUIDED MISSION",
+      "primary_domain": "D03",
+      "secondary_domain": null,
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P3",
+          "status": "implemented"
+        },
+        {
+          "id": "P6",
+          "status": "partial"
+        },
+        {
+          "id": "P2",
+          "status": "partial"
+        },
+        {
+          "id": "P4",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-MCP-001/README.md",
+          "quote": "This lab teaches one idea: a named MCP `tools/call` must be **authorized on the server before the handler runs**."
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-MCP-003",
+      "tier": "REPLAY",
+      "primary_domain": "D03",
+      "secondary_domain": null,
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P3",
+          "status": "partial"
+        },
+        {
+          "id": "P6",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-MCP-003/README.md",
+          "quote": "The tool is authorized. The excessive scope is not."
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-MCP-004",
+      "tier": "REPLAY",
+      "primary_domain": "D03",
+      "secondary_domain": null,
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P3",
+          "status": "partial"
+        },
+        {
+          "id": "P6",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-MCP-004/README.md",
+          "quote": "LAB-MCP-004 asks: **May the agent call this tool at this scope for this resource?**"
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-MCP-005",
+      "tier": "REPLAY",
+      "primary_domain": "D03",
+      "secondary_domain": "D02",
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P3",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-MCP-005/README.md",
+          "quote": "This lab teaches one idea: an **authorized tool** is not an **authoritative result**."
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-MCP-006",
+      "tier": "REPLAY",
+      "primary_domain": "D07",
+      "secondary_domain": "D03",
+      "domain_confidence": "review",
+      "pillars": [
+        {
+          "id": "P2",
+          "status": "partial"
+        },
+        {
+          "id": "P3",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-MCP-006/README.md",
+          "quote": "the deputy may possess authority, but that is not proof the caller delegated that authority for this operation."
+        }
+      ],
+      "name_vs_content": "differs: MCP name suggests D03; content is delegated authority / ambient authority (identity)"
+    },
+    {
+      "lab_id": "LAB-MCP-CATALOG",
+      "tier": "REPLAY",
+      "primary_domain": "D03",
+      "secondary_domain": "D02",
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P1",
+          "status": "partial"
+        },
+        {
+          "id": "P3",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-MCP-CATALOG/README.md",
+          "quote": "a tool can be legitimate, its first call can be properly authorized, and its catalog metadata can still contain manipulative content."
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-MEMORY-001",
+      "tier": "WORKBENCH",
+      "primary_domain": "D06",
+      "secondary_domain": "D02",
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P3",
+          "status": "implemented"
+        },
+        {
+          "id": "P6",
+          "status": "partial"
+        },
+        {
+          "id": "P4",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-MEMORY-001/README.md",
+          "quote": "This lab teaches one idea: **persisted memory is data that survives into a later run**."
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-MULTI-STAGE-INCIDENT-001",
+      "tier": "REPLAY",
+      "primary_domain": "D11",
+      "secondary_domain": "D10",
+      "domain_confidence": "review",
+      "pillars": [
+        {
+          "id": "P4",
+          "status": "partial"
+        },
+        {
+          "id": "P6",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/README.md",
+          "quote": "L9 is one advanced `REPLAY` integration exercise over validated Capstone"
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-PI-001",
+      "tier": "WORKBENCH",
+      "primary_domain": "D02",
+      "secondary_domain": "D09",
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P3",
+          "status": "implemented"
+        },
+        {
+          "id": "P6",
+          "status": "partial"
+        },
+        {
+          "id": "P4",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-PI-001/README.md",
+          "quote": "This lab teaches one idea: untrusted loan text must be inspected **before** Ollama."
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-PRIVACY-DATA-GOVERNANCE-001",
+      "tier": "CONTENT-ONLY",
+      "primary_domain": "D08",
+      "secondary_domain": null,
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P1",
+          "status": "partial"
+        },
+        {
+          "id": "P3",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/README.md",
+          "quote": "AUTHORIZED ACTION != AUTHORIZED DATA USE"
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-RAG-CONTEXT",
+      "tier": "WORKBENCH",
+      "primary_domain": "D05",
+      "secondary_domain": "D02",
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P3",
+          "status": "implemented"
+        },
+        {
+          "id": "P6",
+          "status": "partial"
+        },
+        {
+          "id": "P4",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-RAG-CONTEXT/README.md",
+          "quote": "This lab teaches one idea: **retrieved content is data**."
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-RAG-PURPOSE",
+      "tier": "CONTENT-ONLY",
+      "primary_domain": "D05",
+      "secondary_domain": "D08",
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P3",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "splunk_app/agentsec/default/data/ui/views/ws_lab_purpose_authorization.xml",
+          "quote": "ATTACK and RETEST request purpose `executive-decision` for the same retrieved object."
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-RECALL-ISOLATION",
+      "tier": "CONTENT-ONLY",
+      "primary_domain": "D06",
+      "secondary_domain": "D08",
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P3",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "splunk_app/agentsec/default/data/ui/views/ws_lab_recall_isolation.xml",
+          "quote": "ATTACK and RETEST use reader `user-b` for memory owned by `user-a`."
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-SCANNER-RUNTIME-EVIDENCE",
+      "tier": "REPLAY",
+      "primary_domain": "D10",
+      "secondary_domain": "D03",
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P1",
+          "status": "partial"
+        },
+        {
+          "id": "P4",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/README.md",
+          "quote": "when an external security scanner flags agent/tool metadata, what can the SOC actually conclude from that evidence?"
+        }
+      ],
+      "name_vs_content": "differs: name suggests scanning/assurance; content is combining scanner, runtime and authorization evidence (forensics)"
+    },
+    {
+      "lab_id": "LAB-SPLUNK-DEFENDER-BRIDGE",
+      "tier": "REPLAY",
+      "primary_domain": "D10",
+      "secondary_domain": "D11",
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P4",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "splunk_app/agentsec/default/data/ui/views/ws_lab_splunk_defender_bridge.xml",
+          "quote": "Splunk is downstream evidence, not the PDP."
+        }
+      ],
+      "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-THREAT-MODELING-001",
+      "tier": "CONTENT-ONLY",
+      "primary_domain": "D12",
+      "secondary_domain": null,
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P1",
+          "status": "partial"
+        },
+        {
+          "id": "P6",
+          "status": "planned"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-THREAT-MODELING-001/README.md",
+          "quote": "REPLAY / architecture learning lab."
+        }
+      ],
+      "name_vs_content": "agree"
+    }
+  ]
+}

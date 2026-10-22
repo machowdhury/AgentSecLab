@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentsec.local/schemas/run_timeline.schema.json",
+  "title": "AgentSec run timeline (C2) 1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "source",
+    "event_count",
+    "events",
+    "tool_calls"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "source": {
+      "enum": [
+        "LIVE",
+        "REPLAY",
+        "SIMULATED",
+        "INFERRED",
+        "UNAVAILABLE"
+      ]
+    },
+    "event_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "seq",
+          "ts",
+          "event",
+          "agent",
+          "tool",
+          "decision",
+          "control_id",
+          "reason",
+          "outcome"
+        ],
+        "properties": {
+          "ts": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "event": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "agent": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "tool": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "decision": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "control_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "outcome": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "seq": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "tool_calls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tool",
+          "decision_seq",
+          "decision",
+          "control_id",
+          "reason",
+          "proposed",
+          "proposal_source",
+          "executed",
+          "started_seq",
+          "completed_seq",
+          "indexed"
+        ],
+        "properties": {
+          "tool": {
+            "type": "string"
+          },
+          "decision_seq": {
+            "type": "integer"
+          },
+          "decision": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "control_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "proposed": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "proposal_source": {
+            "enum": [
+              "server_payload",
+              "model"
+            ]
+          },
+          "executed": {
+            "type": "boolean"
+          },
+          "started_seq": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "completed_seq": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "indexed": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

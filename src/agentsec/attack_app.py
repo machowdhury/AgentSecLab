@@ -12,6 +12,7 @@ from agentsec.academy import lab_row, next_lab
 from agentsec.academy_web import register_academy
 from agentsec.agents import PIPELINE_ORDER
 from agentsec.attacks import ATK_002
+from agentsec.framework_refs import references_for, retired_labels
 from agentsec.experiment_context import LAB_CAPSTONE, LAB_GOAL, LAB_IDENTITY, LAB_MCP, LAB_MEMORY, LAB_PI, LAB_RAG, lookup_experiment
 from agentsec.goal.fixtures import (
     CLOSED_EXPANSION_ACTION,
@@ -261,7 +262,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
         retest_ctx = lookup_experiment(f"{lab_id}:RETEST")
         payload_preview = ATK_002.payload
         technique_name = ATK_002.name
-        technique_id = ATK_002.technique_id
+        technique_id = ATK_002.attack_id
         specimen_label = "ATK-002 catalog payload (not learner-supplied)"
         expected_defended = ATK_002.expected_defended
         if lab_id == LAB_MCP and attack_ctx is not None:
@@ -517,6 +518,8 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
             payload_label=specimen_label,
             technique_name=technique_name,
             technique_id=technique_id,
+            framework_refs=references_for(technique_id),
+            retired_framework_labels=retired_labels(technique_id),
             expected_defended=expected_defended,
             hunt_hint=hunt_hint,
             mcp_baseline_run_id=MCP_BASELINE_REPLAY_RUN_ID,
@@ -558,7 +561,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
                     {
                         "attack_id": ATK_002.attack_id,
                         "name": ATK_002.name,
-                        "technique_id": ATK_002.technique_id,
+                        "technique_id": None,  # framework ids live in framework_refs.json, not in telemetry
                         "expected_defended": ATK_002.expected_defended,
                     }
                 ]

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentsec.local/schemas/lab_registry.schema.json",
+  "title": "AgentSec lab registry 1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "entries", "domains", "pillars"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "domains": {"type": "array", "minItems": 12, "maxItems": 12, "items": {"$ref": "#/$defs/taxon"}},
+    "pillars": {"type": "array", "minItems": 6, "maxItems": 6, "items": {"$ref": "#/$defs/taxon"}},
+    "entries": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/entry"}}
+  },
+  "$defs": {
+    "taxon": {"type": "object", "additionalProperties": false, "required": ["id", "slug", "title"],
+      "properties": {"id": {"type": "string"}, "slug": {"type": "string"}, "title": {"type": "string"}}},
+    "entry": {
+      "type": "object", "additionalProperties": false,
+      "required": ["lab_id", "title", "kind", "level", "mode", "view", "tier", "primary_domain", "secondary_domain", "domain_confidence", "pillars"],
+      "properties": {
+        "lab_id": {"type": "string", "pattern": "^LAB-"},
+        "title": {"type": "string"},
+        "kind": {"enum": ["lab", "checkpoint"]},
+        "level": {"type": "string"},
+        "mode": {"enum": ["LIVE", "REPLAY"]},
+        "view": {"type": "string", "pattern": "^ws_"},
+        "tier": {"enum": ["GUIDED MISSION", "WORKBENCH", "REPLAY", "CONTENT-ONLY"]},
+        "primary_domain": {"type": "string", "pattern": "^D(0[1-9]|1[0-2])$"},
+        "secondary_domain": {"type": ["string", "null"], "pattern": "^D(0[1-9]|1[0-2])$"},
+        "domain_confidence": {"enum": ["content-verified", "review"]},
+        "pillars": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "status"],
+          "properties": {"id": {"type": "string", "pattern": "^P[1-6]$"}, "status": {"enum": ["implemented", "partial", "planned"]}}}}
+      }
+    }
+  }
+}

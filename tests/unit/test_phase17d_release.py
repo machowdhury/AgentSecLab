@@ -79,8 +79,8 @@ def test_product_version_rc1_not_schema():
 
 def test_atlas_qualifier_in_repository_ui():
     html = ATTACK_HTML.read_text(encoding="utf-8")
-    assert "AML.T0054" in html
-    assert "REQUIRES REVALIDATION" in html
+    assert "AML.T00" not in html  # ids come from framework_refs.json
+    assert "Educational relationships" in html and "Retired label" in html
 
 
 def test_gitignore_env():

@@ -41,14 +41,12 @@ def resolve_testbed_mode(*, input_text: str, settings: Settings) -> str:
 
 
 def technique_id_for(attack_id: str) -> str | None:
-    if attack_id == "ATK-002":
-        return "AML.T0054"
-    if attack_id == "MCP-002":
-        return "AML.T0050"
-    if attack_id == "MCP-003":
-        return "AML.T0050"
-    if attack_id == "MCP-004":
-        return "AML.T0050"
+    """Telemetry no longer carries a framework technique id.
+
+    The ids emitted before (AML.T0054 for ATK-002, AML.T0050 for MCP-002/003/004) were not
+    the techniques AgentSec teaches. Framework references come from
+    learning/academy/framework_refs.json, which only holds verified ids.
+    """
     return None
 
 

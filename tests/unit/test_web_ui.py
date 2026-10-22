@@ -35,7 +35,7 @@ def test_attack_index_states_technique_and_target():
     html = response.get_data(as_text=True)
     assert "Direct prompt injection" in html or "Direct Prompt Injection" in html
     assert "ATK-002" in html
-    assert "AML.T0054" in html
+    assert "AML.T0051.000" in html
     assert "AcmeBank" in html
     assert "http://acmebank.example:5000" in html
     assert "lab URL" in html
