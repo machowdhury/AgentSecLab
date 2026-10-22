@@ -1,0 +1,40 @@
+develop HEAD: b86accc; dirty entries: 19
+
+== S1: merge with the 19 uncommitted entries still uncommitted (what happens if nothing is done first)
+error: Your local changes to the following files would be overwritten by merge:
+	.env.example
+	.gitignore
+	config/otel-collector-config.yaml
+	docker-compose.yml
+	docs/AGENTSEC_ENVIRONMENT.md
+	docs/AGENTSEC_PREREQUISITES.md
+	docs/LOCAL_DOCKER_LAB.md
+	docs/QUICKSTART.md
+	scripts/ingest_lab_mcp_catalog_scanner_hec.py
+	scripts/lab-preflight.sh
+	scripts/lab-ready.sh
+exit=0
+
+== S2: develop commits its 19 entries as-is, then merges
+ create mode 100644 tests/ui/test_batch6_mission_ux.py
+ create mode 100644 tests/ui/test_control_inventory.py
+ create mode 100644 tests/ui/test_loan_desk_browser.py
+ create mode 100644 tests/ui/test_loan_desk_mission_browser.py
+conflicts: 0
+
+== S3: stash the 19 entries, fast-forward merge, then drop the stash (content is already in the branch)
+ create mode 100644 tests/ui/test_loan_desk_browser.py
+ create mode 100644 tests/ui/test_loan_desk_mission_browser.py
+stashed entries identical to the branch tree?
+  DIFFERS docker-compose.yml
+  DIFFERS docs/QUICKSTART.md
+  DIFFERS scripts/lab-up.sh
+  (no DIFFERS lines above means identical); stash retained until the branch is verified: 1 stash
+
+== S4: after S2 the three files you asked about
+  scripts/lab-up.sh == branch version
+  docker-compose.yml == branch version
+  docs/QUICKSTART.md == branch version
+0243fdf Merge branch 'feature' into develop
+a10d301 wip: develop working tree as-is
+0a467a7 feat(batch8): restore the eight REPLAY labs' original specimens from the recovered September index; fix Attack UI contrast; envelope seeder

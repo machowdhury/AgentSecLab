@@ -33,16 +33,15 @@ for lab in base["registry_ids"]:
         ui = f"{n} UI steps run; " + ("identical results" if not bad else f"{bad} DIFFER") + " (only the added nav item and brand text differ)"
     view = sv.get(lab, {})
     splunk = f"view XML identical; renders ({view.get('panels_rendered')} viz, {view.get('tabs')} tabs, no error)" if view.get("exists_in_app") and not view.get("has_error_banner") else "PROBLEM"
-    a11y = "same axe result" if lab not in ("LAB-MCP-001",) else "ENHANCED: Academy workshop page lost its axe 'region' violation"
-    status = "PRESERVED"
-    note = ""
-    if lab == "LAB-MCP-001":
+    a11y = "same axe result"
+    status, note = "PRESERVED", ""
+    if lab in LIVE:
         status = "ENHANCED"
+        fixed4 = lab in ("LAB-RAG-CONTEXT", "LAB-MEMORY-001", "LAB-AGENT-GOAL-INTEGRITY-001", "LAB-AGENT-DELEGATION-001")
+        a11y = "Attack UI serious colour-contrast violation fixed (Batch 8)" if fixed4 else ("Academy workshop page lost its axe 'region' violation" if lab == "LAB-MCP-001" else "same axe result")
+        note = "Attack UI page returned 500 inside the baseline Docker image; 200 in the deployed image (verified live)"
     elif lab in ABSENT_SPECIMENS:
-        status = "UNVERIFIED"
-        note = "dropdown specimen run ids absent from this Splunk (same in baseline); evidence experience not exercisable"
-    elif lab in LIVE:
-        note = "Docker image 500s on this Attack UI page in baseline too (fixed in Gate B image)"
+        note = "original specimens restored from the recovered September index (Batch 8); verified per specimen in an isolated stack and in the live Splunk"
     counts[status] += 1
     rows.append(f"| {lab} | {mode_of.get(lab, base['registry'][lab]['tier'])} | {files} | {launch} | {ui} | {splunk} | {a11y} | **{status}** | {note} |")
 out = ["| Entry | Mode | Learning files | Launch behaviour | Browser flow | Splunk view | Accessibility | Result | Note |", "|---|---|---|---|---|---|---|---|---|"] + rows

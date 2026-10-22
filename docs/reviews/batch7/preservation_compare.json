@@ -2,7 +2,8 @@
  "global": {
   "assets_changed": [
    "src/agentsec/static/academy.css",
-   "src/agentsec/static/academy.js"
+   "src/agentsec/static/academy.js",
+   "src/agentsec/static/agentsec-workbench.css"
   ],
   "assets_removed": [],
   "attack_routes_changed": {},
@@ -502,7 +503,15 @@
    "registry_changed": []
   },
   "LAB-BLUE-TEAM-INCIDENT-001": {
-   "files_added": [],
+   "files_added": [
+    "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/specimens/2437f64a-fff4-424f-8a83-0f04285662e4.jsonl",
+    "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/specimens/2a248113-7436-46a7-9b1d-0243489ac000.jsonl",
+    "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/specimens/348c8f18-fdfb-4501-ad8a-3f1bcda64c34.jsonl",
+    "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/specimens/3f8d6305-2d3b-4988-9e65-dc99b7ac10de.jsonl",
+    "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/specimens/8d2c016f-cadc-4463-939a-23a183221b3d.jsonl",
+    "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/specimens/db514fd8-dbf4-49f3-a2cb-6bd2bfe92987.jsonl",
+    "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/specimens/f9015037-651d-4207-ac57-4f3ea1abc673.jsonl"
+   ],
    "files_changed": [],
    "files_removed": [],
    "launches": [],
@@ -574,7 +583,12 @@
    "registry_changed": []
   },
   "LAB-MCP-003": {
-   "files_added": [],
+   "files_added": [
+    "learning/level_1/LAB-MCP-003/specimens/5b089682-1d5a-49a7-ac43-967265fd6bc6.jsonl",
+    "learning/level_1/LAB-MCP-003/specimens/6ce19813-6cb5-4aae-a3a0-aa59386a82dd.jsonl",
+    "learning/level_1/LAB-MCP-003/specimens/b466ad12-72ec-44b7-be28-aacfaf2c25b1.jsonl",
+    "learning/level_1/LAB-MCP-003/specimens/f638fd4f-1c4f-4ab6-8d42-4d03a4f3afd5.jsonl"
+   ],
    "files_changed": [],
    "files_removed": [],
    "launches": [],
@@ -582,7 +596,15 @@
    "registry_changed": []
   },
   "LAB-MCP-004": {
-   "files_added": [],
+   "files_added": [
+    "learning/level_1/LAB-MCP-004/specimens/0726a0ff-a551-41a8-bfbb-ab2ceca4c0dd.jsonl",
+    "learning/level_1/LAB-MCP-004/specimens/0e4e0051-528d-4bf3-8773-d1fb55a5864f.jsonl",
+    "learning/level_1/LAB-MCP-004/specimens/5ab59fc7-303e-4eea-84e7-ae0b2f405146.jsonl",
+    "learning/level_1/LAB-MCP-004/specimens/9ea63448-bf6a-4619-b313-b152f4d94bb6.jsonl",
+    "learning/level_1/LAB-MCP-004/specimens/ccd13a5f-0c4f-4447-84da-e0bbb1184585.jsonl",
+    "learning/level_1/LAB-MCP-004/specimens/fb50dcaf-8e84-4a3f-a55b-997c72edbd04.jsonl",
+    "learning/level_1/LAB-MCP-004/specimens/ffafb62e-a6c6-42c0-837d-094cbfb3f795.jsonl"
+   ],
    "files_changed": [],
    "files_removed": [],
    "launches": [],
@@ -590,7 +612,12 @@
    "registry_changed": []
   },
   "LAB-MCP-005": {
-   "files_added": [],
+   "files_added": [
+    "learning/level_1/LAB-MCP-005/specimens/0ab10594-a7fc-48b6-81bf-4cbca54a64c6.jsonl",
+    "learning/level_1/LAB-MCP-005/specimens/3013aa39-fe08-4b58-9898-f3abb092ac06.jsonl",
+    "learning/level_1/LAB-MCP-005/specimens/6fe7370c-a288-4634-91a5-d6c78b52bd01.jsonl",
+    "learning/level_1/LAB-MCP-005/specimens/f3f48182-df57-4b38-b069-17a199dc4939.jsonl"
+   ],
    "files_changed": [],
    "files_removed": [],
    "launches": [],
@@ -598,7 +625,11 @@
    "registry_changed": []
   },
   "LAB-MCP-006": {
-   "files_added": [],
+   "files_added": [
+    "learning/level_1/LAB-MCP-006/specimens/1cf98c4d-1bd8-4df5-be70-b82419e2c2b2.jsonl",
+    "learning/level_1/LAB-MCP-006/specimens/50f7ec04-7524-41c0-95a8-3b1ef4d91dc4.jsonl",
+    "learning/level_1/LAB-MCP-006/specimens/d7524a4e-8da6-4171-8867-d2a2168128ac.jsonl"
+   ],
    "files_changed": [],
    "files_removed": [],
    "launches": [],
@@ -606,7 +637,11 @@
    "registry_changed": []
   },
   "LAB-MCP-CATALOG": {
-   "files_added": [],
+   "files_added": [
+    "learning/level_1/LAB-MCP-CATALOG/specimens/23c222ea-6a87-40b7-a3e9-f12a5b572fa1.jsonl",
+    "learning/level_1/LAB-MCP-CATALOG/specimens/a0937bff-31a5-453a-99bf-47d7b5148ce4.jsonl",
+    "learning/level_1/LAB-MCP-CATALOG/specimens/d95717ed-ffd2-46c0-a130-9a5d7d539a5d.jsonl"
+   ],
    "files_changed": [],
    "files_removed": [],
    "launches": [],
@@ -622,7 +657,19 @@
    "registry_changed": []
   },
   "LAB-MULTI-STAGE-INCIDENT-001": {
-   "files_added": [],
+   "files_added": [
+    "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/2437f64a-fff4-424f-8a83-0f04285662e4.jsonl",
+    "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/2a248113-7436-46a7-9b1d-0243489ac000.jsonl",
+    "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/348c8f18-fdfb-4501-ad8a-3f1bcda64c34.jsonl",
+    "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/3d2b66a1-9ef1-4b1d-b993-444db50fd3ee.jsonl",
+    "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/3f8d6305-2d3b-4988-9e65-dc99b7ac10de.jsonl",
+    "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/5a15fe04-4bb1-4f70-8ec0-ab83f423dcde.jsonl",
+    "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/5dd71f94-5b12-4c52-b5ed-93a0b6832d45.jsonl",
+    "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/8d2c016f-cadc-4463-939a-23a183221b3d.jsonl",
+    "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/db514fd8-dbf4-49f3-a2cb-6bd2bfe92987.jsonl",
+    "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/external/aeb05718-1364-4143-8248-71dd6f27b07b.jsonl",
+    "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/f9015037-651d-4207-ac57-4f3ea1abc673.jsonl"
+   ],
    "files_changed": [],
    "files_removed": [],
    "launches": [],
@@ -670,7 +717,13 @@
    "registry_changed": []
   },
   "LAB-SCANNER-RUNTIME-EVIDENCE": {
-   "files_added": [],
+   "files_added": [
+    "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/specimens/23c222ea-6a87-40b7-a3e9-f12a5b572fa1.jsonl",
+    "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/specimens/a0937bff-31a5-453a-99bf-47d7b5148ce4.jsonl",
+    "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/specimens/d95717ed-ffd2-46c0-a130-9a5d7d539a5d.jsonl",
+    "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/specimens/scanner/7ae3ea64-4e7a-40fe-943f-3e582bce5ee8.jsonl",
+    "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/specimens/scanner/b3061c4e-7a81-445c-8fd8-3108dd14c419.jsonl"
+   ],
    "files_changed": [],
    "files_removed": [],
    "launches": [],

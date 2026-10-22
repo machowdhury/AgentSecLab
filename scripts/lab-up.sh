@@ -184,6 +184,8 @@ if [ "$WAIT_READY" -eq 1 ]; then
       log "Service health check exited 0."
       # Host-side evidence verifier for the Loan Desk mission (no port, no credential; docker + python3 only).
       "$ROOT/scripts/loan_desk_verifier.sh" start || log "Loan Desk evidence verifier not started; mission evidence stays NOT VERIFIED."
+      # Original scanner / garak REPLAY specimens (their own sourcetypes; additive, idempotent, TLS verified).
+      python3 "$ROOT/scripts/seed_envelope_specimens.py" || log "Scanner/external REPLAY specimens were not seeded; run scripts/learner_ready.py for the exact gap."
       log "If lab-ready printed MODEL ABSENT, LIVE generation is DEGRADED. That is not a PASS."
       elapsed
       exit 0
