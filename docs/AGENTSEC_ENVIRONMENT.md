@@ -31,7 +31,18 @@ Without these, `lab-up.sh` / `lab-ready.sh` fail.
 | `SPLUNK_HEC_INDEX` | non-secret | `agentsec_telemetry` |
 | `SPLUNK_HEC_SOURCETYPE` | non-secret | `otel:agentic:json` |
 | `SPLUNK_HEC_SOURCE` | non-secret | collector source name |
-| `SPLUNK_HEC_TLS_SKIP_VERIFY` | non-secret | lab default true |
+| `AGENTSEC_HEC_TLS_MODE` | non-secret | `LOCAL_SELF_SIGNED` (default) or `EXTERNAL_CERT`. See [HEC TLS](#hec-tls). |
+| `AGENTSEC_HEC_CERT_FILE` / `AGENTSEC_HEC_KEY_FILE` | host paths | `EXTERNAL_CERT` only, to have the bundled Splunk serve your certificate. Never modified. Keep the key out of Git. |
+| `AGENTSEC_HEC_CA_FILE` | host path | Trust bundle used by every HEC client. Required in `EXTERNAL_CERT`. Defaults to `.certs/hec-ca.crt` in local mode. |
+
+### HEC TLS
+
+HEC is always HTTPS with certificate and hostname verification on. There is no skip-verify setting for HEC.
+
+- **`LOCAL_SELF_SIGNED`:** `scripts/hec-certs.sh` (run by `lab-up.sh`) creates a lab certificate once under `.certs/` (git-ignored, key mode 600) with SANs `agentsec_splunk`, `localhost`, `127.0.0.1`, and reuses it on later runs. Clients trust it only through the explicit CA file. It is never added to the OS trust store. To rotate, delete `.certs/` and rerun `lab-up.sh`, then recreate Splunk and the collector.
+- **`EXTERNAL_CERT`:** the script only validates your files (readable, key matches certificate, not expired, required SANs, chains to the CA bundle) and never rewrites them. For an external HEC service you do not own, set only `AGENTSEC_HEC_CA_FILE` and `SPLUNK_HEC_ENDPOINT`; no private key is required and the remote Splunk is not modified. Run only the collector for that case.
+- **Fast check:** `./scripts/hec-scheme-check.sh` detects a scheme or trust mismatch in seconds. `precheck.sh` runs it when a CA exists.
+- The Splunk management API (8089) TLS behavior is unchanged and out of scope here.
 
 ## Development / test only
 
