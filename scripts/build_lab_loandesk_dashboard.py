@@ -95,7 +95,7 @@ An empty panel means no events were found for that run.id. It does not mean the 
     for lid, _label, items in tabs:
         structure, y = [], 0
         for item in items:
-            h = 640 if item in ("viz_mission", "viz_reference") else 300
+            h = 640 if item in ("viz_mission", "viz_reference") else 460 if item in ("viz_proposed", "viz_decisions", "viz_executed", "viz_denied") else 300
             structure.append(block(item, 0, y, FULL, h))
             y += h
         layout_defs[lid] = layout(structure, y + 40)
