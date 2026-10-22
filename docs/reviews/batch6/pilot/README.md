@@ -10,6 +10,7 @@ repository is human evidence until a completed observer sheet and feedback form 
 | `OBSERVER_CHECKLIST.md` | One sheet per participant: times, hints, errors, barriers, quotes |
 | `COMPREHENSION_AND_RUBRIC.md` | Four comprehension prompts, a blind two-rater rubric, a confidence question |
 | `FEEDBACK_FORM.md` | Post-session form: difficulty, clarity, accessibility, free text |
+| `RECRUITMENT.md` | Participant mix (2 beginners, 2 experienced practitioners, 1 Splunk practitioner), invitation, screener, consent, logistics |
 | `results_template.csv` | One row per participant; leave every cell empty until a session happens |
 
 Reporting rule: counts only ("3 of 5"), never percentages. Report automated checks and human results in separate sections.
