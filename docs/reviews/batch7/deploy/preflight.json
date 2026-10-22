@@ -1,0 +1,334 @@
+{
+ "backup": {
+  "file": "/Users/mahamudc/agentsec-backups/loan_desk-20261022-163010.tar.gz",
+  "files_in_archive": 25,
+  "files_on_disk": 24,
+  "mode": "0600"
+ },
+ "before": {
+  "agentsec_acmebank": {
+   "env_names": [
+    "ACMEBANK_PORT",
+    "AGENTSEC_ARTIFACTS_DIR",
+    "AGENTSEC_BIND_HOST",
+    "AGENTSEC_LAB_ID",
+    "AGENTSEC_OTEL_ENABLED",
+    "AGENTSEC_SCHEMA_PATH",
+    "AGENTSEC_SECURITY_PROFILE",
+    "AGENTSEC_TESTBED_MODE",
+    "DEPLOYMENT_ENVIRONMENT",
+    "GPG_KEY",
+    "LANG",
+    "OLLAMA_BASE_URL",
+    "OLLAMA_MODEL",
+    "OTEL_COLLECTOR_HTTP",
+    "OTEL_SERVICE_NAME",
+    "PATH",
+    "PYTHONPATH",
+    "PYTHON_SHA256",
+    "PYTHON_VERSION"
+   ],
+   "health": "healthy",
+   "id": "e5d48fa05bfb",
+   "image": "f842f5855910",
+   "mounts": [
+    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts->/app/artifacts:rw",
+    "volume:agentseclab_shared_telemetry->/var/log/agentsec:rw"
+   ],
+   "started": "2026-10-22T17:23:27.912851552Z",
+   "tag": "agentseclab-acmebank"
+  },
+  "agentsec_attack_service": {
+   "env_names": [
+    "ACMEBANK_URL",
+    "AGENTSEC_ARTIFACTS_DIR",
+    "AGENTSEC_BIND_HOST",
+    "AGENTSEC_SCHEMA_PATH",
+    "AGENTSEC_SPLUNK_WEB_URL",
+    "ATTACK_SERVICE_PORT",
+    "GPG_KEY",
+    "LANG",
+    "PATH",
+    "PYTHONPATH",
+    "PYTHON_SHA256",
+    "PYTHON_VERSION"
+   ],
+   "health": "healthy",
+   "id": "0afaab62479c",
+   "image": "1f7da726749d",
+   "mounts": [
+    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts->/app/artifacts:rw",
+    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json->/app/learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json:ro",
+    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json->/app/learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json:ro",
+    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json->/app/learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json:ro",
+    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-MCP-001/lab-manifest.json->/app/learning/level_1/LAB-MCP-001/lab-manifest.json:ro",
+    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-MEMORY-001/lab-manifest.json->/app/learning/level_1/LAB-MEMORY-001/lab-manifest.json:ro",
+    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-PI-001/lab-manifest.json->/app/learning/level_1/LAB-PI-001/lab-manifest.json:ro",
+    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json->/app/learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json:ro"
+   ],
+   "started": "2026-10-22T17:23:33.506840554Z",
+   "tag": "agentseclab-attack_service"
+  },
+  "agentsec_ollama": {
+   "env_names": [
+    "LD_LIBRARY_PATH",
+    "NVIDIA_DRIVER_CAPABILITIES",
+    "NVIDIA_VISIBLE_DEVICES",
+    "OLLAMA_HOST",
+    "OLLAMA_MODEL",
+    "OLLAMA_STARTUP_WAIT_SEC",
+    "PATH"
+   ],
+   "health": "healthy",
+   "id": "aeccc3006d95",
+   "image": "684d8674b431",
+   "mounts": [
+    "bind:/host_mnt/Users/mahamudc/Documents/Projects/AgentSecLab/scripts/ollama_init.sh->/ollama_init.sh:ro",
+    "volume:agentseclab_ollama_models->/root/.ollama:rw"
+   ],
+   "started": "2026-10-20T20:49:13.604426542Z",
+   "tag": "ollama/ollama:latest"
+  },
+  "agentsec_otel_collector": {
+   "env_names": [
+    "PATH",
+    "SPLUNK_HEC_ENDPOINT",
+    "SPLUNK_HEC_INDEX",
+    "SPLUNK_HEC_SOURCE",
+    "SPLUNK_HEC_SOURCETYPE",
+    "SPLUNK_HEC_TOKEN"
+   ],
+   "health": null,
+   "id": "d9de02c9d3fb",
+   "image": "7ef2a2ff46b9",
+   "mounts": [
+    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/config/otel-collector-config.yaml->/etc/otelcol-contrib/config.yaml:ro",
+    "bind:/host_mnt/Users/mahamudc/Documents/Projects/AgentSecLab/.certs/hec-ca.crt->/certs/hec-ca.crt:ro",
+    "volume:agentseclab_shared_telemetry->/var/log/agentsec:rw"
+   ],
+   "started": "2026-10-20T21:58:19.762154628Z",
+   "tag": "otel/opentelemetry-collector-contrib:0.96.0"
+  },
+  "agentsec_splunk": {
+   "env_names": [
+    "ANSIBLE_GROUP",
+    "ANSIBLE_USER",
+    "CONTAINER_ARTIFACT_DIR",
+    "PATH",
+    "PYTHON_GPG_KEY_ID",
+    "PYTHON_VERSION",
+    "SPLUNK_ANSIBLE_HOME",
+    "SPLUNK_DEFAULTS_URL",
+    "SPLUNK_GENERAL_TERMS",
+    "SPLUNK_GROUP",
+    "SPLUNK_HEC_SSL",
+    "SPLUNK_HEC_TOKEN",
+    "SPLUNK_HOME",
+    "SPLUNK_PASSWORD",
+    "SPLUNK_ROLE",
+    "SPLUNK_START_ARGS",
+    "SPLUNK_USER",
+    "TMPETCDIR",
+    "TMPSPLUNKDIR",
+    "container"
+   ],
+   "health": "healthy",
+   "id": "809a4ce8081a",
+   "image": "da47bf2f183f",
+   "mounts": [
+    "bind:/host_mnt/Users/mahamudc/Documents/Projects/AgentSecLab/.certs/hec.pem->/opt/agentsec-certs/hec.pem:ro",
+    "volume:agentseclab_shared_telemetry->/var/log/agentsec:rw",
+    "volume:agentseclab_splunk_app_agentsec->/opt/splunk/etc/apps/agentsec:rw",
+    "volume:f23236781009fabd37d122a8bfe5643e6cafe1a467060eb894de6b2bc5c7a907->/opt/splunk/var:rw",
+    "volume:f57948326f7ceed2c3277ec371ecf0b7ae730c338ed728d7e6ae148a56b0b074->/opt/splunk/etc:rw"
+   ],
+   "started": "2026-10-20T22:04:51.311109129Z",
+   "tag": "splunk/splunk:10.2"
+  },
+  "volumes": [
+   "0aa27f8fe3804caa865db7f767e4cfb13756ab6709790781d8895b5f92937ae3",
+   "1df88ebe8c42998ba6e0905b6928b3678a1213ba5e8a31d215a1bbb351773649",
+   "339288dc82f2846a410abe22105e6ffc0c8472aea1e103f39af7a5397704de72",
+   "4afd3eecc8f0d54400eb85eb30f64b515a496bfc603e5f3922839d36457db76d",
+   "62a3e45ce5c56c6adfc518e50cf769233c3ee211a14c5bc0cf101e3af23ba7c6",
+   "65a0bd8b9afe02c78eff8ed5659f2503e9c64622cec627362dc84b1637adcee5",
+   "6c117da4e10013fe50b68f9fb225ac98691abc47c74347566b24b8466b0d0925",
+   "6f29d37991c41fd4b6f169ed19ac0d025684c19aad10f0b6bc6a866481e1bca2",
+   "8f86409c1fdf2f67d7c4f3056364f8445330317a79e38b4ed067f0e1e4ad377e",
+   "9b125adaf4ebb8b0648980a18a4c32aaf0696281a7a514de8268ff86c034e186",
+   "ac6a9ffb43db0f7292ba1fd69f44170110b788a8227082336a700ad3dda30842",
+   "agentseclab_ollama_models",
+   "agentseclab_shared_telemetry",
+   "agentseclab_splunk_app_agentsec",
+   "ca4204563969427e817c2cde84021ba67680aeaff6c74fe7962c6cbb60bb92a5",
+   "ce06500e0a8f4b8910470d1d040aac2aba5cfafc35c7148db49ac6e28dcd0fb7",
+   "f23236781009fabd37d122a8bfe5643e6cafe1a467060eb894de6b2bc5c7a907",
+   "f57948326f7ceed2c3277ec371ecf0b7ae730c338ed728d7e6ae148a56b0b074",
+   "f9079007006e359cd9037758eacb37b2fc13b58e118f4892bf6aa2ad2ab16bd1",
+   "netspout_flow_data",
+   "netspout_phase5_acceptance_flow_data",
+   "netspout_phase5_acceptance_splunk_data",
+   "netspout_phase5_acceptance_splunk_etc",
+   "netspout_splunk_data",
+   "netspout_splunk_etc"
+  ]
+ },
+ "checks": [
+  {
+   "check": "1a both target containers are up and healthy",
+   "detail": {
+    "agentsec_acmebank": [
+     "agentseclab-acmebank",
+     "f842f5855910",
+     "healthy"
+    ],
+    "agentsec_attack_service": [
+     "agentseclab-attack_service",
+     "1f7da726749d",
+     "healthy"
+    ]
+   },
+   "pass": true
+  },
+  {
+   "check": "1b compose project and files come from the running containers",
+   "detail": {
+    "env_file": "/Users/mahamudc/Documents/Projects/AgentSecLab/.env",
+    "files": [
+     "/Users/mahamudc/Documents/Projects/AgentSecLab/docker-compose.yml",
+     "/Users/mahamudc/Documents/Projects/AgentSecLab/docker-compose.local.yml"
+    ],
+    "project": "agentseclab",
+    "workdir": "/Users/mahamudc/Documents/Projects/AgentSecLab"
+   },
+   "pass": true
+  },
+  {
+   "check": "1c containers mount the shared artifacts dir read-write and nothing from the Docker socket",
+   "detail": [
+    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts->/app/artifacts:rw",
+    "volume:agentseclab_shared_telemetry->/var/log/agentsec:rw"
+   ],
+   "pass": true
+  },
+  {
+   "check": "1d the running verifier is the one the pidfile names (a loan_desk_verifier.py process)",
+   "detail": "66419     1 Thu 22 Oct 13:24:34 2026     python3 /Users/mahamudc/Documents/Projects/AgentSecLab-wt-baseline/scripts/loan_desk_verifier.py --artifacts /Users/mahamudc/Documents/Projects/AgentSecLab/artifacts",
+   "pass": true
+  },
+  {
+   "check": "2a rollback anchors tagged for both images",
+   "detail": {
+    "acmebank": "agentseclab-acmebank:pre-batch7-f842f5855910",
+    "attack_service": "agentseclab-attack_service:pre-batch7-1f7da726749d"
+   },
+   "pass": true
+  },
+  {
+   "check": "2b artifacts/loan_desk backed up outside every repository (0600) and the archive lists every file",
+   "detail": {
+    "file": "/Users/mahamudc/agentsec-backups/loan_desk-20261022-163010.tar.gz",
+    "files_in_archive": 25,
+    "files_on_disk": 24,
+    "mode": "0600"
+   },
+   "pass": true
+  },
+  {
+   "check": "3 historical evidence is in Splunk and nothing here deletes it (counts recorded)",
+   "detail": {
+    "events": "2029",
+    "runs": "84"
+   },
+   "pass": true
+  },
+  {
+   "check": "4 no learner activity in the last 10 minutes (non-health log lines)",
+   "detail": {
+    "agentsec_acmebank": 0,
+    "agentsec_attack_service": 0
+   },
+   "pass": true
+  },
+  {
+   "check": "5a v1 signing material exists and is backed up (it is removed only after a validated cutover)",
+   "detail": "/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts/loan_desk/.bridge.key",
+   "pass": true
+  },
+  {
+   "check": "6a no credential-named environment variable in either target container",
+   "detail": "none",
+   "pass": true
+  },
+  {
+   "check": "6b new images contain no .env, key or certificate file",
+   "detail": {
+    "acmebank": [],
+    "attack_service": []
+   },
+   "pass": true
+  },
+  {
+   "check": "6c the Attack Service image carries framework_refs.json (baseline defect fix)",
+   "detail": [
+    "curriculum.json",
+    "framework_refs.json"
+   ],
+   "pass": true
+  },
+  {
+   "check": "7 dry run would touch only agentsec_acmebank and agentsec_attack_service",
+   "detail": [
+    "agentsec_acmebank",
+    "agentsec_attack_service"
+   ],
+   "pass": true
+  },
+  {
+   "check": "8 no volume is removed by this procedure (no down, no -v, no prune in the command set)",
+   "detail": "compose up --no-deps --no-build only; volume list recorded for comparison",
+   "pass": true
+  }
+ ],
+ "develop_tree": {
+  "branch": "develop",
+  "dirty_entries": 19,
+  "head": "b86accc"
+ },
+ "dry_run_containers": [
+  "agentsec_acmebank",
+  "agentsec_attack_service"
+ ],
+ "facts": {
+  "env_file": "/Users/mahamudc/Documents/Projects/AgentSecLab/.env",
+  "files": [
+   "/Users/mahamudc/Documents/Projects/AgentSecLab/docker-compose.yml",
+   "/Users/mahamudc/Documents/Projects/AgentSecLab/docker-compose.local.yml"
+  ],
+  "project": "agentseclab",
+  "workdir": "/Users/mahamudc/Documents/Projects/AgentSecLab"
+ },
+ "image_secret_scan": {
+  "acmebank": [],
+  "attack_service": []
+ },
+ "recent_non_health_requests": {
+  "agentsec_acmebank": 0,
+  "agentsec_attack_service": 0
+ },
+ "rollback_anchors": {
+  "acmebank": "agentseclab-acmebank:pre-batch7-f842f5855910",
+  "attack_service": "agentseclab-attack_service:pre-batch7-1f7da726749d"
+ },
+ "splunk_before": {
+  "events": "2029",
+  "runs": "84"
+ },
+ "time": "2026-10-22T20:30:10Z",
+ "verifier_identity": {
+  "artifacts_arg": "/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts",
+  "is_verifier": true,
+  "ps": "66419     1 Thu 22 Oct 13:24:34 2026     python3 /Users/mahamudc/Documents/Projects/AgentSecLab-wt-baseline/scripts/loan_desk_verifier.py --artifacts /Users/mahamudc/Documents/Projects/AgentSecLab/artifacts",
+  "v1_pidfile": "66419"
+ }
+}

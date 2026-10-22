@@ -15,5 +15,7 @@
 | T10 | "Was the attack stopped? Did the loan review finish? Are those the same question?" | Says blocked; if unfinished says that is a usability cost, not a control failure | 3 min |
 | T11 | "Explain to a colleague why the first run was dangerous even though policy said ALLOW." | Four-question check passes and a written explanation is given | 5 min |
 
+After T11 ask C6 (see `COMPREHENSION_AND_RUBRIC.md`).
+
 Budget: 44 minutes of boxes plus a 5-minute debrief. Use the browser Back button deliberately once (after T8): note
 whether it returns to the step the participant was on.

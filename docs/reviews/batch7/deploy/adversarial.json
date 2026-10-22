@@ -1,0 +1,152 @@
+[
+ {
+  "check": "setup: a genuine receipt exists for the run",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "agentsec_acmebank: create a receipt",
+  "pass": true,
+  "detail": "sh: 1: cannot create /app/artifacts/loan_desk/receipts/11111111-1111-4111-8111-111111111111.splunk.json: Read-only file system"
+ },
+ {
+  "check": "agentsec_acmebank: delete a real receipt",
+  "pass": true,
+  "detail": "/app/artifacts/loan_desk/receipts/934f4a68-80a2-4c84-9501-a549ac180887.splunk.json\nrm: cannot remove '/app/artifacts/loan_desk/receipts/934f4a68-80a2-4c84-9501-a549ac180887.splunk.json': Read-only file system"
+ },
+ {
+  "check": "agentsec_acmebank: rename the heartbeat",
+  "pass": true,
+  "detail": "mv: cannot move '/app/artifacts/loan_desk/receipts/verifier.json' to '/app/artifacts/loan_desk/receipts/x.json': Read-only file system"
+ },
+ {
+  "check": "agentsec_acmebank: overwrite the heartbeat to fake an online verifier",
+  "pass": true,
+  "detail": "sh: 1: cannot create /app/artifacts/loan_desk/receipts/verifier.json: Read-only file system"
+ },
+ {
+  "check": "agentsec_acmebank: no signing key reachable",
+  "pass": true,
+  "detail": "0"
+ },
+ {
+  "check": "agentsec_acmebank: kernel reports the receipts mount as ro",
+  "pass": true,
+  "detail": "ro,"
+ },
+ {
+  "check": "agentsec_attack_service: create a receipt",
+  "pass": true,
+  "detail": "sh: 1: cannot create /app/artifacts/loan_desk/receipts/11111111-1111-4111-8111-111111111111.splunk.json: Read-only file system"
+ },
+ {
+  "check": "agentsec_attack_service: delete a real receipt",
+  "pass": true,
+  "detail": "/app/artifacts/loan_desk/receipts/934f4a68-80a2-4c84-9501-a549ac180887.splunk.json\nrm: cannot remove '/app/artifacts/loan_desk/receipts/934f4a68-80a2-4c84-9501-a549ac180887.splunk.json': Read-only file system"
+ },
+ {
+  "check": "agentsec_attack_service: rename the heartbeat",
+  "pass": true,
+  "detail": "mv: cannot move '/app/artifacts/loan_desk/receipts/verifier.json' to '/app/artifacts/loan_desk/receipts/x.json': Read-only file system"
+ },
+ {
+  "check": "agentsec_attack_service: overwrite the heartbeat to fake an online verifier",
+  "pass": true,
+  "detail": "sh: 1: cannot create /app/artifacts/loan_desk/receipts/verifier.json: Read-only file system"
+ },
+ {
+  "check": "agentsec_attack_service: no signing key reachable",
+  "pass": true,
+  "detail": "0"
+ },
+ {
+  "check": "agentsec_attack_service: kernel reports the receipts mount as ro",
+  "pass": true,
+  "detail": "ro,"
+ },
+ {
+  "check": "host: the real receipt is untouched by the attempts",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "host: receipt at rest audits as AUTHENTIC with the host key",
+  "pass": true,
+  "detail": "AUTHENTIC: receipt authentic; reconciled=True; scope: consistency between the events AcmeBank reported for this run and "
+ },
+ {
+  "check": "host: a modified copy audits as NOT AUTHENTIC",
+  "pass": true,
+  "detail": "NOT AUTHENTIC: MAC does not verify (not written by this host's verifier, or modified)"
+ },
+ {
+  "check": "container: planted malformed, symlink, FIFO and 5 MB requests",
+  "pass": true,
+  "detail": "ok"
+ },
+ {
+  "check": "verifier survived the hostile requests (fresh running heartbeat)",
+  "pass": true,
+  "detail": "age 0.2s"
+ },
+ {
+  "check": "malformed requests were quarantined, not retried forever",
+  "pass": true,
+  "detail": "['1792701063-1ca5b32d-f3d7-430d-8fac-7c3ca517c06c.json', '1792701063-6485db0f-e05a-4547-9ed4-42b2040d76f9.json', '1792701063-6786e4ad-2fa9-4801-a5d9-f695d8a26221.json', '1792701063-761e2ecf-3381-459c-9616-e21611c7be0e.json']"
+ },
+ {
+  "check": "verifier still answers a legitimate request afterwards",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "clean stop",
+  "pass": true,
+  "detail": "[loan-desk-verifier] stopped"
+ },
+ {
+  "check": "heartbeat says stopped",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "page shows an explicit non-verified state while the verifier is stopped",
+  "pass": true,
+  "detail": "VERIFIER_OFFLINE"
+ },
+ {
+  "check": "start after stop",
+  "pass": true,
+  "detail": "[loan-desk-verifier] started (pid 5147)"
+ },
+ {
+  "check": "verification recovers automatically after restart",
+  "pass": true,
+  "detail": "SPLUNK_VERIFIED"
+ },
+ {
+  "check": "after kill -9 the stale pid is not mistaken for a running verifier",
+  "pass": true,
+  "detail": "[loan-desk-verifier] not running"
+ },
+ {
+  "check": "page shows offline after the crash (heartbeat went stale)",
+  "pass": true,
+  "detail": "VERIFIER_OFFLINE"
+ },
+ {
+  "check": "restart after crash replaces the stale pidfile",
+  "pass": true,
+  "detail": "[loan-desk-verifier] started (pid 6099)"
+ },
+ {
+  "check": "verification recovers after the crash",
+  "pass": true,
+  "detail": "SPLUNK_VERIFIED"
+ },
+ {
+  "check": "exactly one verifier process",
+  "pass": true,
+  "detail": "6099"
+ }
+]
