@@ -1,0 +1,495 @@
+{
+ "envelope_packs": {
+  "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/external/aeb05718-1364-4143-8248-71dd6f27b07b.jsonl": {
+   "events": 2,
+   "sha256": "11eead86a1f8446158015a66a91f6f2cd92c6bf49c2ccb1069623008b5f775ab",
+   "what": "original garak external-evaluation evidence ingested 2026-09-25 via agentsec-external-evaluation-hec"
+  },
+  "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/specimens/scanner/7ae3ea64-4e7a-40fe-943f-3e582bce5ee8.jsonl": {
+   "events": 2,
+   "sha256": "66a5636ec5467462bd15c0bc9a80b19f2b36e65f8824549db7adfe0ac0cc85d2",
+   "what": "original Phase 9C scanner evidence ingested 2026-09-16 via agentsec-scanner-hec"
+  },
+  "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/specimens/scanner/b3061c4e-7a81-445c-8fd8-3108dd14c419.jsonl": {
+   "events": 1,
+   "sha256": "779271581c86cfbf0687b9a08d9b702714b5fb882e89dede5730b59a153c6f06",
+   "what": "original Phase 9C scanner evidence ingested 2026-09-16 via agentsec-scanner-hec"
+  }
+ },
+ "labs": {
+  "LAB-BLUE-TEAM-INCIDENT-001": {
+   "2437f64a-fff4-424f-8a83-0f04285662e4": {
+    "events": 11,
+    "referenced_in": [
+     "dashboard.definition.json",
+     "evidence.md",
+     "investigations.json"
+    ],
+    "sha256": "221b644d955ce3289b39e3f06d26a03e844e74d6c92fa58a3cecef4295a76019",
+    "status": "RECOVERED"
+   },
+   "2a248113-7436-46a7-9b1d-0243489ac000": {
+    "events": 5,
+    "referenced_in": [
+     "evidence.md",
+     "investigations.json"
+    ],
+    "sha256": "9346ee016a080cb24037e593e732799e087f3e44b2367a1be4f26e4e558cb24c",
+    "status": "RECOVERED"
+   },
+   "348c8f18-fdfb-4501-ad8a-3f1bcda64c34": {
+    "events": 5,
+    "referenced_in": [
+     "evidence.md",
+     "investigations.json"
+    ],
+    "sha256": "3b711e57870229464f1c09f430ea68d6c42ce992544ae8b2cfff2d90d1846b46",
+    "status": "RECOVERED"
+   },
+   "3f8d6305-2d3b-4988-9e65-dc99b7ac10de": {
+    "events": 5,
+    "referenced_in": [
+     "evidence.md",
+     "investigations.json"
+    ],
+    "sha256": "a2033102f766d56e960b6ebe105f43538c8e83ca0fe60d406852054ee383555d",
+    "status": "RECOVERED"
+   },
+   "8d2c016f-cadc-4463-939a-23a183221b3d": {
+    "events": 10,
+    "referenced_in": [
+     "dashboard.definition.json",
+     "evidence.md",
+     "investigations.json"
+    ],
+    "sha256": "048c011150104659aeb339ddebed537c80feab8f384fa9ca47f01fa6d9480dc9",
+    "status": "RECOVERED"
+   },
+   "db514fd8-dbf4-49f3-a2cb-6bd2bfe92987": {
+    "events": 10,
+    "referenced_in": [
+     "dashboard.definition.json",
+     "investigations.json",
+     "workshop.md"
+    ],
+    "sha256": "4149659c6862b4e8cc1da0a8c32d89c6b1fb99599c423fd85f8f6e120ce573f3",
+    "status": "RECOVERED"
+   },
+   "f9015037-651d-4207-ac57-4f3ea1abc673": {
+    "events": 5,
+    "referenced_in": [
+     "evidence.md",
+     "investigations.json"
+    ],
+    "sha256": "2e8075b961da6bd8b38a5e36e56a7966df88986aa63b2eff0e16ae6a06d62ec0",
+    "status": "RECOVERED"
+   }
+  },
+  "LAB-MCP-003": {
+   "5b089682-1d5a-49a7-ac43-967265fd6bc6": {
+    "events": 7,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "workshop.md"
+    ],
+    "sha256": "2967e564042895ed23a30afbbd3578f73fc4b4cd3193012e15eadfd085d40ed5",
+    "status": "RECOVERED"
+   },
+   "6ce19813-6cb5-4aae-a3a0-aa59386a82dd": {
+    "events": 6,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md"
+    ],
+    "sha256": "fd1d9bb9c5d9b648928e7fb88203ae7304a5557bbf9ee318b380f5611be23733",
+    "status": "RECOVERED"
+   },
+   "b466ad12-72ec-44b7-be28-aacfaf2c25b1": {
+    "events": 7,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "workshop.md"
+    ],
+    "sha256": "717ea248552dcb750ec1a2ba19e4b22f64833e854a6180e06a24df19562de4e9",
+    "status": "RECOVERED"
+   },
+   "f638fd4f-1c4f-4ab6-8d42-4d03a4f3afd5": {
+    "events": 6,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "workshop.md"
+    ],
+    "sha256": "0c1b37151a36e0bf20adac03ef18e029bda836b3afd8f3bf552bd04c70b1c72d",
+    "status": "RECOVERED"
+   }
+  },
+  "LAB-MCP-004": {
+   "0726a0ff-a551-41a8-bfbb-ab2ceca4c0dd": {
+    "events": 6,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "searches",
+     "workshop.md"
+    ],
+    "sha256": "f063cb7b15e4bc36b9c6b3e691c648a837b322b34c161a6b1c53ba461b115ef9",
+    "status": "RECOVERED"
+   },
+   "0e4e0051-528d-4bf3-8773-d1fb55a5864f": {
+    "events": 6,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "searches"
+    ],
+    "sha256": "9f6a7dc96444d27ecd979aee00df5054cfaec09d249c7a7018a3fba23f9fd9bd",
+    "status": "RECOVERED"
+   },
+   "5ab59fc7-303e-4eea-84e7-ae0b2f405146": {
+    "events": 7,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "searches",
+     "workshop.md"
+    ],
+    "sha256": "8e43b8744e10ffbb02f5ef9cd76b38fb551bee98ade8a01b45874cb7b51b20c5",
+    "status": "RECOVERED"
+   },
+   "9ea63448-bf6a-4619-b313-b152f4d94bb6": {
+    "events": 6,
+    "referenced_in": [
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "searches"
+    ],
+    "sha256": "1ed132163c104d172873e804b99f90049b8b9b2b1da78c3c211b04adc265816e",
+    "status": "RECOVERED"
+   },
+   "ccd13a5f-0c4f-4447-84da-e0bbb1184585": {
+    "events": 8,
+    "referenced_in": [
+     "searches"
+    ],
+    "sha256": "3199e90e6efd5c6b27a2d35195a6a122683695d4f7c70650b5af572cfc09546b",
+    "status": "RECOVERED"
+   },
+   "fb50dcaf-8e84-4a3f-a55b-997c72edbd04": {
+    "events": 7,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "searches",
+     "workshop.md"
+    ],
+    "sha256": "8f5065e94815ef7c11422f33c9dbfae70409063bdc37370fe78e3207aa903cf7",
+    "status": "RECOVERED"
+   },
+   "ffafb62e-a6c6-42c0-837d-094cbfb3f795": {
+    "events": 2,
+    "referenced_in": [
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "searches",
+     "workshop.md"
+    ],
+    "sha256": "21a7a859a182333d2c135ececf0fc6d1e6c811ae5b1ac2070841b5c33531094b",
+    "status": "RECOVERED"
+   }
+  },
+  "LAB-MCP-005": {
+   "0ab10594-a7fc-48b6-81bf-4cbca54a64c6": {
+    "events": 12,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "searches",
+     "workshop.md"
+    ],
+    "sha256": "918729272087bd315af9271324a122cb40336f48d96f774383f0c465e5f9092e",
+    "status": "RECOVERED"
+   },
+   "3013aa39-fe08-4b58-9898-f3abb092ac06": {
+    "events": 8,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "searches",
+     "workshop.md"
+    ],
+    "sha256": "df3cd19628f627a91613d4860885363b2c1462feee9f30865592084709fab11c",
+    "status": "RECOVERED"
+   },
+   "6fe7370c-a288-4634-91a5-d6c78b52bd01": {
+    "events": 8,
+    "referenced_in": [
+     "evidence.md",
+     "searches"
+    ],
+    "sha256": "ad8867b3aa1030862707f0448c21a31e29a72a1993444d31248c3b798f2ab449",
+    "status": "RECOVERED"
+   },
+   "f3f48182-df57-4b38-b069-17a199dc4939": {
+    "events": 13,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "searches",
+     "workshop.md"
+    ],
+    "sha256": "66d19addf4648b74d566403bb70fe34a19f299a159a44fb9c29b373efdfcd6ec",
+    "status": "RECOVERED"
+   }
+  },
+  "LAB-MCP-006": {
+   "1cf98c4d-1bd8-4df5-be70-b82419e2c2b2": {
+    "events": 10,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "searches",
+     "workshop.md"
+    ],
+    "sha256": "71c941972c8ad54f6fa17de424852ed32be47239ecc83a6acc83e95f136748ee",
+    "status": "RECOVERED"
+   },
+   "50f7ec04-7524-41c0-95a8-3b1ef4d91dc4": {
+    "events": 6,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "searches",
+     "workshop.md"
+    ],
+    "sha256": "8c81db6d8dea2317ecde5805c5c51f6fcca3d9350d823096e651933bb787fc02",
+    "status": "RECOVERED"
+   },
+   "d7524a4e-8da6-4171-8867-d2a2168128ac": {
+    "events": 10,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "searches",
+     "workshop.md"
+    ],
+    "sha256": "2ac3dd9284dcd65f5dcdf6ce04c74c98bd10eaba2ab7c9accee71f53606b1454",
+    "status": "RECOVERED"
+   }
+  },
+  "LAB-MCP-CATALOG": {
+   "23c222ea-6a87-40b7-a3e9-f12a5b572fa1": {
+    "events": 12,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "searches",
+     "workshop.md"
+    ],
+    "sha256": "f23172b4999e5482a550221e9953b3f751d5a0e6bf624425ced5a06ec6ae12a6",
+    "status": "RECOVERED"
+   },
+   "a0937bff-31a5-453a-99bf-47d7b5148ce4": {
+    "events": 13,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "searches",
+     "workshop.md"
+    ],
+    "sha256": "c159d0f454defe11c2ab2e79f69b607f7ccbf83302adfa91de4d9fa4ec047f33",
+    "status": "RECOVERED"
+   },
+   "d95717ed-ffd2-46c0-a130-9a5d7d539a5d": {
+    "events": 8,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "dashboard.md",
+     "evidence.md",
+     "searches",
+     "workshop.md"
+    ],
+    "sha256": "af541a5025de16c09f8b33e70237be5b9ab9ac6f975e44c5d71d5c05bc2fea2a",
+    "status": "RECOVERED"
+   }
+  },
+  "LAB-MULTI-STAGE-INCIDENT-001": {
+   "2437f64a-fff4-424f-8a83-0f04285662e4": {
+    "events": 11,
+    "referenced_in": [
+     "dashboard.definition.json",
+     "incident.json"
+    ],
+    "sha256": "221b644d955ce3289b39e3f06d26a03e844e74d6c92fa58a3cecef4295a76019",
+    "status": "RECOVERED"
+   },
+   "2a248113-7436-46a7-9b1d-0243489ac000": {
+    "events": 5,
+    "referenced_in": [
+     "incident.json"
+    ],
+    "sha256": "9346ee016a080cb24037e593e732799e087f3e44b2367a1be4f26e4e558cb24c",
+    "status": "RECOVERED"
+   },
+   "348c8f18-fdfb-4501-ad8a-3f1bcda64c34": {
+    "events": 5,
+    "referenced_in": [
+     "incident.json"
+    ],
+    "sha256": "3b711e57870229464f1c09f430ea68d6c42ce992544ae8b2cfff2d90d1846b46",
+    "status": "RECOVERED"
+   },
+   "3d2b66a1-9ef1-4b1d-b993-444db50fd3ee": {
+    "events": 6,
+    "referenced_in": [
+     "incident.json"
+    ],
+    "sha256": "0e6720f32f9dfcf6b2235be6a2a8f99c39fe89c0d9576e1fd69889997fa9604f",
+    "status": "RECOVERED"
+   },
+   "3f8d6305-2d3b-4988-9e65-dc99b7ac10de": {
+    "events": 5,
+    "referenced_in": [
+     "incident.json"
+    ],
+    "sha256": "a2033102f766d56e960b6ebe105f43538c8e83ca0fe60d406852054ee383555d",
+    "status": "RECOVERED"
+   },
+   "5a15fe04-4bb1-4f70-8ec0-ab83f423dcde": {
+    "events": 5,
+    "referenced_in": [
+     "incident.json"
+    ],
+    "sha256": "a19bf593e45346339c2031cd80c183412663ab16a1688e7a98c111bee5effba7",
+    "status": "RECOVERED"
+   },
+   "5dd71f94-5b12-4c52-b5ed-93a0b6832d45": {
+    "events": 5,
+    "referenced_in": [
+     "incident.json"
+    ],
+    "sha256": "8c54d4a71051f47d36f3cf46abb5d5703253b6eece7ad2412108819b31abf249",
+    "status": "RECOVERED"
+   },
+   "8d2c016f-cadc-4463-939a-23a183221b3d": {
+    "events": 10,
+    "referenced_in": [
+     "dashboard.definition.json",
+     "incident.json"
+    ],
+    "sha256": "048c011150104659aeb339ddebed537c80feab8f384fa9ca47f01fa6d9480dc9",
+    "status": "RECOVERED"
+   },
+   "db514fd8-dbf4-49f3-a2cb-6bd2bfe92987": {
+    "events": 10,
+    "referenced_in": [
+     "incident.json"
+    ],
+    "sha256": "4149659c6862b4e8cc1da0a8c32d89c6b1fb99599c423fd85f8f6e120ce573f3",
+    "status": "RECOVERED"
+   },
+   "f9015037-651d-4207-ac57-4f3ea1abc673": {
+    "events": 5,
+    "referenced_in": [
+     "incident.json"
+    ],
+    "sha256": "2e8075b961da6bd8b38a5e36e56a7966df88986aa63b2eff0e16ae6a06d62ec0",
+    "status": "RECOVERED"
+   }
+  },
+  "LAB-SCANNER-RUNTIME-EVIDENCE": {
+   "23c222ea-6a87-40b7-a3e9-f12a5b572fa1": {
+    "events": 12,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "evidence.md"
+    ],
+    "sha256": "f23172b4999e5482a550221e9953b3f751d5a0e6bf624425ced5a06ec6ae12a6",
+    "status": "RECOVERED"
+   },
+   "a0937bff-31a5-453a-99bf-47d7b5148ce4": {
+    "events": 13,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json",
+     "evidence.md"
+    ],
+    "sha256": "c159d0f454defe11c2ab2e79f69b607f7ccbf83302adfa91de4d9fa4ec047f33",
+    "status": "RECOVERED"
+   },
+   "d95717ed-ffd2-46c0-a130-9a5d7d539a5d": {
+    "events": 8,
+    "referenced_in": [
+     "README.md",
+     "dashboard.definition.json"
+    ],
+    "sha256": "af541a5025de16c09f8b33e70237be5b9ab9ac6f975e44c5d71d5c05bc2fea2a",
+    "status": "RECOVERED"
+   }
+  }
+ },
+ "method_check": {
+  "163d11e2-e751-4282-9406-19b490542ed4": {
+   "byte_identical_to_committed": true,
+   "events": 7,
+   "sha256": "bf897fbb715369e0"
+  },
+  "5e8f55f3-eb46-47ee-b979-b72d9c9b1f49": {
+   "byte_identical_to_committed": true,
+   "events": 7,
+   "sha256": "6e23e5521b536e93"
+  },
+  "7a1d37b5-d589-4dfd-8322-25ebd0152dbc": {
+   "byte_identical_to_committed": true,
+   "events": 6,
+   "sha256": "99afc68253f8269d"
+  }
+ },
+ "method_check_note": "Before exporting anything, the three LAB-MCP-001 packs already committed in the repository were re-exported from the recovered index and compared: byte-identical.",
+ "source": {
+  "event_time_range": "2026-09-12..2026-10-09",
+  "events_in_recovered_index": 2036,
+  "index": "agentsec_telemetry",
+  "recovered_into": "isolated scratch Splunk 10.2 (agentsec_recover_splunk) from a copy; original volume mounted read-only for the copy only",
+  "volume": "0aa27f8fe3804caa865db7f767e4cfb13756ab6709790781d8895b5f92937ae3",
+  "volume_created": "2026-09-12T01:36:56Z"
+ }
+}

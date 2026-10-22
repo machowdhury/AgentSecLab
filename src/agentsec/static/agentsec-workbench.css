@@ -215,7 +215,7 @@
   margin-top: .15rem;
   font-size: .78rem;
   font-weight: 500;
-  opacity: .92;
+  opacity: 1; /* was .92: white on the teal RETEST button measured 4.31:1 and failed WCAG AA (4.5:1); at full opacity it is 4.8:1 */
 }
 
 .prediction {
