@@ -1,0 +1,311 @@
+{
+  "schema_version": "1.0.0",
+  "retrieved_on": "2026-10-22",
+  "rule": "A framework identifier is shown to learners, or emitted in telemetry, only if it has an entry in items. Lab references are educational relationships, not certified mappings.",
+  "items": [
+    {
+      "framework": "MITRE ATLAS",
+      "id": "AML.T0050",
+      "name": "Command and Scripting Interpreter",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+      "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+      "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    },
+    {
+      "framework": "MITRE ATLAS",
+      "id": "AML.T0051",
+      "name": "LLM Prompt Injection",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+      "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+      "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    },
+    {
+      "framework": "MITRE ATLAS",
+      "id": "AML.T0051.000",
+      "name": "Direct",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+      "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+      "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    },
+    {
+      "framework": "MITRE ATLAS",
+      "id": "AML.T0051.001",
+      "name": "Indirect",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+      "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+      "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    },
+    {
+      "framework": "MITRE ATLAS",
+      "id": "AML.T0053",
+      "name": "AI Agent Tool Invocation",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+      "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+      "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    },
+    {
+      "framework": "MITRE ATLAS",
+      "id": "AML.T0054",
+      "name": "LLM Jailbreak",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+      "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+      "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    },
+    {
+      "framework": "MITRE ATLAS",
+      "id": "AML.T0070",
+      "name": "RAG Poisoning",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+      "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+      "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    },
+    {
+      "framework": "MITRE ATLAS",
+      "id": "AML.T0073",
+      "name": "Impersonation",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+      "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+      "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    },
+    {
+      "framework": "MITRE ATLAS",
+      "id": "AML.T0080",
+      "name": "AI Agent Context Poisoning",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+      "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+      "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    },
+    {
+      "framework": "OWASP LLM 2025",
+      "id": "LLM01:2025",
+      "name": "Prompt Injection",
+      "status": "VERIFIED",
+      "source_url": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+      "version_or_date": "2025",
+      "limits": ""
+    },
+    {
+      "framework": "OWASP LLM 2025",
+      "id": "LLM06:2025",
+      "name": "Excessive Agency",
+      "status": "VERIFIED",
+      "source_url": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+      "version_or_date": "2025",
+      "limits": ""
+    },
+    {
+      "framework": "OWASP Agentic 2026",
+      "id": "ASI01",
+      "name": "Agent Goal Hijack",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+      "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+      "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+      "framework": "OWASP Agentic 2026",
+      "id": "ASI02",
+      "name": "Tool Misuse",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+      "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+      "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+      "framework": "OWASP Agentic 2026",
+      "id": "ASI03",
+      "name": "Identity & Privilege Abuse",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+      "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+      "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+      "framework": "OWASP Agentic 2026",
+      "id": "ASI04",
+      "name": "Agentic Supply Chain Vulnerabilities",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+      "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+      "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+      "framework": "OWASP Agentic 2026",
+      "id": "ASI05",
+      "name": "Unexpected Code Execution",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+      "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+      "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+      "framework": "OWASP Agentic 2026",
+      "id": "ASI06",
+      "name": "Memory & Context Poisoning",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+      "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+      "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+      "framework": "OWASP Agentic 2026",
+      "id": "ASI07",
+      "name": "Insecure Inter-Agent Communication",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+      "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+      "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+      "framework": "OWASP Agentic 2026",
+      "id": "ASI08",
+      "name": "Cascading Failures",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+      "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+      "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+      "framework": "OWASP Agentic 2026",
+      "id": "ASI09",
+      "name": "Human-Agent Trust Exploitation",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+      "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+      "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+      "framework": "OWASP Agentic 2026",
+      "id": "ASI10",
+      "name": "Rogue Agents",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+      "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+      "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+      "framework": "NIST AI 100-2",
+      "id": "NIST AI 100-2 E2025",
+      "name": "Adversarial Machine Learning: A Taxonomy and Terminology of Attacks and Mitigations",
+      "status": "VERIFIED_WITH_LIMITS",
+      "source_url": "https://csrc.nist.gov/pubs/ai/100/2/e2025/final",
+      "version_or_date": "Final 2025-03-24 (Date Published: March 2025)",
+      "limits": "Edition and date read from the NIST CSRC page; the PDF was not opened."
+    },
+    {
+      "framework": "MCP spec",
+      "id": "2026-07-28",
+      "name": "Model Context Protocol Specification",
+      "status": "VERIFIED",
+      "source_url": "https://modelcontextprotocol.io/specification/2026-07-28",
+      "version_or_date": "Version 2026-07-28 (latest)",
+      "limits": ""
+    }
+  ],
+  "retired_labels": [
+    {
+      "id": "AML.T0054",
+      "emitted_for": "ATK-002 (direct prompt injection)",
+      "official_name": "LLM Jailbreak",
+      "reason": "Not the technique AgentSec teaches here. ATLAS lists prompt injection as AML.T0051."
+    },
+    {
+      "id": "AML.T0050",
+      "emitted_for": "MCP-002, MCP-003, MCP-004 (tool authorization)",
+      "official_name": "Command and Scripting Interpreter",
+      "reason": "Describes code execution, not MCP tool authorization."
+    }
+  ],
+  "legacy_specimen_ids": [
+    "AML.T0050"
+  ],
+  "legacy_note": "Committed REPLAY specimens recorded before this correction carry agentsec.technique.id=AML.T0050. They are historical evidence and are not rewritten. New runs do not emit agentsec.technique.id.",
+  "lab_references": [
+    {
+      "scope": "ATK-002",
+      "framework": "MITRE ATLAS",
+      "id": "AML.T0051.000",
+      "relationship": "PROPOSED",
+      "rationale": "Payload is a direct instruction-override attempt in user input."
+    },
+    {
+      "scope": "ATK-002",
+      "framework": "OWASP LLM 2025",
+      "id": "LLM01:2025",
+      "relationship": "RELATED",
+      "rationale": "Prompt injection family."
+    },
+    {
+      "scope": "MCP-002",
+      "framework": "MITRE ATLAS",
+      "id": "AML.T0053",
+      "relationship": "PROPOSED",
+      "rationale": "Agent requests a tool that is not granted."
+    },
+    {
+      "scope": "MCP-002",
+      "framework": "OWASP LLM 2025",
+      "id": "LLM06:2025",
+      "relationship": "RELATED",
+      "rationale": "Excessive agency (over-grant in the vulnerable profile)."
+    },
+    {
+      "scope": "MCP-002",
+      "framework": "OWASP Agentic 2026",
+      "id": "ASI02",
+      "relationship": "RELATED",
+      "rationale": "Tool misuse."
+    },
+    {
+      "scope": "MCP-003",
+      "framework": "MITRE ATLAS",
+      "id": "AML.T0053",
+      "relationship": "PROPOSED",
+      "rationale": "Agent requests a tool that is not granted."
+    },
+    {
+      "scope": "MCP-003",
+      "framework": "OWASP LLM 2025",
+      "id": "LLM06:2025",
+      "relationship": "RELATED",
+      "rationale": "Excessive agency (over-grant in the vulnerable profile)."
+    },
+    {
+      "scope": "MCP-003",
+      "framework": "OWASP Agentic 2026",
+      "id": "ASI02",
+      "relationship": "RELATED",
+      "rationale": "Tool misuse."
+    },
+    {
+      "scope": "MCP-004",
+      "framework": "MITRE ATLAS",
+      "id": "AML.T0053",
+      "relationship": "PROPOSED",
+      "rationale": "Agent requests a tool that is not granted."
+    },
+    {
+      "scope": "MCP-004",
+      "framework": "OWASP LLM 2025",
+      "id": "LLM06:2025",
+      "relationship": "RELATED",
+      "rationale": "Excessive agency (over-grant in the vulnerable profile)."
+    },
+    {
+      "scope": "MCP-004",
+      "framework": "OWASP Agentic 2026",
+      "id": "ASI02",
+      "relationship": "RELATED",
+      "rationale": "Tool misuse."
+    }
+  ]
+}

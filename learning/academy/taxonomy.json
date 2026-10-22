@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0.0",
+  "status": "APPROVED_PRODUCT_TAXONOMY",
+  "note": "Approved product taxonomy. Membership is not evidence that a capability is implemented; see pillar link status in lab_registry_data.json.",
+  "domains": [
+    {
+      "id": "D01",
+      "slug": "ai-foundations",
+      "title": "AI foundations"
+    },
+    {
+      "id": "D02",
+      "slug": "prompt-injection",
+      "title": "Prompt injection"
+    },
+    {
+      "id": "D03",
+      "slug": "mcp-tool-security",
+      "title": "MCP / tool security"
+    },
+    {
+      "id": "D04",
+      "slug": "a2a-delegation",
+      "title": "A2A / delegation"
+    },
+    {
+      "id": "D05",
+      "slug": "rag-knowledge-security",
+      "title": "RAG / knowledge security"
+    },
+    {
+      "id": "D06",
+      "slug": "memory-state-security",
+      "title": "Memory / state security"
+    },
+    {
+      "id": "D07",
+      "slug": "identity-secrets",
+      "title": "Identity / secrets"
+    },
+    {
+      "id": "D08",
+      "slug": "data-protection",
+      "title": "Data protection"
+    },
+    {
+      "id": "D09",
+      "slug": "runtime-governance",
+      "title": "Runtime governance"
+    },
+    {
+      "id": "D10",
+      "slug": "observability-forensics",
+      "title": "Observability / forensics"
+    },
+    {
+      "id": "D11",
+      "slug": "detection-response",
+      "title": "Detection / response"
+    },
+    {
+      "id": "D12",
+      "slug": "risk-assurance",
+      "title": "Risk / assurance"
+    }
+  ],
+  "pillars": [
+    {
+      "id": "P1",
+      "slug": "ai-spm-discover",
+      "title": "AI-SPM / Discover"
+    },
+    {
+      "id": "P2",
+      "slug": "identity-governance",
+      "title": "Identity & Governance"
+    },
+    {
+      "id": "P3",
+      "slug": "guardrails-gateways-protect",
+      "title": "Guardrails & Gateways / Protect"
+    },
+    {
+      "id": "P4",
+      "slug": "detection-response",
+      "title": "Detection & Response"
+    },
+    {
+      "id": "P5",
+      "slug": "security-agents-act",
+      "title": "Security Agents / Act"
+    },
+    {
+      "id": "P6",
+      "slug": "continuous-verification",
+      "title": "Continuous Verification"
+    }
+  ]
+}

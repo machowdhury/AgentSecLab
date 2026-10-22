@@ -84,16 +84,16 @@ def test_pi_mixed_evidence_label_is_not_live_evidence_alone():
 
 
 def test_atlas_mapping_is_qualified_on_attack_service():
+    # Framework ids are data (framework_refs.json), not hard-coded template text.
     html = ATTACK_HTML.read_text(encoding="utf-8")
-    assert "AML.T0054" in html
-    assert "REQUIRES REVALIDATION" in html
+    assert "AML.T00" not in html
     app = create_attack_app(AcmeBankClient("http://acmebank.example:5000"))
     app.config["TESTING"] = True
-    client = app.test_client()
-    page = client.get("/").get_data(as_text=True)
-    assert "AML.T0054" in page
-    assert "REQUIRES REVALIDATION" in page
-    assert "educational label" in page
+    page = app.test_client().get("/").get_data(as_text=True)
+    assert "Educational relationships" in page
+    assert "AML.T0051.000" in page  # verified, proposed relationship
+    assert "Retired label" in page and "LLM Jailbreak" in page  # AML.T0054 shown only as retired
+    assert "AML.T0050" not in page
 
 
 def test_home_fingerprint_does_not_claim_equivalent_input():

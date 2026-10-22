@@ -1,0 +1,211 @@
+{
+  "schema_version": "1.0.0",
+  "lab_id": "LAB-MCP-001",
+  "title": "MCP Tool Authorization",
+  "tier": "GUIDED MISSION",
+  "level": "L1",
+  "level_exit": "PRACTITIONER",
+  "duration_minutes": {
+    "min": 150,
+    "max": 180,
+    "source": "learning/academy/curriculum.json L1 effort: LIVE 2.5-3 hours"
+  },
+  "prerequisites": [
+    "L0 orientation"
+  ],
+  "objectives": [
+    "Why ALLOW does not prove that the tool ran.",
+    "Which event records that a tool handler started.",
+    "Why a missing event is NOT OBSERVED rather than proof of safety.",
+    "Why the retest kept the request the same and changed only the profile.",
+    "Why Splunk is evidence, not the decision point."
+  ],
+  "steps": [
+    {
+      "id": "start",
+      "title": "Start: meet the lab",
+      "brief": {
+        "doing": "Reading what this lab is, what is real, and where its boundaries are.",
+        "why": "You can only judge evidence if you know which parts of the system are trusted and which are deliberately weakened.",
+        "todo": "Read the story and the lab boundaries, then continue to the baseline.",
+        "evidence": "None yet.",
+        "learn": "Authorization, execution and recorded evidence are three separate facts."
+      }
+    },
+    {
+      "id": "baseline",
+      "title": "Baseline: what normal looks like",
+      "brief": {
+        "doing": "Looking at a recorded run where the agent asks for the tool it was granted.",
+        "why": "You need a picture of normal before you can recognise a deviation.",
+        "todo": "Load the recorded baseline and read its events.",
+        "evidence": "The REPLAY run {% for k, v in replay.items() if v == 'BASELINE' %}{{ k }}{% endfor %}: the control decision event and the tool events.",
+        "learn": "What a granted request leaves behind in the record."
+      }
+    },
+    {
+      "id": "predict",
+      "title": "Predict: commit before you look",
+      "brief": {
+        "doing": "Recording what you expect to happen when the agent requests the ungranted tool.",
+        "why": "A prediction made before seeing evidence shows you where your mental model is right or wrong.",
+        "todo": "Answer both questions, then lock your prediction.",
+        "evidence": "None. No outcome is shown on this step.",
+        "learn": "Whether you expected the decision and the execution to match."
+      }
+    },
+    {
+      "id": "attack",
+      "title": "Attack: run the experiment",
+      "brief": {
+        "doing": "Sending the ungranted tool request against the intentionally vulnerable profile, or opening the recorded run of the same experiment.",
+        "why": "An experiment produces a run.id and a set of events you can investigate.",
+        "todo": "Choose LIVE (launch now) or REPLAY (recorded run). One run per mode.",
+        "evidence": "The run.id and how many events were recorded. You read them on the next step.",
+        "learn": "How a run is identified and where its evidence comes from."
+      }
+    },
+    {
+      "id": "investigate",
+      "title": "Investigate: the evidence notebook",
+      "brief": {
+        "doing": "Answering five questions about your ATTACK run from its recorded events.",
+        "why": "Investigators state only what an event supports, and they name that event.",
+        "todo": "Answer each question, check it against the evidence, and read the cited event.",
+        "evidence": "The event record below: decision event, tool events, scopes.",
+        "learn": "That an ALLOW decision and a tool execution are recorded by different events."
+      }
+    },
+    {
+      "id": "defend",
+      "title": "Defend: what changes for the retest",
+      "brief": {
+        "doing": "Understanding the one configuration change between ATTACK and RETEST.",
+        "why": "A fair retest changes one thing and keeps the request the same, so a difference in outcome can be tied to that change.",
+        "todo": "Read the comparison of the two configurations.",
+        "evidence": "The server-owned experiment definitions below.",
+        "learn": "Where enforcement lives: in the runtime control, not in this page and not in Splunk."
+      }
+    },
+    {
+      "id": "retest",
+      "title": "Retest: same request, defended profile",
+      "brief": {
+        "doing": "Running the same request with the defended profile.",
+        "why": "A retest shows whether the defence changes the recorded outcome.",
+        "todo": "Use the same source as your ATTACK: launch LIVE after a LIVE attack, or open the recorded RETEST after a recorded attack.",
+        "evidence": "The new run.id and its event count.",
+        "learn": "That every experiment gets its own run.id."
+      }
+    },
+    {
+      "id": "compare",
+      "title": "Compare: ATTACK and RETEST",
+      "brief": {
+        "doing": "Comparing what the two runs recorded, field by field.",
+        "why": "A comparison shows what changed and what stayed the same, without guessing.",
+        "todo": "Read the table, then the observed facts and the labelled inferences.",
+        "evidence": "Both event records, cited by event number.",
+        "learn": "The difference between an observation and an inference."
+      }
+    },
+    {
+      "id": "explain",
+      "title": "Explain: say what happened and how you know",
+      "brief": {
+        "doing": "Writing your conclusion and checking it against the evidence.",
+        "why": "A conclusion is only as good as the evidence it cites.",
+        "todo": "Compare your prediction with the evidence, write two or three sentences, then mark the workflow complete.",
+        "evidence": "The supported claims listed below.",
+        "learn": "How to explain a security outcome without overclaiming."
+      }
+    }
+  ],
+  "checks": [
+    {
+      "id": "MCP-001-Q01",
+      "question": "Why is `lookup_customer_tier` DENY instead of ERROR in the defended profile?",
+      "answer": "The tool is registered (known) but not granted to `acme-agent-mcp-001`. Known-ungranted is an authorization failure → DENY (`tool_not_granted`). ERROR is reserved for unknown tools, malformed arguments, and control-evaluation failures.",
+      "source": "learning/level_1/LAB-MCP-001/knowledge-check.md"
+    },
+    {
+      "id": "MCP-001-Q02",
+      "question": "Why is an unknown tool ERROR?",
+      "answer": "Unknown means the name is not in the registry. CTRL-MCP-001 cannot grant what it does not know. Decision is ERROR `unknown_tool`, handler count 0, no `mcp.started`. Do not call that DENY.",
+      "source": "learning/level_1/LAB-MCP-001/knowledge-check.md"
+    },
+    {
+      "id": "MCP-001-Q03",
+      "question": "Does ALLOW prove the tool executed?",
+      "answer": "No. ALLOW is the control decision. On BASELINE, Q-MCP-AUTHZ shows `executed=false` on the ALLOW row. Execution begins at `mcp.started`.",
+      "source": "learning/level_1/LAB-MCP-001/knowledge-check.md"
+    },
+    {
+      "id": "MCP-001-Q04",
+      "question": "What proves the handler actually began?",
+      "answer": "Runtime: `handler_invoke_count` / registry spy. Telemetry corroboration: `event.name=agentsec.mcp.started` with `operation.executed=true`. ALLOW alone is not enough.",
+      "source": "learning/level_1/LAB-MCP-001/knowledge-check.md"
+    },
+    {
+      "id": "MCP-001-Q05",
+      "question": "Why is `mcp.failed` not prevention?",
+      "answer": "`mcp.failed` means the handler began and then errored (`executed=true`, `outcome=error`). Prevention is DENY/ERROR before start (`executed=false`, `outcome=prevented`, handler count 0).",
+      "source": "learning/level_1/LAB-MCP-001/knowledge-check.md"
+    },
+    {
+      "id": "MCP-001-Q06",
+      "question": "Why can't zero Splunk events alone prove the handler never executed?",
+      "answer": "Export can be incomplete. Absence in a partial copy looks like DENY. You need runtime handler count plus complete local `events.jsonl`, then Splunk as corroboration of that copy.",
+      "source": "learning/level_1/LAB-MCP-001/knowledge-check.md"
+    },
+    {
+      "id": "MCP-001-Q07",
+      "question": "Why are MCP tool results classified as `untrusted_data`?",
+      "answer": "INV-002: retrieved or returned content cannot independently authorize privileged actions. Completed results emit `agentsec.mcp.result.trust=untrusted_data`. They do not widen `allowed_tools`. MCP-005 (result used as authority) is not this lab.",
+      "source": "learning/level_1/LAB-MCP-001/knowledge-check.md"
+    },
+    {
+      "id": "MCP-001-Q08",
+      "question": "Can Splunk ALLOW or DENY the tool?",
+      "answer": "No. CTRL-MCP-001 runs inside AcmeBank before the handler. Searches read a copy after the fact.",
+      "source": "learning/level_1/LAB-MCP-001/knowledge-check.md"
+    },
+    {
+      "id": "MCP-001-Q09",
+      "question": "What does Q-MCP-AFTER-DENY returning 0 rows mean?",
+      "answer": "No indexed DENY-then-mcp sequence was found for that `run.id`. On a complete copy of RETEST that matches local events, it corroborates the contract. It does not independently prove the runtime never invoked the handler.",
+      "source": "learning/level_1/LAB-MCP-001/knowledge-check.md"
+    },
+    {
+      "id": "MCP-001-Q10",
+      "question": "Is the DETECT right-hand table OBSERVED runtime evidence?",
+      "answer": "No. The DETECT right-hand table is SIMULATED `| makeresults` (`DET-MCP-001-POSITIVE-CONTROL`). It was not indexed. It is not OBSERVED runtime. The hunt fixture `Q-MCP-AFTER-DENY-POSITIVE-CONTROL` is also SIMULATED.",
+      "source": "learning/level_1/LAB-MCP-001/knowledge-check.md"
+    },
+    {
+      "id": "MCP-001-Q11",
+      "question": "Why is DENY alone not a DET-MCP-001 alert?",
+      "answer": "DENY with no later `mcp.started` is the control working (RETEST). The detection asks whether execution began after DENY, not whether a DENY happened.",
+      "source": "learning/level_1/LAB-MCP-001/knowledge-check.md"
+    },
+    {
+      "id": "MCP-001-Q12",
+      "question": "Why is `mcp.failed` after ALLOW not the same condition as DET-MCP-001?",
+      "answer": "`mcp.failed` after ALLOW means the handler began and then errored. There was no DENY. DET-MCP-001 requires DENY then later `mcp.started` for the same run/tool.",
+      "source": "learning/level_1/LAB-MCP-001/knowledge-check.md"
+    },
+    {
+      "id": "MCP-001-Q13",
+      "question": "Does DET-MCP-001 enforce MCP authorization?",
+      "answer": "No. CTRL-MCP-001 enforces authorization in AcmeBank before the handler. DET-MCP-001 reads a Splunk copy after the fact. Splunk does not ALLOW or DENY the tool.\n\n## Common wrong answers (do not teach these)\n\n- “Zero Splunk rows means the tool was blocked.”\n- “ALLOW means the handler ran.”\n- “`mcp.started` means success.”\n- “`mcp.failed` means prevented.”\n- “Unknown tool is DENY.”\n- “Known-ungranted tool is ERROR.”\n- “The makeresults row is OBSERVED runtime.”\n- “Splunk authorized the invoke.”\n- “Dashboard Studio proved INV-001.”",
+      "source": "learning/level_1/LAB-MCP-001/knowledge-check.md"
+    }
+  ],
+  "completion": {
+    "criteria": [
+      "Run ATTACK and RETEST for this lab and compare them.",
+      "Write the explanation: the run, the decision, whether the tool started, and the event that shows it."
+    ]
+  },
+  "source_note": "Extracted from src/agentsec/templates/academy/workshop_mcp.html and knowledge-check.md; the engine will render this file."
+}

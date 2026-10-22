@@ -22,7 +22,12 @@ MAX_TIMEOUT_SEC = 120
 MAX_INTERVAL_SEC = 15
 SPLUNK_CONTAINER = "agentsec_splunk"
 STATE_UNAVAILABLE = "EVIDENCE_CHECK_UNAVAILABLE"
-PROBE_CANNOT_EXECUTE = frozenset({"docker_not_available"})
+PROBE_CANNOT_EXECUTE = frozenset(
+    {"docker_not_available", "probe_misconfigured", "tls_verification_failed", "probe_auth_failed"}
+)
+# The REST probe is DISABLED unless this is "true". Its TLS, credential and least-privilege design
+# is pending separate approval; nothing in the lab enables it.
+REST_PROBE_FLAG = "AGENTSEC_SPLUNK_PROBE_ENABLED"
 
 
 def count_local_events(artifacts_dir: Path, run_id: str) -> int | None:
@@ -105,32 +110,76 @@ def probe_splunk_count(
             "splunk_count": None,
             "error": "splunk_probe_failed",
         }
-    lines = [ln for ln in (proc.stdout or "").splitlines() if ln and not ln.startswith("WARNING:")]
-    if not lines:
-        return {
-            "splunk_attempted": True,
-            "splunk_ok": True,
-            "splunk_count": 0,
-            "error": None,
-        }
-    rows = list(csv.DictReader(io.StringIO("\n".join(lines))))
-    if not rows or "n" not in rows[0]:
-        return {
-            "splunk_attempted": True,
-            "splunk_ok": True,
-            "splunk_count": 0,
-            "error": None,
-        }
+    return _count_from_csv(proc.stdout or "")
+
+
+def _count_from_csv(text: str) -> dict:
+    lines = [ln for ln in text.splitlines() if ln and not ln.startswith("WARNING:")]
+    count = 0
+    if lines:
+        rows = list(csv.DictReader(io.StringIO("\n".join(lines))))
+        if rows and "n" in rows[0]:
+            try:
+                count = int(rows[0]["n"])
+            except (TypeError, ValueError):
+                count = 0
+    return {"splunk_attempted": True, "splunk_ok": True, "splunk_count": count, "error": None}
+
+
+def _probe_failure(error: str, *, attempted: bool = True) -> dict:
+    return {"splunk_attempted": attempted, "splunk_ok": False, "splunk_count": None, "error": error}
+
+
+def probe_splunk_count_rest(
+    run_id: str,
+    *,
+    env: dict | None = None,
+    opener: Callable[..., object] | None = None,
+) -> dict:
+    """Count indexed events over the Splunk REST API with a least-privilege token.
+
+    Disabled by default. When enabled it fails closed: TLS verification and host name
+    checks stay on (an explicit CA file is required), there is no skip-verify path, and a
+    missing setting is probe_misconfigured, never an empty success. The Attack Service
+    needs no Docker access and no admin password for this probe.
+    """
+    import ssl
+    import urllib.error
+    import urllib.parse
+    import urllib.request
+
+    env = os.environ if env is None else env
+    if str(env.get(REST_PROBE_FLAG, "")).lower() != "true":
+        return _probe_failure("probe_disabled", attempted=False)
+    url, token, ca_file = (env.get(k, "") for k in (
+        "AGENTSEC_SPLUNK_PROBE_URL", "AGENTSEC_SPLUNK_PROBE_TOKEN", "AGENTSEC_SPLUNK_PROBE_CA_FILE"))
+    if not (url.startswith("https://") and token and ca_file and Path(ca_file).is_file()):
+        return _probe_failure("probe_misconfigured", attempted=False)
+    spl = " ".join(line.strip() for line in completeness_spl(run_id).splitlines() if line.strip())
+    body = urllib.parse.urlencode({"search": "search " + spl if not spl.lstrip().startswith(("search", "|")) else spl,
+                                   "output_mode": "csv", "earliest_time": "0"}).encode()
+    req = urllib.request.Request(url.rstrip("/") + "/services/search/v2/jobs/export", data=body,
+                                 headers={"Authorization": "Bearer " + token}, method="POST")
     try:
-        count = int(rows[0]["n"])
-    except (TypeError, ValueError):
-        count = 0
-    return {
-        "splunk_attempted": True,
-        "splunk_ok": True,
-        "splunk_count": count,
-        "error": None,
-    }
+        ctx = ssl.create_default_context(cafile=ca_file)  # check_hostname and CERT_REQUIRED stay on
+        resp = (opener or urllib.request.urlopen)(req, timeout=30, context=ctx)
+        return _count_from_csv(resp.read().decode("utf-8", "replace"))
+    except urllib.error.HTTPError as exc:
+        return _probe_failure("probe_auth_failed" if exc.code in (401, 403) else "splunk_probe_failed")
+    except (ssl.SSLError, ssl.CertificateError):
+        return _probe_failure("tls_verification_failed")
+    except urllib.error.URLError as exc:
+        return _probe_failure("tls_verification_failed" if isinstance(exc.reason, ssl.SSLError) else "splunk_probe_failed")
+    except TimeoutError:
+        return _probe_failure("splunk_probe_timeout")
+
+
+def select_probe(env: dict | None = None) -> Callable[[str], dict]:
+    """REST probe only when explicitly enabled; otherwise the existing docker-exec probe."""
+    env = os.environ if env is None else env
+    if str(env.get(REST_PROBE_FLAG, "")).lower() == "true":
+        return lambda run_id: probe_splunk_count_rest(run_id, env=env)
+    return probe_splunk_count
 
 
 def wait_for_searchable_evidence(
@@ -152,7 +201,7 @@ def wait_for_searchable_evidence(
     interval_seconds = clamp_interval(interval_seconds)
     local_count = count_local_events(artifacts_dir, run_id)
     export_doc = read_export_doc(artifacts_dir, run_id) or {}
-    probe = probe_fn or probe_splunk_count
+    probe = probe_fn or select_probe()
     deadline = monotonic_fn() + timeout_seconds
     last: dict = {
         "splunk_attempted": False,

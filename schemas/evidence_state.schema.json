@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentsec.local/schemas/evidence_state.schema.json",
+  "title": "AgentSec evidence state (C1) 1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source",
+    "readiness",
+    "reason",
+    "local_event_count",
+    "splunk_count",
+    "reconciled"
+  ],
+  "properties": {
+    "source": {
+      "enum": [
+        "LIVE",
+        "REPLAY",
+        "SIMULATED",
+        "INFERRED",
+        "UNAVAILABLE"
+      ]
+    },
+    "readiness": {
+      "enum": [
+        "EVIDENCE_READY",
+        "WAITING_FOR_EVIDENCE",
+        "EVIDENCE_CHECK_UNAVAILABLE"
+      ]
+    },
+    "reason": {
+      "enum": [
+        "docker_not_available",
+        "probe_disabled",
+        "probe_misconfigured",
+        "tls_verification_failed",
+        "probe_auth_failed",
+        "splunk_probe_timeout",
+        "splunk_probe_failed",
+        "count_mismatch",
+        "not_checked",
+        null
+      ]
+    },
+    "local_event_count": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "splunk_count": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "reconciled": {
+      "type": "boolean"
+    }
+  }
+}

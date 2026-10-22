@@ -209,10 +209,22 @@
         <dt>Lab</dt>
         <dd><code>{{ lab_id }}</code> — {{ lab_title }}</dd>
         <dt>Technique</dt>
-        <dd>{{ technique_name }} (<code>{{ technique_id }}</code>{% if lab_id == "LAB-PI-001" %} / <code>{{ attack.technique_id }}</code>{% endif %})</dd>
-        {% if lab_id == "LAB-PI-001" %}
-        <dt>Framework mapping</dt>
-        <dd>Historical ATLAS id <code>AML.T0054</code> is an educational label only. It REQUIRES REVALIDATION against current MITRE ATLAS. It is not a verified mapping and not proof that this experiment implements that technique as MITRE currently defines it.</dd>
+        <dd>{{ technique_name }} (<code>{{ technique_id }}</code>)</dd>
+        {% if framework_refs or retired_framework_labels %}
+        <dt>Framework references</dt>
+        <dd>
+          <p>Educational relationships, not a certified mapping and not proof that this experiment implements the technique as the framework defines it.</p>
+          {% if framework_refs %}
+          <ul>
+            {% for ref in framework_refs %}
+            <li>{{ ref.framework }} <code>{{ ref.id }}</code> {{ ref.name }} &mdash; {{ ref.relationship }}; {{ ref.status|replace("_", " ")|lower }}, checked {{ ref.retrieved_on }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+          {% for old in retired_framework_labels %}
+          <p>Retired label: earlier releases showed <code>{{ old.id }}</code> for {{ old.emitted_for }}. ATLAS defines it as {{ old.official_name }}. REQUIRES REVALIDATION is no longer the state: the label is removed from new telemetry. Historical REPLAY specimens keep their original value.</p>
+          {% endfor %}
+        </dd>
         {% endif %}
         <dt>Target</dt>
         <dd>{{ target_name }} (this console posts to lab URL <code>{{ target_url }}</code>)</dd>
