@@ -6,9 +6,11 @@
   <title>Attack Service — {{ lab_title }}</title>
   <link rel="icon" href="{{ url_for('static', filename='agentsec-favicon.svg') }}" type="image/svg+xml">
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
+  {% include "_shell_head.html" %}
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
+  {% include "_shell_bar.html" %}
   <header class="site-header">
     <div class="site-header-inner">
       <div class="brand-lockup">

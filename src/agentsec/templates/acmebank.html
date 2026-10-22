@@ -5,9 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AcmeBank — Home loan application</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
+  {% include "_shell_head.html" %}
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
+  {% set shell_script = not read_only %}
+  {% include "_shell_bar.html" %}
   <header class="site-header">
     <div class="site-header-inner">
       <div>
@@ -122,6 +125,7 @@
   <script src="{{ url_for('static', filename='agentsec-ui.js') }}"></script>
   <script>
     const ui = window.AgentSecUI;
+    ui.rewriteLearnerLinks(document);
     const form = document.getElementById("loan-form");
     const button = document.getElementById("submit-loan");
     const statusEl = document.getElementById("ui-status");

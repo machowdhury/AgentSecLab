@@ -1,0 +1,56 @@
+{
+  "source": "Figma Make export 'Design AgentSec Learning Platform_v2.zip' (React/Vite), src/index.css :root",
+  "source_sha256": "e2ee214403e02cb8574316c096ba7a519f9968b9c7391db987a63f50d00f0ca8",
+  "native_figma_file_accessed": false,
+  "claim": "Provisional visual reference only. Fidelity to the native Figma file is NOT claimed.",
+  "figma_tokens": {
+    "navy": "#0b1f33",
+    "navy-2": "#132c44",
+    "teal": "#007f86",
+    "teal-dark": "#006c72",
+    "blue": "#3568a8",
+    "bg": "#f5f7fa",
+    "panel": "#ffffff",
+    "line": "#dce3ea",
+    "line-strong": "#c7d1dc",
+    "text": "#172536",
+    "muted": "#5f6b76",
+    "subtle": "#81909d",
+    "green": "#2f7458",
+    "green-bg": "#eaf5ef",
+    "amber": "#946213",
+    "amber-bg": "#fff5de",
+    "blue-bg": "#eaf1fa",
+    "navy-bg": "#e7edf3",
+    "radius": "8px",
+    "shadow": "0 8px 30px rgba(11, 31, 51, .07)"
+  },
+  "mapped_to": {
+    "navy": "as-navy",
+    "navy-2": "as-navy-2",
+    "teal": "as-teal",
+    "teal-dark": "as-teal-dark",
+    "blue": "as-blue",
+    "bg": "as-bg",
+    "panel": "as-panel",
+    "line": "as-line",
+    "line-strong": "as-line-strong",
+    "text": "as-text",
+    "muted": "as-muted",
+    "green": "as-green",
+    "amber": "as-amber",
+    "radius": "as-radius"
+  },
+  "not_mapped": {
+    "subtle": "#81909d measures 3.28:1 on white, below the 4.5:1 text minimum, so it is not used for text",
+    "shadow": "not used by the shell",
+    "green-bg|amber-bg|blue-bg|navy-bg": "not needed by the shell yet"
+  },
+  "additions_not_in_figma": {
+    "as-red": "#a3262a for DENY and error states the export does not cover",
+    "as-focus": "#1f5fa8 visible focus on light surfaces",
+    "as-focus-on-dark": "#8fe3e6 visible focus on navy",
+    "as-font": "Manrope is named first but is NOT loaded (no external font request)",
+    "as-mono": "system monospace stack"
+  }
+}

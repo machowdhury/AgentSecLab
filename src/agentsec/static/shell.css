@@ -1,0 +1,50 @@
+/* Shared surface bar (compact: the P1.1 layout contract keeps primary actions above the fold at 1920x1080;
+   links are 32px tall, above the WCAG 2.2 AA 24px minimum target size).
+   Shared surface bar: one place to move between Academy, Attack Service, AcmeBank and Splunk. */
+.as-shell {
+  background: var(--as-navy);
+  color: #fff;
+  font-family: var(--as-font);
+  font-size: 0.8125rem;
+  border-bottom: 2px solid var(--as-teal);
+}
+.as-shell__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1rem;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+.as-shell .as-shell__inner a,
+.as-shell .as-shell__inner a:visited { color: #fff; } /* beats page-level link colours (e.g. .academy a) */
+.as-shell__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 32px;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+.as-shell__brand img { width: 24px; height: 24px; }
+.as-shell__list { display: flex; flex-wrap: wrap; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
+.as-shell__list a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 0.75rem;
+  color: #fff;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.as-shell__list a:hover { background: var(--as-navy-2); }
+.as-shell__list a[aria-current="page"] { border-bottom-color: var(--as-focus-on-dark); font-weight: 700; }
+.as-shell a:focus-visible { outline: 3px solid var(--as-focus-on-dark); outline-offset: -3px; }
+.as-shell__note { margin-left: auto; color: #d6dee6; font-size: 0.8125rem; }
+@media (forced-colors: active) {
+  .as-shell { border-bottom: 3px solid CanvasText; }
+  .as-shell__list a[aria-current="page"] { border-bottom-color: Highlight; }
+}
+@media print { .as-shell { display: none; } }

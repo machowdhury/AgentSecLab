@@ -1,0 +1,30 @@
+/* AgentSec shared design tokens (--as-*).
+ *
+ * Provisional visual reference: the Figma Make v2 export ("Design AgentSec Learning Platform v2"),
+ * NOT the native Figma file, which has not been accessed. Snapshot and deviations:
+ * docs/design/figma_v2_tokens.json. Page CSS keeps its own legacy variables until it is migrated;
+ * only the shared shell reads these.
+ */
+:root {
+  --as-navy: #0b1f33;
+  --as-navy-2: #132c44;
+  --as-teal: #007f86;
+  --as-teal-dark: #006c72;
+  --as-blue: #3568a8;
+  --as-bg: #f5f7fa;
+  --as-panel: #ffffff;
+  --as-line: #dce3ea;
+  --as-line-strong: #c7d1dc;
+  --as-text: #172536;
+  --as-muted: #5f6b76;
+  --as-green: #2f7458;
+  --as-amber: #946213;
+  /* Not in the Figma export. Added for DENY and error states the design does not cover. */
+  --as-red: #a3262a;
+  /* Focus colours chosen for contrast: teal on light, light teal on navy. */
+  --as-focus: #1f5fa8;
+  --as-focus-on-dark: #8fe3e6;
+  --as-radius: 8px;
+  --as-font: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --as-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "DM Mono", monospace;
+}

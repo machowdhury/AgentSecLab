@@ -39,6 +39,7 @@ from agentsec.launch_catalog import RETEST_SUPPORT, allowlist_public_rows, known
 from agentsec.launch_contract import parse_launch_json
 from agentsec.launch_service import LaunchService, error_body
 from agentsec.search_handoff import browser_splunk_web
+from agentsec.shell import shell_links
 from agentsec.mcp.policy import coded_policy
 from agentsec.memory.fixtures import (
     CLOSED_FOLLOW_ON_SCOPE as MEMORY_FOLLOW_ON_SCOPE,
@@ -212,6 +213,11 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
     )
     app.config["SECRET_KEY"] = settings.flask_secret_key
     app.config["AGENTSEC_ATTACK_CLIENT"] = client
+
+    @app.context_processor
+    def _shell_context():
+        return {"shell": shell_links(request.path, surface="attack")}
+
     launcher = LaunchService(client, settings, **(launch_kwargs or {}))
     app.config["AGENTSEC_LAUNCH_SERVICE"] = launcher
     register_academy(app, launcher=launcher, client=client, artifacts_dir=launcher.artifacts_dir, version=settings.version)
