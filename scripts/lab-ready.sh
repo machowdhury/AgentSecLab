@@ -357,14 +357,29 @@ acme_status="$(curl -sf --max-time 10 http://127.0.0.1:5000/health || true)"
 if [ -n "$acme_status" ]; then
   log "AcmeBank /health: ${acme_status}"
 fi
-if docker exec agentsec_ollama ollama list 2>/dev/null | grep -q "$MODEL"; then
-  log "MODEL PRESENT: ${MODEL} is listed. A listed name is not a measured digest and is not proof of generation quality."
+# Ask Ollama the way AcmeBank does: from inside AcmeBank, at its configured OLLAMA_BASE_URL.
+# That identifies the provider actually in use (container default, or documented host fallback).
+ollama_base="$(docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' agentsec_acmebank 2>/dev/null | sed -n 's/^OLLAMA_BASE_URL=//p')"
+[ -n "$ollama_base" ] || ollama_base="http://ollama:11434"
+case "$ollama_base" in
+  *host.docker.internal*|*127.0.0.1*|*localhost*) ollama_provider="HOST" ;;
+  *) ollama_provider="CONTAINER" ;;
+esac
+log "OLLAMA PROVIDER: ${ollama_provider} (${ollama_base}) model ${MODEL}"
+ollama_tags="$(docker exec agentsec_acmebank curl -sf --max-time 10 "${ollama_base}/api/tags" 2>/dev/null || true)"
+if printf '%s' "$ollama_tags" | grep -q "\"name\":\"${MODEL}\""; then
+  log "MODEL PRESENT: ${MODEL} is listed by the ${ollama_provider} Ollama as seen from AcmeBank. A listed name is not a measured digest and is not proof of generation quality."
 else
-  log "MODEL ABSENT: ${MODEL} is required for LIVE generation and is not listed."
+  log "MODEL ABSENT: ${MODEL} is required for LIVE generation and is not listed by the ${ollama_provider} Ollama (${ollama_base})."
   log "LIVE model-dependent generation is DEGRADED, not PASS."
   log "Academy REPLAY does not need this model."
-  log "Command normally used: docker exec agentsec_ollama ollama pull ${MODEL}"
-  log "Certificate or TLS errors must be resolved at the host trust layer. Do not disable certificate verification."
+  if [ "$ollama_provider" = "HOST" ]; then
+    log "Host provider: run 'ollama serve' on the host and 'ollama pull ${MODEL}' there (see docs/LOCAL_DOCKER_LAB.md)."
+  else
+    log "Command normally used: docker exec agentsec_ollama ollama pull ${MODEL}"
+    log "Certificate or TLS errors must be resolved at the host trust layer. Do not disable certificate verification."
+    log "Fallback if the container cannot pull: use the host Ollama option in docs/LOCAL_DOCKER_LAB.md."
+  fi
 fi
 unset SPLUNK_PASSWORD HEC_TOKEN
 if [ "${AGENTSEC_DEPLOYMENT:-local}" = "remote" ]; then

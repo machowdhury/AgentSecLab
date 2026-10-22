@@ -51,7 +51,7 @@ Docker Engine is the daemon that runs containers. Docker Compose v2 is the `dock
 | `.env` copied from `.env.example` | REQUIRED before preflight and `lab-up.sh` | Both scripts require the file. Do not commit it. |
 | `uv`, pytest, Playwright | NOT REQUIRED for a learner | Test and UI-review tools. |
 | External Splunk | NOT REQUIRED | `lab-up.sh` starts the compose Splunk service. |
-| Host Ollama on port 11434 | NOT REQUIRED | Compose Ollama is used, and port 11434 is not published. |
+| Host Ollama on port 11434 | OPTIONAL | Compose Ollama is the default and port 11434 is not published. Host Ollama is a supported alternative when the container cannot pull the model. See [LOCAL_DOCKER_LAB.md](LOCAL_DOCKER_LAB.md). |
 | Podman | NOT VALIDATED | No repository support. |
 | Windows | NOT VALIDATED | No Windows clean-room record. |
 | Linux | NOT VALIDATED as a clean-room | Expected to work with Docker Engine. Not separately measured. |
