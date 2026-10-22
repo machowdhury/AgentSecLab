@@ -886,9 +886,7 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
         return jsonify(body), 400
 
     # ---- Loan Desk: interactive application driving a bounded, model-driven agent loop ----
-    desk_model = runtime.loan_desk_model or OllamaChat(
-        runtime.settings.ollama_base_url, configured_model_name(runtime.settings.ollama_model)
-    )
+    desk_model = runtime.loan_desk_model or OllamaChat(runtime.settings.ollama_base_url, configured_model_name())
     desk = LoanDeskService(settings=runtime.settings, model=desk_model, sink=runtime.sink)
     app.config["AGENTSEC_LOAN_DESK"] = desk
 
@@ -900,6 +898,7 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
     def loan_desk_status():
         available, reason = desk_model.available() if hasattr(desk_model, "available") else (True, None)
         return jsonify({"model": desk_model.name, "provider": "ollama", "proposal_source": desk_model.source,
+                        "identity": desk_model.identity() if hasattr(desk_model, "identity") else {},
                         "available": available, "reason": reason})
 
     @app.post("/api/v1/loan-desk/applications")
