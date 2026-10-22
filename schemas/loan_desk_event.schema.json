@@ -1,0 +1,746 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentsec.local/schemas/loan_desk_event.schema.json",
+  "title": "AgentSec Loan Desk agent event 1.0.0 (separate family; security_event 1.9.0 is unchanged)",
+  "description": "Closed contract for events emitted by the bounded Loan Desk agent loop. Field names match security_event 1.9.0 where the meaning is the same, so run.id searches and the C2 timeline builder work on both. ALLOW is a control decision, not execution: only agentsec.mcp.started proves a handler began.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event.name",
+    "timestamp",
+    "service.name",
+    "service.version",
+    "deployment.environment",
+    "user.id",
+    "trace_id",
+    "span_id",
+    "agentsec.schema.name",
+    "agentsec.schema.version",
+    "agentsec.run.id",
+    "agentsec.incident.id",
+    "agentsec.lab.id",
+    "agentsec.security.profile",
+    "agentsec.testbed.mode",
+    "agentsec.execution.mode",
+    "agentsec.telemetry.fidelity",
+    "agentsec.sequence",
+    "agentsec.operation.type",
+    "agentsec.span.kind",
+    "agentsec.principal.id",
+    "agentsec.principal.type",
+    "agentsec.workflow.entry",
+    "gen_ai.workflow.name"
+  ],
+  "properties": {
+    "event.name": {
+      "type": "string",
+      "enum": [
+        "agentsec.run.started",
+        "agentsec.run.completed",
+        "agentsec.run.failed",
+        "agentsec.llm.started",
+        "agentsec.llm.completed",
+        "agentsec.llm.failed",
+        "agentsec.agent.action.proposed",
+        "agentsec.control.decision",
+        "agentsec.mcp.started",
+        "agentsec.mcp.completed",
+        "agentsec.mcp.failed"
+      ]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "service.name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "service.version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "deployment.environment": {
+      "type": "string",
+      "minLength": 1
+    },
+    "user.id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "trace_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "span_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{16}$"
+    },
+    "parent_span_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{16}$"
+    },
+    "agentsec.schema.name": {
+      "type": "string",
+      "const": "agentsec.loan_desk_event"
+    },
+    "agentsec.schema.version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "agentsec.run.id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "agentsec.incident.id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "agentsec.lab.id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agentsec.security.profile": {
+      "type": "string",
+      "enum": [
+        "defended",
+        "vulnerable"
+      ]
+    },
+    "agentsec.testbed.mode": {
+      "type": "string",
+      "enum": [
+        "BASELINE",
+        "ATTACK",
+        "RETEST"
+      ]
+    },
+    "agentsec.execution.mode": {
+      "type": "string",
+      "const": "LIVE"
+    },
+    "agentsec.telemetry.fidelity": {
+      "type": "string",
+      "const": "OBSERVED"
+    },
+    "agentsec.sequence": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "agentsec.operation.type": {
+      "type": "string",
+      "enum": [
+        "pipeline",
+        "llm_inference",
+        "agent_action_proposal",
+        "control_evaluation",
+        "mcp_tool_invoke"
+      ]
+    },
+    "agentsec.span.kind": {
+      "type": "string",
+      "enum": [
+        "pipeline",
+        "llm_inference",
+        "agent_action_proposal",
+        "control_evaluation",
+        "mcp_tool_invoke"
+      ]
+    },
+    "agentsec.principal.id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agentsec.principal.type": {
+      "type": "string",
+      "const": "user"
+    },
+    "agentsec.workflow.entry": {
+      "type": "string",
+      "const": "/api/v1/loan-desk/applications"
+    },
+    "gen_ai.workflow.name": {
+      "type": "string",
+      "const": "loan_desk_agent"
+    },
+    "gen_ai.agent.id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "gen_ai.agent.name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "gen_ai.operation.name": {
+      "type": "string",
+      "enum": [
+        "chat",
+        "execute_tool"
+      ]
+    },
+    "gen_ai.provider.name": {
+      "type": "string",
+      "const": "ollama"
+    },
+    "gen_ai.request.model": {
+      "type": "string",
+      "minLength": 1
+    },
+    "gen_ai.response.model": {
+      "type": "string",
+      "minLength": 1
+    },
+    "gen_ai.usage.input_tokens": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "gen_ai.usage.output_tokens": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "gen_ai.tool.name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mcp.method.name": {
+      "type": "string",
+      "const": "tools/call"
+    },
+    "agentsec.agent.step": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 16
+    },
+    "agentsec.agent.proposal.source": {
+      "type": "string",
+      "enum": [
+        "model",
+        "test_double"
+      ]
+    },
+    "agentsec.agent.stop_reason": {
+      "type": "string",
+      "enum": [
+        "final_answer",
+        "step_budget_exhausted",
+        "invalid_proposal_limit",
+        "model_unavailable",
+        "timeout"
+      ]
+    },
+    "agentsec.control.id": {
+      "type": "string",
+      "const": "CTRL-LOANDESK-001"
+    },
+    "agentsec.control.type": {
+      "type": "string",
+      "const": "agent_action_authorization"
+    },
+    "agentsec.control.decision": {
+      "type": "string",
+      "enum": [
+        "ALLOW",
+        "DENY"
+      ]
+    },
+    "agentsec.control.reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agentsec.mcp.requested_scope": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agentsec.mcp.allowed_scope": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agentsec.mcp.resource.id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agentsec.mcp.allowed_resource.ids": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agentsec.invariant.id": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "INV-001",
+          "INV-002",
+          "INV-004",
+          "INV-007",
+          "INV-008"
+        ]
+      }
+    },
+    "agentsec.trust_boundary": {
+      "type": "string",
+      "enum": [
+        "acmebank.http_api",
+        "acmebank.llm_call",
+        "agent.action.proposal",
+        "acmebank.mcp.authorize",
+        "mcp.tool.execute",
+        "mcp.tool.result"
+      ]
+    },
+    "agentsec.operation.attempted": {
+      "type": "boolean"
+    },
+    "agentsec.operation.executed": {
+      "type": "boolean"
+    },
+    "agentsec.operation.outcome": {
+      "type": "string",
+      "enum": [
+        "prevented",
+        "success",
+        "error"
+      ]
+    },
+    "agentsec.outcome": {
+      "type": "string",
+      "enum": [
+        "completed_allowed",
+        "completed_denied"
+      ]
+    },
+    "agentsec.duration_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "agentsec.content.preview": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "agentsec.content.hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "agentsec.content.origin.type": {
+      "type": "string",
+      "enum": [
+        "user",
+        "agent"
+      ]
+    },
+    "agentsec.content.origin.id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agentsec.content.influence.kind": {
+      "type": "string",
+      "enum": [
+        "user_message",
+        "tool_request"
+      ]
+    },
+    "agentsec.mcp.result.trust": {
+      "type": "string",
+      "const": "untrusted_data"
+    },
+    "agentsec.mcp.result.provenance": {
+      "type": "string",
+      "const": "mcp.tool.handler"
+    },
+    "agentsec.tools.executed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "agentsec.tools.denied": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "error.type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agentsec.error.stage": {
+      "type": "string",
+      "enum": [
+        "llm_invocation",
+        "mcp_invocation",
+        "pipeline"
+      ]
+    },
+    "agentsec.error.message": {
+      "type": "string",
+      "maxLength": 500
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "event.name": {
+            "const": "agentsec.run.started"
+          }
+        },
+        "required": [
+          "event.name"
+        ]
+      },
+      "then": {
+        "properties": {
+          "agentsec.operation.type": {
+            "const": "pipeline"
+          }
+        },
+        "not": {
+          "required": [
+            "parent_span_id"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {
+            "const": "agentsec.run.completed"
+          }
+        },
+        "required": [
+          "event.name"
+        ]
+      },
+      "then": {
+        "required": [
+          "agentsec.outcome",
+          "agentsec.duration_ms",
+          "agentsec.agent.stop_reason",
+          "agentsec.tools.executed",
+          "agentsec.tools.denied"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {
+            "const": "agentsec.run.failed"
+          }
+        },
+        "required": [
+          "event.name"
+        ]
+      },
+      "then": {
+        "required": [
+          "error.type",
+          "agentsec.error.stage",
+          "agentsec.error.message",
+          "agentsec.agent.stop_reason"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {
+            "const": "agentsec.llm.started"
+          }
+        },
+        "required": [
+          "event.name"
+        ]
+      },
+      "then": {
+        "required": [
+          "gen_ai.agent.id",
+          "agentsec.agent.step",
+          "parent_span_id",
+          "gen_ai.provider.name",
+          "gen_ai.request.model"
+        ],
+        "properties": {
+          "agentsec.operation.type": {
+            "const": "llm_inference"
+          },
+          "agentsec.operation.attempted": {
+            "const": true
+          },
+          "agentsec.operation.executed": {
+            "const": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {
+            "const": "agentsec.llm.completed"
+          }
+        },
+        "required": [
+          "event.name"
+        ]
+      },
+      "then": {
+        "required": [
+          "gen_ai.agent.id",
+          "agentsec.agent.step",
+          "parent_span_id",
+          "gen_ai.provider.name",
+          "gen_ai.request.model",
+          "gen_ai.response.model",
+          "agentsec.duration_ms",
+          "agentsec.operation.outcome"
+        ],
+        "properties": {
+          "agentsec.operation.outcome": {
+            "const": "success"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {
+            "const": "agentsec.llm.failed"
+          }
+        },
+        "required": [
+          "event.name"
+        ]
+      },
+      "then": {
+        "required": [
+          "gen_ai.agent.id",
+          "agentsec.agent.step",
+          "parent_span_id",
+          "gen_ai.request.model",
+          "error.type",
+          "agentsec.error.stage",
+          "agentsec.operation.outcome"
+        ],
+        "properties": {
+          "agentsec.operation.outcome": {
+            "const": "error"
+          },
+          "agentsec.error.stage": {
+            "const": "llm_invocation"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {
+            "const": "agentsec.agent.action.proposed"
+          }
+        },
+        "required": [
+          "event.name"
+        ]
+      },
+      "then": {
+        "required": [
+          "gen_ai.agent.id",
+          "agentsec.agent.step",
+          "parent_span_id",
+          "gen_ai.tool.name",
+          "agentsec.agent.proposal.source",
+          "agentsec.content.hash",
+          "agentsec.content.preview"
+        ],
+        "properties": {
+          "agentsec.operation.type": {
+            "const": "agent_action_proposal"
+          },
+          "agentsec.operation.attempted": {
+            "const": false
+          },
+          "agentsec.operation.executed": {
+            "const": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {
+            "const": "agentsec.control.decision"
+          }
+        },
+        "required": [
+          "event.name"
+        ]
+      },
+      "then": {
+        "required": [
+          "gen_ai.agent.id",
+          "agentsec.agent.step",
+          "parent_span_id",
+          "gen_ai.tool.name",
+          "agentsec.control.id",
+          "agentsec.control.type",
+          "agentsec.control.decision",
+          "agentsec.control.reason",
+          "agentsec.mcp.requested_scope",
+          "agentsec.mcp.allowed_scope",
+          "agentsec.invariant.id",
+          "agentsec.trust_boundary",
+          "agentsec.operation.attempted",
+          "agentsec.operation.executed"
+        ],
+        "properties": {
+          "agentsec.operation.attempted": {
+            "const": false
+          },
+          "agentsec.operation.executed": {
+            "const": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {
+            "const": "agentsec.control.decision"
+          },
+          "agentsec.control.decision": {
+            "const": "DENY"
+          }
+        },
+        "required": [
+          "event.name",
+          "agentsec.control.decision"
+        ]
+      },
+      "then": {
+        "required": [
+          "agentsec.operation.outcome"
+        ],
+        "properties": {
+          "agentsec.operation.outcome": {
+            "const": "prevented"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {
+            "const": "agentsec.control.decision"
+          },
+          "agentsec.control.decision": {
+            "const": "ALLOW"
+          }
+        },
+        "required": [
+          "event.name",
+          "agentsec.control.decision"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "agentsec.operation.outcome"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {
+            "const": "agentsec.mcp.started"
+          }
+        },
+        "required": [
+          "event.name"
+        ]
+      },
+      "then": {
+        "required": [
+          "gen_ai.agent.id",
+          "agentsec.agent.step",
+          "parent_span_id",
+          "gen_ai.tool.name"
+        ],
+        "properties": {
+          "agentsec.operation.attempted": {
+            "const": true
+          },
+          "agentsec.operation.executed": {
+            "const": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {
+            "const": "agentsec.mcp.completed"
+          }
+        },
+        "required": [
+          "event.name"
+        ]
+      },
+      "then": {
+        "required": [
+          "gen_ai.agent.id",
+          "agentsec.agent.step",
+          "parent_span_id",
+          "gen_ai.tool.name",
+          "agentsec.duration_ms",
+          "agentsec.mcp.result.trust",
+          "agentsec.mcp.result.provenance",
+          "agentsec.operation.outcome"
+        ],
+        "properties": {
+          "agentsec.operation.outcome": {
+            "const": "success"
+          },
+          "agentsec.mcp.result.trust": {
+            "const": "untrusted_data"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {
+            "const": "agentsec.mcp.failed"
+          }
+        },
+        "required": [
+          "event.name"
+        ]
+      },
+      "then": {
+        "required": [
+          "gen_ai.agent.id",
+          "agentsec.agent.step",
+          "parent_span_id",
+          "gen_ai.tool.name",
+          "error.type",
+          "agentsec.error.stage",
+          "agentsec.operation.outcome"
+        ],
+        "properties": {
+          "agentsec.operation.outcome": {
+            "const": "error"
+          },
+          "agentsec.error.stage": {
+            "const": "mcp_invocation"
+          }
+        }
+      }
+    }
+  ]
+}

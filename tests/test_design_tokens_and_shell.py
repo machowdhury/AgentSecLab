@@ -94,3 +94,13 @@ def test_acmebank_app_hops_to_the_attack_service_through_declared_ports():
     links = shell_links("/", surface="acmebank_app")
     assert links["active"] == "acmebank" and links["service_port"] and links["acmebank"] == "/"
     assert shell_links("/academy/path", surface="attack")["service_port"] == ""
+
+
+def test_academy_has_one_brand_not_two():
+    """Batch 2: the masthead no longer repeats the AgentSec mark/name that the shared bar already shows."""
+    html = (ROOT / "src/agentsec/templates/academy/base.html").read_text(encoding="utf-8")
+    masthead = html.split('<header class="masthead">', 1)[1].split("</header>", 1)[0]
+    assert "agentsec-mark.svg" not in masthead and "<strong>AgentSec</strong>" not in masthead
+    assert "Security Academy" in masthead and "menu-toggle" in masthead  # section title and mobile menu stay
+    bar = (ROOT / "src/agentsec/templates/_shell_bar.html").read_text(encoding="utf-8")
+    assert "agentsec-mark.svg" in bar

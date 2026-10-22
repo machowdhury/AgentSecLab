@@ -178,6 +178,20 @@
               "boolean",
               "null"
             ]
+          },
+          "step": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "proposal_client": {
+            "enum": [
+              "model",
+              "test_double",
+              "server_payload",
+              null
+            ]
           }
         }
       }
