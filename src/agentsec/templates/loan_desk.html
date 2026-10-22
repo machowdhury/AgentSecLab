@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AcmeBank Loan Desk</title>
+  {% include "_shell_head.html" %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='loan_desk.css') }}">
+</head>
+<body>
+  <a class="skip-link ld-skip" href="#main">Skip to content</a>
+  {% set shell_script = true %}
+  {% include "_shell_bar.html" %}
+  <header class="ld-hero">
+    <div class="ld-wrap ld-hero__inner">
+      <div>
+        <p class="ld-kicker">AcmeBank · synthetic home-loan desk</p>
+        <h1>Loan Desk</h1>
+        <p class="ld-sub">Submit an application. An AI agent proposes the next action, a separate policy engine decides, and only authorized actions run.</p>
+      </div>
+      <p class="ld-chip" id="model-chip" role="status" data-state="CHECKING">Checking model…</p>
+    </div>
+  </header>
+
+  <main id="main" class="ld-wrap">
+    <p class="ld-notice" id="model-banner" role="status" hidden></p>
+
+    <div class="ld-grid">
+      <section class="ld-card" aria-labelledby="apply-h">
+        <h2 id="apply-h">Loan application</h2>
+        <p class="ld-hint">Synthetic data only. Real names, emails, phone or ID numbers are rejected.</p>
+        <form id="loan-form" novalidate>
+          <div class="ld-errors" id="form-errors" role="alert" tabindex="-1" hidden></div>
+          <div class="ld-field">
+            <label for="full_name">Full name</label>
+            <input id="full_name" name="full_name" autocomplete="off" required maxlength="60">
+            <p class="ld-err" id="err-full_name"></p>
+          </div>
+          <div class="ld-row">
+            <div class="ld-field">
+              <label for="annual_income">Annual income (CAD)</label>
+              <input id="annual_income" name="annual_income" inputmode="decimal" required>
+              <p class="ld-err" id="err-annual_income"></p>
+            </div>
+            <div class="ld-field">
+              <label for="credit_score">Credit score</label>
+              <input id="credit_score" name="credit_score" inputmode="numeric" required>
+              <p class="ld-hint" id="hint-credit_score">300–900</p>
+              <p class="ld-err" id="err-credit_score"></p>
+            </div>
+          </div>
+          <div class="ld-row">
+            <div class="ld-field">
+              <label for="loan_amount">Loan amount (CAD)</label>
+              <input id="loan_amount" name="loan_amount" inputmode="decimal" required>
+              <p class="ld-err" id="err-loan_amount"></p>
+            </div>
+            <div class="ld-field">
+              <label for="term_years">Term (years)</label>
+              <input id="term_years" name="term_years" inputmode="numeric" required>
+              <p class="ld-hint" id="hint-term_years">5–35</p>
+              <p class="ld-err" id="err-term_years"></p>
+            </div>
+          </div>
+          <div class="ld-row">
+            <div class="ld-field">
+              <label for="province">Province</label>
+              <select id="province" name="province" required>
+                <option value="">Choose…</option>
+                {% for p in ["AB","BC","MB","NB","NL","NS","ON","PE","QC","SK"] %}<option value="{{ p }}">{{ p }}</option>{% endfor %}
+              </select>
+              <p class="ld-err" id="err-province"></p>
+            </div>
+            <div class="ld-field">
+              <label for="employment">Employment</label>
+              <select id="employment" name="employment" required>
+                <option value="">Choose…</option>
+                <option value="full_time">Full-time</option>
+                <option value="part_time">Part-time</option>
+                <option value="self_employed">Self-employed</option>
+                <option value="retired">Retired</option>
+              </select>
+              <p class="ld-err" id="err-employment"></p>
+            </div>
+          </div>
+          <div class="ld-field">
+            <label for="notes">Notes to the loan officer <span class="ld-opt">(optional)</span></label>
+            <textarea id="notes" name="notes" rows="3" maxlength="400"></textarea>
+            <p class="ld-hint">The agent reads this text as untrusted customer input.</p>
+            <p class="ld-err" id="err-notes"></p>
+          </div>
+          <div class="ld-actions">
+            <button class="ld-btn ld-btn--primary" id="submit" type="submit">Submit application</button>
+            <button class="ld-btn ld-btn--ghost" id="example" type="button">Use example applicant</button>
+          </div>
+        </form>
+      </section>
+
+      <div class="ld-col">
+        <section class="ld-card" aria-labelledby="progress-h">
+          <div class="ld-card__head">
+            <h2 id="progress-h">Review progress</h2>
+            <span class="ld-pill" id="run-status" data-state="IDLE">IDLE</span>
+          </div>
+          <ol class="ld-steps" id="phases" aria-label="Review phases">
+            <li data-phase="submitted">Application received</li>
+            <li data-phase="reasoning">Agent reasoning</li>
+            <li data-phase="policy">Policy decision</li>
+            <li data-phase="tool">Tool execution</li>
+            <li data-phase="done">Recommendation</li>
+          </ol>
+          <p class="ld-live" id="live" aria-live="polite">Submit an application to start a review.</p>
+        </section>
+
+        <section class="ld-card" aria-labelledby="result-h" id="result-card" hidden>
+          <h2 id="result-h">Result</h2>
+          <p class="ld-reco" id="reco"></p>
+          <p id="summary"></p>
+          <p class="ld-hint" id="advisory">Advisory only. No loan was approved or offered. A human underwriter decides.</p>
+        </section>
+      </div>
+    </div>
+
+    <section class="ld-card" aria-labelledby="timeline-h" id="timeline-card" hidden>
+      <h2 id="timeline-h">Execution timeline</h2>
+      <p class="ld-hint">Each action shows four separate facts: what the model <strong>proposed</strong>, what the policy engine <strong>decided</strong>, whether the handler <strong>began</strong>, and what came back. ALLOW alone does not prove execution.</p>
+      <ol class="ld-timeline" id="timeline"></ol>
+    </section>
+
+    <section class="ld-card" aria-labelledby="evidence-h" id="evidence-card" hidden>
+      <h2 id="evidence-h">Evidence for investigation</h2>
+      <dl class="ld-facts">
+        <dt>run.id</dt>
+        <dd><code id="ev-run"></code> <button class="ld-btn ld-btn--ghost ld-btn--sm" id="copy-run" type="button">Copy run.id</button></dd>
+        <dt>Events emitted</dt><dd id="ev-count"></dd>
+        <dt>Model</dt><dd id="ev-model"></dd>
+        <dt>Splunk indexing</dt><dd id="ev-indexed">NOT VERIFIED — these are the events this process emitted. Run the search to check Splunk.</dd>
+      </dl>
+      <label for="ev-spl">Splunk search</label>
+      <textarea id="ev-spl" class="ld-code" readonly rows="2"></textarea>
+      <p><button class="ld-btn ld-btn--ghost ld-btn--sm" id="copy-spl" type="button">Copy search</button>
+         <a class="ld-link" id="ev-download" href="#" download>Download events (NDJSON)</a></p>
+    </section>
+  </main>
+  <script src="{{ url_for('static', filename='agentsec-ui.js') }}"></script>
+  <script src="{{ url_for('static', filename='loan_desk.js') }}"></script>
+</body>
+</html>

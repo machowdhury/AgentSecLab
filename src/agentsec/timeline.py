@@ -1,8 +1,9 @@
 """C2 run-timeline contract: an ordered view of one run built only from its recorded events.
 
 Each tool call carries four independent facts. Nothing is inferred:
-  proposed  - null for every current lab: the tool request comes from a server-owned payload,
-              not from a model (proposal_source says so). A model-driven lab will set it.
+  proposed  - true only when an agentsec.agent.action.proposed event for the same tool and step
+              precedes the decision; proposal_source then comes from that event ("model" only for real
+              inference). Otherwise null: the request came from a server-owned payload.
   decision  - ALLOW / DENY / ERROR from agentsec.control.decision.
   executed  - true only if an agentsec.mcp.started event follows the decision for that tool.
               ALLOW alone never sets it.
@@ -26,6 +27,7 @@ def build_timeline(events: list[dict], *, run_id: str, source: str) -> dict:
     )
     out_events = []
     calls: list[dict] = []
+    proposals: dict[tuple, str] = {}
     for e in rows:
         name = e.get("event.name")
         seq = int(e.get("agentsec.sequence") or 0)
@@ -36,11 +38,16 @@ def build_timeline(events: list[dict], *, run_id: str, source: str) -> dict:
             "reason": e.get("agentsec.control.reason"), "outcome": e.get("agentsec.outcome"),
         })
         tool = e.get("gen_ai.tool.name")
+        step = e.get("agentsec.agent.step")
+        if name == "agentsec.agent.action.proposed" and tool:
+            proposals[(tool, step)] = e.get("agentsec.agent.proposal.source") or "server_payload"
         if name == "agentsec.control.decision" and tool:
+            src = proposals.get((tool, step)) if step is not None else None
             calls.append({
                 "tool": tool, "decision_seq": seq, "decision": e.get("agentsec.control.decision"),
                 "control_id": e.get("agentsec.control.id"), "reason": e.get("agentsec.control.reason"),
-                "proposed": None, "proposal_source": "server_payload",
+                "proposed": True if src else None, "proposal_source": "model" if src == "model" else "server_payload",
+                "step": step, "proposal_client": src,
                 "executed": False, "started_seq": None, "completed_seq": None, "indexed": None,
             })
         elif name in ("agentsec.mcp.started", "agentsec.mcp.completed", "agentsec.mcp.failed") and tool:

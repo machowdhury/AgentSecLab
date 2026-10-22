@@ -65,6 +65,8 @@ from agentsec.identity.pipeline import (
 )
 from agentsec.identity.request_contract import parse_identity_delegate_body
 from agentsec.llm import LLMClient, OllamaClient
+from agentsec.loan_desk.model import OllamaChat, configured_model_name
+from agentsec.loan_desk.service import LoanDeskService
 from agentsec.pipeline import result_to_dict, run_loan_pipeline, run_schema_failure
 from agentsec.request_contract import parse_process_body
 from agentsec.settings import Settings, get_settings
@@ -84,6 +86,8 @@ class LabRuntime:
     sink: FanoutSink
     mcp_registry: ToolRegistry
     memory_store: InProcessMemoryStore = field(default_factory=InProcessMemoryStore)
+    # None = real Ollama inference. Tests may inject a labelled test double; the UI then says so.
+    loan_desk_model: object | None = None
 
 
 def build_runtime(
@@ -880,6 +884,48 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
         if result.error_stage == "control_evaluation":
             return jsonify(body), 500
         return jsonify(body), 400
+
+    # ---- Loan Desk: interactive application driving a bounded, model-driven agent loop ----
+    desk_model = runtime.loan_desk_model or OllamaChat(
+        runtime.settings.ollama_base_url, configured_model_name(runtime.settings.ollama_model)
+    )
+    desk = LoanDeskService(settings=runtime.settings, model=desk_model, sink=runtime.sink)
+    app.config["AGENTSEC_LOAN_DESK"] = desk
+
+    @app.get("/loan-desk")
+    def loan_desk_page():
+        return render_template("loan_desk.html", profile=runtime.settings.security_profile, version=runtime.settings.version)
+
+    @app.get("/api/v1/loan-desk/status")
+    def loan_desk_status():
+        available, reason = desk_model.available() if hasattr(desk_model, "available") else (True, None)
+        return jsonify({"model": desk_model.name, "provider": "ollama", "proposal_source": desk_model.source,
+                        "available": available, "reason": reason})
+
+    @app.post("/api/v1/loan-desk/applications")
+    def loan_desk_submit():
+        if request.content_length is not None and request.content_length > 4096:
+            return jsonify({"errors": {"_form": "Request too large."}}), 413
+        try:
+            form = loads_json_no_duplicate_keys(request.get_data(as_text=True) or "null")
+        except (DuplicateJsonKeyError, json.JSONDecodeError):
+            return jsonify({"errors": {"_form": "Send valid JSON without duplicate keys."}}), 400
+        view, errors = desk.submit(form)
+        if errors:
+            return jsonify({"errors": errors}), 400
+        return jsonify(view), 202
+
+    @app.get("/api/v1/loan-desk/runs/<run_id>")
+    def loan_desk_run(run_id: str):
+        view = desk.view(run_id)
+        return (jsonify(view), 200) if view else (jsonify({"error": "unknown run"}), 404)
+
+    @app.get("/api/v1/loan-desk/runs/<run_id>/events.ndjson")
+    def loan_desk_events(run_id: str):
+        body = desk.events_ndjson(run_id)
+        if body is None:
+            return jsonify({"error": "unknown run"}), 404
+        return app.response_class(body, mimetype="application/x-ndjson")
 
     @app.get("/api/v1/runs/<run_id>")
     def get_run(run_id: str):
