@@ -8,7 +8,7 @@
   "src/agentsec/static/agentsec-favicon.svg": "c8a74a7168bcb5cf",
   "src/agentsec/static/agentsec-mark.svg": "10af6664d5275112",
   "src/agentsec/static/agentsec-ui.js": "36a9071f3a8b2a75",
-  "src/agentsec/static/agentsec-workbench.css": "16462fe6cae341d6",
+  "src/agentsec/static/agentsec-workbench.css": "7b2a3c103fdebea2",
   "src/agentsec/static/agentsec.css": "c6c8ad5a4eab6081",
   "src/agentsec/static/loan_desk.css": "152e7bd56b2f6dce",
   "src/agentsec/static/loan_desk.js": "a345b8f41611dcd6",
@@ -1745,6 +1745,13 @@
    "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/searches/Q-INCIDENT-CANDIDATES.spl": "6adf0f7ef01c7be1",
    "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/searches/Q-INCIDENT-COMPARE.spl": "aa3f68760ae189a6",
    "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/searches/Q-INCIDENT-TIMELINE.spl": "19abc0dd75a673a8",
+   "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/specimens/2437f64a-fff4-424f-8a83-0f04285662e4.jsonl": "221b644d955ce328",
+   "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/specimens/2a248113-7436-46a7-9b1d-0243489ac000.jsonl": "9346ee016a080cb2",
+   "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/specimens/348c8f18-fdfb-4501-ad8a-3f1bcda64c34.jsonl": "3b711e5787022946",
+   "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/specimens/3f8d6305-2d3b-4988-9e65-dc99b7ac10de.jsonl": "a2033102f766d56e",
+   "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/specimens/8d2c016f-cadc-4463-939a-23a183221b3d.jsonl": "048c011150104659",
+   "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/specimens/db514fd8-dbf4-49f3-a2cb-6bd2bfe92987.jsonl": "4149659c6862b4e8",
+   "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/specimens/f9015037-651d-4207-ac57-4f3ea1abc673.jsonl": "2e8075b961da6bd8",
    "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/workshop.md": "6cca945fe03ed6f1"
   },
   "LAB-CHANGE-BOUNDS": {
@@ -1847,6 +1854,10 @@
    "learning/level_1/LAB-MCP-003/dashboard.md": "01d3ffead15f2c30",
    "learning/level_1/LAB-MCP-003/evidence.md": "cf9fdf2009d23cb1",
    "learning/level_1/LAB-MCP-003/knowledge-check.md": "f6292361aaabd7b7",
+   "learning/level_1/LAB-MCP-003/specimens/5b089682-1d5a-49a7-ac43-967265fd6bc6.jsonl": "2967e564042895ed",
+   "learning/level_1/LAB-MCP-003/specimens/6ce19813-6cb5-4aae-a3a0-aa59386a82dd.jsonl": "fd1d9bb9c5d9b648",
+   "learning/level_1/LAB-MCP-003/specimens/b466ad12-72ec-44b7-be28-aacfaf2c25b1.jsonl": "717ea248552dcb75",
+   "learning/level_1/LAB-MCP-003/specimens/f638fd4f-1c4f-4ab6-8d42-4d03a4f3afd5.jsonl": "0c1b37151a36e0bf",
    "learning/level_1/LAB-MCP-003/workshop.md": "12924d253ad9fc58"
   },
   "LAB-MCP-004": {
@@ -1860,6 +1871,13 @@
    "learning/level_1/LAB-MCP-004/searches/Q-MCP-RESOURCE-AUTHZ.md": "43f54496bcf2c2cf",
    "learning/level_1/LAB-MCP-004/searches/Q-MCP-RESOURCE-AUTHZ.spl": "29e69b25051ad9eb",
    "learning/level_1/LAB-MCP-004/searches/catalog.json": "d91c33c98ea61ed7",
+   "learning/level_1/LAB-MCP-004/specimens/0726a0ff-a551-41a8-bfbb-ab2ceca4c0dd.jsonl": "f063cb7b15e4bc36",
+   "learning/level_1/LAB-MCP-004/specimens/0e4e0051-528d-4bf3-8773-d1fb55a5864f.jsonl": "9f6a7dc96444d27e",
+   "learning/level_1/LAB-MCP-004/specimens/5ab59fc7-303e-4eea-84e7-ae0b2f405146.jsonl": "8e43b8744e10ffbb",
+   "learning/level_1/LAB-MCP-004/specimens/9ea63448-bf6a-4619-b313-b152f4d94bb6.jsonl": "1ed132163c104d17",
+   "learning/level_1/LAB-MCP-004/specimens/ccd13a5f-0c4f-4447-84da-e0bbb1184585.jsonl": "3199e90e6efd5c6b",
+   "learning/level_1/LAB-MCP-004/specimens/fb50dcaf-8e84-4a3f-a55b-997c72edbd04.jsonl": "8f5065e94815ef7c",
+   "learning/level_1/LAB-MCP-004/specimens/ffafb62e-a6c6-42c0-837d-094cbfb3f795.jsonl": "21a7a859a182333d",
    "learning/level_1/LAB-MCP-004/workshop.md": "2cf02d3199a08dd0"
   },
   "LAB-MCP-005": {
@@ -1871,6 +1889,10 @@
    "learning/level_1/LAB-MCP-005/searches/Q-MCP-RESULT-AUTHORITY.md": "1f4c2988b733de31",
    "learning/level_1/LAB-MCP-005/searches/Q-MCP-RESULT-AUTHORITY.spl": "b7a219495d9b4f8a",
    "learning/level_1/LAB-MCP-005/searches/catalog.json": "57308e9c7bba7ab8",
+   "learning/level_1/LAB-MCP-005/specimens/0ab10594-a7fc-48b6-81bf-4cbca54a64c6.jsonl": "918729272087bd31",
+   "learning/level_1/LAB-MCP-005/specimens/3013aa39-fe08-4b58-9898-f3abb092ac06.jsonl": "df3cd19628f627a9",
+   "learning/level_1/LAB-MCP-005/specimens/6fe7370c-a288-4634-91a5-d6c78b52bd01.jsonl": "ad8867b3aa103086",
+   "learning/level_1/LAB-MCP-005/specimens/f3f48182-df57-4b38-b069-17a199dc4939.jsonl": "66d19addf4648b74",
    "learning/level_1/LAB-MCP-005/workshop.md": "0c478adbc0de1741"
   },
   "LAB-MCP-006": {
@@ -1882,6 +1904,9 @@
    "learning/level_1/LAB-MCP-006/searches/Q-MCP-DELEGATION.md": "307aed8a766881b2",
    "learning/level_1/LAB-MCP-006/searches/Q-MCP-DELEGATION.spl": "d3cf650b4faad6bc",
    "learning/level_1/LAB-MCP-006/searches/catalog.json": "5423ec1ba850ca81",
+   "learning/level_1/LAB-MCP-006/specimens/1cf98c4d-1bd8-4df5-be70-b82419e2c2b2.jsonl": "71c941972c8ad54f",
+   "learning/level_1/LAB-MCP-006/specimens/50f7ec04-7524-41c0-95a8-3b1ef4d91dc4.jsonl": "8c81db6d8dea2317",
+   "learning/level_1/LAB-MCP-006/specimens/d7524a4e-8da6-4171-8867-d2a2168128ac.jsonl": "2ac3dd9284dcd65f",
    "learning/level_1/LAB-MCP-006/workshop.md": "f4c4b4a1bdf4fc4b"
   },
   "LAB-MCP-CATALOG": {
@@ -1902,6 +1927,9 @@
    "learning/level_1/LAB-MCP-CATALOG/searches/Q-SCANNER-WHO.spl": "dc855e9010d1b22d",
    "learning/level_1/LAB-MCP-CATALOG/searches/catalog.json": "2244adf509882b32",
    "learning/level_1/LAB-MCP-CATALOG/searches/scanner_catalog.json": "39f1484ee291096a",
+   "learning/level_1/LAB-MCP-CATALOG/specimens/23c222ea-6a87-40b7-a3e9-f12a5b572fa1.jsonl": "f23172b4999e5482",
+   "learning/level_1/LAB-MCP-CATALOG/specimens/a0937bff-31a5-453a-99bf-47d7b5148ce4.jsonl": "c159d0f454defe11",
+   "learning/level_1/LAB-MCP-CATALOG/specimens/d95717ed-ffd2-46c0-a130-9a5d7d539a5d.jsonl": "af541a5025de16c0",
    "learning/level_1/LAB-MCP-CATALOG/workshop.md": "aa4cd82f61d8a42c"
   },
   "LAB-MEMORY-001": {
@@ -1932,7 +1960,18 @@
    "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/searches/Q-L9-DISCOVER.spl": "fe2318c7e645b0bf",
    "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/searches/Q-L9-EXTERNAL-PIVOT.spl": "dbc739e63f175dc7",
    "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/searches/Q-L9-HUNT.spl": "af44d4f4168b0af2",
-   "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/searches/Q-L9-TIMELINE.spl": "33435bfaca33eb89"
+   "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/searches/Q-L9-TIMELINE.spl": "33435bfaca33eb89",
+   "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/2437f64a-fff4-424f-8a83-0f04285662e4.jsonl": "221b644d955ce328",
+   "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/2a248113-7436-46a7-9b1d-0243489ac000.jsonl": "9346ee016a080cb2",
+   "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/348c8f18-fdfb-4501-ad8a-3f1bcda64c34.jsonl": "3b711e5787022946",
+   "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/3d2b66a1-9ef1-4b1d-b993-444db50fd3ee.jsonl": "0e6720f32f9dfcf6",
+   "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/3f8d6305-2d3b-4988-9e65-dc99b7ac10de.jsonl": "a2033102f766d56e",
+   "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/5a15fe04-4bb1-4f70-8ec0-ab83f423dcde.jsonl": "a19bf593e4534633",
+   "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/5dd71f94-5b12-4c52-b5ed-93a0b6832d45.jsonl": "8c54d4a71051f47d",
+   "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/8d2c016f-cadc-4463-939a-23a183221b3d.jsonl": "048c011150104659",
+   "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/db514fd8-dbf4-49f3-a2cb-6bd2bfe92987.jsonl": "4149659c6862b4e8",
+   "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/external/aeb05718-1364-4143-8248-71dd6f27b07b.jsonl": "11eead86a1f84461",
+   "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/specimens/f9015037-651d-4207-ac57-4f3ea1abc673.jsonl": "2e8075b961da6bd8"
   },
   "LAB-PI-001": {
    "learning/level_1/LAB-PI-001/README.md": "c07507e846dcfa1a",
@@ -1998,6 +2037,11 @@
    "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/dashboard.definition.json": "ad4e94df0e548af2",
    "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/evidence.md": "d5a4c54e54709f09",
    "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/knowledge-check.md": "a8dc56b2cc77ea32",
+   "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/specimens/23c222ea-6a87-40b7-a3e9-f12a5b572fa1.jsonl": "f23172b4999e5482",
+   "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/specimens/a0937bff-31a5-453a-99bf-47d7b5148ce4.jsonl": "c159d0f454defe11",
+   "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/specimens/d95717ed-ffd2-46c0-a130-9a5d7d539a5d.jsonl": "af541a5025de16c0",
+   "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/specimens/scanner/7ae3ea64-4e7a-40fe-943f-3e582bce5ee8.jsonl": "66a5636ec5467462",
+   "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/specimens/scanner/b3061c4e-7a81-445c-8fd8-3108dd14c419.jsonl": "779271581c86cfbf",
    "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/workshop.md": "1994cde0d2616f29"
   },
   "LAB-SPLUNK-DEFENDER-BRIDGE": {

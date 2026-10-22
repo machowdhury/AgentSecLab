@@ -7,9 +7,9 @@
 
 | PRESERVED | ENHANCED | REGRESSED | UNVERIFIED | Total |
 |---|---|---|---|---|
-| **22** | **1** | **0** | **8** | **31** |
+| **24** | **7** | **0** | **0** | **31** |
 
-**No material regression was found; no stop condition was met.** One baseline defect (not a regression) was found and is described in section 4.
+**No material regression was found; no stop condition was met.** **Update (Batch 8):** the eight labs that were UNVERIFIED at the first report now have their original specimens restored and verified, and the seven LIVE labs are ENHANCED (Attack UI pages fixed in Docker, four contrast violations fixed). The first report counted 22 PRESERVED, 1 ENHANCED, 0 REGRESSED, 8 UNVERIFIED. Sections 2 and 4 below describe the state at the first report; see `docs/reviews/batch8/REPLAY_RESTORATION.md` for the restoration.
 
 Definitions. PRESERVED: every dimension I could exercise is identical to the baseline. ENHANCED: identical plus a measured improvement
 (LAB-MCP-001: its Academy workshop page lost the axe `region` violation). REGRESSED: a measured difference that makes a learner's

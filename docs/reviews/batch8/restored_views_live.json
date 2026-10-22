@@ -1,0 +1,250 @@
+{
+ "LAB-BLUE-TEAM-INCIDENT-001": {
+  "default": "2437f64a-fff4-424f-8a83-0f04285662e4",
+  "exists": true,
+  "options": {
+   "2437f64a-fff4-424f-8a83-0f04285662e4": {
+    "label": "Candidate 01",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 1,
+    "shows_selected_run": true
+   },
+   "8d2c016f-cadc-4463-939a-23a183221b3d": {
+    "label": "Candidate 02",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 1,
+    "shows_selected_run": true
+   }
+  },
+  "view": "ws_lab_blue_team_incident"
+ },
+ "LAB-MCP-003": {
+  "default": "5b089682-1d5a-49a7-ac43-967265fd6bc6",
+  "exists": true,
+  "options": {
+   "5b089682-1d5a-49a7-ac43-967265fd6bc6": {
+    "label": "Baseline \u2014 defended / normal",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 17,
+    "shows_selected_run": true
+   },
+   "6ce19813-6cb5-4aae-a3a0-aa59386a82dd": {
+    "label": "Unknown \u2014 missing security context",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 16,
+    "shows_selected_run": true
+   },
+   "b466ad12-72ec-44b7-be28-aacfaf2c25b1": {
+    "label": "Attack \u2014 vulnerable / malicious",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 17,
+    "shows_selected_run": true
+   },
+   "f638fd4f-1c4f-4ab6-8d42-4d03a4f3afd5": {
+    "label": "Retest \u2014 defended / malicious",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 16,
+    "shows_selected_run": true
+   }
+  },
+  "view": "ws_lab_mcp_003"
+ },
+ "LAB-MCP-004": {
+  "default": "fb50dcaf-8e84-4a3f-a55b-997c72edbd04",
+  "exists": true,
+  "options": {
+   "0726a0ff-a551-41a8-bfbb-ab2ceca4c0dd": {
+    "label": "Retest \u2014 defended / malicious",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 16,
+    "shows_selected_run": true
+   },
+   "0e4e0051-528d-4bf3-8773-d1fb55a5864f": {
+    "label": "Unknown \u2014 missing security context",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 16,
+    "shows_selected_run": true
+   },
+   "5ab59fc7-303e-4eea-84e7-ae0b2f405146": {
+    "label": "Attack \u2014 vulnerable / malicious",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 17,
+    "shows_selected_run": true
+   },
+   "fb50dcaf-8e84-4a3f-a55b-997c72edbd04": {
+    "label": "Baseline \u2014 defended / normal",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 17,
+    "shows_selected_run": true
+   }
+  },
+  "view": "ws_lab_mcp_004"
+ },
+ "LAB-MCP-005": {
+  "default": "3013aa39-fe08-4b58-9898-f3abb092ac06",
+  "exists": true,
+  "options": {
+   "0ab10594-a7fc-48b6-81bf-4cbca54a64c6": {
+    "label": "Retest \u2014 defended / malicious",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 25,
+    "shows_selected_run": true
+   },
+   "3013aa39-fe08-4b58-9898-f3abb092ac06": {
+    "label": "Baseline \u2014 defended / normal",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 20,
+    "shows_selected_run": true
+   },
+   "f3f48182-df57-4b38-b069-17a199dc4939": {
+    "label": "Attack \u2014 vulnerable / malicious",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 24,
+    "shows_selected_run": true
+   }
+  },
+  "view": "ws_lab_mcp_005"
+ },
+ "LAB-MCP-006": {
+  "default": "1cf98c4d-1bd8-4df5-be70-b82419e2c2b2",
+  "exists": true,
+  "options": {
+   "1cf98c4d-1bd8-4df5-be70-b82419e2c2b2": {
+    "label": "Baseline \u2014 defended / normal",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 21,
+    "shows_selected_run": true
+   },
+   "50f7ec04-7524-41c0-95a8-3b1ef4d91dc4": {
+    "label": "Retest \u2014 defended / malicious",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 17,
+    "shows_selected_run": true
+   },
+   "d7524a4e-8da6-4171-8867-d2a2168128ac": {
+    "label": "Attack \u2014 vulnerable / malicious",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 21,
+    "shows_selected_run": true
+   }
+  },
+  "view": "ws_lab_mcp_006"
+ },
+ "LAB-MCP-CATALOG": {
+  "default": "d95717ed-ffd2-46c0-a130-9a5d7d539a5d",
+  "exists": true,
+  "options": {
+   "23c222ea-6a87-40b7-a3e9-f12a5b572fa1": {
+    "label": "Retest \u2014 defended / malicious",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 24,
+    "shows_selected_run": true
+   },
+   "a0937bff-31a5-453a-99bf-47d7b5148ce4": {
+    "label": "Attack \u2014 vulnerable / malicious",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 24,
+    "shows_selected_run": true
+   },
+   "d95717ed-ffd2-46c0-a130-9a5d7d539a5d": {
+    "label": "Baseline \u2014 defended / normal",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 19,
+    "shows_selected_run": true
+   }
+  },
+  "view": "ws_lab_mcp_catalog"
+ },
+ "LAB-MULTI-STAGE-INCIDENT-001": {
+  "default": "2437f64a-fff4-424f-8a83-0f04285662e4",
+  "exists": true,
+  "options": {
+   "2437f64a-fff4-424f-8a83-0f04285662e4": {
+    "label": "Candidate 01",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 0,
+    "shows_selected_run": true
+   },
+   "8d2c016f-cadc-4463-939a-23a183221b3d": {
+    "label": "Candidate 02",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 0,
+    "shows_selected_run": true
+   }
+  },
+  "view": "ws_lab_multi_stage_incident"
+ },
+ "LAB-SCANNER-RUNTIME-EVIDENCE": {
+  "default": "d95717ed-ffd2-46c0-a130-9a5d7d539a5d",
+  "exists": true,
+  "options": {
+   "23c222ea-6a87-40b7-a3e9-f12a5b572fa1": {
+    "label": "Retest \u2014 defended / malicious",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 24,
+    "shows_selected_run": true
+   },
+   "a0937bff-31a5-453a-99bf-47d7b5148ce4": {
+    "label": "Attack \u2014 vulnerable / malicious",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 24,
+    "shows_selected_run": true
+   },
+   "d95717ed-ffd2-46c0-a130-9a5d7d539a5d": {
+    "label": "Baseline \u2014 defended / normal",
+    "no_results_panels": 0,
+    "page_errors": [],
+    "search_errors": 0,
+    "shows_event_names": 19,
+    "shows_selected_run": true
+   }
+  },
+  "view": "ws_lab_scanner_runtime_evidence"
+ }
+}

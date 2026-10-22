@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  DRAFT, NOT INSTALLED. A per-user LaunchAgent for the Loan Desk host verifier. Installing it needs separate approval.
+  It runs as the logged-in user only (no root, no daemon, no privileged helper), opens no port, and the verifier's own lock
+  makes a second instance exit, so a restart can never produce two verifiers.
+  To use it an operator would copy it (with the three REPLACE values filled in) to ~/Library/LaunchAgents/ and run
+  `launchctl bootstrap gui/$(id -u) <file>`; `launchctl bootout gui/$(id -u)/com.agentseclab.loan-desk-verifier` removes it.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.agentseclab.loan-desk-verifier</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>REPLACE_PATH_TO_PYTHON3</string>
+    <string>REPLACE_REPO/scripts/loan_desk_verifier.py</string>
+    <string>--artifacts</string>
+    <string>REPLACE_REPO/artifacts</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key><string>REPLACE_HOME/.docker/bin:/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin</string>
+    <key>ACMEBANK_ORIGIN</key><string>http://127.0.0.1:5000</string>
+  </dict>
+  <key>WorkingDirectory</key><string>REPLACE_REPO</string>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key>
+  <dict><key>SuccessfulExit</key><false/></dict>
+  <key>ThrottleInterval</key><integer>15</integer>
+  <key>ProcessType</key><string>Background</string>
+  <key>Nice</key><integer>5</integer>
+  <key>StandardOutPath</key><string>REPLACE_HOME/.local/state/agentsec/loan_desk/launchd.out.log</string>
+  <key>StandardErrorPath</key><string>REPLACE_HOME/.local/state/agentsec/loan_desk/launchd.err.log</string>
+</dict>
+</plist>
