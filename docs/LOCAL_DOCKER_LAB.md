@@ -44,6 +44,18 @@ docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local
 
 If Docker Ollama cannot pull a model (TLS/registry), the API still stays up. Point AcmeBank at host Ollama with `OLLAMA_BASE_URL=http://host.docker.internal:11434` in `.env`.
 
+
+### Ollama provider: container (default) or host
+
+| Provider | When | How |
+|----------|------|-----|
+| **Container** (default) | Self-contained install. `docker exec agentsec_ollama ollama pull llama3.2:1b` works on your network. | Nothing to set. AcmeBank uses `http://ollama:11434` on the Compose mesh. Port 11434 is not published. |
+| **Host** (supported) | The container cannot pull the model (for example `x509: certificate signed by unknown authority` behind TLS inspection), or you already have the model on the host. | On the host: `ollama pull llama3.2:1b` and `ollama serve`. In `.env` set `OLLAMA_BASE_URL=http://host.docker.internal:11434`, then `docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local --env-file .env up -d --no-deps acmebank`. |
+
+`acmebank` already maps `host.docker.internal` to the host gateway (`docker-compose.local.yml`). Keep the host Ollama on loopback. Do not bind it to `0.0.0.0` for this lab. Certificate verification is never disabled for either provider. `./scripts/lab-ready.sh` prints `OLLAMA PROVIDER: HOST|CONTAINER`, the model, and whether it is listed as seen from AcmeBank. The Docker Ollama container still starts in host mode and stays idle.
+
+Verified 2026-10-20: host provider, `llama3.2:1b`, LAB-PI-001 BASELINE LIVE ran 4 model calls through AcmeBank. This does not transfer to other hosts.
+
 ### After `docker compose down`
 
 `up` recreates `splunk_app_init`, so the volume is restaged from the repo. Splunk data volumes persist unless you used `-v`.
