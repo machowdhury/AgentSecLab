@@ -11,6 +11,8 @@ from dataclasses import dataclass
 from typing import Any, Callable
 
 APPLICANT_ID = re.compile(r"^APP-\d{4}$")
+POSTURES = ("baseline", "hardened")  # baseline = free-text review notes (lab weakness); hardened = reason codes only
+REVIEW_CODES = ("READY_FOR_REVIEW", "NEEDS_DOCUMENTS", "CREDIT_CONCERN", "INCOME_CONCERN")
 
 
 @dataclass(frozen=True)

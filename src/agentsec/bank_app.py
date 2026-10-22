@@ -909,7 +909,11 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
             form = loads_json_no_duplicate_keys(request.get_data(as_text=True) or "null")
         except (DuplicateJsonKeyError, json.JSONDecodeError):
             return jsonify({"errors": {"_form": "Send valid JSON without duplicate keys."}}), 400
-        view, errors = desk.submit(form)
+        posture = "hardened"
+        if isinstance(form, dict) and "posture" in form:
+            form = dict(form)
+            posture = form.pop("posture")
+        view, errors = desk.submit(form, posture)
         if errors:
             return jsonify({"errors": errors}), 400
         return jsonify(view), 202

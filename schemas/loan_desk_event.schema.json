@@ -29,7 +29,8 @@
     "agentsec.principal.id",
     "agentsec.principal.type",
     "agentsec.workflow.entry",
-    "gen_ai.workflow.name"
+    "gen_ai.workflow.name",
+    "agentsec.defense.posture"
   ],
   "properties": {
     "event.name": {
@@ -370,6 +371,14 @@
     "agentsec.error.message": {
       "type": "string",
       "maxLength": 500
+    },
+    "agentsec.defense.posture": {
+      "type": "string",
+      "enum": [
+        "baseline",
+        "hardened"
+      ],
+      "description": "Loan Desk defense posture for this run. baseline = free-text review notes (deliberate lab weakness); hardened = review notes restricted to reason codes."
     }
   },
   "allOf": [

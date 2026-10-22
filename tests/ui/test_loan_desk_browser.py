@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.loan_desk_support import FINAL, ScriptedModel, tool
+from tests.loan_desk_support import FINAL, SUBMIT, ScriptedModel, tool
 
 P = tool("get_applicant_profile", applicant_id="APP-1001")
 C = tool("get_credit_summary", applicant_id="APP-1001")
@@ -85,7 +85,7 @@ def wait_done(pg):
 
 
 def test_success_flow_shows_proposed_authorized_executed(page, serve):
-    url = serve(ScriptedModel([P, C, FINAL]))
+    url = serve(ScriptedModel([P, C, SUBMIT, FINAL]))
     submit_example(page, url)
     wait_done(page)
     assert page.locator("#run-status").inner_text() == "COMPLETED"
@@ -102,7 +102,7 @@ def test_success_flow_shows_proposed_authorized_executed(page, serve):
 
 
 def test_page_shows_splunk_verified_only_after_a_host_record_exists(page, serve, settings):
-    url = serve(ScriptedModel([P, C, FINAL]))
+    url = serve(ScriptedModel([P, C, SUBMIT, FINAL]))
     submit_example(page, url)
     wait_done(page)
     run_id = page.locator("#ev-run").inner_text()
@@ -119,7 +119,7 @@ def test_page_shows_splunk_verified_only_after_a_host_record_exists(page, serve,
 
 def test_denied_actions_show_handler_did_not_run(page, serve):
     url = serve(ScriptedModel([tool("issue_loan_offer", applicant_id="APP-1001", amount=420000),
-                               tool("get_applicant_profile", applicant_id="APP-2001"), P, C, FINAL]))
+                               tool("get_applicant_profile", applicant_id="APP-2001"), P, C, SUBMIT, FINAL]))
     submit_example(page, url)
     wait_done(page)
     rows = page.locator("#timeline > li").all_inner_texts()
@@ -137,7 +137,7 @@ def test_handler_failure_is_visible(page, serve, monkeypatch):
             raise RuntimeError("synthetic fault")
         return real(s, t, a)
     monkeypatch.setattr(agent_mod, "run_tool", boom)
-    url = serve(ScriptedModel([tool("lookup_lending_policy", topic="dti"), P, C, FINAL]))
+    url = serve(ScriptedModel([tool("lookup_lending_policy", topic="dti"), P, C, SUBMIT, FINAL]))
     submit_example(page, url)
     wait_done(page)
     row = page.locator("#timeline > li").first.inner_text()
@@ -194,7 +194,7 @@ def test_submit_is_disabled_while_a_run_is_in_flight(page, serve):
             time.sleep(0.8)
             return super().chat(messages)
 
-    url = serve(Slow([P, C, FINAL]))
+    url = serve(Slow([P, C, SUBMIT, FINAL]))
     submit_example(page, url)
     assert page.locator("#submit").is_disabled() and page.locator("#loan-form").get_attribute("aria-busy") == "true"
     assert page.locator("#run-status").inner_text() == "RUNNING"
@@ -203,7 +203,7 @@ def test_submit_is_disabled_while_a_run_is_in_flight(page, serve):
 
 
 def test_untrusted_text_is_rendered_as_text_not_markup(page, serve):
-    url = serve(ScriptedModel([P, C, FINAL]))
+    url = serve(ScriptedModel([P, C, SUBMIT, FINAL]))
     page.goto(url)
     page.click("#example")
     page.fill("#notes", "<img src=x onerror=window.__pwn=1><b>bold</b>")
@@ -216,7 +216,7 @@ def test_untrusted_text_is_rendered_as_text_not_markup(page, serve):
 def test_keyboard_reaches_every_control_and_no_serious_axe_violations(page, serve):
     pytest.importorskip("axe_playwright_python")
     from axe_playwright_python.sync_playwright import Axe
-    url = serve(ScriptedModel([P, C, FINAL]))
+    url = serve(ScriptedModel([P, C, SUBMIT, FINAL]))
     page.goto(url)
     seen = []
     for _ in range(30):
@@ -234,7 +234,7 @@ def test_keyboard_reaches_every_control_and_no_serious_axe_violations(page, serv
 def test_phone_width_has_no_horizontal_scroll(browser, serve):
     ctx = browser.new_context(viewport={"width": 390, "height": 844})
     pg = ctx.new_page()
-    submit_example(pg, serve(ScriptedModel([P, C, FINAL])))
+    submit_example(pg, serve(ScriptedModel([P, C, SUBMIT, FINAL])))
     wait_done(pg)
     assert pg.evaluate("document.documentElement.scrollWidth <= window.innerWidth")
     ctx.close()
@@ -248,7 +248,7 @@ def test_shared_shell_is_present_and_marks_acmebank_current(page, serve):
 
 def test_outcome_facts_and_unverified_prose_are_shown_separately(page, serve):
     lying = {**FINAL, "summary": "The debt service ratio is 38.5% so this is a strong application overall."}
-    url = serve(ScriptedModel([tool("get_applicant_profile", applicant_id="APP-2002"), P, C, lying]))
+    url = serve(ScriptedModel([tool("get_applicant_profile", applicant_id="APP-2002"), P, C, SUBMIT, lying]))
     submit_example(page, url)
     wait_done(page)
     assert "BLOCKED (1 action)" in page.locator("#out-security-v").inner_text()

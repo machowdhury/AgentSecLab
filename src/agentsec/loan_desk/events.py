@@ -22,6 +22,7 @@ class LoanDeskEmitter:
     settings: Settings
     model: str
     user_id: str
+    posture: str = "hardened"
     run_id: UUID = field(default_factory=uuid4)
     trace_id: str = field(default_factory=new_trace_id)
     run_span: str = field(default_factory=new_span_id)
@@ -42,6 +43,7 @@ class LoanDeskEmitter:
             "agentsec.operation.type": op, "agentsec.span.kind": op,
             "agentsec.principal.id": self.user_id, "agentsec.principal.type": "user",
             "agentsec.workflow.entry": WORKFLOW_ENTRY, "gen_ai.workflow.name": "loan_desk_agent",
+            "agentsec.defense.posture": self.posture,
         }
         if span != self.run_span:
             e["parent_span_id"] = self.run_span
