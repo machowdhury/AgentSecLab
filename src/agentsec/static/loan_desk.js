@@ -284,8 +284,7 @@
     function settle(msg) { $("ev-indexed").textContent = msg; btn.disabled = false; }
     fetch("/api/v1/loan-desk/runs/" + encodeURIComponent(id) + "/verify", { method: "POST" }).then(function (r) {
       if (r.status === 503) { settle("NOT VERIFIED. The verifier is not installed on this lab."); return; }
-      if (r.status === 429) { settle("Please wait a few seconds before verifying again."); return; }
-      if (r.status !== 202) { settle("The verification request was not accepted (HTTP " + r.status + ")."); return; }
+      if (r.status !== 202 && r.status !== 429) { settle("The verification request was not accepted (HTTP " + r.status + ")."); return; }
       var t0 = Date.now();
       (function tick() {
         fetch("/api/v1/loan-desk/runs/" + encodeURIComponent(id)).then(function (x) { return x.json(); }).then(function (v) {

@@ -1012,9 +1012,8 @@
     onText("Requesting verification…");
     return post("/api/missions/loan-desk/runs/" + encodeURIComponent(id) + "/verify", {}).then(function (res) {
       if (res.status === 503) { onText("NOT VERIFIED. The verifier is not installed on this lab (no bridge key). Evidence stays local-only; use the Splunk searches."); return; }
-      if (res.status === 429) { onText("Please wait a few seconds before verifying this run again."); return; }
       if (res.status === 404) { onText("This run is no longer known to the Loan Desk. Launch it again."); return; }
-      if (res.status !== 202) { onText(problemText(res)); return; }
+      if (res.status !== 202 && res.status !== 429) { onText(problemText(res)); return; }  // 429: a request is already outstanding, so keep watching it
       var t0 = Date.now();
       return new Promise(function (resolve) {
         (function tick() {
