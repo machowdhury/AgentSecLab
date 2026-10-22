@@ -1,0 +1,4 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"=__RUN_ID__ "event.name"=agentsec.control.decision
+| eval step=mvindex(mvdedup('agentsec.agent.step'),0), tool=mvindex(mvdedup('gen_ai.tool.name'),0), control=mvindex(mvdedup('agentsec.control.id'),0), decision=mvindex(mvdedup('agentsec.control.decision'),0), reason=mvindex(mvdedup('agentsec.control.reason'),0), requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0), posture=mvindex(mvdedup('agentsec.defense.posture'),0)
+| table step, tool, control, decision, reason, requested_scope, posture
+| sort 0 num(step)

@@ -1,0 +1,4 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"=__RUN_ID__ "event.name"=agentsec.agent.action.proposed
+| eval step=mvindex(mvdedup('agentsec.agent.step'),0), tool=mvindex(mvdedup('gen_ai.tool.name'),0), proposed_by=mvindex(mvdedup('agentsec.agent.proposal.source'),0), what_was_proposed=mvindex(mvdedup('agentsec.content.preview'),0)
+| table step, tool, proposed_by, what_was_proposed
+| sort 0 num(step)

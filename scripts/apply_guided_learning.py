@@ -34,6 +34,7 @@ VIEW_LABELS = {
     "ws_lab_mcp_001": "Tool Authorization",
     "ws_lab_mcp_003": "Scope Escalation",
     "ws_lab_mcp_004": "Parameter / Resource Authorization",
+    "ws_lab_loandesk_001": "Loan Desk: Agent-Authored Content",
     "ws_lab_rag_context": "RAG / Retrieved Context",
     "ws_lab_memory_security": "Persistent Memory",
     "ws_lab_mcp_005": "Tool Result Trust",
@@ -68,7 +69,7 @@ VIEW_LABELS = {
 GROUPS = [
     (
         "Foundations",
-        ["ws_lab_pi_001", "ws_lab_mcp_001", "ws_lab_mcp_003", "ws_lab_mcp_004"],
+        ["ws_lab_pi_001", "ws_lab_mcp_001", "ws_lab_mcp_003", "ws_lab_mcp_004", "ws_lab_loandesk_001"],
     ),
     (
         "Context Security",

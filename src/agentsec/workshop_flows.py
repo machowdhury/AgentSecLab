@@ -75,6 +75,7 @@ EVIDENCE_TABLE_COLUMN_FORMAT = {
 LAB_TO_VIEW = {
     "LAB-PI-001": "ws_lab_pi_001",
     "LAB-MCP-001": "ws_lab_mcp_001",
+    "LAB-LOANDESK-001": "ws_lab_loandesk_001",
     "LAB-MCP-003": "ws_lab_mcp_003",
     "LAB-MCP-004": "ws_lab_mcp_004",
     "LAB-MCP-005": "ws_lab_mcp_005",
@@ -165,6 +166,23 @@ FLOWS: list[dict] = [
             ("control", "CTRL-MCP-001", "ALLOW / DENY / ERROR"),
             ("execution", "HANDLER START", "only after ALLOW"),
             ("telemetry", "TELEMETRY", "Splunk observes"),
+        ],
+    },
+    {
+        "lab": "LAB-LOANDESK-001",
+        "existing_ascii": False,
+        "source_class": "AUTHORED FOR THE LOAN DESK MISSION",
+        "control": "CTRL-LOANDESK-001",
+        "execution": "Tool handler",
+        "telemetry": "Splunk (observe only)",
+        "title": "Loan Desk agent flow",
+        "desc": "A model proposes a tool call; CTRL-LOANDESK-001 decides before the handler. ALLOW is not execution, and a valid call can still carry attacker text.",
+        "steps": [
+            ("source", "APPLICANT NOTES — untrusted text"),
+            ("observe", "MODEL PROPOSES — one tool call"),
+            ("control", "CTRL-LOANDESK-001 — ALLOW / DENY"),
+            ("execution", "HANDLER START — only after ALLOW"),
+            ("telemetry", "TELEMETRY — Splunk observes"),
         ],
     },
     {

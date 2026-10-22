@@ -737,6 +737,34 @@
         }
       ],
       "name_vs_content": "agree"
+    },
+    {
+      "lab_id": "LAB-LOANDESK-001",
+      "tier": "GUIDED MISSION",
+      "primary_domain": "D02",
+      "secondary_domain": "D09",
+      "domain_confidence": "content-verified",
+      "pillars": [
+        {
+          "id": "P3",
+          "status": "implemented"
+        },
+        {
+          "id": "P4",
+          "status": "partial"
+        },
+        {
+          "id": "P6",
+          "status": "partial"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "learning/level_1/LAB-LOANDESK-001/README.md",
+          "quote": "This lab teaches one idea: **a valid, in-scope action can still carry an attacker's content, so authorization must also constrain what an allowed tool may carry.**"
+        }
+      ],
+      "name_vs_content": "agree"
     }
   ]
 }

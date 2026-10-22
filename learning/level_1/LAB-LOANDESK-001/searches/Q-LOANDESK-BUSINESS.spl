@@ -1,0 +1,5 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"=__RUN_ID__ ("event.name"=agentsec.run.completed OR "event.name"=agentsec.run.failed)
+| eval ev=mvindex(mvdedup('event.name'),0), stop=mvindex(mvdedup('agentsec.agent.stop_reason'),0), posture=mvindex(mvdedup('agentsec.defense.posture'),0), executed=mvindex(mvdedup('agentsec.tools.executed'),0), denied=tonumber(mvindex(mvdedup('agentsec.tools.denied'),0))
+| eval business_task=case(ev="agentsec.run.completed" AND stop="final_answer","COMPLETE", ev="agentsec.run.completed","INCOMPLETE (".stop.")", true(),"FAILED (".stop.")")
+| eval security_outcome=if(denied>0,"BLOCKED (".denied." denied)","nothing blocked")
+| table posture, business_task, security_outcome, executed, denied

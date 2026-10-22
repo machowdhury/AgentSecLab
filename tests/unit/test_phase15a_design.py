@@ -38,6 +38,7 @@ PHASE15A_DOCS = (
 
 INVENTORIED_LABS = frozenset(
     {
+        "LAB-LOANDESK-001",  # Batch 4: first-class Academy mission
         "LAB-PI-001",
         "LAB-MCP-001",
         "LAB-MCP-003",
@@ -74,6 +75,7 @@ INVENTORIED_LABS = frozenset(
 
 PUBLISHED_VIEWS = frozenset(
     {
+        "ws_lab_loandesk_001.xml",  # Batch 4
         "ws_agentsec_home.xml",
         "ws_lab_pi_001.xml",
         "ws_lab_mcp_001.xml",
@@ -209,6 +211,7 @@ def test_attack_service_allowlist_excludes_unmigrated_labs():
 )
     manifests = list(LEARNING.rglob("lab-manifest.json"))
     assert {p.parent.name for p in manifests} == {
+        "LAB-LOANDESK-001",  # manifest only; it is NOT in the /api/launch allowlist above
         "LAB-PI-001",
         "LAB-MCP-001",
         "LAB-RAG-CONTEXT",

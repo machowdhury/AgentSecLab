@@ -1,7 +1,7 @@
 """Batch 1 contracts: lab registry, framework references, evidence state, timeline, workshop schema.
 
 Deterministic and offline. Counts come from the data files, not from literals, except the
-two preserved baselines the product owner named (31 curriculum entries, 36 Splunk views).
+two preserved baselines the product owner named (31 curriculum entries, 36 Splunk views; Batch 4 added the 32nd entry and 37th view).
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ def test_registry_preserves_every_curriculum_entry_and_view():
     cur = _json("learning/academy/curriculum.json")
     want = {l["lab_id"] for lv in cur["levels"] for l in lv["labs"]} | {k["lab_id"] for k in cur["checkpoints"]}
     assert {e["lab_id"] for e in reg["entries"]} == want
-    assert len(reg["entries"]) == len(want) == 31
+    assert len(reg["entries"]) == len(want) == 32  # 31 preserved + LAB-LOANDESK-001 (Batch 4); none removed
     assert len(list(VIEWS.glob("*.xml"))) >= 36  # existing Studio views are never removed
     _validator("lab_registry").validate(reg)
 

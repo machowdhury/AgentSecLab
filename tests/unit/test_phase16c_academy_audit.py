@@ -39,6 +39,7 @@ LIVE_LABS = (
 
 PUBLISHED_VIEWS = frozenset(
     {
+        "ws_lab_loandesk_001.xml",  # Batch 4
         "ws_agentsec_home.xml",
         "ws_lab_pi_001.xml",
         "ws_lab_mcp_001.xml",

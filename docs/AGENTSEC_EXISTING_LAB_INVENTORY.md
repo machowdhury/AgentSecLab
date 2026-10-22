@@ -306,3 +306,8 @@ Do not inventory these as implemented labs:
 ## 14A matrix note
 
 `docs/AGENTSEC_CROSS_WORKSHOP_READINESS_MATRIX.md` is a **Phase 14A historical snapshot**. It predates 14D/14E LIVE RETEST and MCP-001 Attack Service. This inventory supersedes it for 15A planning.
+
+
+## LAB-LOANDESK-001 — Loan Desk: Agent-Authored Content (Batch 4)
+
+LIVE guided mission in the Academy (`/academy/missions/loan-desk`), view `ws_lab_loandesk_001`, control CTRL-LOANDESK-001, event family `agentsec.loan_desk_event` 1.0.0 (separate from schema 1.9.0). Not an `/api/launch` lab: it has a manifest and workshop content but is not in the launcher allowlist. See `learning/level_1/LAB-LOANDESK-001/README.md`.

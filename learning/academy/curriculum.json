@@ -15,7 +15,8 @@
         "ws_lab_pi_001",
         "ws_lab_mcp_001",
         "ws_lab_mcp_003",
-        "ws_lab_mcp_004"
+        "ws_lab_mcp_004",
+        "ws_lab_loandesk_001"
       ]
     },
     {
@@ -264,6 +265,12 @@
           "title": "Parameter / Resource Authorization",
           "mode": "REPLAY",
           "view": "ws_lab_mcp_004"
+        },
+        {
+          "lab_id": "LAB-LOANDESK-001",
+          "title": "Loan Desk: Agent-Authored Content",
+          "mode": "LIVE",
+          "view": "ws_lab_loandesk_001"
         }
       ]
     },

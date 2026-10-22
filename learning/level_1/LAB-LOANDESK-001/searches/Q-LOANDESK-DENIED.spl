@@ -1,0 +1,8 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"=__RUN_ID__ ("event.name"=agentsec.control.decision OR "event.name"=agentsec.mcp.started)
+| eval ev=mvindex(mvdedup('event.name'),0), step=mvindex(mvdedup('agentsec.agent.step'),0), tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| eval decision=if(ev="agentsec.control.decision", mvindex(mvdedup('agentsec.control.decision'),0), null()), reason=if(ev="agentsec.control.decision", mvindex(mvdedup('agentsec.control.reason'),0), null())
+| stats values(decision) AS decision values(reason) AS reason max(eval(if(ev="agentsec.mcp.started",1,0))) AS began by step, tool
+| where decision="DENY"
+| eval handler=if(began=1,"STARTED ANYWAY (control failure)","did not run")
+| table step, tool, decision, reason, handler
+| sort 0 num(step)
