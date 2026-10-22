@@ -60,7 +60,7 @@
 <!-- 2 EXPLORE -->
 <section class="step" id="step-explore" data-step="explore" aria-labelledby="h-explore" hidden>
   <h2 id="h-explore" tabindex="-1"><span class="step-kicker">Step 2 of 10</span> Explore: run a normal application</h2>
-  {{ brief("Submitting an ordinary application and watching the agent work.", "Normal behaviour is the baseline you will compare the attack against.", "Edit any field you like, then run it. Notes are optional.", "The timeline: what the model proposed, what policy decided, what actually ran, and the note the agent filed.", "Each tool call has separate facts: proposed, decided, executed.") }}
+  {{ brief("Submitting an ordinary application and watching the agent work.", "Normal behaviour is the baseline you will compare the attack against.", "Edit any field you like, then run it. This runs in the lab's starting BASELINE posture. Notes are optional.", "The timeline: what the model proposed, what policy decided, what actually ran, and the note the agent filed.", "Each tool call has separate facts: proposed, decided, executed.") }}
   <form class="mission-form" data-app-form novalidate>
     <p class="callout callout--warn" role="alert" data-form-errors hidden></p>
     {% for key, label, kind in [("full_name","Full name","text"),("annual_income","Annual income (CAD)","text"),("credit_score","Credit score (300-900)","text"),("loan_amount","Loan amount (CAD)","text"),("term_years","Term (years, 5-35)","text")] %}

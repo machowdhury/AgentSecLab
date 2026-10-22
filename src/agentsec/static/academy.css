@@ -293,3 +293,4 @@ details > summary { min-height: 44px; display: flex; align-items: center; cursor
 .spl { font-family: var(--mono); font-size: .875rem; }
 .choice { padding: .5rem; border: 1px solid var(--line); border-radius: 6px; margin: .4rem 0; }
 @media (prefers-reduced-motion: no-preference) { .run-panel { transition: background .2s; } }
+.run-panel .data-table th:first-child, .run-panel .data-table td:first-child { white-space: nowrap; }
