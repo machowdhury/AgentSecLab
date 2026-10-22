@@ -1,0 +1,54 @@
+{
+  "reconciled": false,
+  "problems": [
+    "count_mismatch local=30 indexed=0",
+    "sequence_set_mismatch",
+    "per_event_name_mismatch"
+  ],
+  "local_events": 30,
+  "indexed_events": 0,
+  "distinct_sequences": 0,
+  "by_event_local": {
+    "agentsec.run.started": 1,
+    "agentsec.llm.started": 6,
+    "agentsec.llm.completed": 6,
+    "agentsec.agent.action.proposed": 4,
+    "agentsec.control.decision": 4,
+    "agentsec.mcp.started": 4,
+    "agentsec.mcp.completed": 4,
+    "agentsec.run.completed": 1
+  },
+  "by_event_indexed": {},
+  "naive_mvexpand_rows": 0,
+  "inflation_note": "A search that expands agentsec.invariant.id returns more rows than events; the reconciliation counts events, not field values.",
+  "run_id": "02716f9c-5eb1-411c-8bcb-aecbe2539604",
+  "checked_at": "2026-10-22T15:20:59Z",
+  "method": "host docker-exec splunk search (read-only)"
+}
+{
+  "reconciled": false,
+  "problems": [
+    "count_mismatch local=28 indexed=0",
+    "sequence_set_mismatch",
+    "per_event_name_mismatch"
+  ],
+  "local_events": 28,
+  "indexed_events": 0,
+  "distinct_sequences": 0,
+  "by_event_local": {
+    "agentsec.run.started": 1,
+    "agentsec.llm.started": 6,
+    "agentsec.llm.completed": 6,
+    "agentsec.agent.action.proposed": 5,
+    "agentsec.control.decision": 5,
+    "agentsec.mcp.started": 2,
+    "agentsec.mcp.completed": 2,
+    "agentsec.run.completed": 1
+  },
+  "by_event_indexed": {},
+  "naive_mvexpand_rows": 0,
+  "inflation_note": "A search that expands agentsec.invariant.id returns more rows than events; the reconciliation counts events, not field values.",
+  "run_id": "6d0e7b4c-8021-4400-bb03-8a5674cf0fc9",
+  "checked_at": "2026-10-22T15:24:10Z",
+  "method": "host docker-exec splunk search (read-only)"
+}

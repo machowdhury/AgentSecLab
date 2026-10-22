@@ -95,10 +95,26 @@ def test_success_flow_shows_proposed_authorized_executed(page, serve):
     assert page.locator("#result-card").is_visible() and page.locator("#reco").inner_text() == "Proceed to underwriter"
     assert "No loan was approved" in page.locator("#advisory").inner_text()
     run_id = page.locator("#ev-run").inner_text()
-    assert run_id in page.input_value("#ev-spl") and "NOT VERIFIED" in page.locator("#ev-indexed").inner_text()
+    assert run_id in page.input_value("#ev-spl") and page.locator("#ev-indexed").inner_text().startswith("NOT VERIFIED. Only local evidence")
     assert [i.get_attribute("data-s") for i in page.locator("#phases > li").all()] == ["done"] * 5
     nd = page.request.get(page.url.split("/loan-desk")[0] + f"/api/v1/loan-desk/runs/{run_id}/events.ndjson").text()
     assert all(json.loads(x)["agentsec.run.id"] == run_id for x in nd.splitlines())
+
+
+def test_page_shows_splunk_verified_only_after_a_host_record_exists(page, serve, settings):
+    url = serve(ScriptedModel([P, C, FINAL]))
+    submit_example(page, url)
+    wait_done(page)
+    run_id = page.locator("#ev-run").inner_text()
+    assert page.locator("#ev-indexed").get_attribute("data-state") == "NOT_VERIFIED"
+    n = int(page.locator("#ev-count").inner_text().split()[0])
+    d = settings.artifacts_dir / "loan_desk"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / f"{run_id}.splunk.json").write_text(json.dumps({"run_id": run_id, "reconciled": True, "problems": [],
+        "local_events": n, "indexed_events": n, "checked_at": "T"}), encoding="utf-8")
+    page.click("#refresh-ev")
+    page.wait_for_function("() => document.getElementById('ev-indexed').dataset.state === 'SPLUNK_VERIFIED'")
+    assert f"{n} indexed of {n} local" in page.locator("#ev-indexed").inner_text()
 
 
 def test_denied_actions_show_handler_did_not_run(page, serve):

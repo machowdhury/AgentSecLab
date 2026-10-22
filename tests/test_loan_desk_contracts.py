@@ -378,3 +378,42 @@ def test_model_availability_probe_uses_the_clients_own_endpoint(monkeypatch):
     assert OllamaChat("http://example.invalid:1", "mistral").available() == (True, None)  # bare name means :latest
     ok, why = OllamaChat("http://example.invalid:1", "other:7b").available()
     assert not ok and "not installed" in why and seen[0].startswith("http://example.invalid:1/")
+
+
+# ---------------------------------------------------------------- local vs Splunk-verified evidence
+
+def _record(svc, file_id, **over):
+    d = svc.settings.artifacts_dir / "loan_desk"
+    d.mkdir(parents=True, exist_ok=True)
+    n = svc.view(file_id)["events"]
+    rec = {"run_id": file_id, "reconciled": True, "problems": [], "local_events": n, "indexed_events": n,
+           "checked_at": "2026-10-22T00:00:00Z", **over}
+    (d / f"{file_id}.splunk.json").write_text(json.dumps(rec), encoding="utf-8")
+
+
+def test_evidence_is_local_until_a_host_record_says_otherwise(svc_factory):
+    svc, v = run(svc_factory, [tool("get_applicant_profile", applicant_id="APP-1001"),
+                               tool("get_credit_summary", applicant_id="APP-1001"), FINAL])
+    rid = v["run_id"]
+    assert v["evidence"]["indexed_status"] == "NOT_VERIFIED"
+    _record(svc, rid)
+    assert svc.view(rid)["evidence"]["indexed_status"] == "SPLUNK_VERIFIED"
+    _record(svc, rid, reconciled=False, indexed_events=3, problems=["count_mismatch local=9 indexed=3"])
+    assert svc.view(rid)["evidence"]["indexed_status"] == "SPLUNK_MISMATCH"
+    _record(svc, rid, local_events=1, indexed_events=1)
+    assert svc.view(rid)["evidence"]["indexed_status"] == "STALE"
+    (svc.settings.artifacts_dir / "loan_desk" / f"{rid}.splunk.json").write_text("{not json", encoding="utf-8")
+    assert svc.view(rid)["evidence"]["indexed_status"] == "NOT_VERIFIED"
+    _record(svc, rid, run_id="someone-else")  # a record for another run never counts
+    assert svc.view(rid)["evidence"]["indexed_status"] == "NOT_VERIFIED"
+
+
+def test_reconcile_detects_inflation_duplicates_and_gaps():
+    from agentsec.loan_desk.reconcile import reconcile
+    local = [{"agentsec.sequence": i, "event.name": "agentsec.llm.started"} for i in (1, 2, 3)]
+    good = {"events": 3, "distinct_sequences": 3, "sequences": [1, 2, 3], "by_event": {"agentsec.llm.started": 3},
+            "naive_value_count": 6, "events_with_multivalue_sequence": 3}
+    assert reconcile(local, good)["reconciled"] is True  # multivalue fields alone are not a failure
+    assert "duplicate_events_indexed" in reconcile(local, {**good, "events": 4})["problems"] + reconcile(local, {**good, "events": 4, "sequences": [1, 2, 3, 3]})["problems"]
+    assert "count_mismatch local=3 indexed=2" in reconcile(local, {**good, "events": 2, "sequences": [1, 2]})["problems"]
+    assert "sequence_set_mismatch" in reconcile(local, {**good, "sequences": [1, 2, 4]})["problems"]

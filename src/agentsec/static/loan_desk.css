@@ -62,3 +62,5 @@ input[aria-invalid="true"],select[aria-invalid="true"],textarea[aria-invalid="tr
 .ld-link{color:var(--as-blue);margin-left:10px}
 @media(max-width:520px){.ld-facts{grid-template-columns:1fr}.ld-hero h1{font-size:1.45rem}}
 @media(prefers-reduced-motion:no-preference){.ld-steps li{transition:background .2s}}
+#ev-indexed[data-state="SPLUNK_VERIFIED"]{color:var(--as-green);font-weight:600}
+#ev-indexed[data-state="SPLUNK_MISMATCH"],#ev-indexed[data-state="STALE"]{color:var(--as-red);font-weight:600}
