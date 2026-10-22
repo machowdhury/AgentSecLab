@@ -1,0 +1,697 @@
+{
+ "global": {
+  "assets_changed": [
+   "src/agentsec/static/academy.css",
+   "src/agentsec/static/academy.js"
+  ],
+  "assets_removed": [],
+  "attack_routes_changed": {},
+  "attack_routes_new_in_head": [
+   "/academy/missions/loan-desk",
+   "/api/missions/loan-desk/status"
+  ],
+  "attack_rules_added": [
+   "['GET'] /academy/missions/loan-desk",
+   "['GET'] /api/missions/loan-desk/runs/<run_id>",
+   "['GET'] /api/missions/loan-desk/status",
+   "['POST'] /api/missions/loan-desk/runs",
+   "['POST'] /api/missions/loan-desk/runs/<run_id>/verify"
+  ],
+  "attack_rules_removed": [],
+  "attack_ui_pages_changed": {
+   "/academy": {
+    "counts": [
+     {
+      "a": 27,
+      "button": 1,
+      "img": 2
+     },
+     {
+      "a": 29,
+      "button": 1,
+      "img": 1
+     }
+    ],
+    "headings": [
+     [
+      "h1:Learn to investigate how AI agents actually behave.",
+      "h2:What you will be able to do",
+      "h3:Explain the system",
+      "h3:Predict before you look",
+      "h3:Investigate evidence",
+      "h3:Compare and explain",
+      "h2:First time here?",
+      "h2:Workshops",
+      "h3:MCP Tool Authorization",
+      "h3:Direct Prompt Injection",
+      "h3:RAG / Retrieved Context",
+      "h2:System readiness"
+     ],
+     [
+      "h1:Learn to investigate how AI agents actually behave.",
+      "h2:What you will be able to do",
+      "h3:Explain the system",
+      "h3:Predict before you look",
+      "h3:Investigate evidence",
+      "h3:Compare and explain",
+      "h2:First time here?",
+      "h2:Workshops",
+      "h3:MCP Tool Authorization",
+      "h3:Loan Desk: when the agent writes for the underwriter",
+      "h3:Direct Prompt Injection",
+      "h3:RAG / Retrieved Context",
+      "h2:System readiness"
+     ]
+    ],
+    "hrefs": [
+     [
+      "#main",
+      "/",
+      "/academy",
+      "/academy/foundations",
+      "/academy/labs/LAB-MCP-001",
+      "/academy/labs/LAB-MCP-001#investigate",
+      "/academy/labs/LAB-MCP-001#predict",
+      "/academy/labs/LAB-MCP-001#start",
+      "/academy/path",
+      "/academy/status",
+      "/acmebank",
+      "/en-US/app/agentsec/learner_path",
+      "/en-US/app/search/search",
+      "/labs/LAB-RAG-CONTEXT"
+     ],
+     [
+      "#main",
+      "/",
+      "/academy",
+      "/academy/foundations",
+      "/academy/labs/LAB-MCP-001",
+      "/academy/labs/LAB-MCP-001#investigate",
+      "/academy/labs/LAB-MCP-001#predict",
+      "/academy/labs/LAB-MCP-001#start",
+      "/academy/missions/loan-desk",
+      "/academy/path",
+      "/academy/status",
+      "/acmebank",
+      "/en-US/app/agentsec/learner_path",
+      "/en-US/app/search/search",
+      "/labs/LAB-RAG-CONTEXT"
+     ]
+    ],
+    "text_sha": [
+     "123d194a4797d6a6",
+     "97261c1b2ceadc04"
+    ],
+    "words": [
+     387,
+     434
+    ]
+   },
+   "/academy/foundations": {
+    "counts": [
+     {
+      "a": 21,
+      "button": 1,
+      "img": 2
+     },
+     {
+      "a": 22,
+      "button": 1,
+      "img": 1
+     }
+    ],
+    "hrefs": [
+     [
+      "#lesson-agent",
+      "#lesson-evidence",
+      "#lesson-llm",
+      "#lesson-tools",
+      "#main",
+      "/",
+      "/academy",
+      "/academy/foundations",
+      "/academy/labs/LAB-MCP-001",
+      "/academy/path",
+      "/academy/status",
+      "/acmebank",
+      "/en-US/app/agentsec/learner_path",
+      "/en-US/app/search/search"
+     ],
+     [
+      "#lesson-agent",
+      "#lesson-evidence",
+      "#lesson-llm",
+      "#lesson-tools",
+      "#main",
+      "/",
+      "/academy",
+      "/academy/foundations",
+      "/academy/labs/LAB-MCP-001",
+      "/academy/missions/loan-desk",
+      "/academy/path",
+      "/academy/status",
+      "/acmebank",
+      "/en-US/app/agentsec/learner_path",
+      "/en-US/app/search/search"
+     ]
+    ],
+    "text_sha": [
+     "9e02160b54bee96a",
+     "36c4df091fd7213c"
+    ],
+    "words": [
+     568,
+     570
+    ]
+   },
+   "/academy/labs/LAB-MCP-001": {
+    "counts": [
+     {
+      "a": 27,
+      "button": 25,
+      "form": 1,
+      "img": 2,
+      "input": 7,
+      "table": 1,
+      "textarea": 1
+     },
+     {
+      "a": 28,
+      "button": 25,
+      "form": 1,
+      "img": 1,
+      "input": 7,
+      "table": 1,
+      "textarea": 1
+     }
+    ],
+    "hrefs": [
+     [
+      "#attack",
+      "#baseline",
+      "#compare",
+      "#defend",
+      "#explain",
+      "#investigate",
+      "#main",
+      "#predict",
+      "#retest",
+      "#start",
+      "/",
+      "/academy",
+      "/academy/foundations",
+      "/academy/labs/LAB-MCP-001",
+      "/academy/path",
+      "/academy/status",
+      "/acmebank",
+      "/en-US/app/agentsec/learner_path",
+      "/en-US/app/search/search"
+     ],
+     [
+      "#attack",
+      "#baseline",
+      "#compare",
+      "#defend",
+      "#explain",
+      "#investigate",
+      "#main",
+      "#predict",
+      "#retest",
+      "#start",
+      "/",
+      "/academy",
+      "/academy/foundations",
+      "/academy/labs/LAB-MCP-001",
+      "/academy/missions/loan-desk",
+      "/academy/path",
+      "/academy/status",
+      "/acmebank",
+      "/en-US/app/agentsec/learner_path",
+      "/en-US/app/search/search"
+     ]
+    ],
+    "text_sha": [
+     "b7ef76e4c793247b",
+     "a2bff2d64f4a48f9"
+    ],
+    "words": [
+     1429,
+     1431
+    ]
+   },
+   "/academy/path": {
+    "counts": [
+     {
+      "a": 37,
+      "button": 2,
+      "img": 2
+     },
+     {
+      "a": 39,
+      "button": 2,
+      "img": 1
+     }
+    ],
+    "hrefs": [
+     [
+      "#main",
+      "/",
+      "/academy",
+      "/academy/foundations",
+      "/academy/labs/LAB-MCP-001",
+      "/academy/path",
+      "/academy/status",
+      "/acmebank",
+      "/en-US/app/agentsec/learner_path",
+      "/en-US/app/agentsec/ws_lab_advanced_capstone",
+      "/en-US/app/agentsec/ws_lab_blue_team_incident",
+      "/en-US/app/agentsec/ws_lab_external_evaluation_garak",
+      "/en-US/app/agentsec/ws_lab_mcp_003",
+      "/en-US/app/agentsec/ws_lab_mcp_004",
+      "/en-US/app/agentsec/ws_lab_mcp_005",
+      "/en-US/app/agentsec/ws_lab_mcp_006",
+      "/en-US/app/agentsec/ws_lab_mcp_catalog",
+      "/en-US/app/agentsec/ws_lab_multi_stage_incident",
+      "/en-US/app/agentsec/ws_lab_privacy_data_governance",
+      "/en-US/app/agentsec/ws_lab_scanner_runtime_evidence",
+      "/en-US/app/agentsec/ws_lab_threat_modeling",
+      "/en-US/app/search/search",
+      "/labs/LAB-AGENT-DELEGATION-001",
+      "/labs/LAB-AGENT-GOAL-INTEGRITY-001",
+      "/labs/LAB-AGENTSEC-CAPSTONE-001",
+      "/labs/LAB-MEMORY-001",
+      "/labs/LAB-RAG-CONTEXT"
+     ],
+     [
+      "#main",
+      "/",
+      "/academy",
+      "/academy/foundations",
+      "/academy/labs/LAB-MCP-001",
+      "/academy/missions/loan-desk",
+      "/academy/path",
+      "/academy/status",
+      "/acmebank",
+      "/en-US/app/agentsec/learner_path",
+      "/en-US/app/agentsec/ws_lab_advanced_capstone",
+      "/en-US/app/agentsec/ws_lab_blue_team_incident",
+      "/en-US/app/agentsec/ws_lab_external_evaluation_garak",
+      "/en-US/app/agentsec/ws_lab_mcp_003",
+      "/en-US/app/agentsec/ws_lab_mcp_004",
+      "/en-US/app/agentsec/ws_lab_mcp_005",
+      "/en-US/app/agentsec/ws_lab_mcp_006",
+      "/en-US/app/agentsec/ws_lab_mcp_catalog",
+      "/en-US/app/agentsec/ws_lab_multi_stage_incident",
+      "/en-US/app/agentsec/ws_lab_privacy_data_governance",
+      "/en-US/app/agentsec/ws_lab_scanner_runtime_evidence",
+      "/en-US/app/agentsec/ws_lab_threat_modeling",
+      "/en-US/app/search/search",
+      "/labs/LAB-AGENT-DELEGATION-001",
+      "/labs/LAB-AGENT-GOAL-INTEGRITY-001",
+      "/labs/LAB-AGENTSEC-CAPSTONE-001",
+      "/labs/LAB-MEMORY-001",
+      "/labs/LAB-RAG-CONTEXT"
+     ]
+    ],
+    "text_sha": [
+     "a4d1881435cf853b",
+     "aaa0f3c345c3c1ef"
+    ],
+    "words": [
+     522,
+     541
+    ]
+   },
+   "/academy/status": {
+    "counts": [
+     {
+      "a": 16,
+      "button": 2,
+      "img": 2
+     },
+     {
+      "a": 17,
+      "button": 2,
+      "img": 1
+     }
+    ],
+    "hrefs": [
+     [
+      "#main",
+      "/",
+      "/academy",
+      "/academy/foundations",
+      "/academy/labs/LAB-MCP-001",
+      "/academy/path",
+      "/academy/status",
+      "/acmebank",
+      "/en-US/app/agentsec/learner_path",
+      "/en-US/app/search/search"
+     ],
+     [
+      "#main",
+      "/",
+      "/academy",
+      "/academy/foundations",
+      "/academy/labs/LAB-MCP-001",
+      "/academy/missions/loan-desk",
+      "/academy/path",
+      "/academy/status",
+      "/acmebank",
+      "/en-US/app/agentsec/learner_path",
+      "/en-US/app/search/search"
+     ]
+    ],
+    "text_sha": [
+     "b46036915872f9c9",
+     "9c14132f68c5fe73"
+    ],
+    "words": [
+     171,
+     173
+    ]
+   }
+  },
+  "attack_ui_pages_missing_in_head": [],
+  "attack_ui_pages_new_in_head": [
+   "/academy/missions/loan-desk",
+   "/labs/LAB-LOANDESK-001"
+  ],
+  "bank_routes_changed": {},
+  "bank_routes_new_in_head": [
+   "/api/v1/loan-desk/status",
+   "/loan-desk"
+  ],
+  "bank_rules_added": [
+   "['GET'] /api/v1/loan-desk/runs/<run_id>",
+   "['GET'] /api/v1/loan-desk/runs/<run_id>/events.ndjson",
+   "['GET'] /api/v1/loan-desk/status",
+   "['GET'] /loan-desk",
+   "['POST'] /api/v1/loan-desk/applications",
+   "['POST'] /api/v1/loan-desk/runs/<run_id>/verify"
+  ],
+  "bank_rules_removed": [],
+  "banking_ui_pages_changed": {},
+  "banking_ui_pages_missing_in_head": [],
+  "banking_ui_pages_new_in_head": [],
+  "checkpoints_same": true,
+  "curriculum_path_same_prefix": true,
+  "launches_same": {
+   "LAB-AGENT-DELEGATION-001|A2A-001|ATTACK": true,
+   "LAB-AGENT-DELEGATION-001|A2A-001|RETEST": true,
+   "LAB-AGENT-DELEGATION-001|A2A-BASELINE|BASELINE": true,
+   "LAB-AGENT-GOAL-INTEGRITY-001|GOAL-001|ATTACK": true,
+   "LAB-AGENT-GOAL-INTEGRITY-001|GOAL-001|RETEST": true,
+   "LAB-AGENT-GOAL-INTEGRITY-001|GOAL-BASELINE|BASELINE": true,
+   "LAB-AGENTSEC-CAPSTONE-001|CAPSTONE-001|ATTACK": true,
+   "LAB-AGENTSEC-CAPSTONE-001|CAPSTONE-001|RETEST": true,
+   "LAB-AGENTSEC-CAPSTONE-001|CAPSTONE-BASELINE|BASELINE": true,
+   "LAB-MCP-001|MCP-001|BASELINE": true,
+   "LAB-MCP-001|MCP-002|ATTACK": true,
+   "LAB-MCP-001|MCP-002|RETEST": true,
+   "LAB-MEMORY-001|MEMORY-001|ATTACK": true,
+   "LAB-MEMORY-001|MEMORY-001|RETEST": true,
+   "LAB-MEMORY-001|MEMORY-BASELINE|BASELINE": true,
+   "LAB-PI-001|ATK-001|BASELINE": true,
+   "LAB-PI-001|ATK-002|ATTACK": true,
+   "LAB-PI-001|ATK-002|RETEST": true,
+   "LAB-RAG-CONTEXT|RAG-001|ATTACK": true,
+   "LAB-RAG-CONTEXT|RAG-001|RETEST": true,
+   "LAB-RAG-CONTEXT|RAG-BASELINE|BASELINE": true
+  },
+  "legacy_atk002_same": true,
+  "registry_ids_added_in_head": [
+   "LAB-LOANDESK-001"
+  ],
+  "registry_ids_missing_in_head": [],
+  "splunk_conf_changed": [
+   "app.conf"
+  ],
+  "splunk_static_changed": [
+   "splunk_app/agentsec/appserver/static/agentsec_learner_path.js"
+  ],
+  "splunk_static_removed": [],
+  "templates_changed": [
+   "src/agentsec/templates/academy/base.html",
+   "src/agentsec/templates/academy/home.html"
+  ],
+  "templates_removed": [],
+  "views_added": [
+   "ws_lab_loandesk_001.xml"
+  ],
+  "views_changed": [
+   "ws_agentsec_home.xml"
+  ],
+  "views_removed": []
+ },
+ "per_lab": {
+  "LAB-A2A-AUTH-DELEGATION": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-ADVANCED-CAPSTONE-MASTERY-001": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-AGENT-DELEGATION-001": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-AGENT-GOAL-INTEGRITY-001": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-AGENT-IDENTITY-NHI": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-AGENTSEC-CAPSTONE-001": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-ASSET-INVENTORY": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-BLUE-TEAM-INCIDENT-001": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-CHANGE-BOUNDS": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-CODE-AGENT-BOUNDS": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-COMPONENT-PROVENANCE": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-CREDENTIAL-LIFETIME": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-DETECTION-ENGINEERING": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-EXTERNAL-EVALUATION-GARAK": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-HITL-APPROVAL": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-MCP-001": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-MCP-003": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-MCP-004": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-MCP-005": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-MCP-006": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-MCP-CATALOG": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-MEMORY-001": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-MULTI-STAGE-INCIDENT-001": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-PI-001": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-PRIVACY-DATA-GOVERNANCE-001": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-RAG-CONTEXT": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-RAG-PURPOSE": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-RECALL-ISOLATION": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-SCANNER-RUNTIME-EVIDENCE": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-SPLUNK-DEFENDER-BRIDGE": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  },
+  "LAB-THREAT-MODELING-001": {
+   "files_added": [],
+   "files_changed": [],
+   "files_removed": [],
+   "launches": [],
+   "pages": [],
+   "registry_changed": []
+  }
+ }
+}
