@@ -86,7 +86,7 @@ Without `--remote`, `lab-up.sh` forces `AGENTSEC_BIND_ADDRESS=127.0.0.1` for por
 
 Remote install, firewall rules, and the public URL: [REMOTE_ACCESS.md](REMOTE_ACCESS.md).
 
-`lab-up.sh` does not itself run `ollama pull`. Starting the stack starts container `agentsec_ollama`. That container's entrypoint, `scripts/ollama_init.sh`, tries `ollama pull` for `OLLAMA_MODEL` (default `llama3.2:1b`). If the pull fails, the entrypoint continues, and the container can still become healthy. `lab-up.sh` does not load a historical Splunk index or a sample `run.id`. It does not delete volumes.
+`lab-up.sh` first runs `scripts/hec-certs.sh`, which creates the HEC TLS certificate under `.certs/` on first install and reuses it afterward (see [HEC TLS](AGENTSEC_ENVIRONMENT.md#hec-tls)). `lab-up.sh` does not itself run `ollama pull`. Starting the stack starts container `agentsec_ollama`. That container's entrypoint, `scripts/ollama_init.sh`, tries `ollama pull` for `OLLAMA_MODEL` (default `llama3.2:1b`). If the pull fails, the entrypoint continues, and the container can still become healthy. `lab-up.sh` does not load a historical Splunk index or a sample `run.id`. It does not delete volumes.
 
 Help text in the script says the first Splunk boot can take 10–20 minutes and that later starts are usually faster. That sentence is the script's planning note, not a measured duration.
 
