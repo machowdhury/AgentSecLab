@@ -14,8 +14,13 @@ from agentsec.scanners.hec_events import events_from_pack as scanner_events
 from scripts import ingest_lab_mcp_catalog_scanner_hec as ingest
 
 
-def test_hec_unavailable_is_explicit(monkeypatch):
-    monkeypatch.setattr(ingest, "load_env_value", lambda _key: "not-printed")
+def test_hec_unavailable_is_explicit(monkeypatch, tmp_path):
+    ca = tmp_path / "hec-ca.crt"
+    ca.write_text("stub")  # post_hec requires a CA file; the TLS context itself is stubbed
+    monkeypatch.setattr(
+        ingest, "load_env_value", lambda key: str(ca) if key == "AGENTSEC_HEC_CA_FILE" else "not-printed"
+    )
+    monkeypatch.setattr(ingest.ssl, "create_default_context", lambda **_kw: None)
 
     def unavailable(*_args, **_kwargs):
         raise urllib.error.URLError("connection refused")

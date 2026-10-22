@@ -8,6 +8,7 @@ Does not print secrets. Uses SPLUNK_HEC_TOKEN from the repository .env.
 from __future__ import annotations
 
 import json
+import ssl
 import subprocess
 import sys
 import urllib.error
@@ -93,7 +94,12 @@ def post_hec(payload: dict) -> int:
     token = load_env_value("SPLUNK_HEC_TOKEN")
     if not token:
         raise SystemExit("SPLUNK_HEC_TOKEN missing from .env")
-    url = "http://127.0.0.1:8088/services/collector/event"
+    url = "https://localhost:8088/services/collector/event"
+    ca = load_env_value("AGENTSEC_HEC_CA_FILE") or ".certs/hec-ca.crt"
+    ca_path = Path(ca) if Path(ca).is_absolute() else ROOT / ca
+    if not ca_path.is_file():
+        raise SystemExit(f"HEC CA file missing: {ca_path}. Run scripts/hec-certs.sh")
+    context = ssl.create_default_context(cafile=str(ca_path))  # verification stays on
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     request = urllib.request.Request(
         url,
@@ -105,7 +111,7 @@ def post_hec(payload: dict) -> int:
         },
     )
     try:
-        with urllib.request.urlopen(request, timeout=30) as response:
+        with urllib.request.urlopen(request, timeout=30, context=context) as response:
             return int(response.status)
     except urllib.error.HTTPError as exc:
         return int(exc.code)

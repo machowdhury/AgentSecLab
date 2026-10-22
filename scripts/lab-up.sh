@@ -65,6 +65,14 @@ if [ ! -f "$ROOT/.env" ]; then
   exit 1
 fi
 
+# HEC TLS material: create once (LOCAL_SELF_SIGNED) or validate admin-supplied files.
+# Reads only the non-secret AGENTSEC_HEC_* settings from .env; fails fast on a bad setup.
+for k in AGENTSEC_HEC_TLS_MODE AGENTSEC_HEC_CERT_FILE AGENTSEC_HEC_KEY_FILE AGENTSEC_HEC_CA_FILE; do
+  v="$(sed -n "s/^${k}=//p" "$ROOT/.env" | tail -n 1)"
+  [ -z "$v" ] || export "$k=$v"
+done
+"$ROOT/scripts/hec-certs.sh" || exit 1
+
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local --env-file $ROOT/.env"
 
 log() { printf '[lab-up] %s\n' "$*"; }

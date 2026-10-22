@@ -116,16 +116,17 @@ services:
     volumes:
       - ./config/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml:ro
       - shared_telemetry:/var/log/agentsec
+      # Explicit HEC CA trust (public cert only). Verification stays on.
+      - ${AGENTSEC_HEC_CA_FILE:-./.certs/hec-ca.crt}:/certs/hec-ca.crt:ro
     command: ["--config=/etc/otelcol-contrib/config.yaml"]
     environment:
       # Container DNS name, not the compose service alias (this host's Splunk
-      # endpoint has aliases=[]). HEC on this volume is TLS; HTTP is reset.
+      # endpoint has aliases=[]). HEC is HTTPS and the name must match a cert SAN.
       - SPLUNK_HEC_ENDPOINT=${SPLUNK_HEC_ENDPOINT:-https://agentsec_splunk:8088/services/collector/event}
       - SPLUNK_HEC_TOKEN=${SPLUNK_HEC_TOKEN}
       - SPLUNK_HEC_INDEX=${SPLUNK_HEC_INDEX:-agentsec_telemetry}
       - SPLUNK_HEC_SOURCETYPE=${SPLUNK_HEC_SOURCETYPE:-otel:agentic:json}
       - SPLUNK_HEC_SOURCE=${SPLUNK_HEC_SOURCE:-agentsec-otel-collector}
-      - SPLUNK_HEC_TLS_SKIP_VERIFY=${SPLUNK_HEC_TLS_SKIP_VERIFY:-true}
     ports:
       - "127.0.0.1:4317:4317"
       - "127.0.0.1:4318:4318"
@@ -164,6 +165,7 @@ services:
       - AGENTSEC_SPECIMEN_ROOT=/specimens
     volumes:
       - ./scripts/splunk_hec_init.sh:/splunk_hec_init.sh:ro
+      - ${AGENTSEC_HEC_CA_FILE:-./.certs/hec-ca.crt}:/certs/hec-ca.crt:ro
       # Committed canonical REPLAY packs. Seeded here because this service
       # already owns the index and the HEC token.
       - ./learning/level_1:/specimens:ro
@@ -190,12 +192,15 @@ services:
       - shared_telemetry:/var/log/agentsec
       # Named volume: writable so Ansible chown works. Not a :ro bind of the repo.
       - splunk_app_agentsec:/opt/splunk/etc/apps/agentsec
+      # HEC TLS: the [http] stanza ships in the staged app (splunk_app/agentsec/local/inputs.conf).
+      # No :ro bind under etc/ (Ansible chowns it); the cert/key PEM sits outside /opt/splunk (Ansible chowns that tree).
+      - ./.certs/hec.pem:/opt/agentsec-certs/hec.pem:ro
     environment:
       - SPLUNK_START_ARGS=--accept-license
       - SPLUNK_GENERAL_TERMS=--accept-sgt-current-at-splunk-com
       - SPLUNK_PASSWORD=${SPLUNK_PASSWORD}
       - SPLUNK_HEC_TOKEN=${SPLUNK_HEC_TOKEN}
-      - SPLUNK_HEC_SSL=0
+      - SPLUNK_HEC_SSL=1
     restart: unless-stopped
     healthcheck:
       test:

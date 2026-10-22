@@ -42,7 +42,9 @@ exporters:
     sourcetype: "${SPLUNK_HEC_SOURCETYPE}"
     source: "${SPLUNK_HEC_SOURCE}"
     tls:
-      insecure_skip_verify: ${SPLUNK_HEC_TLS_SKIP_VERIFY}
+      # Explicit trust, hostname verified against the cert SANs. No skip-verify.
+      ca_file: /certs/hec-ca.crt
+      insecure_skip_verify: false
     retry_on_failure:
       enabled: true
       initial_interval: 5s
