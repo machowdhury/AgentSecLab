@@ -1,0 +1,171 @@
+{
+  "schema_version": "1.0.0",
+  "lab_id": "LAB-LOANDESK-001",
+  "title": "Loan Desk: Agent-Authored Content",
+  "tier": "GUIDED MISSION",
+  "level": "L1",
+  "level_exit": "PRACTITIONER",
+  "duration_minutes": {
+    "min": 25,
+    "max": 40,
+    "source": "Author estimate from the Batch 3 end-to-end runs (about 4 minutes of model time plus reading); not measured with learners."
+  },
+  "prerequisites": [
+    "L0 orientation.",
+    "A running lab with a local Ollama model (llama3.2:latest)."
+  ],
+  "objectives": [
+    "Distinguish a model's proposal, a policy decision and an executed handler as three separate facts.",
+    "Explain why ALLOW is not 'safe' when the content was never checked.",
+    "Reproduce an injection that plants attacker text in a human work queue and prove it from recorded events.",
+    "Apply argument-level authorization, retest, and separate 'attack blocked' from 'business task completed'.",
+    "Separate local evidence from Splunk-verified evidence."
+  ],
+  "steps": [
+    {
+      "id": "understand",
+      "title": "Understand: meet the Loan Desk",
+      "brief": {
+        "doing": "Reading how the Loan Desk is built and what is real.",
+        "why": "You can only judge evidence once you know which parts are trusted and which are deliberately weak.",
+        "todo": "Read the flow and the lab boundaries, then continue.",
+        "evidence": "None yet.",
+        "learn": "A model proposes, a policy engine decides, a handler runs. Those are three different facts."
+      }
+    },
+    {
+      "id": "explore",
+      "title": "Explore: run a normal application",
+      "brief": {
+        "doing": "Submitting an ordinary application and watching the agent work.",
+        "why": "Normal behaviour is the baseline you will compare the attack against.",
+        "todo": "Edit any field you like, then run it. This runs in the lab's starting BASELINE posture. Notes are optional.",
+        "evidence": "The timeline: what the model proposed, what policy decided, what actually ran, and the note the agent filed.",
+        "learn": "Each tool call has separate facts: proposed, decided, executed."
+      }
+    },
+    {
+      "id": "predict",
+      "title": "Predict: before you attack",
+      "brief": {
+        "doing": "Committing to what you expect before any evidence exists.",
+        "why": "A prediction you did not make cannot be wrong, so it teaches nothing.",
+        "todo": "Read the planted text, answer three questions, lock them.",
+        "evidence": "None. Evidence arrives after you lock.",
+        "learn": "Where your mental model of agents and controls is right or wrong."
+      }
+    },
+    {
+      "id": "attack",
+      "title": "Attack: submit the planted application",
+      "brief": {
+        "doing": "Running the attack for real against the BASELINE Loan Desk.",
+        "why": "This is a live run: a real model, real policy decisions, real events.",
+        "todo": "Launch it. You may edit the planted text first.",
+        "evidence": "Wait for the run to finish; the timeline fills in as it happens.",
+        "learn": "Whether a valid, in-scope action can still carry an attacker's content."
+      }
+    },
+    {
+      "id": "observe",
+      "title": "Observe: what happened",
+      "brief": {
+        "doing": "Reading the result and checking your prediction.",
+        "why": "Surprises are where the learning is.",
+        "todo": "Compare each answer you locked with what the run actually did.",
+        "evidence": "The queue, the policy decision for the review, and whether its handler began.",
+        "learn": "ALLOW means policy was satisfied. It does not mean the action was safe."
+      }
+    },
+    {
+      "id": "investigate",
+      "title": "Investigate: prove it in Splunk",
+      "brief": {
+        "doing": "Finding the attack run in Splunk and answering from recorded events.",
+        "why": "The page shows what AcmeBank emitted locally. Only Splunk shows what was indexed.",
+        "todo": "Copy a search, run it in Splunk, then enter what you see.",
+        "evidence": "Three searches: the run's events, the policy decision for the review, and the filed note.",
+        "learn": "Local evidence and Splunk evidence are different claims; the host verifier uses a fixed, read-only search and never gives this page a credential. Counting values instead of events inflates the number."
+      }
+    },
+    {
+      "id": "defend",
+      "title": "Defend: change one control",
+      "brief": {
+        "doing": "Choosing how the review note is controlled.",
+        "why": "The attack worked inside valid scope, so the existing checks had nothing to refuse.",
+        "todo": "Pick the posture and apply it. You can switch back at any time.",
+        "evidence": "The rule text and what it changes.",
+        "learn": "Argument-level authorization: control what an allowed tool may carry, not only who may call it."
+      }
+    },
+    {
+      "id": "retest",
+      "title": "Retest: same attack, new posture",
+      "brief": {
+        "doing": "Replaying the exact planted text against your chosen posture.",
+        "why": "A defense is a claim until the same attack is run again.",
+        "todo": "Launch the retest. It uses the planted text from the Attack step.",
+        "evidence": "The review decision, the queue, and whether the handler ran.",
+        "learn": "Whether the change blocked the attack without breaking the business workflow."
+      }
+    },
+    {
+      "id": "compare",
+      "title": "Compare: before and after",
+      "brief": {
+        "doing": "Setting your two live runs side by side.",
+        "why": "Only a difference you can point to counts as evidence.",
+        "todo": "Read the rows; note which differences come from the posture and which from model randomness.",
+        "evidence": "Posture, the review decision, the queue note, and event counts.",
+        "learn": "A defense is proven by the same input producing a different, explained outcome."
+      }
+    },
+    {
+      "id": "explain",
+      "title": "Explain: say it in your own words",
+      "brief": {
+        "doing": "Answering four questions from your own runs, then writing the story.",
+        "why": "If you can explain it, you understood it.",
+        "todo": "Pick the answers, then write two or three sentences.",
+        "evidence": "Your attack and retest runs.",
+        "learn": "How to separate what was observed from what you infer."
+      }
+    }
+  ],
+  "checks": [
+    {
+      "id": "LOANDESK-Q01",
+      "question": "Which control decided whether the review note could be filed?",
+      "answer": "CTRL-LOANDESK-001, the policy engine inside AcmeBank.",
+      "source": "learning/level_1/LAB-LOANDESK-001/knowledge-check.md"
+    },
+    {
+      "id": "LOANDESK-Q02",
+      "question": "In the BASELINE attack policy said ALLOW. What does that tell you?",
+      "answer": "The tool, scope and applicant were valid; the note content was never checked.",
+      "source": "learning/level_1/LAB-LOANDESK-001/knowledge-check.md"
+    },
+    {
+      "id": "LOANDESK-Q03",
+      "question": "What did the HARDENED posture change?",
+      "answer": "The note must be exactly one reason code, otherwise the call is denied before its handler runs.",
+      "source": "learning/level_1/LAB-LOANDESK-001/knowledge-check.md"
+    },
+    {
+      "id": "LOANDESK-Q04",
+      "question": "Which recorded event proves that a handler actually began?",
+      "answer": "agentsec.mcp.started.",
+      "source": "learning/level_1/LAB-LOANDESK-001/knowledge-check.md"
+    }
+  ],
+  "completion": {
+    "criteria": [
+      "Prediction locked before the attack.",
+      "Attack and retest runs both finished.",
+      "Defense applied and compared.",
+      "All four explain questions answered correctly and a written explanation of at least 60 characters."
+    ]
+  },
+  "source_note": "Steps are extracted from src/agentsec/templates/academy/mission_loan_desk.html; checks from knowledge-check.md."
+}

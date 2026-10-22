@@ -1,0 +1,6 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"=__RUN_ID__
+| eval ev=mvindex(mvdedup('event.name'),0), seq=tonumber(mvindex(mvdedup('agentsec.sequence'),0))
+| stats count AS events_indexed dc(seq) AS distinct_sequences min(seq) AS first_seq max(seq) AS last_seq max(eval(if(ev="agentsec.run.started",1,0))) AS has_start max(eval(if(ev="agentsec.run.completed" OR ev="agentsec.run.failed",1,0))) AS has_end
+| eval gaps=(last_seq-first_seq+1)-distinct_sequences
+| eval availability=case(has_start=1 AND has_end=1 AND gaps=0, "COMPLETE: run start to run end, no sequence gaps", has_start=1 AND has_end=0, "INCOMPLETE: no run end event yet (still indexing, or the run did not finish)", gaps>0, "GAPS: ".gaps." sequence numbers missing", true(), "PARTIAL")
+| table events_indexed, distinct_sequences, first_seq, last_seq, gaps, availability

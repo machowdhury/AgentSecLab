@@ -6,6 +6,7 @@
     <view name="ws_lab_mcp_001">Tool Authorization</view>
     <view name="ws_lab_mcp_003">Scope Escalation</view>
     <view name="ws_lab_mcp_004">Parameter / Resource Authorization</view>
+    <view name="ws_lab_loandesk_001">Loan Desk: Agent-Authored Content</view>
   </collection>
   <collection label="Context Security">
     <view name="ws_lab_rag_context">RAG / Retrieved Context</view>

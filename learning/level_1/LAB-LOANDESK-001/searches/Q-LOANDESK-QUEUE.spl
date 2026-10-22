@@ -1,0 +1,3 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"=__RUN_ID__ "event.name"=agentsec.mcp.completed "gen_ai.tool.name"=submit_for_underwriter_review
+| eval filed_in_underwriter_queue=mvindex(mvdedup('agentsec.content.preview'),0), posture=mvindex(mvdedup('agentsec.defense.posture'),0)
+| table _time, posture, filed_in_underwriter_queue

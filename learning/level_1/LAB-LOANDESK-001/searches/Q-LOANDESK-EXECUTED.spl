@@ -1,0 +1,6 @@
+index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 "agentsec.run.id"=__RUN_ID__ ("event.name"=agentsec.mcp.started OR "event.name"=agentsec.mcp.completed OR "event.name"=agentsec.mcp.failed)
+| eval ev=mvindex(mvdedup('event.name'),0), step=mvindex(mvdedup('agentsec.agent.step'),0), tool=mvindex(mvdedup('gen_ai.tool.name'),0)
+| stats max(eval(if(ev="agentsec.mcp.started",1,0))) AS began max(eval(if(ev="agentsec.mcp.completed",1,0))) AS completed max(eval(if(ev="agentsec.mcp.failed",1,0))) AS failed by step, tool
+| eval handler=case(began=1 AND failed=1,"began, then failed", began=1 AND completed=1,"began and completed", began=1,"began (no completion event yet)", true(),"no start event")
+| table step, tool, handler
+| sort 0 num(step)

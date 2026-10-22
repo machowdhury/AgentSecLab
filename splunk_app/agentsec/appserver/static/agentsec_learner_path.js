@@ -33,6 +33,13 @@
     "href": "/app/agentsec/ws_lab_mcp_004"
   },
   {
+    "id": "ws_lab_loandesk_001",
+    "title": "Loan Desk: Agent-Authored Content",
+    "level": "L1",
+    "mode": "LIVE",
+    "href": "/app/agentsec/ws_lab_loandesk_001"
+  },
+  {
     "id": "ws_lab_rag_context",
     "title": "RAG / Retrieved Context",
     "level": "L2",

@@ -41,6 +41,8 @@ LAB_BOUNDARIES = (
 )
 
 #: LIVE labs that have an existing Attack Service page outside the Academy.
+LAB_LOANDESK = "LAB-LOANDESK-001"  # first-class Academy mission (src/agentsec/mission_loan_desk.py)
+
 _LIVE_PAGES = {
     LAB_PI: "/",
 }
@@ -161,6 +163,8 @@ def _curriculum_levels() -> list[dict]:
             lab_id = row["lab_id"]
             if lab_id == LAB_MCP:
                 href, surface = "/academy/labs/LAB-MCP-001", "ACADEMY"
+            elif lab_id == LAB_LOANDESK:
+                href, surface = "/academy/missions/loan-desk", "ACADEMY"
             elif row.get("mode") == "LIVE":
                 href, surface = _LIVE_PAGES.get(lab_id, f"/labs/{lab_id}"), "ATTACK SERVICE"
             else:
@@ -232,7 +236,7 @@ def register_academy(app: Flask, *, launcher, client, artifacts_dir: Path, versi
             {**lab, "level_title": level["title"]}
             for level in levels
             for lab in level["labs"]
-            if lab["mode"] == "LIVE" and lab["lab_id"] != LAB_MCP
+            if lab["mode"] == "LIVE" and lab["lab_id"] not in (LAB_MCP, LAB_LOANDESK)
         ][:2]
         return render("academy/home.html", "home", levels=levels, other_live=other_live)
 
