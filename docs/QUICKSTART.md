@@ -202,3 +202,7 @@ Specimen ids printed on a dashboard are reference evidence. Investigate the `run
 ## 15. More help
 
 [TROUBLESHOOTING.md](TROUBLESHOOTING.md) · [OPERATIONS.md](OPERATIONS.md) · [LIVE_VS_REPLAY.md](LIVE_VS_REPLAY.md) · [AGENTSEC_RELEASE_LAB_MATRIX.md](AGENTSEC_RELEASE_LAB_MATRIX.md) · [INSTRUCTOR_GUIDE.md](INSTRUCTOR_GUIDE.md)
+
+
+## Loan Desk mission
+After the lab is READY, open http://127.0.0.1:5001/academy and start **Loan Desk Mission**. The start procedure, evidence states and troubleshooting are in [LOAN_DESK_MISSION.md](LOAN_DESK_MISSION.md). It needs `llama3.2:latest` in your host Ollama.

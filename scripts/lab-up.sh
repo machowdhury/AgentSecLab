@@ -180,6 +180,8 @@ if [ "$WAIT_READY" -eq 1 ]; then
     set -e
     if [ "$ready_rc" -eq 0 ]; then
       log "Service health check exited 0."
+      # Host-side evidence verifier for the Loan Desk mission (no port, no credential; docker + python3 only).
+      "$ROOT/scripts/loan_desk_verifier.sh" start || log "Loan Desk evidence verifier not started; mission evidence stays NOT VERIFIED."
       log "If lab-ready printed MODEL ABSENT, LIVE generation is DEGRADED. That is not a PASS."
       elapsed
       exit 0
@@ -198,5 +200,6 @@ if [ "$WAIT_READY" -eq 1 ]; then
   exit 1
 fi
 
+"$ROOT/scripts/loan_desk_verifier.sh" start || true
 log "Started without readiness wait. Run ./scripts/lab-ready.sh later."
 elapsed

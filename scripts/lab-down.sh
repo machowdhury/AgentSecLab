@@ -13,6 +13,7 @@ fi
 
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local --env-file $ROOT/.env"
 
+"$ROOT/scripts/loan_desk_verifier.sh" stop || true
 printf '[lab-down] Stopping AgentSec containers (volumes preserved).\n'
 $COMPOSE down
 printf '[lab-down] Stopped. Indexed Splunk data and named volumes remain.\n'
