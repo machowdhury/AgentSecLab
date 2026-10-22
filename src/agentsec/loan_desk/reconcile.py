@@ -9,13 +9,17 @@ from __future__ import annotations
 import csv
 import io
 import json
+import os
 import re
 import subprocess
 import time
 from collections import Counter
 from typing import Callable
 
-SPLUNK_CONTAINER = "agentsec_splunk"
+# Overridable so a disposable copy of the lab can be verified without ever touching the real Splunk container.
+SPLUNK_CONTAINER = os.environ.get("AGENTSEC_SPLUNK_CONTAINER", "agentsec_splunk")
+if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,62}", SPLUNK_CONTAINER):
+    raise ValueError("AGENTSEC_SPLUNK_CONTAINER is not a valid container name")
 UUID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
 BASE = 'index=agentsec_telemetry sourcetype="otel:agentic:json" earliest=-24h "agentsec.run.id"="{run}"'
 

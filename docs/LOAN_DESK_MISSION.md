@@ -19,6 +19,6 @@ Stop with `./scripts/lab-down.sh` (also stops the verifier; volumes are kept).
 ## Troubleshooting
 - "The Loan Desk is not reachable": AcmeBank is down; `./scripts/lab-ready.sh`.
 - "Model unavailable": `ollama list` on the host must show `llama3.2:latest`.
-- Verifier offline: `./scripts/loan_desk_verifier.sh status|start`; log at `artifacts/loan_desk/verifier.log`.
+- Verifier offline: `./scripts/loan_desk_verifier.sh status|start`; log at `~/.local/state/agentsec/loan_desk/verifier.log` (host-only; override with `AGENTSEC_VERIFIER_STATE_DIR`).
 - Splunk view: `ws_lab_loandesk_001` (Foundations). Paste the run.id into *LIVE: your run.id*.
 - Design and limits: `docs/reviews/batch4/VERIFICATION_BRIDGE.md`. Duplicate fields in Splunk: `docs/reviews/batch4/SEQUENCE_DUPLICATION.md`.

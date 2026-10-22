@@ -83,17 +83,36 @@ class OllamaChat:
             pass
         return {}
 
-    def available(self) -> tuple[bool, str | None]:
-        """Probe the same endpoint chat() uses, so the status shown can never disagree with the run."""
+    def readiness(self) -> dict:
+        """First-run readiness: what is reachable, what is installed, and the exact manual fix. Never downloads anything."""
+        want = self.name if ":" in self.name else self.name + ":latest"
+        out = {"model": want, "ollama_reachable": False, "model_installed": False, "installed_models": [], "fix": None}
         try:
             r = requests.get(f"{self.base_url}/api/tags", timeout=3)
             names = [m.get("name", "") for m in r.json().get("models", [])]
         except (requests.RequestException, ValueError):
-            return False, "Ollama is not reachable from AcmeBank."
+            out["fix"] = {"kind": "start_ollama", "command": "ollama serve",
+                          "where": "on the machine that should run Ollama (or start the Ollama app)",
+                          "note": "AcmeBank reaches Ollama through OLLAMA_BASE_URL in .env. Nothing is downloaded by the lab."}
+            return out
         if r.status_code != 200:
-            return False, "Ollama returned an error."
-        want = self.name if ":" in self.name else self.name + ":latest"
-        return (True, None) if want in names else (False, f"Ollama is reachable but model {self.name!r} is not installed.")
+            out["fix"] = {"kind": "ollama_error", "command": None, "where": None, "note": "Ollama answered with an error. Check its log."}
+            return out
+        out.update(ollama_reachable=True, installed_models=sorted(names)[:20], model_installed=want in names)
+        if not out["model_installed"]:
+            out["fix"] = {"kind": "pull_model", "command": f"ollama pull {want}", "where": "on the machine that runs the Ollama AcmeBank is configured to use",
+                          "note": "The lab never downloads models for you. If the pull fails with a certificate error (x509), "
+                                  "use your organisation's approved certificate process; do not disable TLS verification."}
+        return out
+
+    def available(self) -> tuple[bool, str | None]:
+        """Probe the same endpoint chat() uses, so the status shown can never disagree with the run."""
+        rd = self.readiness()
+        if not rd["ollama_reachable"]:
+            return False, "Ollama is not reachable from AcmeBank."
+        if not rd["model_installed"]:
+            return False, f"Ollama is reachable but model {self.name!r} is not installed."
+        return True, None
 
     def chat(self, messages: list[dict]) -> ModelReply:
         t0 = time.monotonic()

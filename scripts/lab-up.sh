@@ -5,6 +5,8 @@ set -eu
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 cd "$ROOT"
+# Loan Desk bridge directories must exist before compose, or Docker creates them root-owned.
+mkdir -p "$ROOT/artifacts/loan_desk/requests" "$ROOT/artifacts/loan_desk/receipts"
 
 REFRESH_APP=0
 BUILD=0

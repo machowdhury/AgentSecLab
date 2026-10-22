@@ -32,7 +32,6 @@ def post_launch(specimen_id: str, mode: str, profile: str) -> dict:
         {
             "lab_id": "LAB-PI-001",
             "specimen_id": specimen_id,
-            "profile": profile,
             "mode": mode,
             "execution": "live",
         }

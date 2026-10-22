@@ -12,7 +12,7 @@
   },
   "prerequisites": [
     "L0 orientation.",
-    "A running lab with a local Ollama model (llama3.2:latest)."
+    "A running lab with a local Ollama model (llama3.2:latest). The page checks this for you in step 1 and shows the exact command if it is missing; the lab never downloads a model."
   ],
   "objectives": [
     "Distinguish a model's proposal, a policy decision and an executed handler as three separate facts.",

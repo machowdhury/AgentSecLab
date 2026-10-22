@@ -908,10 +908,12 @@
       gateMsg.hidden = false; gateMsg.textContent = LABELS[step] + " is locked. " + why;
       if (!current) step = "understand"; else return;
     } else { gateMsg.hidden = true; gateMsg.textContent = ""; }
+    var first = current === null;
     current = step; state.step = step; save();
     qa("[data-step]").forEach(function (s) { s.hidden = s.getAttribute("data-step") !== step; });
     paintStepper();
-    if (window.location.hash !== "#" + step) { try { window.history.replaceState(null, "", "#" + step); } catch (_e) { /* ignore */ } }
+    /* Each step the learner opens is a history entry, so Back returns to the step they were on (not to step 1). */
+    if (window.location.hash !== "#" + step) { try { window.history[first ? "replaceState" : "pushState"](null, "", "#" + step); } catch (_e) { /* ignore */ } }
     if (opt.focus !== false) { var h = q("#h-" + step); if (h) { h.focus({preventScroll: true}); h.scrollIntoView({block: "start"}); } announcer.textContent = "Step " + (ORDER.indexOf(step) + 1) + " of 10: " + LABELS[step]; }
     if (step === "observe") paintObserve();
     if (step === "investigate") paintInvestigate();
@@ -923,6 +925,41 @@
   qa("[data-go]").forEach(function (b) { b.addEventListener("click", function () { show(b.getAttribute("data-go")); }); });
   window.addEventListener("hashchange", function () { var s = window.location.hash.slice(1); if (ORDER.indexOf(s) >= 0 && s !== current) show(s); });
 
+  /* ---------- first-run model readiness (never downloads anything) ---------- */
+  var readyBox = q("[data-readiness]");
+  function paintReadiness(rd) {
+    var list = q("[data-readiness-list]"), fix = q("[data-readiness-fix]");
+    list.textContent = "";
+    if (!rd) { readyBox.hidden = true; return; }
+    readyBox.hidden = false;
+    [["Ollama is reachable from AcmeBank", rd.ollama_reachable], ["Model " + rd.model + " is installed", rd.model_installed]].forEach(function (c) {
+      list.appendChild(el("li", {className: c[1] ? "is-ok" : "is-bad"}, [el("strong", {text: c[1] ? "Ready: " : "Not ready: "}), document.createTextNode(c[0])]));
+    });
+    if (rd.fix) {
+      fix.hidden = false;
+      q("[data-readiness-note]").textContent = rd.fix.note || "";
+      q("[data-readiness-command]").textContent = rd.fix.command || "";
+      q("[data-readiness-where]").textContent = rd.fix.where || "";
+      q("[data-copy-command]").hidden = !rd.fix.command;
+    } else { fix.hidden = true; }
+  }
+  q("[data-copy-command]").addEventListener("click", function () {
+    var cmd = q("[data-readiness-command]").textContent, out = q("[data-copy-status]");
+    try { navigator.clipboard.writeText(cmd).then(function () { out.textContent = "Copied."; }, function () { out.textContent = "Copy is blocked here. Select the command and copy it by hand."; }); }
+    catch (_e) { out.textContent = "Copy is blocked here. Select the command and copy it by hand."; }
+  });
+
+  /* ---------- glossary: contextual term links open it and land on the term ---------- */
+  var gloss = q("[data-glossary]");
+  qa("a.term").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      gloss.open = true;
+      var dt = q("#term-" + a.getAttribute("data-term"));
+      if (dt) { dt.setAttribute("tabindex", "-1"); dt.focus(); dt.scrollIntoView({block: "center"}); }
+    });
+  });
+
   /* ---------- model status banner ---------- */
   var banner = q("[data-mission-banner]"), modelLine = q("[data-model-line]"), retryStatus = q("[data-retry-status]");
   function checkStatus() {
@@ -933,6 +970,7 @@
         modelLine.textContent = "The Loan Desk is not reachable, so no run can start."; retryStatus.hidden = false; return;
       }
       var d = res.data, id = d.identity || {};
+      paintReadiness(d.readiness);
       if (d.available) {
         banner.hidden = true;
         modelLine.textContent = "Model " + d.model + " via Ollama" + (id.digest ? ", digest " + id.digest.slice(0, 12) : "") +
@@ -950,7 +988,7 @@
   function pill(text, kind) { return el("span", {className: "badge badge--" + (kind || "muted"), text: text}); }
   function opsLine(o) { return "Proposed " + o.proposed + " · authorized " + o.authorized + " · denied " + o.denied + " · executed " + o.executed + (o.denied_but_executed ? " · DENIED-BUT-EXECUTED " + o.denied_but_executed : " · no denied action ran"); }
   function queueBlock(view) {
-    var box = el("div", {className: "queue"}, [el("h4", {text: "Underwriter queue: what a human reads"})]);
+    var box = el("div", {className: "queue"}, [el("h3", {text: "Underwriter queue: what a human reads"})]);
     if (!view.tickets || !view.tickets.length) { box.appendChild(el("p", {text: "Empty. The agent filed nothing in this run."})); return box; }
     var harm = (view.queue_harm && view.queue_harm.tickets_with_applicant_text) || [];
     view.tickets.forEach(function (t) {
@@ -1220,7 +1258,7 @@
     var a = actual(v), p = state.prediction;
     var rows = [["Did the agent copy the planted text?", p.follow, a.follow], ["Policy decision for the review submission", p.decision, a.decision], ["What the underwriter sees", p.queue, a.queue]];
     box.appendChild(el("table", {className: "data-table"}, [el("caption", {text: "Your prediction versus the run"}),
-      el("thead", null, [el("tr", null, ["Question", "You predicted", "What happened", ""].map(function (h) { return el("th", {scope: "col", text: h}); }))]),
+      el("thead", null, [el("tr", null, ["Question", "You predicted", "What happened", "Match"].map(function (h) { return el("th", {scope: "col", text: h}); }))]),
       el("tbody", null, rows.map(function (r) { return el("tr", null, [el("td", {text: r[0]}), el("td", {text: String(r[1])}), el("td", {text: String(r[2])}), el("td", {text: String(r[1]) === String(r[2]) ? "match" : "differs"})]); }))]));
     box.appendChild(el("p", {className: "callout callout--security", text: "A DENY or an ALLOW is a policy decision. Whether the handler began is a separate fact: see the Executed column and the event agentsec.mcp.started."}));
     queue.appendChild(queueBlock(v));
@@ -1254,7 +1292,7 @@
         if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(s[1]).then(function () { ok(" Copied."); }, function () { ok(" Copy failed; select the text."); });
         else { area.select(); ok(" Select and copy the text."); }
       });
-      list.appendChild(el("div", {className: "spl-block"}, [el("h4", {text: s[0]}), area,
+      list.appendChild(el("div", {className: "spl-block"}, [el("h3", {text: s[0]}), area,
         el("p", null, [copy, " ", el("a", {className: "button button--secondary", href: splunkLink(s[1]), target: "_blank", rel: "noopener", text: "Open in Splunk"}), fb]), el("p", {className: "muted", text: s[2]})]));
     });
   }
@@ -1329,7 +1367,7 @@
       ["run.id", function (v) { return v.run_id; }]
     ];
     box.appendChild(el("table", {className: "data-table"}, [el("caption", {text: "Attack run versus retest run"}),
-      el("thead", null, [el("tr", null, ["", "ATTACK", "RETEST"].map(function (h) { return el("th", {scope: "col", text: h}); }))]),
+      el("thead", null, [el("tr", null, ["Measure", "ATTACK", "RETEST"].map(function (h) { return el("th", {scope: "col", text: h}); }))]),
       el("tbody", null, rows.map(function (row) { var x = row[1](a), y = row[1](r); return el("tr", {className: x !== y ? "is-different" : null}, [el("th", {scope: "row", text: row[0]}), el("td", {text: x}), el("td", {text: y})]); }))]));
     var rs = storyNode(r); if (rs) box.appendChild(rs);
     var cb = el("button", {type: "button", className: "button button--secondary", text: "Verify both runs with Splunk"});
