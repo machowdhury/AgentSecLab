@@ -14,3 +14,8 @@ Operations (exactly these):
 Affected: agentsec_acmebank container only (recreated, ~10 s outage on :5000). Not touched: splunk, otel_collector, ollama, attack_service, all volumes, .env, compose files.
 Rollback: docker tag agentseclab-acmebank:pre-batch3-b69e230c4a46 agentseclab-acmebank:latest && (cd main tree) docker compose -p agentseclab up -d --no-deps --no-build acmebank
 In-memory Loan Desk runs and the container's JSONL telemetry are lost/replaced with the container; indexed Splunk data is not affected.
+
+## Second AcmeBank redeploy (final Gate 1-3 backend), 25a5f95
+Same three operations and rollback as above. Before: agentseclab-acmebank:latest = image of commit a821a3a (tag batch3-a821a3a kept).
+Attack Service container is NOT touched: the Academy mission was exercised with a host-process Attack Service on a spare
+port talking to the Docker AcmeBank at 127.0.0.1:5000. Deploying the mission into the attack_service container needs its own approval.

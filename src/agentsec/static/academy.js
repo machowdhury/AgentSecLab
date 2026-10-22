@@ -1073,7 +1073,7 @@
           return;
         }
         var recovered = tries > 0;
-        views[slot] = res.data; renderRun(slot, res.data, ctl.node);
+        views[slot] = res.data; renderRun(slot, res.data, res.data.status === "RUNNING" ? ctl.node : null);
         if (recovered) q("[data-run-panel='" + slot + "']").appendChild(el("p", {className: "callout", role: "status", text: "Connection restored."}));
         paintStepper();
         if (res.data.status === "RUNNING") {
@@ -1126,7 +1126,7 @@
   exploreForm.addEventListener("submit", function (e) {
     e.preventDefault();
     q("[data-form-errors]").hidden = true; qa("[data-err]").forEach(function (n) { n.textContent = ""; });
-    launch("explore", applicationFrom(exploreForm), "hardened");
+    launch("explore", applicationFrom(exploreForm), "baseline");
   });
 
   /* ---------- predict ---------- */
@@ -1181,8 +1181,8 @@
     var base = 'index=agentsec_telemetry sourcetype="otel:agentic:json" agentsec.run.id="' + id + '"';
     return [
       ["Search 1: every event of this run", base + " | stats count AS events dc(agentsec.sequence) AS distinct_sequences", "events is the number to compare. Counting the values of agentsec.sequence would double it because the field is multivalue in Splunk."],
-      ["Search 2: the policy decision for the review", base + ' event.name="agentsec.control.decision" gen_ai.tool.name="submit_for_underwriter_review" | table _time agentsec.control.decision agentsec.control.reason agentsec.defense.posture', "A decision event is not an execution event."],
-      ["Search 3: what the handler returned (the filed note)", base + ' event.name="agentsec.mcp.completed" gen_ai.tool.name="submit_for_underwriter_review" | table _time agentsec.content.preview', "Empty when the handler never ran."]
+      ["Search 2: the policy decision for the review", base + ' event.name="agentsec.control.decision" gen_ai.tool.name="submit_for_underwriter_review" | stats latest(_time) AS _time values(agentsec.control.decision) AS decision values(agentsec.control.reason) AS reason values(agentsec.defense.posture) AS posture', "values() removes the duplicate multivalue copies Splunk keeps of every field. A decision event is not an execution event."],
+      ["Search 3: what the handler returned (the filed note)", base + ' event.name="agentsec.mcp.completed" gen_ai.tool.name="submit_for_underwriter_review" | stats latest(_time) AS _time values(agentsec.content.preview) AS filed_by_handler', "No rows when the handler never ran."]
     ];
   }
   function paintEvidenceState(v) {
