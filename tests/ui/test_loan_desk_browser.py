@@ -244,3 +244,21 @@ def test_shared_shell_is_present_and_marks_acmebank_current(page, serve):
     page.goto(serve(ScriptedModel([FINAL])))
     assert page.locator("nav.as-shell").count() == 1
     assert page.locator("nav.as-shell a[aria-current='page']").inner_text() == "AcmeBank"
+
+
+def test_outcome_facts_and_unverified_prose_are_shown_separately(page, serve):
+    lying = {**FINAL, "summary": "The debt service ratio is 38.5% so this is a strong application overall."}
+    url = serve(ScriptedModel([tool("get_applicant_profile", applicant_id="APP-2002"), P, C, lying]))
+    submit_example(page, url)
+    wait_done(page)
+    assert "BLOCKED (1 action)" in page.locator("#out-security-v").inner_text()
+    assert page.locator("#out-business-v").inner_text().startswith("COMPLETE")
+    ops = page.locator("#out-ops").inner_text()
+    assert "Proposed 3" in ops and "denied 1" in ops and "executed 2" in ops and "no denied action ran" in ops
+    assert "resource_not_bound_to_run" in page.locator("#out-blocked").inner_text()
+    facts = page.locator("#facts-list").inner_text()
+    assert "Monthly payment at 5.2% (indicative)" in facts and "computed here" in facts and "38.5" not in facts
+    assert page.locator("#screening > li[data-r='PASS']").count() == 2
+    assert "ADVISORY · NOT VERIFIED" in page.locator("#result-h").inner_text()
+    warn = page.locator("#claims-warn")
+    assert warn.is_visible() and "38.5%" in warn.inner_text() and "Do not rely" in warn.inner_text()
