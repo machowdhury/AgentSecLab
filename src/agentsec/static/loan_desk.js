@@ -162,7 +162,15 @@
     var ev = view.evidence;
     $("evidence-card").hidden = false;
     $("ev-run").textContent = ev.run_id;
-    $("ev-count").textContent = ev.event_count + " (" + ev.source + ", " + ev.schema + ")";
+    $("ev-count").textContent = ev.event_count + " emitted by AcmeBank (LOCAL evidence, " + ev.schema + ")";
+    var sp = ev.splunk || {}, node = $("ev-indexed"), msg = {
+      NOT_VERIFIED: "NOT VERIFIED. Only local evidence exists. Run the search below in Splunk, or ask the lab host to run: " + ev.host_check,
+      SPLUNK_VERIFIED: "SPLUNK-VERIFIED. Host check at " + sp.checked_at + ": " + sp.indexed_events + " indexed of " + sp.local_events + " local events, reconciled.",
+      SPLUNK_MISMATCH: "SPLUNK MISMATCH. Indexed " + sp.indexed_events + " of " + sp.local_events + " local events: " + (sp.problems || []).join(", "),
+      STALE: "STALE. The last host check no longer matches this run's event count. Re-run the host check."
+    };
+    node.textContent = msg[ev.indexed_status] || msg.NOT_VERIFIED;
+    node.dataset.state = ev.indexed_status;
     $("ev-model").textContent = view.model.name + " via " + view.model.provider + " · proposals from: " + view.model.proposal_source;
     $("ev-spl").value = ev.splunk_search;
     $("ev-download").setAttribute("href", "/api/v1/loan-desk/runs/" + encodeURIComponent(ev.run_id) + "/events.ndjson");
@@ -227,6 +235,12 @@
     $(labelId).textContent = "Copied";
     setTimeout(function () { $(labelId).textContent = labelId === "copy-run" ? "Copy run.id" : "Copy search"; }, 1500);
   }
+  $("refresh-ev").addEventListener("click", function () {
+    var id = $("ev-run").textContent;
+    if (!id) { return; }
+    fetch("/api/v1/loan-desk/runs/" + encodeURIComponent(id)).then(function (r) { return r.json(); }).then(render)
+      .catch(function () { $("ev-indexed").textContent = "Could not reach AcmeBank to re-check."; });
+  });
   $("copy-run").addEventListener("click", function () { copy("ev-run", "copy-run"); });
   $("copy-spl").addEventListener("click", function () { copy("ev-spl", "copy-spl"); });
 }());

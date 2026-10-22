@@ -1,0 +1,66 @@
+{
+  "reconciled": true,
+  "problems": [],
+  "local_events": 30,
+  "indexed_events": 30,
+  "distinct_sequences": 30,
+  "by_event_local": {
+    "agentsec.run.started": 1,
+    "agentsec.llm.started": 6,
+    "agentsec.llm.completed": 6,
+    "agentsec.agent.action.proposed": 4,
+    "agentsec.control.decision": 4,
+    "agentsec.mcp.started": 4,
+    "agentsec.mcp.completed": 4,
+    "agentsec.run.completed": 1
+  },
+  "by_event_indexed": {
+    "agentsec.run.started": 1,
+    "agentsec.llm.started": 6,
+    "agentsec.llm.completed": 6,
+    "agentsec.agent.action.proposed": 4,
+    "agentsec.control.decision": 4,
+    "agentsec.mcp.started": 4,
+    "agentsec.mcp.completed": 4,
+    "agentsec.run.completed": 1
+  },
+  "naive_mvexpand_rows": 30,
+  "events_with_multivalue_sequence": 30,
+  "inflation_note": "A search that expands agentsec.invariant.id returns more rows than events; the reconciliation counts events, not field values.",
+  "run_id": "02716f9c-5eb1-411c-8bcb-aecbe2539604",
+  "checked_at": "2026-10-22T15:26:14Z",
+  "method": "host docker-exec splunk search (read-only)"
+}
+{
+  "reconciled": true,
+  "problems": [],
+  "local_events": 28,
+  "indexed_events": 28,
+  "distinct_sequences": 28,
+  "by_event_local": {
+    "agentsec.run.started": 1,
+    "agentsec.llm.started": 6,
+    "agentsec.llm.completed": 6,
+    "agentsec.agent.action.proposed": 5,
+    "agentsec.control.decision": 5,
+    "agentsec.mcp.started": 2,
+    "agentsec.mcp.completed": 2,
+    "agentsec.run.completed": 1
+  },
+  "by_event_indexed": {
+    "agentsec.run.started": 1,
+    "agentsec.llm.started": 6,
+    "agentsec.llm.completed": 6,
+    "agentsec.agent.action.proposed": 5,
+    "agentsec.control.decision": 5,
+    "agentsec.mcp.started": 2,
+    "agentsec.mcp.completed": 2,
+    "agentsec.run.completed": 1
+  },
+  "naive_mvexpand_rows": 28,
+  "events_with_multivalue_sequence": 28,
+  "inflation_note": "A search that expands agentsec.invariant.id returns more rows than events; the reconciliation counts events, not field values.",
+  "run_id": "6d0e7b4c-8021-4400-bb03-8a5674cf0fc9",
+  "checked_at": "2026-10-22T15:26:22Z",
+  "method": "host docker-exec splunk search (read-only)"
+}

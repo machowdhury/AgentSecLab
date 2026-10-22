@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import dataclasses
+import json
+from pathlib import Path
 import threading
 import time
 from collections import OrderedDict
@@ -69,14 +71,34 @@ class LoanDeskService:
             out["steps"] = [dict(s) for s in base["steps"]]
         out["events"] = len(events)
         out["timeline"] = build_timeline(events, run_id=run_id, source="LIVE")
+        splunk = self._splunk_status(run_id, len(events))
         out["evidence"] = {
             "run_id": run_id, "event_count": len(events), "source": "LIVE",
             "schema": "agentsec.loan_desk_event 1.0.0",
             "splunk_search": f'index=agentsec_telemetry sourcetype="otel:agentic:json" "agentsec.run.id"="{run_id}" | sort agentsec.sequence',
-            "indexed_status": "NOT_VERIFIED",
-            "note": "These are the events this process emitted. Indexing in Splunk is a separate fact; run the search to check.",
+            "indexed_status": splunk["status"], "splunk": splunk,
+            "host_check": f"python scripts/loan_desk_verify.py {run_id} --record artifacts/loan_desk",
+            "note": "LOCAL evidence = events AcmeBank emitted. SPLUNK-VERIFIED needs a host-side reconciliation record; "
+                    "this page cannot reach Splunk and never assumes indexing.",
         }
         return out
+
+    def _splunk_status(self, run_id: str, local_count: int) -> dict:
+        """Read the host-written reconciliation record, if any. Only runs this process created are looked up."""
+        path = Path(self.settings.artifacts_dir) / "loan_desk" / f"{run_id}.splunk.json"
+        try:
+            rec = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {"status": "NOT_VERIFIED"}
+        ok = (isinstance(rec, dict) and rec.get("run_id") == run_id and isinstance(rec.get("reconciled"), bool)
+              and isinstance(rec.get("local_events"), int) and isinstance(rec.get("indexed_events"), int))
+        if not ok:
+            return {"status": "NOT_VERIFIED", "detail": "unreadable reconciliation record ignored"}
+        base = {"indexed_events": rec["indexed_events"], "local_events": rec["local_events"],
+                "checked_at": rec.get("checked_at"), "problems": rec.get("problems", [])}
+        if rec["local_events"] != local_count:
+            return {**base, "status": "STALE", "detail": "the run has more or fewer events than when it was checked"}
+        return {**base, "status": "SPLUNK_VERIFIED" if rec["reconciled"] else "SPLUNK_MISMATCH"}
 
     def events_ndjson(self, run_id: str) -> str | None:
         import json

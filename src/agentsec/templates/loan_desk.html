@@ -134,11 +134,12 @@
         <dd><code id="ev-run"></code> <button class="ld-btn ld-btn--ghost ld-btn--sm" id="copy-run" type="button">Copy run.id</button></dd>
         <dt>Events emitted</dt><dd id="ev-count"></dd>
         <dt>Model</dt><dd id="ev-model"></dd>
-        <dt>Splunk indexing</dt><dd id="ev-indexed">NOT VERIFIED — these are the events this process emitted. Run the search to check Splunk.</dd>
+        <dt>Splunk indexing</dt><dd id="ev-indexed">NOT VERIFIED</dd>
       </dl>
       <label for="ev-spl">Splunk search</label>
       <textarea id="ev-spl" class="ld-code" readonly rows="2"></textarea>
       <p><button class="ld-btn ld-btn--ghost ld-btn--sm" id="copy-spl" type="button">Copy search</button>
+         <button class="ld-btn ld-btn--ghost ld-btn--sm" id="refresh-ev" type="button">Re-check evidence status</button>
          <a class="ld-link" id="ev-download" href="#" download>Download events (NDJSON)</a></p>
     </section>
   </main>
