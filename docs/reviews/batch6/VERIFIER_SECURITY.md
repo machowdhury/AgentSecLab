@@ -35,7 +35,7 @@ bound to a validated run UUID (`reconcile.py`), at most 30 a minute, and never r
 2. **Docker Desktop mounts.** The read-only guarantee comes from the container runtime. A deployment that mounts `receipts/` writable is detected by AcmeBank and shown as `NOT_VERIFIED`, but the *verifier* cannot know how AcmeBank was started.
 3. **Quarantine and log growth.** `rejected/` is capped; `verifier.log` is not rotated.
 4. **Windows is unsupported** (`flock`, `ps`, shell scripts).
-5. **Migration.** The running lab still uses v1 images and the v1 `.bridge.key` layout (this batch deploys nothing to it). Moving to v2 means: recreate `acmebank` and `attack_service` with the new compose file, `loan_desk_verifier.sh stop` the old verifier (it has no process-name check, so stop it by its recorded pid yourself), `lab-up.sh` or `loan_desk_verifier.sh start`, then delete the old `.bridge.key`, `*.splunk.json`, `verifier.json` and `requests/` files in `artifacts/loan_desk/`. I did none of this.
+5. **Migration.** *(Done in Batch 7 Gate B; see `docs/reviews/batch7/DEPLOY_REPORT.md`.)* Until then the running lab used v1 images and the v1 `.bridge.key` layout (this batch deploys nothing to it). Moving to v2 means: recreate `acmebank` and `attack_service` with the new compose file, `loan_desk_verifier.sh stop` the old verifier (it has no process-name check, so stop it by its recorded pid yourself), `lab-up.sh` or `loan_desk_verifier.sh start`, then delete the old `.bridge.key`, `*.splunk.json`, `verifier.json` and `requests/` files in `artifacts/loan_desk/`. I did none of this.
 
 ## 4. Tests (all pass)
 
