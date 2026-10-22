@@ -11,6 +11,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/ ./src/
 COPY schemas/ ./schemas/
 COPY learning/academy/curriculum.json ./learning/academy/curriculum.json
+# Without this file every Attack UI lab page and "/" fail with HTTP 500 inside the image (framework_refs.references_for).
+COPY learning/academy/framework_refs.json ./learning/academy/framework_refs.json
 RUN mkdir -p /app/learning/level_1/LAB-PI-001 /app/learning/level_1/LAB-MCP-001 /app/learning/level_1/LAB-RAG-CONTEXT /app/learning/level_1/LAB-MEMORY-001 /app/learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001 /app/learning/level_1/LAB-AGENT-DELEGATION-001 /app/learning/level_1/LAB-AGENTSEC-CAPSTONE-001 /app/learning/level_1/LAB-LOANDESK-001
 COPY learning/level_1/LAB-PI-001/lab-manifest.json ./learning/level_1/LAB-PI-001/lab-manifest.json
 COPY learning/level_1/LAB-MCP-001/lab-manifest.json ./learning/level_1/LAB-MCP-001/lab-manifest.json
