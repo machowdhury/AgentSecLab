@@ -1,8 +1,7 @@
 # Facilitator guide
 
 ## Participants (5)
-2 security analysts or SOC engineers; 2 developers or platform engineers; 1 keyboard-only or screen-reader user if one
-can be recruited (otherwise record "accessibility participant NOT RECRUITED"). None may have seen AgentSecLab. Record
+Two beginners, two experienced security practitioners and one Splunk practitioner (see `RECRUITMENT.md`; prefer a keyboard-only or screen-reader user for one slot if available, otherwise record "accessibility participant NOT RECRUITED"). None may have seen AgentSecLab. Record
 role and two familiarity scores (Splunk 0-3, AI agents 0-3). Participants are P1 to P5; never record names.
 
 ## Before each session (facilitator, 15 minutes)
@@ -31,6 +30,6 @@ participant id only, delete recordings after scoring, and keep the consent recor
 
 ## Success thresholds (agreed before running)
 At least 4 of 5 reach task 11 within 45 minutes; median total time within 30-45 minutes; no task blocks 2 or more
-participants; at least 4 of 5 score 2 on the "blocked vs unfinished" prompt; mean ease >= 5 of 7 on every task, and any
+participants; at least 4 of 5 score 2 on the "blocked vs unfinished" prompt (C3) and at least 3 of 5 score 2 on the independent-enforcement-boundary prompt (C6), where the two experienced practitioners are expected to score 2; mean ease >= 5 of 7 on every task, and any
 task below 4 is redesigned; the accessibility participant completes every task or the barrier is logged as a P1 defect.
 After a failed threshold: fix, then rerun with 3 new participants.

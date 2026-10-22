@@ -26,6 +26,7 @@ locked-step clicks ___  wrong page ___  Back lost place ___  asked where ___
 - [ ] Confuses "proposed" with "executed"                   - [ ] Believes ALLOW means safe
 - [ ] Treats SPLUNK-VERIFIED as proof the events are true   - [ ] Does not notice a NOT VERIFIED state
 - [ ] Hesitates at the prediction step ("I don't know")      - [ ] Finds the Splunk step without help
+- [ ] Says the model, the prompt or Splunk is what blocks the attack (wrong boundary)
 - [ ] Surprised the hardened run did not finish the review  - [ ] Copies the model command (if shown)
 
 **Accessibility barriers** (step, control, what happened, workaround): ____________________________________________
