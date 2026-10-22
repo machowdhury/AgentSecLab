@@ -3,8 +3,9 @@
 real Ollama model -> policy -> collector -> Splunk, with the host verifier answering the page's Verify button.
 
 The learner path uses only the browser. This script additionally (a) cross-checks the verifier's answer with an
-independent reconciliation and (b) renders the Splunk Studio view (it logs in to Splunk Web with the lab admin password
+independent reconciliation and (b) leaves the Splunk view to scripts/loan_desk_splunk_view_capture.py (it logs in to Splunk Web with the lab admin password
 taken from the Splunk container's own environment; the password is never printed, stored or sent to any page of ours).
+The Splunk view capture lives in scripts/loan_desk_splunk_view_capture.py.
 """
 
 from __future__ import annotations
@@ -43,7 +44,6 @@ def main() -> int:
     ap.add_argument("--splunk", default="http://127.0.0.1:8000")
     ap.add_argument("--chromium", default=os.environ.get("AGENTSEC_CHROMIUM"))
     ap.add_argument("--out", default="docs/reviews/batch4/acceptance")
-    ap.add_argument("--no-splunk-ui", action="store_true")
     a = ap.parse_args()
     out = ROOT / a.out
     shots = out / "screenshots"
@@ -120,25 +120,6 @@ def main() -> int:
             ev = fetch_events(a.acmebank, rid)
             r = wait_and_reconcile(rid, ev, timeout_s=120)
             res[tag]["independent_reconcile"] = {k: r[k] for k in ("reconciled", "problems", "local_events", "indexed_events", "distinct_sequences", "events_with_multivalue_sequence", "naive_value_count")}
-        # 8. the Splunk Studio view with real data
-        if not a.no_splunk_ui:
-            pw_ = subprocess.run(["docker", "exec", "agentsec_splunk", "printenv", "SPLUNK_PASSWORD"], capture_output=True, text=True).stdout.strip()
-            sp = b.new_page(viewport={"width": 1440, "height": 1000})
-            sp.goto(f"{a.splunk}/en-US/account/login?return_to=/en-US/app/agentsec/ws_lab_loandesk_001")
-            sp.fill("input[name=username]", "admin"); sp.fill("input[name=password]", pw_); sp.keyboard.press("Enter")
-            sp.wait_for_url("**/ws_lab_loandesk_001**", timeout=120000)
-            sp.wait_for_timeout(8000)
-            sp.screenshot(path=str(shots / "13_splunk_view_mission_tab.png"))
-            sp.fill("input[type=text]", ""); 
-            box = sp.locator("input[data-test='textbox'], input[type='text']").first
-            box.fill(attack_id); box.press("Enter")
-            sp.get_by_text("INVESTIGATE", exact=True).first.click()
-            sp.wait_for_timeout(15000)
-            sp.screenshot(path=str(shots / "14_splunk_view_attack_run.png"), full_page=True)
-            box = sp.locator("input[type='text']").first
-            box.fill(retest_id); box.press("Enter")
-            sp.wait_for_timeout(15000)
-            sp.screenshot(path=str(shots / "15_splunk_view_retest_run.png"), full_page=True)
         b.close()
     (out / "acceptance_run.json").write_text(json.dumps(res, indent=2, default=str) + "\n", encoding="utf-8")
     print(json.dumps({"attack": res["attack"]["run_id"], "retest": res["retest"]["run_id"], "attack_verify": res["attack"]["verify_text"],

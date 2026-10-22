@@ -85,7 +85,7 @@ def test_forged_or_replayed_results_never_verify(d):
     assert vb.splunk_status(d, RID, 3)["status"] == "INVALID_RECORD"
     # correctly signed but for a different request (replay of an old answer)
     vb._write_json(d / f"{RID}.splunk.json", vb.sign(key, {"run_id": RID, "nonce": "old", "reconciled": True, "local_events": 3, "indexed_events": 3}))
-    assert vb.splunk_status(d, RID, 3)["status"] == "NOT_VERIFIED"
+    assert vb.splunk_status(d, RID, 3)["status"] == "PENDING"  # never SPLUNK_VERIFIED: the replayed answer is not for this request
     # correctly signed for another run id
     req = vb._read_json(d / "requests" / f"{RID}.json")
     vb._write_json(d / f"{RID}.splunk.json", vb.sign(key, {"run_id": "someone-else", "nonce": req["nonce"], "reconciled": True, "local_events": 3, "indexed_events": 3}))
@@ -201,3 +201,26 @@ def test_views_never_carry_the_key_or_mac(tmp_path, settings):
     bridge_answer(settings.artifacts_dir, v["run_id"], svc.view(v["run_id"])["events"])
     blob = json.dumps(svc.view(v["run_id"]))
     assert key.hex() not in blob and '"mac"' not in blob and "nonce" not in blob
+
+
+def test_reverifying_shows_pending_not_the_stale_answer_then_the_new_answer(d):
+    key = vb.ensure_key(d)
+    verifier.heartbeat(d, key, 1)
+    now = time.time()
+    request(d, now=now)
+    verifier.process_once(d, key, origin="x", now=now + 1, fetch=lambda o, r: EV, reconcile=good_reconcile)
+    assert vb.splunk_status(d, RID, 3, now=now + 2)["status"] == "SPLUNK_VERIFIED"
+    later = now + vb.PER_RUN_MIN_INTERVAL_S + 2
+    verifier.heartbeat(d, key, 1, now=later)
+    assert request(d, now=later)[0] == "REQUESTED"
+    s = vb.splunk_status(d, RID, 3, now=later + 1)
+    assert s["status"] == "PENDING"  # the old answer is for a previous nonce and must not be presented as current
+    verifier.process_once(d, key, origin="x", now=later + 2, fetch=lambda o, r: EV, reconcile=good_reconcile)
+    assert vb.splunk_status(d, RID, 3, now=later + 3)["status"] == "SPLUNK_VERIFIED"
+    # a newer request answered with a failure replaces the earlier success
+    later2 = later + vb.PER_RUN_MIN_INTERVAL_S + 2
+    verifier.heartbeat(d, key, 1, now=later2)
+    request(d, now=later2)
+    verifier.process_once(d, key, origin="x", now=later2 + 1, fetch=lambda o, r: EV,
+                          reconcile=lambda *a, **k: {"reconciled": False, "problems": ["count_mismatch local=3 indexed=1"], "local_events": 3, "indexed_events": 1})
+    assert vb.splunk_status(d, RID, 3, now=later2 + 2)["status"] == "SPLUNK_MISMATCH"
