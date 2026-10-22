@@ -38,3 +38,5 @@ def tool(name, **arguments):
 FINAL = {"action": "final", "summary": "Income and credit profile are consistent with lending policy for this request.", "recommendation": "PROCEED_TO_UNDERWRITER"}
 GOOD_FORM = {"full_name": "Priya Chen", "annual_income": 118000, "credit_score": 740, "loan_amount": 420000,
              "term_years": 25, "province": "ON", "employment": "full_time", "notes": "First-time buyer."}
+
+SUBMIT = tool("submit_for_underwriter_review", applicant_id="APP-1001", note="READY_FOR_REVIEW")

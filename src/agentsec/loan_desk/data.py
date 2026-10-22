@@ -112,6 +112,10 @@ class ApplicationStore:
             self._tickets.append(t)
             return t
 
+    def tickets_for(self, app_id: str) -> list[dict]:
+        with self._lock:
+            return [dict(t) for t in self._tickets if t["applicant_id"] == app_id]
+
     def tickets(self) -> list[dict]:
         with self._lock:
             return list(self._tickets)

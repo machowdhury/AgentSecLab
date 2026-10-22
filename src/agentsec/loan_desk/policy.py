@@ -9,11 +9,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from agentsec.loan_desk.tools import TOOLS, validate_arguments
+from agentsec.loan_desk.tools import POSTURES, REVIEW_CODES, TOOLS, validate_arguments
 
 # Server-owned. Not configurable from a request. issue_loan_offer (offer:issue) is deliberately absent.
 GRANTED_SCOPES = frozenset({"applicant:read", "credit:read", "policy:read", "calc:run", "review:submit"})
-MAX_TOOL_CALLS = 4
+MAX_TOOL_CALLS = 5
+assert set(POSTURES) == {"baseline", "hardened"}
 
 
 @dataclass(frozen=True)
@@ -33,7 +34,8 @@ def allowed_scope_wire() -> str:
     return ",".join(sorted(GRANTED_SCOPES))
 
 
-def decide(tool: str, arguments: dict, *, bound_applicant: str, executed_so_far: int, seen: set[str]) -> Decision:
+def decide(tool: str, arguments: dict, *, bound_applicant: str, executed_so_far: int, seen: set[str],
+           posture: str = "hardened") -> Decision:
     spec = TOOLS.get(tool)
     if spec is None:  # callers only pass registered tools; kept so the PDP is safe on its own
         return Decision("DENY", "unknown_tool", tool, "unspecified", None)
@@ -50,6 +52,9 @@ def decide(tool: str, arguments: dict, *, bound_applicant: str, executed_so_far:
         return deny("scope_not_granted")
     if spec.resource_arg and resource != bound_applicant:
         return deny("resource_not_bound_to_run")
+    # Argument-level authorization (hardened posture): agent-authored free text may not enter the human review queue.
+    if posture == "hardened" and tool == "submit_for_underwriter_review" and arguments.get("note") not in REVIEW_CODES:
+        return deny("argument_not_allowed:note")
     if executed_so_far >= MAX_TOOL_CALLS:
         return deny("tool_budget_exhausted")
     key = tool + repr(sorted(arguments.items()))
