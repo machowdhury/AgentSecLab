@@ -211,6 +211,15 @@ fi
 log "INFO  LIVE generation requires Ollama model ${MODEL}. Academy REPLAY does not."
 log "INFO  The container entrypoint tries: ollama pull ${MODEL}"
 log "INFO  Certificate or TLS errors must be resolved at the host trust layer. Do not disable certificate verification."
+# HEC transport: bad scheme is a FAIL. A missing CA before first lab-up is expected (hec-certs.sh creates it).
+if [ -r "$ROOT/.certs/hec-ca.crt" ] || [ -n "${AGENTSEC_HEC_CA_FILE:-}" ]; then
+  hec_msg="$("$ROOT/scripts/hec-scheme-check.sh" 2>&1)"; hec_rc=$?
+  case "$hec_rc" in
+    0) log "PASS  $hec_msg" ;;
+    2) log "INFO  $hec_msg" ;;
+    *) fail "$hec_msg" ;;
+  esac
+fi
 if [ "${DOCKER_OK:-0}" = "1" ] && docker inspect agentsec_ollama >/dev/null 2>&1; then
   ollama_state="$(docker inspect -f '{{.State.Status}}' agentsec_ollama 2>/dev/null || true)"
   if [ "$ollama_state" = "running" ]; then

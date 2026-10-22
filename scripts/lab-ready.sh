@@ -119,15 +119,17 @@ fi
 log "Index agentsec_telemetry exists."
 
 log "Checking HEC..."
-# This volume presents TLS on 8088. HTTP is reset by peer. Skip-verify matches
-# the existing collector lab setting SPLUNK_HEC_TLS_SKIP_VERIFY; this check does
-# not change Splunk certificates.
+# HEC is HTTPS with the lab CA trusted explicitly and the host name verified.
+HEC_CA="$(load_env_value AGENTSEC_HEC_CA_FILE)"
+[ -n "$HEC_CA" ] || HEC_CA="$ROOT/.certs/hec-ca.crt"
+case "$HEC_CA" in /*) ;; *) HEC_CA="$ROOT/$HEC_CA" ;; esac
+[ -r "$HEC_CA" ] || fail "HEC CA file not readable: ${HEC_CA}. Run ./scripts/hec-certs.sh."
 hec_code="$(
-  curl -sk -o /dev/null -w "%{http_code}" --max-time 15 \
-    https://127.0.0.1:8088/services/collector/health/1.0 || echo 000
+  curl -s --cacert "$HEC_CA" -o /dev/null -w "%{http_code}" --max-time 15 \
+    https://localhost:8088/services/collector/health/1.0 || echo 000
 )"
 if [ "$hec_code" != "200" ]; then
-  fail "HEC health HTTP ${hec_code}"
+  fail "HEC health HTTP ${hec_code} (HTTPS with CA ${HEC_CA}; verification is on)"
 fi
 log "HEC health HTTP 200."
 
@@ -137,9 +139,9 @@ if [ -z "$mesh_net" ]; then
   fail "could not resolve collector compose network"
 fi
 mesh_code="$(
-  docker run --rm --network "$mesh_net" \
+  docker run --rm --network "$mesh_net" -v "$HEC_CA:/certs/hec-ca.crt:ro" \
     curlimages/curl:8.5.0 \
-    curl -sk -o /dev/null -w "%{http_code}" --max-time 15 \
+    curl -s --cacert /certs/hec-ca.crt -o /dev/null -w "%{http_code}" --max-time 15 \
       https://agentsec_splunk:8088/services/collector/health/1.0 || echo 000
 )"
 if [ "$mesh_code" != "200" ]; then

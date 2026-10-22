@@ -220,3 +220,6 @@ __marimo__/
 # AgentSec experiment evidence (generated per run.id)
 artifacts/*
 !artifacts/.gitkeep
+
+# HEC TLS material (private keys). Never commit.
+.certs/

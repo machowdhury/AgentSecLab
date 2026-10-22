@@ -11,11 +11,15 @@ HEC_INPUT_NAME="${SPLUNK_HEC_INPUT_NAME:-agentsec-otel}"
 SPECIMEN_ROOT="${AGENTSEC_SPECIMEN_ROOT:-/specimens}"
 AUTH="admin:${SPLUNK_PASSWORD}"
 MGMT_URL="https://${SPLUNK_HOST}:8089"
-HEC_URL_HTTP="http://${SPLUNK_HOST}:8088/services/collector/event"
+# HEC is HTTPS with verification on. The host name must match a cert SAN, so use the
+# container DNS name, not the compose alias used for the management API.
+HEC_HOST="${SPLUNK_HEC_HOST:-agentsec_splunk}"
+HEC_CA="${AGENTSEC_HEC_CA_CONTAINER_PATH:-/certs/hec-ca.crt}"
+HEC_URL_HTTP="https://${HEC_HOST}:8088/services/collector/event"
 # The raw endpoint re-indexes each committed line verbatim and lets props.conf
 # take _time from the event's own "timestamp". The /event endpoint would wrap
 # the body and stamp it at ingest, which would misdate historical evidence.
-HEC_URL_RAW="http://${SPLUNK_HOST}:8088/services/collector/raw?index=${HEC_INDEX}&sourcetype=${HEC_SOURCETYPE}"
+HEC_URL_RAW="https://${HEC_HOST}:8088/services/collector/raw?index=${HEC_INDEX}&sourcetype=${HEC_SOURCETYPE}"
 
 log() { printf '[hec-init] %s\n' "$*"; }
 
@@ -76,7 +80,7 @@ ensure_index() {
 }
 
 test_hec_url() {
-  curl -s -o /tmp/hec_init_body.txt -w "%{http_code}" \
+  curl -s --cacert "$HEC_CA" -o /tmp/hec_init_body.txt -w "%{http_code}" \
     "$1" \
     -H "Authorization: Splunk ${HEC_TOKEN}" \
     -d "{\"event\":{\"hec_init\":true,\"sourcetype\":\"${HEC_SOURCETYPE}\"}}" 2>/dev/null || echo "000"
@@ -123,7 +127,7 @@ seed_one_specimen() {
   fi
 
   log "SPECIMEN ${run_id}: absent. Replaying ${expected} committed events..."
-  post_code="$(curl -s -o /tmp/hec_seed_body.txt -w "%{http_code}" \
+  post_code="$(curl -s --cacert "$HEC_CA" -o /tmp/hec_seed_body.txt -w "%{http_code}" \
     "${HEC_URL_RAW}" \
     -H "Authorization: Splunk ${HEC_TOKEN}" \
     --data-binary "@${pack}" 2>/dev/null || echo "000")"
@@ -180,15 +184,15 @@ log "Enabling HTTP Event Collector..."
 hec_code="$(mgmt_code POST "/services/data/inputs/http/http/enable")"
 log "HEC enable returned HTTP ${hec_code}"
 
-log "Disabling HEC SSL for in-mesh HTTP..."
-ssl_code="$(mgmt_code POST "/services/data/inputs/http/http" -d "enableSSL=0")"
-if [ "$ssl_code" = "200" ] || [ "$ssl_code" = "201" ]; then
-  mgmt_code POST "/services/admin/server/control/restart_splunkd" >/dev/null || true
-  sleep 20
-  wait_for_mgmt_api || exit 1
-fi
+# HEC TLS is configured declaratively (config/splunk/agentsec_hec_tls); never toggled here.
 
 ensure_index "${HEC_INDEX}" || exit 1
+
+# The image's Ansible provisioning creates the token (SPLUNK_HEC_TOKEN) with index=default, so
+# events land in main. Pin it to the lab index and sourcetype on every run (idempotent).
+pin_code="$(mgmt_code POST "/servicesNS/nobody/splunk_httpinput/data/inputs/http/splunk_hec_token" \
+  -d "index=${HEC_INDEX}" -d "indexes=${HEC_INDEX}" -d "sourcetype=${HEC_SOURCETYPE}")"
+log "HEC token index/sourcetype pin returned HTTP ${pin_code} (404 = no provisioned token; created below)"
 
 early_code="$(test_hec_url "${HEC_URL_HTTP}")"
 if [ "$early_code" = "200" ]; then
