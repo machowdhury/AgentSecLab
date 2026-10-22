@@ -86,23 +86,24 @@ class PostureAwareModel:
 
 
 def bridge_online(artifacts_dir, now=None):
-    """Stand in for a running host verifier: key + fresh signed heartbeat."""
+    """Stand in for a running host verifier: host key (outside the artifacts dir) + fresh heartbeat in receipts/."""
     from agentsec.loan_desk import verifier, verify_bridge as vb
     d = vb.bridge_dir(artifacts_dir)
-    key = vb.ensure_key(d)
+    key = vb.load_or_create_key(vb.state_dir())
+    (d / vb.REQUESTS).mkdir(parents=True, exist_ok=True)
     verifier.heartbeat(d, key, pid=1, now=now)
     return d, key
 
 
 def bridge_answer(artifacts_dir, run_id, local_events, **over):
-    """Write the signed result a verifier would write for the latest request."""
+    """Write the receipt a verifier would write for the latest request."""
     from agentsec.loan_desk import verify_bridge as vb
     d = vb.bridge_dir(artifacts_dir)
-    key = vb.read_key(d)
-    req = vb._read_json(d / "requests" / f"{run_id}.json")
+    key = vb.load_or_create_key(vb.state_dir())
+    req = vb.read_json_safe(d / vb.REQUESTS / f"{run_id}.json")
     doc = {"run_id": run_id, "nonce": req["nonce"], "reconciled": True, "problems": [], "local_events": local_events,
            "indexed_events": local_events, "checked_at": "2026-10-22T00:00:00Z", **over}
-    vb._write_json(d / f"{run_id}.splunk.json", vb.sign(key, doc))
+    vb.write_json_atomic(d / vb.RECEIPTS / f"{run_id}.splunk.json", vb.sign(key, doc))
 
 
 class FakeVerifierThread:
@@ -112,7 +113,8 @@ class FakeVerifierThread:
         import threading
         from agentsec.loan_desk import verifier, verify_bridge as vb
         self.d = vb.bridge_dir(artifacts_dir)
-        self.key = vb.ensure_key(self.d)
+        self.key = vb.load_or_create_key(vb.state_dir())
+        (self.d / vb.RECEIPTS).mkdir(parents=True, exist_ok=True)
         self.origin = origin
         self.stop = threading.Event()
         self.reconcile = reconcile or (lambda rid, ev, timeout_s=45: {"reconciled": True, "problems": [], "local_events": len(ev),

@@ -16,7 +16,6 @@ Closed JSON. Unknown keys → reject.
 {
   "lab_id": "LAB-PI-001",
   "specimen_id": "ATK-002",
-  "profile": "vulnerable",
   "mode": "ATTACK",
   "execution": "live"
 }
@@ -26,11 +25,10 @@ Closed JSON. Unknown keys → reject.
 |-------|---------------------|-------|
 | `lab_id` | Allowlisted published labs | No free text |
 | `specimen_id` | Allowlisted per lab | Resolves payload/fixture server-side |
-| `profile` | `defended` \| `vulnerable` | Must match what runtime can actually apply |
 | `mode` | `BASELINE` \| `ATTACK` \| `RETEST` | Must match `testbed.mode` semantics |
 | `execution` | `live` | Replay is not a launch |
 
-**Not in the request:** payload, tool name, SPL, grants, target URL, credentials.
+**Not in the request:** payload, tool name, SPL, grants, target URL, credentials, and `profile`. The security profile is derived server-side from the specimen (`ATTACK` runs `vulnerable`; `BASELINE` and `RETEST` run `defended`); the request parser has always rejected a `profile` field as `unknown_fields` (`tests/unit/` pins this). The earlier text of this contract listed it by mistake.
 
 Today’s ATK-002 endpoint sends only `input` + `user_id` to AcmeBank. A future allowlisted API must not grow into an open proxy.
 

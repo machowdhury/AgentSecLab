@@ -10,6 +10,7 @@
     <div><dt>What you will learn</dt><dd>{{ learn }}</dd></div>
   </dl>
 {% endmacro %}
+{% macro gl(term, text=None) %}<a class="term" href="#glossary" data-term="{{ term }}">{{ text or term }}</a>{% endmacro %}
 {% macro runpanel(name) %}
   <div class="run-panel" data-run-panel="{{ name }}" aria-live="polite" aria-busy="false">
     <p class="run-panel__idle" data-run-idle>No run yet.</p>
@@ -20,10 +21,36 @@
      data-attack-notes="{{ attack_notes }}" data-normal-notes="{{ normal_notes }}">
 
 <header class="page-header">
-  <p class="eyebrow">Mission · AcmeBank Loan Desk · live agent · about 30 minutes</p>
+  <p class="eyebrow">Mission · AcmeBank Loan Desk · live agent · about {{ duration_minutes }} minutes</p>
   <h1>Loan Desk: when the agent writes for the underwriter</h1>
   <p class="lead">A real AI agent reviews synthetic loan applications and files a note in the human underwriter queue. You will make it file something an attacker wrote, prove it from recorded evidence, change one control, and prove the change worked.</p>
 </header>
+
+<section class="mission-meta" aria-labelledby="h-meta">
+  <h2 id="h-meta">Before you start</h2>
+  <dl class="meta-list">
+    <div><dt>Time</dt><dd>About {{ duration_minutes }} minutes at a steady pace (an author estimate, not yet measured with learners)</dd></div>
+    <div><dt>Level</dt><dd>Level 1, guided. You need no agent or Splunk experience.</dd></div>
+  </dl>
+  <h3 id="h-objectives">By the end you will be able to</h3>
+  <ul>{% for o in objectives %}<li>{{ o }}</li>{% endfor %}</ul>
+  <h3 id="h-prereqs">What you need</h3>
+  <ul>{% for p in prerequisites %}<li>{{ p }}</li>{% endfor %}</ul>
+</section>
+
+<details class="glossary" id="glossary" data-glossary>
+  <summary>Glossary: the words this mission uses</summary>
+  <dl>
+    <div><dt id="term-posture">Posture</dt><dd>The lab's setting for one run. BASELINE lets the agent file free text (a deliberate weakness). HARDENED allows only four fixed reason codes. You choose it; the run records it.</dd></div>
+    <div><dt id="term-scope">Scope</dt><dd>The kind of action a tool is allowed to perform, for example reading a profile or submitting a review. A tool call outside the granted scopes is denied.</dd></div>
+    <div><dt id="term-pdp">PDP (policy decision point)</dt><dd>The code that decides ALLOW or DENY for each proposed action. Here it is CTRL-LOANDESK-001. The model cannot change it, and neither can this page or Splunk.</dd></div>
+    <div><dt id="term-proposal">Model proposal</dt><dd>What the AI model asks to do next, one tool call at a time. A proposal is a request, not an action.</dd></div>
+    <div><dt id="term-handler">Handler execution</dt><dd>The code that actually performs a tool. It runs only after ALLOW. The event <code>agentsec.mcp.started</code> proves it began.</dd></div>
+    <div><dt id="term-allow">ALLOW and DENY</dt><dd>The policy decision. ALLOW means the tool, scope and applicant were valid. It does not mean the content was safe.</dd></div>
+    <div><dt id="term-verification">Evidence verification</dt><dd>LOCAL evidence is what AcmeBank says it emitted. SPLUNK-VERIFIED means a host-side check found the same events in Splunk. It does not prove the events are true.</dd></div>
+    <div><dt id="term-runid">run.id</dt><dd>The unique id every event of one run carries. Searching for it in Splunk returns that run's evidence.</dd></div>
+  </dl>
+</details>
 
 <p class="callout callout--warn" role="status" data-mission-banner hidden></p>
 
@@ -43,16 +70,26 @@
   {{ brief("Reading how the Loan Desk is built and what is real.", "You can only judge evidence once you know which parts are trusted and which are deliberately weak.", "Read the flow and the lab boundaries, then continue.", "None yet.", "A model proposes, a policy engine decides, a handler runs. Those are three different facts.") }}
   <ol class="flow">
     <li><strong>Customer notes</strong><span>Free text typed by the applicant. Untrusted.</span></li>
-    <li><strong>Agent (real model)</strong><span>Reads the case and <em>proposes</em> one tool call at a time.</span></li>
-    <li><strong>CTRL-LOANDESK-001</strong><span>The policy decision point. Checks the tool, its scope, the applicant and (in HARDENED) the note. The agent cannot edit it.</span></li>
-    <li><strong>Handler</strong><span>Runs only if the decision was ALLOW. <code>agentsec.mcp.started</code> is the event that proves it began.</span></li>
+    <li><strong>Agent (real model)</strong><span>Reads the case and makes a {{ gl("proposal", "proposal") }}: one tool call at a time.</span></li>
+    <li><strong>CTRL-LOANDESK-001</strong><span>The {{ gl("pdp", "policy decision point") }}. Checks the tool, its scope, the applicant and (in HARDENED) the note. The agent cannot edit it.</span></li>
+    <li><strong>{{ gl("handler", "Handler") }}</strong><span>Runs only if the decision was ALLOW. <code>agentsec.mcp.started</code> is the event that proves it began.</span></li>
     <li><strong>Underwriter queue</strong><span>Where a human reads the agent's note. This is the asset the attacker wants to reach.</span></li>
   </ol>
   <section class="boundaries" aria-labelledby="h-bounds"><h3 id="h-bounds">Lab boundaries</h3>
     <ul>{% for b in boundaries %}<li>{{ b }}</li>{% endfor %}</ul></section>
   <section class="callout" aria-labelledby="h-model"><h3 id="h-model">The model behind this mission</h3>
     <p data-model-line>Checking model…</p>
-    <button type="button" class="button button--ghost" data-retry-status hidden>Retry connection</button>
+    <div class="readiness" data-readiness hidden>
+      <h4 class="readiness__title">First-run check</h4>
+      <ul class="readiness__list" data-readiness-list></ul>
+      <div class="readiness__fix" data-readiness-fix hidden>
+        <p data-readiness-note></p>
+        <p>Run this yourself <span data-readiness-where></span>:</p>
+        <p><code data-readiness-command></code> <button type="button" class="button button--ghost" data-copy-command>Copy command</button></p>
+        <p class="readiness__copied" role="status" data-copy-status></p>
+      </div>
+    </div>
+    <button type="button" class="button button--ghost" data-retry-status hidden>Check again</button>
   </section>
   <div class="step-nav"><span></span><button type="button" class="button button--primary" data-go="explore">Continue to Explore</button></div>
 </section>

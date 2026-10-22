@@ -11,6 +11,14 @@ from agentsec.telemetry import FanoutSink, MemorySink
 from agentsec.mcp.registry import default_registry
 
 
+@pytest.fixture(autouse=True)
+def _bridge_test_environment(tmp_path, monkeypatch):
+    """Host-only verifier state goes to a temp dir. Receipt-directory isolation is a container mount property, so
+    tests that run the verifier in-process switch it off; tests of the isolation check switch it back on."""
+    monkeypatch.setenv("AGENTSEC_VERIFIER_STATE_DIR", str(tmp_path / "_verifier_state"))
+    monkeypatch.setenv("AGENTSEC_RECEIPTS_ISOLATION", "off")
+
+
 @pytest.fixture
 def settings(tmp_path, monkeypatch):
     monkeypatch.setenv("AGENTSEC_OTEL_ENABLED", "false")

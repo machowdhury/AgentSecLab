@@ -50,6 +50,9 @@ services:
     volumes:
       - shared_telemetry:/var/log/agentsec
       - ./artifacts:/app/artifacts
+      # Loan Desk verification receipts: written only by the host verifier. Read-only here, so nothing in this
+      # container can forge a receipt. Must exist on the host before `up` (lab-up.sh creates it).
+      - ./artifacts/loan_desk/receipts:/app/artifacts/loan_desk/receipts:ro
     environment:
       - AGENTSEC_BIND_HOST=0.0.0.0
       - ACMEBANK_PORT=5000
@@ -86,6 +89,7 @@ services:
     networks: [agentsec_mesh]
     volumes:
       - ./artifacts:/app/artifacts
+      - ./artifacts/loan_desk/receipts:/app/artifacts/loan_desk/receipts:ro
       - ./learning/level_1/LAB-PI-001/lab-manifest.json:/app/learning/level_1/LAB-PI-001/lab-manifest.json:ro
       - ./learning/level_1/LAB-MCP-001/lab-manifest.json:/app/learning/level_1/LAB-MCP-001/lab-manifest.json:ro
       - ./learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json:/app/learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json:ro

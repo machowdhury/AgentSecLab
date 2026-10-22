@@ -899,7 +899,8 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
         available, reason = desk_model.available() if hasattr(desk_model, "available") else (True, None)
         return jsonify({"model": desk_model.name, "provider": "ollama", "proposal_source": desk_model.source,
                         "identity": desk_model.identity() if hasattr(desk_model, "identity") else {},
-                        "available": available, "reason": reason})
+                        "available": available, "reason": reason,
+                        "readiness": desk_model.readiness() if hasattr(desk_model, "readiness") else None})
 
     @app.post("/api/v1/loan-desk/applications")
     def loan_desk_submit():
