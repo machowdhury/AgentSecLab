@@ -38,8 +38,9 @@ def main() -> int:
         sp.wait_for_timeout(10000)
         sp.screenshot(path=str(out / "13_splunk_view_mission_tab.png"))
         for i, rid in enumerate(a.run_ids):
-            box = sp.locator("input[type='text']:visible, textarea:visible").first
+            box = sp.locator("[data-input-id='input_live_run'] input, input[value='none'], input[value='" + (a.run_ids[i - 1] if i else "none") + "']").first
             box.click()
+            box.press("Control+A")
             box.fill(rid)
             box.press("Enter")
             sp.get_by_role("tab", name="INVESTIGATE").first.click()
