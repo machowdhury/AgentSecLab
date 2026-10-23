@@ -84,6 +84,9 @@ def completeness_spl(run_id: str, *, earliest: str = STARTER_EARLIEST) -> str:
     return starter_spl(run_id, earliest=earliest) + " | stats dc(_raw) as n"
 
 
+_SAFE_HOST = re.compile(r"[A-Za-z0-9.-]{1,253}|[0-9A-Fa-f:.]{2,45}")
+
+
 def browser_splunk_web(host_header: str, scheme: str = "http") -> str:
     """Splunk Web on port 8000 using the hostname the browser used to reach Attack Service."""
     raw = (host_header or "").split(",")[0].strip()
@@ -92,8 +95,10 @@ def browser_splunk_web(host_header: str, scheme: str = "http") -> str:
         hostname = raw[1:raw.index("]")]
     elif raw.count(":") == 1 and raw.rsplit(":", 1)[1].isdigit():
         hostname = raw.rsplit(":", 1)[0]
-    if not hostname or hostname in {"0.0.0.0", "::"}:
-        hostname = "127.0.0.1"
+    if not hostname or hostname in {"0.0.0.0", "::"} or not _SAFE_HOST.fullmatch(hostname):
+        hostname = "127.0.0.1"  # an untrusted Host header never reaches a link
+    elif ":" in hostname:
+        hostname = f"[{hostname}]"
     chosen = scheme if scheme in {"http", "https"} else "http"
     return f"{chosen}://{hostname}:8000"
 

@@ -17,6 +17,7 @@ def _bridge_test_environment(tmp_path, monkeypatch):
     tests that run the verifier in-process switch it off; tests of the isolation check switch it back on."""
     monkeypatch.setenv("AGENTSEC_VERIFIER_STATE_DIR", str(tmp_path / "_verifier_state"))
     monkeypatch.setenv("AGENTSEC_RECEIPTS_ISOLATION", "off")
+    monkeypatch.setenv("AGENTSEC_MAX_CONCURRENT_LAUNCHES", "16")  # attribution tests fan out launches; the limit itself is tested in test_launch_guard
 
 
 @pytest.fixture

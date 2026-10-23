@@ -126,3 +126,13 @@ Do not add rows for unpublished Identity Studio.
 ## Future production (not claimed)
 
 Authentication, per-learner tenancy, rate limiting, network isolation beyond `127.0.0.1`, and multi-user audit. Local classroom remains bind-localhost, unauthenticated, as today.
+
+## Request security policy (Increment 6B)
+
+Applies to every state-changing request (POST/PUT/PATCH/DELETE) on the Attack Service and AcmeBank.
+
+- **Cross-origin browsers are rejected (403 `cross_origin_rejected`).** A request is refused when `Sec-Fetch-Site` is anything but `same-origin`/`none`, or when `Origin` is present and its host:port differs from `Host` (`Origin: null` is refused). This is CSRF defence, **not authentication**.
+- **Non-browser clients are allowed.** curl, scripts, tests and service-to-service calls send neither header, so they pass. This is the documented policy, not an oversight: network reachability (security group / bind address) remains the access control. A caller can forge these headers; they only constrain real browsers.
+- `POST /api/launch` and `POST /api/compare-handoff` additionally require `Content-Type: application/json` (415), a body of at most 16 KiB (413), and no query parameters (400 `unexpected_parameters`). The closed field allowlist, duplicate-key rejection and server-owned profile are unchanged.
+- **Concurrency:** at most `AGENTSEC_MAX_CONCURRENT_LAUNCHES` (default 2) launches run at once. The check is non-blocking and happens after validation, before any runtime call; excess requests get 429 `launch_busy` with `Retry-After: 5`. The permit is released on success, error, exception and timeout (the existing 180 s AcmeBank timeout still bounds a launch).
+- **Links:** stored launch records carry the configured Splunk Web base (`AGENTSEC_SPLUNK_WEB_URL`). The browser-facing base is derived per response from a validated Host header (invalid hosts fall back to `127.0.0.1`) and never stored.

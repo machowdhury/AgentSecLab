@@ -93,6 +93,7 @@ _DETAIL = {
     "runtime_exception": "The runtime call failed. This is not a control DENY.",
     "intentionally_skipped": "Launch was not sent to the runtime.",
     "malformed_compare": "Compare handoff requires two distinct UUID run.ids. It does not accept learner SPL.",
+    "launch_busy": "Too many live launches are running. Retry shortly; nothing was started.",
     "check_use_mismatch": "Retrieved content.hash did not match persisted memory content.hash. This is ERROR, not a vulnerable fallback.",
 }
 
@@ -125,6 +126,7 @@ class LaunchService:
         probe_fn: Callable[[str], dict] | None = None,
         sleep_fn: Callable[[float], None] = time.sleep,
         lock: threading.Lock | None = None,
+        max_concurrent: int | None = None,
     ) -> None:
         self.client = client
         self.settings = settings
@@ -134,11 +136,17 @@ class LaunchService:
         self.sleep_fn = sleep_fn
         self._lock = lock or threading.Lock()
         self._memory_lifecycle_lock = threading.Lock()
+        limit = max_concurrent or int(os.environ.get("AGENTSEC_MAX_CONCURRENT_LAUNCHES", "2"))
+        self._permits = threading.BoundedSemaphore(max(1, limit))
         self._records: dict[str, LaunchRecord] = {}
 
+    def render_body(self, body: dict, splunk_web: str | None) -> dict:
+        """Stored bodies carry the configured Splunk Web base; swap in a request-scoped one for this response only."""
+        if not splunk_web or splunk_web == self.splunk_web:
+            return body
+        return json.loads(json.dumps(body).replace(self.splunk_web, splunk_web))
+
     def launch(self, parsed: ParsedLaunchRequest, *, splunk_web: str | None = None) -> tuple[int, dict]:
-        if splunk_web:
-            self.splunk_web = splunk_web
         if not parsed.ok:
             return error_body(parsed.error_reason, parsed=parsed)
 
@@ -156,7 +164,14 @@ class LaunchService:
         if row is None:
             return error_body("not_allowlisted", parsed=parsed)
 
-        return self._launch(parsed, row)
+        # Non-blocking: over the limit is refused before any runtime work. Released on success, exception and timeout alike.
+        if not self._permits.acquire(blocking=False):
+            return error_body("launch_busy", http_status=429, parsed=parsed, extra={"retry_after_seconds": 5})
+        try:
+            status, body = self._launch(parsed, row)
+        finally:
+            self._permits.release()
+        return status, self.render_body(body, splunk_web)
 
     def _launch(self, parsed: ParsedLaunchRequest, row: Any) -> tuple[int, dict]:
         health_status, health = _as_status_body(self.client.health())
@@ -712,8 +727,7 @@ class LaunchService:
         *,
         splunk_web: str | None = None,
     ) -> tuple[int, dict]:
-        if splunk_web:
-            self.splunk_web = splunk_web
+        web = splunk_web or self.splunk_web
         if not _is_uuid(attack_run_id) or not _is_uuid(retest_run_id) or attack_run_id == retest_run_id:
             return error_body("malformed_compare")
         attack = self.get_record(attack_run_id)
@@ -739,7 +753,7 @@ class LaunchService:
                 retest.retrieve_run_id,
                 retest.write_run_id,
                 retest.recall_run_id,
-                splunk_web=self.splunk_web,
+                splunk_web=web,
             )
         if (
             lab_id == "LAB-MEMORY-001"
@@ -755,12 +769,12 @@ class LaunchService:
                 attack.recall_run_id,
                 retest.write_run_id,
                 retest.recall_run_id,
-                splunk_web=self.splunk_web,
+                splunk_web=web,
             )
         return 200, pair_handoff_doc(
             attack_run_id,
             retest_run_id,
-            splunk_web=self.splunk_web,
+            splunk_web=web,
             lab_id=lab_id,
         )
 
