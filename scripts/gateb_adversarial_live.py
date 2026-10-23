@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Live adversarial and lifecycle checks against the DEPLOYED bridge v2. Uses only the mission's own APIs, docker exec into
-the two lab containers (to play a compromised container), and the verifier script. Needs a finished run id (from the acceptance run)."""
+the two lab containers (to play a compromised container), and the verifier script. Needs a finished run id (from the acceptance run).
+
+ART must be set explicitly when the receipts live in another tree (on the lab Mac they are in the develop tree's artifacts/):
+    ART=/path/to/develop-tree/artifacts python3 scripts/gateb_adversarial_live.py <run id>
+The default is this repository's own artifacts/ directory. Do not change it back to a machine-specific path."""
 import json, os, signal, subprocess, sys, time
 from pathlib import Path
 import requests
