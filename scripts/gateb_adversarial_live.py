@@ -6,7 +6,7 @@ from pathlib import Path
 import requests
 
 A = os.environ.get("ATTACK", "http://127.0.0.1:5001")
-ART = Path(os.environ.get("ART", "/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts")) / "loan_desk"
+ART = Path(os.environ.get("ART", str(Path(__file__).resolve().parents[1] / "artifacts"))) / "loan_desk"
 ROOT = Path(__file__).resolve().parents[1]
 SH = str(ROOT / "scripts/loan_desk_verifier.sh")
 ENV = {**os.environ, "AGENTSEC_ARTIFACTS_HOST_DIR": str(ART.parent), "PYTHON": str(ROOT / ".venv/bin/python")}
