@@ -27,7 +27,8 @@ sys.path.insert(0, str(ROOT / "src"))
 
 SERVICES = ["agentsec_acmebank", "agentsec_attack_service", "agentsec_splunk", "agentsec_otel_collector", "agentsec_ollama"]
 REPLAY_LABS = ["LAB-MCP-003", "LAB-MCP-004", "LAB-MCP-005", "LAB-MCP-006", "LAB-MCP-CATALOG", "LAB-BLUE-TEAM-INCIDENT-001",
-               "LAB-MULTI-STAGE-INCIDENT-001", "LAB-SCANNER-RUNTIME-EVIDENCE", "LAB-MCP-001"]
+               "LAB-MULTI-STAGE-INCIDENT-001", "LAB-SCANNER-RUNTIME-EVIDENCE", "LAB-MCP-001",
+               "LAB-PI-001", "LAB-RAG-CONTEXT", "LAB-MEMORY-001", "LAB-AGENT-GOAL-INTEGRITY-001", "LAB-AGENT-DELEGATION-001", "LAB-AGENTSEC-CAPSTONE-001"]
 UU = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
 results: list[dict] = []
 
@@ -93,7 +94,7 @@ def main() -> int:
                 have = {r["r"] for r in rows}
                 if set(ids) - have:
                     missing[lab] = len(set(ids) - have)
-        check("Splunk", "REPLAY specimens offered by the 9 specimen labs are all searchable", not missing, "all present" if not missing else f"missing: {missing}",
+        check("Splunk", "REPLAY specimens offered by the 15 specimen labs are all searchable", not missing, "all present" if not missing else f"missing: {missing}",
               "Re-run the specimen seeder: docker compose ... up splunk_hec_init, then python3 scripts/seed_envelope_specimens.py (both are additive and idempotent).")
     except Exception as exc:  # noqa: BLE001
         check("Splunk", "index agentsec_telemetry is searchable", False, type(exc).__name__, "Splunk search through docker exec failed; check the agentsec_splunk container.")

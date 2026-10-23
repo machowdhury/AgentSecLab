@@ -31,13 +31,22 @@ def test_seed_mechanism_exists_and_verifies_by_search():
     assert status["seed_verifies_by_search"] is True
 
 
+# A run id no lab offers and no pack holds: the contract is that it is reported unseeded, never assumed present.
+NO_PACK_RUN_ID = "00000000-0000-4000-8000-000000000000"
+
+
 def test_run_id_without_a_committed_pack_is_reported_unseeded():
-    status = classify_otel_replay_seed(ROOT, EXAMPLE_RUN_ID)
+    status = classify_otel_replay_seed(ROOT, NO_PACK_RUN_ID)
     assert status["committed_pack_present"] is False
     assert status["classification"] == UNSEEDED
-    dashboard = (
-        ROOT / "splunk_app/agentsec/default/data/ui/views/ws_lab_rag_context.xml"
-    ).read_text(encoding="utf-8")
+    assert committed_pack(ROOT, NO_PACK_RUN_ID) is None
+
+
+def test_the_rag_dropdown_example_that_was_once_unseeded_now_has_its_recovered_original_pack():
+    # Batch 9 recovered the September original; the dropdown still offers it.
+    status = classify_otel_replay_seed(ROOT, EXAMPLE_RUN_ID)
+    assert status["committed_pack_present"] is True and status["classification"] == SEEDED
+    dashboard = (ROOT / "splunk_app/agentsec/default/data/ui/views/ws_lab_rag_context.xml").read_text(encoding="utf-8")
     assert EXAMPLE_RUN_ID in dashboard
 
 

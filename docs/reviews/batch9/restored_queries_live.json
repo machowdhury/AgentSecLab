@@ -1,0 +1,434 @@
+{
+ "LAB-AGENT-DELEGATION-001": {
+  "options": {
+   "run_id": [
+    "b419465c-84d8-4639-8449-34dd99841ba9",
+    "f846be88-1f9d-4dde-ac80-193c01b47660",
+    "271695f5-4739-44f2-8bf4-0749d04f4b03"
+   ]
+  },
+  "runs": {
+   "run_id=271695f5-4739-44f2-8bf4-0749d04f4b03": {
+    "errors": [],
+    "queries": 6,
+    "rows": {
+     "ds_observe_seq": 2,
+     "ds_q_authz": 2,
+     "ds_q_executed": 2,
+     "ds_q_id": 1,
+     "ds_q_tool": 0,
+     "ds_q_who": 2
+    },
+    "with_rows": 5
+   },
+   "run_id=b419465c-84d8-4639-8449-34dd99841ba9": {
+    "errors": [],
+    "queries": 6,
+    "rows": {
+     "ds_observe_seq": 4,
+     "ds_q_authz": 2,
+     "ds_q_executed": 2,
+     "ds_q_id": 1,
+     "ds_q_tool": 1,
+     "ds_q_who": 2
+    },
+    "with_rows": 6
+   },
+   "run_id=f846be88-1f9d-4dde-ac80-193c01b47660": {
+    "errors": [],
+    "queries": 6,
+    "rows": {
+     "ds_observe_seq": 4,
+     "ds_q_authz": 2,
+     "ds_q_executed": 2,
+     "ds_q_id": 1,
+     "ds_q_tool": 1,
+     "ds_q_who": 2
+    },
+    "with_rows": 6
+   }
+  }
+ },
+ "LAB-AGENT-GOAL-INTEGRITY-001": {
+  "options": {
+   "run_id": [
+    "0aced342-1295-4820-b807-9a8718d9e847",
+    "fd994587-7e1c-4a70-8013-54cb2c85254d",
+    "605ba7c1-449b-4338-92df-7da3b704b08e"
+   ]
+  },
+  "runs": {
+   "run_id=0aced342-1295-4820-b807-9a8718d9e847": {
+    "errors": [],
+    "queries": 6,
+    "rows": {
+     "ds_observe_seq": 4,
+     "ds_q_authz": 2,
+     "ds_q_executed": 2,
+     "ds_q_goal": 1,
+     "ds_q_tool": 1,
+     "ds_q_who": 2
+    },
+    "with_rows": 6
+   },
+   "run_id=605ba7c1-449b-4338-92df-7da3b704b08e": {
+    "errors": [],
+    "queries": 6,
+    "rows": {
+     "ds_observe_seq": 4,
+     "ds_q_authz": 2,
+     "ds_q_executed": 2,
+     "ds_q_goal": 1,
+     "ds_q_tool": 1,
+     "ds_q_who": 2
+    },
+    "with_rows": 6
+   },
+   "run_id=fd994587-7e1c-4a70-8013-54cb2c85254d": {
+    "errors": [],
+    "queries": 6,
+    "rows": {
+     "ds_observe_seq": 4,
+     "ds_q_authz": 2,
+     "ds_q_executed": 2,
+     "ds_q_goal": 1,
+     "ds_q_tool": 1,
+     "ds_q_who": 2
+    },
+    "with_rows": 6
+   }
+  }
+ },
+ "LAB-AGENTSEC-CAPSTONE-001": {
+  "options": {
+   "retrieve_run_id": [
+    "5a15fe04-4bb1-4f70-8ec0-ab83f423dcde",
+    "2a248113-7436-46a7-9b1d-0243489ac000",
+    "f9015037-651d-4207-ac57-4f3ea1abc673"
+   ],
+   "run_id": [
+    "3d2b66a1-9ef1-4b1d-b993-444db50fd3ee",
+    "2437f64a-fff4-424f-8a83-0f04285662e4",
+    "8d2c016f-cadc-4463-939a-23a183221b3d"
+   ],
+   "write_run_id": [
+    "5dd71f94-5b12-4c52-b5ed-93a0b6832d45",
+    "348c8f18-fdfb-4501-ad8a-3f1bcda64c34",
+    "3f8d6305-2d3b-4988-9e65-dc99b7ac10de"
+   ]
+  },
+  "runs": {
+   "retrieve_run_id=2a248113-7436-46a7-9b1d-0243489ac000": {
+    "errors": [],
+    "queries": 5,
+    "rows": {
+     "ds_q_goal": 0,
+     "ds_q_ident": 0,
+     "ds_q_rag": 1,
+     "ds_q_run": 16,
+     "ds_seq": 4
+    },
+    "with_rows": 3
+   },
+   "retrieve_run_id=5a15fe04-4bb1-4f70-8ec0-ab83f423dcde": {
+    "errors": [],
+    "queries": 5,
+    "rows": {
+     "ds_q_goal": 0,
+     "ds_q_ident": 0,
+     "ds_q_rag": 1,
+     "ds_q_run": 16,
+     "ds_seq": 4
+    },
+    "with_rows": 3
+   },
+   "retrieve_run_id=f9015037-651d-4207-ac57-4f3ea1abc673": {
+    "errors": [],
+    "queries": 5,
+    "rows": {
+     "ds_q_goal": 0,
+     "ds_q_ident": 0,
+     "ds_q_rag": 1,
+     "ds_q_run": 16,
+     "ds_seq": 4
+    },
+    "with_rows": 3
+   },
+   "run_id=2437f64a-fff4-424f-8a83-0f04285662e4": {
+    "errors": [],
+    "queries": 14,
+    "rows": {
+     "ds_q_after": 0,
+     "ds_q_authz": 2,
+     "ds_q_executed": 2,
+     "ds_q_goal": 0,
+     "ds_q_ident": 0,
+     "ds_q_mem": 1,
+     "ds_q_params": 2,
+     "ds_q_result": 1,
+     "ds_q_result_trust": 1,
+     "ds_q_run": 21,
+     "ds_q_scope": 2,
+     "ds_q_tool": 1,
+     "ds_q_who": 2,
+     "ds_seq": 7
+    },
+    "with_rows": 11
+   },
+   "run_id=3d2b66a1-9ef1-4b1d-b993-444db50fd3ee": {
+    "errors": [],
+    "queries": 14,
+    "rows": {
+     "ds_q_after": 0,
+     "ds_q_authz": 1,
+     "ds_q_executed": 1,
+     "ds_q_goal": 0,
+     "ds_q_ident": 0,
+     "ds_q_mem": 1,
+     "ds_q_params": 1,
+     "ds_q_result": 0,
+     "ds_q_result_trust": 0,
+     "ds_q_run": 16,
+     "ds_q_scope": 1,
+     "ds_q_tool": 0,
+     "ds_q_who": 1,
+     "ds_seq": 4
+    },
+    "with_rows": 8
+   },
+   "run_id=8d2c016f-cadc-4463-939a-23a183221b3d": {
+    "errors": [],
+    "queries": 14,
+    "rows": {
+     "ds_q_after": 0,
+     "ds_q_authz": 2,
+     "ds_q_executed": 2,
+     "ds_q_goal": 0,
+     "ds_q_ident": 0,
+     "ds_q_mem": 1,
+     "ds_q_params": 2,
+     "ds_q_result": 0,
+     "ds_q_result_trust": 0,
+     "ds_q_run": 20,
+     "ds_q_scope": 2,
+     "ds_q_tool": 0,
+     "ds_q_who": 2,
+     "ds_seq": 5
+    },
+    "with_rows": 8
+   },
+   "write_run_id=348c8f18-fdfb-4501-ad8a-3f1bcda64c34": {
+    "errors": [],
+    "queries": 5,
+    "rows": {
+     "ds_q_goal": 0,
+     "ds_q_ident": 0,
+     "ds_q_mem": 1,
+     "ds_q_run": 16,
+     "ds_seq": 4
+    },
+    "with_rows": 3
+   },
+   "write_run_id=3f8d6305-2d3b-4988-9e65-dc99b7ac10de": {
+    "errors": [],
+    "queries": 5,
+    "rows": {
+     "ds_q_goal": 0,
+     "ds_q_ident": 0,
+     "ds_q_mem": 1,
+     "ds_q_run": 16,
+     "ds_seq": 4
+    },
+    "with_rows": 3
+   },
+   "write_run_id=5dd71f94-5b12-4c52-b5ed-93a0b6832d45": {
+    "errors": [],
+    "queries": 5,
+    "rows": {
+     "ds_q_goal": 0,
+     "ds_q_ident": 0,
+     "ds_q_mem": 1,
+     "ds_q_run": 16,
+     "ds_seq": 4
+    },
+    "with_rows": 3
+   }
+  }
+ },
+ "LAB-MEMORY-001": {
+  "options": {
+   "run_id": [
+    "914c41ce-5123-49eb-892c-c948295dbc46",
+    "b8737cd9-9b6b-48f2-acfa-178ae1446ddc",
+    "5d5b9d1b-092d-4ddb-8422-4092d289cd49"
+   ],
+   "write_run_id": [
+    "a8407246-7992-4ad8-bd02-cb701e150f30",
+    "05f1d8d0-28b7-40ac-bbb9-1dc64b4ba464",
+    "060a0a72-ceb5-4b99-8330-98de81d8ae5e"
+   ]
+  },
+  "runs": {
+   "run_id=5d5b9d1b-092d-4ddb-8422-4092d289cd49": {
+    "errors": [],
+    "queries": 6,
+    "rows": {
+     "ds_observe_recall": 3,
+     "ds_q_authz": 2,
+     "ds_q_executed": 2,
+     "ds_q_mem": 1,
+     "ds_q_tool": 0,
+     "ds_q_who": 2
+    },
+    "with_rows": 5
+   },
+   "run_id=914c41ce-5123-49eb-892c-c948295dbc46": {
+    "errors": [],
+    "queries": 6,
+    "rows": {
+     "ds_observe_recall": 2,
+     "ds_q_authz": 1,
+     "ds_q_executed": 1,
+     "ds_q_mem": 1,
+     "ds_q_tool": 0,
+     "ds_q_who": 1
+    },
+    "with_rows": 5
+   },
+   "run_id=b8737cd9-9b6b-48f2-acfa-178ae1446ddc": {
+    "errors": [],
+    "queries": 6,
+    "rows": {
+     "ds_observe_recall": 5,
+     "ds_q_authz": 2,
+     "ds_q_executed": 2,
+     "ds_q_mem": 1,
+     "ds_q_tool": 1,
+     "ds_q_who": 2
+    },
+    "with_rows": 6
+   },
+   "write_run_id=05f1d8d0-28b7-40ac-bbb9-1dc64b4ba464": {
+    "errors": [],
+    "queries": 2,
+    "rows": {
+     "ds_observe_write": 1,
+     "ds_q_mem": 1
+    },
+    "with_rows": 2
+   },
+   "write_run_id=060a0a72-ceb5-4b99-8330-98de81d8ae5e": {
+    "errors": [],
+    "queries": 2,
+    "rows": {
+     "ds_observe_write": 1,
+     "ds_q_mem": 1
+    },
+    "with_rows": 2
+   },
+   "write_run_id=a8407246-7992-4ad8-bd02-cb701e150f30": {
+    "errors": [],
+    "queries": 2,
+    "rows": {
+     "ds_observe_write": 1,
+     "ds_q_mem": 1
+    },
+    "with_rows": 2
+   }
+  }
+ },
+ "LAB-PI-001": {
+  "options": {
+   "run_id": [
+    "b3611d56-0d3f-4b2e-9a51-75ae36628155",
+    "f39fed12-de89-45ba-b684-5b6077942580",
+    "bbe75cb8-0190-47d6-86be-5feba58ad5c0"
+   ]
+  },
+  "runs": {
+   "run_id=b3611d56-0d3f-4b2e-9a51-75ae36628155": {
+    "errors": [],
+    "queries": 4,
+    "rows": {
+     "ds_q_after_deny": 0,
+     "ds_q_control": 4,
+     "ds_q_llm": 8,
+     "ds_q_run_events": 22
+    },
+    "with_rows": 3
+   },
+   "run_id=bbe75cb8-0190-47d6-86be-5feba58ad5c0": {
+    "errors": [],
+    "queries": 4,
+    "rows": {
+     "ds_q_after_deny": 0,
+     "ds_q_control": 1,
+     "ds_q_llm": 0,
+     "ds_q_run_events": 6
+    },
+    "with_rows": 2
+   },
+   "run_id=f39fed12-de89-45ba-b684-5b6077942580": {
+    "errors": [],
+    "queries": 4,
+    "rows": {
+     "ds_q_after_deny": 0,
+     "ds_q_control": 4,
+     "ds_q_llm": 8,
+     "ds_q_run_events": 22
+    },
+    "with_rows": 3
+   }
+  }
+ },
+ "LAB-RAG-CONTEXT": {
+  "options": {
+   "run_id": [
+    "51f70fb9-994e-4dd4-9b36-cac6fb1e8232",
+    "3a43d24f-9281-42f6-8375-1fb2efaa80ac",
+    "bea97bae-491b-4b36-b52f-1417d2bad01b"
+   ]
+  },
+  "runs": {
+   "run_id=3a43d24f-9281-42f6-8375-1fb2efaa80ac": {
+    "errors": [],
+    "queries": 6,
+    "rows": {
+     "ds_observe_seq": 4,
+     "ds_q_authz": 2,
+     "ds_q_executed": 2,
+     "ds_q_rag": 1,
+     "ds_q_tool": 1,
+     "ds_q_who": 2
+    },
+    "with_rows": 6
+   },
+   "run_id=51f70fb9-994e-4dd4-9b36-cac6fb1e8232": {
+    "errors": [],
+    "queries": 6,
+    "rows": {
+     "ds_observe_seq": 1,
+     "ds_q_authz": 1,
+     "ds_q_executed": 1,
+     "ds_q_rag": 1,
+     "ds_q_tool": 0,
+     "ds_q_who": 1
+    },
+    "with_rows": 5
+   },
+   "run_id=bea97bae-491b-4b36-b52f-1417d2bad01b": {
+    "errors": [],
+    "queries": 6,
+    "rows": {
+     "ds_observe_seq": 2,
+     "ds_q_authz": 2,
+     "ds_q_executed": 2,
+     "ds_q_rag": 1,
+     "ds_q_tool": 0,
+     "ds_q_who": 2
+    },
+    "with_rows": 5
+   }
+  }
+ }
+}
