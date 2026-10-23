@@ -109,7 +109,7 @@ On a remote Linux server or cloud VM, use the remote commands instead of a plain
 ./scripts/lab-up.sh --remote
 ```
 
-Open the server URL that command prints. Print it again with `./scripts/agentsec-access.sh`. Remote mode publishes Academy `8000` and Attack Service `5001` on `0.0.0.0`. It does not publish HEC, OTel, AcmeBank, or Ollama. The cloud firewall must allow TCP 8000 and TCP 5001 only from your IP. Do not open those ports to `0.0.0.0/0`. Details: [docs/REMOTE_ACCESS.md](docs/REMOTE_ACCESS.md).
+Open the server URL that command prints. Print it again with `./scripts/agentsec-access.sh`. Remote mode publishes Academy `8000`, Attack Service `5001` and AcmeBank `5000` on `0.0.0.0` (`AGENTSEC_BIND_ADDRESS`). It does not publish HEC, OTel, Splunk management or Ollama. `0.0.0.0` does not make the lab safe for the internet: there is no TLS and no application login, and it supports one trusted learner at a time. The cloud firewall must allow TCP 8000, 5001 and 5000 only from the learner's IP. Do not open those ports to `0.0.0.0/0`. Details: [docs/REMOTE_ACCESS.md](docs/REMOTE_ACCESS.md).
 
 The Ollama container tries to pull `llama3.2:1b` on startup. `lab-up.sh` does not run that pull itself. A certificate error has to be fixed at the trust layer. Do not disable certificate verification.
 

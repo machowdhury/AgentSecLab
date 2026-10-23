@@ -8,7 +8,7 @@ Canonical start: `./scripts/lab-up.sh` from the repository root (`.env` required
 |--------|---------|------|
 | Stop | `./scripts/lab-down.sh` | Containers stop. The script says indexed Splunk data and named volumes remain. |
 | Start again | `./scripts/lab-up.sh` | Uses existing volumes. Learner ports stay on `127.0.0.1`. |
-| Remote start | `./scripts/lab-up.sh --remote` | Publishes 8000 and 5001 on `0.0.0.0`. Other ports stay private. See [REMOTE_ACCESS.md](REMOTE_ACCESS.md). |
+| Remote start | `./scripts/lab-up.sh --remote` | Publishes 8000, 5001 and 5000 on `0.0.0.0`. Other ports stay private. See [REMOTE_ACCESS.md](REMOTE_ACCESS.md). |
 | Show the URL | `./scripts/agentsec-access.sh` | Does not restart the lab and does not print `.env`. |
 | Rebuild app images | `./scripts/lab-up.sh --build` | Rebuilds AcmeBank and Attack Service, then starts. |
 | Restage Splunk app | `./scripts/lab-up.sh --refresh-app` | Copies `splunk_app/agentsec` into `splunk_app_agentsec`, restarts Splunk, and runs HEC init again. |

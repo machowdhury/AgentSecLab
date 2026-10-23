@@ -45,8 +45,8 @@ If that fails with the same `runc` or `mountinfo` error, the host runtime cannot
 
 **Symptom:** `lab-up.sh --remote` printed a server URL, and the browser on your laptop cannot open it.
 **Cause:** the cloud security group or the host firewall is blocking the port, or the printed host is a placeholder. `SERVICE READY` does not measure that path.
-**Check:** on the server, `ss -lnt` shows `0.0.0.0:8000` and `0.0.0.0:5001`, and `127.0.0.1:8088`. Confirm the security group allows TCP 8000 and TCP 5001 from your IP only.
-**Remediation:** fix the firewall rule. Do not open 8000, 5001, 5000, 8088, or 11434 to `0.0.0.0/0`. Do not disable the host firewall. See [REMOTE_ACCESS.md](REMOTE_ACCESS.md).
+**Check:** on the server, `ss -lnt` shows `0.0.0.0:8000`, `0.0.0.0:5001` and `0.0.0.0:5000`, and `127.0.0.1:8088`. Confirm the security group allows TCP 8000, 5001 and 5000 from your IP only.
+**Remediation:** fix the firewall rule. Do not open 8000, 5001 or 5000 to `0.0.0.0/0`, and never open 8088, 4317, 4318, 8089 or 11434. Do not disable the host firewall. See [REMOTE_ACCESS.md](REMOTE_ACCESS.md).
 **Do not conclude:** an authorization decision.
 
 ## Docker command not found
