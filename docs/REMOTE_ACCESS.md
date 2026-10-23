@@ -79,7 +79,7 @@ Open `http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home` on the same com
 
 ## C. Switching between modes
 
-**`lab-up.sh --remote` does not change a lab that is already running.** When Splunk is healthy, `lab-up.sh` starts the app services with `--no-recreate` and never recreates Splunk, so the published ports stay as they were. The readiness check then fails with `REMOTE LISTENERS: NOT ACCEPTED` (exit 2). To switch mode:
+**`lab-up.sh --remote` does not change a lab that is already running.** When Splunk is healthy, `lab-up.sh` starts the app services with `--no-recreate` and never recreates Splunk, so the published ports stay as they were. The readiness check then fails with `REMOTE LISTENERS: NOT ACCEPTED` (exit 2). To switch mode, **recreate the containers in place**:
 
 ```bash
 export AGENTSEC_BIND_ADDRESS=0.0.0.0     # or 127.0.0.1 to go back to local
@@ -87,7 +87,9 @@ docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local
   up -d --force-recreate splunk acmebank attack_service
 ```
 
-**Do not use `./scripts/lab-down.sh` followed by `./scripts/lab-up.sh` to switch mode if you want to keep the Splunk data.** Splunk's `/opt/splunk/etc` and `/opt/splunk/var` are *anonymous* Docker volumes. Recreating a container in place (above) keeps them; `down` removes the container and a later `up` creates new **empty** ones, so Splunk starts with no index and no users, and the old data sits in an orphaned volume (still on disk, not attached). This was tested with a throwaway Compose project. The `lab-down.sh` message "indexed Splunk data ... remain" is true only in that on-disk sense. To pause the lab, use `docker compose ... stop` (and `start`), which keeps everything attached. Recreating Splunk takes it down for several minutes and its HEC input is re-initialised (`splunk_hec_init`). On the pilot Mac, where the lab runs with read-only receipt mounts from a deploy override, do not do this between or during sessions; see `docs/PILOT_LAUNCH_CHECKLIST.md`.
+Recreating in place keeps every volume attached, including Splunk's configuration and indexed events (`splunk_etc`, `splunk_var`). Splunk is down for several minutes and its HEC input is re-initialised (`splunk_hec_init`).
+
+**`./scripts/lab-down.sh` now only pauses the lab (`docker compose stop`) and removes nothing.** Removing containers is `--remove-containers` (`down`), which keeps named volumes and is **refused while Splunk is still on the legacy anonymous volumes**: for those, `down` followed by `up` starts Splunk with new empty volumes and orphans the old data (tested with a throwaway project). Deleting volumes is `--purge --yes-delete-all-lab-data`. The full table and the migration from anonymous to named volumes are in [ops/SPLUNK_VOLUME_MIGRATION.md](ops/SPLUNK_VOLUME_MIGRATION.md). On the pilot Mac, where the lab runs with read-only receipt mounts from a deploy override, do not switch mode between or during sessions; see `docs/PILOT_LAUNCH_CHECKLIST.md`.
 
 ## D. Links and redirects from a remote browser
 

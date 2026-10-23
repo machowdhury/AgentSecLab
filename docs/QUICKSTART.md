@@ -191,7 +191,7 @@ Use quotes around the run.id. Empty is not DENY. If empty, wait, check the id, o
 ./scripts/lab-down.sh
 ```
 
-`./scripts/lab-down.sh` stops containers and says indexed Splunk data and named volumes remain. Next start: `./scripts/lab-up.sh`. The command that deletes those volumes is in [OPERATIONS.md](OPERATIONS.md). Read the warning there before using it.
+`./scripts/lab-down.sh` **pauses** the lab (`docker compose stop`): containers, Splunk configuration and indexed events are untouched. Next start: `./scripts/lab-up.sh`. Removing containers and deleting volumes are separate, explicit commands explained in [OPERATIONS.md](OPERATIONS.md). Read that table before using them.
 
 ## 14. What to do next
 

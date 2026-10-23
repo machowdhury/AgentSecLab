@@ -12,6 +12,11 @@ networks:
 volumes:
   shared_telemetry:
   ollama_models:
+  # Splunk's configuration (users, HEC, index definitions) and indexed events. NAMED on purpose: the image only declares these
+  # paths as VOLUMEs, which Docker turns into ANONYMOUS volumes that `compose down` then `up` silently replaces with empty ones.
+  # Named volumes survive stop/start, `up --force-recreate` AND `down` (only `down -v` removes them).
+  splunk_etc:
+  splunk_var:
   # Writable copy of splunk_app/agentsec. Splunk Ansible may chown this volume.
   # The repository tree is never mounted on /opt/splunk (EROFS / repo chown).
   splunk_app_agentsec:
@@ -194,6 +199,10 @@ services:
         condition: service_completed_successfully
     volumes:
       - shared_telemetry:/var/log/agentsec
+      # Persistent Splunk state (see the top-level volumes comment). Admin password and HEC settings from .env apply only
+      # when splunk_etc is first created empty; changing them in .env later does not change an existing splunk_etc.
+      - splunk_etc:/opt/splunk/etc
+      - splunk_var:/opt/splunk/var
       # Named volume: writable so Ansible chown works. Not a :ro bind of the repo.
       - splunk_app_agentsec:/opt/splunk/etc/apps/agentsec
       # HEC TLS: the [http] stanza ships in the staged app (splunk_app/agentsec/local/inputs.conf).

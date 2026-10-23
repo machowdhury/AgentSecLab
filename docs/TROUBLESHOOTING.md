@@ -134,7 +134,7 @@ If that fails with the same `runc` or `mountinfo` error, the host runtime cannot
 **Symptom:** bind errors or preflight FAIL on 5000/5001/8000/8088/4317/4318.  
 **Cause:** another process, or a leftover container.  
 **Check:** `./scripts/lab-preflight.sh`, `docker ps`.  
-**Remediation:** stop the other listener, or `./scripts/lab-down.sh` if AgentSec leftovers exist.  
+**Remediation:** stop the other listener, or `./scripts/lab-down.sh` if AgentSec leftovers are running (it only stops them; `--remove-containers` removes them and keeps named volumes).  
 **Do not conclude:** the lab “blocked an attack.”
 
 ## Splunk Web unavailable

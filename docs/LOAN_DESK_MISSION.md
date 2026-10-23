@@ -5,7 +5,7 @@
 2. Open the Academy at http://127.0.0.1:5001/academy and choose **Loan Desk Mission** (sidebar or home page). No further terminal commands are needed.
 3. Work through the ten steps. At *Investigate* press **Verify with Splunk**.
 
-Stop with `./scripts/lab-down.sh` (also stops the verifier; volumes are kept).
+Pause with `./scripts/lab-down.sh` (also stops the verifier; it stops containers and removes nothing).
 
 ## What each evidence state means
 | State | Meaning |

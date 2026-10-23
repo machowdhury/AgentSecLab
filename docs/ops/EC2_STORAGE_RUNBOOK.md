@@ -15,7 +15,7 @@
 2. The lab is **stopped but not removed**: `docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local --env-file .env stop` (never `down`: see the Splunk warning below). If the lab is already down, leave it that way.
 3. Do not touch other projects' volumes, images or files.
 
-> **Splunk warning.** Splunk's `/opt/splunk/etc` and `/opt/splunk/var` are anonymous volumes. `docker compose down` followed by `up` starts Splunk with new empty volumes and orphans the old ones. Use `stop`/`start`, or recreate in place (`up -d --force-recreate <service>`), which keeps them.
+> **Splunk warning.** On the host's current (older) checkout, Splunk's `/opt/splunk/etc` and `/opt/splunk/var` are anonymous volumes: `docker compose down` followed by `up` starts Splunk with new empty volumes and orphans the old ones. 17 such orphaned pairs already exist. Use `stop`/`start`, or recreate in place, and see `docs/ops/SPLUNK_VOLUME_MIGRATION.md`. Never run `docker volume prune` here.
 
 ## Part 1: snapshot (do this first, always)
 **Consistency.** A snapshot is crash-consistent at the instant of the call. With the lab's containers stopped, Splunk's files are quiescent, which gives an application-consistent state for AgentSec. Other workloads (Jupyter, the hourly replay loop) keep writing and are only crash-consistent. Do **not** `fsfreeze` the root filesystem (it would freeze SSH and the SSM agent).

@@ -240,11 +240,12 @@ List: [docs/KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md).
 
 | Intent | Command |
 |--------|---------|
-| Soft stop (keep evidence) | `./scripts/lab-down.sh` |
-| Start again | `./scripts/lab-up.sh` |
+| Pause (keep everything) | `./scripts/lab-down.sh` (this is `docker compose stop`: nothing is removed) |
+| Resume | `./scripts/lab-up.sh` |
+| Remove containers, keep data | `./scripts/lab-down.sh --remove-containers` (refused while Splunk is on legacy anonymous volumes) |
 | Rebuild app images | `./scripts/lab-up.sh --build` |
 | Restage Splunk XML | `./scripts/lab-up.sh --refresh-app` |
-| Full reset (destroys volumes) | explicit `docker compose … down -v` — see [docs/OPERATIONS.md](docs/OPERATIONS.md) |
+| Full reset (destroys volumes, including indexed events) | `./scripts/lab-down.sh --purge --yes-delete-all-lab-data` — see [docs/OPERATIONS.md](docs/OPERATIONS.md) |
 
 Troubleshooting: [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 
