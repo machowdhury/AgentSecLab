@@ -12,15 +12,17 @@ REFRESH_APP=0
 BUILD=0
 WAIT_READY=1
 REMOTE=0
+FRESH_SPLUNK=0
 for arg in "$@"; do
   case "$arg" in
     --refresh-app) REFRESH_APP=1 ;;
     --build) BUILD=1 ;;
     --no-wait) WAIT_READY=0 ;;
     --remote) REMOTE=1 ;;
+    --fresh-splunk-data) FRESH_SPLUNK=1 ;;
     -h|--help)
       cat <<'EOF'
-Usage: ./scripts/lab-up.sh [--build] [--refresh-app] [--no-wait] [--remote]
+Usage: ./scripts/lab-up.sh [--build] [--refresh-app] [--no-wait] [--remote] [--fresh-splunk-data]
 
 Starts the Docker lab (AcmeBank, Attack Service, Ollama, collector, Splunk).
 
@@ -32,8 +34,11 @@ Run from the repository root after copying .env.example to .env.
   --refresh-app    restage splunk_app/agentsec into the named volume and
                    restart Splunk so Dashboard Studio picks up XML changes
   --no-wait        start containers; do not run readiness checks
+  --fresh-splunk-data
+                   acknowledge that an EXISTING Splunk container on legacy anonymous volumes will be replaced by one on new,
+                   EMPTY named volumes (the old volumes stay on disk, orphaned). Without this the script refuses.
 
---remote does not publish HEC, OTel, AcmeBank, or Ollama.
+--remote does not publish HEC, OTel, Splunk management, or Ollama.
 Binding 0.0.0.0 does not open a cloud firewall. See docs/REMOTE_ACCESS.md.
 
 First Splunk boot can take 10–20 minutes. Later starts are usually faster.
@@ -45,7 +50,7 @@ After local READY:
   Attack Service       http://127.0.0.1:5001
   AcmeBank health      http://127.0.0.1:5000/health
 
-Stop: ./scripts/lab-down.sh
+Pause: ./scripts/lab-down.sh   (stop only; nothing is removed. Use --remove-containers to remove, --purge to delete data)
 Preflight: ./scripts/lab-preflight.sh
 Access URLs again: ./scripts/agentsec-access.sh
 
@@ -100,6 +105,23 @@ fi
 log "Source app remains in splunk_app/agentsec/. Deployment: ${AGENTSEC_DEPLOYMENT}."
 log "Compose files: docker-compose.yml + docker-compose.local.yml (profile local)"
 
+# Refuse to silently hide Splunk data. If the existing Splunk container keeps /opt/splunk/var in an ANONYMOUS volume (the
+# legacy layout), recreating it with this compose file would attach new EMPTY named volumes and orphan the old data.
+guard_splunk_volumes() {
+  v="$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/opt/splunk/var"}}{{.Name}}{{end}}{{end}}' agentsec_splunk 2>/dev/null || true)"
+  case "$v" in ''|*splunk_var) return 0 ;; esac
+  if [ "$FRESH_SPLUNK" -eq 1 ]; then
+    log "WARN  --fresh-splunk-data: Splunk will start on new EMPTY named volumes. The old data stays in volume ${v} (orphaned, not deleted)."
+    return 0
+  fi
+  log "ERROR: the existing Splunk container keeps its data in an ANONYMOUS volume (${v})."
+  log "ERROR: starting this version would recreate Splunk on new EMPTY named volumes and hide that data."
+  log "Resume a paused legacy lab without recreating it:  docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local --env-file .env start"
+  log "Keep the data: migrate it first (docs/ops/SPLUNK_VOLUME_MIGRATION.md; inventory: python3 scripts/splunk_volumes.py inventory)."
+  log "Start empty on purpose: rerun with --fresh-splunk-data."
+  exit 1
+}
+
 log "[3/4] Starting containers..."
 if [ "$BUILD" -eq 1 ]; then
   log "Rebuilding application images..."
@@ -124,6 +146,7 @@ if [ "$REFRESH_APP" -eq 1 ]; then
     sleep 1
   done
   log "Ensuring the stack is up, then restarting Splunk to reload default/ views..."
+  guard_splunk_volumes
   $COMPOSE up -d
   $COMPOSE restart splunk
   log "Waiting for Splunk health after restart..."
@@ -162,6 +185,7 @@ else
     $COMPOSE up -d --no-recreate ollama otel_collector acmebank attack_service
   else
     log "Starting stack (splunk_app_init copies the app before Splunk becomes ready)..."
+    guard_splunk_volumes
     $COMPOSE up -d
   fi
 fi

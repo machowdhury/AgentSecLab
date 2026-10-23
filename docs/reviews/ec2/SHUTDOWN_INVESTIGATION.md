@@ -1,5 +1,7 @@
 # EC2 lab recreation (15:12 UTC) and shutdown (15:57 UTC): investigation
 
+**CLOSED. The deployment owner confirmed that the 15:57 shutdown was intentional (they ran `docker compose --profile local down`) and that the 14:41 SSH session, the clean install of `v1.1.0` and the 15:12 start were theirs.** H1 below is therefore confirmed; the unknowns about who typed the commands are resolved. What remains relevant is section 5 (Splunk data does not survive `down` then `up`) and section 7 (the owner is the single deployment owner).
+
 **Read-only investigation. Nothing on the host was stopped, started, killed, disabled or removed.** Evidence copies were saved to a 0700 directory on the host (section 6). Times are UTC, 2026-10-23. Identifiers and addresses are redacted. No one is assumed to have acted maliciously.
 
 ## 1. Evidence (observed, with source)

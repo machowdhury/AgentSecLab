@@ -17,7 +17,7 @@ This is not a hidden privileged learner mode. Instructors use the same Attack Se
 
 ## Reset between demos
 
-- Soft: `./scripts/lab-down.sh` && `./scripts/lab-up.sh` if services wedged
+- Soft: `./scripts/lab-down.sh` (pauses; nothing is removed) then `./scripts/lab-up.sh` if services wedged
 - Runtime memory: recreate AcmeBank
 - Do not FULL RESET (`down -v`) unless you accept wiping Splunk history used for REPLAY teaching on that volume
 

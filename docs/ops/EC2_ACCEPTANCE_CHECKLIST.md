@@ -31,8 +31,8 @@ Run commands on the instance unless it says **separate machine**, which means a 
 ## Gate 3: Splunk data continuity (decision, before any `up`)
 | # | Requirement | How | Done |
 |---|---|---|---|
-| G3.1 | **Decision recorded** on the history held in orphaned anonymous Splunk volumes: attach the volumes that hold `agentsec_telemetry` data from 2026-10-02 to 2026-10-07 (through an override file naming them as external volumes), or start clean and keep them untouched. | decision text | [ ] |
-| G3.2 | The cutover never runs `docker compose down` on a lab whose Splunk data must be kept. To change published ports use `up -d --force-recreate <service>` (keeps anonymous volumes). Proven with a throwaway project. | procedure text | [ ] |
+| G3.1 | **Decision recorded** on the 17 orphaned Splunk volume pairs. Recommended (`docs/ops/SPLUNK_VOLUME_MIGRATION.md` section 4): **start clean on named volumes**, leave every old pair untouched, and archive AgentSec's 764 events (618 + 146, 2026-09-12 to 2026-10-08) as JSONL later. The old `etc` volumes have HEC on plain HTTP and an unknown admin password, so they must not be attached to the HTTPS deployment. No two datasets are combined. | decision text | [ ] |
+| G3.2 | The cutover never uses `down` on a lab whose Splunk data must be kept, and never runs `docker volume prune`. The deployed compose uses **named** `splunk_etc`/`splunk_var`; `lab-up.sh` finds no Splunk container to protect. Verified with `docker volume inspect`. | procedure text | [ ] |
 | G3.3 | The previous Splunk admin password was lost with the 14:46 `rm -rf`. If old data is attached, a documented admin reset is part of the plan. | plan | [ ] |
 
 ## Gate 4: the exact model

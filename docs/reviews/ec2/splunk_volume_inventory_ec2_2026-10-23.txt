@@ -1,0 +1,83 @@
+# Splunk volume inventory, EC2 host, 2026-10-23 ~16:20 UTC
+# Produced read-only by scripts/splunk_volumes.py inventory (every volume mounted :ro; Splunk never started; nothing written or deleted).
+# Volume names are shortened by the tool. Pairing of var with etc is by creation time (heuristic).
+# At this time the lab had been stopped and its containers removed (all volumes shown are orphaned).
+
+Splunk var volumes: 17   etc volumes: 17   (pairing is by creation time, a heuristic)
+
+VAR 9d6533618c0560  331 MB  created 2026-07-09T18:37:30  project=-  used by: ORPHANED (no container)
+    (Splunk internal indexes: 10 MB, not listed)
+    paired etc: c20fe776be0bfd
+VAR 049ca8304e1384  319 MB  created 2026-07-09T20:03:36  project=-  used by: ORPHANED (no container)
+    (Splunk internal indexes: 7 MB, not listed)
+    paired etc: b10cc65f135984
+VAR 8525b509bcb916  319 MB  created 2026-07-09T20:12:53  project=-  used by: ORPHANED (no container)
+    (Splunk internal indexes: 7 MB, not listed)
+    paired etc: edebaa8ac4f300
+VAR f6f0fcbf7bb4bb  317 MB  created 2026-07-09T20:21:26  project=-  used by: ORPHANED (no container)
+    (Splunk internal indexes: 6 MB, not listed)
+    paired etc: dd787443f584c6
+VAR 51958c6b2a0814  4698 MB  created 2026-07-09T20:28:14  project=-  used by: ORPHANED (no container)
+    (Splunk internal indexes: 3373 MB, not listed)
+    paired etc: 3bdc15a6f6e53b
+VAR a46d1cd1460ef4  397 MB  created 2026-07-28T19:09:37  project=-  used by: ORPHANED (no container)
+    (Splunk internal indexes: 31 MB, not listed)
+    paired etc: 89b84e9c35ffa0
+VAR 23b9841d0967a7  339 MB  created 2026-07-28T21:36:09  project=-  used by: ORPHANED (no container)
+    index acme_agentic_telemetry   events=624     buckets=2 (hot 1)  2026-07-28 to 2026-07-28  0 MB
+    (Splunk internal indexes: 15 MB, not listed)
+    paired etc: e4568ebeb9e70a
+VAR e221674813964a  621 MB  created 2026-07-29T00:30:44  project=-  used by: ORPHANED (no container)
+    (Splunk internal indexes: 101 MB, not listed)
+    paired etc: 8bcc404dc7e628
+VAR 822e4dcdfd23ab  389 MB  created 2026-07-29T13:29:44  project=-  used by: ORPHANED (no container)
+    index acme_agentic_telemetry   events=12      buckets=1 (hot 1)  2026-07-29 to 2026-07-29  0 MB
+    (Splunk internal indexes: 15 MB, not listed)
+    paired etc: fd15e9dd34194c
+VAR b6362c3e48e87a  470 MB  created 2026-08-15T16:59:24  project=-  used by: ORPHANED (no container)
+    index acme_agentic_telemetry   events=181     buckets=8 (hot 1)  2026-08-15 to 2026-08-15  0 MB
+    (Splunk internal indexes: 68 MB, not listed)
+    paired etc: ac399939ed6fbd
+VAR e2b1fdf0484b83  8093 MB  created 2026-08-15T20:40:52  project=-  used by: ORPHANED (no container)
+    index acme_agentic_telemetry   events=77607   buckets=4 (hot 1)  2026-08-15 to 2026-10-02  47 MB
+    index security                 events=19460   buckets=3 (hot 1)  2026-08-15 to 2026-10-02  2 MB
+    (Splunk internal indexes: 4323 MB, not listed)
+    paired etc: af4d1a2298606a
+VAR c49003f2fe2ef3  925 MB  created 2026-10-02T03:20:14  project=-  used by: ORPHANED (no container)
+    (Splunk internal indexes: 10 MB, not listed)
+    paired etc: 82b6c212cbdd1a
+VAR bab086e220b839  961 MB  created 2026-10-02T03:42:32  project=-  used by: ORPHANED (no container)
+    (Splunk internal indexes: 15 MB, not listed)
+    paired etc: 5cf5249e94d37e
+VAR 7111fcdbb76241  915 MB  created 2026-10-02T04:35:56  project=-  used by: ORPHANED (no container)
+    (Splunk internal indexes: 5 MB, not listed)
+    paired etc: 8fd630016c6a72
+VAR 6af3c444c329b8  1235 MB  created 2026-10-02T04:37:39  project=-  used by: ORPHANED (no container)
+    index agentsec_telemetry       events=146     buckets=4 (hot 0)  2026-10-02 to 2026-10-02  0 MB
+    (Splunk internal indexes: 65 MB, not listed)
+    paired etc: d5bbacc57c8593
+VAR d68af7d002a299  5145 MB  created 2026-10-02T12:51:36  project=-  used by: ORPHANED (no container)
+    index agentsec_telemetry       events=618     buckets=20 (hot 1)  2026-09-12 to 2026-10-08  1 MB
+    (Splunk internal indexes: 1845 MB, not listed)
+    paired etc: 815befadc606d4
+VAR 5d84d1dda5bf3b  955 MB  created 2026-10-23T15:12:35  project=-  used by: ORPHANED (no container)
+    (Splunk internal indexes: 14 MB, not listed)
+    paired etc: 0c57ba1acbacc6
+
+ETC c20fe776be0bfd  442 MB  created 2026-07-09T18:37:30  splunk 9.2.1 build 78803f08aabb  users=1  hec=inputs_without_http  agentsec_app=missing  used by: ORPHANED  var pair: 9d6533618c0560
+ETC b10cc65f135984  441 MB  created 2026-07-09T20:03:36  splunk 9.2.1 build 78803f08aabb  users=1  hec=inputs_without_http  agentsec_app=missing  used by: ORPHANED  var pair: 049ca8304e1384
+ETC edebaa8ac4f300  557 MB  created 2026-07-09T20:12:53  splunk 9.2.1 build 78803f08aabb  users=1  hec=inputs_without_http  agentsec_app=missing  used by: ORPHANED  var pair: 8525b509bcb916
+ETC dd787443f584c6  441 MB  created 2026-07-09T20:21:26  splunk 9.2.1 build 78803f08aabb  users=1  hec=inputs_without_http  agentsec_app=missing  used by: ORPHANED  var pair: f6f0fcbf7bb4bb
+ETC 3bdc15a6f6e53b  561 MB  created 2026-07-09T20:28:14  splunk 9.2.1 build 78803f08aabb  users=1  hec=inputs_without_http  agentsec_app=missing  used by: ORPHANED  var pair: 51958c6b2a0814
+ETC 89b84e9c35ffa0  558 MB  created 2026-07-28T19:09:37  splunk 9.2.1 build 78803f08aabb  users=1  hec=inputs_without_http  agentsec_app=missing  used by: ORPHANED  var pair: a46d1cd1460ef4
+ETC e4568ebeb9e70a  442 MB  created 2026-07-28T21:36:09  splunk 9.2.1 build 78803f08aabb  users=1  hec=inputs_without_http  agentsec_app=missing  used by: ORPHANED  var pair: 23b9841d0967a7
+ETC 8bcc404dc7e628  560 MB  created 2026-07-29T00:30:44  splunk 9.2.1 build 78803f08aabb  users=1  hec=inputs_without_http  agentsec_app=missing  used by: ORPHANED  var pair: e221674813964a
+ETC fd15e9dd34194c  557 MB  created 2026-07-29T13:29:44  splunk 9.2.1 build 78803f08aabb  users=1  hec=inputs_without_http  agentsec_app=missing  used by: ORPHANED  var pair: 822e4dcdfd23ab
+ETC ac399939ed6fbd  669 MB  created 2026-08-15T16:59:24  splunk 9.2.1 build 78803f08aabb  users=1  hec=inputs_without_http  agentsec_app=missing  used by: ORPHANED  var pair: b6362c3e48e87a
+ETC af4d1a2298606a  1232 MB  created 2026-08-15T20:40:52  splunk 10.2.6 build bcdcf0552e0c  users=1  hec=inputs_without_http  agentsec_app=missing  used by: ORPHANED  var pair: e2b1fdf0484b83
+ETC 82b6c212cbdd1a  1121 MB  created 2026-10-02T03:20:14  splunk 10.2.6 build bcdcf0552e0c  users=1  hec=inputs_without_http  agentsec_app=empty_mountpoint  used by: ORPHANED  var pair: c49003f2fe2ef3
+ETC 5cf5249e94d37e  1121 MB  created 2026-10-02T03:42:32  splunk 10.2.6 build bcdcf0552e0c  users=1  hec=inputs_without_http  agentsec_app=empty_mountpoint  used by: ORPHANED  var pair: bab086e220b839
+ETC 8fd630016c6a72  1121 MB  created 2026-10-02T04:35:56  splunk 10.2.6 build bcdcf0552e0c  users=1  hec=inputs_without_http  agentsec_app=empty_mountpoint  used by: ORPHANED  var pair: 7111fcdbb76241
+ETC d5bbacc57c8593  1121 MB  created 2026-10-02T04:37:39  splunk 10.2.6 build bcdcf0552e0c  users=1  hec=inputs_without_http  agentsec_app=empty_mountpoint  used by: ORPHANED  var pair: 6af3c444c329b8
+ETC 815befadc606d4  1123 MB  created 2026-10-02T12:51:36  splunk 10.2.6 build bcdcf0552e0c  users=1  hec=inputs_without_http  agentsec_app=empty_mountpoint  used by: ORPHANED  var pair: d68af7d002a299
+ETC 0c57ba1acbacc6  1121 MB  created 2026-10-23T15:12:35  splunk 10.2.6 build bcdcf0552e0c  users=1  hec=inputs_without_http  agentsec_app=empty_mountpoint  used by: ORPHANED  var pair: 5d84d1dda5bf3b

@@ -123,5 +123,5 @@ If `127.0.0.1:8000` is not AgentSec Splunk, **stop the demo** rather than reconf
 | Action | Effect |
 |--------|--------|
 | `./scripts/academy-restart.sh` | Attack Service only; notebook LIVE index on `artifacts/` survives |
-| `./scripts/lab-down.sh` && `./scripts/lab-up.sh` | Restarts lab compose services; **not** a volume wipe if you avoid `-v` |
+| `./scripts/lab-down.sh` then `./scripts/lab-up.sh` | Pauses then starts the lab (`stop` / `up -d`); nothing is removed. (Older checkouts ran `down` here, which orphaned Splunk's data: see [SPLUNK_VOLUME_MIGRATION.md](../ops/SPLUNK_VOLUME_MIGRATION.md).) |
 | `down -v` | Destroys Splunk history — **not for demo day** |

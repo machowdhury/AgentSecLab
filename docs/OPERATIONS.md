@@ -6,8 +6,8 @@ Canonical start: `./scripts/lab-up.sh` from the repository root (`.env` required
 
 | Intent | Command | Data |
 |--------|---------|------|
-| Stop | `./scripts/lab-down.sh` | Containers stop. The script says indexed Splunk data and named volumes remain. |
-| Start again | `./scripts/lab-up.sh` | Uses existing volumes. Learner ports stay on `127.0.0.1`. |
+| Pause | `./scripts/lab-down.sh` | `docker compose stop`. Containers stop; **nothing is removed**; Splunk configuration and indexed events stay attached. |
+| Resume | `./scripts/lab-up.sh` | Starts the stopped containers on their existing volumes. Learner ports stay on `127.0.0.1`. |
 | Remote start | `./scripts/lab-up.sh --remote` | Publishes 8000, 5001 and 5000 on `0.0.0.0`. Other ports stay private. See [REMOTE_ACCESS.md](REMOTE_ACCESS.md). |
 | Show the URL | `./scripts/agentsec-access.sh` | Does not restart the lab and does not print `.env`. |
 | Rebuild app images | `./scripts/lab-up.sh --build` | Rebuilds AcmeBank and Attack Service, then starts. |
@@ -22,15 +22,26 @@ Canonical start: `./scripts/lab-up.sh` from the repository root (`.env` required
 
 ## Warning before a destructive reset
 
-`docker compose … down -v` deletes lab volumes. That includes `splunk_app_agentsec`, `ollama_models`, and `shared_telemetry`, and anonymous volumes attached to the containers. Indexed Splunk events and a downloaded model on those volumes are removed. It does not delete the git checkout. Run it only when that loss is acceptable.
+`docker compose … down -v` (what `lab-down.sh --purge --yes-delete-all-lab-data` runs) deletes lab volumes. That includes `splunk_etc`, `splunk_var`, `splunk_app_agentsec`, `ollama_models`, and `shared_telemetry`, and any anonymous volumes attached to the containers. Indexed Splunk events and a downloaded model on those volumes are removed. It does not delete the git checkout. Run it only when that loss is acceptable.
 
-## Shutdown (soft)
+## Pause, remove, purge: three different things
 
 ```bash
-./scripts/lab-down.sh
+./scripts/lab-down.sh                                         # PAUSE (default)
+./scripts/lab-down.sh --remove-containers                     # REMOVE containers, keep named volumes
+./scripts/lab-down.sh --purge --yes-delete-all-lab-data       # PURGE: delete every lab volume
 ```
 
-Stops containers. `scripts/lab-down.sh` says indexed Splunk data and named volumes remain. Those named volumes include `splunk_app_agentsec`, `ollama_models`, and `shared_telemetry`. Host `artifacts/` is not removed. Images are not deleted.
+| Command | What Docker does | Containers | Named volumes (Splunk `etc`/`var`, models, app, telemetry) | Splunk data |
+|---|---|---|---|---|
+| **stop / start** (`lab-down.sh`, then `lab-up.sh`) | stops, then starts the same containers | kept | kept | **untouched** |
+| **down / up** (`--remove-containers`, then `lab-up.sh`) | removes containers and the network, creates new ones | removed | kept and reattached | kept (named volumes). **Legacy anonymous volumes would be orphaned: the script refuses.** |
+| **down -v** (`--purge --yes-delete-all-lab-data`) | removes containers, network and volumes | removed | **deleted** | **destroyed** |
+| `up -d --force-recreate <service>` | replaces one container in place | replaced | kept, reattached (anonymous ones too) | untouched |
+
+Splunk's `/opt/splunk/etc` (configuration) and `/opt/splunk/var` (indexed events) are **named volumes** (`splunk_etc`, `splunk_var`). Before that they were anonymous, and `down` then `up` silently started Splunk empty and left the old data orphaned. Details, the inventory of orphaned volumes, and the migration procedure: [ops/SPLUNK_VOLUME_MIGRATION.md](ops/SPLUNK_VOLUME_MIGRATION.md). Never run `docker volume prune` on a lab host.
+
+Pausing removes nothing. Those named volumes include `splunk_etc`, `splunk_var`, `splunk_app_agentsec`, `ollama_models`, and `shared_telemetry`. Host `artifacts/` is not removed. Images are not deleted.
 
 **Next start:** `./scripts/lab-up.sh` (no `--build` unless source/images must rebuild).
 
@@ -40,11 +51,11 @@ Splunk app XML in the named volume is **not** deleted. Images are **not** delete
 
 | Level | What it does | Command |
 |-------|----------------|---------|
-| SOFT RESET | Restart without destroying evidence | `./scripts/lab-down.sh` then `./scripts/lab-up.sh` |
+| SOFT RESET | Restart without destroying evidence | `./scripts/lab-down.sh` (pause) then `./scripts/lab-up.sh` |
 | IMAGE SYNC | Rebuild AcmeBank + Attack Service from git | `./scripts/lab-up.sh --build` |
 | APP RESTAGE | Copy `splunk_app/agentsec` into volume + restart Splunk + HEC init | `./scripts/lab-up.sh --refresh-app` |
 | LAB RESET (runtime memory) | In-process memory is lost on AcmeBank recreate | restart/recreate `acmebank` via compose / `--build` |
-| FULL RESET | Destroy compose volumes (Splunk index, models, app volume) | **explicit** `docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local --env-file .env down -v` then `./scripts/lab-up.sh` |
+| FULL RESET | Destroy compose volumes (Splunk index and config, models, app volume) | **explicit** `./scripts/lab-down.sh --purge --yes-delete-all-lab-data` (equivalent to `docker compose ... down -v`) then `./scripts/lab-up.sh`. Back up first. |
 
 FULL RESET is destructive. It is never the default. It does **not** delete git history or `docs/` official run.ids.
 
