@@ -43,7 +43,7 @@ function verification(v: RunView): { state: StepState; detail: string } {
   if (st === "SPLUNK_VERIFIED") return { state: "done", detail: `SPLUNK-VERIFIED by the host verifier: ${sp?.indexed_events ?? "?"} indexed of ${sp?.local_events ?? local} local events.` };
   if (st === "PENDING") return { state: "active", detail: "Waiting for the host verifier to search Splunk." };
   if (["SPLUNK_MISMATCH", "VERIFICATION_FAILED", "INVALID_RECORD", "STALE"].includes(st)) return { state: "failed", detail: `${st.replace(/_/g, " ")}: the indexed events do not match the ${local} local events.` };
-  return { state: "pending", detail: `Not verified yet. ${local} local events recorded. ${v.status === "RUNNING" ? "Verification is possible once the run finishes." : "Press Verify in Investigate."}` };
+  return { state: "pending", detail: `Not verified yet. ${local} local events recorded. ${v.status === "RUNNING" ? "Verification is possible once the run finishes." : "Press Verify with Splunk below."}` };
 }
 
 export function runSteps(v: RunView | undefined, submitting: boolean): Step[] {
