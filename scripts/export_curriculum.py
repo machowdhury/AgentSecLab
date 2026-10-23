@@ -119,6 +119,12 @@ def explainer_for(lab_id: str) -> dict | None:
     for item in e.get("practice", {}).get("predict", []):
         f, _, dotted = item["source"].partition("#")
         item["text"] = clean(_dig(json.loads((ROOT / f).read_text(encoding="utf-8")), dotted))
+    wb = e.get("workbench")
+    if wb:
+        wb["resolved"] = {}
+        for key, ref in wb["texts"].items():
+            f, _, dotted = ref.partition("#")
+            wb["resolved"][key] = {"text": clean(_dig(json.loads((ROOT / f).read_text(encoding="utf-8")), dotted)), "source": ref}
     rt = e.get("recorded_table")
     if rt:
         src = ROOT / rt["source"]
@@ -202,7 +208,7 @@ def build() -> dict:
             "registry_quote": quote, "sections": S, "rules": rules,
             "assets": {"specimens": sorted(p.name for p in (d / "specimens").glob("*")) if (d / "specimens").exists() else [], "hunts": sorted(p.name for p in (d / "searches").glob("*")) if (d / "searches").exists() else [],
                        "dashboard": view, "evidence_docs": [rel(p) for p in (ev, dash) if p.exists()]},
-            "explainer": explainer_for(lab_id),
+            "explainer": explainer_for(lab_id), "integrated": bool((LEARN / "academy" / "explainers" / f"{lab_id}.json").exists() and "workbench" in json.loads((LEARN / "academy" / "explainers" / f"{lab_id}.json").read_text(encoding="utf-8"))),
             "limitations": ({"items": [clean(x) for x in manifest["limitations"]], "source": rel(man) + "#limitations"} if manifest.get("limitations") else None),
             "checks": checks_of(d / "knowledge-check.md"), "checks_source": rel(d / "knowledge-check.md") if (d / "knowledge-check.md").exists() else None,
         })

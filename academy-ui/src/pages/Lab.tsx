@@ -7,6 +7,7 @@ import { AttackPath } from "../AttackPath";
 import { Glossary } from "../mission/parts";
 import { CopyButton } from "../mission/parts";
 import { availTone } from "./Curriculum";
+import { PiLiveEvidence, PiPractice } from "../workbench/PiWorkbench";
 
 type Tab = "learn" | "practice" | "prove" | "all";
 type EntryKey = Exclude<keyof Lab["sections"], "learn">;
@@ -34,7 +35,7 @@ export function LabPage({ id }: { id: string }) {
     <header className="page-header"><div>
       <div className="eyebrow">{domainName(lab.primary_domain)}{lab.secondary_domain ? ` · also ${domainName(lab.secondary_domain)}` : ""}</div>
       <h1>{lab.title}</h1>
-      <p><code>{lab.id}</code> · <Badge tone={availTone(lab.availability)}>{AVAIL[lab.availability].label.toUpperCase()}</Badge>{lab.launchable && <> <Badge tone="observed">ON THE ATTACK SERVICE ALLOWLIST</Badge></>}{lab.level && <> <Badge tone="neutral">{lab.level}</Badge></>}</p>
+      <p><code>{lab.id}</code> · <Badge tone={availTone(lab.availability)}>{AVAIL[lab.availability].label.toUpperCase()}</Badge>{lab.launchable && <> <Badge tone="observed">ON THE ATTACK SERVICE ALLOWLIST</Badge></>}{lab.integrated && <> <Badge tone="live">NATIVE IN THIS ACADEMY</Badge></>}{lab.level && <> <Badge tone="neutral">{lab.level}</Badge></>}</p>
       <p>{AVAIL[lab.availability].blurb} {REGISTRY_NOTE}</p>
     </div></header>
     {!full && <div className="m-notice" role="note"><Icon name="book" size={18} /><div><strong>Full guided lesson not yet available</strong><p>Only what this lab's own files support is shown below. Anything they do not document is left out rather than filled in.</p></div></div>}
@@ -69,7 +70,7 @@ export function LabPage({ id }: { id: string }) {
       {(ex?.practice?.predict || s.predict) && <div className="m-sec"><h3>What should I predict or investigate?</h3>
         {ex?.practice?.predict ? <ul className="m-rules">{ex.practice.predict.map((p) => <li key={p.label}><strong>{p.label}:</strong> {p.text}<small className="m-src">Source: <code>{p.source}</code></small></li>)}</ul>
           : s.predict && <><p>{s.predict.text}</p><Src src={s.predict.source} /></>}</div>}
-      <Exercise lab={lab} />
+      {lab.integrated && ex?.workbench ? <><Exercise lab={lab} />{lab.id === "LAB-PI-001" && <PiPractice lab={lab} />}</> : <Exercise lab={lab} />}
       {(ex?.practice?.defender || s.defend) && <div className="m-sec"><h3>How would a defender address the issue?</h3>
         {ex?.practice?.defender ? <div className="m-explain"><Badge tone="live">EXPLANATION</Badge><p>{ex.practice.defender.text}</p><Based on={ex.practice.defender.grounds} /></div>
           : s.defend && <div className="m-quoted"><Badge tone="muted">QUOTED FROM THE LAB'S DOCUMENTS</Badge><p>{s.defend.text}</p><Src src={s.defend.source} /></div>}</div>}
@@ -77,6 +78,7 @@ export function LabPage({ id }: { id: string }) {
 
     {show("prove") && <section aria-label="Prove" className="m-card">
       <div className="panel-label">Prove</div><h2>Technical identifiers, evidence and limits</h2>
+      {lab.integrated && lab.id === "LAB-PI-001" && <PiLiveEvidence />}
       {ex?.identifiers && <div className="m-sec"><h3>Technical identifiers</h3><div className="table-wrap"><table><caption className="m-caption">Named in the lab's files</caption><tbody>{ex.identifiers.map((i) => <tr key={i.label}><th scope="row">{i.label}</th><td><code>{i.value}</code></td><td className="m-muted"><code>{base(i.source)}</code></td></tr>)}</tbody></table></div></div>}
       {ex?.recorded_table && <div className="m-sec"><h3>{ex.recorded_table.title} <Badge tone="replay">RECORDED, NOT RE-RUN</Badge></h3>
         <div className="table-wrap"><table className="m-stack"><caption className="m-caption">{ex.recorded_table.caption}</caption><thead><tr>{ex.recorded_table.columns.map((c) => <th scope="col" key={c}>{c}</th>)}</tr></thead>
@@ -109,7 +111,8 @@ function Exercise({ lab }: { lab: Lab }) {
   return <div className="m-sec"><h3>What exercise or evidence is available?</h3>
     <p><strong>{AVAIL[lab.availability].label}.</strong> {AVAIL[lab.availability].blurb}</p>
     {lab.native && <div className="m-actions"><Link className="button button--primary" to={lab.native}>Open the guided exercise <Icon name="arrow" size={15} /></Link></div>}
-    {lab.availability === "workbench" && <p className="m-muted">This lab is on the Attack Service allowlist, so a live attack and retest exist there. Nothing runs from this page.{" "}<a href={`/academy/labs/${lab.id}`}>Open the classic lab page (until it is migrated)</a>.</p>}
+    {lab.availability === "workbench" && !lab.integrated && <p className="m-muted">This lab is on the Attack Service allowlist, so a live attack and retest exist there. Nothing runs from this page.{" "}<a href={`/academy/labs/${lab.id}`}>Open the classic lab page (until it is migrated)</a>.</p>}
+    {lab.integrated && <p className="m-muted">This lab is integrated natively: the guided sequence below launches its own catalog specimens through the Attack Service. The registry tier stays {AVAIL[lab.availability].label}.</p>}
     {lab.availability === "replay" && <p className="m-muted">Recorded evidence only: nothing is launched and no new run is created.</p>}
     {lab.availability === "content_only" && <p className="m-muted">There is nothing to launch or replay for this lab.</p>}
     {a.specimens.length > 0 && <><h4>Recorded specimen files ({a.specimens.length})</h4><ul className="m-rules">{a.specimens.map((x) => <li key={x}><code>{x}</code></li>)}</ul><Src src={`learning/level_1/${lab.id}/specimens/`} /></>}

@@ -118,6 +118,7 @@
     "evidence_docs": []
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [],
    "checks_source": null
@@ -174,6 +175,7 @@
     "evidence_docs": []
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [
     {
@@ -297,6 +299,7 @@
     "evidence_docs": []
    },
    "explainer": null,
+   "integrated": false,
    "limitations": {
     "items": [
      "LOCAL EDUCATIONAL SERVICE when installed locally. On a remote deployment the learner uses the host in the browser address bar. The service is unauthenticated.",
@@ -452,6 +455,7 @@
     ]
    },
    "explainer": null,
+   "integrated": false,
    "limitations": {
     "items": [
      "LOCAL EDUCATIONAL SERVICE when installed locally. On a remote deployment the learner uses the host in the browser address bar. The service is unauthenticated.",
@@ -599,6 +603,7 @@
     "evidence_docs": []
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [],
    "checks_source": null
@@ -679,6 +684,7 @@
     ]
    },
    "explainer": null,
+   "integrated": false,
    "limitations": {
     "items": [
      "LOCAL EDUCATIONAL SERVICE when installed locally. On a remote deployment the learner uses the host in the browser address bar. The service is unauthenticated.",
@@ -785,6 +791,7 @@
     "evidence_docs": []
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [],
    "checks_source": null
@@ -847,6 +854,7 @@
     ]
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [
     {
@@ -941,6 +949,7 @@
     "evidence_docs": []
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [],
    "checks_source": null
@@ -986,6 +995,7 @@
     "evidence_docs": []
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [],
    "checks_source": null
@@ -1031,6 +1041,7 @@
     "evidence_docs": []
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [],
    "checks_source": null
@@ -1175,6 +1186,7 @@
      ]
     }
    },
+   "integrated": false,
    "limitations": null,
    "checks": [],
    "checks_source": null
@@ -1224,6 +1236,7 @@
     "evidence_docs": []
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [],
    "checks_source": null
@@ -1277,6 +1290,7 @@
     ]
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [
     {
@@ -1385,6 +1399,7 @@
     "evidence_docs": []
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [],
    "checks_source": null
@@ -1442,6 +1457,7 @@
     "evidence_docs": []
    },
    "explainer": null,
+   "integrated": false,
    "limitations": {
     "items": [
      "Synthetic applicants only; the model's text is advisory and unverified.",
@@ -1581,6 +1597,7 @@
     ]
    },
    "explainer": null,
+   "integrated": false,
    "limitations": {
     "items": [
      "LOCAL EDUCATIONAL SERVICE when installed locally. On a remote deployment the learner uses the host in the browser address bar. The service is unauthenticated.",
@@ -1729,6 +1746,7 @@
     ]
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [
     {
@@ -1867,6 +1885,7 @@
     ]
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [
     {
@@ -2018,6 +2037,7 @@
     ]
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [
     {
@@ -2148,6 +2168,7 @@
     ]
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [
     {
@@ -2285,6 +2306,7 @@
     ]
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [
     {
@@ -2438,6 +2460,7 @@
     ]
    },
    "explainer": null,
+   "integrated": false,
    "limitations": {
     "items": [
      "LOCAL EDUCATIONAL SERVICE when installed locally. On a remote deployment the learner uses the host in the browser address bar. The service is unauthenticated.",
@@ -2641,6 +2664,7 @@
     "evidence_docs": []
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [
     {
@@ -3115,8 +3139,56 @@
       "The SIMULATED fixture is OBSERVED runtime",
       "78f05d1b-… is RETEST"
      ]
+    },
+    "workbench": {
+     "kind": "process-hops",
+     "specimens": {
+      "BASELINE": "ATK-001",
+      "ATTACK": "ATK-002",
+      "RETEST": "ATK-002"
+     },
+     "texts": {
+      "baseline": "learning/level_1/LAB-PI-001/lab-manifest.json#prediction.BASELINE.attack_objective",
+      "attack": "learning/level_1/LAB-PI-001/lab-manifest.json#prediction.ATTACK.attack_objective",
+      "retest": "learning/level_1/LAB-PI-001/lab-manifest.json#prediction.RETEST.attack_objective",
+      "defense": "learning/level_1/LAB-PI-001/lab-manifest.json#prediction.ATTACK.defense_should",
+      "attack_expected": "learning/level_1/LAB-PI-001/lab-manifest.json#prediction.ATTACK.expected_evidence_vulnerable",
+      "retest_expected": "learning/level_1/LAB-PI-001/lab-manifest.json#prediction.RETEST.expected_evidence_defended",
+      "retest_falsify": "learning/level_1/LAB-PI-001/lab-manifest.json#prediction.RETEST.falsify"
+     },
+     "resolved": {
+      "baseline": {
+       "text": "Run the catalog benign loan (ATK-001) so later ATTACK evidence has a normal comparison.",
+       "source": "learning/level_1/LAB-PI-001/lab-manifest.json#prediction.BASELINE.attack_objective"
+      },
+      "attack": {
+       "text": "Send the catalog ATK-002 string into AcmeBank POST /process on the intentionally vulnerable ATTACK experiment and observe whether CTRL-INPUT-001 fail-opens before Ollama.",
+       "source": "learning/level_1/LAB-PI-001/lab-manifest.json#prediction.ATTACK.attack_objective"
+      },
+      "retest": {
+       "text": "Replay the SAME ATK-002 payload on the defended RETEST experiment and prove the outcome changed because defense changed, not because the input changed.",
+       "source": "learning/level_1/LAB-PI-001/lab-manifest.json#prediction.RETEST.attack_objective"
+      },
+      "defense": {
+       "text": "On this ATTACK specimen the lab is fail-open. The defense you will enable is the RETEST ExperimentContext (profile=defended), not Splunk.",
+       "source": "learning/level_1/LAB-PI-001/lab-manifest.json#prediction.ATTACK.defense_should"
+      },
+      "attack_expected": {
+       "text": "INTENTIONALLY VULNERABLE LAB PROFILE: hop 0 ALLOW, real llm.started, testbed.mode=ATTACK. ALLOW is not proof the model approved the loan.",
+       "source": "learning/level_1/LAB-PI-001/lab-manifest.json#prediction.ATTACK.expected_evidence_vulnerable"
+      },
+      "retest_expected": {
+       "text": "hop 0 DENY, reason input_pattern_matched, attempted=false, executed=false, outcome=prevented, zero llm. on a complete copy, testbed.mode=RETEST.",
+       "source": "learning/level_1/LAB-PI-001/lab-manifest.json#prediction.RETEST.expected_evidence_defended"
+      },
+      "retest_falsify": {
+       "text": "llm.started on hop 0 after DENY, or hop-0 ALLOW on this RETEST experiment, would falsify the defended prediction.",
+       "source": "learning/level_1/LAB-PI-001/lab-manifest.json#prediction.RETEST.falsify"
+      }
+     }
     }
    },
+   "integrated": true,
    "limitations": {
     "items": [
      "LOCAL EDUCATIONAL SERVICE when installed locally. On a remote deployment the learner uses the host in the browser address bar. The service is unauthenticated.",
@@ -3236,6 +3308,7 @@
     "evidence_docs": []
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [
     {
@@ -3391,6 +3464,7 @@
     ]
    },
    "explainer": null,
+   "integrated": false,
    "limitations": {
     "items": [
      "LOCAL EDUCATIONAL SERVICE when installed locally. On a remote deployment the learner uses the host in the browser address bar. The service is unauthenticated.",
@@ -3536,6 +3610,7 @@
     "evidence_docs": []
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [],
    "checks_source": null
@@ -3583,6 +3658,7 @@
     "evidence_docs": []
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [],
    "checks_source": null
@@ -3654,6 +3730,7 @@
     ]
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [
     {
@@ -3771,6 +3848,7 @@
     "evidence_docs": []
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [],
    "checks_source": null
@@ -3819,6 +3897,7 @@
     "evidence_docs": []
    },
    "explainer": null,
+   "integrated": false,
    "limitations": null,
    "checks": [
     {

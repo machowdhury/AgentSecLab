@@ -177,3 +177,45 @@ def test_lab_template_suppresses_empty_sections_and_labels_what_each_block_is():
     assert "tabs.some" in lab and "hasPractice" in lab and "hasProve" in lab, "tabs without supported content must not render"
     path = (ui / "AttackPath.tsx").read_text(encoding="utf-8")
     assert "not what happened in a run" in path and "<ol" in path
+
+
+def test_pi_workbench_uses_only_the_existing_launch_contract_and_never_auto_launches():
+    import re
+    ui = ROOT / "academy-ui" / "src" / "workbench"
+    launch = (ui / "launch.ts").read_text(encoding="utf-8")
+    urls = set(re.findall(r'"(/api/[^"?`]*)', launch)) | set(re.findall(r"`(/api/[^`$?]*)", launch))
+    assert urls == {"/api/launch", "/api/launches/", "/api/compare-handoff"}, urls
+    assert 'execution: "live"' in launch and "retry" not in launch.lower().replace("nothing was retried", "").replace("never retries", "")
+    page = (ui / "PiWorkbench.tsx").read_text(encoding="utf-8")
+    assert page.count("launchLab(") == 1 and "const run = async" in page, "the only launch call is inside the button handler"
+    assert "if (inflight.current) return" in page, "a second press while one is in flight must be ignored"
+    effects = "\n".join(re.findall(r"useEffect\(\(\) => \{.*?\}, \[", page, re.S))
+    assert "launchLab" not in effects and "run(" not in effects, "no effect may start a launch"
+    for text in (launch, page, (ui / "pi.ts").read_text(encoding="utf-8")):
+        assert "SPLUNK-VERIFIED" not in text, "this lab has no signed verifier, so the UI must never claim SPLUNK-VERIFIED"
+    assert "No. This lab has no signed verifier" in page
+
+
+def test_pi_workbench_matches_the_backend_allowlist_and_runtime_fields():
+    from agentsec.launch_catalog import allowlist_public_rows
+    from agentsec.launch_contract import parse_launch_json
+    wb = next(e for _, e in _explained() if e.get("workbench"))["workbench"]
+    rows = {(r["mode"], r["specimen_id"]) for r in allowlist_public_rows() if r["lab_id"] == "LAB-PI-001"}
+    assert rows == set(wb["specimens"].items())
+    for mode, spec in wb["specimens"].items():
+        parsed = parse_launch_json(json.dumps({"lab_id": "LAB-PI-001", "specimen_id": spec, "mode": mode, "execution": "live"}))
+        assert parsed.ok and parsed.lab_id == "LAB-PI-001"
+    pipeline = (ROOT / "src" / "agentsec" / "pipeline.py").read_text(encoding="utf-8")
+    for key in ("control.decision", "control.reason", "operation.attempted", "operation.executed", "operation.outcome", "llm.started", "llm.completed", "llm.failed"):
+        assert f'"{key}"' in pipeline, key
+    for key, ref in wb["texts"].items():
+        f, _, dotted = ref.partition("#")
+        doc = json.loads((ROOT / f).read_text(encoding="utf-8"))
+        for part in dotted.split("."):
+            doc = doc[part]
+        assert wb["resolved"][key]["text"] == EXP.clean(doc)
+
+
+def test_only_pi_001_is_integrated_and_the_registry_tier_is_unchanged():
+    assert [l["id"] for l in DATA["labs"] if l["integrated"]] == ["LAB-PI-001"]
+    assert next(l for l in DATA["labs"] if l["id"] == "LAB-PI-001")["availability"] == "workbench"

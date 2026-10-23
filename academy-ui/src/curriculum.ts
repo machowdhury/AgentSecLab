@@ -13,13 +13,14 @@ export interface Explainer {
   known?: { text: string; grounds: string[]; facts: string[] }[];
   practice?: { predict?: { label: string; source: string; text: string }[]; defender?: { text: string; grounds: string[]; facts: string[] } };
   recorded_table?: { title: string; caption: string; source: string; columns: string[]; rows: string[][] };
+  workbench?: { kind: string; specimens: Record<string, string>; resolved: Record<string, { text: string; source: string }> };
   spl?: { name: string; source: string; text: string }[];
   identifiers?: { label: string; value: string; source: string }[];
   cannot_claim?: { source: string; items: string[] };
 }
 export interface Lab {
   id: string; title: string; level: string | null; primary_domain: string; secondary_domain: string | null; domain_confidence: string;
-  tier: string; availability: Availability; launchable: boolean; native: string | null;
+  tier: string; availability: Availability; launchable: boolean; native: string | null; integrated: boolean;
   registry_quote: { file: string; quote: string } | null;
   sections: { learn: ({ items: string[]; source: string } | Entry) | null; idea: Entry | null; problem: Entry | null; why: Entry | null; controls: Entry | null; boundary: Entry | null; how: Entry | null; predict: Entry | null; defend: Entry | null; conclude: Entry | null };
   rules: string[]; explainer: Explainer | null; limitations: { items: string[]; source: string } | null;
