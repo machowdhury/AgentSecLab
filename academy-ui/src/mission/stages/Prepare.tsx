@@ -5,7 +5,8 @@ import { updateMission, useMission } from "../../store";
 import { appValues, attackText } from "../app";
 import { ApplicationForm } from "../ApplicationForm";
 import { PREDICTIONS } from "../content";
-import { Brief, RunDetails, RunPanel } from "../parts";
+import { Brief } from "../parts";
+import { RunPanel } from "../RunProgress";
 import { useSlot } from "../runStore";
 import { StageNav } from "../StageNav";
 import { TaskPanel } from "../TaskPanel";
@@ -52,7 +53,6 @@ export function Prepare() {
         <RunPanel slot="explore" idle="No run yet. Run the normal application to see the timeline." />
       </aside>
     </div>
-    {slot.view && slot.view.status !== "RUNNING" && <section className="m-section" aria-labelledby="h-explore-result"><div className="lesson-label">Explore result</div><h2 id="h-explore-result">What the normal run did</h2><RunDetails view={slot.view} /></section>}
     <StageNav back="learn" next="attack" nextLabel="Continue to Attack" />
   </>;
 }

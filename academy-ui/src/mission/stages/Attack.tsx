@@ -2,7 +2,8 @@ import { Button, Icon } from "../../ui";
 import { useConfig } from "../../config";
 import { updateMission, useMission } from "../../store";
 import { appValues, attackText } from "../app";
-import { Brief, Callout, RunDetails, RunPanel } from "../parts";
+import { Brief, Callout } from "../parts";
+import { RunPanel } from "../RunProgress";
 import { launch, useSlot } from "../runStore";
 import { StageNav } from "../StageNav";
 import { TaskPanel } from "../TaskPanel";
@@ -51,7 +52,7 @@ export function Attack() {
       </section>
       <aside className="run-pane">
         <div className="panel-label">03 — Observe independent facts</div>
-        <RunPanel slot="attack" idle="No run yet. Launch the attack to see what the agent does." />
+        <RunPanel slot="attack" idle="No run yet. Launch the attack to see what the agent does." next={{ label: "Continue to Investigate", stage: "investigate" }} />
       </aside>
     </div>
     <section className="m-section" aria-labelledby="h-observe">
@@ -65,7 +66,6 @@ export function Attack() {
           <thead><tr><th scope="col">Question</th><th scope="col">You predicted</th><th scope="col">What happened</th><th scope="col">Match</th></tr></thead>
           <tbody>{rows.map(([q, x, y]) => <tr key={q}><td>{q}</td><td>{x ?? "—"}</td><td>{y}</td><td>{String(x) === y ? "match" : "differs"}</td></tr>)}</tbody></table></div>
         <Callout kind="good">A DENY or an ALLOW is a policy decision. Whether the handler began is a separate fact: see the Executed column and the event agentsec.mcp.started.</Callout>
-        <RunDetails view={v} />
       </>}
     </section>
     <StageNav back="prepare" next="investigate" nextLabel="Continue to Investigate" />

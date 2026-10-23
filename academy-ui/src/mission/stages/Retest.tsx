@@ -3,13 +3,13 @@ import { useConfig } from "../../config";
 import { useMission } from "../../store";
 import { SEC_LABEL } from "../content";
 import { appValues, attackText } from "../app";
-import { Brief, Callout, RunDetails, Story } from "../parts";
+import { Brief, Callout, Story } from "../parts";
+import { RunPanel } from "../RunProgress";
 import { launch, useSlot, useVerify, verifyRun } from "../runStore";
 import { StageNav } from "../StageNav";
 import { Milestones, SplCell } from "../Notebook";
 import { LOAN_DESK_RETEST } from "../notebooks";
 import { TaskPanel } from "../TaskPanel";
-import { RunPanel } from "../parts";
 import { reviewCall } from "../../runs";
 import type { RunView } from "../../types";
 
@@ -74,16 +74,9 @@ export function Retest() {
       </section>
       <aside className="run-pane">
         <div className="panel-label">03 — Observe independent facts</div>
-        <RunPanel slot="retest" idle="No run yet. Launch the retest to see the result." />
+        <RunPanel slot="retest" idle="No run yet. Launch the retest to see the result." next={{ label: "Continue to Explain", stage: "explain" }} />
       </aside>
     </div>
-    {slot.view && done && <section className="m-section" aria-labelledby="h-retest-result"><div className="lesson-label">Retest result</div><h2 id="h-retest-result">What the retest did</h2><RunDetails view={slot.view} /></section>}
-    <section className="m-section" aria-labelledby="h-compare">
-      <div className="lesson-label">Compare</div>
-      <h2 id="h-compare">Before and after</h2>
-      <Brief step="compare" />
-      <Compare />
-    </section>
     <section className="m-section" aria-labelledby="h-nb-retest">
       <div className="lesson-label">Investigate both runs</div><h2 id="h-nb-retest">Prove the difference in Splunk</h2>
       <p>These searches read your two real runs from Splunk, side by side. Rows that differ are marked.</p>
