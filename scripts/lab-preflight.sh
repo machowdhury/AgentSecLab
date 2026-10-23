@@ -150,21 +150,25 @@ check_port 8088 "Splunk HEC"
 check_port 4317 "OTel gRPC"
 check_port 4318 "OTel HTTP"
 
-if command -v df >/dev/null 2>&1; then
-  avail="$(df -Pk "$ROOT" | awk 'NR==2 {print $4}')"
-  if [ -n "$avail" ]; then
-    avail_gb="$(awk -v k="$avail" 'BEGIN {printf "%.1f", k/1024/1024}')"
-    log "INFO  CURRENTLY AVAILABLE disk on this volume: ${avail_gb} GB (${avail} KiB)"
-    log "INFO  MINIMUM SUPPORTED disk: NOT BENCHMARKED"
-    log "INFO  RECOMMENDED planning floor: 8 GB free before a first install. That floor is not a measured minimum."
-    if [ "$avail" -lt 2097152 ]; then
-      fail "Insufficient free disk for AgentSec. Available: ${avail_gb} GB. Recommended planning floor: 8 GB. Free disk space and rerun ./scripts/lab-preflight.sh. This check does not delete Docker data."
-    elif [ "$avail" -lt 8388608 ]; then
-      warn "free disk ${avail_gb} GB is below the 8 GB planning floor. Splunk images are large. This is not a measured minimum and this check does not delete Docker data."
-    else
-      pass "free disk ${avail_gb} GB is at or above the 8 GB planning floor (not a measured minimum)"
-    fi
-  fi
+# Measured on the filesystems that hold the deployment and Docker's storage, never on a RAM-backed one (scripts/preflight_disk.py).
+DOCKER_ROOT=""
+if [ "${DOCKER_OK:-0}" = "1" ]; then
+  DOCKER_ROOT="$(docker info --format '{{.DockerRootDir}}' 2>/dev/null || true)"
+fi
+disk_rows="$(python3 "$ROOT/scripts/preflight_disk.py" --root "$ROOT" --docker-root "$DOCKER_ROOT" 2>/dev/null || true)"
+if [ -z "$disk_rows" ]; then
+  warn "free disk could not be measured (scripts/preflight_disk.py did not run). Do not read this as a pass."
+else
+  while IFS= read -r row; do
+    case "$row" in
+      PASS*) pass "${row#PASS  }" ;;
+      WARN*) warn "${row#WARN  }" ;;
+      FAIL*) fail "${row#FAIL  }" ;;
+      *) log "$row" ;;
+    esac
+  done <<EOF
+$disk_rows
+EOF
 fi
 
 if [ -r /proc/meminfo ]; then

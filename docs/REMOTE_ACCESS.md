@@ -79,7 +79,14 @@ Open `http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home` on the same com
 
 ## C. Switching between modes
 
-`./scripts/lab-up.sh` (no `--remote`) republishes on `127.0.0.1`; `--remote` republishes on `0.0.0.0`. Changing a published port recreates the Academy, Attack Service and AcmeBank containers. It does not remove Docker volumes or Splunk data. On the pilot Mac, where the lab is deployed with read-only receipt mounts, do not do this between or during sessions; see `docs/PILOT_LAUNCH_CHECKLIST.md`.
+**`lab-up.sh --remote` does not change a lab that is already running.** When Splunk is healthy, `lab-up.sh` starts the app services with `--no-recreate` and never recreates Splunk, so the published ports stay as they were. The readiness check then fails with `REMOTE LISTENERS: NOT ACCEPTED` (exit 2). To switch mode:
+
+```bash
+./scripts/lab-down.sh            # stops the verifier, removes the containers, KEEPS every Docker volume and Splunk index
+./scripts/lab-up.sh --remote     # or ./scripts/lab-up.sh for local
+```
+
+This recreates every container, including Splunk, so Splunk is down for several minutes and its HEC input is re-initialised. Named volumes (Splunk data, Splunk app, models) are kept. On the pilot Mac, where the lab runs with read-only receipt mounts from a deploy override, do not do this between or during sessions; see `docs/PILOT_LAUNCH_CHECKLIST.md`.
 
 ## D. Links and redirects from a remote browser
 
