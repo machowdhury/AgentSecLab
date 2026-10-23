@@ -55,6 +55,7 @@ case "$MODE" in
     chmod 600 "$KEY"; chmod 644 "$CERT" "$CA"
     # Splunk reads one PEM: certificate then key. Rebuilt from the sources each run.
     ( umask 077; cat "$CERT" "$KEY" > "$CERT_DIR/hec.pem" )
+    chmod 644 "$CERT_DIR/hec.pem"  # the Splunk container runs as another uid; 0600 crash-loops it on Linux. .certs/ itself stays 0700.
     validate "$CERT" "$KEY" "$CA"
     log "LOCAL_SELF_SIGNED certificate ready (reused if present)"
     ;;
@@ -67,6 +68,7 @@ case "$MODE" in
       # Splunk wants one PEM. Build a private copy in .certs/; the supplied files stay untouched.
       mkdir -p "$CERT_DIR"; chmod 700 "$CERT_DIR"
       ( umask 077; cat "$AGENTSEC_HEC_CERT_FILE" "$AGENTSEC_HEC_KEY_FILE" > "$CERT_DIR/hec.pem" )
+      chmod 644 "$CERT_DIR/hec.pem"  # readable by the Splunk container's uid (see LOCAL_SELF_SIGNED above)
       log "EXTERNAL_CERT: bundled Splunk will serve the supplied certificate (files unmodified)"
     else
       [ -r "$AGENTSEC_HEC_CA_FILE" ] || die "not readable: $AGENTSEC_HEC_CA_FILE"

@@ -198,7 +198,7 @@ def test_the_full_ten_step_journey_with_a_real_before_and_after(page, stack, set
     page.click("[data-explain-form] button[type=submit]")
     assert "Mission complete" in page.locator("[data-explain-result]").inner_text()
     assert "workflow_complete" in page.evaluate("localStorage.getItem('agentsec.academy.progress.v1')")
-    page.goto(page.url.split("/academy")[0] + "/academy")
+    page.goto(page.url.split("/academy")[0] + "/academy/home")
     assert page.locator("[data-progress-for='LAB-LOANDESK-001']").inner_text() == "Workflow complete"
 
 

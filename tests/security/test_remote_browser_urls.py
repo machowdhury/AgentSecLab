@@ -8,7 +8,7 @@ import pytest
 from agentsec.attack_app import AcmeBankClient, create_app
 
 REMOTE = "http://203.0.113.10:5001"  # documentation address (RFC 5737), stands in for an EC2 public IP
-PAGES = ("/", "/academy", "/academy/foundations", "/academy/path", "/academy/status", "/academy/missions/loan-desk",
+PAGES = ("/", "/academy/home", "/academy/foundations", "/academy/path", "/academy/status", "/academy/missions/loan-desk",
          "/academy/labs/LAB-MCP-001", "/labs/LAB-MCP-001", "/labs/LAB-PI-001")
 LOOPBACK = re.compile(r"(?:127\.0\.0\.1|localhost|\[::1\])")
 URL_ATTR = re.compile(r"""\b(?:href|src|action|data-[\w-]*(?:url|href|link)[\w-]*)\s*=\s*["']([^"']*)["']""", re.I)

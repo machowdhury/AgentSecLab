@@ -930,6 +930,42 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
         status = {"REQUESTED": 202, "UNKNOWN_RUN": 404, "BAD_RUN": 404, "RATE_LIMITED": 429, "NOT_INSTALLED": 503}[code]
         return jsonify({"request": code, **detail}), status
 
+    def _search_body():
+        if request.content_length is not None and request.content_length > 1024:
+            return None
+        try:
+            body = loads_json_no_duplicate_keys(request.get_data(as_text=True) or "null")
+        except (DuplicateJsonKeyError, json.JSONDecodeError):
+            return None
+        return body if isinstance(body, dict) and set(body) <= {"template", "params", "compare_run"} else None
+
+    @app.get("/api/v1/loan-desk/search/templates")
+    def loan_desk_search_templates():
+        from agentsec.loan_desk.search import TEMPLATES
+        return jsonify({"templates": [t.public() for t in TEMPLATES.values()]})
+
+    @app.post("/api/v1/loan-desk/runs/<run_id>/search/preview")
+    def loan_desk_search_preview(run_id: str):
+        body = _search_body()
+        if body is None:
+            return jsonify({"error": "bad_request"}), 400
+        code, info = desk.search_preview(run_id, body.get("template"), body.get("params"), body.get("compare_run"))
+        return (jsonify(info), 200) if code == "OK" else (jsonify({"error": code.lower(), **info}), {"UNKNOWN_RUN": 404, "BAD_REQUEST": 400}[code])
+
+    @app.post("/api/v1/loan-desk/runs/<run_id>/search")
+    def loan_desk_search(run_id: str):
+        body = _search_body()
+        if body is None:
+            return jsonify({"error": "bad_request"}), 400
+        code, info = desk.request_search(run_id, body.get("template"), body.get("params"), body.get("compare_run"))
+        status = {"REQUESTED": 202, "UNKNOWN_RUN": 404, "BAD_RUN": 404, "BAD_REQUEST": 400, "RATE_LIMITED": 429, "NOT_INSTALLED": 503}[code]
+        return jsonify(info if code == "REQUESTED" else {"error": code.lower(), **info}), status
+
+    @app.get("/api/v1/loan-desk/runs/<run_id>/search/<search_id>")
+    def loan_desk_search_result(run_id: str, search_id: str):
+        res = desk.search_result(run_id, search_id)
+        return (jsonify(res), 200) if res and res.get("status") != "UNKNOWN_SEARCH" else (jsonify({"error": "unknown_search"}), 404)
+
     @app.get("/api/v1/loan-desk/runs/<run_id>/events.ndjson")
     def loan_desk_events(run_id: str):
         body = desk.events_ndjson(run_id)

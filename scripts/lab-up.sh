@@ -72,6 +72,13 @@ if [ ! -f "$ROOT/.env" ]; then
   exit 1
 fi
 
+# A stale plain-HTTP HEC endpoint in .env overrides the HTTPS default and silently drops telemetry. Refuse it before anything starts.
+hec_ep="$(sed -n 's/^SPLUNK_HEC_ENDPOINT=//p' "$ROOT/.env" | tail -n 1)"
+case "$hec_ep" in
+  ""|https://*) ;;
+  *) printf '[lab-up] ERROR: SPLUNK_HEC_ENDPOINT in .env is not https:// (stale default). Remove or fix that line; TLS verification stays on.\n' >&2; exit 1 ;;
+esac
+
 # HEC TLS material: create once (LOCAL_SELF_SIGNED) or validate admin-supplied files.
 # Reads only the non-secret AGENTSEC_HEC_* settings from .env; fails fast on a bad setup.
 for k in AGENTSEC_HEC_TLS_MODE AGENTSEC_HEC_CERT_FILE AGENTSEC_HEC_KEY_FILE AGENTSEC_HEC_CA_FILE; do

@@ -20,7 +20,7 @@ from agentsec.attack_app import AcmeBankClient, create_app
 ROOT = Path(__file__).resolve().parents[2]
 TEMPLATES = ROOT / "src" / "agentsec" / "templates" / "academy"
 SCRIPT = ROOT / "src" / "agentsec" / "static" / "academy.js"
-PAGES = ("/academy", "/academy/foundations", "/academy/path", "/academy/status", "/academy/labs/LAB-MCP-001")
+PAGES = ("/academy/home", "/academy/foundations", "/academy/path", "/academy/status", "/academy/labs/LAB-MCP-001")
 LIVE_ID = "11111111-2222-4333-8444-555555555555"
 
 

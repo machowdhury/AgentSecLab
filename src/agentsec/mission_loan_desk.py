@@ -16,6 +16,7 @@ from flask import Flask, jsonify, render_template, request
 from agentsec.academy_web import _no_store
 
 RUN_ID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+SEARCH_ID = re.compile(r"^[0-9a-f]{16}$")
 POSTURES = ("baseline", "hardened")
 APPLICATION_FIELDS = ("full_name", "annual_income", "credit_score", "loan_amount", "term_years", "province", "employment", "notes")
 
@@ -95,6 +96,42 @@ def register_loan_desk_mission(app: Flask, *, acmebank_url: str, version: str) -
         if not RUN_ID.match(run_id) or run_id not in launched:
             return _no_store(jsonify({"error": "unknown_run", "detail": "This service did not launch that run."})), 404
         return upstream("POST", f"/api/v1/loan-desk/runs/{run_id}/verify")
+
+    def _owned(run_id: str):
+        if not RUN_ID.match(run_id) or run_id not in launched:
+            return _no_store(jsonify({"error": "unknown_run", "detail": "This service did not launch that run."})), 404
+        return None
+
+    def _owned_pair(run_id: str):
+        """Both the run and (when given) the comparison run must be ones this service launched."""
+        bad = _owned(run_id)
+        if bad:
+            return bad
+        body = request.get_json(silent=True)
+        other = body.get("compare_run") if isinstance(body, dict) else None
+        if other is None:
+            return None
+        if not isinstance(other, str):
+            return _no_store(jsonify({"error": "bad_request"})), 400
+        return _owned(other)
+
+    @app.get("/api/missions/loan-desk/search/templates")
+    def mission_search_templates():
+        return upstream("GET", "/api/v1/loan-desk/search/templates")
+
+    @app.post("/api/missions/loan-desk/runs/<run_id>/search/preview")
+    def mission_search_preview(run_id: str):
+        return _owned_pair(run_id) or upstream("POST", f"/api/v1/loan-desk/runs/{run_id}/search/preview", data=request.get_data(), headers={"Content-Type": "application/json"})
+
+    @app.post("/api/missions/loan-desk/runs/<run_id>/search")
+    def mission_search(run_id: str):
+        return _owned_pair(run_id) or upstream("POST", f"/api/v1/loan-desk/runs/{run_id}/search", data=request.get_data(), headers={"Content-Type": "application/json"})
+
+    @app.get("/api/missions/loan-desk/runs/<run_id>/search/<search_id>")
+    def mission_search_result(run_id: str, search_id: str):
+        if not SEARCH_ID.match(search_id):
+            return _no_store(jsonify({"error": "unknown_search"})), 404
+        return _owned(run_id) or upstream("GET", f"/api/v1/loan-desk/runs/{run_id}/search/{search_id}")
 
     @app.get("/api/missions/loan-desk/runs/<run_id>")
     def mission_run(run_id: str):

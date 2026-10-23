@@ -63,13 +63,13 @@ def test_path_lists_every_curriculum_lab(client):
     assert "/academy/labs/LAB-MCP-001" in html
 
 
-@pytest.mark.parametrize("path,label", [("/academy", "Home"), ("/academy/path", "Your Learning Path"), ("/academy/status", "System Status")])
+@pytest.mark.parametrize("path,label", [("/academy/home", "Home"), ("/academy/path", "Your Learning Path"), ("/academy/status", "System Status")])
 def test_current_page_is_marked_in_navigation(client, path, label):
     html = client.get(path).get_data(as_text=True)
     assert re.search(rf'<a href="{re.escape(path)}" aria-current="page">{re.escape(label)}</a>', html)
 
 
-@pytest.mark.parametrize("path", ["/academy", "/academy/foundations", "/academy/path", "/academy/status", "/academy/labs/LAB-MCP-001"])
+@pytest.mark.parametrize("path", ["/academy/home", "/academy/foundations", "/academy/path", "/academy/status", "/academy/labs/LAB-MCP-001"])
 def test_pages_have_landmarks_skip_link_and_one_h1(client, path):
     html = client.get(path).get_data(as_text=True)
     assert '<html lang="en">' in html
@@ -80,7 +80,7 @@ def test_pages_have_landmarks_skip_link_and_one_h1(client, path):
 
 
 def test_menu_toggle_is_a_labelled_disclosure(client):
-    html = client.get("/academy").get_data(as_text=True)
+    html = client.get("/academy/home").get_data(as_text=True)
     assert re.search(r'<button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav"', html)
 
 

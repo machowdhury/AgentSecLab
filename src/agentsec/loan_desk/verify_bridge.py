@@ -229,3 +229,76 @@ def splunk_status(d: Path, run_id: str, local_count: int, now: float | None = No
     if hb in ("NOT_INSTALLED", "OFFLINE"):
         return {**base, "status": "NOT_VERIFIED", "detail": "No host verifier is running, so nothing can confirm indexing."}
     return {**base, "status": "NOT_VERIFIED", "detail": "Not requested yet."}
+
+
+# ------------------------------------------------------------------ notebook searches (fixed templates; see search.py)
+
+SEARCH_SUBDIR = "search"
+SEARCH_ID = re.compile(r"^[0-9a-f]{16}$")
+MAX_SEARCH_FILE_BYTES = 256 * 1024
+SEARCH_PER_RUN_PER_MIN = 20
+SEARCH_GLOBAL_PER_HOUR = 300
+SEARCH_PENDING_TIMEOUT_S = 60
+
+
+def valid_search_request(doc: object, search_id: str) -> dict | None:
+    """Strict shape only; the verifier re-validates the template and parameters itself and builds the SPL itself."""
+    if not isinstance(doc, dict) or not {"run_id", "search_id", "template", "params", "requested_at"} <= set(doc) <= {"run_id", "search_id", "template", "params", "requested_at", "compare_run_id"}:
+        return None
+    other = doc.get("compare_run_id")
+    if other is not None and (not isinstance(other, str) or not RUN_ID.match(other)):
+        return None
+    at = doc["requested_at"]
+    if doc["search_id"] != search_id or not SEARCH_ID.match(search_id) or not isinstance(doc["run_id"], str) or not RUN_ID.match(doc["run_id"]):
+        return None
+    if not isinstance(doc["template"], str) or len(doc["template"]) > 64 or not isinstance(doc["params"], dict) or len(doc["params"]) > 8:
+        return None
+    if isinstance(at, bool) or not isinstance(at, (int, float)) or not math.isfinite(at):
+        return None
+    return {"run_id": doc["run_id"], "search_id": search_id, "template": doc["template"], "params": doc["params"], "requested_at": float(at), "compare_run_id": other}
+
+
+def request_search(d: Path, run_id: str, template: str, params: dict, now: float | None = None, compare_run: str | None = None) -> tuple[str, dict]:
+    """Write one search request. Returns (code, detail): REQUESTED, RATE_LIMITED, NOT_INSTALLED, BAD_RUN."""
+    now = now or time.time()
+    if not RUN_ID.match(run_id):
+        return "BAD_RUN", {}
+    if not (d / RECEIPTS).is_dir():
+        return "NOT_INSTALLED", {}
+    sdir = d / REQUESTS / SEARCH_SUBDIR
+    try:
+        files = [(p, p.stat().st_mtime) for p in sdir.glob("*.json")] if sdir.is_dir() else []
+    except OSError:
+        files = []
+    if sum(1 for _, m in files if now - m < 3600) >= SEARCH_GLOBAL_PER_HOUR:
+        return "RATE_LIMITED", {"retry_after_s": 60}
+    mine = sum(1 for p, m in files if now - m < 60 and (read_json_safe(p) or {}).get("run_id") == run_id)
+    if mine >= SEARCH_PER_RUN_PER_MIN:
+        return "RATE_LIMITED", {"retry_after_s": 10}
+    search_id = secrets.token_hex(8)
+    doc = {"run_id": run_id, "search_id": search_id, "template": template, "params": params, "requested_at": now}
+    if compare_run:
+        doc["compare_run_id"] = compare_run
+    write_json_atomic(sdir / f"{search_id}.json", doc)
+    return "REQUESTED", {"search_id": search_id}
+
+
+def search_status(d: Path, run_id: str, search_id: str, now: float | None = None) -> dict:
+    """State of one search as the AcmeBank side may report it. Receipts are trusted only because receipts/ is a read-only mount here."""
+    now = now or time.time()
+    if not SEARCH_ID.match(search_id) or not RUN_ID.match(run_id):
+        return {"status": "UNKNOWN_SEARCH"}
+    hb = heartbeat_state(d, now)
+    if _isolation_required() and (d / RECEIPTS).is_dir() and not receipts_isolated(d):
+        return {"status": "UNAVAILABLE", "verifier": hb, "detail": "The receipts directory is writable from this container, so a search result could be forged. Mount artifacts/loan_desk/receipts read-only."}
+    req = valid_search_request(read_json_safe(d / REQUESTS / SEARCH_SUBDIR / f"{search_id}.json"), search_id)
+    if req is None or req["run_id"] != run_id:
+        return {"status": "UNKNOWN_SEARCH"}
+    res = read_json_safe(d / RECEIPTS / SEARCH_SUBDIR / f"{search_id}.json", MAX_SEARCH_FILE_BYTES)
+    if res is not None and res.get("run_id") == run_id and res.get("search_id") == search_id:
+        keep = ("template", "params", "spl", "ok", "columns", "rows", "truncated", "row_cap", "duration_ms", "error", "checked_at", "backend", "compare_run_id")
+        return {"status": "READY" if res.get("ok") else "FAILED", "verifier": hb, **{k: res[k] for k in keep if k in res}}
+    if hb == "ONLINE" and now - req["requested_at"] <= SEARCH_PENDING_TIMEOUT_S:
+        return {"status": "PENDING", "verifier": hb}
+    return {"status": "TIMED_OUT" if hb == "ONLINE" else "VERIFIER_OFFLINE", "verifier": hb,
+            "detail": "The host verifier did not answer in time." if hb == "ONLINE" else "The host verifier is not running."}

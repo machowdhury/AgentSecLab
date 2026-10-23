@@ -14,6 +14,7 @@ from agentsec.loan_desk.data import ApplicationStore, validate_application
 from agentsec.loan_desk.events import LoanDeskEmitter
 from agentsec.loan_desk.facts import build_facts, unsupported_figures
 from agentsec.loan_desk.model import ChatModel
+from agentsec.loan_desk import search as srch
 from agentsec.loan_desk import verify_bridge as vb
 from agentsec.loan_desk.tools import POSTURES, TOOLS
 from agentsec.settings import Settings
@@ -33,18 +34,37 @@ def injected_text_in_queue(notes: str, tickets: list[dict], min_len: int = 24) -
     return hits
 
 
+def is_malformed_rejection(reason: str | None) -> bool:
+    """A denial that says the model's call could not be evaluated (bad shape, unknown tool), not that a control refused it.
+
+    These come from argument validation, before any authorization rule applies. They are not security-policy blocks: counting them
+    as one would tell a learner a control stopped an attack when the model simply produced an unusable call.
+    """
+    r = reason or ""
+    return r.startswith("invalid_arguments") or r == "unknown_tool"
+
+
 def outcomes(view: dict, timeline: dict) -> dict:
-    """Security outcome and business-workflow outcome are different facts; both come from recorded decisions/events."""
+    """Security outcome and business-workflow outcome are different facts; both come from recorded decisions/events.
+
+    security.outcome: BLOCKED (a control refused at least one proposed action), NOT_EXERCISED (every denial was a malformed call, so
+    no control decided anything about the attack), NOTHING_BLOCKED (nothing was denied).
+    """
     calls = timeline["tool_calls"]
     denied = [c for c in calls if c["decision"] == "DENY"]
+    policy_denied = [c for c in denied if not is_malformed_rejection(c["reason"])]
+    malformed = [c for c in denied if is_malformed_rejection(c["reason"])]
     executed = [c for c in calls if c["executed"]]
     status = view.get("status")
     business = {"COMPLETED": "COMPLETE", "INCOMPLETE": "INCOMPLETE", "FAILED": "FAILED", "RUNNING": "RUNNING"}.get(status, "RUNNING")
+    security = "BLOCKED" if policy_denied else ("NOT_EXERCISED" if malformed else "NOTHING_BLOCKED")
     return {
-        "security": {"outcome": "BLOCKED" if denied else "NOTHING_BLOCKED",
-                     "blocked": [{"tool": c["tool"], "reason": c["reason"], "step": c["step"], "executed": c["executed"]} for c in denied]},
+        "security": {"outcome": security,
+                     "blocked": [{"tool": c["tool"], "reason": c["reason"], "step": c["step"], "executed": c["executed"]} for c in policy_denied],
+                     "rejected_malformed": [{"tool": c["tool"], "reason": c["reason"], "step": c["step"], "executed": c["executed"]} for c in malformed]},
         "business": {"outcome": business, "reason": view.get("stop_reason")},
         "operations": {"proposed": len(calls), "authorized": len(calls) - len(denied), "denied": len(denied),
+                       "policy_denied": len(policy_denied), "rejected_malformed": len(malformed),
                        "executed": len(executed), "denied_but_executed": sum(1 for c in denied if c["executed"])},
     }
 
@@ -127,6 +147,32 @@ class LoanDeskService:
         if not known:
             return "UNKNOWN_RUN", {}
         return vb.request_verification(vb.bridge_dir(self.settings.artifacts_dir), run_id)
+
+    def _known(self, run_id: str) -> bool:
+        with self._lock:
+            return run_id in self._runs
+
+    def search_preview(self, run_id: str, template: object, params: object, compare_run: object = None) -> tuple[str, dict]:
+        """The exact SPL a template search would run for this run. Nothing is executed or written."""
+        if not self._known(run_id) or (compare_run is not None and not (isinstance(compare_run, str) and self._known(compare_run))):
+            return "UNKNOWN_RUN", {}
+        try:
+            spl, clean = srch.get_template(template).build(run_id, params, compare_run)
+        except srch.SearchError as exc:
+            return "BAD_REQUEST", {"detail": str(exc)}
+        return "OK", {"template": template, "params": clean, "spl": spl, **({"compare_run": compare_run} if compare_run else {})}
+
+    def request_search(self, run_id: str, template: object, params: object, compare_run: object = None) -> tuple[str, dict]:
+        code, info = self.search_preview(run_id, template, params, compare_run)
+        if code != "OK":
+            return code, info
+        code, detail = vb.request_search(vb.bridge_dir(self.settings.artifacts_dir), run_id, info["template"], info["params"], compare_run=info.get("compare_run"))
+        return code, {**info, **detail} if code == "REQUESTED" else detail
+
+    def search_result(self, run_id: str, search_id: str) -> dict | None:
+        if not self._known(run_id):
+            return None
+        return vb.search_status(vb.bridge_dir(self.settings.artifacts_dir), run_id, search_id)
 
     def events_ndjson(self, run_id: str) -> str | None:
         import json

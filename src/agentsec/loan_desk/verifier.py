@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Callable
 
 from agentsec.loan_desk import verify_bridge as vb
+from agentsec.loan_desk import search as srch
 from agentsec.loan_desk.reconcile import wait_and_reconcile
 
 VERSION = "2"
@@ -138,6 +139,50 @@ def acquire_single_instance(state: Path):
     return fh
 
 
+def process_searches(d: Path, key: bytes, *, backend=None, now: float | None = None, budget: dict | None = None, tick: Callable[[], None] | None = None) -> list[str]:
+    """Answer pending notebook searches. The request is untrusted: template and params are re-validated and the SPL is built here."""
+    now = now or time.time()
+    backend = backend or srch.DockerExecBackend()
+    budget = budget if budget is not None else {"window_start": now, "count": 0}
+    if now - budget["window_start"] > 60:
+        budget.update(window_start=now, count=0)
+    sdir, out = d / vb.REQUESTS / vb.SEARCH_SUBDIR, d / vb.RECEIPTS / vb.SEARCH_SUBDIR
+    try:
+        paths = sorted(sdir.glob("*.json")) if sdir.is_dir() else []
+    except OSError:
+        return []
+    answered = []
+    for path in paths:
+        try:
+            req = vb.valid_search_request(vb.read_json_safe(path), path.stem)
+            if req is None:
+                quarantine(d, path, "malformed search request")
+                continue
+            age = now - req["requested_at"]
+            if age < 0 or age > vb.SEARCH_PENDING_TIMEOUT_S * 2 or (out / path.name).exists():
+                continue
+            if budget["count"] >= 60:
+                continue  # bounded: at most 60 notebook searches a minute
+            budget["count"] += 1
+            if tick:
+                tick()  # a 30 s search must not let the heartbeat go stale
+            doc = {"run_id": req["run_id"], "search_id": req["search_id"], "template": req["template"], "checked_at": now, "compare_run_id": req["compare_run_id"],
+                   "backend": backend.name, "row_cap": srch.MAX_ROWS}
+            try:
+                tpl = srch.get_template(req["template"])
+                spl, clean = tpl.build(req["run_id"], req["params"], req["compare_run_id"])
+            except srch.SearchError as exc:
+                doc.update(ok=False, error="refused", detail=str(exc)[:200], params={}, spl="")
+            else:
+                oc = backend.run(spl, timeout_s=srch.SEARCH_TIMEOUT_S, max_rows=srch.MAX_ROWS)
+                doc.update(params=clean, spl=spl, ok=oc.ok, columns=oc.columns, rows=oc.rows, truncated=oc.truncated, error=oc.error, duration_ms=oc.duration_ms)
+            vb.write_json_atomic(out / path.name, vb.sign(key, doc))
+            answered.append(path.stem)
+        except Exception as exc:  # noqa: BLE001 - one bad request must never end the loop
+            log(f"error handling search {path.name}: {type(exc).__name__}")
+    return answered
+
+
 def run_forever(d: Path, *, origin: str, state: Path, interval: float = 2.0) -> int:
     lock = acquire_single_instance(state)
     if lock is None:
@@ -151,12 +196,13 @@ def run_forever(d: Path, *, origin: str, state: Path, interval: float = 2.0) -> 
     stop = {"now": False}
     for sig in (signal.SIGTERM, signal.SIGINT):
         signal.signal(sig, lambda *_: stop.update(now=True))
-    seen, budget = collections.OrderedDict(), {"window_start": time.time(), "count": 0}
+    seen, budget, sbudget = collections.OrderedDict(), {"window_start": time.time(), "count": 0}, {"window_start": time.time(), "count": 0}
     log(f"verifier {VERSION} started pid={pid}")
     while not stop["now"]:
         try:
             heartbeat(d, key, pid)
             process_once(d, key, origin=origin, seen=seen, budget=budget)
+            process_searches(d, key, budget=sbudget, tick=lambda: heartbeat(d, key, pid))
         except Exception as exc:  # noqa: BLE001
             log(f"loop error {type(exc).__name__}; continuing")
         t = 0.0
