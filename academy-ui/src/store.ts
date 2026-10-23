@@ -24,6 +24,7 @@ export interface MissionState {
   attackNotes?: string;
   notebook?: Record<string, NotebookEntry>;
   foundationsRead?: string[];
+  workbench?: Record<string, { prediction?: { decision?: string; llm?: string; locked?: boolean }; runs?: Partial<Record<"baseline" | "attack" | "retest", string>> }>;
   mcp?: { prediction?: string; locked?: boolean; attack?: string; retest?: string };
   mastery?: { mcq?: Record<string, string>; written?: Record<string, { text: string; revealed?: boolean; verdict?: "covered" | "partly" | "not_yet" }> };
   application?: Record<string, string>;
