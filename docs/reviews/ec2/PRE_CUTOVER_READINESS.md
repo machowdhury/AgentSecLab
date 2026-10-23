@@ -5,6 +5,14 @@
 ## 0. Unexplained shutdown found during the audit (read this first)
 At **15:57:03 to 15:57:35 UTC** on 2026-10-23 every AgentSec container on the instance was stopped (SIGTERM, then force after 10 s) and removed, in `compose down` order. **The EC2 lab is currently down** (0 containers; all 41 Docker volumes are intact). The host's own logs do not say who did it: no SSH login, no sudo command, no cron or timer, no SSM session, no instance stop or reboot. Every SSM command sent from this work is recorded in CloudTrail: six read-only commands, none containing a stop or remove. The initiator is **unknown**. Nothing was restarted by this work. Earlier in the day (15:12 UTC) someone had recreated the containers, and the host's shell history shows repeated `lab-up.sh --build --refresh-app --remote` runs, so another operator is evidently working on this host. Confirm who, and whether the shutdown was intended, before any cutover.
 
+
+## Update after the investigation (supersedes sections 0, 3 and 7 where they conflict)
+Full detail: `SHUTDOWN_INVESTIGATION.md`, `docs/ops/EC2_STORAGE_RUNBOOK.md`, `docs/ops/EC2_ACCEPTANCE_CHECKLIST.md`.
+- **Section 0:** the shutdown is no longer unexplained. An interactive SSH session opened from the operator's Mac at 14:41:59 deleted the old deployment (14:46), cloned and checked out `v1.1.0` (15:11), created `.env` (15:11:45), started the lab (15:12:35) and, most likely, ran `compose down` at 15:57. Best-supported reading: a deliberate clean-room install test. Still unknown: whether the shutdown was intended and who typed the commands.
+- **Section 3 was wrong about "reclaimable" volumes.** Splunk's data and config volumes are **anonymous**, and `lab-down.sh` followed by `lab-up.sh` orphans them (proven with a throwaway project). About 34 of the 36 "inactive" volumes are orphaned Splunk volumes, and **two of them hold AgentSec's own telemetry history through 2026-10-07**. Nothing is to be reclaimed until the owner decides what to keep; older July and August volumes (about 23 GB) predate this project's use of the host.
+- **Section 7 was wrong that `lab-down.sh` keeps Splunk data usable.** The cutover must not use `down`; use `up -d --force-recreate <service>` (keeps anonymous volumes), and decide explicitly (gate G3) whether to attach the old history.
+- **New finding:** the same pattern applies to the Mac pilot lab. Its end-of-day `lab-down.sh` advice has been corrected in the pilot docs.
+
 ## 1. Environment (not the same as the Mac)
 EC2 runs `0178c70` (clean ancestor of the branch, 109 commits behind), HTTP HEC, container Ollama with `llama3.2:1b` only, no Loan Desk verifier or receipt mounts. Ubuntu 26.04, t3.2xlarge, 30 GB RAM, Docker 29.6.1 / Compose 5.3.1. Full comparison table: see the previous assessment summary in the review thread.
 

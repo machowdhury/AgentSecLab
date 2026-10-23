@@ -46,5 +46,5 @@ Allow 10 minutes. First-ever start of the lab (cold image cache) is a separate p
 ## After the session
 1. Write down the attack and retest run ids shown on the page (they stay in Splunk; `index=agentsec_telemetry "agentsec.run.id"="<id>"`).
 2. Close the participant's tab. Do not stop the lab between sessions on the same day.
-3. At the end of the day only: `./scripts/lab-down.sh` (stops the verifier too, never removes volumes).
+3. At the end of the day only, to pause the lab: `./scripts/loan_desk_verifier.sh stop`, then `docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local --env-file .env stop`. **Do not use `./scripts/lab-down.sh`**: it removes the containers, and the next `lab-up.sh` starts Splunk with new *empty* data volumes (the index and users stay behind in an orphaned volume). Resume with the same `docker compose ... start` (not `lab-up.sh`, which can recreate containers), then `./scripts/loan_desk_verifier.sh start`. See `docs/REMOTE_ACCESS.md` section C.
 4. Delete recordings per the consent terms.
