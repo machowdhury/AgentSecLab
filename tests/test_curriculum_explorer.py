@@ -216,6 +216,10 @@ def test_pi_workbench_matches_the_backend_allowlist_and_runtime_fields():
         assert wb["resolved"][key]["text"] == EXP.clean(doc)
 
 
-def test_only_pi_001_is_integrated_and_the_registry_tier_is_unchanged():
-    assert [l["id"] for l in DATA["labs"] if l["integrated"]] == ["LAB-PI-001"]
-    assert next(l for l in DATA["labs"] if l["id"] == "LAB-PI-001")["availability"] == "workbench"
+def test_only_pi_001_and_rag_context_are_integrated_and_the_registry_tier_is_unchanged():
+    assert [l["id"] for l in DATA["labs"] if l["integrated"]] == ["LAB-PI-001", "LAB-RAG-CONTEXT"]
+    for lab in ("LAB-PI-001", "LAB-RAG-CONTEXT"):
+        assert next(l for l in DATA["labs"] if l["id"] == lab)["availability"] == "workbench"
+    e = next(l for l in DATA["labs"] if l["id"] == "LAB-RAG-CONTEXT")["explainer"]
+    assert [n["kind"] for n in e["path"]] == ["attacker", "entry", "boundary", "control", "control", "operation", "evidence"]
+    assert {g["id"] for g in e["glance"]} == {"goal", "controls", "entry", "boundary", "control", "impact", "evidence"}

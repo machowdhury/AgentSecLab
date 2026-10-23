@@ -294,6 +294,8 @@ tr.is-different td, tr.is-different th { background: #f4f9f9; }
 .m-sec h3 { margin: 0 0 6px; font-size: 15px; }
 .m-sec h4 { margin: 12px 0 4px; font-size: 13px; }
 .m-src { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
+.m-src code { white-space: normal; overflow-wrap: anywhere; }
+.m-wb p, .m-wb td, .m-wb li, .m-outcome p { overflow-wrap: anywhere; }
 .m-rules { margin: 6px 0; padding-left: 18px; display: grid; gap: 4px; overflow-wrap: anywhere; }
 .m-checks { padding-left: 20px; display: grid; gap: 14px; }
 @media (max-width: 620px) { .m-lablist li { align-items: flex-start; } .m-domain h2 button { padding: 12px; } }

@@ -7,22 +7,22 @@ import type { Lab } from "../curriculum";
 import { compareRuns, launchLab, loadLaunch, probeEvidence, type Evidence, type LaunchError, type LaunchRecord } from "./launch";
 import { PI_KIND, hop0, interpret, modelStarted, piSteps } from "./pi";
 
-type Slot = "baseline" | "attack" | "retest";
+export type Slot = "baseline" | "attack" | "retest";
 const LAB = "LAB-PI-001";
-const MODE: Record<Slot, string> = { baseline: "BASELINE", attack: "ATTACK", retest: "RETEST" };
+export const MODE: Record<Slot, string> = { baseline: "BASELINE", attack: "ATTACK", retest: "RETEST" };
 const cache = new Map<string, LaunchRecord | null>();
 
 /** Live runs of this lab: stored run ids are re-read from the Attack Service on every visit; a stored copy is never trusted. */
-function useRuns() {
+export function useRuns(lab: string = LAB) {
   const m = useMission();
-  const ids = m.workbench?.[LAB]?.runs ?? {};
+  const ids = m.workbench?.[lab]?.runs ?? {};
   const [, bump] = useState(0);
   useEffect(() => {
     (Object.values(ids) as string[]).filter((id) => id && !cache.has(id)).forEach((id) => loadLaunch(id).then((r) => { cache.set(id, r); bump((n) => n + 1); }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ids.baseline, ids.attack, ids.retest]);
   const rec = (s: Slot) => (ids[s] ? cache.get(ids[s]!) : undefined);
-  return { ids, rec, remember: (r: LaunchRecord, s: Slot) => { cache.set(r.run_id, r); updateMission((st) => ({ ...st, workbench: { ...st.workbench, [LAB]: { ...st.workbench?.[LAB], runs: { ...st.workbench?.[LAB]?.runs, [s]: r.run_id } } } })); bump((n) => n + 1); } };
+  return { ids, rec, remember: (r: LaunchRecord, s: Slot) => { cache.set(r.run_id, r); updateMission((st) => ({ ...st, workbench: { ...st.workbench, [lab]: { ...st.workbench?.[lab], runs: { ...st.workbench?.[lab]?.runs, [s]: r.run_id } } } })); bump((n) => n + 1); } };
 }
 
 /** Practice: predict, baseline, attack, defend and retest, compare, investigate. Nothing runs until the learner presses a button, and a second press while one is in flight is ignored. */
@@ -94,14 +94,14 @@ export function PiPractice({ lab }: { lab: Lab }) {
   </div>;
 }
 
-function Step({ n, title, id, text, extra, src, children }: { n: number; title: string; id: string; text: { text: string; source: string }; extra?: string; src?: string; children: React.ReactNode }) {
+export function Step({ n, title, id, text, extra, src, children }: { n: number; title: string; id: string; text: { text: string; source: string }; extra?: string; src?: string; children: React.ReactNode }) {
   return <section className="m-wbstep" aria-labelledby={id}><h3 id={id}><span>{n}</span> {title}</h3><p>{text.text}<small className="m-src">Source: <code>{text.source}</code></small></p>{extra && <p className="m-muted">{extra}{src ? <small className="m-src">Source: <code>{src}</code></small> : null}</p>}{children}</section>;
 }
-function Launch({ label, disabled, busy, secs, onClick, again }: { label: string; disabled: boolean; busy: boolean; secs: number; onClick: () => void; again: boolean }) {
+export function Launch({ label, disabled, busy, secs, onClick, again }: { label: string; disabled: boolean; busy: boolean; secs: number; onClick: () => void; again: boolean }) {
   return <div className="m-actions"><Button onClick={onClick} disabled={disabled}>{busy ? "Waiting for the Attack Service…" : again ? label.replace(/^(Run|Launch)/, "$1 again:").replace(": ", " ") : label} <Icon name="play" size={15} /></Button>
     {busy && <span className="m-muted" role="status">{secs} s elapsed. The target calls a local model, which can take a while. Nothing is retried.</span>}</div>;
 }
-function Err({ e }: { e: LaunchError }) { return <Callout kind="warn" role="alert"><strong>{e.kind === "timeout" ? "No answer in time." : e.kind === "unreachable" ? "Target unavailable." : "The launch did not produce a run."}</strong> {e.message}</Callout>; }
+export function Err({ e }: { e: LaunchError }) { return <Callout kind="warn" role="alert"><strong>{e.kind === "timeout" ? "No answer in time." : e.kind === "unreachable" ? "Target unavailable." : "The launch did not produce a run."}</strong> {e.message}</Callout>; }
 
 function RunCard({ rec, ev, onCheck, guess }: { rec: LaunchRecord; ev: Evidence | null | undefined; onCheck: () => void; guess?: string }) {
   const o = interpret(rec), k = PI_KIND[o.kind];
