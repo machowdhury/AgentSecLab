@@ -1,0 +1,31 @@
+{
+ "after_participant_activity": {
+  "local:agentsec.academy.loandesk.v1": false,
+  "session:agentsec.academy.loandesk.v1": true,
+  "local:agentsec.academy.progress.v1": false,
+  "session:agentsec.academy.progress.v1": false,
+  "local:agentsec.academy.mcp.v1": false,
+  "session:agentsec.academy.mcp.v1": false
+ },
+ "prediction_visible_before": 1,
+ "new_tab_before_reset": {
+  "local:agentsec.academy.loandesk.v1": false,
+  "session:agentsec.academy.loandesk.v1": false,
+  "local:agentsec.academy.progress.v1": false,
+  "session:agentsec.academy.progress.v1": false,
+  "local:agentsec.academy.mcp.v1": false,
+  "session:agentsec.academy.mcp.v1": false
+ },
+ "after_both_resets": {
+  "local:agentsec.academy.loandesk.v1": false,
+  "session:agentsec.academy.loandesk.v1": false,
+  "local:agentsec.academy.progress.v1": false,
+  "session:agentsec.academy.progress.v1": false,
+  "local:agentsec.academy.mcp.v1": false,
+  "session:agentsec.academy.mcp.v1": false
+ },
+ "mission_reopens_at": "understand",
+ "prediction_still_checked": 0,
+ "participant_data_left": [],
+ "ok": true
+}

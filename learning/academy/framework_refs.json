@@ -226,9 +226,10 @@
     }
   ],
   "legacy_specimen_ids": [
-    "AML.T0050"
+    "AML.T0050",
+    "AML.T0054"
   ],
-  "legacy_note": "Committed REPLAY specimens recorded before this correction carry agentsec.technique.id=AML.T0050. They are historical evidence and are not rewritten. New runs do not emit agentsec.technique.id.",
+  "legacy_note": "Committed REPLAY specimens recorded before this correction carry agentsec.technique.id=AML.T0050 (MCP-002, MCP-003, MCP-004) or AML.T0054 (ATK-002, the recovered LAB-PI-001 runs). They are historical evidence and are not rewritten. New runs do not emit agentsec.technique.id.",
   "lab_references": [
     {
       "scope": "ATK-002",
