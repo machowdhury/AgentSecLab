@@ -60,7 +60,7 @@ def test_local_generates_once_and_reuses(tmp_path):
     assert _certs({}, tmp_path).returncode == 0
     first = (out / "hec.crt").read_bytes()
     assert (out / "hec.key").stat().st_mode & 0o777 == 0o600
-    assert (out / "hec.pem").stat().st_mode & 0o777 == 0o600
+    assert (out / "hec.pem").stat().st_mode & 0o777 == 0o644  # the Splunk container uid must read it; .certs/ stays 0700 and hec.key stays 0600
     assert _certs({}, tmp_path).returncode == 0
     assert (out / "hec.crt").read_bytes() == first  # not regenerated on later runs
 
@@ -238,3 +238,14 @@ def test_sourcetype_requires_json_bodies_for_indexing():
     # that Splunk then discards. Probes and emitters must send JSON documents.
     props = _read("splunk_app/agentsec/default/props.conf").split("[otel:agentic:json]", 1)[1].split("\n[", 1)[0]
     assert "INDEXED_EXTRACTIONS = json" in props
+
+
+def test_hec_pem_is_readable_by_the_splunk_container_but_the_cert_dir_stays_private():
+    text = (ROOT / "scripts" / "hec-certs.sh").read_text(encoding="utf-8")
+    assert text.count('chmod 644 "$CERT_DIR/hec.pem"') == 2 and 'chmod 700 "$CERT_DIR"' in text
+
+
+def test_lab_up_refuses_a_stale_plain_http_hec_endpoint_before_starting_anything():
+    text = (ROOT / "scripts" / "lab-up.sh").read_text(encoding="utf-8")
+    guard, first_compose = text.index("SPLUNK_HEC_ENDPOINT=//p"), text.index("hec-certs.sh\" || exit 1")
+    assert guard < first_compose and "https://*) ;;" in text

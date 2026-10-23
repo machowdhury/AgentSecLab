@@ -229,7 +229,7 @@ def test_keyboard_only_skip_link_prediction_and_visible_focus(page_factory, base
 
 def test_narrow_menu_disclosure_opens_and_escape_returns_focus(page_factory, base_url):
     page = page_factory(320, 568)
-    page.goto(base_url + "/academy")
+    page.goto(base_url + "/academy/home")
     nav = page.locator("#primary-nav")
     toggle = page.locator("[data-menu-toggle]")
     assert nav.is_hidden() and toggle.is_visible()

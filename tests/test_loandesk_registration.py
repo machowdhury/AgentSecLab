@@ -68,7 +68,7 @@ def test_academy_links_the_mission_and_the_launcher_does_not_know_it():
     c = create_app().test_client()
     path = c.get("/academy/path").get_data(as_text=True)
     assert 'href="/academy/missions/loan-desk"' in path and "Loan Desk: Agent-Authored Content" in path
-    home = c.get("/academy").get_data(as_text=True)
+    home = c.get("/academy/home").get_data(as_text=True)
     assert home.count('href="/academy/missions/loan-desk"') >= 1 and home.count("data-progress-for=\"LAB-LOANDESK-001\"") == 1
     r = c.post("/api/launch", json={"lab_id": LAB, "specimen_id": "LOANDESK-ATTACK", "mode": "ATTACK", "execution": "live"})
     assert r.status_code in (400, 404, 422) and "run_id" not in (r.get_json() or {})

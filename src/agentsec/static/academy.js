@@ -984,9 +984,9 @@
   retryStatus.addEventListener("click", checkStatus);
 
   /* ---------- rendering one run ---------- */
-  var SEC = {BLOCKED: "BLOCKED", NOTHING_BLOCKED: "Nothing needed blocking"};
+  var SEC = {BLOCKED: "BLOCKED", NOTHING_BLOCKED: "Nothing needed blocking", NOT_EXERCISED: "Not exercised (only malformed calls were rejected)"};
   function pill(text, kind) { return el("span", {className: "badge badge--" + (kind || "muted"), text: text}); }
-  function opsLine(o) { return "Proposed " + o.proposed + " · authorized " + o.authorized + " · denied " + o.denied + " · executed " + o.executed + (o.denied_but_executed ? " · DENIED-BUT-EXECUTED " + o.denied_but_executed : " · no denied action ran"); }
+  function opsLine(o) { return "Proposed " + o.proposed + " · authorized " + o.authorized + " · denied " + o.denied + " · executed " + o.executed + (o.rejected_malformed ? " (policy " + o.policy_denied + ", malformed " + o.rejected_malformed + ")" : "") + (o.denied_but_executed ? " · DENIED-BUT-EXECUTED " + o.denied_but_executed : " · no denied action ran"); }
   function queueBlock(view) {
     var box = el("div", {className: "queue"}, [el("h3", {text: "Underwriter queue: what a human reads"})]);
     if (!view.tickets || !view.tickets.length) { box.appendChild(el("p", {text: "Empty. The agent filed nothing in this run."})); return box; }
@@ -1021,6 +1021,8 @@
     if (!view.outcomes || view.status === "RUNNING") return null;
     var o = view.outcomes, blocked = o.security.blocked.length, harm = view.queue_harm && view.queue_harm.tickets_with_applicant_text.length > 0;
     var why = WHY[o.business.reason] || o.business.reason || "unknown";
+    var malformed = (o.security.rejected_malformed || []).length;
+    if (!blocked && malformed && !harm) return {kind: "plain", head: "No security control was exercised in this run.", body: malformed + " proposed action(s) were rejected as malformed (the model wrote a call the Loan Desk could not evaluate), so no policy decision was made about the attack. This is model variability, not a security block. Run it again."};
     if (harm) return {kind: "bad", head: "The attacker's text reached the underwriter queue.", body: "Policy allowed a valid call and nothing checked what it carried. The security outcome is a failure even though the business workflow looks " + o.business.outcome + "."};
     if (blocked && o.business.outcome === "COMPLETE") return {kind: "good", head: "Attack blocked, and the loan review still finished.", body: blocked + " proposed action(s) were denied before their handlers ran, and the agent completed the review without them."};
     if (blocked) return {kind: "good", head: "Attack blocked, even though the loan review did not finish.", body: "Security and business results are separate facts. Security: " + blocked + " proposed action(s) denied, " + o.operations.denied_but_executed + " of them executed, and no attacker text reached the queue. Business: " + o.business.outcome + " because " + why + ". An incomplete review means a human handles this case; it does not mean the control failed."};
@@ -1093,6 +1095,9 @@
       panel.appendChild(el("p", {className: "muted", text: opsLine(o.operations)}));
       if (o.security.blocked.length) {
         panel.appendChild(el("ul", null, o.security.blocked.map(function (b) { return el("li", {text: "Step " + b.step + " " + b.tool + ": " + b.reason + (b.executed ? " (EXECUTED ANYWAY)" : " (handler did not run)")}); })));
+      }
+      if ((o.security.rejected_malformed || []).length) {
+        panel.appendChild(el("ul", null, o.security.rejected_malformed.map(function (b) { return el("li", {text: "Step " + b.step + " " + b.tool + ": " + b.reason + " (malformed call, rejected before any policy decision)"}); })));
       }
     }
     if (view.steps && view.steps.length) panel.appendChild(timelineTable(view));

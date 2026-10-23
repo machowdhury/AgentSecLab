@@ -1,0 +1,46 @@
+/* Academy look for the functional AcmeBank pages (home loan form, Loan Desk). Loaded after the page CSS; it restyles, never changes markup or behaviour.
+   Tokens and shapes follow the Figma v2 export as built in academy-ui (Manrope, navy/teal, 8px panels). Fonts are self-hosted (strict CSP). */
+@font-face{font-family:"Manrope";font-weight:400;font-display:swap;src:url("/static/fonts/manrope-400.woff2") format("woff2")}
+@font-face{font-family:"Manrope";font-weight:500;font-display:swap;src:url("/static/fonts/manrope-500.woff2") format("woff2")}
+@font-face{font-family:"Manrope";font-weight:600;font-display:swap;src:url("/static/fonts/manrope-600.woff2") format("woff2")}
+@font-face{font-family:"Manrope";font-weight:700;font-display:swap;src:url("/static/fonts/manrope-700.woff2") format("woff2")}
+@font-face{font-family:"DM Mono";font-weight:400;font-display:swap;src:url("/static/fonts/dm-mono-400.woff2") format("woff2")}
+:root{--font:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"DM Mono",ui-monospace,Menlo,Consolas,monospace;--as-font:var(--font);--as-mono:var(--mono);--bg-page:#f5f7fa;--radius:8px;--focus:#1f5fa8;--as-focus:#1f5fa8}
+body{font-family:var(--font);background:#f5f7fa;color:#172536;letter-spacing:-.005em}
+code,pre,kbd,samp,.ld-code,.ld-tl code{font-family:var(--mono)}
+
+/* Surface bar: same navy + teal rule as the Academy sidebar brand */
+.as-shell{background:#0b1f33;border-bottom:1px solid #007f86}
+.as-shell__brand{font-weight:700;letter-spacing:-.02em}
+.as-shell__brand img{border-radius:6px;background:#007f86;padding:3px;width:26px;height:26px}
+.as-shell__list a[aria-current="page"]{border-bottom-color:#65c4c8}
+
+/* Hero: the Academy hero treatment (dark navy, teal eyebrow, tight display heading) */
+.site-header,.ld-hero{position:relative;overflow:hidden;background:#0b1f33;background-image:radial-gradient(circle at 88% -30%,#132c44 0,#132c44 34%,transparent 35%),radial-gradient(circle at 96% 120%,#10283f 0,#10283f 30%,transparent 31%);color:#fff;padding-top:26px;padding-bottom:30px}
+.brand-kicker,.ld-kicker{margin:0 0 6px;color:#65c4c8;font-size:.72rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
+.site-header h1,.ld-hero h1{margin:0;font-size:2.4rem;font-weight:600;letter-spacing:-.04em;line-height:1.05;color:#fff}
+.brand-sub,.ld-sub{margin:8px 0 0;color:#c5d3df;font-size:1.02rem}
+.header-meta{color:#aebfce;font-size:.82rem}
+.ld-chip{background:rgba(255,255,255,.06);border:1px solid #2c4966;font-size:.78rem;font-weight:700;letter-spacing:.02em}
+
+/* Panels */
+.card,.ld-card{background:#fff;border:1px solid #dce3ea;border-radius:8px;box-shadow:0 8px 30px rgba(11,31,51,.07);padding:22px 24px}
+.card h2,.ld-card h2{margin:0 0 10px;font-size:1.2rem;font-weight:600;letter-spacing:-.02em}
+.lede{color:#3a4854}
+label{font-weight:600;font-size:.84rem;color:#172536}
+input,select,textarea{border:1px solid #c7d1dc;border-radius:7px;background:#fff;font-family:var(--font)}
+input:focus-visible,select:focus-visible,textarea:focus-visible{border-color:#1f5fa8}
+.ld-hint,.muted,.ld-opt{color:#5f6b76}
+
+/* Buttons: Academy teal primary, quiet secondary */
+.btn,.ld-btn{border-radius:7px;font-weight:700;letter-spacing:-.005em}
+.btn-primary,.ld-btn--primary{background:#007f86;color:#fff;border:1px solid #007f86}
+.btn-primary:hover,.ld-btn--primary:hover{background:#006c72}
+.btn-secondary,.ld-btn--ghost{background:#fff;color:#0b1f33;border:1px solid #c7d1dc}
+
+/* Status and steps */
+.status,.ld-pill{border-radius:4px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase}
+.ld-steps li{background:#f5f7fa;border-radius:7px}
+.ld-steps li[data-s="active"]{background:#e8f3f3}
+.ld-tl{border-radius:8px;box-shadow:none}
+.ld-out{border-radius:8px}

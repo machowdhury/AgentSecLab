@@ -57,7 +57,7 @@ def test_page_is_strict_csp_single_script_ten_steps(settings):
         assert f'data-step="{step}"' in html
     assert "PRE-APPROVED by Regional Director Alvarez" in html and "NEW</strong> control" not in html
     assert "already existed" in html  # the page does not sell the existing denial as the fix
-    assert 'href="/academy/missions/loan-desk"' in c.get("/academy").get_data(as_text=True)
+    assert 'href="/academy/missions/loan-desk"' in c.get("/academy/home").get_data(as_text=True)
 
 
 def test_mission_post_route_is_outside_the_get_only_academy_prefixes():

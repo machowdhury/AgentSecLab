@@ -14,7 +14,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-from flask import Flask, abort, jsonify, render_template, request
+from flask import Flask, abort, jsonify, redirect, render_template, request
 
 from agentsec import academy_evidence as evidence
 from agentsec.academy import load_curriculum
@@ -230,6 +230,10 @@ def register_academy(app: Flask, *, launcher, client, artifacts_dir: Path, versi
         return _no_store(response)
 
     @app.get("/academy")
+    def academy_entry():
+        return redirect("/learn", code=302)  # /learn is the canonical Academy entry; the classic home stays at /academy/home
+
+    @app.get("/academy/home")
     def academy_home():
         levels = _curriculum_levels()
         other_live = [

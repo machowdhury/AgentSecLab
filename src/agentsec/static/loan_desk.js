@@ -181,7 +181,7 @@
     $("ev-download").setAttribute("href", "/api/v1/loan-desk/runs/" + encodeURIComponent(ev.run_id) + "/events.ndjson");
   }
   var RECO = { PROCEED_TO_UNDERWRITER: "Proceed to underwriter", NEEDS_MORE_INFORMATION: "Needs more information", NOT_RECOMMENDED: "Not recommended" };
-  var SEC = { BLOCKED: "BLOCKED", NOTHING_BLOCKED: "Nothing needed blocking" };
+  var SEC = { BLOCKED: "BLOCKED", NOTHING_BLOCKED: "Nothing needed blocking", NOT_EXERCISED: "Not exercised (only malformed calls were rejected)" };
   var BIZ = { COMPLETE: "COMPLETE", INCOMPLETE: "INCOMPLETE", FAILED: "FAILED", RUNNING: "RUNNING" };
   function renderOutcome(view) {
     var o = view.outcomes, card = $("outcome-card");
