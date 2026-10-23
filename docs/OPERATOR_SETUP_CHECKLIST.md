@@ -45,7 +45,7 @@ Understand, Explore, Predict, Attack, Observe: the Academy mission page. Investi
 | An Attack UI lab page returns an error page | run `learner_ready.py`; a 500 means the Attack Service image is not the current one |
 
 ## F. After the session
-`./scripts/lab-down.sh` stops the lab and the verifier. It never removes volumes or evidence. Delete recordings per the consent terms.
+To pause the lab: `./scripts/loan_desk_verifier.sh stop`, then `docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local --env-file .env stop`. **Do not use `./scripts/lab-down.sh` if you want to keep the Splunk data:** it removes the containers, and the next `lab-up.sh` starts Splunk with new empty data volumes (see `docs/REMOTE_ACCESS.md` section C). Delete recordings per the consent terms.
 
 ## G. Known limitations to tell participants up front
 - A real small model (3B) drives the agent, so runs vary; the hardened run sometimes does not finish the review.

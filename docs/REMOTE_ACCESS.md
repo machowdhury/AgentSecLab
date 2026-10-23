@@ -82,11 +82,12 @@ Open `http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home` on the same com
 **`lab-up.sh --remote` does not change a lab that is already running.** When Splunk is healthy, `lab-up.sh` starts the app services with `--no-recreate` and never recreates Splunk, so the published ports stay as they were. The readiness check then fails with `REMOTE LISTENERS: NOT ACCEPTED` (exit 2). To switch mode:
 
 ```bash
-./scripts/lab-down.sh            # stops the verifier, removes the containers, KEEPS every Docker volume and Splunk index
-./scripts/lab-up.sh --remote     # or ./scripts/lab-up.sh for local
+export AGENTSEC_BIND_ADDRESS=0.0.0.0     # or 127.0.0.1 to go back to local
+docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local --env-file .env \
+  up -d --force-recreate splunk acmebank attack_service
 ```
 
-This recreates every container, including Splunk, so Splunk is down for several minutes and its HEC input is re-initialised. Named volumes (Splunk data, Splunk app, models) are kept. On the pilot Mac, where the lab runs with read-only receipt mounts from a deploy override, do not do this between or during sessions; see `docs/PILOT_LAUNCH_CHECKLIST.md`.
+**Do not use `./scripts/lab-down.sh` followed by `./scripts/lab-up.sh` to switch mode if you want to keep the Splunk data.** Splunk's `/opt/splunk/etc` and `/opt/splunk/var` are *anonymous* Docker volumes. Recreating a container in place (above) keeps them; `down` removes the container and a later `up` creates new **empty** ones, so Splunk starts with no index and no users, and the old data sits in an orphaned volume (still on disk, not attached). This was tested with a throwaway Compose project. The `lab-down.sh` message "indexed Splunk data ... remain" is true only in that on-disk sense. To pause the lab, use `docker compose ... stop` (and `start`), which keeps everything attached. Recreating Splunk takes it down for several minutes and its HEC input is re-initialised (`splunk_hec_init`). On the pilot Mac, where the lab runs with read-only receipt mounts from a deploy override, do not do this between or during sessions; see `docs/PILOT_LAUNCH_CHECKLIST.md`.
 
 ## D. Links and redirects from a remote browser
 
