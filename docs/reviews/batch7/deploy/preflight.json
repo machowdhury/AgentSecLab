@@ -1,6 +1,6 @@
 {
  "backup": {
-  "file": "/Users/mahamudc/agentsec-backups/loan_desk-20261022-175637.tar.gz",
+  "file": "<HOME>/agentsec-backups/loan_desk-20261022-175637.tar.gz",
   "files_in_archive": 54,
   "files_on_disk": 46,
   "mode": "0600"
@@ -32,8 +32,8 @@
    "id": "e7392ee360fb",
    "image": "354f3048b5ef",
    "mounts": [
-    "bind:/host_mnt/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts->/app/artifacts:rw",
-    "bind:/host_mnt/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts/loan_desk/receipts->/app/artifacts/loan_desk/receipts:ro",
+    "bind:/host_mnt<HOME>/Documents/Projects/AgentSecLab/artifacts->/app/artifacts:rw",
+    "bind:/host_mnt<HOME>/Documents/Projects/AgentSecLab/artifacts/loan_desk/receipts->/app/artifacts/loan_desk/receipts:ro",
     "volume:agentseclab_shared_telemetry->/var/log/agentsec:rw"
    ],
    "started": "2026-10-22T20:36:00.191710634Z",
@@ -58,15 +58,15 @@
    "id": "4dc5586e07d8",
    "image": "8204acc82316",
    "mounts": [
-    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts->/app/artifacts:rw",
-    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts/loan_desk/receipts->/app/artifacts/loan_desk/receipts:ro",
-    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json->/app/learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json:ro",
-    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json->/app/learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json:ro",
-    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json->/app/learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json:ro",
-    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-MCP-001/lab-manifest.json->/app/learning/level_1/LAB-MCP-001/lab-manifest.json:ro",
-    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-MEMORY-001/lab-manifest.json->/app/learning/level_1/LAB-MEMORY-001/lab-manifest.json:ro",
-    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-PI-001/lab-manifest.json->/app/learning/level_1/LAB-PI-001/lab-manifest.json:ro",
-    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json->/app/learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json:ro"
+    "bind:<HOME>/Documents/Projects/AgentSecLab/artifacts->/app/artifacts:rw",
+    "bind:<HOME>/Documents/Projects/AgentSecLab/artifacts/loan_desk/receipts->/app/artifacts/loan_desk/receipts:ro",
+    "bind:<HOME>/Documents/Projects/AgentSecLab/learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json->/app/learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json:ro",
+    "bind:<HOME>/Documents/Projects/AgentSecLab/learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json->/app/learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json:ro",
+    "bind:<HOME>/Documents/Projects/AgentSecLab/learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json->/app/learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json:ro",
+    "bind:<HOME>/Documents/Projects/AgentSecLab/learning/level_1/LAB-MCP-001/lab-manifest.json->/app/learning/level_1/LAB-MCP-001/lab-manifest.json:ro",
+    "bind:<HOME>/Documents/Projects/AgentSecLab/learning/level_1/LAB-MEMORY-001/lab-manifest.json->/app/learning/level_1/LAB-MEMORY-001/lab-manifest.json:ro",
+    "bind:<HOME>/Documents/Projects/AgentSecLab/learning/level_1/LAB-PI-001/lab-manifest.json->/app/learning/level_1/LAB-PI-001/lab-manifest.json:ro",
+    "bind:<HOME>/Documents/Projects/AgentSecLab/learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json->/app/learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json:ro"
    ],
    "started": "2026-10-22T20:36:05.802762554Z",
    "tag": "agentseclab-attack_service:batch7-f4f8f5e"
@@ -85,7 +85,7 @@
    "id": "aeccc3006d95",
    "image": "684d8674b431",
    "mounts": [
-    "bind:/host_mnt/Users/mahamudc/Documents/Projects/AgentSecLab/scripts/ollama_init.sh->/ollama_init.sh:ro",
+    "bind:/host_mnt<HOME>/Documents/Projects/AgentSecLab/scripts/ollama_init.sh->/ollama_init.sh:ro",
     "volume:agentseclab_ollama_models->/root/.ollama:rw"
    ],
    "started": "2026-10-20T20:49:13.604426542Z",
@@ -104,8 +104,8 @@
    "id": "d9de02c9d3fb",
    "image": "7ef2a2ff46b9",
    "mounts": [
-    "bind:/Users/mahamudc/Documents/Projects/AgentSecLab/config/otel-collector-config.yaml->/etc/otelcol-contrib/config.yaml:ro",
-    "bind:/host_mnt/Users/mahamudc/Documents/Projects/AgentSecLab/.certs/hec-ca.crt->/certs/hec-ca.crt:ro",
+    "bind:<HOME>/Documents/Projects/AgentSecLab/config/otel-collector-config.yaml->/etc/otelcol-contrib/config.yaml:ro",
+    "bind:/host_mnt<HOME>/Documents/Projects/AgentSecLab/.certs/hec-ca.crt->/certs/hec-ca.crt:ro",
     "volume:agentseclab_shared_telemetry->/var/log/agentsec:rw"
    ],
    "started": "2026-10-20T21:58:19.762154628Z",
@@ -138,7 +138,7 @@
    "id": "809a4ce8081a",
    "image": "da47bf2f183f",
    "mounts": [
-    "bind:/host_mnt/Users/mahamudc/Documents/Projects/AgentSecLab/.certs/hec.pem->/opt/agentsec-certs/hec.pem:ro",
+    "bind:/host_mnt<HOME>/Documents/Projects/AgentSecLab/.certs/hec.pem->/opt/agentsec-certs/hec.pem:ro",
     "volume:agentseclab_shared_telemetry->/var/log/agentsec:rw",
     "volume:agentseclab_splunk_app_agentsec->/opt/splunk/etc/apps/agentsec:rw",
     "volume:f23236781009fabd37d122a8bfe5643e6cafe1a467060eb894de6b2bc5c7a907->/opt/splunk/var:rw",
@@ -195,28 +195,28 @@
   {
    "check": "1b compose project and files come from the running containers",
    "detail": {
-    "env_file": "/Users/mahamudc/Documents/Projects/AgentSecLab/.env",
+    "env_file": "<HOME>/Documents/Projects/AgentSecLab/.env",
     "files": [
-     "/Users/mahamudc/Documents/Projects/AgentSecLab/docker-compose.yml",
-     "/Users/mahamudc/Documents/Projects/AgentSecLab/docker-compose.local.yml"
+     "<HOME>/Documents/Projects/AgentSecLab/docker-compose.yml",
+     "<HOME>/Documents/Projects/AgentSecLab/docker-compose.local.yml"
     ],
     "project": "agentseclab",
-    "workdir": "/Users/mahamudc/Documents/Projects/AgentSecLab"
+    "workdir": "<HOME>/Documents/Projects/AgentSecLab"
    },
    "pass": true
   },
   {
    "check": "1c containers mount the shared artifacts dir read-write and nothing from the Docker socket",
    "detail": [
-    "bind:/host_mnt/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts->/app/artifacts:rw",
-    "bind:/host_mnt/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts/loan_desk/receipts->/app/artifacts/loan_desk/receipts:ro",
+    "bind:/host_mnt<HOME>/Documents/Projects/AgentSecLab/artifacts->/app/artifacts:rw",
+    "bind:/host_mnt<HOME>/Documents/Projects/AgentSecLab/artifacts/loan_desk/receipts->/app/artifacts/loan_desk/receipts:ro",
     "volume:agentseclab_shared_telemetry->/var/log/agentsec:rw"
    ],
    "pass": true
   },
   {
    "check": "1d the running verifier is the one the pidfile names (a loan_desk_verifier.py process)",
-   "detail": "6099     1 Thu 22 Oct 16:39:58 2026     /Users/mahamudc/Documents/Projects/AgentSecLab-wt-baseline/.venv/bin/python /Users/mahamudc/Documents/Projects/AgentSecLab-wt-baseline/scripts/loan_desk_verifier.py --artifacts /Users/mahamudc/Documents/Projects/AgentSecLab/artifacts",
+   "detail": "6099     1 Thu 22 Oct 16:39:58 2026     <HOME>/Documents/Projects/AgentSecLab-wt-baseline/.venv/bin/python <HOME>/Documents/Projects/AgentSecLab-wt-baseline/scripts/loan_desk_verifier.py --artifacts <HOME>/Documents/Projects/AgentSecLab/artifacts",
    "pass": true
   },
   {
@@ -230,7 +230,7 @@
   {
    "check": "2b artifacts/loan_desk backed up outside every repository (0600) and the archive lists every file",
    "detail": {
-    "file": "/Users/mahamudc/agentsec-backups/loan_desk-20261022-175637.tar.gz",
+    "file": "<HOME>/agentsec-backups/loan_desk-20261022-175637.tar.gz",
     "files_in_archive": 54,
     "files_on_disk": 46,
     "mode": "0600"
@@ -256,7 +256,7 @@
   {
    "check": "5a signing material: the host key is private (0600) and no legacy key is in a container-visible path (or, if one is, it is backed up)",
    "detail": {
-    "host_key": "/Users/mahamudc/.local/state/agentsec/loan_desk/receipt.key",
+    "host_key": "<HOME>/.local/state/agentsec/loan_desk/receipt.key",
     "legacy_key_present": false
    },
    "pass": true
@@ -306,13 +306,13 @@
   "agentsec_attack_service"
  ],
  "facts": {
-  "env_file": "/Users/mahamudc/Documents/Projects/AgentSecLab/.env",
+  "env_file": "<HOME>/Documents/Projects/AgentSecLab/.env",
   "files": [
-   "/Users/mahamudc/Documents/Projects/AgentSecLab/docker-compose.yml",
-   "/Users/mahamudc/Documents/Projects/AgentSecLab/docker-compose.local.yml"
+   "<HOME>/Documents/Projects/AgentSecLab/docker-compose.yml",
+   "<HOME>/Documents/Projects/AgentSecLab/docker-compose.local.yml"
   ],
   "project": "agentseclab",
-  "workdir": "/Users/mahamudc/Documents/Projects/AgentSecLab"
+  "workdir": "<HOME>/Documents/Projects/AgentSecLab"
  },
  "image_secret_scan": {
   "acmebank": [],
@@ -332,12 +332,12 @@
  },
  "time": "2026-10-22T21:56:37Z",
  "verifier_identity": {
-  "artifacts_arg": "/Users/mahamudc/Documents/Projects/AgentSecLab/artifacts",
+  "artifacts_arg": "<HOME>/Documents/Projects/AgentSecLab/artifacts",
   "is_verifier": true,
-  "ps": "6099     1 Thu 22 Oct 16:39:58 2026     /Users/mahamudc/Documents/Projects/AgentSecLab-wt-baseline/.venv/bin/python /Users/mahamudc/Documents/Projects/AgentSecLab-wt-baseline/scripts/loan_desk_verifier.py --artifacts /Users/mahamudc/Documents/Projects/AgentSecLab/artifacts",
+  "ps": "6099     1 Thu 22 Oct 16:39:58 2026     <HOME>/Documents/Projects/AgentSecLab-wt-baseline/.venv/bin/python <HOME>/Documents/Projects/AgentSecLab-wt-baseline/scripts/loan_desk_verifier.py --artifacts <HOME>/Documents/Projects/AgentSecLab/artifacts",
   "v1_pidfile": null,
   "v2_pidfile": "6099",
-  "v2_pidfile_ps": "6099     1 Thu 22 Oct 16:39:58 2026     /Users/mahamudc/Documents/Projects/AgentSecLab-wt-baseline/.venv/bin/python /Users/mahamudc/Documents/Projects/AgentSecLab-wt-baseline/scripts/loan_desk_verifier.py --artifacts /Users/mahamudc/Documents/Projects/AgentSecLab/artifacts",
+  "v2_pidfile_ps": "6099     1 Thu 22 Oct 16:39:58 2026     <HOME>/Documents/Projects/AgentSecLab-wt-baseline/.venv/bin/python <HOME>/Documents/Projects/AgentSecLab-wt-baseline/scripts/loan_desk_verifier.py --artifacts <HOME>/Documents/Projects/AgentSecLab/artifacts",
   "version": "v2"
  }
 }
