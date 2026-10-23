@@ -29,13 +29,15 @@ export function Link({ to, children, onClick, ...rest }: { to: string; children:
   return <a href={to} onClick={go} {...rest}>{children}</a>;
 }
 
-export type Route = { name: "home" } | { name: "acmebank" } | { name: "path" } | { name: "foundations" } | { name: "mastery" } | { name: "mcp" } | { name: "mission"; stage: StageId | null } | { name: "missing" };
+export type Route = { name: "home" } | { name: "acmebank" } | { name: "path" } | { name: "foundations" } | { name: "mastery" } | { name: "mcp" } | { name: "curriculum" } | { name: "lab"; id: string } | { name: "mission"; stage: StageId | null } | { name: "missing" };
 
 export function matchRoute(path: string): Route {
   const parts = path.replace(/\/+$/, "").split("/").filter(Boolean); // ["learn", ...]
   if (parts[0] !== "learn") return { name: "missing" };
   if (parts.length === 1) return { name: "home" };
   if (parts.length === 2 && parts[1] === "acmebank") return { name: "acmebank" };  // retired: redirected to the Prepare stage
+  if (parts.length === 2 && parts[1] === "curriculum") return { name: "curriculum" };
+  if (parts.length === 3 && parts[1] === "lab" && /^LAB-[A-Z0-9-]+$/.test(parts[2])) return { name: "lab", id: parts[2] };
   if (parts.length === 2 && ["path", "foundations", "mastery", "mcp"].includes(parts[1])) return { name: parts[1] as "path" | "foundations" | "mastery" | "mcp" };
   if (parts[1] === "loan-desk") {
     if (parts.length === 2) return { name: "mission", stage: null };
@@ -44,5 +46,6 @@ export function matchRoute(path: string): Route {
   return { name: "missing" };
 }
 
-export const PATH_PATH = `${BASE}/path`, FOUNDATIONS_PATH = `${BASE}/foundations`, MASTERY_PATH = `${BASE}/mastery`, MCP_PATH = `${BASE}/mcp`;
+export const PATH_PATH = `${BASE}/path`, FOUNDATIONS_PATH = `${BASE}/foundations`, MASTERY_PATH = `${BASE}/mastery`, MCP_PATH = `${BASE}/mcp`, CURRICULUM_PATH = `${BASE}/curriculum`;
+export const labPath = (id: string) => `${BASE}/lab/${id}`;
 export const missionPath = (stage?: StageId) => `${BASE}/loan-desk${stage ? `/${stage}` : ""}`;

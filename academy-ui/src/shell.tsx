@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Badge, Icon, type IconName } from "./ui";
-import { Link, missionPath, BASE, PATH_PATH, FOUNDATIONS_PATH, MASTERY_PATH, MCP_PATH } from "./router";
+import { Link, missionPath, BASE, PATH_PATH, FOUNDATIONS_PATH, MASTERY_PATH, MCP_PATH, CURRICULUM_PATH } from "./router";
 import { useConfig, useEnvironment } from "./config";
 
 type Item = { label: string; icon: IconName; to?: string; href?: string; tag?: string };
@@ -10,6 +10,7 @@ type Group = { label: string; items: Item[] };
 const groups: Group[] = [
   { label: "", items: [{ label: "Home", icon: "home", to: BASE }, { label: "Your Path", icon: "path", to: PATH_PATH }] },
   { label: "Learn", items: [
+    { label: "Curriculum Explorer", icon: "target", to: CURRICULUM_PATH },
     { label: "AI & Agent Foundations", icon: "book", to: FOUNDATIONS_PATH },
     { label: "Loan Desk Mission", icon: "target", to: missionPath() },
     { label: "MCP Tool Authorization", icon: "shield", to: MCP_PATH },
