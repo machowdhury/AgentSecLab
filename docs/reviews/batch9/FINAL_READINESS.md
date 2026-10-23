@@ -69,3 +69,7 @@ Facts found while writing it, now in the checklist:
 4. Recruiting five participants and naming the operator. Nothing in this batch has measured a learner.
 
 Also disclosed: pulling the small `busybox` image (for the read-only copy and tar) was a download of a Docker image, not a model; nothing else was fetched.
+
+## Addendum: portable paths (commit `bbc5c0c`)
+Absolute home-directory paths this branch had introduced were replaced: recorded Batch 7 deploy/preflight and both `preservation_head.json` files use `<HOME>`, and `scripts/gateb_adversarial_live.py` now defaults `ART` to the repository's own `artifacts/` directory.
+**`ART` must now be set explicitly** when testing receipts stored in the `develop` tree (the lab Mac's case): `ART=<develop tree>/artifacts python3 scripts/gateb_adversarial_live.py <run id>`. The default must not be changed back to a machine path. Paths already in earlier published commits were not rewritten.
