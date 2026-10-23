@@ -1,0 +1,345 @@
+{
+ "lab_id": "LAB-RAG-CONTEXT",
+ "status": "full",
+ "authored": {
+  "on": "2026-10-23",
+  "note": "Written for learners from the sources named in each block. It is an explanation, not a recording. Facts listed under each block are checked word for word against those sources."
+ },
+ "summary": {
+  "text": "A RAG system (retrieval-augmented generation) fetches stored documents and puts them in front of an AI agent so it can answer with company knowledge. This lab asks what happens when one of those documents is hostile. Its one idea: retrieved content is data. A document can influence what the agent asks for, but it can never grant the agent permission. Permission comes from the server's own authorization check, and Splunk only watches.",
+  "grounds": [
+   "learning/level_1/LAB-RAG-CONTEXT/README.md",
+   "learning/level_1/LAB-RAG-CONTEXT/workshop.md"
+  ],
+  "facts": [
+   "This lab teaches one idea: retrieved content is data.",
+   "A document may influence a REQUEST. It does not become a GRANT.",
+   "Splunk does not ALLOW or DENY a follow-on tool."
+  ]
+ },
+ "glance": [
+  {
+   "id": "goal",
+   "label": "What the attacker wants",
+   "text": "The attacker wants the text of a retrieved document to be treated as authority to call the lookup_customer_tier tool.",
+   "grounds": [
+    "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json"
+   ],
+   "facts": [
+    "The attacker wants that text treated as authority to call lookup_customer_tier."
+   ]
+  },
+  {
+   "id": "controls",
+   "label": "What the attacker controls",
+   "text": "Only the bytes of one document in the lab's closed fixture. The browser cannot choose the security setting, the permissions, the document body or any trust label.",
+   "grounds": [
+    "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json"
+   ],
+   "facts": [
+    "The retrieved document bytes in the closed fixture.",
+    "The browser does not choose profile, grants, document body, or trust labels."
+   ]
+  },
+  {
+   "id": "entry",
+   "label": "Where it gets in",
+   "text": "The retriever. In this lab it looks documents up by exact id from fixtures; it is not a vector database, so the lab does not teach how an attacker gets a document to be retrieved.",
+   "grounds": [
+    "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json"
+   ],
+   "facts": [
+    "The retriever is exact-id fixtures, not a vector database."
+   ]
+  },
+  {
+   "id": "boundary",
+   "label": "Where the trust boundary is",
+   "text": "Between the retrieved document and the tool. A document may lead the agent to form a request for a tool. The server-owned authorization control, CTRL-MCP-001, decides whether the tool is granted.",
+   "grounds": [
+    "learning/level_1/LAB-RAG-CONTEXT/workshop.md",
+    "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json"
+   ],
+   "facts": [
+    "Retrieved content may influence a REQUEST. Server-owned authorization determines the GRANT.",
+    "CTRL-MCP-001 is the tool PDP."
+   ]
+  },
+  {
+   "id": "control",
+   "label": "How the controls handle it",
+   "text": "CTRL-RAG-CONTEXT-001 only classifies the document as untrusted data (OBSERVE); it never grants or blocks a tool. CTRL-MCP-001 is the control that denies the follow-on tool request on the defended retest.",
+   "grounds": [
+    "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json",
+    "learning/level_1/LAB-RAG-CONTEXT/workshop.md"
+   ],
+   "facts": [
+    "CTRL-RAG-CONTEXT-001 classifies retrieved context. It does not grant tools.",
+    "CTRL-MCP-001 DENY tool_not_granted. Handler 0."
+   ]
+  },
+  {
+   "id": "impact",
+   "label": "Accepted is not obeyed",
+   "text": "On the deliberately vulnerable ATTACK setting the tool ran. The lab's own explanation is that the text did not authorize it: the content influenced a request and the vulnerable authorization setting granted it. Retrieving a document, or a tool running afterwards, does not by itself show that an agent obeyed the document's instructions.",
+   "grounds": [
+    "learning/level_1/LAB-RAG-CONTEXT/workshop.md",
+    "learning/level_1/LAB-RAG-CONTEXT/README.md"
+   ],
+   "facts": [
+    "Retrieved text did not authorize the operation. Retrieved content influenced a request. The intentionally vulnerable authorization profile granted it.",
+    "MALICIOUS-LOOKING CONTENT != AUTHORIZATION BYPASS"
+   ]
+  },
+  {
+   "id": "evidence",
+   "label": "What evidence exists",
+   "text": "Each run records which document was retrieved, how it was classified, what the follow-on request decided, and how many times the tool handler ran. The handler count is the authoritative record of execution; a missing Splunk event only corroborates it.",
+   "grounds": [
+    "learning/level_1/LAB-RAG-CONTEXT/workshop.md"
+   ],
+   "facts": [
+    "Handler count = authoritative. Missing indexed start = corroboration."
+   ]
+  }
+ ],
+ "path": [
+  {
+   "id": "doc",
+   "kind": "attacker",
+   "label": "Document text",
+   "detail": "The retrieved document bytes in the closed fixture.",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json",
+   "fact": "The retrieved document bytes in the closed fixture."
+  },
+  {
+   "id": "retriever",
+   "kind": "entry",
+   "label": "Retriever",
+   "detail": "Puts the document in the agent's context.",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/workshop.md",
+   "fact": "USER QUESTION → RETRIEVER → DOCUMENT / CHUNK → AGENT CONTEXT → AGENT MAY FORM REQUEST → AUTHORIZATION CONTROL → HANDLER."
+  },
+  {
+   "id": "boundary",
+   "kind": "boundary",
+   "label": "Trust boundary",
+   "detail": "Retrieved content is data: it may influence a request, but cannot mint a grant.",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json",
+   "fact": "It may influence a REQUEST. It cannot independently mint a GRANT."
+  },
+  {
+   "id": "classify",
+   "kind": "control",
+   "label": "Classification",
+   "detail": "CTRL-RAG-CONTEXT-001 records OBSERVE (retrieved_context_is_data). It classifies only.",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/workshop.md",
+   "fact": "CTRL-RAG-CONTEXT-001 OBSERVE retrieved_context_is_data."
+  },
+  {
+   "id": "authorize",
+   "kind": "control",
+   "label": "Follow-on authorization",
+   "detail": "CTRL-MCP-001 decides whether the requested tool is granted.",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json",
+   "fact": "CTRL-MCP-001 is the tool PDP.",
+   "outcomes": [
+    {
+     "label": "DENY (defended retest)",
+     "detail": "tool_not_granted; the handler does not start.",
+     "source": "learning/level_1/LAB-RAG-CONTEXT/workshop.md",
+     "fact": "CTRL-MCP-001 DENY tool_not_granted. Handler 0."
+    },
+    {
+     "label": "ALLOW (vulnerable attack setting)",
+     "detail": "A labelled fail-open overlay of the lab, not a server grant.",
+     "source": "learning/level_1/LAB-RAG-CONTEXT/workshop.md",
+     "fact": "CTRL-MCP-001 ALLOW vulnerable_profile_fail_open:retrieved_context_derived_authority."
+    }
+   ]
+  },
+  {
+   "id": "handler",
+   "kind": "operation",
+   "label": "Tool handler",
+   "detail": "lookup_customer_tier with scope customer:read, only if granted.",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/workshop.md",
+   "fact": "Follow-on REQUEST lookup_customer_tier / customer:read."
+  },
+  {
+   "id": "telemetry",
+   "kind": "evidence",
+   "label": "Evidence copy",
+   "detail": "A copy of the telemetry goes to Splunk, which only observes.",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/README.md",
+   "fact": "Splunk does not ALLOW or DENY a follow-on tool."
+  }
+ ],
+ "known": [
+  {
+   "text": "ALLOW is not execution. OBSERVE is not ALLOW. untrusted_data is not malicious.",
+   "grounds": [
+    "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json"
+   ],
+   "facts": [
+    "ALLOW is not execution. OBSERVE is not ALLOW. untrusted_data is not malicious."
+   ]
+  },
+  {
+   "text": "RETEST DENY is not automatically SAFE.",
+   "grounds": [
+    "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json"
+   ],
+   "facts": [
+    "RETEST DENY is not automatically SAFE."
+   ]
+  },
+  {
+   "text": "Missing mcp.started is not independent proof of prevention.",
+   "grounds": [
+    "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json"
+   ],
+   "facts": [
+    "Missing mcp.started is not independent proof of prevention."
+   ]
+  },
+  {
+   "text": "CTRL-MCP-001 is a lab allow-list, not production MCP IAM.",
+   "grounds": [
+    "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json"
+   ],
+   "facts": [
+    "CTRL-MCP-001 is a lab allow-list, not production MCP IAM."
+   ]
+  },
+  {
+   "text": "The retriever is exact-id fixtures, not a vector database.",
+   "grounds": [
+    "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json"
+   ],
+   "facts": [
+    "The retriever is exact-id fixtures, not a vector database."
+   ]
+  }
+ ],
+ "terms": [
+  {
+   "term": "REQUEST vs GRANT",
+   "text": "A request is the agent asking for a tool. A grant is the server's decision to allow it. A document can shape the first and never the second.",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/README.md",
+   "fact": "REQUEST != GRANT"
+  },
+  {
+   "term": "OBSERVE vs ALLOW",
+   "text": "OBSERVE means the control recorded and classified the document. It is not a permission.",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/README.md",
+   "fact": "OBSERVE != ALLOW"
+  },
+  {
+   "term": "ALLOW vs execution",
+   "text": "ALLOW is a decision. Execution is the handler actually starting. Read them separately.",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/README.md",
+   "fact": "ALLOW != EXECUTION"
+  },
+  {
+   "term": "Provenance",
+   "text": "Provenance says where a document came from. It is not a statement that the document can be trusted.",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/README.md",
+   "fact": "Treat provenance as source identity, not trust."
+  },
+  {
+   "term": "run.id",
+   "text": "The identifier that ties every event of one experiment together. Every launch gets a new one.",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json",
+   "fact": "A new run.id is minted."
+  }
+ ],
+ "practice": {
+  "predict": [
+   {
+    "label": "Before the attack",
+    "source": "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json#prediction.ATTACK.predict_before_launch"
+   },
+   {
+    "label": "Before the retest",
+    "source": "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json#prediction.RETEST.predict_before_launch"
+   }
+  ],
+  "defender": {
+   "text": "Keep the grant on the server. Retrieved content may influence a request, and server-owned authorization decides the grant. Sanitizing documents, trusting a scanner, asking Splunk or letting a model decide authority are the approaches the lab says not to rely on.",
+   "grounds": [
+    "learning/level_1/LAB-RAG-CONTEXT/workshop.md"
+   ],
+   "facts": [
+    "Retrieved content may influence a REQUEST. Server-owned authorization determines the GRANT.",
+    "Not: sanitize everything, block every suspicious document, trust a scanner, ask Splunk, let an LLM decide authority."
+   ]
+  }
+ },
+ "spl": [
+  "Q-RAG-CONTEXT-AUTHORITY.spl"
+ ],
+ "identifiers": [
+  {
+   "label": "Classification control",
+   "value": "CTRL-RAG-CONTEXT-001",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/README.md"
+  },
+  {
+   "label": "Authorization control",
+   "value": "CTRL-MCP-001",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/README.md"
+  },
+  {
+   "label": "Invariant",
+   "value": "INV-002",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/README.md"
+  },
+  {
+   "label": "Attack in the catalog",
+   "value": "RAG-001",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/README.md"
+  },
+  {
+   "label": "Splunk workshop view",
+   "value": "ws_lab_rag_context",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/README.md"
+  },
+  {
+   "label": "Malicious document hash (ATTACK and RETEST)",
+   "value": "sha256:c565f364c7c5fba3cf25d235bb8e2bee7d9433daa9f07d5e097ab6d2a82a97ef",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/README.md"
+  },
+  {
+   "label": "Recorded REPLAY ATTACK specimen",
+   "value": "3a43d24f-9281-42f6-8375-1fb2efaa80ac",
+   "source": "learning/level_1/LAB-RAG-CONTEXT/README.md"
+  }
+ ],
+ "cannot_claim_lines": {
+  "source": "learning/level_1/LAB-RAG-CONTEXT/workshop.md",
+  "lines": [
+   "Do not label SAFE, TRUSTED, APPROVED, or BENIGN.",
+   "Zero suspicious follow-on behavior is an observation, not proof that the content is safe.",
+   "0 rows is CORRECT. 0 rows != SAFE.",
+   "Do not treat Splunk as independent non-execution proof."
+  ]
+ },
+ "workbench": {
+  "kind": "rag-context",
+  "specimens": {
+   "BASELINE": "RAG-BASELINE",
+   "ATTACK": "RAG-001",
+   "RETEST": "RAG-001"
+  },
+  "texts": {
+   "baseline": "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json#prediction.BASELINE.attack_objective",
+   "attack": "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json#prediction.ATTACK.attack_objective",
+   "retest": "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json#prediction.RETEST.attack_objective",
+   "defense": "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json#prediction.ATTACK.defense_should",
+   "attack_expected": "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json#prediction.ATTACK.expected_evidence_vulnerable",
+   "retest_expected": "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json#prediction.RETEST.expected_evidence_defended",
+   "retest_falsify": "learning/level_1/LAB-RAG-CONTEXT/lab-manifest.json#prediction.RETEST.falsify"
+  }
+ }
+}

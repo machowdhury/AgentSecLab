@@ -8,6 +8,7 @@ import { Glossary } from "../mission/parts";
 import { CopyButton } from "../mission/parts";
 import { availTone } from "./Curriculum";
 import { PiLiveEvidence, PiPractice } from "../workbench/PiWorkbench";
+import { RagLiveEvidence, RagPractice } from "../workbench/RagWorkbench";
 
 type Tab = "learn" | "practice" | "prove" | "all";
 type EntryKey = Exclude<keyof Lab["sections"], "learn">;
@@ -70,7 +71,7 @@ export function LabPage({ id }: { id: string }) {
       {(ex?.practice?.predict || s.predict) && <div className="m-sec"><h3>What should I predict or investigate?</h3>
         {ex?.practice?.predict ? <ul className="m-rules">{ex.practice.predict.map((p) => <li key={p.label}><strong>{p.label}:</strong> {p.text}<small className="m-src">Source: <code>{p.source}</code></small></li>)}</ul>
           : s.predict && <><p>{s.predict.text}</p><Src src={s.predict.source} /></>}</div>}
-      {lab.integrated && ex?.workbench ? <><Exercise lab={lab} />{lab.id === "LAB-PI-001" && <PiPractice lab={lab} />}</> : <Exercise lab={lab} />}
+      {lab.integrated && ex?.workbench ? <><Exercise lab={lab} />{lab.id === "LAB-PI-001" && <PiPractice lab={lab} />}{lab.id === "LAB-RAG-CONTEXT" && <RagPractice lab={lab} />}</> : <Exercise lab={lab} />}
       {(ex?.practice?.defender || s.defend) && <div className="m-sec"><h3>How would a defender address the issue?</h3>
         {ex?.practice?.defender ? <div className="m-explain"><Badge tone="live">EXPLANATION</Badge><p>{ex.practice.defender.text}</p><Based on={ex.practice.defender.grounds} /></div>
           : s.defend && <div className="m-quoted"><Badge tone="muted">QUOTED FROM THE LAB'S DOCUMENTS</Badge><p>{s.defend.text}</p><Src src={s.defend.source} /></div>}</div>}
@@ -79,6 +80,7 @@ export function LabPage({ id }: { id: string }) {
     {show("prove") && <section aria-label="Prove" className="m-card">
       <div className="panel-label">Prove</div><h2>Technical identifiers, evidence and limits</h2>
       {lab.integrated && lab.id === "LAB-PI-001" && <PiLiveEvidence />}
+      {lab.integrated && lab.id === "LAB-RAG-CONTEXT" && <RagLiveEvidence />}
       {ex?.identifiers && <div className="m-sec"><h3>Technical identifiers</h3><div className="table-wrap"><table><caption className="m-caption">Named in the lab's files</caption><tbody>{ex.identifiers.map((i) => <tr key={i.label}><th scope="row">{i.label}</th><td><code>{i.value}</code></td><td className="m-muted"><code>{base(i.source)}</code></td></tr>)}</tbody></table></div></div>}
       {ex?.recorded_table && <div className="m-sec"><h3>{ex.recorded_table.title} <Badge tone="replay">RECORDED, NOT RE-RUN</Badge></h3>
         <div className="table-wrap"><table className="m-stack"><caption className="m-caption">{ex.recorded_table.caption}</caption><thead><tr>{ex.recorded_table.columns.map((c) => <th scope="col" key={c}>{c}</th>)}</tr></thead>
