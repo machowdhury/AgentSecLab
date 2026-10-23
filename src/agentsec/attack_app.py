@@ -41,6 +41,7 @@ from agentsec.launch_catalog import RETEST_SUPPORT, allowlist_public_rows, known
 from agentsec.launch_contract import parse_launch_json
 from agentsec.launch_service import LaunchService, error_body
 from agentsec.search_handoff import browser_splunk_web
+from agentsec.request_guard import install_request_guard
 from agentsec.shell import shell_links
 from agentsec.mcp.policy import coded_policy
 from agentsec.memory.fixtures import (
@@ -215,6 +216,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
     )
     app.config["SECRET_KEY"] = settings.flask_secret_key
     app.config["AGENTSEC_ATTACK_CLIENT"] = client
+    install_request_guard(app)
 
     @app.context_processor
     def _shell_context():
@@ -630,7 +632,10 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
             parsed,
             splunk_web=browser_splunk_web(request.host, request.scheme),
         )
-        return jsonify(body), status
+        response = jsonify(body)
+        if status == 429:
+            response.headers["Retry-After"] = str(body.get("retry_after_seconds", 5))
+        return response, status
 
     @app.post("/api/compare-handoff")
     def compare_handoff():
@@ -672,7 +677,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
                     "evidence_state": "ERROR",
                 }
             ), 404
-        return jsonify(record.body)
+        return jsonify(launcher.render_body(record.body, browser_splunk_web(request.host, request.scheme)))
 
     @app.get("/api/launches/<run_id>/evidence")
     def launch_evidence(run_id: str):

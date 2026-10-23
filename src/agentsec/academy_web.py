@@ -209,7 +209,7 @@ def register_academy(app: Flask, *, launcher, client, artifacts_dir: Path, versi
         if record.provenance == evidence.LIVE:
             launch_record = launcher.get_record(run_id)
             if launch_record is not None:
-                body = launch_record.body
+                body = launcher.render_body(launch_record.body, splunk_web())
             else:
                 ref = get_ref(artifacts_dir, run_id)
                 body = launch_body_from_ref(ref) if ref is not None else None

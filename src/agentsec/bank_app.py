@@ -9,6 +9,7 @@ from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request
 
+from agentsec.request_guard import install_request_guard
 from agentsec.shell import shell_links
 
 from agentsec.agents import PIPELINE_ORDER
@@ -123,6 +124,7 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
     )
     app.config["SECRET_KEY"] = runtime.settings.flask_secret_key
     app.config["AGENTSEC_RUNTIME"] = runtime
+    install_request_guard(app, launch_boundary=False)
 
     @app.context_processor
     def _shell_context():
