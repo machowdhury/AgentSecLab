@@ -261,3 +261,15 @@ tr.is-different td, tr.is-different th { background: #f4f9f9; }
 .m-twocol h3 { margin: 0 0 4px; font-size: 14px; }
 @media (max-width: 760px) { .m-twocol { grid-template-columns: 1fr; } }
 .m-mcp-run { margin-top: 14px; }
+
+/* narrow screens: the call table becomes one labelled card per call instead of squeezed columns */
+@media (max-width: 620px) {
+  .m-details td, .m-details th { word-break: normal; overflow-wrap: break-word; }
+  table.m-timeline, table.m-timeline tbody, table.m-timeline tr, table.m-timeline td { display: block; width: 100%; }
+  table.m-timeline thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  table.m-timeline tr { margin: 0 0 10px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
+  table.m-timeline td { padding: 4px 0; border: 0; text-align: left; overflow-wrap: anywhere; }
+  table.m-timeline td::before { content: attr(data-label); display: block; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  .splunk-evidence-card { flex-wrap: wrap; gap: 8px; }
+  .splunk-evidence-card .badge { flex: none; white-space: nowrap; }
+}

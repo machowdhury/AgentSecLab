@@ -62,12 +62,12 @@ export function TimelineTable({ view }: { view: RunView }) {
   const calls = new Map((view.timeline?.tool_calls ?? []).map((c) => [c.step, c]));
   const rows = (view.steps ?? []).filter((s) => s.kind === "tool" && s.proposal && s.decision);
   if (!rows.length) return <p>No tool action was proposed.</p>;
-  return <div className="table-wrap"><table>
+  return <div className="table-wrap"><table className="m-timeline">
     <caption className="m-caption">Proposed, decided, executed</caption>
     <thead><tr><th scope="col">Step</th><th scope="col">Tool</th><th scope="col">Proposed by</th><th scope="col">Policy decision</th><th scope="col">Executed</th></tr></thead>
     <tbody>{rows.map((s) => <tr key={s.step}>
-      <td>{s.step}</td><td><code>{s.proposal!.tool}</code></td><td>{s.proposal!.source === "model" ? "model" : "TEST DOUBLE"}</td>
-      <td>{s.decision!.decision} ({s.decision!.reason})</td><td>{calls.get(s.step)?.executed ? "yes, handler began" : "no"}</td>
+      <td data-label="Step">{s.step}</td><td data-label="Tool"><code>{s.proposal!.tool}</code></td><td data-label="Proposed by">{s.proposal!.source === "model" ? "model" : "TEST DOUBLE"}</td>
+      <td data-label="Policy decision">{s.decision!.decision} ({s.decision!.reason})</td><td data-label="Executed">{calls.get(s.step)?.executed ? "yes, handler began" : "no"}</td>
     </tr>)}</tbody>
   </table></div>;
 }
