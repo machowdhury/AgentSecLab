@@ -19,7 +19,7 @@ Usage: ./scripts/lab-preflight.sh [--remote]
 Checks host prerequisites. Does not install software and does not start the lab.
 
   (no flags)   local mode. Learner ports are expected on 127.0.0.1.
-  --remote     plan a remote bind of 0.0.0.0 for ports 8000 and 5001 only.
+  --remote     plan a remote bind of 0.0.0.0 for ports 8000, 5001 and 5000 only.
 EOF
       exit 0
       ;;
@@ -63,7 +63,7 @@ if [ "$REMOTE" -eq 1 ]; then
   log "ACADEMY PORT: 8000"
   log "ATTACK SERVICE PORT: 5001"
   log "INTERNAL SERVICES: PRIVATE"
-  log "INFO  remote mode publishes 8000 and 5001 only. AcmeBank 5000, HEC 8088, OTel 4317/4318, and Ollama stay private."
+  log "INFO  remote mode publishes 8000, 5001 and 5000 only. HEC 8088 and OTel 4317/4318 stay on 127.0.0.1; Splunk management 8089, Ollama and the verifier are not published."
   log "INFO  external firewall permission is NOT MEASURED."
 else
   log "DEPLOYMENT MODE: LOCAL"
@@ -244,7 +244,7 @@ if [ "$REMOTE" -eq 1 ]; then
     case "$ufw_out" in
       *inactive*) log "INFO  host firewall ufw: inactive" ;;
       *active*)
-        warn "ufw is active. This check will not change it. Confirm TCP 8000 and TCP 5001 are allowed from the learner IP."
+        warn "ufw is active. This check will not change it. Confirm TCP 8000, 5001 and 5000 are allowed from the learner IP."
         ;;
       *) log "INFO  host firewall ufw: NOT MEASURED" ;;
     esac
@@ -252,7 +252,7 @@ if [ "$REMOTE" -eq 1 ]; then
     fw_out="$(firewall-cmd --state 2>&1 || true)"
     case "$fw_out" in
       running)
-        warn "firewalld is running. This check will not change it. Confirm TCP 8000 and TCP 5001 are allowed from the learner IP."
+        warn "firewalld is running. This check will not change it. Confirm TCP 8000, 5001 and 5000 are allowed from the learner IP."
         ;;
       *) log "INFO  host firewall firewalld: NOT MEASURED" ;;
     esac

@@ -51,10 +51,10 @@ def test_documented_flags_and_preflight_checks_exist_in_scripts():
 
 
 def test_documented_ports_and_services_match_compose():
-    for port in ("5000", "8088", "4317", "4318"):
+    for port in ("8088", "4317", "4318"):
         assert f"127.0.0.1:{port}:{port}" in COMPOSE
         assert port in QUICK
-    for port in ("8000", "5001"):
+    for port in ("8000", "5001", "5000"):
         assert "${AGENTSEC_BIND_ADDRESS:-127.0.0.1}:" + port + ":" + port in COMPOSE
         assert port in QUICK
     for name in (

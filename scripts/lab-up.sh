@@ -27,7 +27,7 @@ Starts the Docker lab (AcmeBank, Attack Service, Ollama, collector, Splunk).
 Run from the repository root after copying .env.example to .env.
 
   (no flags)       localhost bindings, then wait until the lab is READY
-  --remote         publish learner ports 8000 and 5001 on 0.0.0.0
+  --remote         publish learner ports 8000, 5001 and 5000 on 0.0.0.0
   --build          rebuild AcmeBank / Attack Service images from this repository, then up
   --refresh-app    restage splunk_app/agentsec into the named volume and
                    restart Splunk so Dashboard Studio picks up XML changes
@@ -87,9 +87,9 @@ if [ "$REMOTE" -eq 1 ]; then
   log "[1/4] Checking prerequisites..."
   log "[2/4] Validating remote networking plan..."
   log "Learner bind address: 0.0.0.0"
-  log "Academy port: 8000. Attack Service port: 5001."
-  log "Private ports stay on 127.0.0.1: AcmeBank 5000, HEC 8088, OTel 4317 and 4318. Ollama is not published."
-  log "External firewall: NOT MEASURED. Permit TCP 8000 and TCP 5001 only from trusted learner IPs."
+  log "Academy port: 8000. Attack Service port: 5001. AcmeBank port: 5000."
+  log "Private ports stay on 127.0.0.1: HEC 8088, OTel 4317 and 4318. Splunk management 8089, Ollama and the verifier are not published."
+  log "External firewall: NOT MEASURED. Permit TCP 8000, 5001 and 5000 only from trusted learner IPs."
 else
   export AGENTSEC_DEPLOYMENT=local
   export AGENTSEC_BIND_ADDRESS=127.0.0.1

@@ -16,8 +16,8 @@ import urllib.request
 
 LOOPBACK = frozenset({"127.0.0.1", "[::1]"})
 PUBLIC_ANY = frozenset({"0.0.0.0", "*", "[::]"})
-LEARNER_PORTS = (8000, 5001)
-PRIVATE_PORTS = (5000, 8088, 4317, 4318, 11434)
+LEARNER_PORTS = (8000, 5001, 5000)
+PRIVATE_PORTS = (8088, 4317, 4318, 8089, 11434)
 TOKEN = re.compile(r"(?P<host>\*|0\.0\.0\.0|\[::\]|\[::1\]|127\.0\.0\.1):(?P<port>\d+)\b")
 HOST_RE = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9.-]{0,252}[A-Za-z0-9])?$")
 ACADEMY_PATH = "/en-US/app/agentsec/ws_agentsec_home"
@@ -47,26 +47,23 @@ def evaluate(text: str, mode: str) -> dict[str, object]:
     """Return a listener verdict. mode is local or remote."""
     listeners = parse_listeners(text)
     problems: list[str] = []
-    academy_public = "public" in _kinds(listeners.get(8000, set()))
-    attack_public = "public" in _kinds(listeners.get(5001, set()))
+    names = {8000: "Academy", 5001: "Attack Service", 5000: "AcmeBank"}
+    public = {port: "public" in _kinds(listeners.get(port, set())) for port in LEARNER_PORTS}
+    academy_public, attack_public = public[8000], public[5001]
     for port in PRIVATE_PORTS:
         if "public" in _kinds(listeners.get(port, set())):
             problems.append(f"private port {port} has a public listener")
-    if mode == "remote":
-        if not academy_public:
-            problems.append("Academy port 8000 is not a public listener")
-        if not attack_public:
-            problems.append("Attack Service port 5001 is not a public listener")
-    elif mode == "local":
-        if academy_public:
-            problems.append("Academy port 8000 is public in local mode")
-        if attack_public:
-            problems.append("Attack Service port 5001 is public in local mode")
+    for port in LEARNER_PORTS:
+        if mode == "remote" and not public[port]:
+            problems.append(f"{names[port]} port {port} is not a public listener")
+        elif mode == "local" and public[port]:
+            problems.append(f"{names[port]} port {port} is public in local mode")
     return {
         "ok": not problems,
         "problems": problems,
         "academy_public": academy_public,
         "attack_public": attack_public,
+        "acmebank_public": public[5000],
         "listeners": {port: sorted(hosts) for port, hosts in sorted(listeners.items())},
     }
 

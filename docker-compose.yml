@@ -1,9 +1,9 @@
 # AgentSec compose mesh.
 # Copy .env.example to .env before starting. Do not commit .env.
-# AGENTSEC_BIND_ADDRESS applies only to learner ports 8000 and 5001.
-# Default is 127.0.0.1. ./scripts/lab-up.sh forces that default.
-# ./scripts/lab-up.sh --remote sets 0.0.0.0 for those two ports only.
-# HEC, OTel, and AcmeBank stay on 127.0.0.1. Ollama is not published.
+# AGENTSEC_BIND_ADDRESS is the HOST-side publish address for the three learner ports 8000, 5001 and 5000.
+# Default is 127.0.0.1. ./scripts/lab-up.sh forces that default; ./scripts/lab-up.sh --remote sets 0.0.0.0.
+# It does not change the apps' in-container listener (AGENTSEC_BIND_HOST=0.0.0.0): Docker must reach them on the mesh.
+# HEC (8088) and OTel (4317, 4318) stay on 127.0.0.1 in every mode. Splunk management (8089), Ollama and the verifier are not published.
 
 networks:
   agentsec_mesh:
@@ -45,7 +45,7 @@ services:
       dockerfile: docker/Dockerfile.acmebank
     container_name: agentsec_acmebank
     ports:
-      - "127.0.0.1:5000:5000"
+      - "${AGENTSEC_BIND_ADDRESS:-127.0.0.1}:5000:5000"
     networks: [agentsec_mesh]
     volumes:
       - shared_telemetry:/var/log/agentsec

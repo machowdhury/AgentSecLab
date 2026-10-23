@@ -79,10 +79,10 @@ Flags that exist:
 | `--build` | Rebuild AcmeBank and Attack Service from this repository, then start. |
 | `--refresh-app` | Restage the Splunk app and re-run HEC init after a Splunk restart. |
 | `--no-wait` | Start containers and return without `lab-ready.sh`. |
-| `--remote` | Publish learner ports 8000 and 5001 on `0.0.0.0`. Leave HEC, OTel, AcmeBank, and Ollama private. |
+| `--remote` | Publish learner ports 8000, 5001 and 5000 on `0.0.0.0`. Leave HEC, OTel, Splunk management and Ollama private. |
 | `-h`, `--help` | Print the script usage and exit. |
 
-Without `--remote`, `lab-up.sh` forces `AGENTSEC_BIND_ADDRESS=127.0.0.1` for ports 8000 and 5001. The script prints four steps: prerequisites, the bind plan, container start, and readiness. It prints elapsed time at the end. That elapsed time is this run, not a promise about the next machine.
+Without `--remote`, `lab-up.sh` forces `AGENTSEC_BIND_ADDRESS=127.0.0.1` for ports 8000, 5001 and 5000. The script prints four steps: prerequisites, the bind plan, container start, and readiness. It prints elapsed time at the end. That elapsed time is this run, not a promise about the next machine.
 
 Remote install, firewall rules, and the public URL: [REMOTE_ACCESS.md](REMOTE_ACCESS.md).
 

@@ -60,17 +60,21 @@ if [ -n "$HOST" ]; then
   log "http://${HOST}:8000/en-US/app/agentsec/ws_agentsec_home"
   log "Attack Service:"
   log "http://${HOST}:5001"
+  log "AcmeBank:"
+  log "http://${HOST}:5000"
 else
   log "AgentSec is using remote bindings, and no public host was configured or discovered."
   log "Open:"
   log "http://<your-server-public-ip>:8000/en-US/app/agentsec/ws_agentsec_home"
   log "Attack Service:"
   log "http://<your-server-public-ip>:5001"
+  log "AcmeBank:"
+  log "http://<your-server-public-ip>:5000"
   log "Set AGENTSEC_PUBLIC_HOST to your public IP or DNS name to print a concrete URL."
 fi
 log "Internal readiness URL on this server: http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home"
 log "External browser reachability: NOT MEASURED"
-log "Your host or cloud firewall must permit TCP 8000 and TCP 5001 only from trusted learner IPs."
-log "Do not open 8000, 5001, 5000, 8088, or 11434 to 0.0.0.0/0."
+log "Your host or cloud firewall must permit TCP 8000, 5001 and 5000 only from trusted learner IPs."
+log "Do not open 8000, 5001 or 5000 to 0.0.0.0/0. Never open 8088, 4317, 4318, 8089 or 11434."
 log "Academy and Attack Service links use the host in the browser address bar. They do not assume the learner browser is on this server."
 exit 0
