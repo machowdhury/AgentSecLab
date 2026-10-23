@@ -74,12 +74,12 @@ export function TimelineTable({ view }: { view: RunView }) {
 
 const secTone = (o: string) => (o === "BLOCKED" ? "deny" : "muted") as "deny" | "muted";
 
-export function RunResult({ view }: { view: RunView }) {
+export function RunResult({ view, story = true }: { view: RunView; story?: boolean }) {
   const o = view.outcomes;
   const ops = o?.operations;
   const call = reviewCall(view);
   return <>
-    <Story view={view} />
+    {story && <Story view={view} />}
     {view.status === "FAILED" && <Callout kind="warn">{view.stop_reason === "model_unavailable" ? `The model could not be reached. No action was proposed, no policy decision was made and no tool ran. ${view.error ?? ""}` : `The run failed (${view.stop_reason}). ${view.error ?? ""}`}</Callout>}
     {view.status === "INCOMPLETE" && <Callout kind="warn">The agent used up its step budget before finishing. The business workflow is INCOMPLETE.</Callout>}
     {o && view.status !== "RUNNING" && <div className="facts">
@@ -109,26 +109,5 @@ export function EvidenceCard({ view }: { view: RunView }) {
   return <div className={`splunk-evidence-card splunk-evidence-card--${tone}`}>
     <div><span className="pulse" /><div><strong>Evidence for this run</strong><p>Local evidence: {view.evidence.event_count} events emitted by AcmeBank. {evidenceText(view)}</p></div></div>
     <Badge tone={tone === "ok" ? "indexed" : tone === "warn" ? "warning" : "muted"}>{view.evidence.indexed_status.replace(/_/g, " ")}</Badge>
-  </div>;
-}
-
-/** The result area of one launched run: idle, submitting, working, stopped, failed to reach, or the finished result. */
-export function RunPanel({ slot, idle, extra }: { slot: Slot; idle?: string; extra?: ReactNode }) {
-  const s = useSlot(slot);
-  const v = s.view;
-  return <div className="m-run" aria-live="polite" aria-busy={s.phase === "submitting" || s.phase === "running"}>
-    {!v && s.phase === "idle" && <p className="m-muted">{s.message ?? idle ?? "No run yet."}</p>}
-    {s.phase === "submitting" && <p>Submitting to the Loan Desk…</p>}
-    {v && <>
-      <div className="run-card-head"><div><span>RUN · {slot.toUpperCase()} · {v.posture.toUpperCase()}</span><code>{v.run_id}</code></div><CopyButton text={v.run_id} label="Copy run id" /></div>
-      <p className="m-statusline"><Badge tone={v.status === "COMPLETED" ? "allow" : v.status === "RUNNING" ? "warning" : "muted"}>{v.status}</Badge> posture {v.posture.toUpperCase()} · model {v.model.name}{v.model.identity?.digest ? ` ${v.model.identity.digest.slice(0, 12)}` : ""}</p>
-      {s.phase === "running" && <p className="m-working">Working… {v.timeline?.events?.length ? `${v.timeline.events.length} event(s) recorded so far.` : "Starting…"} <button type="button" className="button button--ghost" onClick={() => stopWaiting(slot)}>Stop waiting</button></p>}
-      {s.phase === "stopped" && <p className="m-working">{s.message} <button type="button" className="button button--secondary" onClick={() => keepWaiting(slot)}>Keep waiting</button></p>}
-      {s.message && s.phase !== "stopped" && s.phase !== "error" && <p className="m-muted" role="status">{s.message}</p>}
-      <RunResult view={v} />
-      {v.status !== "RUNNING" && <EvidenceCard view={v} />}
-      {extra}
-    </>}
-    {s.phase === "error" && <Callout kind="warn" role="alert">{s.message} <Button variant="secondary" onClick={() => (v ? keepWaiting(slot) : retryLaunch(slot))}>{v ? "Retry now" : "Retry"}</Button></Callout>}
   </div>;
 }

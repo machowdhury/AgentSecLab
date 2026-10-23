@@ -1,37 +1,28 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Badge, Icon, type IconName } from "./ui";
-import { Link, missionPath, ACMEBANK_PATH, BASE } from "./router";
+import { Link, missionPath, BASE, PATH_PATH, FOUNDATIONS_PATH, MASTERY_PATH, MCP_PATH } from "./router";
 import { useConfig, useEnvironment } from "./config";
 
-type Item = { label: string; icon: IconName; to?: string; href?: string; splunk?: string; tag?: string };
+type Item = { label: string; icon: IconName; to?: string; href?: string; tag?: string };
 type Group = { label: string; items: Item[] };
 
 // Sections follow the Figma navigation. Entries without a React screen yet open their existing, working page.
 const groups: Group[] = [
-  { label: "", items: [{ label: "Home", icon: "home", to: BASE }, { label: "Your Path", icon: "path", href: "/academy/path", tag: "Classic" }] },
+  { label: "", items: [{ label: "Home", icon: "home", to: BASE }, { label: "Your Path", icon: "path", to: PATH_PATH }] },
   { label: "Learn", items: [
-    { label: "AI & Agent Foundations", icon: "book", href: "/academy/foundations", tag: "Classic" },
+    { label: "AI & Agent Foundations", icon: "book", to: FOUNDATIONS_PATH },
     { label: "Loan Desk Mission", icon: "target", to: missionPath() },
-    { label: "MCP Tool Authorization", icon: "shield", href: "/academy/labs/LAB-MCP-001", tag: "Classic" },
+    { label: "MCP Tool Authorization", icon: "shield", to: MCP_PATH },
   ] },
-  { label: "Practice", items: [
-    { label: "AcmeBank Loan Application", icon: "home", to: ACMEBANK_PATH },
-    { label: "Attack Workbench", icon: "terminal", to: missionPath("attack") },
-  ] },
-  { label: "Assess", items: [
-    { label: "Mastery", icon: "chart", splunk: "/en-US/app/agentsec/ws_agentsec_mastery" },
-    { label: "Arena", icon: "target", splunk: "/en-US/app/agentsec/ws_agentsec_arena" },
-  ] },
-  { label: "Investigate", items: [{ label: "Search", icon: "search", splunk: "/en-US/app/search/search" }] },
+  { label: "Assess", items: [{ label: "Mastery", icon: "chart", to: MASTERY_PATH }] },
 ];
 
-const activeFor = (item: Item, path: string) => Boolean(item.to) && item.label !== "Attack Workbench" && (item.to === BASE ? path.replace(/\/$/, "") === BASE : path.startsWith(item.to!));
+const activeFor = (item: Item, path: string) => Boolean(item.to) && (item.to === BASE ? path.replace(/\/$/, "") === BASE : path.startsWith(item.to!));
 
-function NavItem({ item, path, collapsed, splunkWeb }: { item: Item; path: string; collapsed: boolean; splunkWeb: string }) {
+function NavItem({ item, path, collapsed }: { item: Item; path: string; collapsed: boolean }) {
   const cls = `nav-item ${activeFor(item, path) ? "nav-item--active" : ""}`;
   const body = <><Icon name={item.icon} />{!collapsed && <span>{item.label}</span>}</>;
   if (item.to) return <Link to={item.to} className={cls} aria-label={item.label} title={collapsed ? item.label : item.tag ? `${item.label} (${item.tag.toLowerCase()} page)` : undefined} aria-current={activeFor(item, path) ? "page" : undefined}>{body}</Link>;
-  if (item.splunk) return <a className={cls} aria-label={`${item.label} (opens Splunk in a new tab)`} href={`${splunkWeb}${item.splunk}`} target="_blank" rel="noopener" title={collapsed ? item.label : `${item.label} (opens Splunk in a new tab)`}>{body}{!collapsed && <span className="nav-ext" aria-hidden="true">↗</span>}</a>;
   return <a className={cls} aria-label={item.label} href={item.href} title={collapsed ? item.label : item.tag ? `${item.label} (opens the ${item.tag.toLowerCase()} Academy page)` : undefined}>{body}</a>;
 }
 
@@ -46,7 +37,7 @@ export function Sidebar({ path, collapsed, setCollapsed, open }: { path: string;
     <nav aria-label="Primary navigation">
       {groups.map((group, gi) => <div className="nav-group" key={gi}>
         {!collapsed && group.label && <div className="nav-label">{group.label}</div>}
-        {group.items.map((item) => <NavItem key={item.label} item={item} path={path} collapsed={collapsed} splunkWeb={config.urls.splunk_web} />)}
+        {group.items.map((item) => <NavItem key={item.label} item={item} path={path} collapsed={collapsed} />)}
       </div>)}
     </nav>
     <div className="sidebar__footer">

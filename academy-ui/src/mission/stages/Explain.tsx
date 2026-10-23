@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, Icon, LinkButton } from "../../ui";
 import { markProgress, resetMission, updateMission, useMission } from "../../store";
-import { navigate, missionPath } from "../../router";
+import { navigate, missionPath, PATH_PATH } from "../../router";
 import { QUIZ } from "../content";
 import { Brief, Callout } from "../parts";
 import { resetRuns } from "../runStore";
@@ -46,7 +46,7 @@ export function Explain() {
       <aside className="prediction-panel">
         <div className="prediction-panel__head"><div><div className="eyebrow">What next</div><h2>{m.completed ? "Well done" : "Almost there"}</h2></div></div>
         <p>{m.completed ? "Your runs and answers stay in this browser. Pick your next lab from the learning path." : "Finish the questions to complete the mission."}</p>
-        <div className="m-actions"><LinkButton href="/academy/path" variant="secondary" icon="arrow">Back to your learning path</LinkButton><LinkButton href="/learn" internal variant="ghost">Academy home</LinkButton></div>
+        <div className="m-actions"><LinkButton href={PATH_PATH} variant="secondary" icon="arrow" internal>Back to your learning path</LinkButton><LinkButton href="/learn" internal variant="ghost">Academy home</LinkButton></div>
         <div className="privacy-note"><Icon name="shield" size={18} /><span>Your answers are checked in this browser only. Nothing here is a score or a certificate.</span></div>
       </aside>
     </div>

@@ -1,5 +1,5 @@
 import { Badge, Icon, LinkButton, ProgressBar } from "../ui";
-import { ACMEBANK_PATH, Link, missionPath } from "../router";
+import { FOUNDATIONS_PATH, Link, missionPath } from "../router";
 import { useConfig } from "../config";
 import { useMission, stageComplete, firstOpenIncomplete } from "../store";
 import { STAGES, type StageId } from "../stages";
@@ -24,7 +24,7 @@ export function Home() {
       <p>Build practical security judgment through guided labs. Predict control behavior, launch experiments, and prove what happened using runtime evidence.</p>
       <div className="hero__actions">
         <LinkButton href={started ? missionPath(next) : missionPath("learn")} icon="arrow" internal>{started ? "Continue the Loan Desk mission" : "Start the Loan Desk mission"}</LinkButton>
-        <LinkButton href="/academy/foundations" variant="secondary">New here? Start with AI basics</LinkButton>
+        <LinkButton href={FOUNDATIONS_PATH} variant="secondary" internal>New here? Start with AI basics</LinkButton>
       </div>
       <div className="hero__principle"><Icon name="shield" /><span><strong>Core principle</strong> Control decision ≠ Execution ≠ Observed evidence</span></div>
     </section>
@@ -35,17 +35,17 @@ export function Home() {
         {[["01", "Understand", "How LLMs generate responses"], ["02", "Connect", "How agents use tools and data"], ["03", "Recognize", "Where security risks appear"], ["04", "Practice", "Investigate your first run"]].map(([n, t, d], i) =>
           <div className="starter-step" key={t}><span>{n}</span><div><strong>{t}</strong><small>{d}</small></div>{i < 3 && <Icon name="arrow" size={16} />}</div>)}
       </div>
-      <LinkButton href="/academy/foundations" icon="arrow">Start the beginner route</LinkButton>
+      <LinkButton href={FOUNDATIONS_PATH} icon="arrow" internal>Start the beginner route</LinkButton>
     </section>
 
     <section className="three-worlds">
       <div className="section-heading"><div><div className="eyebrow">One story, three connected worlds</div><h2>Start with the person—not the telemetry.</h2></div><span className="section-note">Business → AI behavior → Evidence</span></div>
       <div className="world-grid">
-        <Link className="world-card world-card--business" to={ACMEBANK_PATH}><span className="world-number">WORLD 1</span><div className="world-icon"><Icon name="home" /></div><small>BUSINESS</small><h3>AcmeBank</h3><p>What is the customer trying to do?</p><strong>Open the loan application <Icon name="arrow" size={15} /></strong></Link>
+        <Link className="world-card world-card--business" to={missionPath("prepare")}><span className="world-number">WORLD 1</span><div className="world-icon"><Icon name="home" /></div><small>BUSINESS</small><h3>AcmeBank</h3><p>What is the customer trying to do?</p><strong>Open the loan application <Icon name="arrow" size={15} /></strong></Link>
         <div className="world-connector"><Icon name="arrow" /></div>
         <Link className="world-card world-card--security" to={missionPath()}><span className="world-number">WORLD 2</span><div className="world-icon"><Icon name="shield" /></div><small>AI / SECURITY</small><h3>AgentSec</h3><p>What did the AI agent actually do?</p><strong>Follow the behavior <Icon name="arrow" size={15} /></strong></Link>
         <div className="world-connector"><Icon name="arrow" /></div>
-        <a className="world-card world-card--evidence" href={`${config.urls.splunk_web}/en-US/app/search/search`} target="_blank" rel="noopener"><span className="world-number">WORLD 3</span><div className="world-icon"><Icon name="search" /></div><small>OBSERVABILITY</small><h3>Splunk</h3><p>What evidence proves what happened?</p><strong>Investigate evidence <Icon name="arrow" size={15} /></strong></a>
+        <Link className="world-card world-card--evidence" to={missionPath("investigate")}><span className="world-number">WORLD 3</span><div className="world-icon"><Icon name="search" /></div><small>OBSERVABILITY</small><h3>Splunk</h3><p>What evidence proves what happened?</p><strong>Investigate evidence <Icon name="arrow" size={15} /></strong></Link>
       </div>
     </section>
 

@@ -55,8 +55,30 @@ def test_config_carries_no_secrets():
     assert not any(w in text for w in ("password", "token", "secret", "api_key"))
 
 
-def test_acmebank_page_is_an_in_academy_route(client):
-    assert b'id="root"' in client.get("/learn/acmebank").data
+@pytest.mark.parametrize("path", ["/learn/acmebank", "/learn/path", "/learn/foundations", "/learn/mastery", "/learn/mcp"])
+def test_academy_pages_are_spa_routes(client, path):
+    assert b'id="root"' in client.get(path).data
+
+
+def test_exported_academy_content_matches_its_sources():
+    """academy-content.json is generated from FOUNDATION_LESSONS and the workshop knowledge checks; it must not drift."""
+    import json
+    from pathlib import Path
+    from agentsec.academy_web import FOUNDATION_LESSONS
+    root = Path(__file__).resolve().parents[1]
+    got = json.loads((root / "academy-ui" / "src" / "content" / "academy-content.json").read_text(encoding="utf-8"))
+    assert got["foundations"] == json.loads(json.dumps([dict(x, flow=list(x["flow"])) for x in FOUNDATION_LESSONS]))
+    for key, lab in (("loandesk", "LAB-LOANDESK-001"), ("mcp", "LAB-MCP-001")):
+        checks = json.loads((root / "learning" / "level_1" / lab / "workshop.json").read_text(encoding="utf-8"))["checks"]
+        assert got["checks"][key] == [{"id": c["id"], "question": c["question"], "answer": c["answer"]} for c in checks]
+
+
+def test_primary_navigation_has_no_splunk_or_duplicate_entries():
+    from pathlib import Path
+    src = (Path(__file__).resolve().parents[1] / "academy-ui" / "src" / "shell.tsx").read_text(encoding="utf-8")
+    groups = src[src.index("const groups"): src.index("];", src.index("const groups"))]
+    assert "splunk" not in groups.lower() and "Attack Workbench" not in groups and "AcmeBank" not in groups and "Arena" not in groups
+    assert "/academy/" not in groups, "no learner navigation entry may point at a classic page"
 
 
 def test_mission_proxy_has_fixed_endpoints_and_no_catch_all(client):
@@ -84,3 +106,34 @@ def test_academy_source_embeds_no_iframes_and_csp_blocks_framing_by_others(clien
     src = Path(__file__).resolve().parents[1] / "academy-ui" / "src"
     assert not [p.name for p in src.rglob("*.ts*") if "iframe" in p.read_text(encoding="utf-8").lower()]
     assert "frame-ancestors 'none'" in client.get("/learn").headers["Content-Security-Policy"]
+
+
+def test_run_progress_is_driven_by_recorded_state_only():
+    from pathlib import Path
+    src = (Path(__file__).resolve().parents[1] / "academy-ui" / "src" / "mission" / "RunProgress.tsx").read_text(encoding="utf-8")
+    for banned in ("Math.random", "setTimeout", "setInterval", "requestAnimationFrame", "width: `"):
+        assert banned not in src, f"RunProgress must not use {banned}: progress comes from the run view, not from timers or percentages"
+    for kind in ("ATTACK_SUCCEEDED", "BLOCKED", "NOT_EXERCISED", "FAILED", "COMPLETED", "RUNNING"):
+        assert kind in src
+
+
+def test_mastery_sections_cover_every_mcp_check_exactly_once():
+    import json
+    import re
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1] / "academy-ui" / "src"
+    ids = re.findall(r'"(MCP-001-Q\d\d)"', (root / "pages" / "Mastery.tsx").read_text(encoding="utf-8"))
+    want = [c["id"] for c in json.loads((root / "content" / "academy-content.json").read_text(encoding="utf-8"))["checks"]["mcp"]]
+    assert sorted(ids) == sorted(want) and len(set(ids)) == len(ids) == 13
+
+
+def test_mcp_experience_never_claims_splunk_verified_without_the_verifier():
+    import re
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1] / "academy-ui" / "src"
+    for rel in ("mcp/mcp.ts", "pages/Mcp.tsx"):
+        text = (root / rel).read_text(encoding="utf-8")
+        for m in re.finditer(r"SPLUNK-VERIFIED", text):
+            ctx = text[max(0, m.start() - 60): m.end() + 10].lower()
+            assert "not " in ctx or "never" in ctx, f"{rel}: SPLUNK-VERIFIED may only appear in a disclaimer: {ctx!r}"
+    assert "ws_lab_mcp" not in (root / "pages" / "Mcp.tsx").read_text(encoding="utf-8"), "no link into the legacy Splunk dashboard"
