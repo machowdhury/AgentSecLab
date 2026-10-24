@@ -9,9 +9,9 @@ const short = (s: string) => s.slice(0, 8);
 const label = (r: RecRun) => `${r.role} (${r.meta.profile})`;
 
 export const RECORDED_BADGE = "RECORDED — NOT RE-RUN";
-const NOT_VERIFIED = "No receipt from the Splunk verifier is attached to these packs, so this page makes no claim that they are Splunk-verified. The lab's own documents describe a Splunk validation phase; that is the document's statement, not a receipt checked here.";
+export const NOT_VERIFIED = "No receipt from the Splunk verifier is attached to these packs, so this page makes no claim that they are Splunk-verified. The lab's own documents describe a Splunk validation phase; that is the document's statement, not a receipt checked here.";
 
-function EventRow({ e }: { e: RecEvent }) {
+export function EventRow({ e }: { e: RecEvent }) {
   const d = f(e, "agentsec.control.decision"), pv = preview(e);
   return <li className="rec-event"><details>
     <summary><span className="rec-seq">{seq(e)}</span> <code>{name(e)}</code>{d && <> <Badge tone={tone(d)}>{d}</Badge></>}<span className="rec-sum"> {summary(e)}</span></summary>
@@ -24,7 +24,6 @@ function Predict({ run, rec, pick, onPick, state, onReveal }: { run: RecRun; rec
   const d = decisiveEvent(run), prior = priorResult(run), shown = Boolean(state);
   return <div className="m-sec rec-predict">
     <h4>1. Predict <Badge tone="muted">YOUR PREDICTION IS NOT EVIDENCE</Badge></h4>
-    <p>{run.documented_as.text}</p>
     <dl className="rec-setup">{setup(run).map(([k, v]) => <div key={k}><dt>{k}</dt><dd><code>{v}</code></dd></div>)}</dl>
     {prior && preview(prior) && <><h5>What the first tool call returned (recorded preview)</h5><pre className="rec-pre">{preview(prior)}</pre></>}
     <fieldset disabled={shown}><legend>{question(d)}</legend>
@@ -35,6 +34,7 @@ function Predict({ run, rec, pick, onPick, state, onReveal }: { run: RecRun; rec
       {state === "predicted" && <p>You predicted <strong>{pick}</strong>. The recorded decision is <Badge tone={tone(decision(run))}>{decision(run)}</Badge>{pick === decision(run) ? " — your prediction matched." : " — your prediction did not match."}</p>}
       {state === "skipped" && <p>Recorded decision: <Badge tone={tone(decision(run))}>{decision(run)}</Badge></p>}
       <p>Reason recorded: <code>{f(d, "agentsec.control.reason") ?? "not recorded"}</code> from <code>{f(d, "agentsec.control.id") ?? "control not recorded"}</code>.</p>
+      <p className="m-muted">How the lab documents this run: {run.documented_as.text} <small className="m-src">Source: <code>{run.documented_as.source}</code></small></p>
     </div>}
   </div>;
 }

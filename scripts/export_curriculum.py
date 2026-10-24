@@ -120,36 +120,127 @@ RUN_META = {"attack_id": "agentsec.attack.id", "mode": "agentsec.testbed.mode", 
             "workflow_entry": "agentsec.workflow.entry"}
 
 
+def pack_run(lab_id: str, run_id: str) -> dict:
+    """One committed specimen pack, event for event. Run-wide constants move to meta; every other field keeps its original key and value."""
+    pack = LABS / lab_id / "specimens" / f"{run_id}.jsonl"
+    raw = pack.read_bytes()
+    events = [json.loads(l) for l in raw.decode("utf-8").splitlines() if l.strip()]
+    if [e["agentsec.sequence"] for e in events] != list(range(1, len(events) + 1)):
+        raise SystemExit(f"{pack.name}: sequence is not 1..n")
+    first = events[0]
+    for k in RUN_CONSTANT:
+        if len({json.dumps(e.get(k)) for e in events}) != 1:
+            raise SystemExit(f"{pack.name}: {k} is not constant across the run")
+    return {"run_id": run_id, "pack": rel(pack), "sha256": hashlib.sha256(raw).hexdigest(),
+            "meta": {**{k: first.get(v) for k, v in RUN_META.items()}, "started": first["timestamp"], "ended": events[-1]["timestamp"], "event_count": len(events)},
+            "events": [{k: v for k, v in e.items() if k not in RUN_CONSTANT} for e in events]}
+
+
+def spl_for(files: list[str]) -> list[dict]:
+    return [{"name": Path(f).name, "source": f, "text": (ROOT / f).read_text(encoding="utf-8").strip()} for f in files]
+
+
 def recorded_for(lab_id: str, rec: dict) -> dict:
     """Embed the committed specimen packs the lab documents, event for event. Nothing is invented: a missing field stays missing, and the tests re-read every pack."""
     doc_src = ROOT / rec["doc_source"]
     doc_lines = doc_src.read_text(encoding="utf-8").splitlines()
     runs = []
     for r in rec["runs"]:
-        pack = LABS / lab_id / "specimens" / f"{r['run_id']}.jsonl"
-        raw = pack.read_bytes()
-        events = [json.loads(l) for l in raw.decode("utf-8").splitlines() if l.strip()]
-        seqs = [e["agentsec.sequence"] for e in events]
-        if seqs != list(range(1, len(events) + 1)):
-            raise SystemExit(f"{pack.name}: sequence is not 1..n")
-        first = events[0]
-        for k in RUN_CONSTANT:
-            if len({json.dumps(e.get(k)) for e in events}) != 1:
-                raise SystemExit(f"{pack.name}: {k} is not constant across the run")
+        run = pack_run(lab_id, r["run_id"])
         bullet = next((l for l in doc_lines if r["run_id"] in l and l.lstrip().startswith("- ")), None)
         if bullet is None:
             raise SystemExit(f"{r['run_id']} is not documented in {rec['doc_source']}")
-        decisive = next(e for e in events if e["agentsec.sequence"] == r["decisive"])
-        if decisive["event.name"] != "agentsec.control.decision":
-            raise SystemExit(f"{pack.name}: sequence {r['decisive']} is not a control decision")
-        runs.append({
-            "role": r["role"], "run_id": r["run_id"], "pack": rel(pack), "sha256": hashlib.sha256(raw).hexdigest(), "decisive": r["decisive"],
-            "documented_as": {"text": clean(bullet.lstrip()[2:]), "source": rel(doc_src)},
-            "meta": {**{k: first.get(v) for k, v in RUN_META.items()}, "started": first["timestamp"], "ended": events[-1]["timestamp"], "event_count": len(events)},
-            "events": [{k: v for k, v in e.items() if k not in RUN_CONSTANT} for e in events],
-        })
-    return {"options": rec["options"], "runs": runs,
-            "spl": [{"name": Path(f).name, "source": f, "text": (ROOT / f).read_text(encoding="utf-8").strip()} for f in rec["spl"]]}
+        if run["events"][r["decisive"] - 1]["event.name"] != "agentsec.control.decision":
+            raise SystemExit(f"{run['pack']}: sequence {r['decisive']} is not a control decision")
+        runs.append({"role": r["role"], "run_id": run["run_id"], "pack": run["pack"], "sha256": run["sha256"], "decisive": r["decisive"],
+                     "documented_as": {"text": clean(bullet.lstrip()[2:]), "source": rel(doc_src)}, "meta": run["meta"], "events": run["events"]})
+    return {"options": rec["options"], "runs": runs, "spl": spl_for(rec["spl"])}
+
+
+def _items(value) -> list[str]:
+    """A lab document's list, dict or string as plain text lines, values unchanged."""
+    if isinstance(value, str):
+        return [clean(value)]
+    if isinstance(value, dict):
+        return [clean(f"{k}: {v}") for k, v in value.items()]
+    return [clean(f"{x['id']}{' (' + x['level'] + ')' if 'level' in x else ''}: {x['text']}" if isinstance(x, dict) and "text" in x and "id" in x else " · ".join(f"{k}: {v}" for k, v in x.items())) if isinstance(x, dict) else clean(str(x)) for x in value]
+
+
+def _runs_of(canon, stages: list[str]) -> list[tuple[str, str]]:
+    if isinstance(canon, str):
+        return [("run", canon)]
+    if "run_id" in canon:
+        return [("run", canon["run_id"])]
+    return [(s, canon[s]) for s in stages if s in canon]
+
+
+def investigation_for(lab_id: str, spec: dict) -> dict:
+    """An investigation over committed packs: scenarios of runs, optional external scanner records, questions whose answers the UI computes from the packs, and verbatim blocks from the lab's documents."""
+    def text_of(f):
+        return (ROOT / f).read_text(encoding="utf-8")
+    out = {"kind": "investigation"}
+    b = spec["brief"]
+    body = text_of(b["file"])
+    if b.get("starts"):                       # the named paragraph and the ones after it
+        paras = [p for p in re.split(r"\n\s*\n", body) if p.strip()]
+        i = next(i for i, p in enumerate(paras) if p.startswith(b["starts"]))
+        paras = paras[i:i + b.get("count", 1)]
+    else:
+        body = md_sections(body)[b["section"]] if b.get("section") else body.split("\n", 1)[1]
+        paras = [p for p in re.split(r"\n\s*\n", re.sub(r"```.*?```", "", body, flags=re.S)) if p.strip()]
+    out["brief"] = {"paragraphs": [clean(p) for p in paras if clean(p)], "source": b["file"] + (f"#{b['section']}" if b.get("section") else "")}
+    canon_doc = json.loads(text_of(spec["canonical"]["file"])) if "canonical" in spec else None
+    out["scenarios"] = []
+    for sc in spec["scenarios"]:
+        if "from" in sc:
+            pairs = _runs_of(_dig(canon_doc, sc["from"]), spec["canonical"]["stages"])
+            doc = spec["canonical"]["file"] + "#" + sc["from"]
+        else:
+            pairs = [(r["stage"], r["run_id"]) for r in sc["runs"]]
+            hay = text_of(sc["documented_in"])
+            for _, rid in pairs:
+                if rid not in hay:
+                    raise SystemExit(f"{rid} is not documented in {sc['documented_in']}")
+            doc = sc["documented_in"]
+        out["scenarios"].append({"id": sc["id"], "label": sc["label"], "documented_in": doc, "runs": [{"stage": st, **pack_run(lab_id, rid)} for st, rid in pairs]})
+    out["external"] = []
+    for x in spec.get("external", []):
+        pack = LABS / lab_id / "specimens" / "scanner" / f"{x['scan_id']}.jsonl"
+        raw = pack.read_bytes()
+        if x["scan_id"] not in text_of(x["documented_in"]):
+            raise SystemExit(f"{x['scan_id']} is not documented in {x['documented_in']}")
+        out["external"].append({"scan_id": x["scan_id"], "pack": rel(pack), "sha256": hashlib.sha256(raw).hexdigest(), "documented_in": x["documented_in"],
+                                "records": [json.loads(json.loads(l)["event"]) for l in raw.decode("utf-8").splitlines() if l.strip()]})
+    out["questions"] = spec["questions"]
+    for q in out["questions"]:
+        if clean(q["quote"]["text"]) not in clean(text_of(q["quote"]["file"])):
+            raise SystemExit(f"quote for {q['id']} is not in {q['quote']['file']}")
+    for k in ("graph", "control_analysis"):
+        if k in spec:
+            out[k] = {**json.loads(text_of(spec[k]["file"])), "source": spec[k]["file"]}
+    out["blocks"] = []
+    for blk in spec["blocks"]:
+        if "section" in blk and blk.get("sentences"):
+            items = [x for x in re.split(r"(?<=\.)\s+", clean(md_sections(text_of(blk["file"]))[blk["section"]])) if x]; src = blk["file"] + "#" + blk["section"]
+        elif "section" in blk:
+            items = bullets(md_sections(text_of(blk["file"]))[blk["section"]]); src = blk["file"] + "#" + blk["section"]
+        elif blk.get("rules"):
+            items = [clean(m.group(0)) for m in re.finditer(r"^[A-Z][A-Z0-9 /,.'()-]{6,}(?:!=|≠)[A-Z0-9 /,.'()-]{3,}$", text_of(blk["file"]), re.M)]; src = blk["file"]
+        else:
+            items = _items(_dig(json.loads(text_of(blk["file"])), blk["path"])); src = blk["file"] + "#" + blk["path"]
+        if not items:
+            raise SystemExit(f"block {blk['title']!r} in {lab_id} has no items: an empty block would show a heading with nothing under it")
+        out["blocks"].append({"group": blk["group"], "title": blk["title"], "source": src, "items": items})
+    out["spl"] = spl_for(spec["spl"])
+    return out
+
+
+def write_recorded(lab_id: str, data: dict) -> dict:
+    """Large evidence is written to its own file and loaded on demand, so it stays out of the main JavaScript bundle."""
+    dest = ROOT / "academy-ui" / "src" / "content" / "recorded"
+    dest.mkdir(parents=True, exist_ok=True)
+    (dest / f"{lab_id}.json").write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
+    return {"kind": data["kind"], "file": f"{lab_id}.json"}
 
 
 def explainer_for(lab_id: str) -> dict | None:
@@ -179,7 +270,12 @@ def explainer_for(lab_id: str) -> dict | None:
             rt["columns"] = [h for _, h in rt["columns"]]
     if "spl" in e:
         e["spl"] = [{"name": n, "source": f"learning/level_1/{lab_id}/searches/{n}", "text": (LABS / lab_id / "searches" / n).read_text(encoding="utf-8").strip()} for n in e["spl"]]
-    if "recorded" in e:
+    if "investigation" in e:
+        e["recorded_ref"] = write_recorded(lab_id, investigation_for(lab_id, e.pop("investigation")))
+    elif e.get("recorded", {}).get("lazy"):
+        spec = e.pop("recorded"); spec.pop("lazy")
+        e["recorded_ref"] = write_recorded(lab_id, {"kind": "decision", **recorded_for(lab_id, spec)})
+    elif "recorded" in e:
         e["recorded"] = recorded_for(lab_id, e["recorded"])
     cc = e.get("cannot_claim")
     if cc:

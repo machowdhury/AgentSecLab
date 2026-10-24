@@ -174,7 +174,85 @@
     "dashboard": "ws_lab_advanced_capstone",
     "evidence_docs": []
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-ADVANCED-CAPSTONE-MASTERY-001",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-24",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The evidence in Practice is read from the committed specimen packs, unedited."
+    },
+    "summary": {
+     "text": "The mastery capstone. You get a business workflow, a time window and the recorded evidence, not a run id. Work out what you can prove, write NOT PROVEN where the evidence stops, and check yourself against the lab's own list of steps. This is self-assessed and is not a certification.",
+     "grounds": [
+      "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/README.md"
+     ],
+     "facts": [
+      "This is not a new attack, scanner, detector, or policy decision point."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The scenario",
+      "text": "AcmeBank operates an agent-assisted lending-policy workflow.",
+      "grounds": [
+       "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/incident-brief.md"
+      ],
+      "facts": [
+       "AcmeBank operates an agent-assisted lending-policy workflow."
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "What you are given",
+      "text": "The workflow, the component list, the time window and Splunk. There is no starting run identifier.",
+      "grounds": [
+       "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/README.md"
+      ],
+      "facts": [
+       "The mission does not start from a run identifier."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The standard",
+      "text": "Write what you can prove. Write NOT PROVEN when the evidence stops.",
+      "grounds": [
+       "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/incident-brief.md"
+      ],
+      "facts": [
+       "Write what you can prove. Write NOT PROVEN when the evidence stops."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "Who decides",
+      "text": "The tool control decides. Splunk only holds a downstream copy of the evidence.",
+      "grounds": [
+       "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/README.md"
+      ],
+      "facts": [
+       "CTRL-MCP-001 remains the tool PDP. Splunk remains downstream evidence."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What the evidence shows is bounded",
+      "text": "Same run, same hash or one event before another does not prove one caused the other.",
+      "grounds": [
+       "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/incident.json"
+      ],
+      "facts": [
+       "CORRELATED != CAUSED",
+       "SAME HASH != SAME EXECUTION"
+      ]
+     }
+    ],
+    "recorded_ref": {
+     "kind": "investigation",
+     "file": "LAB-ADVANCED-CAPSTONE-MASTERY-001.json"
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [
@@ -2009,7 +2087,95 @@
      "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/evidence.md"
     ]
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-BLUE-TEAM-INCIDENT-001",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-24",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The evidence in Practice is read from the committed specimen packs, unedited."
+    },
+    "summary": {
+     "text": "You are the analyst. A report says an AI-assisted banking workflow may have acted outside its authority. This investigation uses recorded runs: a three-step chain (retrieve, write, recall) in an attack run and a defended retest. You work out what the evidence supports, what it refutes and what it leaves open.",
+     "grounds": [
+      "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/README.md"
+     ],
+     "facts": [
+      "This lab reuses validated AgentSec evidence; it does not add an attack, detector, control, or runtime event."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The report",
+      "text": "SOC received a report that an AI-assisted banking workflow may have requested or performed an action outside its intended authority.",
+      "grounds": [
+       "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/README.md"
+      ],
+      "facts": [
+       "SOC received a report that an AI-assisted banking workflow may have requested or performed an action outside its intended authority."
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "The method",
+      "text": "Work out what happened without assuming the cause from a lab title.",
+      "grounds": [
+       "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/README.md"
+      ],
+      "facts": [
+       "Determine what happened without assuming the cause from a lab title."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "What the evidence established",
+      "text": "In the attack recall, memory was observed, then the tool control allowed the request and the handler started and completed.",
+      "grounds": [
+       "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/evidence.md"
+      ],
+      "facts": [
+       "ATTACK recall: memory OBSERVE, then CTRL-MCP-001 ALLOW, handler invocation count 1, mcp.started, and mcp.completed."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "The rule to hold on to",
+      "text": "A correlation between two events is not a cause.",
+      "grounds": [
+       "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/README.md"
+      ],
+      "facts": [
+       "CORRELATION != CAUSATION"
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What the evidence does not establish",
+      "text": "The retrieved text being written to memory is a matching hash, not a modelled cause.",
+      "grounds": [
+       "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/evidence.md"
+      ],
+      "facts": [
+       "Direct retrieve-output-to-write causality: NOT MODELED."
+      ]
+     }
+    ],
+    "cannot_claim": {
+     "source": "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/evidence.md#Not established",
+     "items": [
+      "Direct retrieve-output-to-write causality: NOT MODELED.",
+      "Authentication or workload identity: NOT MODELED.",
+      "Goal or Identity control failure in this packet: NOT OBSERVED.",
+      "External scanner/evaluation causation: NOT OBSERVED.",
+      "Universal resistance after RETEST: NOT PROVEN.",
+      "Splunk prevention: incorrect; Splunk is downstream."
+     ]
+    },
+    "recorded_ref": {
+     "kind": "investigation",
+     "file": "LAB-BLUE-TEAM-INCIDENT-001.json"
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [
@@ -5597,7 +5763,115 @@
      "learning/level_1/LAB-MCP-006/dashboard.md"
     ]
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-MCP-006",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-24",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The evidence in Practice is read from the committed specimen packs, unedited."
+    },
+    "summary": {
+     "text": "One agent asks another to act for it. The deputy may be able to do more than the caller was ever allowed to ask for. Three recorded runs show a legitimate delegation, the same extra request let through by an intentionally weak profile, and the same request refused by the defended profile.",
+     "grounds": [
+      "learning/level_1/LAB-MCP-006/README.md"
+     ],
+     "facts": [
+      "the deputy may possess authority, but that is not proof the caller delegated that authority for this operation."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The legitimate operation",
+      "text": "Credit Agent asks Compliance Agent to perform a granted policy lookup, and the caller really did delegate it.",
+      "grounds": [
+       "learning/level_1/LAB-MCP-006/workshop.md"
+      ],
+      "facts": [
+       "A guided lab: Credit Agent asks Compliance Agent to perform an MCP tool call."
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "What the attacker controls",
+      "text": "The operation requested through the deputy. The deputy has authority of its own that the caller does not.",
+      "grounds": [
+       "learning/level_1/LAB-MCP-006/workshop.md"
+      ],
+      "facts": [
+       "the deputy uses its own ambient authority for an operation the caller was not entitled to request."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between what the caller delegated and what the deputy could do on its own. A delegation check runs before the tool check.",
+      "grounds": [
+       "learning/level_1/LAB-MCP-006/workshop.md"
+      ],
+      "facts": [
+       "CTRL-DELEGATION-001 checks whether the caller actually delegated that operation."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "The authorization rule",
+      "text": "An agent cannot receive more authority than was explicitly delegated to it.",
+      "grounds": [
+       "learning/level_1/LAB-MCP-006/workshop.md"
+      ],
+      "facts": [
+       "an agent cannot receive more authority than was explicitly delegated."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What counts as evidence of execution",
+      "text": "A decision is not execution. Look for the separate event that says the handler began.",
+      "grounds": [
+       "learning/level_1/LAB-MCP-006/README.md"
+      ],
+      "facts": [
+       "Treat runtime handler count as authoritative non-execution proof."
+      ]
+     }
+    ],
+    "known": [
+     {
+      "text": "In the attack run the delegation check let the request through under the vulnerable profile. The lab calls this fail-open, not a grant from the caller.",
+      "grounds": [
+       "learning/level_1/LAB-MCP-006/README.md"
+      ],
+      "facts": [
+       "Explain why ATTACK CTRL-DELEGATION-001 ALLOW is fail-open, not caller grant."
+      ]
+     }
+    ],
+    "cannot_claim": {
+     "source": "learning/level_1/LAB-MCP-006/dashboard.md#What this dashboard is not allowed to claim",
+     "items": [
+      "Splunk as the enforcer (it indexes; it does not authorize)",
+      "A detector that “caught MCP-006” (none exists)",
+      "Treating deputy authority as caller authority",
+      "Treating ambient authority as delegated authority",
+      "Treating ALLOW as proof of execution",
+      "Treating missing mcp.started as proof the handler never ran",
+      "Treating MCP ALLOW as a caller grant of lookup_customer_tier",
+      "Treating zero hunt rows as “the control worked”",
+      "Treating no DET-MCP-001 match as “no security violation occurred”",
+      "Treating the SIMULATED positive control as OBSERVED runtime evidence",
+      "Reading runtime handler count from Splunk",
+      "Treating 0 detector hits as “the system is secure”",
+      "An indexed allowed_tools field",
+      "A gen_ai.tool.call.id",
+      "Inventing RETEST hop-1 deputy when Q-MCP-DELEGATION says deputy_not_on_indexed_hop1"
+     ]
+    },
+    "recorded_ref": {
+     "kind": "decision",
+     "file": "LAB-MCP-006.json"
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [
@@ -5735,7 +6009,101 @@
      "learning/level_1/LAB-MCP-CATALOG/dashboard.md"
     ]
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-MCP-CATALOG",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-24",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The evidence in Practice is read from the committed specimen packs, unedited."
+    },
+    "summary": {
+     "text": "A tool can be real, its first call properly authorized, and its catalog description can still carry instructions aimed at the agent. Three recorded runs show a normal description, a manipulative one let through by an intentionally weak profile, and the same manipulative description refused by the defended profile.",
+     "grounds": [
+      "learning/level_1/LAB-MCP-CATALOG/README.md"
+     ],
+     "facts": [
+      "a tool can be legitimate, its first call can be properly authorized, and its catalog metadata can still contain manipulative content."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The legitimate operation",
+      "text": "The agent calls the granted lookup_policy tool first. That call is properly authorized.",
+      "grounds": [
+       "learning/level_1/LAB-MCP-CATALOG/workshop.md"
+      ],
+      "facts": [
+       "granted `lookup_policy` at granted `policy:read`. The first hop is legitimate."
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "What the attacker controls",
+      "text": "The tool's catalog description. It can try to steer what the agent asks for next.",
+      "grounds": [
+       "learning/level_1/LAB-MCP-CATALOG/README.md"
+      ],
+      "facts": [
+       "Metadata may influence what an agent REQUESTS next."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between the description the agent read and the authority the server grants.",
+      "grounds": [
+       "learning/level_1/LAB-MCP-CATALOG/README.md"
+      ],
+      "facts": [
+       "Metadata must not determine what authority the server GRANTS next."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "The authorization rule",
+      "text": "A request is not a grant, and observing a description is not allowing what it asks for.",
+      "grounds": [
+       "learning/level_1/LAB-MCP-CATALOG/README.md"
+      ],
+      "facts": [
+       "REQUEST ≠ GRANT"
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What counts as evidence of execution",
+      "text": "A decision is not execution. Look for the separate event that says the handler began.",
+      "grounds": [
+       "learning/level_1/LAB-MCP-CATALOG/README.md"
+      ],
+      "facts": [
+       "Treat runtime handler count as authoritative non-execution proof."
+      ]
+     }
+    ],
+    "known": [
+     {
+      "text": "In the attack run the follow-on request was allowed by the vulnerable profile, which the lab calls an overlay, not a grant made by the description.",
+      "grounds": [
+       "learning/level_1/LAB-MCP-CATALOG/README.md"
+      ],
+      "facts": [
+       "Explain the vulnerable hop-1 ALLOW as overlay, not description grant."
+      ]
+     }
+    ],
+    "recorded_ref": {
+     "kind": "decision",
+     "file": "LAB-MCP-CATALOG.json"
+    },
+    "cannot_claim": {
+     "source": "learning/level_1/LAB-MCP-CATALOG/README.md",
+     "items": [
+      "This is not “malicious MCP tool,” malware detection, “Splunk blocked the attack,” or “scanner blocked the tool.”"
+     ]
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [
@@ -6479,7 +6847,85 @@
     "dashboard": "ws_lab_multi_stage_incident",
     "evidence_docs": []
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-MULTI-STAGE-INCIDENT-001",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-24",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The evidence in Practice is read from the committed specimen packs, unedited."
+    },
+    "summary": {
+     "text": "A longer investigation over recorded evidence: an attack chain, a defended retest, a baseline chain and a benign comparison. You separate what each evidence plane shows, name the controls that held or did not, and say what is still unproven.",
+     "grounds": [
+      "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/README.md"
+     ],
+     "facts": [
+      "L9 is one advanced REPLAY integration exercise over validated Capstone evidence."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The report",
+      "text": "Security Operations identified unusual activity associated with an AI-assisted lending customer workflow",
+      "grounds": [
+       "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/incident-brief.md"
+      ],
+      "facts": [
+       "Security Operations identified unusual activity associated with an AI-assisted lending customer workflow"
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "The method",
+      "text": "Challenge the hypothesis with the scanner finding, garak evaluation, defended comparison, and benign baseline.",
+      "grounds": [
+       "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/README.md"
+      ],
+      "facts": [
+       "Challenge the hypothesis with the scanner finding, garak evaluation, defended comparison, and benign baseline."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "What not to assume",
+      "text": "Not every reported stage necessarily occurred.",
+      "grounds": [
+       "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/incident-brief.md"
+      ],
+      "facts": [
+       "Do not assume that every reported stage occurred."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "What not to claim",
+      "text": "No breach language the evidence does not support, and no scanner finding as explanation.",
+      "grounds": [
+       "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/incident-brief.md"
+      ],
+      "facts": [
+       "Do not assume a scanner finding explains runtime behavior.",
+       "Do not use unsupported breach language."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "Evidence is bounded to this incident",
+      "text": "The evidence graph is for this incident only, and a cause may be claimed only where established.",
+      "grounds": [
+       "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/evidence-graph.json"
+      ],
+      "facts": [
+       "THIS INCIDENT ONLY"
+      ]
+     }
+    ],
+    "recorded_ref": {
+     "kind": "investigation",
+     "file": "LAB-MULTI-STAGE-INCIDENT-001.json"
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [
@@ -7925,7 +8371,90 @@
      "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/evidence.md"
     ]
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-SCANNER-RUNTIME-EVIDENCE",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-24",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The evidence in Practice is read from the committed specimen packs, unedited."
+    },
+    "summary": {
+     "text": "An external scanner flags a tool description. What can a SOC actually conclude? This lab lays the scanner's recorded findings next to the runtime's recorded decisions for the same descriptions, joined by the description's SHA-256, and asks what each kind of evidence can and cannot prove.",
+     "grounds": [
+      "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/README.md"
+     ],
+     "facts": [
+      "when an external security scanner flags agent/tool metadata, what can the SOC actually conclude from that evidence?"
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The scenario",
+      "text": "A static scanner examined two catalog snapshots, one normal and one with a manipulative description. The agent runtime separately recorded the same descriptions and its decisions.",
+      "grounds": [
+       "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/README.md"
+      ],
+      "facts": [
+       "a SOC combines"
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "Three evidence planes",
+      "text": "Scanner evidence, runtime metadata evidence, and authorization and execution evidence. Each proves something different.",
+      "grounds": [
+       "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/README.md"
+      ],
+      "facts": [
+       "Name the three evidence planes and what each can prove."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "How the planes are joined",
+      "text": "By the description's SHA-256, not by the whole artifact's hash.",
+      "grounds": [
+       "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/README.md"
+      ],
+      "facts": [
+       "Correlate scanner and runtime evidence with description SHA-256, not artifact.sha256."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "What a scanner finding is not",
+      "text": "It is not an authorization decision, and zero findings is not proof of safety.",
+      "grounds": [
+       "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/README.md"
+      ],
+      "facts": [
+       "SCANNER FINDING != AUTHORIZATION DECISION",
+       "ZERO FINDINGS != SAFE"
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "Why the attack ran and the retest did not",
+      "text": "The attack ran because of the vulnerable profile. The retest did not because the tool control denied it and the handler never began.",
+      "grounds": [
+       "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/README.md"
+      ],
+      "facts": [
+       "Explain ATTACK execution as the vulnerable profile, not scanner HIGH.",
+       "Explain RETEST non-execution as CTRL-MCP-001 DENY plus runtime handler count 0."
+      ]
+     }
+    ],
+    "cannot_claim": {
+     "source": "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/evidence.md#What this evidence is not",
+     "items": []
+    },
+    "recorded_ref": {
+     "kind": "investigation",
+     "file": "LAB-SCANNER-RUNTIME-EVIDENCE.json"
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [

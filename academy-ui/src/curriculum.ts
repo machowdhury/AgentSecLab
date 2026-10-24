@@ -11,7 +11,25 @@ export interface RecRun {
   meta: { attack_id: string; mode: string; profile: string; schema_version: string; execution_mode: string; fidelity: string; trace_id: string; principal: string; workflow_entry: string; started: string; ended: string; event_count: number };
   events: RecEvent[];
 }
-export interface Recorded { options: string[]; runs: RecRun[]; spl: { name: string; source: string; text: string }[] }
+export interface Spl { name: string; source: string; text: string }
+export interface Recorded { options: string[]; runs: RecRun[]; spl: Spl[] }
+export type Ref =
+  | { src: "event"; scenario: string; stage: string; where?: { control?: string; event?: string; nth?: "first" | "last" }; field: string; json?: string }
+  | { src: "external"; scan: string; path: string[] }
+  | { src: "run"; scenario: string; stage: string };
+export type Eval = { kind: "value"; ref: Ref } | { kind: "equal"; a: Ref; b: Ref } | { kind: "handler"; scenario: string; stage: string; tool: string };
+export interface Question { id: string; prompt: string; choices: string[]; eval: Eval; quote: { file: string; text: string }; teach: string }
+export interface InvRun { stage: string; run_id: string; pack: string; sha256: string; meta: RecRun["meta"]; events: RecEvent[] }
+export interface Scenario { id: string; label: string; documented_in: string; runs: InvRun[] }
+export interface External { scan_id: string; pack: string; sha256: string; documented_in: string; records: Record<string, unknown>[] }
+export interface Block { group: "hints" | "prove" | "limits" | "rules" | "assess"; title: string; source: string; items: string[] }
+export interface Investigation {
+  kind: "investigation"; brief: { paragraphs: string[]; source: string }; scenarios: Scenario[]; external: External[]; questions: Question[];
+  graph?: { scope: string; allowed_edge_semantics: string[]; forbidden_unless_established: string[]; nodes: { id: string; kind: string; label: string; state: string }[]; edges: { from: string; to: string; semantic: string; basis: string }[]; source: string };
+  control_analysis?: { states: string[]; controls: Record<string, string>[]; source: string };
+  blocks: Block[]; spl: Spl[];
+}
+export type RecordedFile = (Recorded & { kind: "decision" }) | Investigation;
 export interface Explainer {
   status: "full" | "partial"; authored: { on: string; note: string };
   summary?: { text: string; grounds: string[]; facts: string[] };
@@ -25,6 +43,7 @@ export interface Explainer {
   identifiers?: { label: string; value: string; source: string }[];
   cannot_claim?: { source: string; items: string[] };
   recorded?: Recorded;
+  recorded_ref?: { kind: "decision" | "investigation"; file: string };
 }
 export interface Lab {
   id: string; title: string; level: string | null; primary_domain: string; secondary_domain: string | null; domain_confidence: string;

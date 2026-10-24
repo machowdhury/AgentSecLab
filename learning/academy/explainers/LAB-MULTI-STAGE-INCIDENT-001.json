@@ -1,0 +1,331 @@
+{
+  "lab_id": "LAB-MULTI-STAGE-INCIDENT-001",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-24",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The evidence in Practice is read from the committed specimen packs, unedited."
+  },
+  "summary": {
+    "text": "A longer investigation over recorded evidence: an attack chain, a defended retest, a baseline chain and a benign comparison. You separate what each evidence plane shows, name the controls that held or did not, and say what is still unproven.",
+    "grounds": [
+      "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/README.md"
+    ],
+    "facts": [
+      "L9 is one advanced REPLAY integration exercise over validated Capstone evidence."
+    ]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The report",
+      "text": "Security Operations identified unusual activity associated with an AI-assisted lending customer workflow",
+      "grounds": [
+        "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/incident-brief.md"
+      ],
+      "facts": [
+        "Security Operations identified unusual activity associated with an AI-assisted lending customer workflow"
+      ]
+    },
+    {
+      "id": "controls",
+      "label": "The method",
+      "text": "Challenge the hypothesis with the scanner finding, garak evaluation, defended comparison, and benign baseline.",
+      "grounds": [
+        "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/README.md"
+      ],
+      "facts": [
+        "Challenge the hypothesis with the scanner finding, garak evaluation, defended comparison, and benign baseline."
+      ]
+    },
+    {
+      "id": "boundary",
+      "label": "What not to assume",
+      "text": "Not every reported stage necessarily occurred.",
+      "grounds": [
+        "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/incident-brief.md"
+      ],
+      "facts": [
+        "Do not assume that every reported stage occurred."
+      ]
+    },
+    {
+      "id": "rule",
+      "label": "What not to claim",
+      "text": "No breach language the evidence does not support, and no scanner finding as explanation.",
+      "grounds": [
+        "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/incident-brief.md"
+      ],
+      "facts": [
+        "Do not assume a scanner finding explains runtime behavior.",
+        "Do not use unsupported breach language."
+      ]
+    },
+    {
+      "id": "evidence",
+      "label": "Evidence is bounded to this incident",
+      "text": "The evidence graph is for this incident only, and a cause may be claimed only where established.",
+      "grounds": [
+        "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/evidence-graph.json"
+      ],
+      "facts": [
+        "THIS INCIDENT ONLY"
+      ]
+    }
+  ],
+  "investigation": {
+    "brief": {
+      "file": "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/incident-brief.md",
+      "section": "ACME BANK INCIDENT AGENT-2026-009"
+    },
+    "canonical": {
+      "file": "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/incident.json",
+      "stages": [
+        "retrieve",
+        "write",
+        "recall"
+      ]
+    },
+    "scenarios": [
+      {
+        "id": "attack",
+        "label": "ATTACK chain (vulnerable profile)",
+        "from": "canonical_runs.attack"
+      },
+      {
+        "id": "retest",
+        "label": "RETEST chain (defended profile)",
+        "from": "canonical_runs.retest"
+      },
+      {
+        "id": "baseline",
+        "label": "BASELINE chain (defended, no attack content)",
+        "from": "canonical_runs.baseline"
+      },
+      {
+        "id": "benign",
+        "label": "Benign comparison run",
+        "from": "canonical_runs.benign_comparison"
+      }
+    ],
+    "graph": {
+      "file": "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/evidence-graph.json"
+    },
+    "control_analysis": {
+      "file": "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/control-analysis.json"
+    },
+    "questions": [
+      {
+        "id": "m1",
+        "prompt": "In the ATTACK recall run, what did the memory-context control record?",
+        "choices": [
+          "ALLOW",
+          "DENY",
+          "ERROR",
+          "OBSERVE",
+          "NONE RECORDED"
+        ],
+        "eval": {
+          "kind": "value",
+          "ref": {
+            "src": "event",
+            "scenario": "attack",
+            "stage": "recall",
+            "where": {
+              "control": "CTRL-MEMORY-CONTEXT-001",
+              "nth": "last"
+            },
+            "field": "agentsec.control.decision"
+          }
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/control-analysis.json",
+          "text": "Not the tool PDP"
+        },
+        "teach": "It classifies the recalled memory as data. It does not decide the tool request."
+      },
+      {
+        "id": "m2",
+        "prompt": "In the ATTACK recall run, what did CTRL-MCP-001 decide about the privileged request?",
+        "choices": [
+          "ALLOW",
+          "DENY",
+          "ERROR",
+          "OBSERVE",
+          "NONE RECORDED"
+        ],
+        "eval": {
+          "kind": "value",
+          "ref": {
+            "src": "event",
+            "scenario": "attack",
+            "stage": "recall",
+            "where": {
+              "control": "CTRL-MCP-001",
+              "nth": "last"
+            },
+            "field": "agentsec.control.decision"
+          }
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/evidence-graph.json",
+          "text": "ALLOW before mcp.started; not a universal causality claim"
+        },
+        "teach": "Under the vulnerable profile the control's decision was ALLOW."
+      },
+      {
+        "id": "m3",
+        "prompt": "Did the handler for lookup_customer_tier begin in the ATTACK recall run?",
+        "choices": [
+          "yes",
+          "no"
+        ],
+        "eval": {
+          "kind": "handler",
+          "scenario": "attack",
+          "stage": "recall",
+          "tool": "lookup_customer_tier"
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/evidence-graph.json",
+          "text": "ALLOW before mcp.started; not a universal causality claim"
+        },
+        "teach": "Execution is shown by mcp.started, separately from the decision."
+      },
+      {
+        "id": "m4",
+        "prompt": "In the RETEST recall run, what did CTRL-MCP-001 decide about the same request?",
+        "choices": [
+          "ALLOW",
+          "DENY",
+          "ERROR",
+          "OBSERVE",
+          "NONE RECORDED"
+        ],
+        "eval": {
+          "kind": "value",
+          "ref": {
+            "src": "event",
+            "scenario": "retest",
+            "stage": "recall",
+            "where": {
+              "control": "CTRL-MCP-001",
+              "nth": "last"
+            },
+            "field": "agentsec.control.decision"
+          }
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/control-analysis.json",
+          "text": "control decision before handler"
+        },
+        "teach": "The decision comes before any handler."
+      },
+      {
+        "id": "m5",
+        "prompt": "Did the handler for lookup_customer_tier begin in the RETEST recall run?",
+        "choices": [
+          "yes",
+          "no"
+        ],
+        "eval": {
+          "kind": "handler",
+          "scenario": "retest",
+          "stage": "recall",
+          "tool": "lookup_customer_tier"
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/control-analysis.json",
+          "text": "control decision before handler"
+        },
+        "teach": "No mcp.started in the pack. Corroboration, not independent proof."
+      },
+      {
+        "id": "m6",
+        "prompt": "In the BASELINE recall run, what did CTRL-MCP-001 decide?",
+        "choices": [
+          "ALLOW",
+          "DENY",
+          "ERROR",
+          "OBSERVE",
+          "NONE RECORDED"
+        ],
+        "eval": {
+          "kind": "value",
+          "ref": {
+            "src": "event",
+            "scenario": "baseline",
+            "stage": "recall",
+            "where": {
+              "control": "CTRL-MCP-001",
+              "nth": "last"
+            },
+            "field": "agentsec.control.decision"
+          }
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/incident.json",
+          "text": "A privileged customer-information tool may have been requested."
+        },
+        "teach": "The baseline chain recorded no privileged request, so there is no decision to read."
+      },
+      {
+        "id": "m7",
+        "prompt": "In the ATTACK chain, does the recall's source_run_id equal the write run's run id?",
+        "choices": [
+          "same",
+          "different"
+        ],
+        "eval": {
+          "kind": "equal",
+          "a": {
+            "src": "event",
+            "scenario": "attack",
+            "stage": "recall",
+            "where": {
+              "event": "agentsec.memory.recalled"
+            },
+            "field": "agentsec.memory.source_run_id"
+          },
+          "b": {
+            "src": "run",
+            "scenario": "attack",
+            "stage": "write"
+          }
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/evidence-graph.json",
+          "text": "recall source_run_id equals write run.id"
+        },
+        "teach": "This is the one link between write and recall that the evidence supports directly."
+      }
+    ],
+    "blocks": [
+      {
+        "group": "hints",
+        "title": "Hints from the lab, in the order the lab discloses them",
+        "file": "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/investigations.json",
+        "path": "hints"
+      },
+      {
+        "group": "limits",
+        "title": "Links the lab says are not modelled or not observed",
+        "file": "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/incident.json",
+        "path": "unsupported_links"
+      },
+      {
+        "group": "limits",
+        "title": "Failure states the lab names",
+        "file": "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/investigations.json",
+        "path": "failure_states"
+      }
+    ],
+    "spl": [
+      "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/searches/Q-L9-DISCOVER.spl",
+      "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/searches/Q-L9-TIMELINE.spl",
+      "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/searches/Q-L9-COMPARE.spl",
+      "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/searches/Q-L9-HUNT.spl",
+      "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/searches/Q-L9-EXTERNAL-PIVOT.spl",
+      "learning/level_1/LAB-MULTI-STAGE-INCIDENT-001/searches/Q-L9-DETECTION-CANDIDATE.spl"
+    ]
+  }
+}

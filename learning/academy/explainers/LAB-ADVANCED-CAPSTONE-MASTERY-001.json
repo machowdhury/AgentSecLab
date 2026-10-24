@@ -1,0 +1,274 @@
+{
+  "lab_id": "LAB-ADVANCED-CAPSTONE-MASTERY-001",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-24",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The evidence in Practice is read from the committed specimen packs, unedited."
+  },
+  "summary": {
+    "text": "The mastery capstone. You get a business workflow, a time window and the recorded evidence, not a run id. Work out what you can prove, write NOT PROVEN where the evidence stops, and check yourself against the lab's own list of steps. This is self-assessed and is not a certification.",
+    "grounds": [
+      "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/README.md"
+    ],
+    "facts": [
+      "This is not a new attack, scanner, detector, or policy decision point."
+    ]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The scenario",
+      "text": "AcmeBank operates an agent-assisted lending-policy workflow.",
+      "grounds": [
+        "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/incident-brief.md"
+      ],
+      "facts": [
+        "AcmeBank operates an agent-assisted lending-policy workflow."
+      ]
+    },
+    {
+      "id": "controls",
+      "label": "What you are given",
+      "text": "The workflow, the component list, the time window and Splunk. There is no starting run identifier.",
+      "grounds": [
+        "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/README.md"
+      ],
+      "facts": [
+        "The mission does not start from a run identifier."
+      ]
+    },
+    {
+      "id": "boundary",
+      "label": "The standard",
+      "text": "Write what you can prove. Write NOT PROVEN when the evidence stops.",
+      "grounds": [
+        "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/incident-brief.md"
+      ],
+      "facts": [
+        "Write what you can prove. Write NOT PROVEN when the evidence stops."
+      ]
+    },
+    {
+      "id": "rule",
+      "label": "Who decides",
+      "text": "The tool control decides. Splunk only holds a downstream copy of the evidence.",
+      "grounds": [
+        "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/README.md"
+      ],
+      "facts": [
+        "CTRL-MCP-001 remains the tool PDP. Splunk remains downstream evidence."
+      ]
+    },
+    {
+      "id": "evidence",
+      "label": "What the evidence shows is bounded",
+      "text": "Same run, same hash or one event before another does not prove one caused the other.",
+      "grounds": [
+        "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/incident.json"
+      ],
+      "facts": [
+        "CORRELATED != CAUSED",
+        "SAME HASH != SAME EXECUTION"
+      ]
+    }
+  ],
+  "investigation": {
+    "brief": {
+      "file": "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/incident-brief.md"
+    },
+    "canonical": {
+      "file": "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/incident.json",
+      "stages": []
+    },
+    "scenarios": [
+      {
+        "id": "baseline",
+        "label": "BASELINE (defended, no attack content)",
+        "from": "canonical_runs.baseline"
+      },
+      {
+        "id": "attack",
+        "label": "ATTACK (vulnerable profile)",
+        "from": "canonical_runs.attack"
+      },
+      {
+        "id": "retest",
+        "label": "RETEST (defended profile)",
+        "from": "canonical_runs.retest"
+      }
+    ],
+    "questions": [
+      {
+        "id": "c1",
+        "prompt": "In the ATTACK run, what did CTRL-GOAL-INTEGRITY-001 record about the proposed action?",
+        "choices": [
+          "ALLOW",
+          "DENY",
+          "ERROR",
+          "OBSERVE",
+          "NONE RECORDED"
+        ],
+        "eval": {
+          "kind": "value",
+          "ref": {
+            "src": "event",
+            "scenario": "attack",
+            "stage": "run",
+            "where": {
+              "control": "CTRL-GOAL-INTEGRITY-001",
+              "nth": "last"
+            },
+            "field": "agentsec.control.decision"
+          }
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/incident.json",
+          "text": "CORRELATED != CAUSED"
+        },
+        "teach": "Under the vulnerable profile the goal control recorded the proposal but did not stop it."
+      },
+      {
+        "id": "c2",
+        "prompt": "In the RETEST run, what did CTRL-GOAL-INTEGRITY-001 decide about the same proposed action?",
+        "choices": [
+          "ALLOW",
+          "DENY",
+          "ERROR",
+          "OBSERVE",
+          "NONE RECORDED"
+        ],
+        "eval": {
+          "kind": "value",
+          "ref": {
+            "src": "event",
+            "scenario": "retest",
+            "stage": "run",
+            "where": {
+              "control": "CTRL-GOAL-INTEGRITY-001",
+              "nth": "last"
+            },
+            "field": "agentsec.control.decision"
+          }
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/incident.json",
+          "text": "CORRELATED != CAUSED"
+        },
+        "teach": "Same proposal, defended profile."
+      },
+      {
+        "id": "c3",
+        "prompt": "In the ATTACK run, which action does the CTRL-MCP-001 decision record as the effective action?",
+        "choices": [
+          "summarize_lending_policy",
+          "extract_full_policy",
+          "NONE RECORDED"
+        ],
+        "eval": {
+          "kind": "value",
+          "ref": {
+            "src": "event",
+            "scenario": "attack",
+            "stage": "run",
+            "where": {
+              "control": "CTRL-MCP-001"
+            },
+            "field": "agentsec.content.preview",
+            "json": "effective_action"
+          }
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/incident.json",
+          "text": "The permitted action is summarize_lending_policy."
+        },
+        "teach": "The same granted tool ran in every run. What differs is the action it carried out. Under the vulnerable profile that was the proposed out-of-task action."
+      },
+      {
+        "id": "c4",
+        "prompt": "In the RETEST run, which action does the CTRL-MCP-001 decision record as the effective action?",
+        "choices": [
+          "summarize_lending_policy",
+          "extract_full_policy",
+          "NONE RECORDED"
+        ],
+        "eval": {
+          "kind": "value",
+          "ref": {
+            "src": "event",
+            "scenario": "retest",
+            "stage": "run",
+            "where": {
+              "control": "CTRL-MCP-001"
+            },
+            "field": "agentsec.content.preview",
+            "json": "effective_action"
+          }
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/incident.json",
+          "text": "The permitted action is summarize_lending_policy."
+        },
+        "teach": "The goal control denied the out-of-task proposal, so the effective action stayed the permitted one."
+      },
+      {
+        "id": "c5",
+        "prompt": "Did a handler for lookup_policy, the tool the task is granted, begin in the ATTACK run?",
+        "choices": [
+          "yes",
+          "no"
+        ],
+        "eval": {
+          "kind": "handler",
+          "scenario": "attack",
+          "stage": "run",
+          "tool": "lookup_policy"
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/incident.json",
+          "text": "SAME HASH != SAME EXECUTION"
+        },
+        "teach": "The granted tool began in the attack run too. A started handler on its own does not say which action it served."
+      }
+    ],
+    "blocks": [
+      {
+        "group": "assess",
+        "title": "The lab's path for the investigation",
+        "file": "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/investigations.json",
+        "path": "path_a"
+      },
+      {
+        "group": "assess",
+        "title": "What a completed investigation must show",
+        "file": "learning/academy/assessments.json",
+        "path": "advanced_capstone_competencies.evidence_required"
+      },
+      {
+        "group": "limits",
+        "title": "The question the lab marks as not proven",
+        "file": "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/incident.json",
+        "path": "evidence_gap"
+      },
+      {
+        "group": "limits",
+        "title": "Unrelated or ambiguous leads the lab names",
+        "file": "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/incident.json",
+        "path": "false_leads"
+      },
+      {
+        "group": "rules",
+        "title": "Rules about what the evidence can show",
+        "file": "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/incident.json",
+        "path": "causal_rules"
+      }
+    ],
+    "spl": [
+      "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/searches/Q-L10-DISCOVER.spl",
+      "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/searches/Q-L10-SEQUENCE.spl",
+      "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/searches/Q-L10-COMPARE.spl",
+      "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/searches/Q-L10-HUNT.spl",
+      "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/searches/Q-L10-EXTERNAL.spl",
+      "learning/level_1/LAB-ADVANCED-CAPSTONE-MASTERY-001/searches/Q-L10-DETECTION-CANDIDATE.spl"
+    ]
+  }
+}

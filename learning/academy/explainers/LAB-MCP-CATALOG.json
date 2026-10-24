@@ -1,0 +1,122 @@
+{
+  "lab_id": "LAB-MCP-CATALOG",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-24",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The evidence in Practice is read from the committed specimen packs, unedited."
+  },
+  "summary": {
+    "text": "A tool can be real, its first call properly authorized, and its catalog description can still carry instructions aimed at the agent. Three recorded runs show a normal description, a manipulative one let through by an intentionally weak profile, and the same manipulative description refused by the defended profile.",
+    "grounds": [
+      "learning/level_1/LAB-MCP-CATALOG/README.md"
+    ],
+    "facts": [
+      "a tool can be legitimate, its first call can be properly authorized, and its catalog metadata can still contain manipulative content."
+    ]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The legitimate operation",
+      "text": "The agent calls the granted lookup_policy tool first. That call is properly authorized.",
+      "grounds": [
+        "learning/level_1/LAB-MCP-CATALOG/workshop.md"
+      ],
+      "facts": [
+        "granted `lookup_policy` at granted `policy:read`. The first hop is legitimate."
+      ]
+    },
+    {
+      "id": "controls",
+      "label": "What the attacker controls",
+      "text": "The tool's catalog description. It can try to steer what the agent asks for next.",
+      "grounds": [
+        "learning/level_1/LAB-MCP-CATALOG/README.md"
+      ],
+      "facts": [
+        "Metadata may influence what an agent REQUESTS next."
+      ]
+    },
+    {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between the description the agent read and the authority the server grants.",
+      "grounds": [
+        "learning/level_1/LAB-MCP-CATALOG/README.md"
+      ],
+      "facts": [
+        "Metadata must not determine what authority the server GRANTS next."
+      ]
+    },
+    {
+      "id": "rule",
+      "label": "The authorization rule",
+      "text": "A request is not a grant, and observing a description is not allowing what it asks for.",
+      "grounds": [
+        "learning/level_1/LAB-MCP-CATALOG/README.md"
+      ],
+      "facts": [
+        "REQUEST ≠ GRANT"
+      ]
+    },
+    {
+      "id": "evidence",
+      "label": "What counts as evidence of execution",
+      "text": "A decision is not execution. Look for the separate event that says the handler began.",
+      "grounds": [
+        "learning/level_1/LAB-MCP-CATALOG/README.md"
+      ],
+      "facts": [
+        "Treat runtime handler count as authoritative non-execution proof."
+      ]
+    }
+  ],
+  "known": [
+    {
+      "text": "In the attack run the follow-on request was allowed by the vulnerable profile, which the lab calls an overlay, not a grant made by the description.",
+      "grounds": [
+        "learning/level_1/LAB-MCP-CATALOG/README.md"
+      ],
+      "facts": [
+        "Explain the vulnerable hop-1 ALLOW as overlay, not description grant."
+      ]
+    }
+  ],
+  "cannot_claim_lines": {
+    "source": "learning/level_1/LAB-MCP-CATALOG/README.md",
+    "lines": [
+      "This is not “malicious MCP tool,” malware detection, “Splunk blocked the attack,” or “scanner blocked the tool.”"
+    ]
+  },
+  "recorded": {
+    "lazy": true,
+    "options": [
+      "ALLOW",
+      "DENY",
+      "ERROR",
+      "OBSERVE"
+    ],
+    "doc_source": "learning/level_1/LAB-MCP-CATALOG/README.md",
+    "runs": [
+      {
+        "role": "BASELINE",
+        "run_id": "d95717ed-ffd2-46c0-a130-9a5d7d539a5d",
+        "decisive": 3
+      },
+      {
+        "role": "ATTACK",
+        "run_id": "a0937bff-31a5-453a-99bf-47d7b5148ce4",
+        "decisive": 9
+      },
+      {
+        "role": "RETEST",
+        "run_id": "23c222ea-6a87-40b7-a3e9-f12a5b572fa1",
+        "decisive": 9
+      }
+    ],
+    "spl": [
+      "learning/level_1/LAB-MCP-CATALOG/searches/Q-MCP-CATALOG-AUTHORITY.spl",
+      "learning/level_1/LAB-MCP-001/searches/Q-MCP-EXECUTED.spl"
+    ]
+  }
+}

@@ -188,3 +188,19 @@ def test_keyboard_only_journey_and_390px_layout(browser, root):
     pg.locator(".rec-event summary").first.focus(); pg.keyboard.press("Enter")
     assert pg.locator(".rec-event details[open]").count() == 1
     ctx.close()
+
+
+def test_nothing_on_the_page_gives_away_the_decision_before_the_reveal(page, root):
+    """The lab's own README line for a run states the decision, reason and handler count; it must appear only after the reveal."""
+    for lab in DATA:
+        for run in DATA[lab]["runs"]:
+            page.goto(root + lab); tab(page, "Practice")           # a fresh page per run: earlier reveals must not be on screen
+            wb = page.get_by_test_id("recorded-workbench")
+            run_button(page, run["role"]).click()
+            d = run["events"][run["decisive"] - 1]
+            before = wb.inner_text()
+            for secret in (d["agentsec.control.reason"], "handler=", run["documented_as"]["text"][:30]):
+                assert secret not in before, (lab, run["role"], secret)
+            assert not re.search(rf"\b{d['agentsec.control.decision']}\b", wb.locator(".rec-setup").inner_text()), (lab, run["role"])
+            page.get_by_role("button", name="Skip the prediction and show the evidence").click()
+            assert run["documented_as"]["text"][:30] in wb.inner_text(), "the lab's own line appears after the reveal"

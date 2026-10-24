@@ -1,0 +1,297 @@
+{
+  "lab_id": "LAB-BLUE-TEAM-INCIDENT-001",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-24",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The evidence in Practice is read from the committed specimen packs, unedited."
+  },
+  "summary": {
+    "text": "You are the analyst. A report says an AI-assisted banking workflow may have acted outside its authority. This investigation uses recorded runs: a three-step chain (retrieve, write, recall) in an attack run and a defended retest. You work out what the evidence supports, what it refutes and what it leaves open.",
+    "grounds": [
+      "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/README.md"
+    ],
+    "facts": [
+      "This lab reuses validated AgentSec evidence; it does not add an attack, detector, control, or runtime event."
+    ]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The report",
+      "text": "SOC received a report that an AI-assisted banking workflow may have requested or performed an action outside its intended authority.",
+      "grounds": [
+        "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/README.md"
+      ],
+      "facts": [
+        "SOC received a report that an AI-assisted banking workflow may have requested or performed an action outside its intended authority."
+      ]
+    },
+    {
+      "id": "controls",
+      "label": "The method",
+      "text": "Work out what happened without assuming the cause from a lab title.",
+      "grounds": [
+        "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/README.md"
+      ],
+      "facts": [
+        "Determine what happened without assuming the cause from a lab title."
+      ]
+    },
+    {
+      "id": "boundary",
+      "label": "What the evidence established",
+      "text": "In the attack recall, memory was observed, then the tool control allowed the request and the handler started and completed.",
+      "grounds": [
+        "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/evidence.md"
+      ],
+      "facts": [
+        "ATTACK recall: memory OBSERVE, then CTRL-MCP-001 ALLOW, handler invocation count 1, mcp.started, and mcp.completed."
+      ]
+    },
+    {
+      "id": "rule",
+      "label": "The rule to hold on to",
+      "text": "A correlation between two events is not a cause.",
+      "grounds": [
+        "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/README.md"
+      ],
+      "facts": [
+        "CORRELATION != CAUSATION"
+      ]
+    },
+    {
+      "id": "evidence",
+      "label": "What the evidence does not establish",
+      "text": "The retrieved text being written to memory is a matching hash, not a modelled cause.",
+      "grounds": [
+        "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/evidence.md"
+      ],
+      "facts": [
+        "Direct retrieve-output-to-write causality: NOT MODELED."
+      ]
+    }
+  ],
+  "cannot_claim": {
+    "source": "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/evidence.md",
+    "section": "Not established"
+  },
+  "investigation": {
+    "brief": {
+      "file": "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/README.md",
+      "section": "Mission"
+    },
+    "canonical": {
+      "file": "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/investigations.json",
+      "stages": [
+        "retrieve",
+        "write",
+        "recall"
+      ]
+    },
+    "scenarios": [
+      {
+        "id": "attack",
+        "label": "ATTACK chain: retrieve, write, recall (vulnerable profile)",
+        "from": "canonical_runs.attack"
+      },
+      {
+        "id": "retest",
+        "label": "RETEST chain: retrieve, write, recall (defended profile)",
+        "from": "canonical_runs.retest"
+      }
+    ],
+    "questions": [
+      {
+        "id": "b1",
+        "prompt": "In the ATTACK recall run, what did CTRL-MCP-001 decide about the privileged tool request?",
+        "choices": [
+          "ALLOW",
+          "DENY",
+          "ERROR",
+          "OBSERVE",
+          "NONE RECORDED"
+        ],
+        "eval": {
+          "kind": "value",
+          "ref": {
+            "src": "event",
+            "scenario": "attack",
+            "stage": "recall",
+            "where": {
+              "control": "CTRL-MCP-001",
+              "nth": "last"
+            },
+            "field": "agentsec.control.decision"
+          }
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/README.md",
+          "text": "OBSERVATION != AUTHORIZATION"
+        },
+        "teach": "A decision is a record of the control's answer; it is separate from what happened next."
+      },
+      {
+        "id": "b2",
+        "prompt": "Did the handler for lookup_customer_tier begin in the ATTACK recall run?",
+        "choices": [
+          "yes",
+          "no"
+        ],
+        "eval": {
+          "kind": "handler",
+          "scenario": "attack",
+          "stage": "recall",
+          "tool": "lookup_customer_tier"
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/README.md",
+          "text": "AUTHORIZATION != EXECUTION"
+        },
+        "teach": "Execution is shown only by an mcp.started event."
+      },
+      {
+        "id": "b3",
+        "prompt": "In the RETEST recall run, what did CTRL-MCP-001 decide about the same request?",
+        "choices": [
+          "ALLOW",
+          "DENY",
+          "ERROR",
+          "OBSERVE",
+          "NONE RECORDED"
+        ],
+        "eval": {
+          "kind": "value",
+          "ref": {
+            "src": "event",
+            "scenario": "retest",
+            "stage": "recall",
+            "where": {
+              "control": "CTRL-MCP-001",
+              "nth": "last"
+            },
+            "field": "agentsec.control.decision"
+          }
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/README.md",
+          "text": "OBSERVATION != AUTHORIZATION"
+        },
+        "teach": "Same request, defended profile."
+      },
+      {
+        "id": "b4",
+        "prompt": "Did the handler for lookup_customer_tier begin in the RETEST recall run?",
+        "choices": [
+          "yes",
+          "no"
+        ],
+        "eval": {
+          "kind": "handler",
+          "scenario": "retest",
+          "stage": "recall",
+          "tool": "lookup_customer_tier"
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/README.md",
+          "text": "AUTHORIZATION != EXECUTION"
+        },
+        "teach": "No mcp.started event is in that pack. That is corroboration, not independent proof."
+      },
+      {
+        "id": "b5",
+        "prompt": "In the ATTACK chain, does the recalled memory's source_run_id equal the run id of the write run?",
+        "choices": [
+          "same",
+          "different"
+        ],
+        "eval": {
+          "kind": "equal",
+          "a": {
+            "src": "event",
+            "scenario": "attack",
+            "stage": "recall",
+            "where": {
+              "event": "agentsec.memory.recalled"
+            },
+            "field": "agentsec.memory.source_run_id"
+          },
+          "b": {
+            "src": "run",
+            "scenario": "attack",
+            "stage": "write"
+          }
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/README.md",
+          "text": "CORRELATION != CAUSATION"
+        },
+        "teach": "This links recall to write. It does not show how the written text got there."
+      },
+      {
+        "id": "b6",
+        "prompt": "Is the content hash on the retrieval's context decision the same as on the memory that was written?",
+        "choices": [
+          "same",
+          "different"
+        ],
+        "eval": {
+          "kind": "equal",
+          "a": {
+            "src": "event",
+            "scenario": "attack",
+            "stage": "retrieve",
+            "where": {
+              "control": "CTRL-RAG-CONTEXT-001"
+            },
+            "field": "agentsec.content.hash"
+          },
+          "b": {
+            "src": "event",
+            "scenario": "attack",
+            "stage": "write",
+            "where": {
+              "event": "agentsec.memory.written"
+            },
+            "field": "agentsec.content.hash"
+          }
+        },
+        "quote": {
+          "file": "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/README.md",
+          "text": "CORRELATION != CAUSATION"
+        },
+        "teach": "A matching hash is a correlation. The lab says a direct copy link is not modelled."
+      }
+    ],
+    "blocks": [
+      {
+        "group": "hints",
+        "title": "Hints from the lab, in the order the lab discloses them",
+        "file": "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/investigations.json",
+        "path": "hints"
+      },
+      {
+        "group": "prove",
+        "title": "Established by validated runtime evidence",
+        "file": "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/evidence.md",
+        "section": "Established by validated runtime evidence"
+      },
+      {
+        "group": "limits",
+        "title": "Not modelled, not observed or not proven",
+        "file": "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/investigations.json",
+        "path": "unsupported_links"
+      },
+      {
+        "group": "rules",
+        "title": "Evidence rules the lab states",
+        "file": "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/README.md",
+        "section": "Evidence rules"
+      }
+    ],
+    "spl": [
+      "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/searches/Q-INCIDENT-CANDIDATES.spl",
+      "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/searches/Q-INCIDENT-TIMELINE.spl",
+      "learning/level_1/LAB-BLUE-TEAM-INCIDENT-001/searches/Q-INCIDENT-COMPARE.spl"
+    ]
+  }
+}
