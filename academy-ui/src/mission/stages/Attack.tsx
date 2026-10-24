@@ -4,6 +4,7 @@ import { updateMission, useMission } from "../../store";
 import { appValues, attackText } from "../app";
 import { Brief, Callout } from "../parts";
 import { RunPanel } from "../RunProgress";
+import { AgentTrace } from "../AgentTrace";
 import { launch, useSlot } from "../runStore";
 import { StageNav } from "../StageNav";
 import { TaskPanel } from "../TaskPanel";
@@ -53,6 +54,7 @@ export function Attack() {
       <aside className="run-pane">
         <div className="panel-label">03 — Observe independent facts</div>
         <RunPanel slot="attack" idle="No run yet. Launch the attack to see what the agent does." next={{ label: "Continue to Investigate", stage: "investigate" }} />
+        {v && <AgentTrace view={v} label="attack run" />}
       </aside>
     </div>
     <section className="m-section" aria-labelledby="h-observe">

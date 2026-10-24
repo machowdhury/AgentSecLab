@@ -5,6 +5,7 @@ import { useMission } from "../../store";
 import { PROOF_EVENTS, evidenceText, searches, splunkSearchUrl } from "../content";
 import { Brief, CopyButton } from "../parts";
 import { Milestones, SplCell } from "../Notebook";
+import { AgentTrace } from "../AgentTrace";
 import { LOAN_DESK_INVESTIGATE } from "../notebooks";
 import { useSlot, useVerify, verifyRun } from "../runStore";
 import { StageNav } from "../StageNav";
@@ -47,6 +48,7 @@ export function Investigate() {
       </div>
       <p className="m-muted">Splunk opens in a new tab and asks for the lab login. Your mission stays here.</p>
     </section>
+    {v && <section className="m-card"><AgentTrace view={v} label="attack run" /></section>}
     <div className="notebook">
       {!v && <div className="notebook-empty"><span><Icon name="book" /></span><h2>Launch the attack first</h2><p>The searches use your real run id, so they appear after the Attack stage.</p></div>}
       {v && <Milestones cells={LOAN_DESK_INVESTIGATE} />}

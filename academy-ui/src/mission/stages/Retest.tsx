@@ -5,6 +5,7 @@ import { SEC_LABEL } from "../content";
 import { appValues, attackText } from "../app";
 import { Brief, Callout, Story } from "../parts";
 import { RunPanel } from "../RunProgress";
+import { AgentTrace } from "../AgentTrace";
 import { launch, useSlot, useVerify, verifyRun } from "../runStore";
 import { StageNav } from "../StageNav";
 import { Milestones, SplCell } from "../Notebook";
@@ -75,6 +76,7 @@ export function Retest() {
       <aside className="run-pane">
         <div className="panel-label">03 — Observe independent facts</div>
         <RunPanel slot="retest" idle="No run yet. Launch the retest to see the result." next={{ label: "Continue to Explain", stage: "explain" }} />
+        {slot.view && <AgentTrace view={slot.view} label="retest run" />}
       </aside>
     </div>
     <section className="m-section" aria-labelledby="h-nb-retest">
