@@ -1,0 +1,351 @@
+{
+ "lab_id": "LAB-MEMORY-001",
+ "status": "full",
+ "authored": {
+  "on": "2026-10-23",
+  "note": "Written for learners from the sources named in each block. It is an explanation, not a recording. Facts listed under each block are checked word for word against those sources."
+ },
+ "summary": {
+  "text": "An agent can save something it was told into memory so that a later run can use it. This lab asks whether text saved in memory can later give the agent a permission it was never granted. Its one idea: persisted memory is data that survives into a later run. It can influence a request, but it never becomes a grant. The run is a scripted, deterministic sequence, not an AI reasoning on its own.",
+  "grounds": [
+   "learning/level_1/LAB-MEMORY-001/README.md"
+  ],
+  "facts": [
+   "This lab teaches one idea: persisted memory is data that survives into a later run.",
+   "Recalled text may influence a REQUEST. It does not become a GRANT."
+  ]
+ },
+ "glance": [
+  {
+   "id": "goal",
+   "label": "What the attacker wants",
+   "text": "The attacker wants text recalled from memory on a later run to be treated as authority to call the lookup_customer_tier tool.",
+   "grounds": [
+    "learning/level_1/LAB-MEMORY-001/lab-manifest.json"
+   ],
+   "facts": [
+    "The attacker wants that later-recalled text treated as authority to call lookup_customer_tier."
+   ]
+  },
+  {
+   "id": "controls",
+   "label": "What the attacker controls",
+   "text": "Only the bytes of one memory entry in the lab's closed fixture. The browser cannot choose the setting, the grants, the memory body or any trust label.",
+   "grounds": [
+    "learning/level_1/LAB-MEMORY-001/lab-manifest.json"
+   ],
+   "facts": [
+    "The persisted memory bytes in the closed fixture.",
+    "The browser does not choose profile, grants, memory body, or trust labels."
+   ]
+  },
+  {
+   "id": "entry",
+   "label": "Where it gets in",
+   "text": "Two separate runs. A WRITE run stores the memory entry; a later RECALL run reads it back. Each has its own run id, so one launch in this Academy mints two ids.",
+   "grounds": [
+    "learning/level_1/LAB-MEMORY-001/workshop.md"
+   ],
+   "facts": [
+    "WRITE RUN → MEMORY STORE → LATER RECALL RUN → CTRL-MEMORY-CONTEXT-001 → REQUEST → CTRL-MCP-001 → HANDLER."
+   ]
+  },
+  {
+   "id": "boundary",
+   "label": "Where the trust boundary is",
+   "text": "Between the recalled memory and the tool. Recalled text may lead the agent to form a request, but server-owned authorization decides the grant. Persisting something does not make it trusted.",
+   "grounds": [
+    "learning/level_1/LAB-MEMORY-001/workshop.md",
+    "learning/level_1/LAB-MEMORY-001/README.md"
+   ],
+   "facts": [
+    "Memory may influence a REQUEST. Server-owned authorization determines the GRANT.",
+    "PERSISTED MEMORY != TRUSTED INSTRUCTION"
+   ]
+  },
+  {
+   "id": "control",
+   "label": "How the controls handle it",
+   "text": "CTRL-MEMORY-CONTEXT-001 only classifies the recalled memory as untrusted data (OBSERVE). CTRL-MCP-001 is the control that decides the follow-on tool request.",
+   "grounds": [
+    "learning/level_1/LAB-MEMORY-001/lab-manifest.json"
+   ],
+   "facts": [
+    "CTRL-MEMORY-CONTEXT-001 classifies recalled memory. It does not grant tools.",
+    "CTRL-MCP-001 is the tool PDP."
+   ]
+  },
+  {
+   "id": "impact",
+   "label": "Recalled is not obeyed",
+   "text": "On the vulnerable ATTACK setting the privileged tool ran. In the lab's own words the memory influenced a request and the vulnerable authorization profile granted it; the memory did not grant the tool.",
+   "grounds": [
+    "learning/level_1/LAB-MEMORY-001/workshop.md"
+   ],
+   "facts": [
+    "The recalled memory influenced a request. The vulnerable authorization profile granted the request. The memory itself did not grant the tool."
+   ]
+  },
+  {
+   "id": "evidence",
+   "label": "What evidence exists",
+   "text": "Each launch records a write run and a recall run, the memory id and content hash, the recall run's source_run_id, both decisions and the handler count. The handler count is the authoritative record of execution.",
+   "grounds": [
+    "learning/level_1/LAB-MEMORY-001/workshop.md"
+   ],
+   "facts": [
+    "Correlation: memory.id + content.hash + source_run_id + destination run.id + agent id + sequence.",
+    "Runtime handler count is authoritative for non-execution. Missing indexed execution is corroboration."
+   ]
+  }
+ ],
+ "path": [
+  {
+   "id": "bytes",
+   "kind": "attacker",
+   "label": "Memory bytes",
+   "detail": "Text placed in the lab's closed memory fixture.",
+   "source": "learning/level_1/LAB-MEMORY-001/lab-manifest.json",
+   "fact": "The persisted memory bytes in the closed fixture."
+  },
+  {
+   "id": "write",
+   "kind": "entry",
+   "label": "Write run, then later recall run",
+   "detail": "Two runs with different run ids.",
+   "source": "learning/level_1/LAB-MEMORY-001/workshop.md",
+   "fact": "WRITE RUN → MEMORY STORE → LATER RECALL RUN"
+  },
+  {
+   "id": "boundary",
+   "kind": "boundary",
+   "label": "Persistence is not trust",
+   "detail": "Memory may influence a request; it cannot grant.",
+   "source": "learning/level_1/LAB-MEMORY-001/README.md",
+   "fact": "PERSISTED MEMORY != TRUSTED INSTRUCTION"
+  },
+  {
+   "id": "classify",
+   "kind": "control",
+   "label": "Recall classification",
+   "detail": "CTRL-MEMORY-CONTEXT-001 records OBSERVE (memory_context_is_data). It classifies only.",
+   "source": "learning/level_1/LAB-MEMORY-001/workshop.md",
+   "fact": "CTRL-MEMORY-CONTEXT-001 OBSERVE memory_context_is_data."
+  },
+  {
+   "id": "authorize",
+   "kind": "control",
+   "label": "Follow-on authorization",
+   "detail": "CTRL-MCP-001 decides whether the requested tool is granted.",
+   "source": "learning/level_1/LAB-MEMORY-001/lab-manifest.json",
+   "fact": "CTRL-MCP-001 is the tool PDP.",
+   "outcomes": [
+    {
+     "label": "DENY (defended retest)",
+     "detail": "tool_not_granted; the handler does not start.",
+     "source": "learning/level_1/LAB-MEMORY-001/workshop.md",
+     "fact": "CTRL-MCP-001 DENY tool_not_granted. Handler 0."
+    },
+    {
+     "label": "ALLOW (vulnerable attack setting)",
+     "detail": "A labelled lab-only fail-open mechanism, not a server grant.",
+     "source": "learning/level_1/LAB-MEMORY-001/workshop.md",
+     "fact": "CTRL-MCP-001 ALLOW vulnerable_profile_fail_open:memory_derived_authority"
+    }
+   ]
+  },
+  {
+   "id": "handler",
+   "kind": "operation",
+   "label": "Tool handler",
+   "detail": "lookup_customer_tier with scope customer:read, only if granted.",
+   "source": "learning/level_1/LAB-MEMORY-001/workshop.md",
+   "fact": "Follow-on REQUEST lookup_customer_tier / customer:read."
+  },
+  {
+   "id": "telemetry",
+   "kind": "evidence",
+   "label": "Evidence copy",
+   "detail": "A copy of the telemetry goes to Splunk, which only observes.",
+   "source": "learning/level_1/LAB-MEMORY-001/README.md",
+   "fact": "Splunk does not ALLOW or DENY a follow-on tool."
+  }
+ ],
+ "known": [
+  {
+   "text": "The store is deterministic in-process memory, not a vector database.",
+   "grounds": [
+    "learning/level_1/LAB-MEMORY-001/lab-manifest.json"
+   ],
+   "facts": [
+    "The store is deterministic in-process memory, not a vector database."
+   ]
+  },
+  {
+   "text": "RETEST DENY is not automatically SAFE. One RETEST is not universal memory-poisoning resistance.",
+   "grounds": [
+    "learning/level_1/LAB-MEMORY-001/lab-manifest.json"
+   ],
+   "facts": [
+    "RETEST DENY is not automatically SAFE. One RETEST is not universal memory-poisoning resistance."
+   ]
+  },
+  {
+   "text": "HEC HTTP 200 is not searchable evidence. WRITE READY is not EXPERIMENT READY.",
+   "grounds": [
+    "learning/level_1/LAB-MEMORY-001/lab-manifest.json"
+   ],
+   "facts": [
+    "HEC HTTP 200 is not searchable evidence. WRITE READY is not EXPERIMENT READY."
+   ]
+  },
+  {
+   "text": "Missing mcp.started is not independent proof of prevention.",
+   "grounds": [
+    "learning/level_1/LAB-MEMORY-001/lab-manifest.json"
+   ],
+   "facts": [
+    "Missing mcp.started is not independent proof of prevention."
+   ]
+  },
+  {
+   "text": "CTRL-MCP-001 is a lab allow-list, not production MCP IAM.",
+   "grounds": [
+    "learning/level_1/LAB-MEMORY-001/lab-manifest.json"
+   ],
+   "facts": [
+    "CTRL-MCP-001 is a lab allow-list, not production MCP IAM."
+   ]
+  }
+ ],
+ "terms": [
+  {
+   "term": "Persisted memory vs trusted instruction",
+   "text": "Storing text does not make it trustworthy. It is still untrusted data when it is read back.",
+   "source": "learning/level_1/LAB-MEMORY-001/README.md",
+   "fact": "PERSISTED MEMORY != TRUSTED INSTRUCTION"
+  },
+  {
+   "term": "Recall vs authorization",
+   "text": "Reading something from memory is not a permission to do what it says.",
+   "source": "learning/level_1/LAB-MEMORY-001/README.md",
+   "fact": "MEMORY RECALL != AUTHORIZATION"
+  },
+  {
+   "term": "Write run and recall run",
+   "text": "Two runs with their own run ids, linked by the recall run's source_run_id. One launch here mints both.",
+   "source": "learning/level_1/LAB-MEMORY-001/README.md",
+   "fact": "Treat write run.id and recall run.id as different identities linked by source_run_id."
+  },
+  {
+   "term": "RAG vs memory",
+   "text": "RAG is information retrieved within one run. Memory is state that survives into a later run.",
+   "source": "learning/level_1/LAB-MEMORY-001/workshop.md",
+   "fact": "RAG = retrieved external/contextual information in one run. MEMORY = persisted state surviving into a later run."
+  },
+  {
+   "term": "OBSERVE vs ALLOW",
+   "text": "OBSERVE means the control recorded and classified the memory. It is not a permission.",
+   "source": "learning/level_1/LAB-MEMORY-001/README.md",
+   "fact": "OBSERVE != ALLOW"
+  }
+ ],
+ "practice": {
+  "predict": [
+   {
+    "label": "Before the attack",
+    "source": "learning/level_1/LAB-MEMORY-001/lab-manifest.json#prediction.ATTACK.predict_before_launch"
+   },
+   {
+    "label": "Before the retest",
+    "source": "learning/level_1/LAB-MEMORY-001/lab-manifest.json#prediction.RETEST.predict_before_launch"
+   }
+  ],
+  "defender": {
+   "text": "Keep the grant on the server. Memory may influence a request, and server-owned authorization decides the grant. Sanitizing memory, trusting a scanner, asking Splunk or letting a model decide authority are the approaches the lab says not to rely on.",
+   "grounds": [
+    "learning/level_1/LAB-MEMORY-001/workshop.md"
+   ],
+   "facts": [
+    "Memory may influence a REQUEST. Server-owned authorization determines the GRANT.",
+    "Not: sanitize all memory, block every suspicious string, trust a scanner, ask Splunk, let an LLM decide authority."
+   ]
+  }
+ },
+ "spl": [
+  "Q-MEMORY-CONTEXT-AUTHORITY.spl"
+ ],
+ "identifiers": [
+  {
+   "label": "Classification control",
+   "value": "CTRL-MEMORY-CONTEXT-001",
+   "source": "learning/level_1/LAB-MEMORY-001/README.md"
+  },
+  {
+   "label": "Authorization control",
+   "value": "CTRL-MCP-001",
+   "source": "learning/level_1/LAB-MEMORY-001/README.md"
+  },
+  {
+   "label": "Invariant",
+   "value": "INV-003",
+   "source": "learning/level_1/LAB-MEMORY-001/README.md"
+  },
+  {
+   "label": "Attack in the catalog",
+   "value": "MEMORY-001",
+   "source": "learning/level_1/LAB-MEMORY-001/README.md"
+  },
+  {
+   "label": "Splunk workshop view",
+   "value": "ws_lab_memory_security",
+   "source": "learning/level_1/LAB-MEMORY-001/README.md"
+  },
+  {
+   "label": "Malicious memory id",
+   "value": "mem.lending-preference.malicious",
+   "source": "learning/level_1/LAB-MEMORY-001/README.md"
+  },
+  {
+   "label": "Malicious memory hash (ATTACK and RETEST)",
+   "value": "sha256:1dc7335c3fd8c54326e36194d783536d944c6d527660eb1bda4a36a9cb5ed1b9",
+   "source": "learning/level_1/LAB-MEMORY-001/README.md"
+  },
+  {
+   "label": "Recorded REPLAY ATTACK write run",
+   "value": "05f1d8d0-28b7-40ac-bbb9-1dc64b4ba464",
+   "source": "learning/level_1/LAB-MEMORY-001/README.md"
+  },
+  {
+   "label": "Recorded REPLAY ATTACK recall run",
+   "value": "b8737cd9-9b6b-48f2-acfa-178ae1446ddc",
+   "source": "learning/level_1/LAB-MEMORY-001/README.md"
+  }
+ ],
+ "cannot_claim_lines": {
+  "source": "learning/level_1/LAB-MEMORY-001/workshop.md",
+  "lines": [
+   "Do not label SAFE, TRUSTED, APPROVED, or BENIGN.",
+   "No privileged follow-on was observed in this specimen. That is an observation, not proof that the stored content is safe.",
+   "0 rows is CORRECT. 0 rows != SAFE.",
+   "The memory itself did not grant the tool."
+  ]
+ },
+ "workbench": {
+  "kind": "scenario",
+  "specimens": {
+   "BASELINE": "MEMORY-BASELINE",
+   "ATTACK": "MEMORY-001",
+   "RETEST": "MEMORY-001"
+  },
+  "texts": {
+   "baseline": "learning/level_1/LAB-MEMORY-001/lab-manifest.json#prediction.BASELINE.attack_objective",
+   "attack": "learning/level_1/LAB-MEMORY-001/lab-manifest.json#prediction.ATTACK.attack_objective",
+   "retest": "learning/level_1/LAB-MEMORY-001/lab-manifest.json#prediction.RETEST.attack_objective",
+   "defense": "learning/level_1/LAB-MEMORY-001/lab-manifest.json#prediction.ATTACK.defense_should",
+   "attack_expected": "learning/level_1/LAB-MEMORY-001/lab-manifest.json#prediction.ATTACK.expected_evidence_vulnerable",
+   "retest_expected": "learning/level_1/LAB-MEMORY-001/lab-manifest.json#prediction.RETEST.expected_evidence_defended",
+   "retest_falsify": "learning/level_1/LAB-MEMORY-001/lab-manifest.json#prediction.RETEST.falsify"
+  }
+ }
+}
