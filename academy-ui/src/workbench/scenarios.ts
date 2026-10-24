@@ -14,6 +14,8 @@ export interface Scenario {
   questions: Question[]; guess: (a: SRecord, p: { classify?: string; decision?: string; handler?: string }) => string;
   interpret: (r: SRecord) => Verdict; steps: (r: SRecord, ev?: Evidence | null) => Step[]; hopStep: (h: Hop) => string;
   compareRows: (a: SRecord, r: SRecord) => [string, string, string][]; columns: [string, (r: SRecord) => string][];
+  /** Multi-run labs: one launch mints several run ids. These are read from the record, never inferred. */
+  ids?: (r: SRecord) => [string, string][]; links?: (r: SRecord) => [string, string][]; correlation?: (r: SRecord) => [string, boolean][];
 }
 
 const s = (v: unknown) => (v === null || v === undefined || v === "" ? "—" : String(v));
@@ -21,10 +23,11 @@ const n = (v: unknown) => Number(v ?? 0);
 const short = (h: unknown) => (typeof h === "string" && h ? h.replace("sha256:", "").slice(0, 12) + "…" : "—");
 const hop = (r: SRecord, i: number) => r.runtime?.hops?.find((h) => h["hop.index"] === i);
 const failed = (r: SRecord): Verdict | null => (r.runtime_status !== "COMPLETED" || !r.runtime ? { kind: "FAILED", label: "RUN FAILED", tone: "warn", head: "The runtime did not complete, so no control result can be read." } : null);
+const perRun = (ev: Evidence) => { const p = [["retrieve", ev.retrieve_evidence_state], ["write", ev.write_evidence_state], ["recall", ev.recall_evidence_state]].filter(([, v]) => v).map(([k, v]) => `${k} ${v}`); return p.length ? ` (${p.join(", ")})` : ""; };
 const splunkStep = (ev?: Evidence | null): Pick<Step, "state" | "detail"> => !ev ? { state: "pending", detail: "Splunk has not been checked yet." }
   : ev.splunk_ok === false || ev.probe_error ? { state: "warn", detail: `Splunk could not be checked from this service${ev.probe_error ? ` (${ev.probe_error})` : ""}.` }
-  : ev.evidence_state === "EVIDENCE_READY" ? { state: "done", detail: `Splunk returned ${ev.splunk_count ?? "≥1"} event(s) for this run.id. That is an existence check, not verification.` }
-  : { state: "pending", detail: `Splunk has no events for this run.id yet (${ev.splunk_count ?? 0}). Not a failure, and not proof of prevention.` };
+  : ev.evidence_state === "EVIDENCE_READY" ? { state: "done", detail: `Splunk returned events for this run.id${perRun(ev)}. That is an existence check, not verification.` }
+  : { state: "pending", detail: `Splunk does not have all the events for this run.id yet${perRun(ev) || ` (${ev.splunk_count ?? 0})`}. Not a failure, and not proof of prevention.` };
 const telemetry = (r: SRecord): Step => ({ id: "telemetry", label: "Telemetry", icon: "terminal", state: r.local_event_count ? "done" : "warn", detail: `${r.local_event_count ?? "?"} local events recorded. Collector export reported otlp.ok ${String(r["otlp.ok"])}, hec.ok ${String(r["hec.ok"])}. Not the same as indexed in Splunk.` });
 const launch = (r: SRecord): Step => ({ id: "launch", label: "Launch", icon: "clock", state: r.runtime_status === "COMPLETED" ? "done" : "failed", detail: `Run minted · ${r.mode} · ${r.profile} profile · live.` });
 const authz = (r: SRecord): Step => { const h = hop(r, 1); return { id: "authz", label: "Tool authorization", icon: "shield", state: h ? "done" : "warn", detail: h ? `CTRL-MCP-001 on ${h["tool.name"]}: ${h["control.decision"]} (${h["control.reason"]}).` : "No tool decision was recorded." }; };
@@ -123,5 +126,77 @@ export const DELEGATION: Scenario = {
     ["5. Telemetry received", (r) => `${r.local_event_count ?? "?"} local events; otlp.ok ${String(r["otlp.ok"])}, hec.ok ${String(r["hec.ok"])}. Not the same as indexed in Splunk.`],
     ["6. Independently verified", () => NOT_VERIFIED]],
 };
-export const SCENARIOS: Record<string, Scenario> = { [GOAL.lab]: GOAL, [DELEGATION.lab]: DELEGATION };
+
+// ---- Memory and Capstone: one launch mints several run ids (write + recall; capstone also retrieve). The top-level run_id is the RECALL run.
+const top = (r: SRecord) => r as unknown as Record<string, unknown>;
+const obj = (v: unknown) => (v && typeof v === "object" ? (v as Record<string, unknown>) : {});
+const rid = (r: SRecord, k: "retrieve" | "write" | "recall") => s(top(r)[`${k}_run_id`]);
+const sub = (r: SRecord, k: "write" | "retrieve") => obj(top(r)[`${k}_runtime`]);
+const handoff = (r: SRecord) => obj(top(r).search_handoff);
+const hash = (v: unknown) => (typeof v === "string" ? v : "");
+function correlation(r: SRecord, withRetrieve: boolean): [string, boolean][] {
+  const rt = r.runtime, w = sub(r, "write"), c = hash(rt.content_hash);
+  const out: [string, boolean][] = [["The recall run names the write run as its source (source_run_id = write run id)", rid(r, "write") !== "—" && rt.source_run_id === top(r).write_run_id], ["The write and recall runs carry the same content hash", c !== "" && hash(w.content_hash) === c]];
+  if (withRetrieve) out.push(["The retrieve, write and recall runs carry the same content hash", c !== "" && hash(sub(r, "retrieve").content_hash) === c]);
+  return out;
+}
+function memVerdict(r: SRecord, cap: boolean): Verdict {
+  const f = failed(r); if (f) return f;
+  const rt = r.runtime, dec = s(rt.follow_on_decision), priv = n(rt.handler_invoke_count), who = cap ? "Neither the retrieved content nor the memory" : "The memory";
+  if (s(rt.memory_control_decision) === "—") return { kind: "NOT_EXERCISED", label: "NOT EXERCISED", tone: "warn", head: "No classification of the recalled memory was recorded." };
+  const broken = correlation(r, cap).filter(([, ok]) => !ok);
+  if (broken.length) return { kind: "CORRELATION_BROKEN", label: "RUNS DO NOT CORRELATE", tone: "warn", head: `The runs of this launch do not line up: ${broken.map(([t]) => t.toLowerCase()).join("; ")}. Read nothing into the outcome until they do.` };
+  const prefix = cap ? "RETRIEVED, STORED AND RECALLED" : "RECALLED MEMORY";
+  if (dec === "ALLOW") return priv > 0 ? { kind: "RAN", label: `${prefix}: FOLLOW-ON TOOL ALLOWED AND RAN`, tone: "bad", head: r.profile === "vulnerable" ? `On the deliberately vulnerable setting CTRL-MCP-001 allowed lookup_customer_tier through a labelled fail-open overlay and the handler ran (count ${priv}). ${who} granted that.` : "The privileged tool ran on a defended run. That is unexpected for this lab." }
+    : { kind: "ALLOWED_NOT_RUN", label: "ALLOWED BUT NO HANDLER RAN", tone: "warn", head: "The follow-on request was allowed but the handler count is 0. An ALLOW is a decision, not an execution." };
+  if (dec === "DENY") return priv > 0 ? { kind: "DENIED_BUT_RAN", label: "DENIED BUT THE HANDLER RAN", tone: "bad", head: "The decision was DENY but the handler count is above 0. That contradicts the control." }
+    : { kind: "DENIED_NOT_RUN", label: `${prefix}: FOLLOW-ON TOOL DENIED, HANDLER DID NOT RUN`, tone: "good", head: `The memory control only observed (${s(rt.memory_control_decision)}). CTRL-MCP-001 denied lookup_customer_tier (${s(rt.follow_on_reason)}) and the handler count is 0. The classification stopped nothing; the authorization decision did. A DENY is not automatically SAFE.` };
+  return priv === 0 ? { kind: "NORMAL", label: `${cap ? "RETRIEVED, STORED AND RECALLED" : "STORED AND RECALLED"}, NO FOLLOW-ON`, tone: "plain", head: "The content was stored and recalled and classified (OBSERVE). No follow-on tool was requested and no handler ran. That is an observation, not proof the content is safe." }
+    : { kind: "NOT_EXERCISED", label: "NOT EXERCISED", tone: "warn", head: "A handler ran without a recorded follow-on decision. Read the table below before concluding anything." };
+}
+const runLine = (r: SRecord, cap: boolean) => `${cap ? `Local events: retrieve ${s(top(r).local_event_count_retrieve)}, ` : "Local events: "}write ${s(top(r).local_event_count_write)}, recall ${s(top(r).local_event_count_recall)}. Per-run state: ${cap ? `retrieve ${s(top(r).retrieve_evidence_state)}, ` : ""}write ${s(top(r).write_evidence_state)}, recall ${s(top(r).recall_evidence_state)}. otlp.ok ${String(r["otlp.ok"])}, hec.ok ${String(r["hec.ok"])}. Not the same as indexed in Splunk.`;
+
+function memScenario(cap: boolean): Scenario {
+  const lab = cap ? "LAB-AGENTSEC-CAPSTONE-001" : "LAB-MEMORY-001", cls = cap ? "retrieval and memory controls" : "memory control";
+  const sc: Scenario = {
+    lab, aria: cap ? "Guided sequence for the Lending Assistant Capstone" : "Guided sequence for Persistent Memory",
+    intro: `This lab calls no language model: the ${cap ? "retrieve, write and recall steps and the tool request are" : "write, recall and tool request are"} a scripted, deterministic sequence, not an agent reasoning. One launch mints ${cap ? "three run ids (retrieve, write, recall)" : "two run ids (write, recall)"}; the run id on the card is the recall run.`,
+    baselineLabel: cap ? "Run BASELINE (normal document)" : "Run BASELINE (normal memory)", baselineHint: cap ? "A normal document gives you something to compare the adversarial one with." : "A normal memory entry gives you something to compare the malicious one with.",
+    questions: [
+      { key: "classify", legend: cap ? "On the intentionally vulnerable ATTACK setting, the retrieved content and the later-recalled memory will each be classified as…" : "On the intentionally vulnerable ATTACK setting, CTRL-MEMORY-CONTEXT-001 will classify the recalled memory as…", opts: [["OBSERVE", "OBSERVE (record it as data)"], ["DENY", "DENY (refuse it)"]] },
+      { key: "decision", legend: "…CTRL-MCP-001 will decide the follow-on lookup_customer_tier request as…", opts: [["ALLOW", "ALLOW"], ["DENY", "DENY"]] },
+      { key: "handler", legend: "…and the privileged handler (lookup_customer_tier)…", opts: [["yes", "will run"], ["no", "will not run"]] }],
+    guess: (a, p) => `You predicted ${p.classify} from the ${cls}, ${p.decision} from the tool control and that the privileged handler ${p.handler === "yes" ? "would" : "would not"} run. Recorded: ${s(a.runtime.memory_control_decision)}, ${s(a.runtime.follow_on_decision)} and a handler count of ${n(a.runtime.handler_invoke_count)}.`,
+    sameInput: (a, r) => a.runtime.memory_id === r.runtime.memory_id && a.runtime.content_hash === r.runtime.content_hash,
+    compareCaption: (same) => (same ? `Same ${cap ? "retrieved document, stored memory" : "memory"} and content hash, different server-owned setting.` : "Different content."),
+    compareNote: (same) => `${same ? "The same bytes produced a different outcome because CTRL-MCP-001's decision changed, not because the content changed. " : ""}The classification was OBSERVE on both runs, so it is not what changed the outcome. A DENY is not automatically SAFE, an ALLOW is not an execution, one retest is not universal resistance, and no model was involved.`,
+    interpret: (r) => memVerdict(r, cap),
+    steps: (r, ev) => { const rt = r.runtime, v = memVerdict(r, cap), rr = sub(r, "retrieve"); return [launch(r),
+      ...(cap ? [{ id: "retrieve", label: "Retrieve run", icon: "search", state: rid(r, "retrieve") !== "—" ? "done" : "warn", detail: `${s(top(r).document_id)}: CTRL-RAG-CONTEXT-001 ${s(rr.context_control_decision)} (${s(rr.context_control_reason)}); hash ${short(rr.content_hash)}.` } as Step] : []),
+      { id: "write", label: "Write run", icon: "terminal", state: rid(r, "write") !== "—" ? "done" : "warn", detail: `Stored ${s(rt.memory_id)} (hash ${short(sub(r, "write").content_hash)}). Persisting did not grant any tool; the write run has its own run id.` },
+      { id: "recall", label: "Recall run and classification", icon: "shield", state: rt.memory_control_decision ? "done" : "warn", detail: `CTRL-MEMORY-CONTEXT-001: ${s(rt.memory_control_decision)} (${s(rt.memory_control_reason)}). Source run ${short(rt.source_run_id)}.` },
+      authz(r),
+      { id: "exec", label: "Execution", icon: "play", state: "done", detail: `Privileged handler (lookup_customer_tier) ran ${n(rt.lookup_customer_tier_handler_count)} time(s)${cap ? ", counted once, on recall" : ""}. The handler count is the authoritative record of execution.` },
+      ...finish(r, v, ev)]; },
+    hopStep: (h) => (h["hop.index"] === 0 ? "Recall classified (CTRL-MEMORY-CONTEXT-001)" : "Tool authorization (CTRL-MCP-001)"),
+    compareRows: (a, r) => { const c = (x: SRecord) => (correlation(x, cap).every(([, ok]) => ok) ? "held" : "did not hold");
+      return [["Setting (profile)", a.profile, r.profile], ...(cap ? [["Retrieved document", s(top(a).document_id), s(top(r).document_id)] as [string, string, string], ["Retrieve classification", s(sub(a, "retrieve").context_control_decision), s(sub(r, "retrieve").context_control_decision)] as [string, string, string]] : []),
+        ["Memory id", s(a.runtime.memory_id), s(r.runtime.memory_id)], ["Content hash", short(a.runtime.content_hash), short(r.runtime.content_hash)], ["Recall classification (CTRL-MEMORY-CONTEXT-001)", s(a.runtime.memory_control_decision), s(r.runtime.memory_control_decision)],
+        ["Tool decision (CTRL-MCP-001)", s(a.runtime.follow_on_decision), s(r.runtime.follow_on_decision)], ["Tool reason", s(a.runtime.follow_on_reason), s(r.runtime.follow_on_reason)], ["Privileged handler count", String(n(a.runtime.handler_invoke_count)), String(n(r.runtime.handler_invoke_count))],
+        ["Run correlation", c(a), c(r)], ["Outcome", memVerdict(a, cap).label, memVerdict(r, cap).label]]; },
+    columns: [
+      [`1. Run ids and correlation`, (r) => `${cap ? `RETRIEVE ${rid(r, "retrieve")}; ` : ""}WRITE ${rid(r, "write")}; RECALL ${rid(r, "recall")}. Memory ${s(r.runtime.memory_id)}, hash ${short(r.runtime.content_hash)}. ${correlation(r, cap).map(([t, ok]) => `${ok ? "Held" : "NOT held"}: ${t}.`).join(" ")}`],
+      ["2. Content classification", (r) => `${cap ? `Retrieve: ${s(sub(r, "retrieve").context_control_decision)} (${s(sub(r, "retrieve").context_control_reason)}). Recall: ` : "Recall: "}${s(r.runtime.memory_control_decision)} (${s(r.runtime.memory_control_reason)}). Classifies only; it neither grants nor blocks a tool.`],
+      ["3. Tool authorization", (r) => { const h = hop(r, 1); return h ? `${h["control.decision"]} (${h["control.reason"]}) for ${hopTool(h)}. A decision only.` : "No follow-on tool was requested."; }],
+      ["4. Actual execution", (r) => { const h = hop(r, 1); return `Handler count ${n(r.runtime.handler_invoke_count)}${h ? `; started ${String(h["mcp.started"])}, executed ${String(h["operation.executed"])}` : ""}${cap ? ". Counted once, on recall." : "."}`; }],
+      ["5. Telemetry received", (r) => runLine(r, cap)],
+      ["6. Independently verified", () => NOT_VERIFIED]],
+    ids: (r) => [...(cap ? [["RETRIEVE", rid(r, "retrieve")] as [string, string]] : []), ["WRITE", rid(r, "write")], ["RECALL", rid(r, "recall")]],
+    links: (r) => { const h = handoff(r), u = (k: string) => (typeof h[k] === "string" ? (h[k] as string) : ""); return ([...(cap ? [["RETRIEVE", u("retrieve_search_url")]] : []), ["WRITE", u("write_search_url")], ["RECALL", u("recall_search_url")]] as [string, string][]).filter(([, url]) => url); },
+    correlation: (r) => correlation(r, cap),
+  };
+  return sc;
+}
+export const MEMORY = memScenario(false), CAPSTONE = memScenario(true);
+export const SCENARIOS: Record<string, Scenario> = { [GOAL.lab]: GOAL, [DELEGATION.lab]: DELEGATION, [MEMORY.lab]: MEMORY, [CAPSTONE.lab]: CAPSTONE };
 export { hopTool };

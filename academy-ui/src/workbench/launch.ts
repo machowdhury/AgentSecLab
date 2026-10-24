@@ -14,7 +14,7 @@ export interface LaunchRecord {
   runtime: { hops: Hop[]; blocked: boolean; block_reason: string | null; terminal: string; llm_call_count: number; expected_behavior?: string; actual_behavior?: string; error_stage?: string | null };
   search_handoff: { search_url: string; starter_spl: string }; note?: string;
 }
-export interface Evidence { evidence_state: string; splunk_attempted?: boolean; splunk_ok?: boolean; splunk_count?: number | null; probe_error?: string | null }
+export interface Evidence { evidence_state: string; splunk_attempted?: boolean; splunk_ok?: boolean; splunk_count?: number | null; probe_error?: string | null; retrieve_evidence_state?: string; write_evidence_state?: string; recall_evidence_state?: string }
 export type LaunchError = { kind: "unreachable" | "timeout" | "rejected" | "not_json" | "http" | "failed"; message: string; status: number };
 export type LaunchResult = { record: LaunchRecord } | { error: LaunchError };
 

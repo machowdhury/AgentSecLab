@@ -69,7 +69,8 @@ export function ScenarioPractice({ lab, sc }: { lab: Lab; sc: Scenario }) {
       {a || r || b ? <>
         <p>Open the evidence for each live run in Splunk and run the lab's search there. The Academy does not run it for you here. The search is written out under the Prove tab.</p>
         <div className="m-actions">{cmp && <a className="button button--secondary" href={cmp.search_url} target="_blank" rel="noopener">Open ATTACK and RETEST in Splunk <Icon name="arrow" size={15} /></a>}
-          {([b, a, r].filter(Boolean) as SRecord[]).map((x) => <a key={x.run_id} className="button button--ghost" href={x.search_handoff.search_url} target="_blank" rel="noopener">Open {x.mode} in Splunk <Icon name="arrow" size={15} /></a>)}</div>
+          {([b, a, r].filter(Boolean) as SRecord[]).flatMap((x) => (sc.links ? sc.links(x).map(([k, url]) => [`${x.mode} ${k} run`, url, `${x.run_id}-${k}`] as const) : [[`${x.mode}`, x.search_handoff.search_url, x.run_id] as const]))
+            .map(([label, url, key]) => <a key={key} className="button button--ghost" href={url} target="_blank" rel="noopener">Open {label} in Splunk <Icon name="arrow" size={15} /></a>)}</div>
         {cmp && <details className="m-details"><summary>Starter SPL for both runs</summary><pre>{cmp.starter_spl}</pre><CopyButton text={cmp.starter_spl} label="Copy search" /></details>}</>
         : <p className="m-muted">Run something first; the evidence links appear here.</p>}</section>
   </div>;
@@ -79,6 +80,10 @@ function RunCard({ sc, x, ev, onCheck, guess }: { sc: Scenario; x: SRecord; ev: 
   const v = sc.interpret(x);
   return <div className="m-run m-mcp-run">
     <div className="run-card-head"><div><span>LIVE RUN · {x.mode} · {x.profile.toUpperCase()}</span><code>{x.run_id}</code></div><CopyButton text={x.run_id} label="Copy run id" /></div>
+    {sc.ids && <div className="m-sec"><h4>Run ids of this launch</h4><p className="m-muted">One launch minted several runs, each with its own run id. The id above is the recall run.</p>
+      <ul className="m-rules">{sc.ids(x).map(([k, v]) => <li key={k}><strong>{k}</strong> <code>{v}</code> {v !== "—" && <CopyButton text={v} label={`Copy ${k} run id`} />}</li>)}</ul></div>}
+    {sc.correlation && <div className="m-sec"><h4>Correlation, measured from this record</h4>
+      <ul className="m-rules">{sc.correlation(x).map(([t, ok]) => <li key={t}><strong>{ok ? "Held" : "NOT held"}:</strong> {t}.</li>)}</ul></div>}
     <StepList steps={sc.steps(x, ev)} label={`Progress of the ${x.mode} run, from the launch record`} finished />
     <div className={`m-outcome m-outcome--${v.tone}`} role="status"><div className="m-outcome__head"><Icon name={v.tone === "good" ? "shield" : "target"} size={20} /><strong>{v.label}</strong></div><p>{v.head}</p>{guess && <p className="m-muted">{guess}</p>}</div>
     <div className="m-verify"><Button variant="secondary" onClick={onCheck}>Check Splunk for this run <Icon name="search" size={15} /></Button>

@@ -19,15 +19,26 @@ from tests.ui.test_loan_desk_mission_browser import browser, page  # noqa: E402,
 from tests.ui.test_rag_workbench_browser import launches, tab  # noqa: E402
 
 GOAL, DELEGATION = "LAB-AGENT-GOAL-INTEGRITY-001", "LAB-AGENT-DELEGATION-001"
+MEMORY, CAPSTONE = "LAB-MEMORY-001", "LAB-AGENTSEC-CAPSTONE-001"
+ALL = [GOAL, DELEGATION, MEMORY, CAPSTONE]
+UUID = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
 CASES = {
     GOAL: dict(learn=["authorized tool is not an authorized goal", "Two controls, two questions", "Authorized tool, unauthorized use"], pick=[("classify", "OBSERVE"), ("decision", "ALLOW"), ("handler", "will run")],
                baseline="NORMAL TASK, IN-TASK TOOL USE", attack="AUTHORIZED TOOL RAN FOR AN UNAUTHORIZED GOAL", retest="GOAL EXPANSION DENIED, AUTHORIZED TASK KEPT",
                rows={"Goal decision": ("OBSERVE", "DENY"), "Effective action": ("extract_full_policy", "summarize_lending_policy"), "Tool decision": ("ALLOW", "ALLOW"), "Wrong-goal handler count": ("1", "0"), "In-task handler count": ("0", "1")},
-               guess="You predicted OBSERVE from the goal control, ALLOW from the tool control", head="Proposed and effective action"),
+               guess="You predicted OBSERVE from the goal control, ALLOW from the tool control", head="Proposed and effective action", replay="Recorded REPLAY ATTACK specimen"),
     DELEGATION: dict(learn=["claimed identity is not an authenticated one", "Where the delegation boundary is", "NOT PROVEN / NOT MODELED"], pick=[("classify", "OBSERVE"), ("decision", "ALLOW"), ("handler", "will run")],
                baseline="GRANTED TOOL RAN, NO PRIVILEGED REQUEST", attack="PRIVILEGED TOOL ALLOWED AND RAN", retest="PRIVILEGED TOOL DENIED, HANDLER DID NOT RUN",
                rows={"Identity classification": ("OBSERVE", "OBSERVE"), "Who authenticated": ("NOT PROVEN / NOT MODELED", "NOT PROVEN / NOT MODELED"), "Tool decision": ("ALLOW", "DENY"), "Privileged handler count": ("1", "0")},
-               guess="You predicted OBSERVE from the identity control, ALLOW from the tool control", head="Claim as recorded"),
+               guess="You predicted OBSERVE from the identity control, ALLOW from the tool control", head="Claim as recorded", replay="Recorded REPLAY ATTACK specimen"),
+    MEMORY: dict(learn=["persisted memory is data that survives into a later run", "Recalled is not obeyed", "Where the trust boundary is"], pick=[("classify", "OBSERVE"), ("decision", "ALLOW"), ("handler", "will run")],
+               baseline="STORED AND RECALLED, NO FOLLOW-ON", attack="RECALLED MEMORY: FOLLOW-ON TOOL ALLOWED AND RAN", retest="RECALLED MEMORY: FOLLOW-ON TOOL DENIED, HANDLER DID NOT RUN",
+               rows={"Recall classification": ("OBSERVE", "OBSERVE"), "Tool decision": ("ALLOW", "DENY"), "Privileged handler count": ("1", "0"), "Run correlation": ("held", "held"), "Memory id": ("mem.lending-preference.malicious", "mem.lending-preference.malicious")},
+               guess="You predicted OBSERVE from the memory control, ALLOW from the tool control", head="Run ids and correlation", replay="Recorded REPLAY ATTACK write run", runs=2),
+    CAPSTONE: dict(learn=["Where authority enters", "How the three runs are linked", "What is not involved"], pick=[("classify", "OBSERVE"), ("decision", "ALLOW"), ("handler", "will run")],
+               baseline="RETRIEVED, STORED AND RECALLED, NO FOLLOW-ON", attack="RETRIEVED, STORED AND RECALLED: FOLLOW-ON TOOL ALLOWED AND RAN", retest="RETRIEVED, STORED AND RECALLED: FOLLOW-ON TOOL DENIED, HANDLER DID NOT RUN",
+               rows={"Retrieved document": ("doc.lending-policy.malicious", "doc.lending-policy.malicious"), "Retrieve classification": ("OBSERVE", "OBSERVE"), "Recall classification": ("OBSERVE", "OBSERVE"), "Tool decision": ("ALLOW", "DENY"), "Privileged handler count": ("1", "0"), "Run correlation": ("held", "held")},
+               guess="You predicted OBSERVE from the retrieval and memory controls, ALLOW from the tool control", head="Run ids and correlation", replay=None, runs=3),
 }
 
 
@@ -54,7 +65,7 @@ def main(pg):
     return pg.locator("main, .page").first.inner_text()
 
 
-@pytest.mark.parametrize("lab", [GOAL, DELEGATION])
+@pytest.mark.parametrize("lab", ALL)
 def test_learn_explains_the_lab_and_opening_the_page_launches_nothing(page, url, lab):
     sent = launches(page)
     page.goto(url(lab))
@@ -67,7 +78,7 @@ def test_learn_explains_the_lab_and_opening_the_page_launches_nothing(page, url,
     assert sent == [], "opening Learn and Practice never launches"
 
 
-@pytest.mark.parametrize("lab", [GOAL, DELEGATION])
+@pytest.mark.parametrize("lab", ALL)
 def test_gating_and_baseline_attack_retest_read_the_real_records(page, url, lab):
     c, sent = CASES[lab], launches(page)
     page.goto(url(lab)); tab(page, "Practice")
@@ -94,7 +105,7 @@ def test_gating_and_baseline_attack_retest_read_the_real_records(page, url, lab)
     assert "no model was involved" in body
 
 
-@pytest.mark.parametrize("lab", [GOAL, DELEGATION])
+@pytest.mark.parametrize("lab", ALL)
 def test_prove_separates_live_runs_from_recorded_specimens_and_never_claims_verification(page, url, lab):
     page.goto(url(lab)); tab(page, "Prove")
     assert page.get_by_text("You have not launched anything in this lab yet").count() == 1
@@ -107,7 +118,9 @@ def test_prove_separates_live_runs_from_recorded_specimens_and_never_claims_veri
     assert [h.split(". ", 1)[-1] for h in heads[1:]][-1] == "Independently verified" and len(heads) == 7 and CASES[lab]["head"] in heads[1]
     row = t.locator("tbody tr").inner_text()
     assert "No. This lab has no signed verifier" in row and "handler" in row.lower()
-    assert page.get_by_text("LIVE, NEW RUNS").count() == 1 and page.get_by_text("Recorded REPLAY ATTACK specimen").count() == 1
+    assert page.get_by_text("LIVE, NEW RUNS").count() == 1
+    if CASES[lab]["replay"]:
+        assert page.get_by_text(CASES[lab]["replay"]).count() == 1, "recorded specimens are labelled REPLAY and kept apart"
     if lab == DELEGATION:
         assert "NOT PROVEN / NOT MODELED" in row
 
@@ -123,7 +136,7 @@ def test_error_states_show_no_run_and_the_button_recovers(page, url, mode):
     assert page.get_by_role("button", name=re.compile("Run BASELINE")).is_enabled()
 
 
-@pytest.mark.parametrize("lab", [GOAL, DELEGATION])
+@pytest.mark.parametrize("lab", ALL)
 def test_mobile_layout_has_no_horizontal_scroll_with_runs_on_screen(browser, url, lab):
     ctx = browser.new_context(viewport={"width": 390, "height": 800}); pg = ctx.new_page()
     for t in ("Learn", "Practice", "Prove"):
@@ -135,3 +148,44 @@ def test_mobile_layout_has_no_horizontal_scroll_with_runs_on_screen(browser, url
     assert pg.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), "practice with runs"
     tab(pg, "Prove"); assert pg.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), "prove with runs"
     ctx.close()
+
+
+@pytest.mark.parametrize("lab", [MEMORY, CAPSTONE])
+def test_one_launch_shows_every_constituent_run_id_and_per_run_splunk_links(page, url, lab):
+    n = CASES[lab]["runs"]
+    page.goto(url(lab)); tab(page, "Practice"); lock(page, lab)
+    page.get_by_role("button", name=re.compile("Launch ATTACK")).click()
+    page.wait_for_selector(f"text={CASES[lab]['attack']}")
+    box = page.locator(".m-sec").filter(has=page.locator("h4", has_text="Run ids of this launch"))
+    ids = UUID.findall(box.inner_text())
+    assert len(ids) == n and len(set(ids)) == n, "one launch, several distinct run ids"
+    assert ids[-1] == page.locator(".run-card-head code").first.inner_text(), "the run id on the card is the recall run"
+    assert page.get_by_text(re.compile("Held: .*source_run_id")).count() >= 1
+    page.get_by_role("button", name=re.compile("Run RETEST")).click()
+    page.wait_for_selector(f"text={CASES[lab]['retest']}")
+    page.get_by_role("link", name="Open ATTACK and RETEST in Splunk").wait_for()  # the pair hand-off resolves for a multi-run lab
+    links = page.get_by_role("link", name=re.compile(r"Open ATTACK (RETRIEVE |WRITE |RECALL )run in Splunk"))
+    assert links.count() == n and all("agentsec_telemetry" in h and ids_ok(h) for h in links.evaluate_all("els => els.map(e => e.href)"))
+    tab(page, "Prove")
+    row = page.locator("table", has_text="Per live run").locator("tbody tr").first.inner_text()
+    assert all(i in row for i in ids), "Prove lists every constituent run id"
+
+
+def ids_ok(href):
+    return bool(re.search(r"[0-9a-f]{8}-[0-9a-f]{4}", href))
+
+
+@pytest.mark.parametrize("lab", [MEMORY, CAPSTONE])
+def test_a_launch_whose_runs_do_not_correlate_is_flagged_not_interpreted(page, url, lab):
+    def tamper(route):
+        resp = route.fetch()
+        body = resp.json()
+        body["write_runtime"]["content_hash"] = "sha256:" + "0" * 64
+        route.fulfill(response=resp, json=body)
+    page.route("**/api/launch", tamper)
+    page.goto(url(lab)); tab(page, "Practice"); lock(page, lab)
+    page.get_by_role("button", name=re.compile("Launch ATTACK")).click()
+    page.wait_for_selector("text=RUNS DO NOT CORRELATE")
+    body = main(page)
+    assert "NOT held: The write and recall runs carry the same content hash" in body
+    assert CASES[lab]["attack"] not in body, "no outcome is claimed when the runs do not line up"

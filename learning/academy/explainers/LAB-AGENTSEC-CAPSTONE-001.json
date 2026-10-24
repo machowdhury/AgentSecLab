@@ -1,0 +1,336 @@
+{
+ "lab_id": "LAB-AGENTSEC-CAPSTONE-001",
+ "status": "full",
+ "authored": {
+  "on": "2026-10-23",
+  "note": "Written for learners from the sources named in each block. It is an explanation, not a recording. Facts listed under each block are checked word for word against those sources."
+ },
+ "summary": {
+  "text": "A lending assistant read a policy document, saved what it read to memory, and on a later run recalled it and used a customer-tier tool. The lab asks you to work out from the evidence where authority actually came from. Retrieved content and memory only influence; the tool authorization control is what grants or denies. It is a scripted, deterministic workflow, not an AI deciding anything, and it pulls together ideas from the earlier labs rather than adding a new attack.",
+  "grounds": [
+   "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/README.md",
+   "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/workshop.md"
+  ],
+  "facts": [
+   "Integrated capstone. Not a new security domain.",
+   "CTRL-MCP-001 is the sole tool PDP. RAG does not grant. Memory does not grant. Splunk does not grant."
+  ]
+ },
+ "glance": [
+  {
+   "id": "question",
+   "label": "The question",
+   "text": "A lending-policy assistant accessed customer-tier information during a workflow that was expected to summarize lending policy. You determine what happened from evidence.",
+   "grounds": [
+    "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/README.md"
+   ],
+   "facts": [
+    "A lending-policy assistant accessed customer-tier information during a workflow that was expected to summarize lending policy. Determine what happened from evidence."
+   ]
+  },
+  {
+   "id": "controls",
+   "label": "What the attacker controls",
+   "text": "Only the bytes of one retrieved lending-policy document, which then persist into memory. The browser cannot choose the setting, the grants, the document, the memory body or any trust label.",
+   "grounds": [
+    "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json"
+   ],
+   "facts": [
+    "The retrieved lending-policy fixture bytes that persist into memory.",
+    "The browser does not choose profile, grants, document body, memory body, or trust labels."
+   ]
+  },
+  {
+   "id": "chain",
+   "label": "The chain, in order",
+   "text": "Retrieved content is classified, written to memory, recalled later and classified again, and a follow-on request reaches the tool authorization control and then the handler.",
+   "grounds": [
+    "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/README.md"
+   ],
+   "facts": [
+    "retrieved content → CTRL-RAG-CONTEXT-001 OBSERVE → memory WRITE → later memory RECALL → CTRL-MEMORY-CONTEXT-001 OBSERVE → follow-on request → CTRL-MCP-001 → tool handler → telemetry → Splunk"
+   ]
+  },
+  {
+   "id": "boundary",
+   "label": "Where authority enters",
+   "text": "Not at retrieval and not at memory. Several planes can carry influence, but authority still needs an enforcement decision, and here that decision is CTRL-MCP-001's.",
+   "grounds": [
+    "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/workshop.md"
+   ],
+   "facts": [
+    "CAPSTONE: multiple influence planes may exist; authority still requires an enforcement decision."
+   ]
+  },
+  {
+   "id": "correlation",
+   "label": "How the three runs are linked",
+   "text": "Each launch mints three run ids: retrieve, write and recall. The lab links them by measured content-hash equality and by the recall run's source_run_id; no new field links retrieve to write.",
+   "grounds": [
+    "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/README.md",
+    "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json"
+   ],
+   "facts": [
+    "Each LIVE launch mints three run.ids: RETRIEVE, WRITE, later RECALL.",
+    "retrieve content.hash = write content.hash = recall content.hash",
+    "recall source_run_id = write run.id",
+    "Schema 1.9.0 has no retrieve-to-write field."
+   ]
+  },
+  {
+   "id": "impact",
+   "label": "Same influence, different authorization",
+   "text": "ATTACK and RETEST use the same adversarial bytes. What differs is the tool authorization decision, and with it whether the privileged handler is invoked.",
+   "grounds": [
+    "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/workshop.md"
+   ],
+   "facts": [
+    "SAME ADVERSARIAL INFLUENCE. DIFFERENT AUTHORIZATION. DIFFERENT INVOCATION, COMPLETION, AND OUTCOME."
+   ]
+  },
+  {
+   "id": "scope",
+   "label": "What is not involved",
+   "text": "Goal Integrity and Identity or Delegation are not active vulnerabilities in this scenario, and the lab warns against blaming them without evidence.",
+   "grounds": [
+    "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json",
+    "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/workshop.md"
+   ],
+   "facts": [
+    "Goal Integrity and Identity/Delegation are not active vulnerabilities in this packet.",
+    "Do not blame Goal Integrity or Identity without evidence."
+   ]
+  },
+  {
+   "id": "evidence",
+   "label": "What evidence exists",
+   "text": "The handler invocation count is the authoritative record of execution. Indexed Splunk events corroborate it but do not replace it.",
+   "grounds": [
+    "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/evidence.md"
+   ],
+   "facts": [
+    "Authoritative execution: ToolRegistry handler invocation count.",
+    "Corroboration: indexed mcp.started / completed on a complete copy."
+   ]
+  }
+ ],
+ "path": [
+  {
+   "id": "bytes",
+   "kind": "attacker",
+   "label": "Adversarial document bytes",
+   "detail": "The retrieved fixture bytes that persist into memory.",
+   "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json",
+   "fact": "The retrieved lending-policy fixture bytes that persist into memory."
+  },
+  {
+   "id": "retrieve",
+   "kind": "entry",
+   "label": "Retrieve",
+   "detail": "Retrieved content is classified (OBSERVE) and then written to memory.",
+   "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/README.md",
+   "fact": "retrieved content → CTRL-RAG-CONTEXT-001 OBSERVE → memory WRITE"
+  },
+  {
+   "id": "boundary",
+   "kind": "boundary",
+   "label": "Data, not authority",
+   "detail": "Retrieved context is data; stored context is not authority.",
+   "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/workshop.md",
+   "fact": "RAG: retrieved context is data. MEMORY: stored context is not authority."
+  },
+  {
+   "id": "recall",
+   "kind": "control",
+   "label": "Recall classification",
+   "detail": "CTRL-MEMORY-CONTEXT-001 records OBSERVE on the later recall.",
+   "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/README.md",
+   "fact": "memory WRITE → later memory RECALL → CTRL-MEMORY-CONTEXT-001 OBSERVE"
+  },
+  {
+   "id": "authorize",
+   "kind": "control",
+   "label": "Tool authorization",
+   "detail": "CTRL-MCP-001 is the sole tool decision point.",
+   "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/README.md",
+   "fact": "CTRL-MCP-001 is the sole tool PDP.",
+   "outcomes": [
+    {
+     "label": "DENY (defended retest)",
+     "detail": "tool_not_granted; the handler is not invoked.",
+     "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/workshop.md",
+     "fact": "CTRL-MCP-001 DENY tool_not_granted."
+    },
+    {
+     "label": "ALLOW (vulnerable attack setting)",
+     "detail": "A labelled lab-only fail-open, not a server grant.",
+     "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/workshop.md",
+     "fact": "CTRL-MCP-001 ALLOW labeled fail-open."
+    }
+   ]
+  },
+  {
+   "id": "handler",
+   "kind": "operation",
+   "label": "Tool handler",
+   "detail": "lookup_customer_tier, counted once, on recall.",
+   "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/workshop.md",
+   "fact": "lookup_customer_tier handler 1."
+  },
+  {
+   "id": "telemetry",
+   "kind": "evidence",
+   "label": "Evidence copy",
+   "detail": "A copy of the telemetry goes to Splunk, which only observes.",
+   "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/README.md",
+   "fact": "Splunk = evidence."
+  }
+ ],
+ "known": [
+  {
+   "text": "Schema 1.9.0 has no retrieve-to-write field. Correlation is measured content.hash equality plus memory.source_run_id.",
+   "grounds": [
+    "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json"
+   ],
+   "facts": [
+    "Schema 1.9.0 has no retrieve-to-write field. Correlation is measured content.hash equality plus memory.source_run_id."
+   ]
+  },
+  {
+   "text": "Retrieve skips MCP follow-on so the privileged handler is counted once, on recall.",
+   "grounds": [
+    "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json"
+   ],
+   "facts": [
+    "Retrieve skips MCP follow-on so the privileged handler is counted once, on recall."
+   ]
+  },
+  {
+   "text": "Goal Integrity and Identity/Delegation are not active vulnerabilities in this packet. Absence of those event families is instrumented-experiment evidence, not proof those domains never fail.",
+   "grounds": [
+    "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json"
+   ],
+   "facts": [
+    "Goal Integrity and Identity/Delegation are not active vulnerabilities in this packet. Absence of those event families is instrumented-experiment evidence, not proof those domains never fail."
+   ]
+  },
+  {
+   "text": "RETEST DENY is not automatically SAFE. One RETEST is not universal RAG/memory resistance.",
+   "grounds": [
+    "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json"
+   ],
+   "facts": [
+    "RETEST DENY is not automatically SAFE. One RETEST is not universal RAG/memory resistance."
+   ]
+  },
+  {
+   "text": "CTRL-MCP-001 is a lab allow-list, not production MCP IAM.",
+   "grounds": [
+    "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json"
+   ],
+   "facts": [
+    "CTRL-MCP-001 is a lab allow-list, not production MCP IAM."
+   ]
+  }
+ ],
+ "terms": [
+  {
+   "term": "Retrieve, write, recall",
+   "text": "The three runs of one launch. Each has its own run id.",
+   "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/README.md",
+   "fact": "Each LIVE launch mints three run.ids: RETRIEVE, WRITE, later RECALL."
+  },
+  {
+   "term": "Correlation",
+   "text": "How you know the three runs belong together: the content hash is the same in all three, and the recall run names the write run as its source.",
+   "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/README.md",
+   "fact": "retrieve content.hash = write content.hash = recall content.hash"
+  },
+  {
+   "term": "OBSERVE vs ALLOW vs execution",
+   "text": "OBSERVE records. ALLOW is a decision. Execution is the handler actually being invoked. Read them separately.",
+   "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/workshop.md",
+   "fact": "OBSERVE != ALLOW. ALLOW != EXECUTION."
+  },
+  {
+   "term": "How a claim is graded",
+   "text": "The lab asks you to grade each claim as supported, corroborated, not proven or incorrect.",
+   "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/workshop.md",
+   "fact": "Classify SUPPORTED / CORROBORATED / NOT PROVEN / INCORRECT."
+  }
+ ],
+ "practice": {
+  "predict": [
+   {
+    "label": "Before the attack",
+    "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json#prediction.ATTACK.predict_before_launch"
+   },
+   {
+    "label": "Before the retest",
+    "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json#prediction.RETEST.predict_before_launch"
+   }
+  ],
+  "defender": {
+   "text": "Do not try to sanitize everything, delete memory, block all retrieval or ask Splunk to block. Remove the lab's fail-open overlay, keep the same adversarial bytes, and let server-owned authorization decide.",
+   "grounds": [
+    "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/workshop.md"
+   ],
+   "facts": [
+    "Do not sanitize everything, delete memory, block all RAG, or ask Splunk to block. Remove the lab overlay. Keep the same adversarial bytes."
+   ]
+  }
+ },
+ "identifiers": [
+  {
+   "label": "Tool authorization control",
+   "value": "CTRL-MCP-001",
+   "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/README.md"
+  },
+  {
+   "label": "Retrieval classification control",
+   "value": "CTRL-RAG-CONTEXT-001",
+   "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/README.md"
+  },
+  {
+   "label": "Memory classification control",
+   "value": "CTRL-MEMORY-CONTEXT-001",
+   "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/README.md"
+  },
+  {
+   "label": "Invariant",
+   "value": "INV-002",
+   "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json"
+  },
+  {
+   "label": "Catalog specimen",
+   "value": "CAPSTONE-001",
+   "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json"
+  }
+ ],
+ "cannot_claim_lines": {
+  "source": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/workshop.md",
+  "lines": [
+   "Do not label BASELINE SAFE.",
+   "Do not blame Goal Integrity or Identity without evidence.",
+   "ToolRegistry count proves process-local invocation began, not successful completion.",
+   "One RETEST != universal resistance."
+  ]
+ },
+ "workbench": {
+  "kind": "scenario",
+  "specimens": {
+   "BASELINE": "CAPSTONE-BASELINE",
+   "ATTACK": "CAPSTONE-001",
+   "RETEST": "CAPSTONE-001"
+  },
+  "texts": {
+   "baseline": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json#prediction.BASELINE.attack_objective",
+   "attack": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json#prediction.ATTACK.attack_objective",
+   "retest": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json#prediction.RETEST.attack_objective",
+   "defense": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json#prediction.ATTACK.defense_should",
+   "attack_expected": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json#prediction.ATTACK.expected_evidence_vulnerable",
+   "retest_expected": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json#prediction.RETEST.expected_evidence_defended",
+   "retest_falsify": "learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json#prediction.RETEST.falsify"
+  }
+ }
+}
