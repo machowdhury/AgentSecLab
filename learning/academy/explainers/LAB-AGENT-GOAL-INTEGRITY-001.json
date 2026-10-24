@@ -1,0 +1,346 @@
+{
+ "lab_id": "LAB-AGENT-GOAL-INTEGRITY-001",
+ "status": "full",
+ "authored": {
+  "on": "2026-10-23",
+  "note": "Written for learners from the sources named in each block. It is an explanation, not a recording. Facts listed under each block are checked word for word against those sources."
+ },
+ "summary": {
+  "text": "A tool permission answers \"may this tool be called?\" It does not answer \"is the agent doing the job it was actually given?\" In this lab an agent is allowed to use the lookup_policy tool, yet an untrusted instruction steers it into using that tool for a different, unauthorized job. The lesson: an authorized tool is not an authorized goal.",
+  "grounds": [
+   "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+  ],
+  "facts": [
+   "This lab teaches one idea: an authorized tool is not an authorized goal.",
+   "lookup_policy can be granted and still be the wrong use of that tool."
+  ]
+ },
+ "glance": [
+  {
+   "id": "goal",
+   "label": "What the attacker wants",
+   "text": "The attacker wants the granted lookup_policy tool used for a task the server never authorized.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json"
+   ],
+   "facts": [
+    "The attacker wants granted lookup_policy used for a task the server never authorized."
+   ]
+  },
+  {
+   "id": "controls",
+   "label": "What the attacker controls",
+   "text": "Only the text of one untrusted instruction in the lab's closed fixture. The browser cannot choose the setting, the grants, the instruction body or the goal decision.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json"
+   ],
+   "facts": [
+    "The browser does not choose profile, grants, instruction body, or goal decision."
+   ]
+  },
+  {
+   "id": "entry",
+   "label": "Where it gets in",
+   "text": "An untrusted instruction arrives alongside the real task and proposes a change to it. Here it proposes extract_full_policy in place of summarizing the lending policy.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md"
+   ],
+   "facts": [
+    "Untrusted instruction may propose a change. It cannot redefine the server-owned task."
+   ]
+  },
+  {
+   "id": "boundary",
+   "label": "Where the trust boundary is",
+   "text": "Between the proposed goal and the effective task. The server-owned task is authoritative; the goal-integrity control decides what the effective task becomes, and only then is the tool checked.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md"
+   ],
+   "facts": [
+    "AUTHORITATIVE TASK → UNTRUSTED INSTRUCTION → PROPOSED GOAL → CTRL-GOAL-INTEGRITY-001 → EFFECTIVE TASK → CTRL-MCP-001 → AUTHORIZED TOOL → HANDLER."
+   ]
+  },
+  {
+   "id": "control",
+   "label": "Two controls, two questions",
+   "text": "CTRL-GOAL-INTEGRITY-001 asks whether the task is still the authorized one. CTRL-MCP-001 asks whether the tool is granted. They solve different problems, and a goal DENY is not a tool DENY.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json",
+    "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+   ],
+   "facts": [
+    "CTRL-GOAL-INTEGRITY-001 protects the task boundary. CTRL-MCP-001 at acmebank.mcp.authorize is the tool PDP. These solve different problems.",
+    "goal DENY != MCP DENY"
+   ]
+  },
+  {
+   "id": "impact",
+   "label": "Authorized tool, unauthorized use",
+   "text": "On the vulnerable ATTACK setting the granted tool ran for the expanded goal. On the defended RETEST the goal control denied the expansion and the tool still ran for the original task. The lab does not say the tool was compromised or that the tool check failed.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+    "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json"
+   ],
+   "facts": [
+    "Do not claim the tool itself was compromised. Do not claim the MCP grant check failed.",
+    "That is not universal prompt-injection bypass."
+   ]
+  },
+  {
+   "id": "evidence",
+   "label": "What evidence exists",
+   "text": "Each run records the proposed and the effective action, both decisions, and handler counts split into in-task and wrong-goal. The handler counts are the authoritative record of what ran; Splunk only corroborates them.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md"
+   ],
+   "facts": [
+    "Runtime handler counts are authoritative. Splunk completeness is corroboration."
+   ]
+  }
+ ],
+ "path": [
+  {
+   "id": "instruction",
+   "kind": "attacker",
+   "label": "Untrusted instruction",
+   "detail": "Text that proposes a different task.",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+   "fact": "AUTHORITATIVE TASK → UNTRUSTED INSTRUCTION → PROPOSED GOAL"
+  },
+  {
+   "id": "proposal",
+   "kind": "entry",
+   "label": "Proposed goal",
+   "detail": "The instruction proposes extract_full_policy.",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+   "fact": "Proposed extract_full_policy."
+  },
+  {
+   "id": "boundary",
+   "kind": "boundary",
+   "label": "Task boundary",
+   "detail": "The server-owned task stays authoritative.",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+   "fact": "It cannot redefine the server-owned task."
+  },
+  {
+   "id": "goal",
+   "kind": "control",
+   "label": "Goal decision",
+   "detail": "CTRL-GOAL-INTEGRITY-001 decides what the effective task becomes.",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json",
+   "fact": "CTRL-GOAL-INTEGRITY-001 protects the task boundary.",
+   "outcomes": [
+    {
+     "label": "DENY (defended retest)",
+     "detail": "unauthorized_task_expansion; the effective task stays the authorized one.",
+     "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+     "fact": "CTRL-GOAL-INTEGRITY-001 DENY unauthorized_task_expansion."
+    },
+    {
+     "label": "OBSERVE (vulnerable attack setting)",
+     "detail": "A labelled lab-only fail-open overlay; the expansion goes through.",
+     "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+     "fact": "GOAL OBSERVE overlay vulnerable_profile_fail_open:untrusted_instruction_derived_task_authority"
+    }
+   ]
+  },
+  {
+   "id": "tool",
+   "kind": "control",
+   "label": "Tool authorization",
+   "detail": "CTRL-MCP-001 allowed lookup_policy on both the attack and the retest.",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+   "fact": "MCP ALLOW tool_granted."
+  },
+  {
+   "id": "handler",
+   "kind": "operation",
+   "label": "Handler",
+   "detail": "lookup_policy runs; the in-task and wrong-goal counts say for which purpose.",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+   "fact": "Wrong-goal handler count 0 is the authoritative non-execution evidence for the prohibited action."
+  },
+  {
+   "id": "telemetry",
+   "kind": "evidence",
+   "label": "Evidence copy",
+   "detail": "A copy of the telemetry goes to Splunk, which only observes.",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md",
+   "fact": "Splunk does not ALLOW or DENY a tool or a task."
+  }
+ ],
+ "known": [
+  {
+   "text": "extract_full_policy is not an MCP tool. It labels lookup_policy as wrong-goal vs in-task.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json"
+   ],
+   "facts": [
+    "extract_full_policy is not an MCP tool. It labels lookup_policy as wrong-goal vs in-task."
+   ]
+  },
+  {
+   "text": "RETEST is not MCP DENY. MCP ALLOW on RETEST is expected.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json"
+   ],
+   "facts": [
+    "RETEST is not MCP DENY. MCP ALLOW on RETEST is expected."
+   ]
+  },
+  {
+   "text": "CTRL-GOAL-INTEGRITY-001 evaluates task/goal integrity. It is not a tool PDP.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json"
+   ],
+   "facts": [
+    "CTRL-GOAL-INTEGRITY-001 evaluates task/goal integrity. It is not a tool PDP."
+   ]
+  },
+  {
+   "text": "Missing Splunk event is not prevention.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json"
+   ],
+   "facts": [
+    "Missing Splunk event is not prevention."
+   ]
+  },
+  {
+   "text": "CTRL-MCP-001 is a lab allow-list, not production MCP IAM.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json"
+   ],
+   "facts": [
+    "CTRL-MCP-001 is a lab allow-list, not production MCP IAM."
+   ]
+  }
+ ],
+ "terms": [
+  {
+   "term": "Authorized tool vs authorized goal",
+   "text": "The tool being granted says nothing about whether it is being used for the job the server authorized.",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md",
+   "fact": "AUTHORIZED TOOL != AUTHORIZED GOAL"
+  },
+  {
+   "term": "Proposed vs effective action",
+   "text": "The proposed action is what the instruction asked for. The effective action is what the system actually continued with after the goal decision.",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+   "fact": "Effective summarize_lending_policy."
+  },
+  {
+   "term": "Goal DENY vs tool DENY",
+   "text": "A goal DENY refuses the changed task. It is a different decision from the tool check, which still allows lookup_policy.",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md",
+   "fact": "goal DENY != MCP DENY"
+  },
+  {
+   "term": "The five planes",
+   "text": "The lab separates what you read into five planes so that none is mistaken for another.",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+   "fact": "Five planes: TASK, INSTRUCTION, GOAL DECISION, TOOL AUTHORIZATION, EXECUTION."
+  },
+  {
+   "term": "run.id",
+   "text": "The identifier that ties every event of one experiment together. Every launch gets a new one.",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json",
+   "fact": "A new run.id is minted."
+  }
+ ],
+ "practice": {
+  "predict": [
+   {
+    "label": "Before the attack",
+    "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.ATTACK.predict_before_launch"
+   },
+   {
+    "label": "Before the retest",
+    "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.RETEST.predict_before_launch"
+   }
+  ],
+  "defender": {
+   "text": "Keep the task on the server. An untrusted instruction may propose a change, and the goal control must deny an unauthorized expansion while the legitimate tool use carries on. Blocking the tool is not the defense.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md"
+   ],
+   "facts": [
+    "Untrusted instruction may propose a change. It cannot redefine the server-owned task.",
+    "DEFENSE DOES NOT MEAN block lookup_policy."
+   ]
+  }
+ },
+ "spl": [
+  "Q-GOAL-INTEGRITY-AUTHORITY.spl"
+ ],
+ "identifiers": [
+  {
+   "label": "Goal control",
+   "value": "CTRL-GOAL-INTEGRITY-001",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+  },
+  {
+   "label": "Tool control",
+   "value": "CTRL-MCP-001",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+  },
+  {
+   "label": "Invariants",
+   "value": "INV-002, INV-006",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+  },
+  {
+   "label": "Attack in the catalog",
+   "value": "GOAL-001",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+  },
+  {
+   "label": "Splunk workshop view",
+   "value": "ws_lab_agent_goal_integrity",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+  },
+  {
+   "label": "Task hash",
+   "value": "sha256:6f95aaf2adf5b37b11e35805f9bbbb24fdb34f38435590b5042d7c406bdf7b6c",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+  },
+  {
+   "label": "Malicious instruction hash (ATTACK and RETEST)",
+   "value": "sha256:15a1c5fa3724419b21b854623c594dba28bf4f357efe39c932084374a8cbe5e2",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+  },
+  {
+   "label": "Recorded REPLAY ATTACK specimen",
+   "value": "fd994587-7e1c-4a70-8013-54cb2c85254d",
+   "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+  }
+ ],
+ "cannot_claim_lines": {
+  "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+  "lines": [
+   "Do not label SAFE, TRUSTED, APPROVED, or BENIGN.",
+   "Do not claim the tool itself was compromised.",
+   "Do not claim the MCP grant check failed.",
+   "Do not say MCP blocked the attack.",
+   "0 rows is CORRECT. 0 rows != SAFE."
+  ]
+ },
+ "workbench": {
+  "kind": "scenario",
+  "specimens": {
+   "BASELINE": "GOAL-BASELINE",
+   "ATTACK": "GOAL-001",
+   "RETEST": "GOAL-001"
+  },
+  "texts": {
+   "baseline": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.BASELINE.attack_objective",
+   "attack": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.ATTACK.attack_objective",
+   "retest": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.RETEST.attack_objective",
+   "defense": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.ATTACK.defense_should",
+   "attack_expected": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.ATTACK.expected_evidence_vulnerable",
+   "retest_expected": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.RETEST.expected_evidence_defended",
+   "retest_falsify": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.RETEST.falsify"
+  }
+ }
+}

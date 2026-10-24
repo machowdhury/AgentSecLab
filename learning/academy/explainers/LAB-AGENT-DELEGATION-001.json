@@ -1,0 +1,373 @@
+{
+ "lab_id": "LAB-AGENT-DELEGATION-001",
+ "status": "full",
+ "authored": {
+  "on": "2026-10-23",
+  "note": "Written for learners from the sources named in each block. It is an explanation, not a recording. Facts listed under each block are checked word for word against those sources."
+ },
+ "summary": {
+  "text": "One agent (the caller) tells another (the callee) that authority has been delegated for a privileged action. The lab asks whether such a claim can create authority that neither agent was actually given. Its one idea: a caller or delegation claim is data, and it does not mint authority. The agent names here are labels for attribution, not authenticated identities.",
+  "grounds": [
+   "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+   "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+  ],
+  "facts": [
+   "This lab teaches one idea: a caller/delegation claim is data. It does not mint authority.",
+   "Agent id strings are attribution, not cryptographic identity."
+  ]
+ },
+ "glance": [
+  {
+   "id": "goal",
+   "label": "What the attacker wants",
+   "text": "The attacker wants the delegation claim treated as a grant, so that neither agent needs the customer:read permission.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+   ],
+   "facts": [
+    "The attacker wants the claim treated as a grant so neither agent needs customer:read."
+   ]
+  },
+  {
+   "id": "controls",
+   "label": "What the attacker controls",
+   "text": "Only the claim in the lab's closed fixture. The browser cannot choose the setting, the grants, whether anyone is verified or authenticated, or the request body.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+   ],
+   "facts": [
+    "The browser does not choose profile, grants, identity_verified, authenticated, or the A2A body."
+   ]
+  },
+  {
+   "id": "entry",
+   "label": "Who is involved",
+   "text": "A principal (applicant-web), a caller agent (acme-agent-advisor-005) and a callee agent (acme-agent-fulfillment-006). These are names in the records, not proven identities.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+   ],
+   "facts": [
+    "Identify principal applicant-web, caller acme-agent-advisor-005, callee acme-agent-fulfillment-006."
+   ]
+  },
+  {
+   "id": "boundary",
+   "label": "Where the delegation boundary is",
+   "text": "Between the claim and the tool. Both agents are coded with the same narrow grant (lookup_policy only), and combining two agents does not add authority.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+   ],
+   "facts": [
+    "Coded grants for both agents: lookup_policy / policy:read / lending-basics only.",
+    "A + B != NEW AUTHORITY"
+   ]
+  },
+  {
+   "id": "control",
+   "label": "How the controls handle it",
+   "text": "CTRL-IDENTITY-001 only observes the claim and never grants anything. CTRL-MCP-001 is the sole tool decision point, and it is the one that denies the privileged request on the defended retest.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+   ],
+   "facts": [
+    "CTRL-IDENTITY-001 (OBSERVE only) + CTRL-MCP-001 (sole tool PDP)"
+   ]
+  },
+  {
+   "id": "identity",
+   "label": "A claimed identity is not an authenticated one",
+   "text": "Nothing in this lab authenticates anyone. The run record says so itself, and the lab models no OAuth, OIDC, JWT validation, SPIFFE or real agent-to-agent transport. Do not read an agent name as proof of who called.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+    "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+   ],
+   "facts": [
+    "WHO AUTHENTICATED = NOT PROVEN / NOT MODELED.",
+    "No OAuth, OIDC, JWT validation, SPIFFE/SPIRE, or real A2A transport."
+   ]
+  },
+  {
+   "id": "impact",
+   "label": "What could go wrong",
+   "text": "On the deliberately vulnerable ATTACK setting the privileged tool ran through a labelled fail-open overlay. In the lab's own words that overlay is the failure; it is not a cryptographic identity bypass.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+   ],
+   "facts": [
+    "On this labeled vulnerable experiment the overlay is the failure."
+   ]
+  },
+  {
+   "id": "evidence",
+   "label": "What evidence exists",
+   "text": "Each run records the principal, caller and callee, the identity decision, the tool decision and the handler counts. ATTACK and RETEST carry the same request fingerprint, which is how you know the request itself did not change.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+   ],
+   "facts": [
+    "Measure that ATTACK and RETEST share the same request fingerprint."
+   ]
+  }
+ ],
+ "path": [
+  {
+   "id": "claim",
+   "kind": "attacker",
+   "label": "Delegation claim",
+   "detail": "The caller says authority was delegated.",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json",
+   "fact": "The closed adversarial delegation fixture."
+  },
+  {
+   "id": "parties",
+   "kind": "entry",
+   "label": "Principal, caller, callee",
+   "detail": "Names carried in the request; attribution only.",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+   "fact": "PRINCIPAL → CALLER → CALLEE → DELEGATION CLAIM"
+  },
+  {
+   "id": "boundary",
+   "kind": "boundary",
+   "label": "Claim is not a grant",
+   "detail": "A caller id does not mint a grant.",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+   "fact": "CALLER ID != GRANT"
+  },
+  {
+   "id": "identity",
+   "kind": "control",
+   "label": "Identity classification",
+   "detail": "CTRL-IDENTITY-001 observes the claim as untrusted. It never grants.",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+   "fact": "CTRL-IDENTITY-001 (OBSERVE only)"
+  },
+  {
+   "id": "tool",
+   "kind": "control",
+   "label": "Tool authorization",
+   "detail": "CTRL-MCP-001 is the sole tool decision point.",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+   "fact": "CTRL-MCP-001 (tool PDP)",
+   "outcomes": [
+    {
+     "label": "DENY (defended retest)",
+     "detail": "tool_not_granted; the privileged handler does not start.",
+     "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+     "fact": "Prove RETEST CTRL-MCP-001 DENY tool_not_granted with handler 0."
+    },
+    {
+     "label": "ALLOW (vulnerable attack setting)",
+     "detail": "A labelled fail-open overlay of the lab, not a server grant.",
+     "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+     "fact": "Prove ATTACK overlay fail-open at CTRL-MCP-001 with lookup_customer_tier handler 1."
+    }
+   ]
+  },
+  {
+   "id": "handler",
+   "kind": "operation",
+   "label": "Privileged tool",
+   "detail": "lookup_customer_tier on cust-001 with scope customer:read, only if granted.",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+   "fact": "customer:read / lookup_customer_tier / cust-001"
+  },
+  {
+   "id": "telemetry",
+   "kind": "evidence",
+   "label": "Evidence copy",
+   "detail": "A copy of the telemetry goes to Splunk, which only observes.",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+   "fact": "SPLUNK != ENFORCEMENT"
+  }
+ ],
+ "known": [
+  {
+   "text": "WHO AUTHENTICATED = NOT PROVEN / NOT MODELED. Agent id strings are attribution, not cryptographic identity.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+   ],
+   "facts": [
+    "WHO AUTHENTICATED = NOT PROVEN / NOT MODELED. Agent id strings are attribution, not cryptographic identity."
+   ]
+  },
+  {
+   "text": "No OAuth, OIDC, JWT validation, SPIFFE/SPIRE, or real A2A transport.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+   ],
+   "facts": [
+    "No OAuth, OIDC, JWT validation, SPIFFE/SPIRE, or real A2A transport."
+   ]
+  },
+  {
+   "text": "CTRL-IDENTITY-001 classifies identity/delegation claims. It is OBSERVE only. It is not a tool PDP.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+   ],
+   "facts": [
+    "CTRL-IDENTITY-001 classifies identity/delegation claims. It is OBSERVE only. It is not a tool PDP."
+   ]
+  },
+  {
+   "text": "CTRL-MCP-001 is a lab allow-list, not production MCP IAM.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+   ],
+   "facts": [
+    "CTRL-MCP-001 is a lab allow-list, not production MCP IAM."
+   ]
+  },
+  {
+   "text": "Missing Splunk event is not prevention.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+   ],
+   "facts": [
+    "Missing Splunk event is not prevention."
+   ]
+  }
+ ],
+ "terms": [
+  {
+   "term": "Identity claim vs authentication",
+   "text": "Saying who you are is not the same as proving it. This lab only records the claim.",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+   "fact": "IDENTITY CLAIM != AUTHENTICATION"
+  },
+  {
+   "term": "Delegation claim vs authorization",
+   "text": "Being told that authority was handed over does not make it so. Authorization is a server decision.",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+   "fact": "DELEGATION CLAIM != AUTHORIZATION"
+  },
+  {
+   "term": "Agent id string",
+   "text": "A name such as acme-agent-advisor-005 is a label in a record. It is not a cryptographic identity.",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+   "fact": "AGENT ID STRING != CRYPTOGRAPHIC IDENTITY"
+  },
+  {
+   "term": "A + B",
+   "text": "Two agents working together do not gain authority that neither holds alone.",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+   "fact": "A + B != NEW AUTHORITY"
+  },
+  {
+   "term": "OBSERVE vs ALLOW",
+   "text": "OBSERVE means the control recorded the claim. It is not a permission.",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+   "fact": "OBSERVE != ALLOW"
+  },
+  {
+   "term": "run.id",
+   "text": "The identifier that ties every event of one experiment together. Every launch gets a new one.",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json",
+   "fact": "A new run.id is minted."
+  }
+ ],
+ "practice": {
+  "predict": [
+   {
+    "label": "Before the attack",
+    "source": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.ATTACK.predict_before_launch"
+   },
+   {
+    "label": "Before the retest",
+    "source": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.RETEST.predict_before_launch"
+   }
+  ],
+  "defender": {
+   "text": "Grant tools on the server, from each agent's own coded permissions. A claim, an agent name or an identity string adds nothing to them.",
+   "grounds": [
+    "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json",
+    "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+   ],
+   "facts": [
+    "Do not trust agent names, Splunk, or an identity string.",
+    "a caller/delegation claim is data. It does not mint authority."
+   ]
+  }
+ },
+ "spl": [
+  "Q-AGENT-DELEGATION-AUTHORITY.spl"
+ ],
+ "identifiers": [
+  {
+   "label": "Identity control",
+   "value": "CTRL-IDENTITY-001",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+  },
+  {
+   "label": "Tool control",
+   "value": "CTRL-MCP-001",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+  },
+  {
+   "label": "Invariants",
+   "value": "INV-001, INV-002, INV-005",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+  },
+  {
+   "label": "Attack in the catalog",
+   "value": "A2A-001",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+  },
+  {
+   "label": "Splunk workshop view",
+   "value": "ws_lab_agent_delegation",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+  },
+  {
+   "label": "Principal",
+   "value": "applicant-web",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+  },
+  {
+   "label": "Caller",
+   "value": "acme-agent-advisor-005",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+  },
+  {
+   "label": "Callee",
+   "value": "acme-agent-fulfillment-006",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+  },
+  {
+   "label": "Privileged request fingerprint (ATTACK and RETEST)",
+   "value": "sha256:56179e463b2faf18c056389ebff32a61e346dd0b4010fb82e8826c4508790dfd",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+  },
+  {
+   "label": "Recorded REPLAY ATTACK specimen",
+   "value": "f846be88-1f9d-4dde-ac80-193c01b47660",
+   "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+  }
+ ],
+ "cannot_claim_lines": {
+  "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+  "lines": [
+   "WHO AUTHENTICATED = NOT PROVEN / NOT MODELED.",
+   "IDENTITY CLAIM != AUTHENTICATION",
+   "AGENT ID STRING != CRYPTOGRAPHIC IDENTITY",
+   "SPLUNK != ENFORCEMENT"
+  ]
+ },
+ "workbench": {
+  "kind": "scenario",
+  "specimens": {
+   "BASELINE": "A2A-BASELINE",
+   "ATTACK": "A2A-001",
+   "RETEST": "A2A-001"
+  },
+  "texts": {
+   "baseline": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.BASELINE.attack_objective",
+   "attack": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.ATTACK.attack_objective",
+   "retest": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.RETEST.attack_objective",
+   "defense": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.ATTACK.defense_should",
+   "attack_expected": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.ATTACK.expected_evidence_vulnerable",
+   "retest_expected": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.RETEST.expected_evidence_defended",
+   "retest_falsify": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.RETEST.falsify"
+  }
+ }
+}
