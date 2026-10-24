@@ -353,3 +353,22 @@ tr.is-different td, tr.is-different th { background: #f4f9f9; }
 .m-wbstep h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; font-size: 16px; }
 .m-wbstep h3 > span { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--navy); color: #fff; font-size: 13px; }
 .m-wbstep p { margin: 6px 0; }
+
+/* Agent trace: the recorded sequence of one Loan Desk run. Attacker-controlled text is visually distinct from the model's proposal. */
+.m-trace { margin-top: 16px; }
+.m-trace__attacker { margin: 10px 0; padding: 10px 12px; border: 1px solid #b45309; border-left-width: 5px; background: #fff7ed; color: #431407; overflow-wrap: anywhere; }
+.m-trace__attacker p { margin: 4px 0; }
+.m-trace__steps { list-style: none; margin: 10px 0; padding: 0; display: grid; gap: 10px; }
+.m-trace__step { padding: 10px 12px; border: 1px solid var(--line); background: white; overflow-wrap: anywhere; }
+.m-trace__step--invalid_proposal { border-style: dashed; }
+.m-trace__head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-weight: 600; }
+.m-trace__head small { font-weight: 400; color: var(--muted); }
+.m-trace__args { margin: 6px 0; display: grid; gap: 4px; }
+.m-trace__args div { display: grid; grid-template-columns: minmax(80px, 140px) 1fr; gap: 8px; }
+.m-trace__args dt { color: var(--muted); }
+.m-trace__args dd { margin: 0; }
+.m-trace__copied mark { background: #fed7aa; color: #431407; padding: 0 2px; }
+.m-trace__tag { font-size: 12px; color: #9a3412; font-weight: 600; }
+.m-trace__model { margin: 6px 0; }
+.m-trace__facts { margin-top: 12px; }
+@media (max-width: 640px) { .m-trace__args div { grid-template-columns: 1fr; } }
