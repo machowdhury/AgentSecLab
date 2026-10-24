@@ -196,18 +196,20 @@ def test_pi_workbench_uses_only_the_existing_launch_contract_and_never_auto_laun
     assert "No. This lab has no signed verifier" in page
 
 
-def test_pi_workbench_matches_the_backend_allowlist_and_runtime_fields():
+@pytest.mark.parametrize("lab_id", ["LAB-PI-001", "LAB-RAG-CONTEXT", "LAB-AGENT-GOAL-INTEGRITY-001", "LAB-AGENT-DELEGATION-001"])
+def test_workbench_matches_the_backend_allowlist_and_runtime_fields(lab_id):
     from agentsec.launch_catalog import allowlist_public_rows
     from agentsec.launch_contract import parse_launch_json
-    wb = next(e for _, e in _explained() if e.get("workbench"))["workbench"]
-    rows = {(r["mode"], r["specimen_id"]) for r in allowlist_public_rows() if r["lab_id"] == "LAB-PI-001"}
+    wb = dict(_explained())[lab_id]["workbench"]
+    rows = {(r["mode"], r["specimen_id"]) for r in allowlist_public_rows() if r["lab_id"] == lab_id}
     assert rows == set(wb["specimens"].items())
     for mode, spec in wb["specimens"].items():
-        parsed = parse_launch_json(json.dumps({"lab_id": "LAB-PI-001", "specimen_id": spec, "mode": mode, "execution": "live"}))
-        assert parsed.ok and parsed.lab_id == "LAB-PI-001"
-    pipeline = (ROOT / "src" / "agentsec" / "pipeline.py").read_text(encoding="utf-8")
-    for key in ("control.decision", "control.reason", "operation.attempted", "operation.executed", "operation.outcome", "llm.started", "llm.completed", "llm.failed"):
-        assert f'"{key}"' in pipeline, key
+        parsed = parse_launch_json(json.dumps({"lab_id": lab_id, "specimen_id": spec, "mode": mode, "execution": "live"}))
+        assert parsed.ok and parsed.lab_id == lab_id
+    if lab_id == "LAB-PI-001":
+        pipeline = (ROOT / "src" / "agentsec" / "pipeline.py").read_text(encoding="utf-8")
+        for key in ("control.decision", "control.reason", "operation.attempted", "operation.executed", "operation.outcome", "llm.started", "llm.completed", "llm.failed"):
+            assert f'"{key}"' in pipeline, key
     for key, ref in wb["texts"].items():
         f, _, dotted = ref.partition("#")
         doc = json.loads((ROOT / f).read_text(encoding="utf-8"))
@@ -216,10 +218,13 @@ def test_pi_workbench_matches_the_backend_allowlist_and_runtime_fields():
         assert wb["resolved"][key]["text"] == EXP.clean(doc)
 
 
-def test_only_pi_001_and_rag_context_are_integrated_and_the_registry_tier_is_unchanged():
-    assert [l["id"] for l in DATA["labs"] if l["integrated"]] == ["LAB-PI-001", "LAB-RAG-CONTEXT"]
-    for lab in ("LAB-PI-001", "LAB-RAG-CONTEXT"):
+def test_only_the_four_native_labs_are_integrated_and_the_registry_tier_is_unchanged():
+    assert [l["id"] for l in DATA["labs"] if l["integrated"]] == ["LAB-AGENT-DELEGATION-001", "LAB-AGENT-GOAL-INTEGRITY-001", "LAB-PI-001", "LAB-RAG-CONTEXT"]
+    for lab in ("LAB-PI-001", "LAB-RAG-CONTEXT", "LAB-AGENT-GOAL-INTEGRITY-001", "LAB-AGENT-DELEGATION-001"):
         assert next(l for l in DATA["labs"] if l["id"] == lab)["availability"] == "workbench"
     e = next(l for l in DATA["labs"] if l["id"] == "LAB-RAG-CONTEXT")["explainer"]
     assert [n["kind"] for n in e["path"]] == ["attacker", "entry", "boundary", "control", "control", "operation", "evidence"]
     assert {g["id"] for g in e["glance"]} == {"goal", "controls", "entry", "boundary", "control", "impact", "evidence"}
+    for lab, kinds in (("LAB-AGENT-GOAL-INTEGRITY-001", ["attacker", "entry", "boundary", "control", "control", "operation", "evidence"]), ("LAB-AGENT-DELEGATION-001", ["attacker", "entry", "boundary", "control", "control", "operation", "evidence"])):
+        e = next(l for l in DATA["labs"] if l["id"] == lab)["explainer"]
+        assert [n["kind"] for n in e["path"]] == kinds and e["status"] == "full"

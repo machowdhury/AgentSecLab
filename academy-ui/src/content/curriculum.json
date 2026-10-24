@@ -298,8 +298,416 @@
     "dashboard": "ws_lab_a2a_auth_delegation",
     "evidence_docs": []
    },
-   "explainer": null,
-   "integrated": false,
+   "explainer": {
+    "lab_id": "LAB-AGENT-DELEGATION-001",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-23",
+     "note": "Written for learners from the sources named in each block. It is an explanation, not a recording. Facts listed under each block are checked word for word against those sources."
+    },
+    "summary": {
+     "text": "One agent (the caller) tells another (the callee) that authority has been delegated for a privileged action. The lab asks whether such a claim can create authority that neither agent was actually given. Its one idea: a caller or delegation claim is data, and it does not mint authority. The agent names here are labels for attribution, not authenticated identities.",
+     "grounds": [
+      "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+      "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+     ],
+     "facts": [
+      "This lab teaches one idea: a caller/delegation claim is data. It does not mint authority.",
+      "Agent id strings are attribution, not cryptographic identity."
+     ]
+    },
+    "glance": [
+     {
+      "id": "goal",
+      "label": "What the attacker wants",
+      "text": "The attacker wants the delegation claim treated as a grant, so that neither agent needs the customer:read permission.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+      ],
+      "facts": [
+       "The attacker wants the claim treated as a grant so neither agent needs customer:read."
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "What the attacker controls",
+      "text": "Only the claim in the lab's closed fixture. The browser cannot choose the setting, the grants, whether anyone is verified or authenticated, or the request body.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+      ],
+      "facts": [
+       "The browser does not choose profile, grants, identity_verified, authenticated, or the A2A body."
+      ]
+     },
+     {
+      "id": "entry",
+      "label": "Who is involved",
+      "text": "A principal (applicant-web), a caller agent (acme-agent-advisor-005) and a callee agent (acme-agent-fulfillment-006). These are names in the records, not proven identities.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+      ],
+      "facts": [
+       "Identify principal applicant-web, caller acme-agent-advisor-005, callee acme-agent-fulfillment-006."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "Where the delegation boundary is",
+      "text": "Between the claim and the tool. Both agents are coded with the same narrow grant (lookup_policy only), and combining two agents does not add authority.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+      ],
+      "facts": [
+       "Coded grants for both agents: lookup_policy / policy:read / lending-basics only.",
+       "A + B != NEW AUTHORITY"
+      ]
+     },
+     {
+      "id": "control",
+      "label": "How the controls handle it",
+      "text": "CTRL-IDENTITY-001 only observes the claim and never grants anything. CTRL-MCP-001 is the sole tool decision point, and it is the one that denies the privileged request on the defended retest.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+      ],
+      "facts": [
+       "CTRL-IDENTITY-001 (OBSERVE only) + CTRL-MCP-001 (sole tool PDP)"
+      ]
+     },
+     {
+      "id": "identity",
+      "label": "A claimed identity is not an authenticated one",
+      "text": "Nothing in this lab authenticates anyone. The run record says so itself, and the lab models no OAuth, OIDC, JWT validation, SPIFFE or real agent-to-agent transport. Do not read an agent name as proof of who called.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+       "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+      ],
+      "facts": [
+       "WHO AUTHENTICATED = NOT PROVEN / NOT MODELED.",
+       "No OAuth, OIDC, JWT validation, SPIFFE/SPIRE, or real A2A transport."
+      ]
+     },
+     {
+      "id": "impact",
+      "label": "What could go wrong",
+      "text": "On the deliberately vulnerable ATTACK setting the privileged tool ran through a labelled fail-open overlay. In the lab's own words that overlay is the failure; it is not a cryptographic identity bypass.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+      ],
+      "facts": [
+       "On this labeled vulnerable experiment the overlay is the failure."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What evidence exists",
+      "text": "Each run records the principal, caller and callee, the identity decision, the tool decision and the handler counts. ATTACK and RETEST carry the same request fingerprint, which is how you know the request itself did not change.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+      ],
+      "facts": [
+       "Measure that ATTACK and RETEST share the same request fingerprint."
+      ]
+     }
+    ],
+    "path": [
+     {
+      "id": "claim",
+      "kind": "attacker",
+      "label": "Delegation claim",
+      "detail": "The caller says authority was delegated.",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json",
+      "fact": "The closed adversarial delegation fixture."
+     },
+     {
+      "id": "parties",
+      "kind": "entry",
+      "label": "Principal, caller, callee",
+      "detail": "Names carried in the request; attribution only.",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+      "fact": "PRINCIPAL → CALLER → CALLEE → DELEGATION CLAIM"
+     },
+     {
+      "id": "boundary",
+      "kind": "boundary",
+      "label": "Claim is not a grant",
+      "detail": "A caller id does not mint a grant.",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+      "fact": "CALLER ID != GRANT"
+     },
+     {
+      "id": "identity",
+      "kind": "control",
+      "label": "Identity classification",
+      "detail": "CTRL-IDENTITY-001 observes the claim as untrusted. It never grants.",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+      "fact": "CTRL-IDENTITY-001 (OBSERVE only)"
+     },
+     {
+      "id": "tool",
+      "kind": "control",
+      "label": "Tool authorization",
+      "detail": "CTRL-MCP-001 is the sole tool decision point.",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+      "fact": "CTRL-MCP-001 (tool PDP)",
+      "outcomes": [
+       {
+        "label": "DENY (defended retest)",
+        "detail": "tool_not_granted; the privileged handler does not start.",
+        "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+        "fact": "Prove RETEST CTRL-MCP-001 DENY tool_not_granted with handler 0."
+       },
+       {
+        "label": "ALLOW (vulnerable attack setting)",
+        "detail": "A labelled fail-open overlay of the lab, not a server grant.",
+        "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+        "fact": "Prove ATTACK overlay fail-open at CTRL-MCP-001 with lookup_customer_tier handler 1."
+       }
+      ]
+     },
+     {
+      "id": "handler",
+      "kind": "operation",
+      "label": "Privileged tool",
+      "detail": "lookup_customer_tier on cust-001 with scope customer:read, only if granted.",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+      "fact": "customer:read / lookup_customer_tier / cust-001"
+     },
+     {
+      "id": "telemetry",
+      "kind": "evidence",
+      "label": "Evidence copy",
+      "detail": "A copy of the telemetry goes to Splunk, which only observes.",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+      "fact": "SPLUNK != ENFORCEMENT"
+     }
+    ],
+    "known": [
+     {
+      "text": "WHO AUTHENTICATED = NOT PROVEN / NOT MODELED. Agent id strings are attribution, not cryptographic identity.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+      ],
+      "facts": [
+       "WHO AUTHENTICATED = NOT PROVEN / NOT MODELED. Agent id strings are attribution, not cryptographic identity."
+      ]
+     },
+     {
+      "text": "No OAuth, OIDC, JWT validation, SPIFFE/SPIRE, or real A2A transport.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+      ],
+      "facts": [
+       "No OAuth, OIDC, JWT validation, SPIFFE/SPIRE, or real A2A transport."
+      ]
+     },
+     {
+      "text": "CTRL-IDENTITY-001 classifies identity/delegation claims. It is OBSERVE only. It is not a tool PDP.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+      ],
+      "facts": [
+       "CTRL-IDENTITY-001 classifies identity/delegation claims. It is OBSERVE only. It is not a tool PDP."
+      ]
+     },
+     {
+      "text": "CTRL-MCP-001 is a lab allow-list, not production MCP IAM.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+      ],
+      "facts": [
+       "CTRL-MCP-001 is a lab allow-list, not production MCP IAM."
+      ]
+     },
+     {
+      "text": "Missing Splunk event is not prevention.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json"
+      ],
+      "facts": [
+       "Missing Splunk event is not prevention."
+      ]
+     }
+    ],
+    "terms": [
+     {
+      "term": "Identity claim vs authentication",
+      "text": "Saying who you are is not the same as proving it. This lab only records the claim.",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+      "fact": "IDENTITY CLAIM != AUTHENTICATION"
+     },
+     {
+      "term": "Delegation claim vs authorization",
+      "text": "Being told that authority was handed over does not make it so. Authorization is a server decision.",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+      "fact": "DELEGATION CLAIM != AUTHORIZATION"
+     },
+     {
+      "term": "Agent id string",
+      "text": "A name such as acme-agent-advisor-005 is a label in a record. It is not a cryptographic identity.",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+      "fact": "AGENT ID STRING != CRYPTOGRAPHIC IDENTITY"
+     },
+     {
+      "term": "A + B",
+      "text": "Two agents working together do not gain authority that neither holds alone.",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+      "fact": "A + B != NEW AUTHORITY"
+     },
+     {
+      "term": "OBSERVE vs ALLOW",
+      "text": "OBSERVE means the control recorded the claim. It is not a permission.",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+      "fact": "OBSERVE != ALLOW"
+     },
+     {
+      "term": "run.id",
+      "text": "The identifier that ties every event of one experiment together. Every launch gets a new one.",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json",
+      "fact": "A new run.id is minted."
+     }
+    ],
+    "practice": {
+     "predict": [
+      {
+       "label": "Before the attack",
+       "source": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.ATTACK.predict_before_launch",
+       "text": "Before you click Launch ATTACK, write: will CTRL-IDENTITY-001 OBSERVE or DENY, will CTRL-MCP-001 ALLOW lookup_customer_tier, will the privileged handler start, and did anyone authenticate?"
+      },
+      {
+       "label": "Before the retest",
+       "source": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.RETEST.predict_before_launch",
+       "text": "Will the same claim produce the same IDENTITY OBSERVE? Will CTRL-MCP-001 now DENY? Will the privileged handler stay at 0? Does caller_agent_id prove authentication?"
+      }
+     ],
+     "defender": {
+      "text": "Grant tools on the server, from each agent's own coded permissions. A claim, an agent name or an identity string adds nothing to them.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json",
+       "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+      ],
+      "facts": [
+       "Do not trust agent names, Splunk, or an identity string.",
+       "a caller/delegation claim is data. It does not mint authority."
+      ]
+     }
+    },
+    "spl": [
+     {
+      "name": "Q-AGENT-DELEGATION-AUTHORITY.spl",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/searches/Q-AGENT-DELEGATION-AUTHORITY.spl",
+      "text": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=__RUN_ID__ (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval hop=mvindex(mvdedup('agentsec.hop.index'),0)\n| eval principal=mvindex(mvdedup('agentsec.principal.id'),0)\n| eval caller=mvindex(mvdedup('agentsec.identity.caller_agent_id'),0)\n| eval callee=mvindex(mvdedup('agentsec.identity.callee_agent_id'),0)\n| eval claimed_scope=mvindex(mvdedup('agentsec.delegation.claimed_scope'),0)\n| eval claim_trust=mvindex(mvdedup('agentsec.identity.claim.trust'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval resource_id=mvindex(mvdedup('agentsec.mcp.resource.id'),0)\n| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval identity_principal=if(control_id=\"CTRL-IDENTITY-001\",principal,null())\n| eval identity_caller=if(control_id=\"CTRL-IDENTITY-001\",caller,null())\n| eval identity_callee=if(control_id=\"CTRL-IDENTITY-001\",callee,null())\n| eval identity_claimed_scope=if(control_id=\"CTRL-IDENTITY-001\",claimed_scope,null())\n| eval identity_claim_trust=if(control_id=\"CTRL-IDENTITY-001\",claim_trust,null())\n| eval identity_decision=if(control_id=\"CTRL-IDENTITY-001\",decision,null())\n| eval identity_reason=if(control_id=\"CTRL-IDENTITY-001\",reason,null())\n| eval identity_claim_hash=if(control_id=\"CTRL-IDENTITY-001\",content_hash,null())\n| eval identity_requested_tool=if(control_id=\"CTRL-IDENTITY-001\",tool,null())\n| eval identity_requested_scope=if(control_id=\"CTRL-IDENTITY-001\",requested_scope,null())\n| eval mcp_tool=if(control_id=\"CTRL-MCP-001\",tool,null())\n| eval mcp_decision=if(control_id=\"CTRL-MCP-001\",decision,null())\n| eval mcp_reason=if(control_id=\"CTRL-MCP-001\",reason,null())\n| eval mcp_requested_scope=if(control_id=\"CTRL-MCP-001\",requested_scope,null())\n| eval mcp_coded_allowed_scope=if(control_id=\"CTRL-MCP-001\",allowed_scope,null())\n| eval mcp_resource_id=if(control_id=\"CTRL-MCP-001\",resource_id,null())\n| eval mcp_started=if(event_name=\"agentsec.mcp.started\" AND hop=\"1\",1,0)\n| eval mcp_completed=if(event_name=\"agentsec.mcp.completed\" AND hop=\"1\",1,0)\n| eval mcp_failed=if(event_name=\"agentsec.mcp.failed\" AND hop=\"1\",1,0)\n| eventstats values(identity_principal) as identity_principal, values(identity_caller) as identity_caller, values(identity_callee) as identity_callee, values(identity_claimed_scope) as identity_claimed_scope, values(identity_claim_trust) as identity_claim_trust, values(identity_decision) as identity_decision, values(identity_reason) as identity_reason, values(identity_claim_hash) as identity_claim_hash, values(identity_requested_tool) as identity_requested_tool, values(identity_requested_scope) as identity_requested_scope, values(mcp_tool) as mcp_tool, values(mcp_decision) as mcp_decision, values(mcp_reason) as mcp_reason, values(mcp_requested_scope) as mcp_requested_scope, values(mcp_coded_allowed_scope) as mcp_coded_allowed_scope, values(mcp_resource_id) as mcp_resource_id, max(mcp_started) as has_started, max(mcp_completed) as has_completed, max(mcp_failed) as has_failed, latest(profile) as profile, latest(mode) as mode by run_id\n| eval identity_principal=mvindex(mvdedup(identity_principal),0)\n| eval identity_caller=mvindex(mvdedup(identity_caller),0)\n| eval identity_callee=mvindex(mvdedup(identity_callee),0)\n| eval identity_claimed_scope=mvindex(mvdedup(identity_claimed_scope),0)\n| eval identity_claim_trust=mvindex(mvdedup(identity_claim_trust),0)\n| eval identity_decision=mvindex(mvdedup(identity_decision),0)\n| eval identity_reason=mvindex(mvdedup(identity_reason),0)\n| eval identity_claim_hash=mvindex(mvdedup(identity_claim_hash),0)\n| eval identity_requested_tool=mvindex(mvdedup(identity_requested_tool),0)\n| eval identity_requested_scope=mvindex(mvdedup(identity_requested_scope),0)\n| eval mcp_tool=mvindex(mvdedup(mcp_tool),0)\n| eval mcp_decision=mvindex(mvdedup(mcp_decision),0)\n| eval mcp_reason=mvindex(mvdedup(mcp_reason),0)\n| eval mcp_requested_scope=mvindex(mvdedup(mcp_requested_scope),0)\n| eval mcp_coded_allowed_scope=mvindex(mvdedup(mcp_coded_allowed_scope),0)\n| eval mcp_resource_id=mvindex(mvdedup(mcp_resource_id),0)\n| eval mcp_resource_observation=if(isnull(mcp_resource_id) OR mcp_resource_id=\"\",\"mcp.resource.id_not_indexed_on_this_control_hop\",mcp_resource_id)\n| eval execution_observation=case(has_completed=1,\"mcp.completed_observed\",has_failed=1,\"mcp.failed_observed\",has_started=1,\"mcp.started_observed\",1=1,\"no_indexed_followon_execution_event\")\n| where isnotnull(identity_decision) AND identity_decision!=\"\"\n| dedup run_id\n| table run_id, profile, mode, identity_principal, identity_caller, identity_callee, identity_claim_trust, identity_claimed_scope, identity_decision, identity_reason, identity_claim_hash, identity_requested_tool, identity_requested_scope, mcp_tool, mcp_requested_scope, mcp_coded_allowed_scope, mcp_resource_observation, mcp_decision, mcp_reason, execution_observation"
+     }
+    ],
+    "identifiers": [
+     {
+      "label": "Identity control",
+      "value": "CTRL-IDENTITY-001",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+     },
+     {
+      "label": "Tool control",
+      "value": "CTRL-MCP-001",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+     },
+     {
+      "label": "Invariants",
+      "value": "INV-001, INV-002, INV-005",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+     },
+     {
+      "label": "Attack in the catalog",
+      "value": "A2A-001",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+     },
+     {
+      "label": "Splunk workshop view",
+      "value": "ws_lab_agent_delegation",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+     },
+     {
+      "label": "Principal",
+      "value": "applicant-web",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+     },
+     {
+      "label": "Caller",
+      "value": "acme-agent-advisor-005",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+     },
+     {
+      "label": "Callee",
+      "value": "acme-agent-fulfillment-006",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+     },
+     {
+      "label": "Privileged request fingerprint (ATTACK and RETEST)",
+      "value": "sha256:56179e463b2faf18c056389ebff32a61e346dd0b4010fb82e8826c4508790dfd",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+     },
+     {
+      "label": "Recorded REPLAY ATTACK specimen",
+      "value": "f846be88-1f9d-4dde-ac80-193c01b47660",
+      "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md"
+     }
+    ],
+    "workbench": {
+     "kind": "scenario",
+     "specimens": {
+      "BASELINE": "A2A-BASELINE",
+      "ATTACK": "A2A-001",
+      "RETEST": "A2A-001"
+     },
+     "texts": {
+      "baseline": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.BASELINE.attack_objective",
+      "attack": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.ATTACK.attack_objective",
+      "retest": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.RETEST.attack_objective",
+      "defense": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.ATTACK.defense_should",
+      "attack_expected": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.ATTACK.expected_evidence_vulnerable",
+      "retest_expected": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.RETEST.expected_evidence_defended",
+      "retest_falsify": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.RETEST.falsify"
+     },
+     "resolved": {
+      "baseline": {
+       "text": "Submit the catalog normal lookup_policy delegation so later ATTACK evidence has a normal comparison.",
+       "source": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.BASELINE.attack_objective"
+      },
+      "attack": {
+       "text": "Submit the catalog adversarial delegation claim on the intentionally vulnerable ATTACK experiment and observe whether lookup_customer_tier is granted even though neither agent is coded customer:read.",
+       "source": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.ATTACK.attack_objective"
+      },
+      "retest": {
+       "text": "Submit the SAME canonical privileged delegation claim on the defended RETEST experiment and prove the outcome changed because tool authorization changed, not because the identity claim changed.",
+       "source": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.RETEST.attack_objective"
+      },
+      "defense": {
+       "text": "On this ATTACK specimen the lab is fail-open at CTRL-MCP-001 via a per-request overlay. The defense you will enable is the RETEST ExperimentContext (profile=defended). Do not trust agent names, Splunk, or an identity string.",
+       "source": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.ATTACK.defense_should"
+      },
+      "attack_expected": {
+       "text": "INTENTIONALLY VULNERABLE LAB PROFILE: CTRL-IDENTITY-001 OBSERVE identity_claim_is_not_grant / untrusted_claim; overlay vulnerable_profile_fail_open:caller_identity_derived_authority; CTRL-MCP-001 ALLOW; lookup_customer_tier handler 1; testbed.mode=ATTACK. OBSERVE is not ALLOW. ALLOW is not execution. WHO AUTHENTICATED = NOT PROVEN / NOT MODELED.",
+       "source": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.ATTACK.expected_evidence_vulnerable"
+      },
+      "retest_expected": {
+       "text": "IDENTITY OBSERVE identity_claim_is_not_grant; MCP DENY tool_not_granted; lookup_customer_tier handler 0; testbed.mode=RETEST.",
+       "source": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.RETEST.expected_evidence_defended"
+      },
+      "retest_falsify": {
+       "text": "IDENTITY ALLOW, IDENTITY DENY of the tool, lookup_customer_tier handler 1, a different request fingerprint than ATTACK, or claiming the caller was authenticated would falsify the defended prediction. Missing Splunk rows alone would not.",
+       "source": "learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json#prediction.RETEST.falsify"
+      }
+     }
+    },
+    "cannot_claim": {
+     "source": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+     "items": [
+      "WHO AUTHENTICATED = NOT PROVEN / NOT MODELED.",
+      "IDENTITY CLAIM != AUTHENTICATION",
+      "AGENT ID STRING != CRYPTOGRAPHIC IDENTITY",
+      "SPLUNK != ENFORCEMENT"
+     ]
+    }
+   },
+   "integrated": true,
    "limitations": {
     "items": [
      "LOCAL EDUCATIONAL SERVICE when installed locally. On a remote deployment the learner uses the host in the browser address bar. The service is unauthenticated.",
@@ -454,8 +862,389 @@
      "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/dashboard.md"
     ]
    },
-   "explainer": null,
-   "integrated": false,
+   "explainer": {
+    "lab_id": "LAB-AGENT-GOAL-INTEGRITY-001",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-23",
+     "note": "Written for learners from the sources named in each block. It is an explanation, not a recording. Facts listed under each block are checked word for word against those sources."
+    },
+    "summary": {
+     "text": "A tool permission answers \"may this tool be called?\" It does not answer \"is the agent doing the job it was actually given?\" In this lab an agent is allowed to use the lookup_policy tool, yet an untrusted instruction steers it into using that tool for a different, unauthorized job. The lesson: an authorized tool is not an authorized goal.",
+     "grounds": [
+      "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+     ],
+     "facts": [
+      "This lab teaches one idea: an authorized tool is not an authorized goal.",
+      "lookup_policy can be granted and still be the wrong use of that tool."
+     ]
+    },
+    "glance": [
+     {
+      "id": "goal",
+      "label": "What the attacker wants",
+      "text": "The attacker wants the granted lookup_policy tool used for a task the server never authorized.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json"
+      ],
+      "facts": [
+       "The attacker wants granted lookup_policy used for a task the server never authorized."
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "What the attacker controls",
+      "text": "Only the text of one untrusted instruction in the lab's closed fixture. The browser cannot choose the setting, the grants, the instruction body or the goal decision.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json"
+      ],
+      "facts": [
+       "The browser does not choose profile, grants, instruction body, or goal decision."
+      ]
+     },
+     {
+      "id": "entry",
+      "label": "Where it gets in",
+      "text": "An untrusted instruction arrives alongside the real task and proposes a change to it. Here it proposes extract_full_policy in place of summarizing the lending policy.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md"
+      ],
+      "facts": [
+       "Untrusted instruction may propose a change. It cannot redefine the server-owned task."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "Where the trust boundary is",
+      "text": "Between the proposed goal and the effective task. The server-owned task is authoritative; the goal-integrity control decides what the effective task becomes, and only then is the tool checked.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md"
+      ],
+      "facts": [
+       "AUTHORITATIVE TASK → UNTRUSTED INSTRUCTION → PROPOSED GOAL → CTRL-GOAL-INTEGRITY-001 → EFFECTIVE TASK → CTRL-MCP-001 → AUTHORIZED TOOL → HANDLER."
+      ]
+     },
+     {
+      "id": "control",
+      "label": "Two controls, two questions",
+      "text": "CTRL-GOAL-INTEGRITY-001 asks whether the task is still the authorized one. CTRL-MCP-001 asks whether the tool is granted. They solve different problems, and a goal DENY is not a tool DENY.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json",
+       "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+      ],
+      "facts": [
+       "CTRL-GOAL-INTEGRITY-001 protects the task boundary. CTRL-MCP-001 at acmebank.mcp.authorize is the tool PDP. These solve different problems.",
+       "goal DENY != MCP DENY"
+      ]
+     },
+     {
+      "id": "impact",
+      "label": "Authorized tool, unauthorized use",
+      "text": "On the vulnerable ATTACK setting the granted tool ran for the expanded goal. On the defended RETEST the goal control denied the expansion and the tool still ran for the original task. The lab does not say the tool was compromised or that the tool check failed.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+       "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json"
+      ],
+      "facts": [
+       "Do not claim the tool itself was compromised. Do not claim the MCP grant check failed.",
+       "That is not universal prompt-injection bypass."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What evidence exists",
+      "text": "Each run records the proposed and the effective action, both decisions, and handler counts split into in-task and wrong-goal. The handler counts are the authoritative record of what ran; Splunk only corroborates them.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md"
+      ],
+      "facts": [
+       "Runtime handler counts are authoritative. Splunk completeness is corroboration."
+      ]
+     }
+    ],
+    "path": [
+     {
+      "id": "instruction",
+      "kind": "attacker",
+      "label": "Untrusted instruction",
+      "detail": "Text that proposes a different task.",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+      "fact": "AUTHORITATIVE TASK → UNTRUSTED INSTRUCTION → PROPOSED GOAL"
+     },
+     {
+      "id": "proposal",
+      "kind": "entry",
+      "label": "Proposed goal",
+      "detail": "The instruction proposes extract_full_policy.",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+      "fact": "Proposed extract_full_policy."
+     },
+     {
+      "id": "boundary",
+      "kind": "boundary",
+      "label": "Task boundary",
+      "detail": "The server-owned task stays authoritative.",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+      "fact": "It cannot redefine the server-owned task."
+     },
+     {
+      "id": "goal",
+      "kind": "control",
+      "label": "Goal decision",
+      "detail": "CTRL-GOAL-INTEGRITY-001 decides what the effective task becomes.",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json",
+      "fact": "CTRL-GOAL-INTEGRITY-001 protects the task boundary.",
+      "outcomes": [
+       {
+        "label": "DENY (defended retest)",
+        "detail": "unauthorized_task_expansion; the effective task stays the authorized one.",
+        "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+        "fact": "CTRL-GOAL-INTEGRITY-001 DENY unauthorized_task_expansion."
+       },
+       {
+        "label": "OBSERVE (vulnerable attack setting)",
+        "detail": "A labelled lab-only fail-open overlay; the expansion goes through.",
+        "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+        "fact": "GOAL OBSERVE overlay vulnerable_profile_fail_open:untrusted_instruction_derived_task_authority"
+       }
+      ]
+     },
+     {
+      "id": "tool",
+      "kind": "control",
+      "label": "Tool authorization",
+      "detail": "CTRL-MCP-001 allowed lookup_policy on both the attack and the retest.",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+      "fact": "MCP ALLOW tool_granted."
+     },
+     {
+      "id": "handler",
+      "kind": "operation",
+      "label": "Handler",
+      "detail": "lookup_policy runs; the in-task and wrong-goal counts say for which purpose.",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+      "fact": "Wrong-goal handler count 0 is the authoritative non-execution evidence for the prohibited action."
+     },
+     {
+      "id": "telemetry",
+      "kind": "evidence",
+      "label": "Evidence copy",
+      "detail": "A copy of the telemetry goes to Splunk, which only observes.",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md",
+      "fact": "Splunk does not ALLOW or DENY a tool or a task."
+     }
+    ],
+    "known": [
+     {
+      "text": "extract_full_policy is not an MCP tool. It labels lookup_policy as wrong-goal vs in-task.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json"
+      ],
+      "facts": [
+       "extract_full_policy is not an MCP tool. It labels lookup_policy as wrong-goal vs in-task."
+      ]
+     },
+     {
+      "text": "RETEST is not MCP DENY. MCP ALLOW on RETEST is expected.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json"
+      ],
+      "facts": [
+       "RETEST is not MCP DENY. MCP ALLOW on RETEST is expected."
+      ]
+     },
+     {
+      "text": "CTRL-GOAL-INTEGRITY-001 evaluates task/goal integrity. It is not a tool PDP.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json"
+      ],
+      "facts": [
+       "CTRL-GOAL-INTEGRITY-001 evaluates task/goal integrity. It is not a tool PDP."
+      ]
+     },
+     {
+      "text": "Missing Splunk event is not prevention.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json"
+      ],
+      "facts": [
+       "Missing Splunk event is not prevention."
+      ]
+     },
+     {
+      "text": "CTRL-MCP-001 is a lab allow-list, not production MCP IAM.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json"
+      ],
+      "facts": [
+       "CTRL-MCP-001 is a lab allow-list, not production MCP IAM."
+      ]
+     }
+    ],
+    "terms": [
+     {
+      "term": "Authorized tool vs authorized goal",
+      "text": "The tool being granted says nothing about whether it is being used for the job the server authorized.",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md",
+      "fact": "AUTHORIZED TOOL != AUTHORIZED GOAL"
+     },
+     {
+      "term": "Proposed vs effective action",
+      "text": "The proposed action is what the instruction asked for. The effective action is what the system actually continued with after the goal decision.",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+      "fact": "Effective summarize_lending_policy."
+     },
+     {
+      "term": "Goal DENY vs tool DENY",
+      "text": "A goal DENY refuses the changed task. It is a different decision from the tool check, which still allows lookup_policy.",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md",
+      "fact": "goal DENY != MCP DENY"
+     },
+     {
+      "term": "The five planes",
+      "text": "The lab separates what you read into five planes so that none is mistaken for another.",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+      "fact": "Five planes: TASK, INSTRUCTION, GOAL DECISION, TOOL AUTHORIZATION, EXECUTION."
+     },
+     {
+      "term": "run.id",
+      "text": "The identifier that ties every event of one experiment together. Every launch gets a new one.",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json",
+      "fact": "A new run.id is minted."
+     }
+    ],
+    "practice": {
+     "predict": [
+      {
+       "label": "Before the attack",
+       "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.ATTACK.predict_before_launch",
+       "text": "Before you click Launch ATTACK, write: will the proposed action be extract_full_policy, will CTRL-GOAL-INTEGRITY-001 OBSERVE or DENY, will CTRL-MCP-001 ALLOW lookup_policy, and will the wrong-goal handler start?"
+      },
+      {
+       "label": "Before the retest",
+       "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.RETEST.predict_before_launch",
+       "text": "Will the same malicious instruction produce the same proposed extract_full_policy? Will CTRL-GOAL-INTEGRITY-001 DENY? Will CTRL-MCP-001 still ALLOW lookup_policy? Does MCP ALLOW mean the goal was authorized?"
+      }
+     ],
+     "defender": {
+      "text": "Keep the task on the server. An untrusted instruction may propose a change, and the goal control must deny an unauthorized expansion while the legitimate tool use carries on. Blocking the tool is not the defense.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md"
+      ],
+      "facts": [
+       "Untrusted instruction may propose a change. It cannot redefine the server-owned task.",
+       "DEFENSE DOES NOT MEAN block lookup_policy."
+      ]
+     }
+    },
+    "spl": [
+     {
+      "name": "Q-GOAL-INTEGRITY-AUTHORITY.spl",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/searches/Q-GOAL-INTEGRITY-AUTHORITY.spl",
+      "text": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0 \"agentsec.run.id\"=__RUN_ID__ (\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval hop=mvindex(mvdedup('agentsec.hop.index'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| eval task_id=mvindex(mvdedup('agentsec.task.id'),0)\n| eval task_hash=mvindex(mvdedup('agentsec.task.hash'),0)\n| eval task_provenance=mvindex(mvdedup('agentsec.task.provenance'),0)\n| eval instruction_trust=mvindex(mvdedup('agentsec.instruction.trust'),0)\n| eval goal_proposed=mvindex(mvdedup('agentsec.goal.proposed'),0)\n| eval content_hash=mvindex(mvdedup('agentsec.content.hash'),0)\n| eval content_preview=mvindex(mvdedup('agentsec.content.preview'),0)\n| eval requested_scope=mvindex(mvdedup('agentsec.mcp.requested_scope'),0)\n| eval allowed_scope=mvindex(mvdedup('agentsec.mcp.allowed_scope'),0)\n| eval resource_id=mvindex(mvdedup('agentsec.mcp.resource.id'),0)\n| eval profile=mvindex(mvdedup('agentsec.security.profile'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval goal_task_id=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_id,null())\n| eval goal_task_hash=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_hash,null())\n| eval goal_task_provenance=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",task_provenance,null())\n| eval goal_instruction_trust=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",instruction_trust,null())\n| eval goal_proposed_action=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",goal_proposed,null())\n| eval goal_integrity_decision=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",decision,null())\n| eval goal_integrity_reason=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",reason,null())\n| eval goal_snapshot_hash=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",content_hash,null())\n| eval goal_content_preview=if(control_id=\"CTRL-GOAL-INTEGRITY-001\",content_preview,null())\n| eval mcp_tool=if(control_id=\"CTRL-MCP-001\",tool,null())\n| eval mcp_decision=if(control_id=\"CTRL-MCP-001\",decision,null())\n| eval mcp_reason=if(control_id=\"CTRL-MCP-001\",reason,null())\n| eval mcp_requested_scope=if(control_id=\"CTRL-MCP-001\",requested_scope,null())\n| eval mcp_coded_allowed_scope=if(control_id=\"CTRL-MCP-001\",allowed_scope,null())\n| eval mcp_resource_id=if(control_id=\"CTRL-MCP-001\",resource_id,null())\n| eval mcp_content_preview=if(control_id=\"CTRL-MCP-001\",content_preview,null())\n| eval mcp_started=if(event_name=\"agentsec.mcp.started\" AND hop=\"1\",1,0)\n| eval mcp_completed=if(event_name=\"agentsec.mcp.completed\" AND hop=\"1\",1,0)\n| eval mcp_failed=if(event_name=\"agentsec.mcp.failed\" AND hop=\"1\",1,0)\n| eventstats values(goal_task_id) as goal_task_id, values(goal_task_hash) as goal_task_hash, values(goal_task_provenance) as goal_task_provenance, values(goal_instruction_trust) as goal_instruction_trust, values(goal_proposed_action) as goal_proposed_action, values(goal_integrity_decision) as goal_integrity_decision, values(goal_integrity_reason) as goal_integrity_reason, values(goal_snapshot_hash) as goal_snapshot_hash, values(goal_content_preview) as goal_content_preview, values(mcp_tool) as mcp_tool, values(mcp_decision) as mcp_decision, values(mcp_reason) as mcp_reason, values(mcp_requested_scope) as mcp_requested_scope, values(mcp_coded_allowed_scope) as mcp_coded_allowed_scope, values(mcp_resource_id) as mcp_resource_id, values(mcp_content_preview) as mcp_content_preview, max(mcp_started) as has_started, max(mcp_completed) as has_completed, max(mcp_failed) as has_failed, latest(profile) as profile, latest(mode) as mode by run_id\n| eval goal_task_id=mvindex(mvdedup(goal_task_id),0)\n| eval goal_task_hash=mvindex(mvdedup(goal_task_hash),0)\n| eval goal_task_provenance=mvindex(mvdedup(goal_task_provenance),0)\n| eval goal_instruction_trust=mvindex(mvdedup(goal_instruction_trust),0)\n| eval goal_proposed_action=mvindex(mvdedup(goal_proposed_action),0)\n| eval goal_integrity_decision=mvindex(mvdedup(goal_integrity_decision),0)\n| eval goal_integrity_reason=mvindex(mvdedup(goal_integrity_reason),0)\n| eval goal_snapshot_hash=mvindex(mvdedup(goal_snapshot_hash),0)\n| eval goal_content_preview=mvindex(mvdedup(goal_content_preview),0)\n| eval mcp_tool=mvindex(mvdedup(mcp_tool),0)\n| eval mcp_decision=mvindex(mvdedup(mcp_decision),0)\n| eval mcp_reason=mvindex(mvdedup(mcp_reason),0)\n| eval mcp_requested_scope=mvindex(mvdedup(mcp_requested_scope),0)\n| eval mcp_coded_allowed_scope=mvindex(mvdedup(mcp_coded_allowed_scope),0)\n| eval mcp_resource_id=mvindex(mvdedup(mcp_resource_id),0)\n| eval mcp_content_preview=mvindex(mvdedup(mcp_content_preview),0)\n| eval execution_observation=case(has_completed=1,\"mcp.completed_observed\",has_failed=1,\"mcp.failed_observed\",has_started=1,\"mcp.started_observed\",1=1,\"no_indexed_followon_execution_event\")\n| where isnotnull(goal_integrity_decision) AND goal_integrity_decision!=\"\"\n| dedup run_id\n| table run_id, profile, mode, goal_task_id, goal_task_hash, goal_task_provenance, goal_instruction_trust, goal_content_preview, goal_proposed_action, goal_integrity_decision, goal_integrity_reason, goal_snapshot_hash, mcp_content_preview, mcp_tool, mcp_requested_scope, mcp_coded_allowed_scope, mcp_resource_id, mcp_decision, mcp_reason, execution_observation"
+     }
+    ],
+    "identifiers": [
+     {
+      "label": "Goal control",
+      "value": "CTRL-GOAL-INTEGRITY-001",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+     },
+     {
+      "label": "Tool control",
+      "value": "CTRL-MCP-001",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+     },
+     {
+      "label": "Invariants",
+      "value": "INV-002, INV-006",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+     },
+     {
+      "label": "Attack in the catalog",
+      "value": "GOAL-001",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+     },
+     {
+      "label": "Splunk workshop view",
+      "value": "ws_lab_agent_goal_integrity",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+     },
+     {
+      "label": "Task hash",
+      "value": "sha256:6f95aaf2adf5b37b11e35805f9bbbb24fdb34f38435590b5042d7c406bdf7b6c",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+     },
+     {
+      "label": "Malicious instruction hash (ATTACK and RETEST)",
+      "value": "sha256:15a1c5fa3724419b21b854623c594dba28bf4f357efe39c932084374a8cbe5e2",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+     },
+     {
+      "label": "Recorded REPLAY ATTACK specimen",
+      "value": "fd994587-7e1c-4a70-8013-54cb2c85254d",
+      "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/README.md"
+     }
+    ],
+    "workbench": {
+     "kind": "scenario",
+     "specimens": {
+      "BASELINE": "GOAL-BASELINE",
+      "ATTACK": "GOAL-001",
+      "RETEST": "GOAL-001"
+     },
+     "texts": {
+      "baseline": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.BASELINE.attack_objective",
+      "attack": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.ATTACK.attack_objective",
+      "retest": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.RETEST.attack_objective",
+      "defense": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.ATTACK.defense_should",
+      "attack_expected": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.ATTACK.expected_evidence_vulnerable",
+      "retest_expected": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.RETEST.expected_evidence_defended",
+      "retest_falsify": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.RETEST.falsify"
+     },
+     "resolved": {
+      "baseline": {
+       "text": "Evaluate the catalog normal instruction so later ATTACK evidence has a normal comparison.",
+       "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.BASELINE.attack_objective"
+      },
+      "attack": {
+       "text": "Submit the catalog malicious instruction on the intentionally vulnerable ATTACK experiment and observe whether extract_full_policy becomes the effective action while lookup_policy remains tool-authorized.",
+       "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.ATTACK.attack_objective"
+      },
+      "retest": {
+       "text": "Evaluate the SAME malicious instruction bytes on the defended RETEST experiment and prove the outcome changed because goal integrity changed, not because the tool grant changed.",
+       "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.RETEST.attack_objective"
+      },
+      "defense": {
+       "text": "On this ATTACK specimen the lab is fail-open at CTRL-GOAL-INTEGRITY-001. The defense you will enable is the RETEST ExperimentContext (profile=defended), not Splunk, not MCP DENY, and not a prompt sanitizer.",
+       "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.ATTACK.defense_should"
+      },
+      "attack_expected": {
+       "text": "INTENTIONALLY VULNERABLE LAB PROFILE: CTRL-GOAL-INTEGRITY-001 OBSERVE vulnerable_profile_fail_open:untrusted_instruction_derived_task_authority; proposed extract_full_policy; effective extract_full_policy; CTRL-MCP-001 ALLOW tool_granted; wrong-goal handler 1; testbed.mode=ATTACK. ALLOW is not execution. MCP ALLOW is not goal authorization.",
+       "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.ATTACK.expected_evidence_vulnerable"
+      },
+      "retest_expected": {
+       "text": "GOAL DENY unauthorized_task_expansion; MCP ALLOW tool_granted; wrong-goal handler 0; in-task handler 1; testbed.mode=RETEST.",
+       "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.RETEST.expected_evidence_defended"
+      },
+      "retest_falsify": {
+       "text": "wrong-goal handler 1, MCP DENY on lookup_policy, a different instruction hash than ATTACK, or extract_full_policy as effective action would falsify the defended prediction. Missing Splunk rows alone would not.",
+       "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json#prediction.RETEST.falsify"
+      }
+     }
+    },
+    "cannot_claim": {
+     "source": "learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/workshop.md",
+     "items": [
+      "Do not label SAFE, TRUSTED, APPROVED, or BENIGN.",
+      "Do not claim the tool itself was compromised.",
+      "Do not claim the MCP grant check failed.",
+      "Do not say MCP blocked the attack.",
+      "0 rows is CORRECT. 0 rows != SAFE."
+     ]
+    }
+   },
+   "integrated": true,
    "limitations": {
     "items": [
      "LOCAL EDUCATIONAL SERVICE when installed locally. On a remote deployment the learner uses the host in the browser address bar. The service is unauthenticated.",
