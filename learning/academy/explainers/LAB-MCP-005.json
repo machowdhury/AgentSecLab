@@ -1,0 +1,80 @@
+{
+  "lab_id": "LAB-MCP-005",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-24",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The events shown in Practice are the committed specimen packs, unedited."
+  },
+  "summary": {
+    "text": "The first tool call here is legitimate and succeeds. The question is what happens next: can the text that call returned give the agent permission to call a different tool? Three recorded runs show a normal result, a malicious result let through by an intentionally weak profile, and the same malicious result refused by the defended profile.",
+    "grounds": ["learning/level_1/LAB-MCP-005/README.md"],
+    "facts": ["an authorized tool is not an authoritative result."]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The legitimate operation",
+      "text": "The first hop is a granted lookup_policy call against the granted lending-basics resource. The handler runs and returns data.",
+      "grounds": ["learning/level_1/LAB-MCP-005/workshop.md"],
+      "facts": ["The first hop is legitimate."]
+    },
+    {
+      "id": "controls",
+      "label": "What the attacker controls",
+      "text": "The content of the tool's result. The attacker does not touch the request; the malicious bytes come back inside a legitimate response.",
+      "grounds": ["learning/level_1/LAB-MCP-005/README.md"],
+      "facts": ["malicious tool-result content used as result-derived authority"]
+    },
+    {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between the tool result and whatever the agent decides to do next. The result sits on the data side of that line.",
+      "grounds": ["learning/level_1/LAB-MCP-005/workshop.md"],
+      "facts": ["TOOL RESULT = DATA"]
+    },
+    {
+      "id": "rule",
+      "label": "The authorization rule",
+      "text": "Results can inform what the agent thinks. They never create permission; the follow-on tool still needs its own grant.",
+      "grounds": ["learning/level_1/LAB-MCP-005/workshop.md"],
+      "facts": ["Tool results may influence reasoning. Tool results do not create authority."]
+    },
+    {
+      "id": "evidence",
+      "label": "What this evidence is, and is not",
+      "text": "In the attack run the follow-on request is supplied by the lab as an overlay, not chosen by a model. A model obeying injected text is not what this recording shows.",
+      "grounds": ["learning/level_1/LAB-MCP-005/README.md"],
+      "facts": ["Explain why ATTACK follow-on is labeled ALLOW (overlay, not server grant).", "Explain why this lab is not prompt-injection resistance."]
+    }
+  ],
+  "known": [
+    {
+      "text": "The recorded content preview is capped at 200 characters, so a long request can be cut off mid-word. The pack shows exactly what was recorded.",
+      "grounds": ["learning/level_1/LAB-MCP-005/evidence.md"],
+      "facts": ["200-character bounded preview (ATTACK hop-1 may show `lookup_customer_tie`)"]
+    },
+    {
+      "text": "The lab records no indexed list of the tools the server granted. Do not infer one.",
+      "grounds": ["learning/level_1/LAB-MCP-005/evidence.md"],
+      "facts": ["no indexed `allowed_tools` — SERVER AUTHORITY EVIDENCE — LIMITED"]
+    }
+  ],
+  "cannot_claim": {
+    "source": "learning/level_1/LAB-MCP-005/dashboard.md",
+    "section": "What this dashboard is not allowed to claim"
+  },
+  "recorded": {
+    "options": ["ALLOW", "DENY", "ERROR", "OBSERVE"],
+    "doc_source": "learning/level_1/LAB-MCP-005/README.md",
+    "runs": [
+      {"role": "BASELINE", "run_id": "3013aa39-fe08-4b58-9898-f3abb092ac06", "decisive": 6},
+      {"role": "ATTACK", "run_id": "f3f48182-df57-4b38-b069-17a199dc4939", "decisive": 9},
+      {"role": "RETEST", "run_id": "0ab10594-a7fc-48b6-81bf-4cbca54a64c6", "decisive": 9}
+    ],
+    "spl": [
+      "learning/level_1/LAB-MCP-005/searches/Q-MCP-RESULT-AUTHORITY.spl",
+      "learning/level_1/LAB-MCP-001/searches/Q-MCP-RESULT-TRUST.spl",
+      "learning/level_1/LAB-MCP-001/searches/Q-MCP-EXECUTED.spl"
+    ]
+  }
+}

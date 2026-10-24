@@ -1,0 +1,77 @@
+{
+  "lab_id": "LAB-MCP-003",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-24",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The events shown in Practice are the committed specimen packs, unedited."
+  },
+  "summary": {
+    "text": "A tool can be granted and still be refused. This lab asks whether the agent may call the tool at the scope it asked for, and shows four recorded requests: one inside the grant, one that asks for more and was waved through by an intentionally weak profile, the same request refused by the defended profile, and one scope the catalog does not know.",
+    "grounds": ["learning/level_1/LAB-MCP-003/README.md"],
+    "facts": ["a granted MCP tool is not authorized at every scope the tool can name."]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The legitimate operation",
+      "text": "The agent looks up a lending policy with the granted tool lookup_policy at the granted scope policy:read.",
+      "grounds": ["learning/level_1/LAB-MCP-003/workshop.md"],
+      "facts": ["granted lookup_policy at policy:read"]
+    },
+    {
+      "id": "controls",
+      "label": "What the attacker controls",
+      "text": "The scope the request names. The tool stays the same and is already granted; only the requested scope is excessive.",
+      "grounds": ["learning/level_1/LAB-MCP-003/README.md"],
+      "facts": ["excessive catalog-valid scope on a granted tool"]
+    },
+    {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "The control checks the tool first and the requested scope second. Passing the tool check does not carry the scope with it.",
+      "grounds": ["learning/level_1/LAB-MCP-003/workshop.md"],
+      "facts": ["tool exists? → tool granted? → requested scope valid? → requested scope granted?"]
+    },
+    {
+      "id": "rule",
+      "label": "The authorization rule",
+      "text": "A scope the catalog knows but the agent was not given is refused (DENY). A scope the catalog does not know is an error (ERROR), not a refusal.",
+      "grounds": ["learning/level_1/LAB-MCP-003/README.md"],
+      "facts": ["Explain why known-but-ungranted is DENY and unknown catalog tokens are ERROR."]
+    },
+    {
+      "id": "evidence",
+      "label": "What counts as evidence of execution",
+      "text": "A decision is not execution. Look for the separate event that says the handler began; the lab treats its own handler count as the authority on non-execution.",
+      "grounds": ["learning/level_1/LAB-MCP-003/README.md"],
+      "facts": ["Explain why ALLOW is not execution", "Treat runtime handler count as authoritative for non-execution."]
+    }
+  ],
+  "known": [
+    {
+      "text": "The attack specimen ran under the vulnerable profile, which the lab labels as fail-open. The allowed scope stays policy:read even when the request is let through.",
+      "grounds": ["learning/level_1/LAB-MCP-003/workshop.md"],
+      "facts": ["ALLOW `vulnerable_profile_fail_open:scope_not_granted`. `allowed_scope` remains `policy:read`."]
+    }
+  ],
+  "cannot_claim": {
+    "source": "learning/level_1/LAB-MCP-003/dashboard.md",
+    "section": "What this dashboard is not allowed to claim"
+  },
+  "recorded": {
+    "options": ["ALLOW", "DENY", "ERROR"],
+    "doc_source": "learning/level_1/LAB-MCP-003/README.md",
+    "runs": [
+      {"role": "BASELINE", "run_id": "5b089682-1d5a-49a7-ac43-967265fd6bc6", "decisive": 3},
+      {"role": "ATTACK", "run_id": "b466ad12-72ec-44b7-be28-aacfaf2c25b1", "decisive": 3},
+      {"role": "RETEST", "run_id": "f638fd4f-1c4f-4ab6-8d42-4d03a4f3afd5", "decisive": 3},
+      {"role": "UNKNOWN", "run_id": "6ce19813-6cb5-4aae-a3a0-aa59386a82dd", "decisive": 3}
+    ],
+    "spl": [
+      "learning/level_1/LAB-MCP-001/searches/Q-MCP-AUTHZ.spl",
+      "learning/level_1/LAB-MCP-001/searches/Q-MCP-SCOPE.spl",
+      "learning/level_1/LAB-MCP-001/searches/Q-MCP-TOOL.spl",
+      "learning/level_1/LAB-MCP-001/searches/Q-MCP-EXECUTED.spl"
+    ]
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "lab_id": "LAB-MCP-004",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-24",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The events shown in Practice are the committed specimen packs, unedited."
+  },
+  "summary": {
+    "text": "A tool and a scope can both be granted and the request can still name a resource the agent may not touch. This lab shows four recorded requests against the same tool and scope, differing only in the resource named and in the profile.",
+    "grounds": ["learning/level_1/LAB-MCP-004/README.md"],
+    "facts": ["a granted MCP tool at a granted scope is not authorized against every resource that tool can name."]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The legitimate operation",
+      "text": "The agent looks up the lending-basics policy with lookup_policy at policy:read. The tool, the scope and the resource are all granted.",
+      "grounds": ["learning/level_1/LAB-MCP-004/workshop.md"],
+      "facts": ["granted `lookup_policy` at granted `policy:read` against granted resource `lending-basics`"]
+    },
+    {
+      "id": "controls",
+      "label": "What the attacker controls",
+      "text": "The resource named in the arguments. The tool and scope are unchanged and granted; the resource exists in the catalog but is not granted.",
+      "grounds": ["learning/level_1/LAB-MCP-004/README.md"],
+      "facts": ["catalog-valid ungranted resource on a granted tool and granted scope"]
+    },
+    {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "The control reaches the resource check only after the tool and scope checks pass, so those two earlier ALLOWs do not settle the resource question.",
+      "grounds": ["learning/level_1/LAB-MCP-004/workshop.md"],
+      "facts": ["resource exists? → resource granted? → ALLOW ticket → handler."]
+    },
+    {
+      "id": "rule",
+      "label": "The authorization rule",
+      "text": "Arguments say which resource is wanted. They never widen what the agent is granted.",
+      "grounds": ["learning/level_1/LAB-MCP-004/workshop.md"],
+      "facts": ["Arguments identify the requested resource. Arguments do not grant authority."]
+    },
+    {
+      "id": "evidence",
+      "label": "What counts as evidence of execution",
+      "text": "An ALLOW is a decision. The handler has begun only where a separate mcp.started event is recorded.",
+      "grounds": ["learning/level_1/LAB-MCP-004/README.md"],
+      "facts": ["Explain why ALLOW is not execution", "Treat runtime handler count as authoritative for non-execution."]
+    }
+  ],
+  "known": [
+    {
+      "text": "Three resource states are recorded: granted, known but ungranted, and unknown. The lab says to read the control's reason, not grant-set membership, to tell the last two apart.",
+      "grounds": ["learning/level_1/LAB-MCP-004/workshop.md"],
+      "facts": ["Do not determine known-vs-unknown from grant-set membership alone. Use the control reason."]
+    }
+  ],
+  "cannot_claim": {
+    "source": "learning/level_1/LAB-MCP-004/dashboard.md",
+    "section": "What this dashboard is not allowed to claim"
+  },
+  "recorded": {
+    "options": ["ALLOW", "DENY", "ERROR"],
+    "doc_source": "learning/level_1/LAB-MCP-004/README.md",
+    "runs": [
+      {"role": "BASELINE", "run_id": "fb50dcaf-8e84-4a3f-a55b-997c72edbd04", "decisive": 3},
+      {"role": "ATTACK", "run_id": "5ab59fc7-303e-4eea-84e7-ae0b2f405146", "decisive": 3},
+      {"role": "RETEST", "run_id": "0726a0ff-a551-41a8-bfbb-ab2ceca4c0dd", "decisive": 3},
+      {"role": "UNKNOWN", "run_id": "0e4e0051-528d-4bf3-8773-d1fb55a5864f", "decisive": 3}
+    ],
+    "spl": [
+      "learning/level_1/LAB-MCP-004/searches/Q-MCP-RESOURCE-AUTHZ.spl",
+      "learning/level_1/LAB-MCP-001/searches/Q-MCP-AUTHZ.spl",
+      "learning/level_1/LAB-MCP-001/searches/Q-MCP-EXECUTED.spl"
+    ]
+  }
+}

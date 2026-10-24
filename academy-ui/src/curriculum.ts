@@ -5,6 +5,13 @@ import raw from "./content/curriculum.json";
 export type Availability = "guided" | "workbench" | "replay" | "content_only";
 export interface Entry { text: string; source: string }
 export interface PathNode { id: string; kind: "attacker" | "entry" | "boundary" | "control" | "operation" | "evidence"; label: string; detail: string; source: string; fact: string; outcomes?: { label: string; detail: string; source: string; fact: string }[] }
+export type RecEvent = Record<string, string | number | boolean | string[] | null | undefined>;
+export interface RecRun {
+  role: string; run_id: string; pack: string; sha256: string; decisive: number; documented_as: { text: string; source: string };
+  meta: { attack_id: string; mode: string; profile: string; schema_version: string; execution_mode: string; fidelity: string; trace_id: string; principal: string; workflow_entry: string; started: string; ended: string; event_count: number };
+  events: RecEvent[];
+}
+export interface Recorded { options: string[]; runs: RecRun[]; spl: { name: string; source: string; text: string }[] }
 export interface Explainer {
   status: "full" | "partial"; authored: { on: string; note: string };
   summary?: { text: string; grounds: string[]; facts: string[] };
@@ -17,6 +24,7 @@ export interface Explainer {
   spl?: { name: string; source: string; text: string }[];
   identifiers?: { label: string; value: string; source: string }[];
   cannot_claim?: { source: string; items: string[] };
+  recorded?: Recorded;
 }
 export interface Lab {
   id: string; title: string; level: string | null; primary_domain: string; secondary_domain: string | null; domain_confidence: string;

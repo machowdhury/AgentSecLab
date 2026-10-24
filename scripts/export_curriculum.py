@@ -7,6 +7,7 @@ no source is exported as null and shown as "not documented". Re-run after editin
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import sys
@@ -110,6 +111,47 @@ def bullets(text: str) -> list[str]:
     return [clean(m.group(1)) for m in re.finditer(r"^[-*]\s+(.+)$", text, re.M)]
 
 
+# Fields identical on every event of a run: exported once per run (meta), never per event. Anything else is exported unchanged under its original key.
+RUN_CONSTANT = ("service.name", "service.version", "deployment.environment", "agentsec.schema.name", "agentsec.schema.version", "agentsec.run.id", "agentsec.incident.id",
+                "agentsec.lab.id", "agentsec.security.profile", "agentsec.testbed.mode", "agentsec.execution.mode", "agentsec.telemetry.fidelity", "user.id",
+                "agentsec.principal.id", "agentsec.principal.type", "agentsec.workflow.entry", "gen_ai.workflow.name", "agentsec.attack.id", "trace_id")
+RUN_META = {"attack_id": "agentsec.attack.id", "mode": "agentsec.testbed.mode", "profile": "agentsec.security.profile", "schema_version": "agentsec.schema.version",
+            "execution_mode": "agentsec.execution.mode", "fidelity": "agentsec.telemetry.fidelity", "trace_id": "trace_id", "principal": "agentsec.principal.id",
+            "workflow_entry": "agentsec.workflow.entry"}
+
+
+def recorded_for(lab_id: str, rec: dict) -> dict:
+    """Embed the committed specimen packs the lab documents, event for event. Nothing is invented: a missing field stays missing, and the tests re-read every pack."""
+    doc_src = ROOT / rec["doc_source"]
+    doc_lines = doc_src.read_text(encoding="utf-8").splitlines()
+    runs = []
+    for r in rec["runs"]:
+        pack = LABS / lab_id / "specimens" / f"{r['run_id']}.jsonl"
+        raw = pack.read_bytes()
+        events = [json.loads(l) for l in raw.decode("utf-8").splitlines() if l.strip()]
+        seqs = [e["agentsec.sequence"] for e in events]
+        if seqs != list(range(1, len(events) + 1)):
+            raise SystemExit(f"{pack.name}: sequence is not 1..n")
+        first = events[0]
+        for k in RUN_CONSTANT:
+            if len({json.dumps(e.get(k)) for e in events}) != 1:
+                raise SystemExit(f"{pack.name}: {k} is not constant across the run")
+        bullet = next((l for l in doc_lines if r["run_id"] in l and l.lstrip().startswith("- ")), None)
+        if bullet is None:
+            raise SystemExit(f"{r['run_id']} is not documented in {rec['doc_source']}")
+        decisive = next(e for e in events if e["agentsec.sequence"] == r["decisive"])
+        if decisive["event.name"] != "agentsec.control.decision":
+            raise SystemExit(f"{pack.name}: sequence {r['decisive']} is not a control decision")
+        runs.append({
+            "role": r["role"], "run_id": r["run_id"], "pack": rel(pack), "sha256": hashlib.sha256(raw).hexdigest(), "decisive": r["decisive"],
+            "documented_as": {"text": clean(bullet.lstrip()[2:]), "source": rel(doc_src)},
+            "meta": {**{k: first.get(v) for k, v in RUN_META.items()}, "started": first["timestamp"], "ended": events[-1]["timestamp"], "event_count": len(events)},
+            "events": [{k: v for k, v in e.items() if k not in RUN_CONSTANT} for e in events],
+        })
+    return {"options": rec["options"], "runs": runs,
+            "spl": [{"name": Path(f).name, "source": f, "text": (ROOT / f).read_text(encoding="utf-8").strip()} for f in rec["spl"]]}
+
+
 def explainer_for(lab_id: str) -> dict | None:
     """Embed the hand-written explainer, resolving every reference to the real source text so nothing is retyped."""
     path = EXPL / f"{lab_id}.json"
@@ -137,6 +179,8 @@ def explainer_for(lab_id: str) -> dict | None:
             rt["columns"] = [h for _, h in rt["columns"]]
     if "spl" in e:
         e["spl"] = [{"name": n, "source": f"learning/level_1/{lab_id}/searches/{n}", "text": (LABS / lab_id / "searches" / n).read_text(encoding="utf-8").strip()} for n in e["spl"]]
+    if "recorded" in e:
+        e["recorded"] = recorded_for(lab_id, e["recorded"])
     cc = e.get("cannot_claim")
     if cc:
         e["cannot_claim"] = {"source": cc["source"] + "#" + cc["section"], "items": bullets(md_sections((ROOT / cc["source"]).read_text(encoding="utf-8"))[cc["section"]])}

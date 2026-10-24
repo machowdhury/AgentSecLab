@@ -11,6 +11,7 @@ import { PiLiveEvidence, PiPractice } from "../workbench/PiWorkbench";
 import { RagLiveEvidence, RagPractice } from "../workbench/RagWorkbench";
 import { ScenarioLiveEvidence, ScenarioPractice } from "../workbench/ScenarioWorkbench";
 import { SCENARIOS } from "../workbench/scenarios";
+import { RecordedPractice, RecordedProve } from "../workbench/RecordedWorkbench";
 
 type Tab = "learn" | "practice" | "prove" | "all";
 type EntryKey = Exclude<keyof Lab["sections"], "learn">;
@@ -74,6 +75,7 @@ export function LabPage({ id }: { id: string }) {
         {ex?.practice?.predict ? <ul className="m-rules">{ex.practice.predict.map((p) => <li key={p.label}><strong>{p.label}:</strong> {p.text}<small className="m-src">Source: <code>{p.source}</code></small></li>)}</ul>
           : s.predict && <><p>{s.predict.text}</p><Src src={s.predict.source} /></>}</div>}
       {lab.integrated && ex?.workbench ? <><Exercise lab={lab} />{lab.id === "LAB-PI-001" && <PiPractice lab={lab} />}{lab.id === "LAB-RAG-CONTEXT" && <RagPractice lab={lab} />}{SCENARIOS[lab.id] && <ScenarioPractice lab={lab} sc={SCENARIOS[lab.id]} />}</> : <Exercise lab={lab} />}
+      {ex?.recorded && <RecordedPractice rec={ex.recorded} />}
       {(ex?.practice?.defender || s.defend) && <div className="m-sec"><h3>How would a defender address the issue?</h3>
         {ex?.practice?.defender ? <div className="m-explain"><Badge tone="live">EXPLANATION</Badge><p>{ex.practice.defender.text}</p><Based on={ex.practice.defender.grounds} /></div>
           : s.defend && <div className="m-quoted"><Badge tone="muted">QUOTED FROM THE LAB'S DOCUMENTS</Badge><p>{s.defend.text}</p><Src src={s.defend.source} /></div>}</div>}
@@ -84,6 +86,7 @@ export function LabPage({ id }: { id: string }) {
       {lab.integrated && lab.id === "LAB-PI-001" && <PiLiveEvidence />}
       {lab.integrated && lab.id === "LAB-RAG-CONTEXT" && <RagLiveEvidence />}
       {lab.integrated && SCENARIOS[lab.id] && <ScenarioLiveEvidence sc={SCENARIOS[lab.id]} />}
+      {ex?.recorded && <RecordedProve rec={ex.recorded} />}
       {ex?.identifiers && <div className="m-sec"><h3>Technical identifiers</h3><div className="table-wrap"><table><caption className="m-caption">Named in the lab's files</caption><tbody>{ex.identifiers.map((i) => <tr key={i.label}><th scope="row">{i.label}</th><td><code>{i.value}</code></td><td className="m-muted"><code>{base(i.source)}</code></td></tr>)}</tbody></table></div></div>}
       {ex?.recorded_table && <div className="m-sec"><h3>{ex.recorded_table.title} <Badge tone="replay">RECORDED, NOT RE-RUN</Badge></h3>
         <div className="table-wrap"><table className="m-stack"><caption className="m-caption">{ex.recorded_table.caption}</caption><thead><tr>{ex.recorded_table.columns.map((c) => <th scope="col" key={c}>{c}</th>)}</tr></thead>
