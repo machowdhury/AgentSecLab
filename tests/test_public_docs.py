@@ -98,3 +98,12 @@ def test_platform_release_version_is_distinct_from_the_embedded_splunk_app_versi
     notes = (ROOT / "docs/RELEASE_NOTES_v1.2.0.md").read_text(encoding="utf-8")
     assert "1.1.0" in notes and "Splunk app" in notes
     assert 'version = "1.1.0"' in (ROOT / "pyproject.toml").read_text(encoding="utf-8")   # Option A: metadata intentionally not bumped
+
+
+def test_every_learner_start_instruction_names_the_react_academy_first():
+    up = (ROOT / "scripts/lab-up.sh").read_text(encoding="utf-8")
+    assert up.index("5001/learn") < up.index("ws_agentsec_home")          # the usage text lists /learn before the legacy Splunk page
+    assert "Academy port: 8000" not in up                                  # port 8000 is Splunk Web, not the Academy
+    assert "5001/learn/loan-desk" in (ROOT / "docs/LOAN_DESK_MISSION.md").read_text(encoding="utf-8")
+    ops = (ROOT / "docs/OPERATIONS.md").read_text(encoding="utf-8")
+    assert "5001/learn" in ops and "legacy" in ops.lower()

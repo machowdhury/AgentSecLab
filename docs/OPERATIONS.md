@@ -1,5 +1,7 @@
 # Operations: start, stop, reset, diagnostics
 
+Learners start in the React Academy at http://127.0.0.1:5001/learn once the lab is READY (Splunk Web on port 8000 is for investigation; the Splunk Academy Home is the legacy path).
+
 Canonical start: `./scripts/lab-up.sh` from the repository root (`.env` required). There is no separate clean-room script. A fresh volume start is the destructive Compose command below, used only when you mean to delete lab data.
 
 ## Learner commands

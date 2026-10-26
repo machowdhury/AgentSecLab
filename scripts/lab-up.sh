@@ -46,8 +46,9 @@ READY is service health (see ./scripts/lab-ready.sh). It is not proof that a
 run.id is searchable. External browser reachability is not measured.
 
 After local READY:
-  Splunk Academy Home  http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home
-  Attack Service       http://127.0.0.1:5001
+  React Academy (start)  http://127.0.0.1:5001/learn
+  Attack Service         http://127.0.0.1:5001
+  Splunk Web             http://127.0.0.1:8000   (legacy Academy Home: /en-US/app/agentsec/ws_agentsec_home)
   AcmeBank health      http://127.0.0.1:5000/health
 
 Pause: ./scripts/lab-down.sh   (stop only; nothing is removed. Use --remove-containers to remove, --purge to delete data)
@@ -99,7 +100,7 @@ if [ "$REMOTE" -eq 1 ]; then
   log "[1/4] Checking prerequisites..."
   log "[2/4] Validating remote networking plan..."
   log "Learner bind address: 0.0.0.0"
-  log "Academy port: 8000. Attack Service port: 5001. AcmeBank port: 5000."
+  log "Academy and Attack Service port: 5001 (Academy at /learn). Splunk Web port: 8000. AcmeBank port: 5000."
   log "Private ports stay on 127.0.0.1: HEC 8088, OTel 4317 and 4318. Splunk management 8089, Ollama and the verifier are not published."
   log "External firewall: NOT MEASURED. Permit TCP 8000, 5001 and 5000 only from trusted learner IPs."
 else
