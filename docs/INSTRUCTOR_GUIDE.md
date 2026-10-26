@@ -1,5 +1,7 @@
 # Instructor guide
 
+Learner onboarding is the single path in [Getting started](GETTING_STARTED.md). Sections below titled for the original Splunk Academy Home describe the legacy L0–L10 path; the React Academy workshop flow is the section titled "Workshop flow with the EVAL, Risk and Governance Centers (v1.2.0)".
+
 This is not a hidden privileged learner mode. Instructors use the same Attack Service and Academy.
 
 ## Before a workshop

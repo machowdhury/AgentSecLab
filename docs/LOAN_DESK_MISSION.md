@@ -1,5 +1,7 @@
 # Loan Desk mission: start, run, troubleshoot
 
+The mission has seven stages (Learn, Prepare, Attack, Investigate, Defend, Retest, Explain). They are separate from the six-step Workshop path and from the legacy L0–L10 curriculum; see [Getting started](GETTING_STARTED.md#three-numbering-schemes-do-not-mix-them-up). The Attack stage runs a live agent and is the only live part of the React Academy journey.
+
 ## Start (the documented procedure)
 1. `cp .env.example .env` (first time), then `./scripts/lab-up.sh`. It starts the stack, waits for READY, and starts the host-side evidence verifier. A host Ollama must have `llama3.2:latest` installed (`ollama pull llama3.2:latest`); AcmeBank reaches it through `OLLAMA_BASE_URL`.
 2. Open the React Academy at http://127.0.0.1:5001/learn and choose **Loan Desk Mission** (sidebar), or go straight to http://127.0.0.1:5001/learn/loan-desk. The original page is http://127.0.0.1:5001/academy. No further terminal commands are needed.

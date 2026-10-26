@@ -2,9 +2,11 @@
 
 A technically capable person should be able to follow this linearly. Run every command from the **repository root**.
 
-Use `main` or annotated tag `v1.1.0`. That tree is the L0–L10 academy. Tag `v1.0.0` is the previous release. Tag `v1.0.0-rc1` peels to the earlier baseline and stops before L6. Tags `v1.0.0-rc2` and `v1.0.0-rc3` stay on their original commits. These steps are the documented path. The v1.0.0 release notes record the 2026-10-02 clean-room: service start was proven, and LIVE generation was degraded because the model was not listed. That measurement was not repeated as a new benchmark for v1.1.0.
+Use `main` (release **v1.2.0**). Earlier tags (`v1.1.0`, `v1.0.0`, and the release candidates) are older releases without the React Academy; they are described in the [legacy guide](LEGACY_SPLUNK_ACADEMY_GUIDE.md).
 
-After the first lab, continue with the README academy section and [AGENTSEC_RELEASE_LAB_MATRIX.md](AGENTSEC_RELEASE_LAB_MATRIX.md). Do not treat the L5 Capstone as the end of the academy. L10 is the Advanced Capstone. Mastery Check is a separate unscored self-check. Arena is optional after that. It is not the start.
+After the first lab, continue with the [Learner guide](LEARNER_GUIDE.md) and [AGENTSEC_RELEASE_LAB_MATRIX.md](AGENTSEC_RELEASE_LAB_MATRIX.md).
+
+> **Legacy flow.** The paragraph above and sections 9 to 14 describe the original Splunk-based Academy Home path (L0–L10). The current beginner path, starting at <http://127.0.0.1:5001/learn>, is in [GETTING_STARTED.md](GETTING_STARTED.md); this Quickstart remains the detailed reference for prerequisites, preflight, startup, readiness words and shutdown.
 
 On a LIVE workshop, launch from Attack Service, copy the run.id, and paste it into **LIVE run.id**. The table on that page is a Splunk search. Rows are indexed evidence only when Splunk returns them. Search remains available when you want to edit the SPL. Check evidence readiness can say the probe is unavailable, still waiting, timed out, or confirmed. Those words are not a control decision. Splunk Search is the record. REPLAY workshops do not need Ollama. A documented REPLAY run.id with zero Search rows means this volume does not contain that historical copy. The lab does not invent it. Ollama is the local LLM runtime AgentSec uses for LIVE labs. It is not part of Splunk.
 
@@ -196,7 +198,7 @@ Use quotes around the run.id. Empty is not DENY. If empty, wait, check the id, o
 
 ## 14. What to do next
 
-Return to Academy Home and follow L1 through L10. The L5 menu label **Capstone** is Lending Assistant Investigation, the last LIVE launcher. Complete **Splunk Defender Bridge** before L6. **Advanced Capstone** is L10. **Mastery Check** is optional and unscored.
+On the legacy path, return to the Splunk Academy Home and follow L1 through L10 (the React Academy's journey is in the [Learner guide](LEARNER_GUIDE.md)). The L5 menu label **Capstone** is Lending Assistant Investigation, the last LIVE launcher. Complete **Splunk Defender Bridge** before L6. **Advanced Capstone** is L10. **Mastery Check** is optional and unscored.
 
 Specimen ids printed on a dashboard are reference evidence. Investigate the `run.id` from the launch you just made.
 

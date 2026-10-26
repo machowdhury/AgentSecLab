@@ -28,7 +28,7 @@ Security learners, instructors running a workshop, SOC analysts and security arc
 
 ## Quick start
 
-You need Docker Engine with Compose v2, Git, `python3`, `curl` and a browser. Podman is **not validated**. Windows is **not validated**. Hardware minimums are **NOT BENCHMARKED**. Details: [Quickstart](docs/QUICKSTART.md), [Getting started](docs/GETTING_STARTED.md), [Troubleshooting](docs/TROUBLESHOOTING.md).
+You need Docker Engine with Compose v2, Git, `python3`, `curl` and a browser. Podman is **not validated**. Windows is **not validated**. Hardware minimums are **NOT BENCHMARKED**. The full beginner path is [Getting started](docs/GETTING_STARTED.md); details are in the [Quickstart](docs/QUICKSTART.md) and [Troubleshooting](docs/TROUBLESHOOTING.md).
 
 ```bash
 git clone https://github.com/machowdhury/AgentSecLab.git
@@ -55,7 +55,7 @@ The commands above start the **local Docker lab**. **External Splunk** is not st
 ### Local access versus private EC2 access
 - **Local (default).** Every learner port binds to `127.0.0.1`, so only the machine running the lab can reach it. `./scripts/lab-up.sh` forces this.
 - **Private EC2.** Keep the instance in local mode and reach it with an AWS SSM port-forward, which needs no inbound port and no security-group change: forward instance port 5001 to a local port and browse `http://127.0.0.1:<local-port>/learn`. Commands are in [Remote access](docs/REMOTE_ACCESS.md).
-- **No authentication, no TLS.** The Attack Service, Academy, AcmeBank and Splunk login travel over plain HTTP and the Attack Service launches attacks for anyone who can reach it. Never expose these ports to the Internet; `--remote` does not make them safe. See [Remote access](docs/REMOTE_ACCESS.md) and the [HTTPS proposal](docs/HTTPS_INGRESS_PROPOSAL.md) (not deployed).
+- **No authentication, no TLS.** The Attack Service, Academy, AcmeBank and Splunk login travel over plain HTTP and the Attack Service launches attacks for anyone who can reach it. Never expose these ports to the Internet; `--remote` does not make them safe. See [Remote access](docs/REMOTE_ACCESS.md) and the [HTTPS proposal](docs/HTTPS_INGRESS_PROPOSAL.md). A single authenticated HTTPS entry point is **planned for v1.3.0 and is not implemented in v1.2.0**.
 
 ### Versions
 This platform release is **v1.2.0** (the GitHub release and tag). The embedded Splunk app and the application's health payload still report **1.1.0**; that is expected and is not a mismatch to fix for this release.
@@ -71,7 +71,9 @@ A **Workshop path** bar on lab, mission and Center pages shows six steps in orde
 5. **Risk**: assess source-backed risks yourself in a local, unapproved draft.
 6. **Governance**: see framework relationships, controls and gaps, with an export.
 
-The **Loan Desk mission** (`/learn/loan-desk`) is separate and has its own seven stages: Learn, Prepare, Attack, Investigate, Defend, Retest, Explain. Its Attack, Investigate, Defend and Retest stages unlock in order. The path bar's Attack and Investigate steps point into that mission; Learn, EVAL, Risk and Governance have their own pages.
+The **Loan Desk mission** (`/learn/loan-desk`) is separate from the six steps and has its own seven stages: Learn, Prepare, Attack, Investigate, Defend, Retest, Explain. Its Attack, Investigate, Defend and Retest stages unlock in order. The path bar's Attack and Investigate steps point into that mission; Learn, EVAL, Risk and Governance have their own pages.
+
+The **legacy L0–L10 curriculum** is a third, older numbering from the Splunk-based Academy Home. It still works and is described in the [legacy guide](docs/LEGACY_SPLUNK_ACADEMY_GUIDE.md); do not confuse it with the six steps or the mission stages.
 
 ## LIVE and REPLAY
 

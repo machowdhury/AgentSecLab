@@ -138,3 +138,5 @@ aws ssm start-session --region <region> --target <instance-id> \
 # then browse http://127.0.0.1:15001/learn
 ```
 The forward is bound to your loopback, authenticated by your AWS identity, and ends when you close the session. The application itself still has no authentication or TLS. Splunk's own links point at `127.0.0.1:8000`, so forward 8000 as well if you need them.
+
+A single authenticated HTTPS entry point is **planned for v1.3.0 and is not implemented in v1.2.0** (see the [proposal](HTTPS_INGRESS_PROPOSAL.md)). Until then, use a private tunnel and never expose these ports to the public Internet.

@@ -129,7 +129,12 @@ If that fails with the same `runc` or `mountinfo` error, the host runtime cannot
 **Remediation:** read that log. Use `./scripts/lab-up.sh` again after the cause is fixed. A Splunk restart that drops HEC is handled by `./scripts/lab-up.sh --refresh-app`.
 **Do not conclude:** an authorization decision.
 
+## `/learn` says "No such Attack Service route" (HTTP 400)
+The running Attack Service image predates the React Academy (release v1.2.0). Update the checkout, then rebuild the app images once: `./scripts/lab-up.sh --build`. Data volumes are kept.
+
 ## Port already in use
+
+On macOS, **AirPlay Receiver** can hold port 5000; turn it off in System Settings (General, AirDrop & Handoff) or free the port another way. On any host, find the owner with `lsof -nP -iTCP:<port> -sTCP:LISTEN`.
 
 **Symptom:** bind errors or preflight FAIL on 5000/5001/8000/8088/4317/4318.  
 **Cause:** another process, or a leftover container.  
