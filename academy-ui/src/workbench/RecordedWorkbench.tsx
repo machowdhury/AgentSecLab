@@ -11,12 +11,12 @@ const label = (r: RecRun) => `${r.role} (${r.meta.profile})`;
 export const RECORDED_BADGE = "RECORDED — NOT RE-RUN";
 export const NOT_VERIFIED = "No receipt from the Splunk verifier is attached to these packs, so this page makes no claim that they are Splunk-verified. The lab's own documents describe a Splunk validation phase; that is the document's statement, not a receipt checked here.";
 
-export function EventRow({ e }: { e: RecEvent }) {
-  const d = f(e, "agentsec.control.decision"), pv = preview(e);
+export function EventRow({ e, headingLevel = "h5" }: { e: RecEvent; headingLevel?: "h4" | "h5" }) {
+  const d = f(e, "agentsec.control.decision"), pv = preview(e), H = headingLevel;
   return <li className="rec-event"><details>
     <summary><span className="rec-seq">{seq(e)}</span> <code>{name(e)}</code>{d && <> <Badge tone={tone(d)}>{d}</Badge></>}<span className="rec-sum"> {summary(e)}</span></summary>
     <dl className="rec-fields">{Object.entries(e).filter(([k]) => k !== "agentsec.content.preview").map(([k, v]) => <div key={k}><dt><code>{k}</code></dt><dd>{Array.isArray(v) ? v.join(", ") : String(v)}</dd></div>)}</dl>
-    {pv && <><h5>Recorded content preview, verbatim</h5><pre className="rec-pre">{pv}</pre></>}
+    {pv && <><H>Recorded content preview, verbatim</H><pre className="rec-pre">{pv}</pre></>}
   </details></li>;
 }
 

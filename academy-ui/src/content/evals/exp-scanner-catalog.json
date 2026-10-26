@@ -1,0 +1,247 @@
+{
+ "id": "scanner-catalog",
+ "kind": "scanner",
+ "category": "scanner-supply-chain",
+ "lab_id": "LAB-SCANNER-RUNTIME-EVIDENCE",
+ "title": "Static scan of a normal and a malicious tool catalog",
+ "evidence_class": "RECORDED",
+ "status": "RECORDED — NOT RE-RUN",
+ "target": {
+  "description": "Two MCP tool-catalog snapshots (a normal and a malicious fixture)",
+  "agents": [],
+  "controls": []
+ },
+ "method": "Static scan of each snapshot; the result is then matched to runtime runs by description SHA-256.",
+ "cases": [
+  {
+   "id": "scanner-catalog:NORMAL",
+   "role": "NORMAL",
+   "title": "Normal catalog scan, recorded",
+   "evidence_class": "RECORDED",
+   "kind": "evaluation_result",
+   "statement": "cisco-ai-mcp-scanner 4.8.4 scanned a NORMAL tool-catalog snapshot statically (target executed: False): finding_count=0.",
+   "facts": {
+    "scan_id": "b3061c4e-7a81-445c-8fd8-3108dd14c419",
+    "fixture": "NORMAL",
+    "scanner": "cisco-ai-mcp-scanner",
+    "scanner_version": "4.8.4",
+    "artifact_sha256": "sha256:d706a2f8f8476ed0a972d2b7f371a42450addbfbafa2448488d8223e370bac60",
+    "description_sha256": "sha256:8a76d34c6c21fda0dc930fa2f64fe87c3216f23cbc73ca357c47b0927850d9c3",
+    "finding_count": 0,
+    "findings": [],
+    "execution": {
+     "static_scan": true,
+     "target_executed": false,
+     "network_required": false,
+     "llm_used": false,
+     "exit_code": 0,
+     "timed_out": false
+    }
+   },
+   "conditions": {
+    "analyzer": "static YARA",
+    "target_executed": false,
+    "network_required": false,
+    "llm_used": false
+   },
+   "expected": {
+    "documented": true,
+    "quote": {
+     "file": "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/evidence.md",
+     "text": "NORMAL b3061c4e-7a81-445c-8fd8-3108dd14c419: scan executed, finding_count=0."
+    }
+   },
+   "sources": [
+    {
+     "file": "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/specimens/scanner/b3061c4e-7a81-445c-8fd8-3108dd14c419.jsonl",
+     "sha256": "779271581c86cfbf0687b9a08d9b702714b5fb882e89dede5730b59a153c6f06",
+     "locator": "1 HEC events"
+    }
+   ],
+   "verification": {
+    "status": "NOT_VERIFIED",
+    "receipt": null
+   },
+   "splunk_copy": {
+    "indexed": true,
+    "indexed_rows": 1,
+    "distinct_raw": 1,
+    "identical": true,
+    "note": "Each indexed event equals a line of the committed pack byte for byte (11F)."
+   },
+   "limitations": [
+    "A static scan: it says nothing about what ran.",
+    "Native severity is the scanner's own label, not an incident severity.",
+    "ZERO FINDINGS is not safe.",
+    "No verifier receipt applies."
+   ],
+   "timeline": []
+  },
+  {
+   "id": "scanner-catalog:MALICIOUS",
+   "role": "MALICIOUS",
+   "title": "Malicious catalog scan, recorded",
+   "evidence_class": "RECORDED",
+   "kind": "evaluation_result",
+   "statement": "cisco-ai-mcp-scanner 4.8.4 scanned a MALICIOUS tool-catalog snapshot statically (target executed: False): finding_count=1; native severity HIGH, PROMPT INJECTION, tool lookup_policy.",
+   "facts": {
+    "scan_id": "7ae3ea64-4e7a-40fe-943f-3e582bce5ee8",
+    "fixture": "MALICIOUS",
+    "scanner": "cisco-ai-mcp-scanner",
+    "scanner_version": "4.8.4",
+    "artifact_sha256": "sha256:5e0bf29c6546a9a3d791918b59f7f6a99ac09dd9462f3295be8cbacc64c84cb7",
+    "description_sha256": "sha256:9d0745320ca79852f2fbd7145bf074fcd353e290c18ba16fd02d801f9f3375b1",
+    "finding_count": 1,
+    "findings": [
+     {
+      "native_rule_id": "PROMPT INJECTION",
+      "native_category": "PROMPT INJECTION",
+      "native_severity": "HIGH",
+      "title": "PROMPT INJECTION",
+      "summary": "Detected 1 threat: prompt injection",
+      "tool_name": "lookup_policy",
+      "analyzer": "yara_analyzer"
+     }
+    ],
+    "execution": {
+     "static_scan": true,
+     "target_executed": false,
+     "network_required": false,
+     "llm_used": false,
+     "exit_code": 0,
+     "timed_out": false
+    }
+   },
+   "conditions": {
+    "analyzer": "static YARA",
+    "target_executed": false,
+    "network_required": false,
+    "llm_used": false
+   },
+   "expected": {
+    "documented": true,
+    "quote": {
+     "file": "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/evidence.md",
+     "text": "MALICIOUS 7ae3ea64-4e7a-40fe-943f-3e582bce5ee8: scan executed, finding_count=1, native HIGH, PROMPT INJECTION."
+    }
+   },
+   "sources": [
+    {
+     "file": "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/specimens/scanner/7ae3ea64-4e7a-40fe-943f-3e582bce5ee8.jsonl",
+     "sha256": "66a5636ec5467462bd15c0bc9a80b19f2b36e65f8824549db7adfe0ac0cc85d2",
+     "locator": "2 HEC events"
+    }
+   ],
+   "verification": {
+    "status": "NOT_VERIFIED",
+    "receipt": null
+   },
+   "splunk_copy": {
+    "indexed": true,
+    "indexed_rows": 2,
+    "distinct_raw": 2,
+    "identical": true,
+    "note": "Each indexed event equals a line of the committed pack byte for byte (11F)."
+   },
+   "limitations": [
+    "A static scan: it says nothing about what ran.",
+    "Native severity is the scanner's own label, not an incident severity.",
+    "ZERO FINDINGS is not safe.",
+    "No verifier receipt applies."
+   ],
+   "timeline": []
+  }
+ ],
+ "comparison": {
+  "kind": "scanner_vs_runtime",
+  "method": "A scan and a runtime run are matched only when the scan's description SHA-256 equals the content hash of the run's CTRL-MCP-METADATA-001 decision. That shows the same bytes were involved. It does not show a shared request or process.",
+  "rows": [
+   {
+    "scan": "NORMAL",
+    "scan_id": "b3061c4e-7a81-445c-8fd8-3108dd14c419",
+    "finding_count": 0,
+    "description_sha256": "sha256:8a76d34c6c21fda0dc930fa2f64fe87c3216f23cbc73ca357c47b0927850d9c3",
+    "runtime_runs_with_the_same_hash": [
+     {
+      "role": "BASELINE",
+      "run_id": "d95717ed-ffd2-46c0-a130-9a5d7d539a5d",
+      "follow_on_decisions": [
+       "ALLOW (tool_granted) for lookup_policy"
+      ],
+      "handler_starts": 1
+     }
+    ]
+   },
+   {
+    "scan": "MALICIOUS",
+    "scan_id": "7ae3ea64-4e7a-40fe-943f-3e582bce5ee8",
+    "finding_count": 1,
+    "description_sha256": "sha256:9d0745320ca79852f2fbd7145bf074fcd353e290c18ba16fd02d801f9f3375b1",
+    "runtime_runs_with_the_same_hash": [
+     {
+      "role": "ATTACK",
+      "run_id": "a0937bff-31a5-453a-99bf-47d7b5148ce4",
+      "follow_on_decisions": [
+       "ALLOW (tool_granted) for lookup_policy",
+       "ALLOW (vulnerable_profile_fail_open:metadata_derived_authority) for lookup_customer_tier"
+      ],
+      "handler_starts": 2
+     },
+     {
+      "role": "RETEST",
+      "run_id": "23c222ea-6a87-40b7-a3e9-f12a5b572fa1",
+      "follow_on_decisions": [
+       "ALLOW (tool_granted) for lookup_policy",
+       "DENY (tool_not_granted) for lookup_customer_tier"
+      ],
+      "handler_starts": 1
+     }
+    ]
+   }
+  ],
+  "runtime_experiment": "mcp-catalog",
+  "limits": [
+   "A scanner finding is not execution and not authorization.",
+   "The runtime runs are from a different experiment and tell you what the runtime did, not whether the scanner was right."
+  ]
+ },
+ "mappings": [],
+ "threat": {
+  "id": "TM-T07",
+  "category": "SUPPLY-CHAIN / EXTERNAL DEPENDENCY",
+  "question": "Can a model, package, tool description, external service, or security tool provide misleading or compromised input?",
+  "gap": "AI-BOM, package provenance, and production supplier assurance are NOT MODELED.",
+  "residual_risk": "A clean scan or passing evaluation does not establish safety.",
+  "existing_controls": [
+   {
+    "id": "CATALOG-VALIDATION",
+    "class": "PREVENTIVE / OBSERVE",
+    "placement": "Tool catalog boundary",
+    "evidence": "src/agentsec/mcp/metadata_trust.py"
+   },
+   {
+    "id": "EXTERNAL-EVIDENCE-CONTRACT",
+    "class": "ASSESSMENT EVIDENCE",
+    "placement": "External evidence normalization",
+    "evidence": "src/agentsec/external_evidence/contract.py:ExternalEvidence"
+   }
+  ],
+  "source": {
+   "file": "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json",
+   "sha256": "2b6ee60568521cd9535c07e23de3575dcd4d597b06d03785639174598a9b645c",
+   "locator": "threats[TM-T07]"
+  }
+ },
+ "documentation": {
+  "file": "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/evidence.md",
+  "sha256": "d5a4c54e54709f09ada3163c57826faa836ece7f8b392b4fcaa6608334201deb",
+  "locator": "scan results"
+ },
+ "limitations": [
+  "Two scans of two snapshots.",
+  "ZERO FINDINGS is not safe."
+ ],
+ "findings": [
+  "F-scanner-malicious-1"
+ ]
+}

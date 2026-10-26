@@ -1,0 +1,199 @@
+{
+ "id": "component-provenance",
+ "kind": "packet",
+ "category": "scanner-supply-chain",
+ "lab_id": "LAB-COMPONENT-PROVENANCE",
+ "title": "Component provenance as a grant (simulated packet)",
+ "evidence_class": "SIMULATED",
+ "status": "SIMULATED — NOT A LIVE RUN",
+ "target": {
+  "description": "A documented component list entry (simulated packet)",
+  "agents": [],
+  "controls": [
+   "CTRL-MCP-001"
+  ]
+ },
+ "method": "A simulated packet of three cases, read as committed.",
+ "cases": [
+  {
+   "id": "component-provenance:ATTACK",
+   "role": "ATTACK",
+   "title": "Attack case (simulated)",
+   "evidence_class": "SIMULATED",
+   "kind": "runtime_decision",
+   "statement": "CTRL-MCP-001 ALLOW (vulnerable_profile_fail_open:known_component_treated_as_grant) for lookup_customer_tier on component ollama/ollama:latest with provenance UNPINNED. Packet-only teaching fault. Not implemented in authorize.py.",
+   "facts": {
+    "mode": "ATTACK",
+    "request_id": "sim-provenance-request-001",
+    "component": "ollama/ollama:latest",
+    "provenance": "UNPINNED",
+    "requested_tool": "lookup_customer_tier",
+    "ctrl_mcp_001_decision": "ALLOW",
+    "ctrl_mcp_001_reason": "vulnerable_profile_fail_open:known_component_treated_as_grant",
+    "note": "Packet-only teaching fault. Not implemented in authorize.py."
+   },
+   "conditions": {
+    "component": "ollama/ollama:latest",
+    "provenance": "UNPINNED",
+    "request_id": "sim-provenance-request-001"
+   },
+   "expected": {
+    "documented": false
+   },
+   "sources": [
+    {
+     "file": "learning/level_1/LAB-COMPONENT-PROVENANCE/evidence.packet.json",
+     "sha256": "7c404d0e6b0bb1eb56e29147f68865209c2611767c6a92d4d588a072b8a61974",
+     "locator": "mode ATTACK"
+    }
+   ],
+   "verification": {
+    "status": "NOT_VERIFIED",
+    "receipt": null
+   },
+   "splunk_copy": {
+    "indexed": false,
+    "note": "A simulated packet has no indexed copy."
+   },
+   "limitations": [
+    "The packet's own classification: DOCUMENTED / SIMULATED.",
+    "No runtime event exists for this case.",
+    "Nothing here is a live run, and no finding is derived from it."
+   ],
+   "timeline": []
+  },
+  {
+   "id": "component-provenance:RETEST",
+   "role": "RETEST",
+   "title": "Retest case (simulated)",
+   "evidence_class": "SIMULATED",
+   "kind": "runtime_decision",
+   "statement": "CTRL-MCP-001 DENY (provenance_is_not_a_grant) for lookup_customer_tier on component ollama/ollama:latest with provenance UNPINNED. NO — do not infer execution",
+   "facts": {
+    "mode": "RETEST",
+    "request_id": "sim-provenance-request-001",
+    "component": "ollama/ollama:latest",
+    "provenance": "UNPINNED",
+    "requested_tool": "lookup_customer_tier",
+    "ctrl_mcp_001_decision": "DENY",
+    "ctrl_mcp_001_reason": "provenance_is_not_a_grant",
+    "execution_observed": "NO — do not infer execution"
+   },
+   "conditions": {
+    "component": "ollama/ollama:latest",
+    "provenance": "UNPINNED",
+    "request_id": "sim-provenance-request-001"
+   },
+   "expected": {
+    "documented": false
+   },
+   "sources": [
+    {
+     "file": "learning/level_1/LAB-COMPONENT-PROVENANCE/evidence.packet.json",
+     "sha256": "7c404d0e6b0bb1eb56e29147f68865209c2611767c6a92d4d588a072b8a61974",
+     "locator": "mode RETEST"
+    }
+   ],
+   "verification": {
+    "status": "NOT_VERIFIED",
+    "receipt": null
+   },
+   "splunk_copy": {
+    "indexed": false,
+    "note": "A simulated packet has no indexed copy."
+   },
+   "limitations": [
+    "The packet's own classification: DOCUMENTED / SIMULATED.",
+    "No runtime event exists for this case.",
+    "Nothing here is a live run, and no finding is derived from it."
+   ],
+   "timeline": []
+  },
+  {
+   "id": "component-provenance:BASELINE",
+   "role": "BASELINE",
+   "title": "Baseline case (simulated)",
+   "evidence_class": "SIMULATED",
+   "kind": "runtime_decision",
+   "statement": "CTRL-MCP-001 ALLOW (tool_granted) for lookup_policy on component flask==3.0.3 with provenance PINNED NAME. A pinned dependency did not authorize the tool.",
+   "facts": {
+    "mode": "BASELINE",
+    "request_id": "sim-provenance-baseline-001",
+    "component": "flask==3.0.3",
+    "provenance": "PINNED NAME",
+    "requested_tool": "lookup_policy",
+    "ctrl_mcp_001_decision": "ALLOW",
+    "ctrl_mcp_001_reason": "tool_granted",
+    "note": "A pinned dependency did not authorize the tool."
+   },
+   "conditions": {
+    "component": "flask==3.0.3",
+    "provenance": "PINNED NAME",
+    "request_id": "sim-provenance-baseline-001"
+   },
+   "expected": {
+    "documented": false
+   },
+   "sources": [
+    {
+     "file": "learning/level_1/LAB-COMPONENT-PROVENANCE/evidence.packet.json",
+     "sha256": "7c404d0e6b0bb1eb56e29147f68865209c2611767c6a92d4d588a072b8a61974",
+     "locator": "mode BASELINE"
+    }
+   ],
+   "verification": {
+    "status": "NOT_VERIFIED",
+    "receipt": null
+   },
+   "splunk_copy": {
+    "indexed": false,
+    "note": "A simulated packet has no indexed copy."
+   },
+   "limitations": [
+    "The packet's own classification: DOCUMENTED / SIMULATED.",
+    "No runtime event exists for this case.",
+    "Nothing here is a live run, and no finding is derived from it."
+   ],
+   "timeline": []
+  }
+ ],
+ "comparison": null,
+ "comparison_unavailable": "The cases are simulated, so no recorded comparison is offered and no finding is derived.",
+ "mappings": [],
+ "threat": {
+  "id": "TM-T07",
+  "category": "SUPPLY-CHAIN / EXTERNAL DEPENDENCY",
+  "question": "Can a model, package, tool description, external service, or security tool provide misleading or compromised input?",
+  "gap": "AI-BOM, package provenance, and production supplier assurance are NOT MODELED.",
+  "residual_risk": "A clean scan or passing evaluation does not establish safety.",
+  "existing_controls": [
+   {
+    "id": "CATALOG-VALIDATION",
+    "class": "PREVENTIVE / OBSERVE",
+    "placement": "Tool catalog boundary",
+    "evidence": "src/agentsec/mcp/metadata_trust.py"
+   },
+   {
+    "id": "EXTERNAL-EVIDENCE-CONTRACT",
+    "class": "ASSESSMENT EVIDENCE",
+    "placement": "External evidence normalization",
+    "evidence": "src/agentsec/external_evidence/contract.py:ExternalEvidence"
+   }
+  ],
+  "source": {
+   "file": "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json",
+   "sha256": "2b6ee60568521cd9535c07e23de3575dcd4d597b06d03785639174598a9b645c",
+   "locator": "threats[TM-T07]"
+  }
+ },
+ "documentation": {
+  "file": "learning/level_1/LAB-COMPONENT-PROVENANCE/evidence.packet.json",
+  "sha256": "7c404d0e6b0bb1eb56e29147f68865209c2611767c6a92d4d588a072b8a61974",
+  "locator": "classification and cases"
+ },
+ "limitations": [
+  "Simulated: not a measurement of anything.",
+  "No finding is derived from simulated evidence."
+ ],
+ "findings": []
+}

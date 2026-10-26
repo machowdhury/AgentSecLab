@@ -1,0 +1,61 @@
+{
+  "schema": "agentsec.eval_catalog.v1",
+  "note": "Curated list of what the EVAL Center shows. Everything it shows about each entry is computed from the committed sources named here; nothing below is a result.",
+  "categories": [
+    {"id": "prompt-injection", "title": "Prompt injection and instruction hierarchy", "summary": "Whether untrusted text can change what an agent does, and where the input control sits.",
+     "capabilities": [
+       {"id": "pi-direct", "title": "Direct prompt-injection payload, baseline, attack and retest", "status": "AVAILABLE_WITH_EVIDENCE", "experiments": ["pi-001"]},
+       {"id": "pi-paraphrase", "title": "Paraphrased or obfuscated payloads against the input control", "status": "DOCUMENTED_ONLY", "quote": {"file": "docs/AGENTSEC_DETECTION_ENGINEERING_CURRICULUM.md", "text": "Regex DENY is the control; paraphrases ALLOW; alerting on input strings is brittle"}},
+       {"id": "pi-hierarchy", "title": "System-prompt override and instruction-hierarchy robustness across models", "status": "NOT_IMPLEMENTED", "note": "No committed run tests this."}]},
+    {"id": "tool-authorization", "title": "Agent tool authorization and MCP security", "summary": "Whether an agent can use a tool, scope, resource or authority it was not granted.",
+     "capabilities": [
+       {"id": "mcp-grant", "title": "Tool grant, scope, resource, deputy and catalog-poisoning experiments", "status": "AVAILABLE_WITH_EVIDENCE", "experiments": ["mcp-001", "mcp-003", "mcp-004", "mcp-006", "mcp-catalog"]},
+       {"id": "mcp-production", "title": "A production MCP network deployment", "status": "NOT_IMPLEMENTED", "quote": {"file": "learning/level_1/LAB-THREAT-MODELING-001/architecture.json", "text": "This is an educational in-process interface, not a production MCP network deployment."}}]},
+    {"id": "rag", "title": "RAG and retrieval security", "summary": "Whether retrieved content can act as authority for a later tool request.",
+     "capabilities": [
+       {"id": "rag-context", "title": "Malicious retrieved document, baseline, attack and retest", "status": "AVAILABLE_WITH_EVIDENCE", "experiments": ["rag-context"]},
+       {"id": "rag-vector", "title": "Vector or semantic retrieval poisoning", "status": "NOT_IMPLEMENTED", "quote": {"file": "docs/AGENTSEC_SPLUNK_QUERY_VALIDATION.md", "text": "OBSERVE ≠ ALLOW; no vector DB"}}]},
+    {"id": "identity", "title": "Agent identity and delegation", "summary": "Whether an identity claim from another agent is treated as a grant.",
+     "capabilities": [
+       {"id": "id-claim", "title": "Privileged delegation claim, baseline, attack and retest", "status": "AVAILABLE_WITH_EVIDENCE", "experiments": ["delegation-001"]},
+       {"id": "id-authn", "title": "Authentication, OAuth/OIDC, workload identity and cryptographic delegation", "status": "NOT_IMPLEMENTED", "quote": {"file": "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json", "text": "Authentication, OAuth/OIDC, workload identity, and cryptographic delegation are NOT MODELED."}}]},
+    {"id": "model-robustness", "title": "Model robustness and external evaluations", "summary": "Adversarial probes run by an external tool against a model.",
+     "capabilities": [
+       {"id": "garak-one", "title": "One garak probe against one local model", "status": "AVAILABLE_WITH_EVIDENCE", "experiments": ["garak-dan"]},
+       {"id": "garak-suite", "title": "Multi-probe, multi-model evaluation suites", "status": "NOT_IMPLEMENTED", "quote": {"file": "learning/level_1/LAB-EXTERNAL-EVALUATION-GARAK/evidence.md", "text": "Wider probe coverage: NOT MEASURED"}}]},
+    {"id": "scanner-supply-chain", "title": "Scanner and supply-chain findings", "summary": "Static findings about artifacts, and what the runtime did with them.",
+     "capabilities": [
+       {"id": "scan-catalog", "title": "Static scan of a normal and a malicious tool catalog, with runtime correlation", "status": "AVAILABLE_WITH_EVIDENCE", "experiments": ["scanner-catalog"]},
+       {"id": "supply-sim", "title": "Component provenance (simulated packet)", "status": "AVAILABLE_WITH_EVIDENCE", "experiments": ["component-provenance"]},
+       {"id": "supply-aibom", "title": "AI-BOM, package provenance and production supplier assurance", "status": "NOT_IMPLEMENTED", "quote": {"file": "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json", "text": "AI-BOM, package provenance, and production supplier assurance are NOT MODELED."}}]}
+  ],
+  "experiments": [
+    {"id": "pi-001", "kind": "pack_triple", "category": "prompt-injection", "lab_id": "LAB-PI-001", "title": "Prompt injection against the loan pipeline (ATK-002)", "threat": "TM-T01", "framework_scope": "ATK-002",
+     "cases": [["BASELINE", "b3611d56-0d3f-4b2e-9a51-75ae36628155"], ["ATTACK", "f39fed12-de89-45ba-b684-5b6077942580"], ["RETEST", "bbe75cb8-0190-47d6-86be-5feba58ad5c0"], ["DEFENDED_ATTACK", "78f05d1b-728e-4e70-8993-f5e365871f87"]],
+     "doc": "learning/level_1/LAB-PI-001/README.md",
+     "doc_text": {"BASELINE": "| BASELINE | b3611d56-0d3f-4b2e-9a51-75ae36628155 | 22=22 | BASELINE | defended |", "ATTACK": "Live generate does run. Validated: f39fed12-de89-45ba-b684-5b6077942580 (ATTACK, 4 calls, 22=22). Fail-open ≠ loan approved.",
+                  "RETEST": "Not invoked. RETEST validated: bbe75cb8-0190-47d6-86be-5feba58ad5c0 (6=6).", "DEFENDED_ATTACK": "Phase 2C.1 DENY copy 78f05d1b-… is ATTACK, not RETEST."},
+     "signature": {"control": "CTRL-INPUT-001", "nth": 0, "fields": ["agentsec.content.hash"]}},
+    {"id": "mcp-001", "kind": "pack_triple", "category": "tool-authorization", "lab_id": "LAB-MCP-001", "title": "Ungranted tool request (MCP-002)", "threat": "TM-T04", "framework_scope": "MCP-002",
+     "doc": "learning/level_1/LAB-MCP-001/README.md", "signature": {"control": "CTRL-MCP-001", "nth": 0, "fields": ["gen_ai.tool.name", "agentsec.mcp.requested_scope", "agentsec.mcp.resource.id", "agentsec.content.hash"]}},
+    {"id": "mcp-003", "kind": "pack_triple", "category": "tool-authorization", "lab_id": "LAB-MCP-003", "title": "Scope escalation on a granted tool (MCP-003)", "threat": "TM-T04", "framework_scope": "MCP-003",
+     "doc": "learning/level_1/LAB-MCP-003/README.md", "signature": {"control": "CTRL-MCP-001", "nth": 0, "fields": ["gen_ai.tool.name", "agentsec.mcp.requested_scope", "agentsec.mcp.resource.id", "agentsec.content.hash"]}},
+    {"id": "mcp-004", "kind": "pack_triple", "category": "tool-authorization", "lab_id": "LAB-MCP-004", "title": "Ungranted resource on a granted tool and scope (MCP-004)", "threat": "TM-T04", "framework_scope": "MCP-004",
+     "doc": "learning/level_1/LAB-MCP-004/README.md", "signature": {"control": "CTRL-MCP-001", "nth": 0, "fields": ["gen_ai.tool.name", "agentsec.mcp.requested_scope", "agentsec.mcp.resource.id", "agentsec.content.hash"]}},
+    {"id": "mcp-006", "kind": "pack_triple", "category": "tool-authorization", "lab_id": "LAB-MCP-006", "title": "Confused deputy: ambient authority substitution (MCP-006)", "threat": "TM-T04", "framework_scope": null,
+     "doc": "learning/level_1/LAB-MCP-006/README.md", "signature": {"control": "CTRL-DELEGATION-001", "nth": 0, "fields": ["gen_ai.tool.name", "agentsec.mcp.requested_scope"], "also_reported": ["agentsec.content.hash"]}},
+    {"id": "mcp-catalog", "kind": "pack_triple", "category": "tool-authorization", "lab_id": "LAB-MCP-CATALOG", "title": "Poisoned tool description (MCP-CATALOG-001)", "threat": "TM-T07", "framework_scope": null,
+     "doc": "learning/level_1/LAB-MCP-CATALOG/README.md", "signature": {"control": "CTRL-MCP-METADATA-001", "nth": 0, "fields": ["agentsec.content.hash"]}},
+    {"id": "rag-context", "kind": "pack_triple", "category": "rag", "lab_id": "LAB-RAG-CONTEXT", "title": "Malicious retrieved document (RAG-001)", "threat": "TM-T01", "framework_scope": null,
+     "doc": "learning/level_1/LAB-RAG-CONTEXT/README.md", "signature": {"control": "CTRL-RAG-CONTEXT-001", "nth": 0, "fields": ["agentsec.content.hash"]}},
+    {"id": "delegation-001", "kind": "pack_triple", "category": "identity", "lab_id": "LAB-AGENT-DELEGATION-001", "title": "Privileged delegation claim (A2A-001)", "threat": "TM-T05", "framework_scope": null,
+     "doc": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md", "signature": {"control": "CTRL-IDENTITY-001", "nth": 0, "fields": ["agentsec.content.hash"]}},
+    {"id": "garak-dan", "kind": "garak", "category": "model-robustness", "lab_id": "LAB-EXTERNAL-EVALUATION-GARAK", "title": "garak DAN probe against a local model", "threat": "TM-T07", "framework_scope": null},
+    {"id": "scanner-catalog", "kind": "scanner", "category": "scanner-supply-chain", "lab_id": "LAB-SCANNER-RUNTIME-EVIDENCE", "title": "Static scan of a normal and a malicious tool catalog", "threat": "TM-T07", "framework_scope": null,
+     "scans": [["NORMAL", "b3061c4e-7a81-445c-8fd8-3108dd14c419"], ["MALICIOUS", "7ae3ea64-4e7a-40fe-943f-3e582bce5ee8"]], "doc": "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/evidence.md",
+     "doc_text": {"NORMAL": "NORMAL b3061c4e-7a81-445c-8fd8-3108dd14c419: scan executed, finding_count=0.", "MALICIOUS": "MALICIOUS 7ae3ea64-4e7a-40fe-943f-3e582bce5ee8: scan executed, finding_count=1, native HIGH, PROMPT INJECTION."},
+     "runtime_experiment": "mcp-catalog"},
+    {"id": "component-provenance", "kind": "packet", "category": "scanner-supply-chain", "lab_id": "LAB-COMPONENT-PROVENANCE", "title": "Component provenance as a grant (simulated packet)", "threat": "TM-T07", "framework_scope": null,
+     "packet": "learning/level_1/LAB-COMPONENT-PROVENANCE/evidence.packet.json"}
+  ]
+}

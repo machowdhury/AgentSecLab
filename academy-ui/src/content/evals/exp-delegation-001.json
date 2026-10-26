@@ -1,0 +1,952 @@
+{
+ "id": "delegation-001",
+ "kind": "pack_triple",
+ "category": "identity",
+ "lab_id": "LAB-AGENT-DELEGATION-001",
+ "title": "Privileged delegation claim (A2A-001)",
+ "evidence_class": "RECORDED",
+ "status": "RECORDED — NOT RE-RUN",
+ "target": {
+  "description": "AcmeBank agent pipeline in the lab's own testbed",
+  "agents": [
+   "Fulfillment Agent"
+  ],
+  "controls": [
+   "CTRL-IDENTITY-001",
+   "CTRL-MCP-001"
+  ]
+ },
+ "method": "Same request run as BASELINE, ATTACK (vulnerable profile) and RETEST (defended profile); results read from committed packs.",
+ "cases": [
+  {
+   "id": "delegation-001:BASELINE",
+   "role": "BASELINE",
+   "title": "Baseline run",
+   "evidence_class": "RECORDED",
+   "kind": "runtime_decision",
+   "statement": "2 control decisions (CTRL-IDENTITY-001 OBSERVE identity_claim_is_not_grant; CTRL-MCP-001 ALLOW tool_granted). 1 handler start with executed=true. Run outcome: completed_allowed.",
+   "facts": {
+    "run_id": "b419465c-84d8-4639-8449-34dd99841ba9",
+    "role": "BASELINE",
+    "profile": "defended",
+    "decisions": [
+     {
+      "sequence": 3,
+      "control": "CTRL-IDENTITY-001",
+      "decision": "OBSERVE",
+      "reason": "identity_claim_is_not_grant",
+      "tool": "lookup_policy",
+      "requested_scope": "policy:read",
+      "requested_resource": null,
+      "agent": "Fulfillment Agent"
+     },
+     {
+      "sequence": 6,
+      "control": "CTRL-MCP-001",
+      "decision": "ALLOW",
+      "reason": "tool_granted",
+      "tool": "lookup_policy",
+      "requested_scope": "policy:read",
+      "requested_resource": "lending-basics",
+      "agent": "Fulfillment Agent"
+     }
+    ],
+    "handler_starts": [
+     {
+      "sequence": 7,
+      "tool": "lookup_policy",
+      "executed": true
+     }
+    ],
+    "model_calls_started": 0,
+    "run_outcome": "completed_allowed",
+    "events_in_pack": 10
+   },
+   "conditions": {
+    "profile": "defended",
+    "testbed_mode": "BASELINE",
+    "execution_mode": "LIVE",
+    "telemetry_fidelity": "OBSERVED",
+    "schema_version": "1.8.0",
+    "workflow_entry": "/identity/delegate",
+    "attack_id": "A2A-001",
+    "principal": "applicant-web"
+   },
+   "expected": {
+    "documented": true,
+    "quote": {
+     "file": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+     "text": "defended, IDENTITY OBSERVE, MCP ALLOW tool_granted, lookup_policy 1, lookup_customer_tier 0. Not SAFE."
+    }
+   },
+   "sources": [
+    {
+     "file": "learning/level_1/LAB-AGENT-DELEGATION-001/specimens/b419465c-84d8-4639-8449-34dd99841ba9.jsonl",
+     "sha256": "d8d80b5bb3a2dab5eba8ae6dcb654d41dda234274829b119ad1f0bac1202e2bf",
+     "locator": "10 events, run b419465c-84d8-4639-8449-34dd99841ba9"
+    }
+   ],
+   "verification": {
+    "status": "NOT_VERIFIED",
+    "receipt": null
+   },
+   "splunk_copy": {
+    "indexed": true,
+    "indexed_rows": 10,
+    "distinct_raw": 10,
+    "exact_raw_bytes": 10,
+    "pack_events": 10,
+    "identical": true
+   },
+   "limitations": [
+    "One recorded run, not a sample.",
+    "Recorded in the lab's own testbed, not in a production system.",
+    "No host-verifier receipt applies, so this is NOT_VERIFIED."
+   ],
+   "timeline": [
+    {
+     "timestamp": "2026-09-18T21:46:29Z",
+     "span_id": "53dc51744921fe3c",
+     "agentsec.sequence": 1,
+     "event.name": "agentsec.run.started",
+     "agentsec.operation.type": "pipeline",
+     "agentsec.span.kind": "pipeline",
+     "agentsec.trust_boundary": "acmebank.http_api"
+    },
+    {
+     "timestamp": "2026-09-18T21:46:29Z",
+     "span_id": "b597d71d9bc1847c",
+     "agentsec.sequence": 2,
+     "event.name": "agentsec.hop.started",
+     "parent_span_id": "53dc51744921fe3c",
+     "agentsec.operation.type": "agent_hop",
+     "agentsec.span.kind": "hop",
+     "agentsec.hop.index": 0,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent"
+    },
+    {
+     "timestamp": "2026-09-18T21:46:29Z",
+     "span_id": "4068f0b43b2a3f71",
+     "agentsec.sequence": 3,
+     "event.name": "agentsec.control.decision",
+     "parent_span_id": "b597d71d9bc1847c",
+     "agentsec.operation.type": "control_evaluation",
+     "agentsec.span.kind": "control_evaluation",
+     "agentsec.control.id": "CTRL-IDENTITY-001",
+     "agentsec.control.type": "identity_claim_trust",
+     "agentsec.control.decision": "OBSERVE",
+     "agentsec.control.reason": "identity_claim_is_not_grant",
+     "agentsec.trust_boundary": "agent.identity.claim",
+     "agentsec.invariant.id": [
+      "INV-001",
+      "INV-002",
+      "INV-005",
+      "INV-007"
+     ],
+     "agentsec.operation.attempted": false,
+     "agentsec.operation.executed": false,
+     "agentsec.content.preview": "{\"callee_agent\":\"acme-agent-fulfillment-006\",\"caller_agent\":\"acme-agent-advisor-005\",\"claim_trust\":\"untrusted_claim\",\"claimed_resource\":\"lending-basics\",\"claimed_scope\":\"policy:read\",\"claimed_tool\":\"l",
+     "agentsec.content.hash": "sha256:93f1e257a7d6c7660aa8b1d1b980f1509b7da69e215b385ac79c222e1058b3eb",
+     "agentsec.content.origin.type": "agent",
+     "agentsec.content.origin.id": "acme-agent-advisor-005",
+     "agentsec.content.influence.kind": "tool_request",
+     "gen_ai.tool.name": "lookup_policy",
+     "agentsec.mcp.requested_scope": "policy:read",
+     "agentsec.identity.caller_agent_id": "acme-agent-advisor-005",
+     "agentsec.identity.callee_agent_id": "acme-agent-fulfillment-006",
+     "agentsec.identity.claim.trust": "untrusted_claim",
+     "agentsec.delegation.claimed_scope": "policy:read",
+     "agentsec.hop.index": 0,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent"
+    },
+    {
+     "timestamp": "2026-09-18T21:46:29Z",
+     "span_id": "b597d71d9bc1847c",
+     "agentsec.sequence": 4,
+     "event.name": "agentsec.hop.completed",
+     "parent_span_id": "53dc51744921fe3c",
+     "agentsec.operation.type": "agent_hop",
+     "agentsec.span.kind": "hop",
+     "agentsec.outcome": "hop_allowed",
+     "agentsec.duration_ms": 1,
+     "agentsec.hop.index": 0,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent"
+    },
+    {
+     "timestamp": "2026-09-18T21:46:29Z",
+     "span_id": "fcc01e309a69f903",
+     "agentsec.sequence": 5,
+     "event.name": "agentsec.hop.started",
+     "parent_span_id": "53dc51744921fe3c",
+     "agentsec.operation.type": "agent_hop",
+     "agentsec.span.kind": "hop",
+     "agentsec.hop.index": 1,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent",
+     "agentsec.delegator.agent.id": "acme-agent-advisor-005"
+    },
+    {
+     "timestamp": "2026-09-18T21:46:29Z",
+     "span_id": "664b91d8762e7771",
+     "agentsec.sequence": 6,
+     "event.name": "agentsec.control.decision",
+     "parent_span_id": "fcc01e309a69f903",
+     "agentsec.operation.type": "control_evaluation",
+     "agentsec.span.kind": "control_evaluation",
+     "agentsec.control.id": "CTRL-MCP-001",
+     "agentsec.control.type": "mcp_allowlist",
+     "agentsec.control.decision": "ALLOW",
+     "agentsec.control.reason": "tool_granted",
+     "agentsec.trust_boundary": "acmebank.mcp.authorize",
+     "agentsec.invariant.id": [
+      "INV-001",
+      "INV-004",
+      "INV-005",
+      "INV-007"
+     ],
+     "agentsec.operation.attempted": false,
+     "agentsec.operation.executed": false,
+     "agentsec.content.preview": "{\"authority_source\": \"server-owned\", \"request_fingerprint\": \"sha256:93f1e257a7d6c7660aa8b1d1b980f1509b7da69e215b385ac79c222e1058b3eb\", \"requested_scope\": \"policy:read\", \"resource\": \"lending-basics\", \"",
+     "agentsec.content.hash": "sha256:36242bc8685fa6ec68575a46b99615578a0682030d4bb2b6e25ac37c16a653d2",
+     "agentsec.content.origin.type": "agent",
+     "agentsec.content.origin.id": "acme-agent-fulfillment-006",
+     "agentsec.content.influence.kind": "tool_request",
+     "gen_ai.tool.name": "lookup_policy",
+     "mcp.method.name": "tools/call",
+     "agentsec.mcp.requested_scope": "policy:read",
+     "agentsec.mcp.allowed_scope": "policy:read",
+     "agentsec.mcp.resource.id": "lending-basics",
+     "agentsec.mcp.allowed_resource.ids": "lending-basics",
+     "agentsec.identity.caller_agent_id": "acme-agent-advisor-005",
+     "agentsec.identity.callee_agent_id": "acme-agent-fulfillment-006",
+     "agentsec.delegation.claimed_scope": "policy:read",
+     "agentsec.hop.index": 1,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent",
+     "agentsec.delegator.agent.id": "acme-agent-advisor-005"
+    },
+    {
+     "timestamp": "2026-09-18T21:46:29Z",
+     "span_id": "433359eff61d6f2f",
+     "agentsec.sequence": 7,
+     "event.name": "agentsec.mcp.started",
+     "parent_span_id": "fcc01e309a69f903",
+     "agentsec.operation.type": "mcp_tool_invoke",
+     "agentsec.span.kind": "mcp_tool_invoke",
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "lookup_policy",
+     "mcp.method.name": "tools/call",
+     "agentsec.operation.attempted": true,
+     "agentsec.operation.executed": true,
+     "agentsec.trust_boundary": "mcp.tool.execute",
+     "agentsec.hop.index": 1,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent",
+     "agentsec.delegator.agent.id": "acme-agent-advisor-005"
+    },
+    {
+     "timestamp": "2026-09-18T21:46:29Z",
+     "span_id": "433359eff61d6f2f",
+     "agentsec.sequence": 8,
+     "event.name": "agentsec.mcp.completed",
+     "parent_span_id": "fcc01e309a69f903",
+     "agentsec.operation.type": "mcp_tool_invoke",
+     "agentsec.span.kind": "mcp_tool_invoke",
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "lookup_policy",
+     "mcp.method.name": "tools/call",
+     "agentsec.operation.attempted": true,
+     "agentsec.operation.executed": true,
+     "agentsec.operation.outcome": "success",
+     "agentsec.duration_ms": 1,
+     "agentsec.trust_boundary": "mcp.tool.result",
+     "agentsec.mcp.result.trust": "untrusted_data",
+     "agentsec.mcp.result.provenance": "mcp.tool.handler",
+     "agentsec.content.preview": "{\"found\":true,\"policy_id\":\"lending-basics\",\"summary\":\"Lab-only snippet: document income before credit scoring.\",\"title\":\"Lab lending policy\"}",
+     "agentsec.content.hash": "sha256:2c258a80464ede4113e7721119bc6a908951b8b723c61489ac27b737cdbeb68e",
+     "agentsec.content.origin.type": "agent",
+     "agentsec.content.origin.id": "acme-agent-fulfillment-006",
+     "agentsec.content.influence.kind": "tool_request",
+     "agentsec.hop.index": 1,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent",
+     "agentsec.delegator.agent.id": "acme-agent-advisor-005"
+    },
+    {
+     "timestamp": "2026-09-18T21:46:29Z",
+     "span_id": "fcc01e309a69f903",
+     "agentsec.sequence": 9,
+     "event.name": "agentsec.hop.completed",
+     "parent_span_id": "53dc51744921fe3c",
+     "agentsec.operation.type": "agent_hop",
+     "agentsec.span.kind": "hop",
+     "agentsec.outcome": "hop_allowed",
+     "agentsec.duration_ms": 4,
+     "agentsec.hop.index": 1,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent",
+     "agentsec.delegator.agent.id": "acme-agent-advisor-005"
+    },
+    {
+     "timestamp": "2026-09-18T21:46:29Z",
+     "span_id": "53dc51744921fe3c",
+     "agentsec.sequence": 10,
+     "event.name": "agentsec.run.completed",
+     "agentsec.operation.type": "pipeline",
+     "agentsec.span.kind": "pipeline",
+     "agentsec.outcome": "completed_allowed",
+     "agentsec.duration_ms": 7
+    }
+   ]
+  },
+  {
+   "id": "delegation-001:ATTACK",
+   "role": "ATTACK",
+   "title": "Attack run",
+   "evidence_class": "RECORDED",
+   "kind": "runtime_decision",
+   "statement": "2 control decisions (CTRL-IDENTITY-001 OBSERVE identity_claim_is_not_grant; CTRL-MCP-001 ALLOW vulnerable_profile_fail_open:caller_identity_derived_authority). 1 handler start with executed=true. Run outcome: completed_allowed.",
+   "facts": {
+    "run_id": "f846be88-1f9d-4dde-ac80-193c01b47660",
+    "role": "ATTACK",
+    "profile": "vulnerable",
+    "decisions": [
+     {
+      "sequence": 3,
+      "control": "CTRL-IDENTITY-001",
+      "decision": "OBSERVE",
+      "reason": "identity_claim_is_not_grant",
+      "tool": "lookup_customer_tier",
+      "requested_scope": "customer:read",
+      "requested_resource": null,
+      "agent": "Fulfillment Agent"
+     },
+     {
+      "sequence": 6,
+      "control": "CTRL-MCP-001",
+      "decision": "ALLOW",
+      "reason": "vulnerable_profile_fail_open:caller_identity_derived_authority",
+      "tool": "lookup_customer_tier",
+      "requested_scope": "customer:read",
+      "requested_resource": null,
+      "agent": "Fulfillment Agent"
+     }
+    ],
+    "handler_starts": [
+     {
+      "sequence": 7,
+      "tool": "lookup_customer_tier",
+      "executed": true
+     }
+    ],
+    "model_calls_started": 0,
+    "run_outcome": "completed_allowed",
+    "events_in_pack": 10
+   },
+   "conditions": {
+    "profile": "vulnerable",
+    "testbed_mode": "ATTACK",
+    "execution_mode": "LIVE",
+    "telemetry_fidelity": "OBSERVED",
+    "schema_version": "1.8.0",
+    "workflow_entry": "/identity/delegate",
+    "attack_id": "A2A-001",
+    "principal": "applicant-web"
+   },
+   "expected": {
+    "documented": true,
+    "quote": {
+     "file": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+     "text": "INTENTIONALLY VULNERABLE LAB PROFILE, IDENTITY OBSERVE, overlay, MCP ALLOW, lookup_customer_tier 1"
+    }
+   },
+   "sources": [
+    {
+     "file": "learning/level_1/LAB-AGENT-DELEGATION-001/specimens/f846be88-1f9d-4dde-ac80-193c01b47660.jsonl",
+     "sha256": "1aea808c27a0c22f78a9bf8228941ce0962dc83ceaf0fd6e65239b817df5b0f1",
+     "locator": "10 events, run f846be88-1f9d-4dde-ac80-193c01b47660"
+    }
+   ],
+   "verification": {
+    "status": "NOT_VERIFIED",
+    "receipt": null
+   },
+   "splunk_copy": {
+    "indexed": true,
+    "indexed_rows": 10,
+    "distinct_raw": 10,
+    "exact_raw_bytes": 10,
+    "pack_events": 10,
+    "identical": true
+   },
+   "limitations": [
+    "One recorded run, not a sample.",
+    "Recorded in the lab's own testbed, not in a production system.",
+    "No host-verifier receipt applies, so this is NOT_VERIFIED.",
+    "The vulnerable profile is a labelled teaching profile, not a production configuration."
+   ],
+   "timeline": [
+    {
+     "timestamp": "2026-09-18T21:52:57Z",
+     "span_id": "16338dd4d8226073",
+     "agentsec.sequence": 1,
+     "event.name": "agentsec.run.started",
+     "agentsec.operation.type": "pipeline",
+     "agentsec.span.kind": "pipeline",
+     "agentsec.trust_boundary": "acmebank.http_api"
+    },
+    {
+     "timestamp": "2026-09-18T21:52:57Z",
+     "span_id": "d2cb01b9df36bc18",
+     "agentsec.sequence": 2,
+     "event.name": "agentsec.hop.started",
+     "parent_span_id": "16338dd4d8226073",
+     "agentsec.operation.type": "agent_hop",
+     "agentsec.span.kind": "hop",
+     "agentsec.hop.index": 0,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent"
+    },
+    {
+     "timestamp": "2026-09-18T21:52:57Z",
+     "span_id": "688ddd82adf1e303",
+     "agentsec.sequence": 3,
+     "event.name": "agentsec.control.decision",
+     "parent_span_id": "d2cb01b9df36bc18",
+     "agentsec.operation.type": "control_evaluation",
+     "agentsec.span.kind": "control_evaluation",
+     "agentsec.control.id": "CTRL-IDENTITY-001",
+     "agentsec.control.type": "identity_claim_trust",
+     "agentsec.control.decision": "OBSERVE",
+     "agentsec.control.reason": "identity_claim_is_not_grant",
+     "agentsec.trust_boundary": "agent.identity.claim",
+     "agentsec.invariant.id": [
+      "INV-001",
+      "INV-002",
+      "INV-005",
+      "INV-007"
+     ],
+     "agentsec.operation.attempted": false,
+     "agentsec.operation.executed": false,
+     "agentsec.content.preview": "{\"callee_agent\":\"acme-agent-fulfillment-006\",\"caller_agent\":\"acme-agent-advisor-005\",\"claim_trust\":\"untrusted_claim\",\"claimed_resource\":\"cust-001\",\"claimed_scope\":\"customer:read\",\"claimed_tool\":\"looku",
+     "agentsec.content.hash": "sha256:56179e463b2faf18c056389ebff32a61e346dd0b4010fb82e8826c4508790dfd",
+     "agentsec.content.origin.type": "agent",
+     "agentsec.content.origin.id": "acme-agent-advisor-005",
+     "agentsec.content.influence.kind": "tool_request",
+     "gen_ai.tool.name": "lookup_customer_tier",
+     "agentsec.mcp.requested_scope": "customer:read",
+     "agentsec.identity.caller_agent_id": "acme-agent-advisor-005",
+     "agentsec.identity.callee_agent_id": "acme-agent-fulfillment-006",
+     "agentsec.identity.claim.trust": "untrusted_claim",
+     "agentsec.delegation.claimed_scope": "customer:read",
+     "agentsec.hop.index": 0,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent"
+    },
+    {
+     "timestamp": "2026-09-18T21:52:57Z",
+     "span_id": "d2cb01b9df36bc18",
+     "agentsec.sequence": 4,
+     "event.name": "agentsec.hop.completed",
+     "parent_span_id": "16338dd4d8226073",
+     "agentsec.operation.type": "agent_hop",
+     "agentsec.span.kind": "hop",
+     "agentsec.outcome": "hop_allowed",
+     "agentsec.duration_ms": 1,
+     "agentsec.hop.index": 0,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent"
+    },
+    {
+     "timestamp": "2026-09-18T21:52:57Z",
+     "span_id": "046b5bb41b584881",
+     "agentsec.sequence": 5,
+     "event.name": "agentsec.hop.started",
+     "parent_span_id": "16338dd4d8226073",
+     "agentsec.operation.type": "agent_hop",
+     "agentsec.span.kind": "hop",
+     "agentsec.hop.index": 1,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent",
+     "agentsec.delegator.agent.id": "acme-agent-advisor-005"
+    },
+    {
+     "timestamp": "2026-09-18T21:52:57Z",
+     "span_id": "cac605c11e4698d3",
+     "agentsec.sequence": 6,
+     "event.name": "agentsec.control.decision",
+     "parent_span_id": "046b5bb41b584881",
+     "agentsec.operation.type": "control_evaluation",
+     "agentsec.span.kind": "control_evaluation",
+     "agentsec.control.id": "CTRL-MCP-001",
+     "agentsec.control.type": "mcp_allowlist",
+     "agentsec.control.decision": "ALLOW",
+     "agentsec.control.reason": "vulnerable_profile_fail_open:caller_identity_derived_authority",
+     "agentsec.trust_boundary": "acmebank.mcp.authorize",
+     "agentsec.invariant.id": [
+      "INV-001",
+      "INV-004",
+      "INV-005",
+      "INV-007"
+     ],
+     "agentsec.operation.attempted": false,
+     "agentsec.operation.executed": false,
+     "agentsec.content.preview": "{\"authority_source\": \"caller-identity-derived overlay\", \"request_fingerprint\": \"sha256:56179e463b2faf18c056389ebff32a61e346dd0b4010fb82e8826c4508790dfd\", \"requested_scope\": \"customer:read\", \"resource\"",
+     "agentsec.content.hash": "sha256:fc4aa153bc719dbfda1c47c7da7dacea30e61d84cc991c31662582a3b6d97d8a",
+     "agentsec.content.origin.type": "agent",
+     "agentsec.content.origin.id": "acme-agent-fulfillment-006",
+     "agentsec.content.influence.kind": "tool_request",
+     "gen_ai.tool.name": "lookup_customer_tier",
+     "mcp.method.name": "tools/call",
+     "agentsec.mcp.requested_scope": "customer:read",
+     "agentsec.mcp.allowed_scope": "policy:read",
+     "agentsec.identity.caller_agent_id": "acme-agent-advisor-005",
+     "agentsec.identity.callee_agent_id": "acme-agent-fulfillment-006",
+     "agentsec.delegation.claimed_scope": "customer:read",
+     "agentsec.hop.index": 1,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent",
+     "agentsec.delegator.agent.id": "acme-agent-advisor-005"
+    },
+    {
+     "timestamp": "2026-09-18T21:52:57Z",
+     "span_id": "e6c24d1714406a4a",
+     "agentsec.sequence": 7,
+     "event.name": "agentsec.mcp.started",
+     "parent_span_id": "046b5bb41b584881",
+     "agentsec.operation.type": "mcp_tool_invoke",
+     "agentsec.span.kind": "mcp_tool_invoke",
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "lookup_customer_tier",
+     "mcp.method.name": "tools/call",
+     "agentsec.operation.attempted": true,
+     "agentsec.operation.executed": true,
+     "agentsec.trust_boundary": "mcp.tool.execute",
+     "agentsec.hop.index": 1,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent",
+     "agentsec.delegator.agent.id": "acme-agent-advisor-005"
+    },
+    {
+     "timestamp": "2026-09-18T21:52:57Z",
+     "span_id": "e6c24d1714406a4a",
+     "agentsec.sequence": 8,
+     "event.name": "agentsec.mcp.completed",
+     "parent_span_id": "046b5bb41b584881",
+     "agentsec.operation.type": "mcp_tool_invoke",
+     "agentsec.span.kind": "mcp_tool_invoke",
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "lookup_customer_tier",
+     "mcp.method.name": "tools/call",
+     "agentsec.operation.attempted": true,
+     "agentsec.operation.executed": true,
+     "agentsec.operation.outcome": "success",
+     "agentsec.duration_ms": 0,
+     "agentsec.trust_boundary": "mcp.tool.result",
+     "agentsec.mcp.result.trust": "untrusted_data",
+     "agentsec.mcp.result.provenance": "mcp.tool.handler",
+     "agentsec.content.preview": "{\"customer_id\":\"cust-001\",\"found\":true,\"tier\":\"standard\"}",
+     "agentsec.content.hash": "sha256:c3387777482674ed7330e1e6b860f53f7bd2d5c6303d9162cd9fff4ebf666f97",
+     "agentsec.content.origin.type": "agent",
+     "agentsec.content.origin.id": "acme-agent-fulfillment-006",
+     "agentsec.content.influence.kind": "tool_request",
+     "agentsec.hop.index": 1,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent",
+     "agentsec.delegator.agent.id": "acme-agent-advisor-005"
+    },
+    {
+     "timestamp": "2026-09-18T21:52:57Z",
+     "span_id": "046b5bb41b584881",
+     "agentsec.sequence": 9,
+     "event.name": "agentsec.hop.completed",
+     "parent_span_id": "16338dd4d8226073",
+     "agentsec.operation.type": "agent_hop",
+     "agentsec.span.kind": "hop",
+     "agentsec.outcome": "hop_allowed",
+     "agentsec.duration_ms": 3,
+     "agentsec.hop.index": 1,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent",
+     "agentsec.delegator.agent.id": "acme-agent-advisor-005"
+    },
+    {
+     "timestamp": "2026-09-18T21:52:57Z",
+     "span_id": "16338dd4d8226073",
+     "agentsec.sequence": 10,
+     "event.name": "agentsec.run.completed",
+     "agentsec.operation.type": "pipeline",
+     "agentsec.span.kind": "pipeline",
+     "agentsec.outcome": "completed_allowed",
+     "agentsec.duration_ms": 7
+    }
+   ]
+  },
+  {
+   "id": "delegation-001:RETEST",
+   "role": "RETEST",
+   "title": "Retest run",
+   "evidence_class": "RECORDED",
+   "kind": "runtime_decision",
+   "statement": "2 control decisions (CTRL-IDENTITY-001 OBSERVE identity_claim_is_not_grant; CTRL-MCP-001 DENY tool_not_granted). 0 handler starts with executed=true. Run outcome: completed_denied.",
+   "facts": {
+    "run_id": "271695f5-4739-44f2-8bf4-0749d04f4b03",
+    "role": "RETEST",
+    "profile": "defended",
+    "decisions": [
+     {
+      "sequence": 3,
+      "control": "CTRL-IDENTITY-001",
+      "decision": "OBSERVE",
+      "reason": "identity_claim_is_not_grant",
+      "tool": "lookup_customer_tier",
+      "requested_scope": "customer:read",
+      "requested_resource": null,
+      "agent": "Fulfillment Agent"
+     },
+     {
+      "sequence": 6,
+      "control": "CTRL-MCP-001",
+      "decision": "DENY",
+      "reason": "tool_not_granted",
+      "tool": "lookup_customer_tier",
+      "requested_scope": "customer:read",
+      "requested_resource": null,
+      "agent": "Fulfillment Agent"
+     }
+    ],
+    "handler_starts": [],
+    "model_calls_started": 0,
+    "run_outcome": "completed_denied",
+    "events_in_pack": 9
+   },
+   "conditions": {
+    "profile": "defended",
+    "testbed_mode": "RETEST",
+    "execution_mode": "LIVE",
+    "telemetry_fidelity": "OBSERVED",
+    "schema_version": "1.8.0",
+    "workflow_entry": "/identity/delegate",
+    "attack_id": "A2A-001",
+    "principal": "applicant-web"
+   },
+   "expected": {
+    "documented": true,
+    "quote": {
+     "file": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+     "text": "defended, IDENTITY OBSERVE, MCP DENY tool_not_granted, lookup_customer_tier 0"
+    }
+   },
+   "sources": [
+    {
+     "file": "learning/level_1/LAB-AGENT-DELEGATION-001/specimens/271695f5-4739-44f2-8bf4-0749d04f4b03.jsonl",
+     "sha256": "5807d08a4e7b9acd2bf52b8170f59e6eb6aa5d52f5e139c37ad1f84a102c9ecc",
+     "locator": "9 events, run 271695f5-4739-44f2-8bf4-0749d04f4b03"
+    }
+   ],
+   "verification": {
+    "status": "NOT_VERIFIED",
+    "receipt": null
+   },
+   "splunk_copy": {
+    "indexed": true,
+    "indexed_rows": 9,
+    "distinct_raw": 9,
+    "exact_raw_bytes": 9,
+    "pack_events": 9,
+    "identical": true
+   },
+   "limitations": [
+    "One recorded run, not a sample.",
+    "Recorded in the lab's own testbed, not in a production system.",
+    "No host-verifier receipt applies, so this is NOT_VERIFIED."
+   ],
+   "timeline": [
+    {
+     "timestamp": "2026-09-18T21:53:23Z",
+     "span_id": "840b3a3b3c2499db",
+     "agentsec.sequence": 1,
+     "event.name": "agentsec.run.started",
+     "agentsec.operation.type": "pipeline",
+     "agentsec.span.kind": "pipeline",
+     "agentsec.trust_boundary": "acmebank.http_api"
+    },
+    {
+     "timestamp": "2026-09-18T21:53:23Z",
+     "span_id": "85a70fe1634215eb",
+     "agentsec.sequence": 2,
+     "event.name": "agentsec.hop.started",
+     "parent_span_id": "840b3a3b3c2499db",
+     "agentsec.operation.type": "agent_hop",
+     "agentsec.span.kind": "hop",
+     "agentsec.hop.index": 0,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent"
+    },
+    {
+     "timestamp": "2026-09-18T21:53:23Z",
+     "span_id": "c765ffeb8c56f681",
+     "agentsec.sequence": 3,
+     "event.name": "agentsec.control.decision",
+     "parent_span_id": "85a70fe1634215eb",
+     "agentsec.operation.type": "control_evaluation",
+     "agentsec.span.kind": "control_evaluation",
+     "agentsec.control.id": "CTRL-IDENTITY-001",
+     "agentsec.control.type": "identity_claim_trust",
+     "agentsec.control.decision": "OBSERVE",
+     "agentsec.control.reason": "identity_claim_is_not_grant",
+     "agentsec.trust_boundary": "agent.identity.claim",
+     "agentsec.invariant.id": [
+      "INV-001",
+      "INV-002",
+      "INV-005",
+      "INV-007"
+     ],
+     "agentsec.operation.attempted": false,
+     "agentsec.operation.executed": false,
+     "agentsec.content.preview": "{\"callee_agent\":\"acme-agent-fulfillment-006\",\"caller_agent\":\"acme-agent-advisor-005\",\"claim_trust\":\"untrusted_claim\",\"claimed_resource\":\"cust-001\",\"claimed_scope\":\"customer:read\",\"claimed_tool\":\"looku",
+     "agentsec.content.hash": "sha256:56179e463b2faf18c056389ebff32a61e346dd0b4010fb82e8826c4508790dfd",
+     "agentsec.content.origin.type": "agent",
+     "agentsec.content.origin.id": "acme-agent-advisor-005",
+     "agentsec.content.influence.kind": "tool_request",
+     "gen_ai.tool.name": "lookup_customer_tier",
+     "agentsec.mcp.requested_scope": "customer:read",
+     "agentsec.identity.caller_agent_id": "acme-agent-advisor-005",
+     "agentsec.identity.callee_agent_id": "acme-agent-fulfillment-006",
+     "agentsec.identity.claim.trust": "untrusted_claim",
+     "agentsec.delegation.claimed_scope": "customer:read",
+     "agentsec.hop.index": 0,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent"
+    },
+    {
+     "timestamp": "2026-09-18T21:53:23Z",
+     "span_id": "85a70fe1634215eb",
+     "agentsec.sequence": 4,
+     "event.name": "agentsec.hop.completed",
+     "parent_span_id": "840b3a3b3c2499db",
+     "agentsec.operation.type": "agent_hop",
+     "agentsec.span.kind": "hop",
+     "agentsec.outcome": "hop_allowed",
+     "agentsec.duration_ms": 1,
+     "agentsec.hop.index": 0,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent"
+    },
+    {
+     "timestamp": "2026-09-18T21:53:23Z",
+     "span_id": "803f7b5175cb809a",
+     "agentsec.sequence": 5,
+     "event.name": "agentsec.hop.started",
+     "parent_span_id": "840b3a3b3c2499db",
+     "agentsec.operation.type": "agent_hop",
+     "agentsec.span.kind": "hop",
+     "agentsec.hop.index": 1,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent",
+     "agentsec.delegator.agent.id": "acme-agent-advisor-005"
+    },
+    {
+     "timestamp": "2026-09-18T21:53:23Z",
+     "span_id": "948eadafa227693b",
+     "agentsec.sequence": 6,
+     "event.name": "agentsec.control.decision",
+     "parent_span_id": "803f7b5175cb809a",
+     "agentsec.operation.type": "control_evaluation",
+     "agentsec.span.kind": "control_evaluation",
+     "agentsec.control.id": "CTRL-MCP-001",
+     "agentsec.control.type": "mcp_allowlist",
+     "agentsec.control.decision": "DENY",
+     "agentsec.control.reason": "tool_not_granted",
+     "agentsec.trust_boundary": "acmebank.mcp.authorize",
+     "agentsec.invariant.id": [
+      "INV-001",
+      "INV-005",
+      "INV-008",
+      "INV-007"
+     ],
+     "agentsec.operation.attempted": false,
+     "agentsec.operation.executed": false,
+     "agentsec.operation.outcome": "prevented",
+     "agentsec.content.preview": "{\"authority_source\": \"server-owned\", \"request_fingerprint\": \"sha256:56179e463b2faf18c056389ebff32a61e346dd0b4010fb82e8826c4508790dfd\", \"requested_scope\": \"customer:read\", \"resource\": \"cust-001\", \"serv",
+     "agentsec.content.hash": "sha256:1deaa203e07b27b68ea3b5fca2795e4650f1ba5bde9dc120e535aac5108e7e84",
+     "agentsec.content.origin.type": "agent",
+     "agentsec.content.origin.id": "acme-agent-fulfillment-006",
+     "agentsec.content.influence.kind": "tool_request",
+     "gen_ai.tool.name": "lookup_customer_tier",
+     "mcp.method.name": "tools/call",
+     "agentsec.mcp.requested_scope": "customer:read",
+     "agentsec.mcp.allowed_scope": "policy:read",
+     "agentsec.identity.caller_agent_id": "acme-agent-advisor-005",
+     "agentsec.identity.callee_agent_id": "acme-agent-fulfillment-006",
+     "agentsec.delegation.claimed_scope": "customer:read",
+     "agentsec.hop.index": 1,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent",
+     "agentsec.delegator.agent.id": "acme-agent-advisor-005"
+    },
+    {
+     "timestamp": "2026-09-18T21:53:23Z",
+     "span_id": "cf334ed9bb47fd97",
+     "agentsec.sequence": 7,
+     "event.name": "agentsec.pipeline.stopped",
+     "parent_span_id": "840b3a3b3c2499db",
+     "agentsec.operation.type": "pipeline_stop",
+     "agentsec.span.kind": "pipeline",
+     "agentsec.stop.reason": "denied",
+     "agentsec.hop.index": 1,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "agentsec.delegator.agent.id": "acme-agent-advisor-005"
+    },
+    {
+     "timestamp": "2026-09-18T21:53:23Z",
+     "span_id": "803f7b5175cb809a",
+     "agentsec.sequence": 8,
+     "event.name": "agentsec.hop.completed",
+     "parent_span_id": "840b3a3b3c2499db",
+     "agentsec.operation.type": "agent_hop",
+     "agentsec.span.kind": "hop",
+     "agentsec.outcome": "hop_denied",
+     "agentsec.duration_ms": 2,
+     "agentsec.hop.index": 1,
+     "gen_ai.agent.id": "acme-agent-fulfillment-006",
+     "gen_ai.agent.name": "Fulfillment Agent",
+     "agentsec.delegator.agent.id": "acme-agent-advisor-005"
+    },
+    {
+     "timestamp": "2026-09-18T21:53:23Z",
+     "span_id": "840b3a3b3c2499db",
+     "agentsec.sequence": 9,
+     "event.name": "agentsec.run.completed",
+     "agentsec.operation.type": "pipeline",
+     "agentsec.span.kind": "pipeline",
+     "agentsec.outcome": "completed_denied",
+     "agentsec.duration_ms": 6
+    }
+   ]
+  }
+ ],
+ "comparison": {
+  "kind": "attack_retest",
+  "roles": [
+   "BASELINE",
+   "ATTACK",
+   "RETEST"
+  ],
+  "rows": [
+   {
+    "label": "Profile",
+    "values": {
+     "BASELINE": "defended",
+     "ATTACK": "vulnerable",
+     "RETEST": "defended"
+    }
+   },
+   {
+    "label": "Control decisions",
+    "values": {
+     "BASELINE": "CTRL-IDENTITY-001 OBSERVE (identity_claim_is_not_grant); CTRL-MCP-001 ALLOW (tool_granted)",
+     "ATTACK": "CTRL-IDENTITY-001 OBSERVE (identity_claim_is_not_grant); CTRL-MCP-001 ALLOW (vulnerable_profile_fail_open:caller_identity_derived_authority)",
+     "RETEST": "CTRL-IDENTITY-001 OBSERVE (identity_claim_is_not_grant); CTRL-MCP-001 DENY (tool_not_granted)"
+    }
+   },
+   {
+    "label": "Handler starts with executed=true",
+    "values": {
+     "BASELINE": "1",
+     "ATTACK": "1",
+     "RETEST": "0"
+    }
+   },
+   {
+    "label": "Model calls started",
+    "values": {
+     "BASELINE": "0",
+     "ATTACK": "0",
+     "RETEST": "0"
+    }
+   },
+   {
+    "label": "Run outcome",
+    "values": {
+     "BASELINE": "completed_allowed",
+     "ATTACK": "completed_allowed",
+     "RETEST": "completed_denied"
+    }
+   },
+   {
+    "label": "Events in the pack",
+    "values": {
+     "BASELINE": "10",
+     "ATTACK": "10",
+     "RETEST": "9"
+    }
+   }
+  ],
+  "same_request_check": {
+   "control": "CTRL-IDENTITY-001",
+   "nth_decision": 0,
+   "attack": {
+    "agentsec.content.hash": "sha256:56179e463b2faf18c056389ebff32a61e346dd0b4010fb82e8826c4508790dfd"
+   },
+   "retest": {
+    "agentsec.content.hash": "sha256:56179e463b2faf18c056389ebff32a61e346dd0b4010fb82e8826c4508790dfd"
+   },
+   "fields_absent_in_both": []
+  },
+  "same_request_fields": {
+   "agentsec.content.hash": true
+  },
+  "signature_has_value": true,
+  "also_reported": {},
+  "controlled_pair": true,
+  "reading": "The ATTACK and RETEST runs carry the same request in every compared field, so the change in decision can be attributed to the profile.",
+  "limits": [
+   "This compares two recorded runs. It does not measure how often the control holds.",
+   "One pair of runs is not evidence of control effectiveness."
+  ]
+ },
+ "mappings": [],
+ "threat": {
+  "id": "TM-T05",
+  "category": "IDENTITY SPOOFING / DELEGATION ABUSE",
+  "question": "Can identity or delegation claims be mistaken for authenticated or delegated authority?",
+  "gap": "Authentication, OAuth/OIDC, workload identity, and cryptographic delegation are NOT MODELED.",
+  "residual_risk": "Claim fields provide attribution context but cannot establish who authenticated.",
+  "existing_controls": [
+   {
+    "id": "CTRL-IDENTITY-001",
+    "class": "OBSERVE",
+    "placement": "Claim interpretation",
+    "evidence": "src/agentsec/identity/pipeline.py:run_identity_delegation"
+   },
+   {
+    "id": "CTRL-MCP-001",
+    "class": "PREVENTIVE / ENFORCE",
+    "placement": "Tool authority boundary",
+    "evidence": "src/agentsec/mcp/authorize.py:authorize_tool"
+   }
+  ],
+  "source": {
+   "file": "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json",
+   "sha256": "2b6ee60568521cd9535c07e23de3575dcd4d597b06d03785639174598a9b645c",
+   "locator": "threats[TM-T05]"
+  }
+ },
+ "documentation": {
+  "file": "learning/level_1/LAB-AGENT-DELEGATION-001/README.md",
+  "sha256": "5894b41b6e882e3bcf4fecaa2675b09c85bda08f557ab2956175be1c3ef8121b",
+  "locator": "the lab's recorded run list"
+ },
+ "limitations": [
+  "Every case is a single recorded run.",
+  "No run was repeated, so nothing here is a rate.",
+  "No verifier receipt applies to any run."
+ ],
+ "findings": [
+  "F-delegation-001-execution"
+ ]
+}

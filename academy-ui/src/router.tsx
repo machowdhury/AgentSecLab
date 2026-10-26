@@ -30,7 +30,9 @@ export function Link({ to, children, onClick, ...rest }: { to: string; children:
   return <a href={to} onClick={go} {...rest}>{children}</a>;
 }
 
-export type Route = { name: "assurance"; step: StepId | null | "hub" } | { name: "home" } | { name: "acmebank" } | { name: "path" } | { name: "foundations" } | { name: "mastery" } | { name: "mcp" } | { name: "curriculum" } | { name: "lab"; id: string } | { name: "mission"; stage: StageId | null } | { name: "missing" };
+export type EvalView = "overview" | "catalog" | "results" | "compare" | "findings" | "export";
+export const EVAL_VIEWS: EvalView[] = ["overview", "catalog", "results", "compare", "findings", "export"];
+export type Route = { name: "evals"; view: EvalView; id: string | null } | { name: "assurance"; step: StepId | null | "hub" } | { name: "home" } | { name: "acmebank" } | { name: "path" } | { name: "foundations" } | { name: "mastery" } | { name: "mcp" } | { name: "curriculum" } | { name: "lab"; id: string } | { name: "mission"; stage: StageId | null } | { name: "missing" };
 
 export function matchRoute(path: string): Route {
   const parts = path.replace(/\/+$/, "").split("/").filter(Boolean); // ["learn", ...]
@@ -38,6 +40,14 @@ export function matchRoute(path: string): Route {
   if (parts.length === 1) return { name: "home" };
   if (parts.length === 2 && parts[1] === "acmebank") return { name: "acmebank" };  // retired: redirected to the Prepare stage
   if (parts.length === 2 && parts[1] === "curriculum") return { name: "curriculum" };
+  if (parts[1] === "evals") {
+    if (parts.length === 2) return { name: "evals", view: "overview", id: null };
+    const v = parts[2] as EvalView;
+    if ((EVAL_VIEWS as string[]).includes(v) && v !== "overview") {
+      if ((v === "results" || v === "compare") && parts.length <= 4 && (parts.length === 3 || /^[a-z0-9-]+$/.test(parts[3]))) return { name: "evals", view: v, id: parts[3] ?? null };
+      if ((v === "catalog" || v === "findings" || v === "export") && parts.length === 3) return { name: "evals", view: v, id: null };
+    }
+  }
   if (parts[1] === "assurance") {
     if (parts.length === 2) return { name: "assurance", step: "hub" };
     if (parts[2] === "mcp-unauthorized-scope" && parts.length === 3) return { name: "assurance", step: null };
@@ -52,6 +62,7 @@ export function matchRoute(path: string): Route {
   return { name: "missing" };
 }
 
+export const EVALS_PATH = `${BASE}/evals`;
 export const ASSURANCE_PATH = `${BASE}/assurance`, JOURNEY_PATH = `${BASE}/assurance/mcp-unauthorized-scope`;
 export const PATH_PATH = `${BASE}/path`, FOUNDATIONS_PATH = `${BASE}/foundations`, MASTERY_PATH = `${BASE}/mastery`, MCP_PATH = `${BASE}/mcp`, CURRICULUM_PATH = `${BASE}/curriculum`;
 export const labPath = (id: string) => `${BASE}/lab/${id}`;
