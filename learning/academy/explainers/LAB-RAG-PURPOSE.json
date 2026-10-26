@@ -1,0 +1,229 @@
+{
+  "lab_id": "LAB-RAG-PURPOSE",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-24",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The packet shown in Practice is the committed packet, unedited, and its classification is shown on every page."
+  },
+  "summary": {
+    "text": "A document can be retrieved and still be unauthorized for the purpose in front of you. This checkpoint takes one retrieved object through three simulated purposes and asks whether each use is allowed.",
+    "grounds": [
+      "splunk_app/agentsec/default/data/ui/views/ws_lab_purpose_authorization.xml"
+    ],
+    "facts": [
+      "A document can be retrieved and still be unauthorized for the purpose in front of you."
+    ]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "A principal asks a question and an internal lending-policy document is retrieved.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_purpose_authorization.xml"
+      ],
+      "facts": [
+        "object: doc.lending-policy.normal"
+      ]
+    },
+    {
+      "id": "controls",
+      "label": "The threat",
+      "text": "The same retrieved object is requested for a different purpose than the one it is allowed for.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_purpose_authorization.xml"
+      ],
+      "facts": [
+        "ATTACK and RETEST request purpose executive-decision for the same retrieved object."
+      ]
+    },
+    {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between retrieving a document and using it for a stated purpose. Authorized for a principal is not authorized for this purpose.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_purpose_authorization.xml"
+      ],
+      "facts": [
+        "Authorized for a principal is not authorized for this purpose."
+      ]
+    },
+    {
+      "id": "rule",
+      "label": "The security control",
+      "text": "The purpose is checked against the allowed purpose. Similarity and retrieval are not authorization.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_purpose_authorization.xml"
+      ],
+      "facts": [
+        "Vector similarity is not authorization."
+      ]
+    },
+    {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "The tool control is not invoked by retrieval, and resource impact is not proven.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_purpose_authorization.xml"
+      ],
+      "facts": [
+        "CTRL-MCP-001 remains the tool PDP and is not invoked here."
+      ]
+    }
+  ],
+  "cannot_claim_lines": {
+    "source": "splunk_app/agentsec/default/data/ui/views/ws_lab_purpose_authorization.xml",
+    "lines": [
+      "Vector similarity is not authorization.",
+      "CTRL-MCP-001 remains the tool PDP and is not invoked here."
+    ]
+  },
+  "checkpoint": {
+    "packet": "learning/level_1/LAB-RAG-PURPOSE/evidence.packet.json",
+    "order": [
+      "BASELINE",
+      "ATTACK",
+      "RETEST"
+    ],
+    "context": [
+      {
+        "label": "Principal",
+        "path": "principal"
+      },
+      {
+        "label": "Query",
+        "path": "query"
+      },
+      {
+        "label": "Retrieved object",
+        "path": "retrieved_object"
+      },
+      {
+        "label": "Classification",
+        "path": "resource_classification"
+      },
+      {
+        "label": "Allowed purpose",
+        "path": "allowed_purpose"
+      },
+      {
+        "label": "Retrieval",
+        "path": "retrieval_result"
+      },
+      {
+        "label": "Vector similarity",
+        "path": "vector_similarity"
+      }
+    ],
+    "setup": [
+      {
+        "label": "Requested purpose",
+        "field": "requested_purpose"
+      }
+    ],
+    "predictions": [
+      {
+        "id": "purpose",
+        "question": "Is the requested purpose the object's allowed purpose?",
+        "field": "derived",
+        "options": [
+          "yes",
+          "no"
+        ],
+        "derived": {
+          "kind": "equals",
+          "a": "requested_purpose",
+          "b_packet": "allowed_purpose"
+        }
+      },
+      {
+        "id": "decision",
+        "question": "What did the purpose check decide?",
+        "field": "purpose_decision",
+        "options": "from_packet",
+        "reason_field": "purpose_reason"
+      },
+      {
+        "id": "use",
+        "question": "What happened to the retrieved object downstream?",
+        "field": "downstream_use",
+        "options": "from_packet"
+      }
+    ],
+    "outcome": [
+      {
+        "label": "Purpose relation",
+        "field": "purpose_relation"
+      },
+      {
+        "label": "Purpose decision",
+        "field": "purpose_decision"
+      },
+      {
+        "label": "Reason",
+        "field": "purpose_reason"
+      },
+      {
+        "label": "Downstream use",
+        "field": "downstream_use"
+      },
+      {
+        "label": "Tool authorization",
+        "field": "tool_authorization"
+      },
+      {
+        "label": "Resource impact",
+        "field": "resource_impact"
+      },
+      {
+        "label": "Note",
+        "field": "note"
+      }
+    ],
+    "diff": [
+      {
+        "label": "Requested purpose",
+        "field": "requested_purpose"
+      },
+      {
+        "label": "Request id",
+        "field": "request_id"
+      }
+    ],
+    "decisive": [
+      {
+        "label": "Purpose relation",
+        "field": "purpose_relation"
+      },
+      {
+        "label": "Decision",
+        "field": "purpose_decision"
+      },
+      {
+        "label": "Reason",
+        "field": "purpose_reason"
+      },
+      {
+        "label": "Downstream use",
+        "field": "downstream_use"
+      }
+    ],
+    "packet_facts": [
+      {
+        "label": "Evidence classification",
+        "path": "evidence_classification"
+      },
+      {
+        "label": "Historical RAG plane",
+        "path": "historical_rag_plane"
+      },
+      {
+        "label": "CTRL-RAG-CONTEXT-001",
+        "path": "ctrl_rag_context_001"
+      }
+    ],
+    "spl": [
+      "learning/level_1/LAB-RAG-PURPOSE/searches/Q-PURPOSE-CONTRAST.spl"
+    ]
+  }
+}

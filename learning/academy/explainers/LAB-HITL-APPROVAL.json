@@ -1,0 +1,299 @@
+{
+  "lab_id": "LAB-HITL-APPROVAL",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-24",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The packet shown in Practice is the committed packet, unedited, and its classification is shown on every page."
+  },
+  "summary": {
+    "text": "An approval exists for one action. A second action arrives inside the approval's window. This checkpoint asks whether the approval still covers what was actually submitted, using three simulated cases.",
+    "grounds": [
+      "splunk_app/agentsec/default/data/ui/views/ws_lab_hitl_approval.xml"
+    ],
+    "facts": [
+      "You are reviewing whether an approval still covers the action that was submitted."
+    ]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "A reviewer approves one specific lookup. The agent later submits an action and the approval is checked against it.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_hitl_approval.xml"
+      ],
+      "facts": [
+        "An approval exists for lookup_policy / lending-basics."
+      ]
+    },
+    {
+      "id": "controls",
+      "label": "The threat",
+      "text": "An action that differs from the approved one arrives while the approval is still inside its time window.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_hitl_approval.xml"
+      ],
+      "facts": [
+        "The approval covers lookup_policy on lending-basics."
+      ]
+    },
+    {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between the approval record and the action actually submitted. An approval is bound to one action, not to a time window alone.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_hitl_approval.xml"
+      ],
+      "facts": [
+        "You are reviewing whether an approval still covers the action that was submitted."
+      ]
+    },
+    {
+      "id": "rule",
+      "label": "The security control",
+      "text": "The tool decision stays with CTRL-MCP-001. The packet's binding comparison is evidence, not the decision.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_hitl_approval.xml"
+      ],
+      "facts": [
+        "CTRL-MCP-001 remains the tool decision."
+      ]
+    },
+    {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "The packet is a simulated approval, not a runtime approval service.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_hitl_approval.xml"
+      ],
+      "facts": [
+        "It is not a runtime approval service and not historical MCP-004 evidence."
+      ]
+    }
+  ],
+  "known": [
+    {
+      "text": "The attack case is allowed only by a reason the packet labels as a vulnerable teaching fault: a stale approval accepted.",
+      "grounds": [
+        "learning/level_1/LAB-HITL-APPROVAL/evidence.packet.json"
+      ],
+      "facts": [
+        "vulnerable_profile_fail_open:stale_approval_accepted"
+      ]
+    }
+  ],
+  "cannot_claim_lines": {
+    "source": "splunk_app/agentsec/default/data/ui/views/ws_lab_hitl_approval.xml",
+    "lines": [
+      "A MATCH is not an ALLOW. A MISMATCH is not a DENY.",
+      "It is not a runtime approval service and not historical MCP-004 evidence."
+    ]
+  },
+  "checkpoint": {
+    "packet": "learning/level_1/LAB-HITL-APPROVAL/evidence.packet.json",
+    "order": [
+      "BASELINE",
+      "ATTACK",
+      "RETEST"
+    ],
+    "context": [
+      {
+        "label": "Approval record",
+        "path": "approval.record_label"
+      },
+      {
+        "label": "Approved tool",
+        "path": "approval.approved_tool"
+      },
+      {
+        "label": "Approved resource",
+        "path": "approval.approved_resource"
+      },
+      {
+        "label": "Approved action reference",
+        "path": "approval.approved_action_reference"
+      },
+      {
+        "label": "Approval window starts",
+        "path": "approval.not_before"
+      },
+      {
+        "label": "Approval window ends",
+        "path": "approval.expires_at"
+      },
+      {
+        "label": "Approval authority",
+        "path": "approval.approval_authority"
+      }
+    ],
+    "setup": [
+      {
+        "label": "Requesting agent",
+        "field": "requesting_agent"
+      },
+      {
+        "label": "Submitted tool",
+        "field": "submitted_tool"
+      },
+      {
+        "label": "Submitted resource",
+        "field": "submitted_resource"
+      },
+      {
+        "label": "Submitted action reference",
+        "field": "submitted_action_reference"
+      },
+      {
+        "label": "Submitted at",
+        "field": "action_submitted_at"
+      }
+    ],
+    "predictions": [
+      {
+        "id": "window",
+        "question": "Was the action submitted inside the approval's time window?",
+        "field": "derived",
+        "options": [
+          "inside the window",
+          "outside the window"
+        ],
+        "derived": {
+          "kind": "within",
+          "at": "action_submitted_at",
+          "window": {
+            "packet_path": "approval",
+            "from": "not_before",
+            "to": "expires_at"
+          },
+          "inside": "inside the window",
+          "outside": "outside the window"
+        }
+      },
+      {
+        "id": "binding",
+        "question": "Does the submitted action match what was approved or delegated?",
+        "field": "binding",
+        "options": [
+          "MATCH",
+          "MISMATCH"
+        ]
+      },
+      {
+        "id": "decision",
+        "question": "What did CTRL-MCP-001 decide?",
+        "field": "ctrl_mcp_001_decision",
+        "options": [
+          "ALLOW",
+          "DENY",
+          "ERROR"
+        ],
+        "reason_field": "ctrl_mcp_001_reason"
+      },
+      {
+        "id": "execution",
+        "question": "Does the packet record a separate simulated start?",
+        "field": "execution_observed",
+        "options": [
+          "YES",
+          "NO"
+        ],
+        "match": "startswith"
+      }
+    ],
+    "outcome": [
+      {
+        "label": "Approval validity (packet)",
+        "field": "approval_validity"
+      },
+      {
+        "label": "Binding",
+        "field": "binding"
+      },
+      {
+        "label": "CTRL-MCP-001 decision",
+        "field": "ctrl_mcp_001_decision"
+      },
+      {
+        "label": "Reason",
+        "field": "ctrl_mcp_001_reason"
+      },
+      {
+        "label": "Execution",
+        "field": "execution_observed"
+      },
+      {
+        "label": "Completion",
+        "field": "completion_observed"
+      },
+      {
+        "label": "Resource impact",
+        "field": "resource_impact"
+      }
+    ],
+    "diff": [
+      {
+        "label": "Submitted resource",
+        "field": "submitted_resource"
+      },
+      {
+        "label": "Submitted action reference",
+        "field": "submitted_action_reference"
+      },
+      {
+        "label": "Submitted tool",
+        "field": "submitted_tool"
+      },
+      {
+        "label": "Submitted at",
+        "field": "action_submitted_at"
+      },
+      {
+        "label": "Requesting agent",
+        "field": "requesting_agent"
+      }
+    ],
+    "decisive": [
+      {
+        "label": "Binding",
+        "field": "binding"
+      },
+      {
+        "label": "Decision",
+        "field": "ctrl_mcp_001_decision"
+      },
+      {
+        "label": "Reason",
+        "field": "ctrl_mcp_001_reason"
+      },
+      {
+        "label": "Execution",
+        "field": "execution_observed"
+      }
+    ],
+    "packet_facts": [
+      {
+        "label": "Evidence classification",
+        "path": "evidence_classification"
+      },
+      {
+        "label": "Approver authentication",
+        "path": "approval.approver_authentication"
+      },
+      {
+        "label": "Approver type",
+        "path": "approval.approver_type_claim"
+      },
+      {
+        "label": "Approval authority",
+        "path": "approval.approval_authority"
+      },
+      {
+        "label": "Replay",
+        "path": "approval.replay"
+      }
+    ],
+    "spl": [
+      "learning/level_1/LAB-HITL-APPROVAL/searches/Q-APPROVAL-CONTRAST.spl"
+    ]
+  }
+}

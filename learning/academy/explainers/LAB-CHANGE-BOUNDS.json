@@ -1,0 +1,222 @@
+{
+  "lab_id": "LAB-CHANGE-BOUNDS",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-24",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The packet shown in Practice is the committed packet, unedited, and its classification is shown on every page."
+  },
+  "summary": {
+    "text": "An agent holds authority to inspect a resource. This checkpoint asks what happens when it submits a delete instead, and what a started action does and does not prove, using three simulated cases and no real cloud account.",
+    "grounds": [
+      "splunk_app/agentsec/default/data/ui/views/ws_lab_change_bounds.xml"
+    ],
+    "facts": [
+      "Tool access is not change authority."
+    ]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "The agent inspects a resource. Inspection was delegated and approved.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_change_bounds.xml"
+      ],
+      "facts": [
+        "BASELINE submits inspect_resource."
+      ]
+    },
+    {
+      "id": "controls",
+      "label": "The threat",
+      "text": "The agent submits a delete instead of the inspection it was delegated and approved to do.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_change_bounds.xml"
+      ],
+      "facts": [
+        "ATTACK and RETEST submit delete_resource. The delegated and approved operation is inspect_resource."
+      ]
+    },
+    {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between the operation that was granted and the change that was requested. Change authority is not unlimited blast radius.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_change_bounds.xml"
+      ],
+      "facts": [
+        "Change authority is not unlimited blast radius."
+      ]
+    },
+    {
+      "id": "rule",
+      "label": "The security control",
+      "text": "Tool access does not by itself authorize a change. The tool decision decides.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_change_bounds.xml"
+      ],
+      "facts": [
+        "Tool access is not change authority."
+      ]
+    },
+    {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "A started action is not a successful change, and rollback is not recorded.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_change_bounds.xml"
+      ],
+      "facts": [
+        "A start is not a successful change."
+      ]
+    }
+  ],
+  "cannot_claim_lines": {
+    "source": "splunk_app/agentsec/default/data/ui/views/ws_lab_change_bounds.xml",
+    "lines": [
+      "A start is not a successful change.",
+      "Rollback is NOT RECORDED."
+    ]
+  },
+  "checkpoint": {
+    "packet": "learning/level_1/LAB-CHANGE-BOUNDS/evidence.packet.json",
+    "order": [
+      "BASELINE",
+      "ATTACK",
+      "RETEST"
+    ],
+    "context": [
+      {
+        "label": "Credential scope",
+        "path": "credential_scope"
+      },
+      {
+        "label": "Delegated operation",
+        "path": "delegated_operation"
+      },
+      {
+        "label": "Approved operation",
+        "path": "approval.approved_operation"
+      },
+      {
+        "label": "Approval authority",
+        "path": "approval.approval_authority"
+      }
+    ],
+    "setup": [
+      {
+        "label": "Submitted operation",
+        "field": "submitted_operation"
+      }
+    ],
+    "predictions": [
+      {
+        "id": "binding",
+        "question": "Does the submitted action match what was approved or delegated?",
+        "field": "binding",
+        "options": [
+          "MATCH",
+          "MISMATCH"
+        ]
+      },
+      {
+        "id": "decision",
+        "question": "What did CTRL-MCP-001 decide?",
+        "field": "ctrl_mcp_001_decision",
+        "options": [
+          "ALLOW",
+          "DENY",
+          "ERROR"
+        ],
+        "reason_field": "ctrl_mcp_001_reason"
+      },
+      {
+        "id": "execution",
+        "question": "Does the packet record a separate simulated start?",
+        "field": "execution_observed",
+        "options": [
+          "YES",
+          "NO"
+        ],
+        "match": "startswith"
+      }
+    ],
+    "outcome": [
+      {
+        "label": "Binding",
+        "field": "binding"
+      },
+      {
+        "label": "Blast radius",
+        "field": "blast_radius"
+      },
+      {
+        "label": "CTRL-MCP-001 decision",
+        "field": "ctrl_mcp_001_decision"
+      },
+      {
+        "label": "Reason",
+        "field": "ctrl_mcp_001_reason"
+      },
+      {
+        "label": "Execution",
+        "field": "execution_observed"
+      },
+      {
+        "label": "Completion",
+        "field": "completion_observed"
+      },
+      {
+        "label": "Rollback",
+        "field": "rollback"
+      },
+      {
+        "label": "Resource impact",
+        "field": "resource_impact"
+      },
+      {
+        "label": "Note",
+        "field": "note"
+      }
+    ],
+    "diff": [
+      {
+        "label": "Submitted operation",
+        "field": "submitted_operation"
+      },
+      {
+        "label": "Request id",
+        "field": "request_id"
+      }
+    ],
+    "decisive": [
+      {
+        "label": "Binding",
+        "field": "binding"
+      },
+      {
+        "label": "Decision",
+        "field": "ctrl_mcp_001_decision"
+      },
+      {
+        "label": "Reason",
+        "field": "ctrl_mcp_001_reason"
+      },
+      {
+        "label": "Completion",
+        "field": "completion_observed"
+      }
+    ],
+    "packet_facts": [
+      {
+        "label": "Evidence classification",
+        "path": "evidence_classification"
+      },
+      {
+        "label": "Approval authority",
+        "path": "approval.approval_authority"
+      }
+    ],
+    "spl": []
+  }
+}

@@ -235,6 +235,81 @@ def investigation_for(lab_id: str, spec: dict) -> dict:
     return out
 
 
+def source_text(path: Path) -> str:
+    """A source file as the learner-facing tests read it: JSON string values, XML text, or markdown, with emphasis removed."""
+    if path.suffix == ".json":
+        out: list[str] = []
+        def walk(o):
+            if isinstance(o, str): out.append(clean(o))
+            elif isinstance(o, dict): [(out.append(clean(k)), walk(v)) for k, v in o.items()]
+            elif isinstance(o, list): [walk(v) for v in o]
+        walk(json.loads(path.read_text(encoding="utf-8")))
+        return "\n".join(out)
+    if path.suffix == ".xml":
+        return clean(" ".join(ET.parse(path).getroot().itertext())).replace('\\"', '"')
+    return clean(path.read_text(encoding="utf-8"))
+
+
+def checkpoint_for(lab_id: str, spec: dict) -> dict:
+    """A simulated or documented packet and the interaction spec for it. The packet is embedded unchanged; every field the spec names must exist in it."""
+    f = ROOT / spec["packet"]
+    raw = f.read_bytes()
+    packet = json.loads(raw)
+    kind = spec.get("kind", "modes")
+    def resolves(path):
+        try:
+            return _dig(packet, path) is not None
+        except (KeyError, TypeError):
+            return False
+    if kind == "modes":
+        modes = {m["mode"]: m for m in packet["modes"]}
+        if sorted(modes) != sorted(spec["order"]):
+            raise SystemExit(f"{lab_id}: order {spec['order']} does not match the packet's modes {sorted(modes)}")
+        fields = set().union(*[m.keys() for m in modes.values()])
+        need = [x["field"] for k in ("setup", "outcome", "diff", "decisive") for x in spec.get(k, [])]
+        for pr in spec["predictions"]:
+            if pr["field"] != "derived":
+                need.append(pr["field"])
+            if pr.get("reason_field"):
+                need.append(pr["reason_field"])
+            d = pr.get("derived")
+            if d:
+                need.append(d["at"] if d["kind"] == "within" else d["a"])
+                if d["kind"] == "equals" and not resolves(d["b_packet"]):
+                    raise SystemExit(f"{lab_id}: packet has no {d['b_packet']}")
+                w = d.get("window", {})
+                if "packet_path" in w and not (resolves(w["packet_path"] + "." + w["from"]) and resolves(w["packet_path"] + "." + w["to"])):
+                    raise SystemExit(f"{lab_id}: window {w} does not resolve")
+                if "lookup" in w:
+                    lk = w["lookup"]; need.append(lk["by"])
+                    if not all(w["from"] in c and w["to"] in c for c in _dig(packet, lk["list"])):
+                        raise SystemExit(f"{lab_id}: lookup window fields are missing")
+            if pr["options"] == "from_packet":
+                pr["options"] = list(dict.fromkeys(modes[m][pr["field"]] for m in spec["order"] if pr["field"] in modes[m]))
+        missing = [n for n in need if n not in fields]
+        if missing:
+            raise SystemExit(f"{lab_id}: the packet's modes have no field {missing}")
+    else:
+        items = _dig(packet, spec["items_path"])
+        keys = set().union(*[i.keys() for i in items])
+        bad = [c[0] for c in spec["columns"] if c[0] not in keys] + [q["where"]["field"] for q in spec["questions"] if q["where"]["field"] not in keys]
+        if bad:
+            raise SystemExit(f"{lab_id}: the packet's items have no field {bad}")
+        for q in spec["questions"]:
+            if clean(q["quote"]["text"]) not in source_text(ROOT / q["quote"]["file"]):
+                raise SystemExit(f"quote for {q['id']} is not in {q['quote']['file']}")
+    for k in ("context", "packet_facts"):
+        for x in spec.get(k, []):
+            if not resolves(x["path"]):
+                raise SystemExit(f"{lab_id}: packet has no {x['path']}")
+    for k in ("tables", "lists"):
+        for x in spec.get(k, []):
+            if not isinstance(_dig(packet, x["path"]), list):
+                raise SystemExit(f"{lab_id}: {x['path']} is not a list in the packet")
+    body = {k: v for k, v in spec.items() if k not in ("packet", "spl")}
+    return {"kind": "checkpoint", "packet_file": spec["packet"], "sha256": hashlib.sha256(raw).hexdigest(), "packet": packet, "spec": body, "spl": spl_for(spec["spl"])}
+
+
 def write_recorded(lab_id: str, data: dict) -> dict:
     """Large evidence is written to its own file and loaded on demand, so it stays out of the main JavaScript bundle."""
     dest = ROOT / "academy-ui" / "src" / "content" / "recorded"
@@ -270,7 +345,9 @@ def explainer_for(lab_id: str) -> dict | None:
             rt["columns"] = [h for _, h in rt["columns"]]
     if "spl" in e:
         e["spl"] = [{"name": n, "source": f"learning/level_1/{lab_id}/searches/{n}", "text": (LABS / lab_id / "searches" / n).read_text(encoding="utf-8").strip()} for n in e["spl"]]
-    if "investigation" in e:
+    if "checkpoint" in e:
+        e["recorded_ref"] = write_recorded(lab_id, checkpoint_for(lab_id, e.pop("checkpoint")))
+    elif "investigation" in e:
         e["recorded_ref"] = write_recorded(lab_id, investigation_for(lab_id, e.pop("investigation")))
     elif e.get("recorded", {}).get("lazy"):
         spec = e.pop("recorded"); spec.pop("lazy")

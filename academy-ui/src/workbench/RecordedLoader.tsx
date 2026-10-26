@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { RecordedFile } from "../curriculum";
 import { RecordedPractice, RecordedProve } from "./RecordedWorkbench";
 import { InvestigationPractice, InvestigationProve } from "./InvestigationWorkbench";
+import { CheckpointPractice, CheckpointProve } from "./CheckpointWorkbench";
 
 // Large recorded evidence lives in its own file and is fetched only when its lab page opens, so it stays out of the main bundle.
 const FILES = import.meta.glob<{ default: RecordedFile }>("../content/recorded/*.json");
@@ -22,6 +23,7 @@ export function LazyRecorded({ file, part }: { file: string; part: "practice" | 
   const { data, err } = useRecorded(file);
   if (err) return <div className="m-sec" role="alert"><p>The recorded evidence for this lab could not be loaded. Reload the page to try again.</p></div>;
   if (!data) return <div className="m-sec" role="status"><p className="m-muted">Loading the recorded evidence…</p></div>;
+  if (data.kind === "checkpoint") return part === "practice" ? <CheckpointPractice cp={data} /> : <CheckpointProve cp={data} />;
   if (data.kind === "investigation") return part === "practice" ? <InvestigationPractice inv={data} /> : <InvestigationProve inv={data} />;
   return part === "practice" ? <RecordedPractice rec={data} /> : <RecordedProve rec={data} />;
 }

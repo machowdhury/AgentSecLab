@@ -1,0 +1,234 @@
+{
+  "lab_id": "LAB-CODE-AGENT-BOUNDS",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-24",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The packet shown in Practice is the committed packet, unedited, and its classification is shown on every page."
+  },
+  "summary": {
+    "text": "A code-generation agent was delegated and approved to read a repository. This checkpoint looks at what happens when it submits a different operation, using three simulated cases and no real repository.",
+    "grounds": [
+      "splunk_app/agentsec/default/data/ui/views/ws_lab_code_agent_bounds.xml"
+    ],
+    "facts": [
+      "A code-generation agent's authority must be bounded and evidenced."
+    ]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "The agent reads a repository. The read was delegated and approved.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_code_agent_bounds.xml"
+      ],
+      "facts": [
+        "BASELINE submits read_repository."
+      ]
+    },
+    {
+      "id": "controls",
+      "label": "The threat",
+      "text": "The agent submits an install instead of the read it was delegated and approved to do.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_code_agent_bounds.xml"
+      ],
+      "facts": [
+        "ATTACK and RETEST submit install_dependency. The delegated and approved operation is read_repository."
+      ]
+    },
+    {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between the operation that was granted and the operation submitted. Approval of a read is not approval of an install.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_code_agent_bounds.xml"
+      ],
+      "facts": [
+        "Approval of a read is not approval of an install."
+      ]
+    },
+    {
+      "id": "rule",
+      "label": "The security control",
+      "text": "A current credential is not a tool grant, and delegation is not authorization.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_code_agent_bounds.xml"
+      ],
+      "facts": [
+        "Delegation is not authorization."
+      ]
+    },
+    {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "The packet records no pull request and no deploy, and resource impact stays unproven.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_code_agent_bounds.xml"
+      ],
+      "facts": [
+        "Resource impact is NOT PROVEN."
+      ]
+    }
+  ],
+  "cannot_claim_lines": {
+    "source": "splunk_app/agentsec/default/data/ui/views/ws_lab_code_agent_bounds.xml",
+    "lines": [
+      "Resource impact is NOT PROVEN.",
+      "A read grant is not authority to install, open a pull request, or deploy."
+    ]
+  },
+  "checkpoint": {
+    "packet": "learning/level_1/LAB-CODE-AGENT-BOUNDS/evidence.packet.json",
+    "order": [
+      "BASELINE",
+      "ATTACK",
+      "RETEST"
+    ],
+    "context": [
+      {
+        "label": "Claimed agent",
+        "path": "agent_claim"
+      },
+      {
+        "label": "Delegated operation",
+        "path": "delegation.delegated_operation"
+      },
+      {
+        "label": "Delegated scope",
+        "path": "delegation.delegated_scope"
+      },
+      {
+        "label": "Approved operation",
+        "path": "approval.approved_operation"
+      },
+      {
+        "label": "Approval authority",
+        "path": "approval.approval_authority"
+      },
+      {
+        "label": "Credential status",
+        "path": "credential_status"
+      },
+      {
+        "label": "Dependency",
+        "path": "dependency"
+      }
+    ],
+    "setup": [
+      {
+        "label": "Submitted operation",
+        "field": "submitted_operation"
+      }
+    ],
+    "predictions": [
+      {
+        "id": "binding",
+        "question": "Does the submitted action match what was approved or delegated?",
+        "field": "binding",
+        "options": [
+          "MATCH",
+          "MISMATCH"
+        ]
+      },
+      {
+        "id": "decision",
+        "question": "What did CTRL-MCP-001 decide?",
+        "field": "ctrl_mcp_001_decision",
+        "options": [
+          "ALLOW",
+          "DENY",
+          "ERROR"
+        ],
+        "reason_field": "ctrl_mcp_001_reason"
+      },
+      {
+        "id": "execution",
+        "question": "Does the packet record a separate simulated start?",
+        "field": "execution_observed",
+        "options": [
+          "YES",
+          "NO"
+        ],
+        "match": "startswith"
+      }
+    ],
+    "outcome": [
+      {
+        "label": "Binding",
+        "field": "binding"
+      },
+      {
+        "label": "CTRL-MCP-001 decision",
+        "field": "ctrl_mcp_001_decision"
+      },
+      {
+        "label": "Reason",
+        "field": "ctrl_mcp_001_reason"
+      },
+      {
+        "label": "Execution",
+        "field": "execution_observed"
+      },
+      {
+        "label": "Pull request",
+        "field": "pull_request"
+      },
+      {
+        "label": "Deploy",
+        "field": "deploy"
+      },
+      {
+        "label": "Resource impact",
+        "field": "resource_impact"
+      },
+      {
+        "label": "Note",
+        "field": "note"
+      }
+    ],
+    "diff": [
+      {
+        "label": "Submitted operation",
+        "field": "submitted_operation"
+      },
+      {
+        "label": "Request id",
+        "field": "request_id"
+      }
+    ],
+    "decisive": [
+      {
+        "label": "Binding",
+        "field": "binding"
+      },
+      {
+        "label": "Decision",
+        "field": "ctrl_mcp_001_decision"
+      },
+      {
+        "label": "Reason",
+        "field": "ctrl_mcp_001_reason"
+      },
+      {
+        "label": "Execution",
+        "field": "execution_observed"
+      }
+    ],
+    "packet_facts": [
+      {
+        "label": "Evidence classification",
+        "path": "evidence_classification"
+      },
+      {
+        "label": "Authentication",
+        "path": "authentication"
+      },
+      {
+        "label": "Approval authority",
+        "path": "approval.approval_authority"
+      }
+    ],
+    "spl": []
+  }
+}

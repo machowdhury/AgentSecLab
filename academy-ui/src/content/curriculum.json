@@ -117,7 +117,102 @@
     "dashboard": "ws_lab_a2a_auth_delegation",
     "evidence_docs": []
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-A2A-AUTH-DELEGATION",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-24",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The packet shown in Practice is the committed packet, unedited, and its classification is shown on every page."
+    },
+    "summary": {
+     "text": "Two agents are named in a request. Being authenticated does not mean the request is authorized. This checkpoint walks three simulated cases through authentication, a bounded delegation and the tool control, and asks you to decide each one before the packet shows its record.",
+     "grounds": [
+      "splunk_app/agentsec/default/data/ui/views/ws_lab_a2a_auth_delegation.xml"
+     ],
+     "facts": [
+      "Reject this shortcut: authenticated agent = authorized request."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "The advisor agent delegates one bounded lookup to the fulfillment agent. The packet names who is authenticated, what was delegated and what was requested.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_a2a_auth_delegation.xml"
+      ],
+      "facts": [
+       "What evidence would support authentication, what authority was delegated, what was requested, what did the tool PDP decide, and what outcome remains unknown?"
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "The threat",
+      "text": "The caller's identity is real, and the request is for something the delegation did not cover. Names and claims are not authority.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_a2a_auth_delegation.xml"
+      ],
+      "facts": [
+       "These are labels and claims. They are not authentication, credential proof, or delegated authority."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between what was authenticated, what was delegated, and what the tool control decides. Each is a separate record.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_a2a_auth_delegation.xml"
+      ],
+      "facts": [
+       "CTRL-MCP-001 is the actual tool authorization PDP."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "The security control",
+      "text": "The delegation comparison and the tool decision are different things. A match is not an allow, and a mismatch is not a deny.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_a2a_auth_delegation.xml"
+      ],
+      "facts": [
+       "MATCH is not ALLOW. MISMATCH is not DENY."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "A decision is not execution, and a start is not a completed outcome.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_a2a_auth_delegation.xml"
+      ],
+      "facts": [
+       "A start does not prove successful completion."
+      ]
+     }
+    ],
+    "known": [
+     {
+      "text": "The attack case is allowed only by a reason the packet labels as a vulnerable teaching fault, not by a real delegation.",
+      "grounds": [
+       "learning/level_1/LAB-A2A-AUTH-DELEGATION/evidence.packet.json"
+      ],
+      "facts": [
+       "vulnerable_profile_fail_open:caller_identity_derived_authority"
+      ]
+     }
+    ],
+    "recorded_ref": {
+     "kind": "checkpoint",
+     "file": "LAB-A2A-AUTH-DELEGATION.json"
+    },
+    "cannot_claim": {
+     "source": "splunk_app/agentsec/default/data/ui/views/ws_lab_a2a_auth_delegation.xml",
+     "items": [
+      "These are labels and claims. They are not authentication, credential proof, or delegated authority.",
+      "MATCH is not ALLOW. MISMATCH is not DENY."
+     ]
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [],
@@ -2024,7 +2119,102 @@
     "dashboard": "ws_lab_asset_inventory",
     "evidence_docs": []
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-ASSET-INVENTORY",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-24",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The packet shown in Practice is the committed packet, unedited, and its classification is shown on every page."
+    },
+    "summary": {
+     "text": "You cannot govern what you cannot inventory, and an inventory is not trust. This checkpoint reads the documented component list and asks what the list does and does not record.",
+     "grounds": [
+      "splunk_app/agentsec/default/data/ui/views/ws_lab_asset_inventory.xml"
+     ],
+     "facts": [
+      "You cannot govern what you cannot inventory."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "A documented list of the models, runtimes, agents, tools and external tools the lab uses.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_asset_inventory.xml"
+      ],
+      "facts": [
+       "You cannot govern what you cannot inventory."
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "The threat",
+      "text": "Treating presence in a list as safety, or a listed tool as a grant.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_asset_inventory.xml"
+      ],
+      "facts": [
+       "Presence in a list is not safety."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between a component being listed and being trusted or authorized.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_asset_inventory.xml"
+      ],
+      "facts": [
+       "Inventory is not trust. Inventory is not authorization."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "The security control",
+      "text": "The tool control stays the tool decision. A listed tool is not a grant.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_asset_inventory.xml"
+      ],
+      "facts": [
+       "lookup_policy on the list is not a grant."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "Owners are not recorded and completeness is not proven. This list is not an AI-BOM.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_asset_inventory.xml"
+      ],
+      "facts": [
+       "Owners are NOT RECORDED. Completeness is NOT PROVEN."
+      ]
+     }
+    ],
+    "known": [
+     {
+      "text": "The packet states it makes no claim of Cisco AI-BOM compatibility.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_asset_inventory.xml"
+      ],
+      "facts": [
+       "Cisco AI-BOM compatibility is NOT CLAIMED."
+      ]
+     }
+    ],
+    "recorded_ref": {
+     "kind": "checkpoint",
+     "file": "LAB-ASSET-INVENTORY.json"
+    },
+    "cannot_claim": {
+     "source": "splunk_app/agentsec/default/data/ui/views/ws_lab_asset_inventory.xml",
+     "items": [
+      "Owners are NOT RECORDED. Completeness is NOT PROVEN.",
+      "Cisco AI-BOM compatibility is NOT CLAIMED. It remains NEEDS_EXTERNAL_VALIDATION."
+     ]
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [],
@@ -2270,7 +2460,91 @@
     "dashboard": "ws_lab_change_bounds",
     "evidence_docs": []
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-CHANGE-BOUNDS",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-24",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The packet shown in Practice is the committed packet, unedited, and its classification is shown on every page."
+    },
+    "summary": {
+     "text": "An agent holds authority to inspect a resource. This checkpoint asks what happens when it submits a delete instead, and what a started action does and does not prove, using three simulated cases and no real cloud account.",
+     "grounds": [
+      "splunk_app/agentsec/default/data/ui/views/ws_lab_change_bounds.xml"
+     ],
+     "facts": [
+      "Tool access is not change authority."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "The agent inspects a resource. Inspection was delegated and approved.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_change_bounds.xml"
+      ],
+      "facts": [
+       "BASELINE submits inspect_resource."
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "The threat",
+      "text": "The agent submits a delete instead of the inspection it was delegated and approved to do.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_change_bounds.xml"
+      ],
+      "facts": [
+       "ATTACK and RETEST submit delete_resource. The delegated and approved operation is inspect_resource."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between the operation that was granted and the change that was requested. Change authority is not unlimited blast radius.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_change_bounds.xml"
+      ],
+      "facts": [
+       "Change authority is not unlimited blast radius."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "The security control",
+      "text": "Tool access does not by itself authorize a change. The tool decision decides.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_change_bounds.xml"
+      ],
+      "facts": [
+       "Tool access is not change authority."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "A started action is not a successful change, and rollback is not recorded.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_change_bounds.xml"
+      ],
+      "facts": [
+       "A start is not a successful change."
+      ]
+     }
+    ],
+    "recorded_ref": {
+     "kind": "checkpoint",
+     "file": "LAB-CHANGE-BOUNDS.json"
+    },
+    "cannot_claim": {
+     "source": "splunk_app/agentsec/default/data/ui/views/ws_lab_change_bounds.xml",
+     "items": [
+      "A start is not a successful change.",
+      "Rollback is NOT RECORDED."
+     ]
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [],
@@ -2316,7 +2590,91 @@
     "dashboard": "ws_lab_code_agent_bounds",
     "evidence_docs": []
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-CODE-AGENT-BOUNDS",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-24",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The packet shown in Practice is the committed packet, unedited, and its classification is shown on every page."
+    },
+    "summary": {
+     "text": "A code-generation agent was delegated and approved to read a repository. This checkpoint looks at what happens when it submits a different operation, using three simulated cases and no real repository.",
+     "grounds": [
+      "splunk_app/agentsec/default/data/ui/views/ws_lab_code_agent_bounds.xml"
+     ],
+     "facts": [
+      "A code-generation agent's authority must be bounded and evidenced."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "The agent reads a repository. The read was delegated and approved.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_code_agent_bounds.xml"
+      ],
+      "facts": [
+       "BASELINE submits read_repository."
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "The threat",
+      "text": "The agent submits an install instead of the read it was delegated and approved to do.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_code_agent_bounds.xml"
+      ],
+      "facts": [
+       "ATTACK and RETEST submit install_dependency. The delegated and approved operation is read_repository."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between the operation that was granted and the operation submitted. Approval of a read is not approval of an install.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_code_agent_bounds.xml"
+      ],
+      "facts": [
+       "Approval of a read is not approval of an install."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "The security control",
+      "text": "A current credential is not a tool grant, and delegation is not authorization.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_code_agent_bounds.xml"
+      ],
+      "facts": [
+       "Delegation is not authorization."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "The packet records no pull request and no deploy, and resource impact stays unproven.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_code_agent_bounds.xml"
+      ],
+      "facts": [
+       "Resource impact is NOT PROVEN."
+      ]
+     }
+    ],
+    "recorded_ref": {
+     "kind": "checkpoint",
+     "file": "LAB-CODE-AGENT-BOUNDS.json"
+    },
+    "cannot_claim": {
+     "source": "splunk_app/agentsec/default/data/ui/views/ws_lab_code_agent_bounds.xml",
+     "items": [
+      "Resource impact is NOT PROVEN.",
+      "A read grant is not authority to install, open a pull request, or deploy."
+     ]
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [],
@@ -2362,7 +2720,91 @@
     "dashboard": "ws_lab_component_provenance",
     "evidence_docs": []
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-COMPONENT-PROVENANCE",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-24",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The packet shown in Practice is the committed packet, unedited, and its classification is shown on every page."
+    },
+    "summary": {
+     "text": "A known component is not a trusted component. This checkpoint presents a privileged tool request beside an unpinned and a pinned component, in three simulated cases, and asks whether provenance changes the decision.",
+     "grounds": [
+      "splunk_app/agentsec/default/data/ui/views/ws_lab_component_provenance.xml"
+     ],
+     "facts": [
+      "A known component is not a trusted component."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "A request for a granted lookup arrives beside a component whose version is pinned.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_component_provenance.xml"
+      ],
+      "facts": [
+       "BASELINE presents lookup_policy beside the pinned Flask requirement."
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "The threat",
+      "text": "A privileged tool request arrives beside a component that is known but unpinned.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_component_provenance.xml"
+      ],
+      "facts": [
+       "ATTACK and RETEST present the same privileged tool, lookup_customer_tier, beside the unpinned Ollama image."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between knowing a component and trusting it. Scanning and identifying a component do not authorize anything.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_component_provenance.xml"
+      ],
+      "facts": [
+       "A scanned component is not a safe component."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "The security control",
+      "text": "Provenance is not the tool decision. The tool control decides.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_component_provenance.xml"
+      ],
+      "facts": [
+       "An identified component is not an authorized component."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "No digest was measured, and nothing is invented to fill the gap.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_component_provenance.xml"
+      ],
+      "facts": [
+       "No digest was measured, so none is invented here."
+      ]
+     }
+    ],
+    "recorded_ref": {
+     "kind": "checkpoint",
+     "file": "LAB-COMPONENT-PROVENANCE.json"
+    },
+    "cannot_claim": {
+     "source": "splunk_app/agentsec/default/data/ui/views/ws_lab_component_provenance.xml",
+     "items": [
+      "That pin was not resolved. No digest was measured, so none is invented here.",
+      "Resource impact is NOT PROVEN. The Ollama image remains unpinned in compose."
+     ]
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [],
@@ -2412,14 +2854,47 @@
    },
    "explainer": {
     "lab_id": "LAB-CREDENTIAL-LIFETIME",
-    "status": "partial",
+    "status": "full",
     "authored": {
-     "on": "2026-10-23",
-     "note": "Only what the lab's files support is shown. Facts are checked word for word against the cited files."
+     "on": "2026-10-24",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The packet shown in Practice is the committed packet, unedited, and its classification is shown on every page."
     },
-    "known": [
+    "summary": {
+     "text": "A credential has a lifetime, and a request arrives carrying one. Does the credential's lifetime decide the tool, or does the tool control? This checkpoint works through three simulated cases and separates the credential's clock from the approval's clock.",
+     "grounds": [
+      "splunk_app/agentsec/default/data/ui/views/ws_lab_credential_lifetime.xml"
+     ],
+     "facts": [
+      "Does the credential's lifetime decide the tool, or does CTRL-MCP-001?"
+     ]
+    },
+    "glance": [
      {
-      "text": "The registry records this lab's idea as: credential status is evidence a decision can consider, but it is not the decision.",
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "An agent presents a short-lived credential reference with a tool request. The credential has a subject, an audience, a scope and a window.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_credential_lifetime.xml"
+      ],
+      "facts": [
+       "An expired synthetic credential is presented with a privileged tool request."
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "The threat",
+      "text": "A credential past its window is presented with a privileged request.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_credential_lifetime.xml"
+      ],
+      "facts": [
+       "An expired synthetic credential is presented with a privileged tool request."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Credential status is evidence the decision can consider. The tool control is where the decision is made.",
       "grounds": [
        "splunk_app/agentsec/default/data/ui/views/ws_lab_credential_lifetime.xml"
       ],
@@ -2428,83 +2903,48 @@
       ]
      },
      {
-      "text": "The lab is a simulated or replayed workshop. Its evidence packet says it is not a runtime credential, not OAuth and not PKI.",
+      "id": "rule",
+      "label": "The security control",
+      "text": "CTRL-MCP-001 stays the tool decision. A current credential does not itself authorize a tool.",
       "grounds": [
-       "learning/level_1/LAB-CREDENTIAL-LIFETIME/evidence.packet.json",
        "splunk_app/agentsec/default/data/ui/views/ws_lab_credential_lifetime.xml"
       ],
       "facts": [
-       "SIMULATED / REPLAYED",
-       "not_runtime_credential",
-       "not_oauth",
-       "not_pki"
+       "CTRL-MCP-001 remains the tool decision."
       ]
      },
      {
-      "text": "The packet holds two simulated credential references, one EXPIRED and one CURRENT, and three recorded requests (BASELINE, ATTACK and RETEST).",
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "The packet holds references only. There is no secret, no OAuth token and no PKI.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_credential_lifetime.xml"
+      ],
+      "facts": [
+       "No secret, private key, certificate, OAuth token, or production PKI is in this packet."
+      ]
+     }
+    ],
+    "known": [
+     {
+      "text": "The approval's expiry is a separate clock from the credential's expiry.",
       "grounds": [
        "learning/level_1/LAB-CREDENTIAL-LIFETIME/evidence.packet.json"
       ],
       "facts": [
-       "sim-cred-expired-001",
-       "sim-cred-current-001",
-       "EXPIRED",
-       "CURRENT"
+       "Approval expiry is a different clock from credential expiry."
       ]
      }
     ],
-    "recorded_table": {
-     "title": "Requests recorded in the simulated packet",
-     "caption": "Simulated or replayed evidence, bounded to the packet. No run was made for this page.",
-     "source": "learning/level_1/LAB-CREDENTIAL-LIFETIME/evidence.packet.json",
-     "json_path": "modes",
-     "columns": [
-      "Mode",
-      "Credential",
-      "Tool requested",
-      "CTRL-MCP-001 decision",
-      "Reason",
-      "Execution"
-     ],
-     "rows": [
-      [
-       "ATTACK",
-       "EXPIRED",
-       "lookup_customer_tier",
-       "ALLOW",
-       "vulnerable_profile_fail_open:expired_credential_accepted",
-       "YES — separate simulated mcp.started evidence"
-      ],
-      [
-       "RETEST",
-       "EXPIRED",
-       "lookup_customer_tier",
-       "DENY",
-       "expired_credential",
-       "NO — do not infer execution"
-      ],
-      [
-       "BASELINE",
-       "CURRENT",
-       "lookup_policy",
-       "ALLOW",
-       "tool_granted",
-       "YES — separate simulated mcp.started evidence"
-      ]
-     ]
+    "recorded_ref": {
+     "kind": "checkpoint",
+     "file": "LAB-CREDENTIAL-LIFETIME.json"
     },
-    "spl": [
-     {
-      "name": "Q-CREDENTIAL-ABSENCE.spl",
-      "source": "learning/level_1/LAB-CREDENTIAL-LIFETIME/searches/Q-CREDENTIAL-ABSENCE.spl",
-      "text": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0\n| head 1\n| stats count\n| eval credential_lifetime=\"NOT OBSERVED\"\n| eval evidence_plane=\"NO INDEXED CREDENTIAL LIFETIME IN THIS SEARCH\"\n| eval note=\"Empty or unlabeled rows are not proof that credentials are safe\""
-     }
-    ],
     "cannot_claim": {
      "source": "splunk_app/agentsec/default/data/ui/views/ws_lab_credential_lifetime.xml",
      "items": [
-      "This search does not prove credential safety.",
-      "A current credential is not tool authorization. No secret is stored."
+      "No secret, private key, certificate, OAuth token, or production PKI is in this packet.",
+      "This search does not prove credential safety."
      ]
     }
    },
@@ -2720,7 +3160,102 @@
     "dashboard": "ws_lab_hitl_approval",
     "evidence_docs": []
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-HITL-APPROVAL",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-24",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The packet shown in Practice is the committed packet, unedited, and its classification is shown on every page."
+    },
+    "summary": {
+     "text": "An approval exists for one action. A second action arrives inside the approval's window. This checkpoint asks whether the approval still covers what was actually submitted, using three simulated cases.",
+     "grounds": [
+      "splunk_app/agentsec/default/data/ui/views/ws_lab_hitl_approval.xml"
+     ],
+     "facts": [
+      "You are reviewing whether an approval still covers the action that was submitted."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "A reviewer approves one specific lookup. The agent later submits an action and the approval is checked against it.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_hitl_approval.xml"
+      ],
+      "facts": [
+       "An approval exists for lookup_policy / lending-basics."
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "The threat",
+      "text": "An action that differs from the approved one arrives while the approval is still inside its time window.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_hitl_approval.xml"
+      ],
+      "facts": [
+       "The approval covers lookup_policy on lending-basics."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between the approval record and the action actually submitted. An approval is bound to one action, not to a time window alone.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_hitl_approval.xml"
+      ],
+      "facts": [
+       "You are reviewing whether an approval still covers the action that was submitted."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "The security control",
+      "text": "The tool decision stays with CTRL-MCP-001. The packet's binding comparison is evidence, not the decision.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_hitl_approval.xml"
+      ],
+      "facts": [
+       "CTRL-MCP-001 remains the tool decision."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "The packet is a simulated approval, not a runtime approval service.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_hitl_approval.xml"
+      ],
+      "facts": [
+       "It is not a runtime approval service and not historical MCP-004 evidence."
+      ]
+     }
+    ],
+    "known": [
+     {
+      "text": "The attack case is allowed only by a reason the packet labels as a vulnerable teaching fault: a stale approval accepted.",
+      "grounds": [
+       "learning/level_1/LAB-HITL-APPROVAL/evidence.packet.json"
+      ],
+      "facts": [
+       "vulnerable_profile_fail_open:stale_approval_accepted"
+      ]
+     }
+    ],
+    "recorded_ref": {
+     "kind": "checkpoint",
+     "file": "LAB-HITL-APPROVAL.json"
+    },
+    "cannot_claim": {
+     "source": "splunk_app/agentsec/default/data/ui/views/ws_lab_hitl_approval.xml",
+     "items": [
+      "A MATCH is not an ALLOW. A MISMATCH is not a DENY.",
+      "It is not a runtime approval service and not historical MCP-004 evidence."
+     ]
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [],
@@ -8251,7 +8786,91 @@
     "dashboard": "ws_lab_purpose_authorization",
     "evidence_docs": []
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-RAG-PURPOSE",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-24",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The packet shown in Practice is the committed packet, unedited, and its classification is shown on every page."
+    },
+    "summary": {
+     "text": "A document can be retrieved and still be unauthorized for the purpose in front of you. This checkpoint takes one retrieved object through three simulated purposes and asks whether each use is allowed.",
+     "grounds": [
+      "splunk_app/agentsec/default/data/ui/views/ws_lab_purpose_authorization.xml"
+     ],
+     "facts": [
+      "A document can be retrieved and still be unauthorized for the purpose in front of you."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "A principal asks a question and an internal lending-policy document is retrieved.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_purpose_authorization.xml"
+      ],
+      "facts": [
+       "object: doc.lending-policy.normal"
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "The threat",
+      "text": "The same retrieved object is requested for a different purpose than the one it is allowed for.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_purpose_authorization.xml"
+      ],
+      "facts": [
+       "ATTACK and RETEST request purpose executive-decision for the same retrieved object."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between retrieving a document and using it for a stated purpose. Authorized for a principal is not authorized for this purpose.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_purpose_authorization.xml"
+      ],
+      "facts": [
+       "Authorized for a principal is not authorized for this purpose."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "The security control",
+      "text": "The purpose is checked against the allowed purpose. Similarity and retrieval are not authorization.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_purpose_authorization.xml"
+      ],
+      "facts": [
+       "Vector similarity is not authorization."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "The tool control is not invoked by retrieval, and resource impact is not proven.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_purpose_authorization.xml"
+      ],
+      "facts": [
+       "CTRL-MCP-001 remains the tool PDP and is not invoked here."
+      ]
+     }
+    ],
+    "recorded_ref": {
+     "kind": "checkpoint",
+     "file": "LAB-RAG-PURPOSE.json"
+    },
+    "cannot_claim": {
+     "source": "splunk_app/agentsec/default/data/ui/views/ws_lab_purpose_authorization.xml",
+     "items": [
+      "Vector similarity is not authorization.",
+      "CTRL-MCP-001 remains the tool PDP and is not invoked here."
+     ]
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [],
@@ -8299,7 +8918,91 @@
     "dashboard": "ws_lab_recall_isolation",
     "evidence_docs": []
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-RECALL-ISOLATION",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-24",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The packet shown in Practice is the committed packet, unedited, and its classification is shown on every page."
+    },
+    "summary": {
+     "text": "A memory is written by one agent for one user. This checkpoint asks what happens when a different user tries to recall it, using three simulated cases, and keeps deletion and retention clearly unmeasured.",
+     "grounds": [
+      "splunk_app/agentsec/default/data/ui/views/ws_lab_recall_isolation.xml"
+     ],
+     "facts": [
+      "Write is not ownership. Recall is not authorization. A memory id is not an owner."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "An agent stores a preference for its owner and later recalls it for that owner.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_recall_isolation.xml"
+      ],
+      "facts": [
+       "The writer agent is the same in every mode. The reader user is the boundary."
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "The threat",
+      "text": "A different user asks the same agent to recall memory owned by someone else.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_recall_isolation.xml"
+      ],
+      "facts": [
+       "ATTACK and RETEST use reader user-b for memory owned by user-a."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between the stored memory and the user reading it. The same agent is not the same user.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_recall_isolation.xml"
+      ],
+      "facts": [
+       "The same agent is not the same user."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "The security control",
+      "text": "Recall is checked against the owner. Recall does not invoke the tool control.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_recall_isolation.xml"
+      ],
+      "facts": [
+       "Recall does not invoke CTRL-MCP-001."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "Deletion and retention are not measured, so nothing here is a secure-deletion claim.",
+      "grounds": [
+       "splunk_app/agentsec/default/data/ui/views/ws_lab_recall_isolation.xml"
+      ],
+      "facts": [
+       "Deletion and retention are NOT MEASURED. Do not call this secure deletion."
+      ]
+     }
+    ],
+    "recorded_ref": {
+     "kind": "checkpoint",
+     "file": "LAB-RECALL-ISOLATION.json"
+    },
+    "cannot_claim": {
+     "source": "splunk_app/agentsec/default/data/ui/views/ws_lab_recall_isolation.xml",
+     "items": [
+      "Deletion and retention are NOT MEASURED. Do not call this secure deletion.",
+      "CTRL-MCP-001 remains the tool PDP and is not invoked here."
+     ]
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [],

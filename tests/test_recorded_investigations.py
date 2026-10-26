@@ -22,7 +22,8 @@ LABS = {l["id"]: l for l in DATA["labs"]}
 FILES = ROOT / "academy-ui" / "src" / "content" / "recorded"
 DECISION = ("LAB-MCP-006", "LAB-MCP-CATALOG")
 INVESTIGATION = ("LAB-SCANNER-RUNTIME-EVIDENCE", "LAB-BLUE-TEAM-INCIDENT-001", "LAB-MULTI-STAGE-INCIDENT-001", "LAB-ADVANCED-CAPSTONE-MASTERY-001")
-BLOCKED = ("LAB-SPLUNK-DEFENDER-BRIDGE", "LAB-DETECTION-ENGINEERING")
+BLOCKED = ("LAB-SPLUNK-DEFENDER-BRIDGE", "LAB-DETECTION-ENGINEERING", "LAB-AGENT-IDENTITY-NHI")
+CHECKPOINT = ("LAB-A2A-AUTH-DELEGATION", "LAB-ASSET-INVENTORY", "LAB-CHANGE-BOUNDS", "LAB-CODE-AGENT-BOUNDS", "LAB-COMPONENT-PROVENANCE", "LAB-CREDENTIAL-LIFETIME", "LAB-HITL-APPROVAL", "LAB-RAG-PURPOSE", "LAB-RECALL-ISOLATION")
 EXPECTED = {
     "LAB-SCANNER-RUNTIME-EVIDENCE": {"s1": "same", "s2": "same", "s3": "0", "s4": "same", "s5": "DENY", "s6": "yes"},
     "LAB-BLUE-TEAM-INCIDENT-001": {"b1": "ALLOW", "b2": "yes", "b3": "DENY", "b4": "no", "b5": "same", "b6": "same"},
@@ -213,7 +214,7 @@ def test_blocked_labs_have_no_recorded_experience_and_other_labs_are_unchanged()
         assert ex is None or not ({"recorded", "recorded_ref"} & set(ex)), lab
         assert LABS[lab]["availability"] == "replay"
     with_rec = sorted(l["id"] for l in DATA["labs"] if l["explainer"] and ({"recorded", "recorded_ref"} & set(l["explainer"])))
-    assert with_rec == sorted(("LAB-MCP-003", "LAB-MCP-004", "LAB-MCP-005") + DECISION + INVESTIGATION)
+    assert with_rec == sorted(("LAB-MCP-003", "LAB-MCP-004", "LAB-MCP-005") + DECISION + INVESTIGATION + CHECKPOINT)
 
 
 def test_new_components_make_no_launch_network_or_verification_claim():

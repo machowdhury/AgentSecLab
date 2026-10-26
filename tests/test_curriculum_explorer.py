@@ -161,9 +161,10 @@ def test_pi_001_explainer_covers_the_requested_topics_and_the_path_has_no_invent
     assert e["recorded_table"]["columns"] == ["Run", "Expected", "Actual"] and len(e["recorded_table"]["rows"]) == 4
 
 
-def test_thin_lab_is_partial_and_only_states_supported_facts():
+def test_credential_lifetime_was_the_thin_lab_and_is_now_a_full_checkpoint_that_stays_content_only():
+    # Increment 11D upgraded it from a partial explainer (no summary, no glance) to a full simulated-packet checkpoint; its registry tier is unchanged.
     e = dict(_explained())["LAB-CREDENTIAL-LIFETIME"]
-    assert e["status"] == "partial" and "summary" not in e and "path" not in e and "glance" not in e
+    assert e["status"] == "full" and e["summary"] and e["glance"] and e["recorded_ref"]["kind"] == "checkpoint"
     lab = next(l for l in DATA["labs"] if l["id"] == "LAB-CREDENTIAL-LIFETIME")
     assert lab["availability"] == "content_only" and not lab["assets"]["specimens"] and not lab["checks"]
 

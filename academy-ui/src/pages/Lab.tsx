@@ -29,7 +29,7 @@ export function LabPage({ id }: { id: string }) {
   const quoted = SECTION_TITLES.filter(([k]) => s[k]);
   const missing = (Object.keys(s) as (keyof Lab["sections"])[]).filter((k) => !s[k]);
   const hasLearn = Boolean(ex?.summary || ex?.known || s.learn || quoted.length);
-  const hasPractice = Boolean(ex?.practice || s.predict || s.defend || lab.native || lab.availability === "workbench" || lab.assets.specimens.length);
+  const hasPractice = Boolean(ex?.practice || ex?.recorded_ref || s.predict || s.defend || lab.native || lab.availability === "workbench" || lab.assets.specimens.length);
   const hasProve = Boolean(ex?.spl || ex?.identifiers || ex?.recorded_table || ex?.cannot_claim || lab.limitations || s.conclude || lab.assets.hunts.length || lab.assets.dashboard || lab.assets.evidence_docs.length || lab.checks.length);
   const tabs = ([["learn", "Learn", hasLearn], ["practice", "Practice", hasPractice], ["prove", "Prove", hasProve], ["all", "All sections (expert)", true]] as [Tab, string, boolean][]).filter((t) => t[2]);
   const show = (t: Tab) => (tab === t || tab === "all") && tabs.some((x) => x[0] === t);
@@ -125,7 +125,8 @@ function Exercise({ lab }: { lab: Lab }) {
     {lab.availability === "workbench" && !lab.integrated && <p className="m-muted">This lab is on the Attack Service allowlist, so a live attack and retest exist there. Nothing runs from this page.{" "}<a href={`/academy/labs/${lab.id}`}>Open the classic lab page (until it is migrated)</a>.</p>}
     {lab.integrated && <p className="m-muted">This lab is integrated natively: the guided sequence below launches its own catalog specimens through the Attack Service. The registry tier stays {AVAIL[lab.availability].label}.</p>}
     {lab.availability === "replay" && <p className="m-muted">Recorded evidence only: nothing is launched and no new run is created.</p>}
-    {lab.availability === "content_only" && <p className="m-muted">There is nothing to launch or replay for this lab.</p>}
+    {lab.availability === "content_only" && !lab.explainer?.recorded_ref && <p className="m-muted">There is nothing to launch or replay for this lab.</p>}
+    {lab.availability === "content_only" && lab.explainer?.recorded_ref && <p className="m-muted">There is no run to launch for this lab. The exercise below reads a committed packet that holds the lab's own records, and shows its classification.</p>}
     {a.specimens.length > 0 && <><h4>Recorded specimen files ({a.specimens.length})</h4><ul className="m-rules">{a.specimens.map((x) => <li key={x}><code>{x}</code></li>)}</ul><Src src={`learning/level_1/${lab.id}/specimens/`} /></>}
   </div>;
 }

@@ -1,0 +1,201 @@
+{
+  "lab_id": "LAB-COMPONENT-PROVENANCE",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-24",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The packet shown in Practice is the committed packet, unedited, and its classification is shown on every page."
+  },
+  "summary": {
+    "text": "A known component is not a trusted component. This checkpoint presents a privileged tool request beside an unpinned and a pinned component, in three simulated cases, and asks whether provenance changes the decision.",
+    "grounds": [
+      "splunk_app/agentsec/default/data/ui/views/ws_lab_component_provenance.xml"
+    ],
+    "facts": [
+      "A known component is not a trusted component."
+    ]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "A request for a granted lookup arrives beside a component whose version is pinned.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_component_provenance.xml"
+      ],
+      "facts": [
+        "BASELINE presents lookup_policy beside the pinned Flask requirement."
+      ]
+    },
+    {
+      "id": "controls",
+      "label": "The threat",
+      "text": "A privileged tool request arrives beside a component that is known but unpinned.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_component_provenance.xml"
+      ],
+      "facts": [
+        "ATTACK and RETEST present the same privileged tool, lookup_customer_tier, beside the unpinned Ollama image."
+      ]
+    },
+    {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between knowing a component and trusting it. Scanning and identifying a component do not authorize anything.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_component_provenance.xml"
+      ],
+      "facts": [
+        "A scanned component is not a safe component."
+      ]
+    },
+    {
+      "id": "rule",
+      "label": "The security control",
+      "text": "Provenance is not the tool decision. The tool control decides.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_component_provenance.xml"
+      ],
+      "facts": [
+        "An identified component is not an authorized component."
+      ]
+    },
+    {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "No digest was measured, and nothing is invented to fill the gap.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_component_provenance.xml"
+      ],
+      "facts": [
+        "No digest was measured, so none is invented here."
+      ]
+    }
+  ],
+  "cannot_claim_lines": {
+    "source": "splunk_app/agentsec/default/data/ui/views/ws_lab_component_provenance.xml",
+    "lines": [
+      "That pin was not resolved. No digest was measured, so none is invented here.",
+      "Resource impact is NOT PROVEN. The Ollama image remains unpinned in compose."
+    ]
+  },
+  "checkpoint": {
+    "packet": "learning/level_1/LAB-COMPONENT-PROVENANCE/evidence.packet.json",
+    "order": [
+      "BASELINE",
+      "ATTACK",
+      "RETEST"
+    ],
+    "context": [
+      {
+        "label": "Builds on",
+        "path": "builds_on"
+      },
+      {
+        "label": "Pinned example",
+        "path": "pinned_example"
+      }
+    ],
+    "setup": [
+      {
+        "label": "Component",
+        "field": "component"
+      },
+      {
+        "label": "Provenance",
+        "field": "provenance"
+      },
+      {
+        "label": "Requested tool",
+        "field": "requested_tool"
+      }
+    ],
+    "predictions": [
+      {
+        "id": "decision",
+        "question": "What did CTRL-MCP-001 decide?",
+        "field": "ctrl_mcp_001_decision",
+        "options": [
+          "ALLOW",
+          "DENY",
+          "ERROR"
+        ],
+        "reason_field": "ctrl_mcp_001_reason"
+      }
+    ],
+    "outcome": [
+      {
+        "label": "CTRL-MCP-001 decision",
+        "field": "ctrl_mcp_001_decision"
+      },
+      {
+        "label": "Reason",
+        "field": "ctrl_mcp_001_reason"
+      },
+      {
+        "label": "Execution",
+        "field": "execution_observed"
+      },
+      {
+        "label": "Note",
+        "field": "note"
+      }
+    ],
+    "diff": [
+      {
+        "label": "Component",
+        "field": "component"
+      },
+      {
+        "label": "Provenance",
+        "field": "provenance"
+      },
+      {
+        "label": "Requested tool",
+        "field": "requested_tool"
+      }
+    ],
+    "decisive": [
+      {
+        "label": "Provenance",
+        "field": "provenance"
+      },
+      {
+        "label": "Decision",
+        "field": "ctrl_mcp_001_decision"
+      },
+      {
+        "label": "Reason",
+        "field": "ctrl_mcp_001_reason"
+      }
+    ],
+    "packet_facts": [
+      {
+        "label": "Evidence classification",
+        "path": "evidence_classification"
+      },
+      {
+        "label": "Claim strength",
+        "path": "claim_strength"
+      },
+      {
+        "label": "Ollama pin",
+        "path": "ollama_pin"
+      },
+      {
+        "label": "Scanner",
+        "path": "scanner"
+      },
+      {
+        "label": "Evaluation",
+        "path": "evaluation"
+      }
+    ],
+    "lists": [
+      {
+        "title": "Unpinned examples in the packet",
+        "path": "unpinned_examples"
+      }
+    ],
+    "spl": []
+  }
+}

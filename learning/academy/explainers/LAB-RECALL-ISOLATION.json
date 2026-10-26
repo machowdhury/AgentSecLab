@@ -1,0 +1,216 @@
+{
+  "lab_id": "LAB-RECALL-ISOLATION",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-24",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The packet shown in Practice is the committed packet, unedited, and its classification is shown on every page."
+  },
+  "summary": {
+    "text": "A memory is written by one agent for one user. This checkpoint asks what happens when a different user tries to recall it, using three simulated cases, and keeps deletion and retention clearly unmeasured.",
+    "grounds": [
+      "splunk_app/agentsec/default/data/ui/views/ws_lab_recall_isolation.xml"
+    ],
+    "facts": [
+      "Write is not ownership. Recall is not authorization. A memory id is not an owner."
+    ]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "An agent stores a preference for its owner and later recalls it for that owner.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_recall_isolation.xml"
+      ],
+      "facts": [
+        "The writer agent is the same in every mode. The reader user is the boundary."
+      ]
+    },
+    {
+      "id": "controls",
+      "label": "The threat",
+      "text": "A different user asks the same agent to recall memory owned by someone else.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_recall_isolation.xml"
+      ],
+      "facts": [
+        "ATTACK and RETEST use reader user-b for memory owned by user-a."
+      ]
+    },
+    {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between the stored memory and the user reading it. The same agent is not the same user.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_recall_isolation.xml"
+      ],
+      "facts": [
+        "The same agent is not the same user."
+      ]
+    },
+    {
+      "id": "rule",
+      "label": "The security control",
+      "text": "Recall is checked against the owner. Recall does not invoke the tool control.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_recall_isolation.xml"
+      ],
+      "facts": [
+        "Recall does not invoke CTRL-MCP-001."
+      ]
+    },
+    {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "Deletion and retention are not measured, so nothing here is a secure-deletion claim.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_recall_isolation.xml"
+      ],
+      "facts": [
+        "Deletion and retention are NOT MEASURED. Do not call this secure deletion."
+      ]
+    }
+  ],
+  "cannot_claim_lines": {
+    "source": "splunk_app/agentsec/default/data/ui/views/ws_lab_recall_isolation.xml",
+    "lines": [
+      "Deletion and retention are NOT MEASURED. Do not call this secure deletion.",
+      "CTRL-MCP-001 remains the tool PDP and is not invoked here."
+    ]
+  },
+  "checkpoint": {
+    "packet": "learning/level_1/LAB-RECALL-ISOLATION/evidence.packet.json",
+    "order": [
+      "BASELINE",
+      "ATTACK",
+      "RETEST"
+    ],
+    "context": [
+      {
+        "label": "Memory id",
+        "path": "memory_id"
+      },
+      {
+        "label": "Owner",
+        "path": "owner"
+      },
+      {
+        "label": "Writer agent",
+        "path": "writer"
+      },
+      {
+        "label": "Deletion status",
+        "path": "deletion_status"
+      },
+      {
+        "label": "Retention status",
+        "path": "retention_status"
+      }
+    ],
+    "setup": [
+      {
+        "label": "Reader",
+        "field": "reader"
+      }
+    ],
+    "predictions": [
+      {
+        "id": "owner",
+        "question": "Is the reader the memory's owner?",
+        "field": "derived",
+        "options": [
+          "yes",
+          "no"
+        ],
+        "derived": {
+          "kind": "equals",
+          "a": "reader",
+          "b_packet": "owner"
+        }
+      },
+      {
+        "id": "recall",
+        "question": "What was the recall result?",
+        "field": "recall_result",
+        "options": "from_packet"
+      },
+      {
+        "id": "isolation",
+        "question": "What happened to isolation?",
+        "field": "isolation",
+        "options": "from_packet"
+      }
+    ],
+    "outcome": [
+      {
+        "label": "Recall result",
+        "field": "recall_result"
+      },
+      {
+        "label": "Isolation",
+        "field": "isolation"
+      },
+      {
+        "label": "Reason",
+        "field": "reason"
+      },
+      {
+        "label": "Resource impact",
+        "field": "resource_impact"
+      },
+      {
+        "label": "Note",
+        "field": "note"
+      }
+    ],
+    "diff": [
+      {
+        "label": "Reader",
+        "field": "reader"
+      },
+      {
+        "label": "Request id",
+        "field": "request_id"
+      }
+    ],
+    "decisive": [
+      {
+        "label": "Recall result",
+        "field": "recall_result"
+      },
+      {
+        "label": "Isolation",
+        "field": "isolation"
+      },
+      {
+        "label": "Reason",
+        "field": "reason"
+      }
+    ],
+    "packet_facts": [
+      {
+        "label": "Evidence classification",
+        "path": "evidence_classification"
+      },
+      {
+        "label": "Deletion status",
+        "path": "deletion_status"
+      },
+      {
+        "label": "Retention status",
+        "path": "retention_status"
+      },
+      {
+        "label": "Same-agent note",
+        "path": "same_agent_note"
+      },
+      {
+        "label": "CTRL-MEMORY-CONTEXT-001",
+        "path": "ctrl_memory_context_001"
+      }
+    ],
+    "spl": [
+      "learning/level_1/LAB-RECALL-ISOLATION/searches/Q-RECALL-CONTRAST.spl"
+    ]
+  }
+}

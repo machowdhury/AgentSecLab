@@ -1,0 +1,293 @@
+{
+  "lab_id": "LAB-A2A-AUTH-DELEGATION",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-24",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. The packet shown in Practice is the committed packet, unedited, and its classification is shown on every page."
+  },
+  "summary": {
+    "text": "Two agents are named in a request. Being authenticated does not mean the request is authorized. This checkpoint walks three simulated cases through authentication, a bounded delegation and the tool control, and asks you to decide each one before the packet shows its record.",
+    "grounds": [
+      "splunk_app/agentsec/default/data/ui/views/ws_lab_a2a_auth_delegation.xml"
+    ],
+    "facts": [
+      "Reject this shortcut: authenticated agent = authorized request."
+    ]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "The advisor agent delegates one bounded lookup to the fulfillment agent. The packet names who is authenticated, what was delegated and what was requested.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_a2a_auth_delegation.xml"
+      ],
+      "facts": [
+        "What evidence would support authentication, what authority was delegated, what was requested, what did the tool PDP decide, and what outcome remains unknown?"
+      ]
+    },
+    {
+      "id": "controls",
+      "label": "The threat",
+      "text": "The caller's identity is real, and the request is for something the delegation did not cover. Names and claims are not authority.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_a2a_auth_delegation.xml"
+      ],
+      "facts": [
+        "These are labels and claims. They are not authentication, credential proof, or delegated authority."
+      ]
+    },
+    {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between what was authenticated, what was delegated, and what the tool control decides. Each is a separate record.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_a2a_auth_delegation.xml"
+      ],
+      "facts": [
+        "CTRL-MCP-001 is the actual tool authorization PDP."
+      ]
+    },
+    {
+      "id": "rule",
+      "label": "The security control",
+      "text": "The delegation comparison and the tool decision are different things. A match is not an allow, and a mismatch is not a deny.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_a2a_auth_delegation.xml"
+      ],
+      "facts": [
+        "MATCH is not ALLOW. MISMATCH is not DENY."
+      ]
+    },
+    {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "A decision is not execution, and a start is not a completed outcome.",
+      "grounds": [
+        "splunk_app/agentsec/default/data/ui/views/ws_lab_a2a_auth_delegation.xml"
+      ],
+      "facts": [
+        "A start does not prove successful completion."
+      ]
+    }
+  ],
+  "known": [
+    {
+      "text": "The attack case is allowed only by a reason the packet labels as a vulnerable teaching fault, not by a real delegation.",
+      "grounds": [
+        "learning/level_1/LAB-A2A-AUTH-DELEGATION/evidence.packet.json"
+      ],
+      "facts": [
+        "vulnerable_profile_fail_open:caller_identity_derived_authority"
+      ]
+    }
+  ],
+  "cannot_claim_lines": {
+    "source": "splunk_app/agentsec/default/data/ui/views/ws_lab_a2a_auth_delegation.xml",
+    "lines": [
+      "These are labels and claims. They are not authentication, credential proof, or delegated authority.",
+      "MATCH is not ALLOW. MISMATCH is not DENY."
+    ]
+  },
+  "checkpoint": {
+    "packet": "learning/level_1/LAB-A2A-AUTH-DELEGATION/evidence.packet.json",
+    "order": [
+      "BASELINE",
+      "ATTACK",
+      "RETEST"
+    ],
+    "setup": [
+      {
+        "label": "Caller",
+        "field": "caller"
+      },
+      {
+        "label": "Callee",
+        "field": "callee"
+      },
+      {
+        "label": "Authentication",
+        "field": "authentication_result"
+      },
+      {
+        "label": "Delegated tool",
+        "field": "delegated_tool"
+      },
+      {
+        "label": "Delegated scope",
+        "field": "delegated_scope"
+      },
+      {
+        "label": "Delegated resource",
+        "field": "delegated_resource"
+      },
+      {
+        "label": "Requested tool",
+        "field": "requested_tool"
+      },
+      {
+        "label": "Requested scope",
+        "field": "requested_scope"
+      },
+      {
+        "label": "Requested resource",
+        "field": "requested_resource"
+      }
+    ],
+    "predictions": [
+      {
+        "id": "evaluation",
+        "question": "Does the request match what the caller delegated?",
+        "field": "delegation_evaluation",
+        "options": [
+          "MATCH",
+          "MISMATCH"
+        ]
+      },
+      {
+        "id": "decision",
+        "question": "What did CTRL-MCP-001 decide?",
+        "field": "ctrl_mcp_001_decision",
+        "options": [
+          "ALLOW",
+          "DENY",
+          "ERROR"
+        ],
+        "reason_field": "ctrl_mcp_001_reason"
+      },
+      {
+        "id": "execution",
+        "question": "Does the packet record a separate simulated start?",
+        "field": "execution_observed",
+        "options": [
+          "YES",
+          "NO"
+        ],
+        "match": "startswith"
+      }
+    ],
+    "outcome": [
+      {
+        "label": "Delegation comparison",
+        "field": "delegation_evaluation"
+      },
+      {
+        "label": "CTRL-MCP-001 decision",
+        "field": "ctrl_mcp_001_decision"
+      },
+      {
+        "label": "Reason",
+        "field": "ctrl_mcp_001_reason"
+      },
+      {
+        "label": "Execution",
+        "field": "execution_observed"
+      },
+      {
+        "label": "Resource impact",
+        "field": "resource_impact"
+      },
+      {
+        "label": "Claim strength",
+        "field": "claim_strength"
+      }
+    ],
+    "diff": [
+      {
+        "label": "Requested tool",
+        "field": "requested_tool"
+      },
+      {
+        "label": "Requested scope",
+        "field": "requested_scope"
+      },
+      {
+        "label": "Requested resource",
+        "field": "requested_resource"
+      },
+      {
+        "label": "Caller",
+        "field": "caller"
+      },
+      {
+        "label": "Callee",
+        "field": "callee"
+      },
+      {
+        "label": "Delegated tool",
+        "field": "delegated_tool"
+      }
+    ],
+    "decisive": [
+      {
+        "label": "Delegation comparison",
+        "field": "delegation_evaluation"
+      },
+      {
+        "label": "Decision",
+        "field": "ctrl_mcp_001_decision"
+      },
+      {
+        "label": "Reason",
+        "field": "ctrl_mcp_001_reason"
+      },
+      {
+        "label": "Execution",
+        "field": "execution_observed"
+      }
+    ],
+    "packet_facts": [
+      {
+        "label": "Evidence classification",
+        "path": "evidence_classification"
+      },
+      {
+        "label": "Historical authentication",
+        "path": "historical_contrast.authentication"
+      },
+      {
+        "label": "Historical delegated authority",
+        "path": "historical_contrast.delegated_authority"
+      }
+    ],
+    "tables": [
+      {
+        "title": "The simulated authentication results in the packet",
+        "path": "authentication",
+        "columns": [
+          [
+            "record_label",
+            "Record"
+          ],
+          [
+            "principal_id",
+            "Principal"
+          ],
+          [
+            "audience",
+            "Audience"
+          ],
+          [
+            "result",
+            "Result"
+          ],
+          [
+            "issuer",
+            "Issuer"
+          ],
+          [
+            "expires_at",
+            "Expires"
+          ],
+          [
+            "claim_strength",
+            "Claim strength"
+          ]
+        ]
+      }
+    ],
+    "spl": [
+      "learning/level_1/LAB-A2A-AUTH-DELEGATION/searches/Q-AUTH-DELEGATION-HISTORICAL.spl"
+    ]
+  }
+}
