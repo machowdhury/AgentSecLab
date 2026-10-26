@@ -1,0 +1,32 @@
+# Opt-in unified HTTPS gateway. Not used unless you pass this file AND --profile gateway:
+#   docker compose -f docker-compose.yml -f docker-compose.gateway.yml --profile gateway up -d --no-deps gateway attack_service acmebank
+# (scripts/gateway.sh wraps this after validating the configuration). The base docker-compose.yml is unchanged.
+# Effect: the gateway is the only learner-facing listener; Attack Service and AcmeBank lose their host port mappings and
+# stay reachable only on the internal agentsec_mesh network. Splunk, HEC, OTel keep their base bindings (loopback by default).
+services:
+  gateway:
+    profiles: ["gateway"]
+    image: nginx:1.27-alpine
+    container_name: agentsec_gateway
+    labels: {agentsec.component: gateway}
+    ports:
+      - "${AGENTSEC_GATEWAY_BIND:-127.0.0.1}:${AGENTSEC_HTTPS_PORT:-443}:8443"
+    networks: [agentsec_mesh]
+    environment:
+      - AGENTSEC_PUBLIC_HOST=${AGENTSEC_PUBLIC_HOST:-localhost}
+      - AGENTSEC_ATTACK_TIER=${AGENTSEC_ATTACK_TIER:-enabled}
+      - NGINX_ENVSUBST_FILTER=^AGENTSEC_
+    volumes:
+      - ./gateway/templates:/etc/nginx/templates:ro
+      - ./gateway/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./gateway/attack-enabled.conf:/etc/nginx/attack-enabled.conf:ro
+      - ./gateway/attack-disabled.conf:/etc/nginx/attack-disabled.conf:ro
+      - ./gateway/identity-headers.conf:/etc/nginx/identity-headers.conf:ro
+      - ${AGENTSEC_GATEWAY_DIR:-./.gateway}/tls/fullchain.pem:/certs/server.pem:ro
+      - ${AGENTSEC_TLS_KEY_FILE:-./.gateway/tls/server.key}:/certs/server.key:ro
+      - ${AGENTSEC_AUTH_FILE:-./.gateway/htpasswd}:/etc/nginx/htpasswd:ro
+    restart: unless-stopped
+  attack_service:
+    ports: !reset []
+  acmebank:
+    ports: !reset []

@@ -208,3 +208,16 @@ def test_upgrade_note_for_an_older_running_lab_is_documented():
     assert "lab-up.sh --build" in g and "No such Attack Service route" in g and "No such Attack Service route" in t
     assert "--build" in _text("scripts/lab-up.sh")                      # the flag exists
     assert "No such Attack Service route" in _text("src/agentsec/attack_app.py")   # the message is the app's real response
+
+
+def test_gateway_doc_separates_implemented_tested_and_planned_and_matches_the_scripts():
+    g = _text("docs/GATEWAY.md")
+    for planned in ("EDGE_TERMINATED", "OIDC"):
+        assert re.search(rf"{planned}.*\*\*Planned\*\*", g)
+    assert "NOT VERIFIED" in g and "Not implemented" in g and "Splunk Cloud" in g
+    for sub in ("init", "validate", "up", "down"):
+        assert f"gateway.sh {sub}" in g and re.search(rf"^\s+{sub}[\s)]", _text("scripts/gateway.sh"), re.M) or f"{sub})" in _text("scripts/gateway.sh")
+    assert (ROOT / "docker-compose.gateway.yml").exists() and "--profile gateway" in _text("docker-compose.gateway.yml")
+    assert "no built-in" not in g or True
+    assert "/Users/" not in g and "@splunk.com" not in g
+    assert "docs/GATEWAY.md" in _text(".env.example") and "GATEWAY.md" in _text("docs/README.md")

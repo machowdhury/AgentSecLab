@@ -231,3 +231,4 @@ artifacts/*
 graphify-out/
 .env.bak*
 *.bak
+.gateway/

@@ -1,0 +1,12 @@
+# TEST-ONLY overlay used with project name agentsec-gw-dev so a test run can never collide with, or modify, the real lab:
+# unique container names, no bind mounts into the repository, no Ollama/OTel/Splunk (started with --no-deps).
+services:
+  attack_service:
+    container_name: agentsec-gw-dev-attack
+    volumes: !override []
+  acmebank:
+    container_name: agentsec-gw-dev-acmebank
+    volumes: !override []
+    environment: !override [AGENTSEC_BIND_HOST=0.0.0.0, ACMEBANK_PORT=5000, AGENTSEC_OTEL_ENABLED=false, "OLLAMA_BASE_URL=http://ollama-absent:11434", AGENTSEC_ARTIFACTS_DIR=/app/artifacts]
+  gateway:
+    container_name: agentsec-gw-dev-gateway
