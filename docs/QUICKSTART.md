@@ -157,7 +157,8 @@ Do not commit `.env`. Do not paste a production password, token, or cloud key in
 
 | URL | Role |
 |-----|------|
-| http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home | Academy Home |
+| **http://127.0.0.1:5001/learn** | **React Academy: start here** |
+| http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home | Legacy Splunk dashboards (original Academy Home) |
 | http://127.0.0.1:8000 | Splunk login (user `admin`; password from `.env` `SPLUNK_PASSWORD`) |
 | http://127.0.0.1:5001 | Attack Service |
 | http://127.0.0.1:5000/health | AcmeBank |
@@ -205,4 +206,4 @@ Specimen ids printed on a dashboard are reference evidence. Investigate the `run
 
 
 ## Loan Desk mission
-After the lab is READY, open http://127.0.0.1:5001/academy and start **Loan Desk Mission**. The start procedure, evidence states and troubleshooting are in [LOAN_DESK_MISSION.md](LOAN_DESK_MISSION.md). It needs `llama3.2:latest` in your host Ollama.
+After the lab is READY, open http://127.0.0.1:5001/learn/loan-desk (the React Academy's Loan Desk mission; the original page is http://127.0.0.1:5001/academy) and start the mission. The start procedure, evidence states and troubleshooting are in [LOAN_DESK_MISSION.md](LOAN_DESK_MISSION.md). It needs `llama3.2:latest` in your host Ollama.

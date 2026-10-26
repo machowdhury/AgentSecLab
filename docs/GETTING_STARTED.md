@@ -1,5 +1,7 @@
 # Getting started
 
+> **Release 12D / v1.2.0: start in the React Academy at <http://127.0.0.1:5001/learn>** (see the [README](../README.md#what-is-where)). The steps below describe setup and the original Splunk-based Academy Home, which still works but is the legacy path.
+
 The L0–L10 academy is v1.1.0 on `main` and annotated tag `v1.1.0`. Tag `v1.0.0` is the previous release and was not moved. Tag `v1.0.0-rc1` is the older RC1 baseline and does not contain L6–L10. Tags `v1.0.0-rc2` and `v1.0.0-rc3` were not moved.
 
 Use these pages in order:

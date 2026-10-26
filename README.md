@@ -42,7 +42,25 @@ cp .env.example .env
 
 The commands above start the **local Docker lab**. **External Splunk** is not started by `lab-up.sh`; see [Local Docker lab](docs/LOCAL_DOCKER_LAB.md).
 
-Open the Academy at <http://127.0.0.1:5001/learn> or Splunk Academy Home at http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home. Pause the lab with `./scripts/lab-down.sh` (it pauses; it does not delete data).
+**Start in the React Academy: <http://127.0.0.1:5001/learn>.** Pause the lab with `./scripts/lab-down.sh` (it pauses; it does not delete data).
+
+### What is where
+
+| What | Local URL | Notes |
+|---|---|---|
+| **Academy (start here)** | <http://127.0.0.1:5001/learn> | The React Academy: labs, Loan Desk mission, EVAL, Risk, Governance. Served by the Attack Service app |
+| Attack Service | `http://127.0.0.1:5001` (port 5001) | The same app also serves the launcher API and the original pages (`/`, `/academy`, `/labs/...`). It runs educational attacks |
+| AcmeBank | `http://127.0.0.1:5000/health` (port 5000) | The target application; the lab runs it, you rarely open it |
+| Splunk Web | <http://127.0.0.1:8000> (port 8000) | Investigation searches and dashboards; log in as `admin` (password in `.env`) |
+| Legacy Splunk dashboards | http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home | The original Splunk-based Academy Home. Still works; not the starting point for this release |
+
+### Local access versus private EC2 access
+- **Local (default).** Every learner port binds to `127.0.0.1`, so only the machine running the lab can reach it. `./scripts/lab-up.sh` forces this.
+- **Private EC2.** Keep the instance in local mode and reach it with an AWS SSM port-forward, which needs no inbound port and no security-group change: forward instance port 5001 to a local port and browse `http://127.0.0.1:<local-port>/learn`. Commands are in [Remote access](docs/REMOTE_ACCESS.md).
+- **No authentication, no TLS.** The Attack Service, Academy, AcmeBank and Splunk login travel over plain HTTP and the Attack Service launches attacks for anyone who can reach it. Never expose these ports to the Internet; `--remote` does not make them safe. See [Remote access](docs/REMOTE_ACCESS.md) and the [HTTPS proposal](docs/HTTPS_INGRESS_PROPOSAL.md) (not deployed).
+
+### Versions
+This platform release is **v1.2.0** (the GitHub release and tag). The embedded Splunk app and the application's health payload still report **1.1.0**; that is expected and is not a mismatch to fix for this release.
 
 ## The learning journey
 

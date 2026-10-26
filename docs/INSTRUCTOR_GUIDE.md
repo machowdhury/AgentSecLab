@@ -8,7 +8,7 @@ This is not a hidden privileged learner mode. Instructors use the same Attack Se
 2. `cp .env.example .env` if needed (do not share real secrets; lab defaults are localhost-only)
 3. `./scripts/lab-up.sh` (or `--build` if images may be stale)
 4. `./scripts/lab-ready.sh`
-5. Browser: Academy Home, Direct Prompt Injection, Attack Service http://127.0.0.1:5001, Search
+5. Browser: the React Academy at http://127.0.0.1:5001/learn (start here); the original Splunk Academy Home is the legacy path. Attack Service http://127.0.0.1:5001, Splunk Search
 6. Confirm ATLAS qualifier **REQUIRES REVALIDATION** on Attack Service (proves current UI)
 7. Explain LIVE vs REPLAY ([LIVE_VS_REPLAY.md](LIVE_VS_REPLAY.md))
 8. Recommended first lab: Direct Prompt Injection LIVE ATTACK, copy run.id, Path A

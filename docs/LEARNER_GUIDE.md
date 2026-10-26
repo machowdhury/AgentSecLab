@@ -1,6 +1,6 @@
 # Learner guide
 
-1. Open <http://127.0.0.1:5001/learn>. The Academy lists 32 labs by domain.
+1. Open <http://127.0.0.1:5001/learn> (the React Academy; port 5001 is the Attack Service app that serves it, Splunk on 8000 is for investigation, and the old Splunk Academy Home is legacy). On a private EC2 lab, use the SSM tunnel described in [Remote access](REMOTE_ACCESS.md) and browse the tunnel's local port with `/learn`. There is no authentication or TLS, so keep it private. The Academy lists 32 labs by domain.
 2. Open a lab. Each has a **Learn** tab, a **Practice** tab (predict, then reveal a recorded run) and a **Prove** tab (sources, hashes, limitations).
 3. Start with **LAB-HITL-APPROVAL**: on the Practice tab choose a prediction, reveal the recorded packet, and read the Prove tab. It is recorded and simulated; nothing runs live.
 4. Investigate in Splunk when a lab points you at a search.

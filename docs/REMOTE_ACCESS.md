@@ -126,3 +126,15 @@ Do not describe a remote deployment as multi-learner ready until these are addre
 ## G. Timing
 
 `./scripts/lab-up.sh` prints four steps: prerequisites, bind plan, container start, readiness, and the elapsed time. The first Splunk boot can take 10 to 20 minutes. Image and model download time is UNKNOWN. See [QUICKSTART.md](QUICKSTART.md).
+
+
+## Private EC2 access with an SSM port-forward (no inbound port)
+Keep the instance in **local** mode (ports on `127.0.0.1`) and forward one port to your workstation. This changes no security group and opens no public port. It needs the AWS CLI, the Session Manager plugin and `ssm:StartSession` permission.
+
+```bash
+aws ssm start-session --region <region> --target <instance-id> \
+  --document-name AWS-StartPortForwardingSession \
+  --parameters '{"portNumber":["5001"],"localPortNumber":["15001"]}'
+# then browse http://127.0.0.1:15001/learn
+```
+The forward is bound to your loopback, authenticated by your AWS identity, and ends when you close the session. The application itself still has no authentication or TLS. Splunk's own links point at `127.0.0.1:8000`, so forward 8000 as well if you need them.
