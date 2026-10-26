@@ -214,7 +214,7 @@ def test_gateway_doc_separates_implemented_tested_and_planned_and_matches_the_sc
     g = _text("docs/GATEWAY.md")
     for planned in ("EDGE_TERMINATED", "OIDC"):
         assert re.search(rf"{planned}.*\*\*Planned\*\*", g)
-    assert "NOT VERIFIED" in g and "Not implemented" in g and "Splunk Cloud" in g and "Not runtime-tested" in g
+    assert "NOT VERIFIED" in g and "mock-tested" in g and "Splunk Cloud" in g and "Not runtime-tested" in g
     sh = _text("scripts/gateway.sh")
     for sub in ("init", "validate", "up", "down"):
         assert f"gateway.sh {sub}" in g and f"{sub})" in sh
@@ -234,3 +234,14 @@ def test_gateway_doc_states_the_single_port_contract_and_does_not_overclaim_plat
     assert "TELEMETRY NOT VERIFIED" in g and "LIVE WORKFLOW NOT VERIFIED" in g
     env = _text(".env.example")
     assert "AGENTSEC_PUBLIC_PORT=443" in env and "AGENTSEC_HTTPS_PORT" not in env
+
+
+def test_splunk_integration_doc_separates_real_from_mock_and_matches_the_code():
+    d = _text("docs/SPLUNK_INTEGRATION.md")
+    assert "Mock only" in d and "NOT VERIFIED" in d and "Real Splunk" in d
+    for name in ("AGENTSEC_SPLUNK_MODE", "AGENTSEC_SPLUNK_REST_URL", "AGENTSEC_SPLUNK_CA_BUNDLE_FILE", "AGENTSEC_SPLUNK_SEARCH_TOKEN_FILE", "AGENTSEC_SPLUNK_INDEX", "AGENTSEC_SPLUNK_TIMEOUT_SEC"):
+        assert name in d and name in _text("src/agentsec/splunk_client.py")
+    for stage in ("CONNECTIVITY", "AUTHENTICATION", "AUTHORIZATION", "SEARCH", "TELEMETRY"):
+        assert stage in d
+    assert "docs/SPLUNK_INTEGRATION.md" in _text(".env.example") and "SPLUNK_INTEGRATION.md" in _text("docs/README.md") and "SPLUNK_INTEGRATION.md" in _text("docs/GATEWAY.md")
+    assert not re.search(r"Splunk Cloud (is|are) (fully )?(supported|compatible)", d, re.I) and "/Users/" not in d

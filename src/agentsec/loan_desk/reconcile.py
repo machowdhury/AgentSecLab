@@ -24,7 +24,19 @@ UUID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12
 BASE = 'index=agentsec_telemetry sourcetype="otel:agentic:json" earliest=-24h "agentsec.run.id"="{run}"'
 
 
-def run_spl(spl: str, *, container: str = SPLUNK_CONTAINER, runner: Callable | None = None) -> list[dict]:
+def run_spl(spl: str, *, container: str = SPLUNK_CONTAINER, runner: Callable | None = None, client=None) -> list[dict]:
+    if client is None and runner is None:
+        from agentsec.splunk_client import SplunkError, client_for_mode
+        try:
+            client = client_for_mode()          # None in BUNDLED mode; external modes never fall back to docker
+        except SplunkError as exc:
+            raise RuntimeError(f"splunk configuration invalid ({exc.stage}/{exc.code})") from None
+    if client is not None:
+        from agentsec.splunk_client import SplunkError
+        try:
+            return client.export_rows(spl, timeout_s=90, max_rows=500)
+        except SplunkError as exc:
+            raise RuntimeError(f"splunk search failed ({exc.stage}/{exc.code})") from None
     inner = "/opt/splunk/bin/splunk search " + json.dumps(" ".join(spl.split())) + ' -auth "admin:${SPLUNK_PASSWORD}" -output csv -maxout 500'
     proc = (runner or subprocess.run)(["docker", "exec", "-u", "splunk", container, "bash", "-lc", inner],
                                        capture_output=True, text=True, check=False, timeout=90)
@@ -91,7 +103,7 @@ def wait_and_reconcile(run_id: str, local_events: list[dict], *, timeout_s: int 
     out = reconcile(local_events, last)
     out["run_id"] = run_id
     out["checked_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    out["method"] = "host docker-exec splunk search (read-only)"
+    out["method"] = "host docker-exec splunk search (read-only)" if os.environ.get("AGENTSEC_SPLUNK_MODE", "BUNDLED").upper() == "BUNDLED" else "strict-TLS Splunk REST search (read-only, search-only token)"
     if "error" in last:
         out["error"] = last["error"]
     return out

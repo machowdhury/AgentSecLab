@@ -16,7 +16,7 @@ One externally reachable application port: **443 (default) or 8000**, both HTTPS
 | Gateway-aware readiness (`lab-ready.sh` delegates to `gateway-ready.sh`) | Implemented; tested with shim commands only, **not end to end** |
 | TLS `EDGE_TERMINATED`; OIDC / edge-header authentication | **Planned**; refused by the validator |
 | Splunk Web behind the gateway | **NOT VERIFIED**; not routed |
-| External Splunk Enterprise; Splunk Cloud | **Not implemented**; no support is claimed |
+| External Splunk Enterprise; Splunk Cloud (search and verification layer, see [Splunk integration](SPLUNK_INTEGRATION.md)) | Implemented and **mock-tested** only; real Splunk **NOT VERIFIED**; HEC export and app installation not covered |
 
 ## 443 or 8000
 - **443** is the default. A rootful Docker daemon (Docker Desktop, standard Docker Engine) can bind it. Rootless Docker and Podman-rootless cannot bind ports below 1024 unless the host allows it (for example `net.ipv4.ip_unprivileged_port_start`); use 8000 there.
@@ -42,7 +42,7 @@ sh scripts/gateway.sh down                    # removes only the gateway contain
 
 ## Bundled and external Splunk
 - **Bundled Splunk** (default) is unchanged: the telemetry pipeline, dashboards, volumes and credentials are untouched. In gateway mode its web UI is on `127.0.0.1:18000` only (reach it from another machine through your own tunnel). Proxying Splunk Web through the gateway is **NOT VERIFIED** and not routed.
-- **External Splunk Enterprise and Splunk Cloud** are **not implemented**. Today the lab's search, verifier and probes assume the bundled container; a strict-TLS REST probe exists in the code and was exercised only against a mock. Do not point the lab at an external Splunk yet.
+- **External Splunk Enterprise and Splunk Cloud:** the search, verifier and probe paths can use a strict-TLS REST client ([Splunk integration](SPLUNK_INTEGRATION.md)). It is **mock-tested only**: real Splunk Enterprise and Splunk Cloud are **NOT VERIFIED**, and HEC export and app installation are not covered.
 
 ## Safe upgrade and rollback
 1. Nothing runs until you opt in. Splunk volumes, `.env`, credentials and the host verifier are not touched by any gateway command.

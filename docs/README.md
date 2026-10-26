@@ -10,6 +10,7 @@
 | [Architecture](ARCHITECTURE_GUIDE.md) | How the pieces fit and where evidence comes from |
 | [Evaluation and risk](EVALUATION_AND_RISK_GUIDE.md) | EVAL and Risk Center semantics |
 | [Governance](GOVERNANCE_GUIDE.md) | What a framework relationship is and is not |
+| [Splunk integration](SPLUNK_INTEGRATION.md) | Bundled, external Enterprise and Cloud modes: what is verified (real vs mock) |
 | [Unified HTTPS gateway](GATEWAY.md) | Opt-in single HTTPS entry point: what is implemented, tested and planned |
 | [HTTPS ingress proposal](HTTPS_INGRESS_PROPOSAL.md) | Earlier proposal (superseded by the gateway document) |
 | [v1.2.0 release notes](RELEASE_NOTES_v1.2.0.md) | What the Academy, EVAL, Risk and Governance release contains and does not |

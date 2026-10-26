@@ -100,3 +100,15 @@ def test_lab_ready_switches_to_gateway_mode_only_when_the_gateway_container_exis
     assert "grep -qx agentsec_gateway" in text and "gateway-ready.sh" in text and 'GATEWAY_MODE" = 1' in text
     assert text.index('GATEWAY_MODE" = 1 ]; then\n  log "Deployment mode: GATEWAY') < text.index('"${AGENTSEC_DEPLOYMENT:-local}" = "remote"')   # gateway branch precedes the REMOTE classifier
     assert 'http://127.0.0.1:5001/health || echo 000)"\nif' not in text                                                               # direct probes only in the non-gateway branch
+
+
+def test_external_splunk_modes_report_staged_results_and_never_touch_the_splunk_container(tmp_path):
+    shim = tmp_path / "bin"; shim.mkdir(exist_ok=True)
+    p = run(tmp_path, [])                                                           # creates shims and state
+    env = {**os.environ, "PATH": f"{shim}:{os.environ['PATH']}", "SHIM_DIR": str(tmp_path), "AGENTSEC_GATEWAY_DIR": str(tmp_path / "g"),
+           "AGENTSEC_TLS_CHAIN_FILE": str(tmp_path / "ca.pem"), "AGENTSEC_SPLUNK_MODE": "EXTERNAL_ENTERPRISE", "AGENTSEC_SPLUNK_REST_URL": "http://insecure:8089"}
+    q = subprocess.run(["sh", str(ROOT / "scripts/gateway-ready.sh"), "--run-id", "abc"], env=env, cwd=ROOT, capture_output=True, text=True)
+    assert "SPLUNK (EXTERNAL_ENTERPRISE) connectivity FAIL: config_invalid" in q.stdout            # invalid external config: reported, not silently bundled
+    assert q.returncode == 0                                                                        # Splunk never changes the exit status
+    assert "agentsec_splunk" not in (tmp_path / "docker.calls").read_text()                         # no docker fallback in external modes
+    assert "LIVE WORKFLOW NOT VERIFIED" in q.stdout

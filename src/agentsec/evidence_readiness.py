@@ -174,9 +174,26 @@ def probe_splunk_count_rest(
         return _probe_failure("splunk_probe_timeout")
 
 
+def probe_splunk_count_client(run_id: str, *, env: dict | None = None, client=None) -> dict:
+    """External Splunk modes: the shared strict-TLS client. Same result shape and error words as the legacy REST probe."""
+    from agentsec.splunk_client import SplunkError, client_for_mode
+    try:
+        client = client or client_for_mode(env)
+        if client is None:
+            return _probe_failure("probe_disabled", attempted=False)
+        text = client.export_csv(" ".join(line.strip() for line in completeness_spl(run_id).splitlines() if line.strip()))
+    except SplunkError as exc:
+        words = {"config_invalid": "probe_misconfigured", "tls_verification_failed": "tls_verification_failed", "auth_failed": "probe_auth_failed",
+                 "forbidden": "probe_auth_failed", "timeout": "splunk_probe_timeout"}
+        return _probe_failure(words.get(exc.code, "splunk_probe_failed"), attempted=exc.code != "config_invalid")
+    return _count_from_csv(text)
+
+
 def select_probe(env: dict | None = None) -> Callable[[str], dict]:
     """REST probe only when explicitly enabled; otherwise the existing docker-exec probe."""
     env = os.environ if env is None else env
+    if str(env.get("AGENTSEC_SPLUNK_MODE", "BUNDLED")).strip().upper() in ("EXTERNAL_ENTERPRISE", "CLOUD"):
+        return lambda run_id: probe_splunk_count_client(run_id, env=env)
     if str(env.get(REST_PROBE_FLAG, "")).lower() == "true":
         return lambda run_id: probe_splunk_count_rest(run_id, env=env)
     return probe_splunk_count

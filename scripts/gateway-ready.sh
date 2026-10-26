@@ -36,27 +36,34 @@ if [ "$a" = "200" ]; then log "ACADEMY READY: the React Academy page is served b
 h="$(docker exec agentsec_attack_service curl -sS -o /dev/null -w '%{http_code}' --max-time 10 http://127.0.0.1:5001/health 2>/dev/null || echo 000)"
 if [ "$h" = "200" ]; then log "ATTACK SERVICE READY: /health answers. This is not proof that an attack runs."; else log "ATTACK SERVICE NOT READY: /health returned HTTP $h."; status=1; fi
 
-# 4. Splunk: reachability of Splunk Web on a loopback port only (never claims telemetry).
-sp=""
-for p in "${AGENTSEC_SPLUNK_LOCAL_PORT:-18000}" 8000; do
-  c="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 5 "http://127.0.0.1:$p/en-US/account/login" 2>/dev/null || echo 000)"
-  [ "$c" = "200" ] && { sp="$p"; break; }
-done
-if [ -n "$sp" ]; then log "SPLUNK REACHABLE: Splunk Web answers on 127.0.0.1:$sp (loopback only; it is not behind the gateway)."
-else log "SPLUNK NOT REACHABLE on loopback (optional: it may not be started, or it may be an external Splunk)."; fi
-
-# 5. Telemetry: only a run-specific search can verify ingestion.
-if [ -n "$RUN_ID" ]; then
-  case "$RUN_ID" in *[!A-Za-z0-9_-]*|"") log "TELEMETRY NOT VERIFIED: --run-id must be 1-64 characters from A-Z a-z 0-9 _ -"; RUN_ID="" ;; esac
-fi
-if [ -n "$RUN_ID" ]; then
-  pw="$(grep -E '^SPLUNK_PASSWORD=' "$ROOT/.env" 2>/dev/null | head -1 | cut -d= -f2- || true)"
-  n="$(docker exec -u splunk -e SPLUNK_PASSWORD="$pw" agentsec_splunk bash -lc "curl -sk -u \"admin:\${SPLUNK_PASSWORD}\" https://127.0.0.1:8089/services/search/jobs/export -d output_mode=csv -d earliest_time=0 --data-urlencode 'search=search index=agentsec_telemetry run_id=$RUN_ID | stats count' | tail -1" 2>/dev/null | tr -dc '0-9' || true)"
-  if [ -n "$n" ] && [ "$n" -gt 0 ] 2>/dev/null; then log "TELEMETRY VERIFIED for run_id=$RUN_ID: $n indexed events. This says nothing about other runs."
-  else log "TELEMETRY NOT VERIFIED for run_id=$RUN_ID: no indexed events found (not ingested yet, wrong id, or Splunk unreachable)."; fi
-else
-  log "TELEMETRY NOT VERIFIED: service readiness is not proof of ingestion. Run with --run-id <id> after a launch to search for that run."
-fi
+# 4./5. Splunk and telemetry. BUNDLED: loopback Splunk Web reachability + optional run-specific search (docker backend).
+# External modes: the strict-TLS REST client reports connectivity, authentication, authorization, search and telemetry as separate stages.
+SPLUNK_MODE="$(printf '%s' "${AGENTSEC_SPLUNK_MODE:-BUNDLED}" | tr 'a-z' 'A-Z')"
+case "$SPLUNK_MODE" in
+  EXTERNAL_ENTERPRISE|CLOUD)
+    if [ -n "$RUN_ID" ]; then out="$(PYTHONPATH="$ROOT/src" python3 -m agentsec.splunk_client check --run-id "$RUN_ID" 2>&1 || true)"
+    else out="$(PYTHONPATH="$ROOT/src" python3 -m agentsec.splunk_client check 2>&1 || true)"; fi
+    printf '%s\n' "$out" | while IFS= read -r line; do log "SPLUNK ($SPLUNK_MODE) $line"; done ;;
+  *)
+    sp=""
+    for p in "${AGENTSEC_SPLUNK_LOCAL_PORT:-18000}" 8000; do
+      c="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 5 "http://127.0.0.1:$p/en-US/account/login" 2>/dev/null || echo 000)"
+      [ "$c" = "200" ] && { sp="$p"; break; }
+    done
+    if [ -n "$sp" ]; then log "SPLUNK REACHABLE: Splunk Web answers on 127.0.0.1:$sp (loopback only; it is not behind the gateway)."
+    else log "SPLUNK NOT REACHABLE on loopback (optional: it may not be started)."; fi
+    if [ -n "$RUN_ID" ]; then
+      case "$RUN_ID" in *[!A-Za-z0-9_-]*|"") log "TELEMETRY NOT VERIFIED: --run-id must be 1-64 characters from A-Z a-z 0-9 _ -"; RUN_ID="" ;; esac
+    fi
+    if [ -n "$RUN_ID" ]; then
+      pw="$(grep -E '^SPLUNK_PASSWORD=' "$ROOT/.env" 2>/dev/null | head -1 | cut -d= -f2- || true)"
+      n="$(docker exec -u splunk -e SPLUNK_PASSWORD="$pw" agentsec_splunk bash -lc "curl -sk -u \"admin:\${SPLUNK_PASSWORD}\" https://127.0.0.1:8089/services/search/jobs/export -d output_mode=csv -d earliest_time=0 --data-urlencode 'search=search index=agentsec_telemetry run_id=$RUN_ID | stats count' | tail -1" 2>/dev/null | tr -dc '0-9' || true)"
+      if [ -n "$n" ] && [ "$n" -gt 0 ] 2>/dev/null; then log "TELEMETRY VERIFIED for run_id=$RUN_ID: $n indexed events. This says nothing about other runs."
+      else log "TELEMETRY NOT VERIFIED for run_id=$RUN_ID: no indexed events found (not ingested yet, wrong id, or Splunk unreachable)."; fi
+    else
+      log "TELEMETRY NOT VERIFIED: service readiness is not proof of ingestion. Run with --run-id <id> after a launch to search for that run."
+    fi ;;
+esac
 # 6. LIVE workflow
 log "LIVE WORKFLOW NOT VERIFIED: a readiness check never launches an attack; launch one from the Academy and confirm its evidence."
 exit "$status"
