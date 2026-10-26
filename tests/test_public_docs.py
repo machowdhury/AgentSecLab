@@ -118,7 +118,7 @@ def test_readme_describes_the_released_state_not_a_pending_branch():
 # ---- v1.2.1 documentation maintenance ----
 LEARNER_DOCS = ["README.md", "docs/README.md", "docs/GETTING_STARTED.md", "docs/QUICKSTART.md", "docs/LEARNER_GUIDE.md", "docs/INSTRUCTOR_GUIDE.md",
                 "docs/OPERATIONS.md", "docs/REMOTE_ACCESS.md", "docs/LOCAL_DOCKER_LAB.md", "docs/LOAN_DESK_MISSION.md", "docs/TROUBLESHOOTING.md",
-                "docs/RELEASE_NOTES_v1.2.0.md"]
+                "docs/RELEASE_NOTES_v1.2.0.md", "docs/GATEWAY.md", "docs/SPLUNK_INTEGRATION.md"]
 
 
 def _text(rel):
@@ -186,7 +186,8 @@ def test_three_numbering_schemes_are_distinguished_and_https_is_marked_unimpleme
     g = _text("docs/GETTING_STARTED.md")
     assert all(k in g for k in ("Six-step journey", "Loan Desk mission stages", "Legacy L0–L10 curriculum"))
     for rel in ("README.md", "docs/GETTING_STARTED.md", "docs/REMOTE_ACCESS.md"):
-        assert re.search(r"planned for v1\.3\.0 and is not implemented in v1\.2\.0", _text(rel)), rel
+        t = _text(rel)
+        assert re.search(r"opt-in HTTPS gateway", t) and "unreleased" in t.lower() and "GATEWAY.md" in t, rel       # v1.3.0 gateway: implemented, but labelled unreleased
     assert "no built-in authentication or tls" in _text("docs/GETTING_STARTED.md").lower().replace("**", "")
 
 
@@ -252,3 +253,44 @@ def test_splunk_real_verification_record_is_honest_about_what_was_blocked():
     assert "partially verified" in d and "BLOCKED" in d and "SplunkServerDefaultCert" in d and "no subject alternative name" in d
     assert "Do not trust `SplunkCommonCA`" in d and "3545" in d and "3986" in d
     assert not re.search(r"authenticated stages[^.]*(PASS|verified against real)", d)
+
+
+DOCS_6 = ["README.md", "docs/GETTING_STARTED.md", "docs/QUICKSTART.md", "docs/LOCAL_DOCKER_LAB.md", "docs/GATEWAY.md", "docs/SPLUNK_INTEGRATION.md"]
+
+
+def test_every_aligned_doc_labels_v1_2_0_published_and_v1_3_0_unreleased_and_links_the_canonical_table():
+    for rel in DOCS_6:
+        t = _text(rel)
+        assert "unreleased" in t.lower() and ("GATEWAY.md" in t or rel == "docs/GATEWAY.md"), rel
+    for rel in ("README.md", "docs/GETTING_STARTED.md", "docs/SPLUNK_INTEGRATION.md"):
+        assert "GATEWAY.md#deployment-modes-at-a-glance" in _text(rel), rel
+    for rel in ("README.md", "docs/GETTING_STARTED.md", "docs/QUICKSTART.md", "docs/LOCAL_DOCKER_LAB.md"):
+        assert re.search(r"published v1\.2\.0", _text(rel), re.I), rel
+
+
+def test_gateway_doc_has_the_deployment_mode_table_and_the_single_port_contract():
+    g = _text("docs/GATEWAY.md")
+    assert "## Deployment modes at a glance" in g
+    for cell in ("Published v1.2.0", "v1.3.0 opt-in HTTPS gateway", "**Exactly one: 443 (default) or 8000**", "mock-tested only", "BLOCKED", "NOT VERIFIED"):
+        assert cell in g, cell
+    assert re.search(r"Not reachable through the gateway \(NOT VERIFIED, not routed\)", g, re.I)
+    assert "`lab-up.sh --remote` is not the gateway" in g
+
+
+def test_no_doc_claims_splunk_web_is_reachable_through_the_gateway():
+    bad = re.compile(r"splunk web[^.\n]{0,60}(is|are)?\s*(available|reachable|accessible|proxied|served)[^.\n]{0,40}(through|via|behind|on) the gateway", re.I)
+    for rel in DOCS_6 + ["docs/REMOTE_ACCESS.md"]:
+        for line in _text(rel).splitlines():
+            if bad.search(line):
+                assert re.search(r"\bnot\b|NOT VERIFIED|never", line, re.I), (rel, line)
+    for rel in ("docs/GATEWAY.md", "docs/SPLUNK_INTEGRATION.md"):
+        assert "NOT VERIFIED" in _text(rel) and "Splunk Web" in _text(rel)
+
+
+def test_real_splunk_stays_not_verified_or_blocked_in_every_doc_that_mentions_external_splunk():
+    for rel in ("README.md", "docs/GETTING_STARTED.md", "docs/LOCAL_DOCKER_LAB.md", "docs/GATEWAY.md", "docs/SPLUNK_INTEGRATION.md"):
+        t = _text(rel)
+        if re.search(r"external Splunk|Splunk Cloud|EXTERNAL_ENTERPRISE", t):
+            assert "mock-tested" in t or "mock only" in t.lower(), rel
+            assert not re.search(r"(external Splunk|Splunk Cloud)[^.\n]{0,40}(is|are) (fully )?(supported|compatible|verified)", t, re.I), rel
+    assert "BLOCKED" in _text("docs/SPLUNK_INTEGRATION.md") and "BLOCKED" in _text("docs/GATEWAY.md")

@@ -35,6 +35,8 @@ docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local
 ./scripts/lab-ready.sh
 ```
 
+*These are the published v1.2.0 local URLs (multi-port HTTP on loopback).* The opt-in v1.3.0 gateway (unreleased) is described in [Unified HTTPS gateway](GATEWAY.md); Splunk outside this bundled container (external Enterprise or Cloud) is described in [Splunk integration](SPLUNK_INTEGRATION.md) and is mock-tested only.
+
 | URL | Role |
 |-----|------|
 | http://127.0.0.1:5000 | AcmeBank |

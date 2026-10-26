@@ -1,6 +1,22 @@
-# Unified HTTPS gateway (v1.3.0, opt-in)
+# Unified HTTPS gateway (v1.3.0, **unreleased**, opt-in)
+
+> **Status.** The published release is **v1.2.0**, a multi-port plain-HTTP deployment. Everything in this document is on the v1.3.0 development branch (`feature/v1.3.0-unified-gateway`): implemented and tested as stated below, **not merged, not released**. Where something is not proven it says NOT VERIFIED or BLOCKED.
 
 One externally reachable application port: **443 (default) or 8000**, both HTTPS. Everything else (Attack Service, AcmeBank, Splunk, Ollama, HEC, OTel) stays internal or loopback-only. The gateway is **off by default**: nothing changes for an existing install until you opt in, and the base `docker-compose.yml` is not modified. The v1.2.0 documentation and release history are unchanged.
+
+## Deployment modes at a glance
+
+| | **Published v1.2.0** | **v1.3.0 opt-in HTTPS gateway** (unreleased) |
+|---|---|---|
+| Externally reachable application ports | Three when published for remote use: 5001 (Academy and Attack Service), 5000 (AcmeBank), 8000 (Splunk Web), via `lab-up.sh --remote` | **Exactly one: 443 (default) or 8000**, HTTPS only (target contract) |
+| Transport | Plain HTTP, no TLS | HTTPS: your certificate (`ORG_CERT`) or a generated test certificate (`LOCAL_DEV`) |
+| Authentication | None on the Attack Service or AcmeBank | Gateway basic auth with two roles (a stand-in, not SSO); attack routes need `operator` |
+| Attack Service, AcmeBank, Ollama, HEC, OTel | Host ports published (loopback by default) | Attack Service and AcmeBank unpublished; HEC and OTel loopback only |
+| Splunk Web | `http://127.0.0.1:8000` | **Not reachable through the gateway (NOT VERIFIED, not routed).** It moves to `127.0.0.1:18000`, host loopback only |
+| Splunk back end | Bundled container only | `BUNDLED` (real-verified), `EXTERNAL_ENTERPRISE` and `CLOUD` (**mock-tested only**; real Splunk **NOT VERIFIED**, authenticated stages against real Splunk **BLOCKED**, see [Splunk integration](SPLUNK_INTEGRATION.md)) |
+| How to use | `./scripts/lab-up.sh` ([Getting started](GETTING_STARTED.md)) | `scripts/gateway.sh` (this page) |
+
+The v1.2.0 column describes what is published and unchanged. The target for a hosted deployment is the right-hand column's single HTTPS port; the gateway does not make the old multi-port deployment safe, and `lab-up.sh --remote` is not the gateway.
 
 ## Implemented, tested, planned
 

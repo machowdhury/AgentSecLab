@@ -157,6 +157,8 @@ Do not commit `.env`. Do not paste a production password, token, or cloud key in
 
 ## 8. URLs
 
+*Published v1.2.0 direct URLs (multi-port HTTP).* The unreleased v1.3.0 gateway uses one HTTPS port instead; its URL is printed by `scripts/gateway.sh up` and described in [Unified HTTPS gateway](GATEWAY.md). `--remote` publishes the three v1.2.0 ports and is **not** the single-port gateway.
+
 | URL | Role |
 |-----|------|
 | **http://127.0.0.1:5001/learn** | **React Academy: start here** |

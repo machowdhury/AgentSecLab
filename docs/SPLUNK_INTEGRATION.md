@@ -1,4 +1,6 @@
-# Splunk integration: bundled, external Enterprise, Splunk Cloud (v1.3.0)
+# Splunk integration: bundled, external Enterprise, Splunk Cloud (v1.3.0, **unreleased**)
+
+> The published v1.2.0 supports only the bundled Splunk container. The modes below are on the v1.3.0 development branch. See [Deployment modes at a glance](GATEWAY.md#deployment-modes-at-a-glance).
 
 AgentSecLab no longer assumes where Splunk runs. `AGENTSEC_SPLUNK_MODE` selects how the application searches and verifies evidence. Default `BUNDLED` is unchanged.
 

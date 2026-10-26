@@ -22,6 +22,7 @@ Security learners, instructors running a workshop, SOC analysts and security arc
 
 ## Release status: read this first
 
+- **Published: v1.2.0**, a multi-port plain-HTTP deployment (this README's quick start and tables). **In development, not released: v1.3.0**, which adds an opt-in HTTPS gateway so a hosted deployment exposes exactly one external port (443 or 8000) and a Splunk integration layer. See [Deployment modes at a glance](docs/GATEWAY.md#deployment-modes-at-a-glance).
 - `main` is release **v1.2.0**. It includes the React Academy shell, the Security Assurance workshop, the EVAL Center, the Risk Center, the Governance Center and the Workshop path bar. The previous release, `v1.1.0`, served the original Splunk-based pages, which still work.
 - **Recorded versus live.** Everything in the EVAL, Risk and Governance Centers and almost every lab is recorded, replayed or simulated evidence, and says so on the page. Only the Loan Desk mission's Attack stage runs a live agent, and it needs the local model (Ollama).
 - **What was tested on this branch's deployed build:** automated headless-Chromium checks (navigation, lazy-loaded pages, exports, recorded workbenches, console errors) through a private tunnel. The live Attack stage was **not** run or verified, and no human or screen-reader pass has been done.
@@ -44,6 +45,8 @@ The commands above start the **local Docker lab**. **External Splunk** is not st
 
 ### What is where
 
+*This table is the published v1.2.0 multi-port HTTP deployment. With the opt-in v1.3.0 gateway (unreleased) only one HTTPS port is externally reachable, and Splunk Web is not reachable through it; see [Unified HTTPS gateway](docs/GATEWAY.md).*
+
 | What | Local URL | Notes |
 |---|---|---|
 | **Academy (start here)** | <http://127.0.0.1:5001/learn> | The React Academy: labs, Loan Desk mission, EVAL, Risk, Governance. Served by the Attack Service app |
@@ -55,10 +58,10 @@ The commands above start the **local Docker lab**. **External Splunk** is not st
 ### Local access versus private EC2 access
 - **Local (default).** Every learner port binds to `127.0.0.1`, so only the machine running the lab can reach it. `./scripts/lab-up.sh` forces this.
 - **Private EC2.** Keep the instance in local mode and reach it with an AWS SSM port-forward, which needs no inbound port and no security-group change: forward instance port 5001 to a local port and browse `http://127.0.0.1:<local-port>/learn`. Commands are in [Remote access](docs/REMOTE_ACCESS.md).
-- **No authentication, no TLS.** The Attack Service, Academy, AcmeBank and Splunk login travel over plain HTTP and the Attack Service launches attacks for anyone who can reach it. Never expose these ports to the Internet; `--remote` does not make them safe. See [Remote access](docs/REMOTE_ACCESS.md) and the [HTTPS proposal](docs/HTTPS_INGRESS_PROPOSAL.md). A single authenticated HTTPS entry point is **planned for v1.3.0 and is not implemented in v1.2.0**.
+- **No authentication, no TLS.** The Attack Service, Academy, AcmeBank and Splunk login travel over plain HTTP and the Attack Service launches attacks for anyone who can reach it. Never expose these ports to the Internet; `--remote` does not make them safe. See [Remote access](docs/REMOTE_ACCESS.md) and the [HTTPS proposal](docs/HTTPS_INGRESS_PROPOSAL.md). The v1.3.0 **opt-in HTTPS gateway** (implemented and tested on the development branch, **unreleased**) provides TLS, authentication and a single external port (443 or 8000); see [Unified HTTPS gateway](docs/GATEWAY.md). Splunk Web through the gateway is NOT VERIFIED, and external Splunk Enterprise/Cloud is mock-tested only ([Splunk integration](docs/SPLUNK_INTEGRATION.md)).
 
 ### Versions
-This platform release is **v1.2.0** (the GitHub release and tag). The embedded Splunk app and the application's health payload still report **1.1.0**; that is expected and is not a mismatch to fix for this release.
+This platform release is **v1.2.0** (the GitHub release and tag); v1.3.0 is unreleased development. The embedded Splunk app and the application's health payload still report **1.1.0**; that is expected and is not a mismatch to fix for this release.
 
 ## The learning journey
 
