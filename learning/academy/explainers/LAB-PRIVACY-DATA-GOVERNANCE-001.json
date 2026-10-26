@@ -1,0 +1,411 @@
+{
+  "lab_id": "LAB-PRIVACY-DATA-GOVERNANCE-001",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-26",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. Every option and every answer in Practice is computed from the committed sources by the exporter, and each source file is shown with its SHA-256."
+  },
+  "summary": {
+    "text": "Authorizing a tool call is not the same as authorizing the data it receives. This checkpoint compares the lab's full synthetic record with its minimized record and asks you to separate what the task needed, what the control decided and what stays unproven.",
+    "grounds": [
+      "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/README.md"
+    ],
+    "facts": [
+      "AUTHORIZED ACTION != AUTHORIZED DATA USE"
+    ]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "A support task confirms a synthetic customer's preferred contact channel. Only two fields are needed to do it.",
+      "grounds": [
+        "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/incident.md"
+      ],
+      "facts": [
+        "Confirm the synthetic customer's preferred support contact channel."
+      ]
+    },
+    {
+      "id": "controls",
+      "label": "The threat",
+      "text": "More customer information than the task needs reaches the tool and its telemetry, even though the request was authorized.",
+      "grounds": [
+        "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/incident.md"
+      ],
+      "facts": [
+        "exposed more customer information than was required"
+      ]
+    },
+    {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between the data a task needs and the data a request carries into a tool.",
+      "grounds": [
+        "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/README.md"
+      ],
+      "facts": [
+        "The ATTACK specimen supplies a full synthetic customer record; the RETEST supplies only task-required fields."
+      ]
+    },
+    {
+      "id": "rule",
+      "label": "The security control",
+      "text": "An authorized action is not authorized data use, so authorization and data appropriateness are judged separately.",
+      "grounds": [
+        "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/README.md"
+      ],
+      "facts": [
+        "AUTHORIZED ACTION != AUTHORIZED DATA USE"
+      ]
+    },
+    {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "All records are synthetic and no production impact is modeled. The lab does not call this a breach.",
+      "grounds": [
+        "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/incident.md"
+      ],
+      "facts": [
+        "Do not call this a breach. All records are synthetic, and no production impact is modeled."
+      ]
+    }
+  ],
+  "known": [
+    {
+      "text": "The lab says the tool request may have been correctly authorized and tells you to investigate authorization and data appropriateness as separate questions.",
+      "grounds": [
+        "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/incident.md"
+      ],
+      "facts": [
+        "The tool request may have been correctly authorized.",
+        "Investigate authorization and data appropriateness as separate questions."
+      ]
+    }
+  ],
+  "cannot_claim_lines": {
+    "source": "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/README.md",
+    "lines": [
+      "This is not legal advice, compliance validation, certification, a DLP product, or proof about a production customer system."
+    ]
+  },
+  "checkpoint": {
+    "kind": "study",
+    "label": "DOCUMENTED DATA MAP — NOT A LIVE RUN",
+    "verification": "The data map and the lab's notes are documentation of a deterministic synthetic comparison. This page ran nothing and holds no run events. The authorization and execution statements are quoted from the lab's own notes and the existing privacy test, and are not re-verified here. No receipt from a verifier is attached.",
+    "sources": {
+      "data_map": "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/data-map.json"
+    },
+    "steps": [
+      {
+        "title": "1. Purpose first: what does the task need?",
+        "intro": "The task is to confirm a preferred contact channel. Decide what data that needs before you look at what was sent.",
+        "questions": [
+          {
+            "id": "p1",
+            "prompt": "Which fields does the data map say the task requires?",
+            "mode": "multi",
+            "candidates": {
+              "items": "data_map.classification[]",
+              "pick": "field"
+            },
+            "answer": {
+              "items": "data_map.classification[]",
+              "where": {
+                "field": "required",
+                "equals": "true"
+              },
+              "pick": "field"
+            },
+            "quote": {
+              "file": "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/data-map.json",
+              "text": "The bounded task asks for the contact channel."
+            },
+            "how": "data map classification where required is true"
+          },
+          {
+            "id": "p2",
+            "prompt": "Which fields does the full record carry that the minimized record does not?",
+            "mode": "multi",
+            "candidates": {
+              "items": "data_map.classification[]",
+              "pick": "field"
+            },
+            "answer": {
+              "minus": [
+                {
+                  "keys": "data_map.full_record"
+                },
+                {
+                  "keys": "data_map.minimized_record"
+                }
+              ]
+            },
+            "quote": {
+              "file": "docs/reviews/logic-proof-privacy-data-governance-2026-09-25.md",
+              "text": "The full specimen's received fields additionally contain synthetic email, postal address, account-balance band, and internal case note."
+            },
+            "how": "keys of the full record minus keys of the minimized record"
+          },
+          {
+            "id": "p3",
+            "prompt": "Which fields does the data map class as personal data?",
+            "mode": "multi",
+            "candidates": {
+              "items": "data_map.classification[]",
+              "pick": "field"
+            },
+            "answer": {
+              "items": "data_map.classification[]",
+              "where": {
+                "field": "category",
+                "contains": "PERSONAL"
+              },
+              "pick": "field"
+            },
+            "how": "data map classification where category contains PERSONAL"
+          }
+        ]
+      },
+      {
+        "title": "2. Authorization is a separate question",
+        "intro": "Both runs asked the same tool for the same scope. What the control decided, and what data crossed the boundary, are different facts.",
+        "questions": [
+          {
+            "id": "z1",
+            "prompt": "What did CTRL-MCP-001 decide for the full-record run, as the lab documents it?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "ALLOW",
+                "DENY"
+              ]
+            },
+            "answer": {
+              "quote_token": {
+                "file": "docs/reviews/logic-proof-privacy-data-governance-2026-09-25.md",
+                "text": "CTRL-MCP-001 returns ALLOW / tool_granted",
+                "token": "ALLOW"
+              }
+            },
+            "quote": {
+              "file": "docs/reviews/logic-proof-privacy-data-governance-2026-09-25.md",
+              "text": "CTRL-MCP-001 returns ALLOW / tool_granted"
+            },
+            "how": "the lab's logic-proof note"
+          },
+          {
+            "id": "z2",
+            "prompt": "What did it decide for the minimized-record run?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "ALLOW",
+                "DENY"
+              ]
+            },
+            "answer": {
+              "quote_token": {
+                "file": "docs/reviews/logic-proof-privacy-data-governance-2026-09-25.md",
+                "text": "CTRL-MCP-001 returns ALLOW / tool_granted",
+                "token": "ALLOW"
+              }
+            },
+            "quote": {
+              "file": "docs/reviews/logic-proof-privacy-data-governance-2026-09-25.md",
+              "text": "Both specimens request prepare_support_contact with scope support:contact:prepare under the same immutable L8 policy."
+            },
+            "how": "the lab's logic-proof note"
+          },
+          {
+            "id": "z3",
+            "prompt": "How many times did the tool handler start in each run?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "zero",
+                "one",
+                "two"
+              ]
+            },
+            "answer": {
+              "quote_token": {
+                "file": "docs/reviews/logic-proof-privacy-data-governance-2026-09-25.md",
+                "text": "each handler invocation count is one",
+                "token": "one"
+              }
+            },
+            "quote": {
+              "file": "docs/reviews/logic-proof-privacy-data-governance-2026-09-25.md",
+              "text": "each handler invocation count is one"
+            },
+            "how": "the lab's logic-proof note"
+          }
+        ]
+      },
+      {
+        "title": "3. What is not modeled",
+        "intro": "Minimizing the data reduces exposure. It does not prove retention or deletion, and the data map says which life-cycle stages it does not model.",
+        "questions": [
+          {
+            "id": "n1",
+            "prompt": "Which life-cycle stages does the data map say are not modeled in this incident?",
+            "mode": "multi",
+            "candidates": {
+              "items": "data_map.lifecycle[]",
+              "pick": "stage"
+            },
+            "answer": {
+              "items": "data_map.lifecycle[]",
+              "where": {
+                "field": "status",
+                "contains": "NOT MODELED"
+              },
+              "pick": "stage"
+            },
+            "quote": {
+              "file": "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/knowledge-check.md",
+              "text": "Which lifecycle stages are not modeled in PRIV-2026-001?"
+            },
+            "how": "data map lifecycle where status contains NOT MODELED"
+          }
+        ]
+      }
+    ],
+    "compare": {
+      "title": "Full record and minimized record, side by side",
+      "left": {
+        "label": "Full record",
+        "path": "data_map.full_record"
+      },
+      "right": {
+        "label": "Minimized record",
+        "path": "data_map.minimized_record"
+      },
+      "need": {
+        "path": "data_map.classification",
+        "key": "field",
+        "flag": "required",
+        "label": "The task needs it"
+      }
+    },
+    "documented": [
+      {
+        "label": "Authorization decision, both runs",
+        "file": "docs/reviews/logic-proof-privacy-data-governance-2026-09-25.md",
+        "text": "CTRL-MCP-001 returns ALLOW / tool_granted"
+      },
+      {
+        "label": "Handler and completion, both runs",
+        "file": "docs/reviews/logic-proof-privacy-data-governance-2026-09-25.md",
+        "text": "each handler invocation count is one and each run reaches mcp.completed"
+      },
+      {
+        "label": "What the full record added",
+        "file": "docs/reviews/logic-proof-privacy-data-governance-2026-09-25.md",
+        "text": "The full specimen's received fields additionally contain synthetic email, postal address, account-balance band, and internal case note."
+      },
+      {
+        "label": "Marker in the bounded preview",
+        "file": "docs/PRIVACY_LIVE_SPLUNK_VALIDATION.md",
+        "text": "only ATTACK showed the account_balance_band marker in the bounded preview."
+      },
+      {
+        "label": "Asserted by the existing privacy test",
+        "file": "tests/security/test_l8_privacy_runtime.py",
+        "text": "assert control[\"agentsec.control.decision\"] == \"ALLOW\""
+      }
+    ],
+    "facts": [
+      {
+        "label": "Incident",
+        "path": "data_map.incident_id"
+      },
+      {
+        "label": "Task",
+        "path": "data_map.task"
+      },
+      {
+        "label": "Synthetic only",
+        "path": "data_map.synthetic_only"
+      },
+      {
+        "label": "Required fields",
+        "path": "data_map.required_fields"
+      },
+      {
+        "label": "Not in the incident trace",
+        "path": "data_map.not_in_incident_trace"
+      }
+    ],
+    "tables": [
+      {
+        "title": "Data classification",
+        "path": "data_map.classification",
+        "columns": [
+          [
+            "field",
+            "Field"
+          ],
+          [
+            "category",
+            "Category"
+          ],
+          [
+            "scenario_sensitivity",
+            "Sensitivity in the scenario"
+          ],
+          [
+            "required",
+            "Required"
+          ],
+          [
+            "reason",
+            "Reason"
+          ]
+        ]
+      },
+      {
+        "title": "Life cycle of the data",
+        "path": "data_map.lifecycle",
+        "columns": [
+          [
+            "stage",
+            "Stage"
+          ],
+          [
+            "status",
+            "Status"
+          ],
+          [
+            "evidence",
+            "Evidence"
+          ]
+        ]
+      }
+    ],
+    "limits": [
+      {
+        "file": "docs/reviews/logic-proof-privacy-data-governance-2026-09-25.md",
+        "text": "This proves fixture and control-flow semantics only."
+      },
+      {
+        "file": "docs/reviews/logic-proof-privacy-data-governance-2026-09-25.md",
+        "text": "It does not prove production privacy, provider behavior, tenant isolation, retention, deletion, RAG or memory behavior, a breach, or universal control effectiveness."
+      },
+      {
+        "file": "docs/PRIVACY_LIVE_SPLUNK_VALIDATION.md",
+        "text": "This does not prove provider behavior, retention, deletion, model/RAG/memory processing, a production breach, or universal privacy control effectiveness."
+      },
+      {
+        "file": "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/README.md",
+        "text": "This is not legal advice, compliance validation, certification, a DLP product, or proof about a production customer system."
+      }
+    ],
+    "spl": [
+      "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/searches/Q-PRIVACY-CANDIDATES.spl",
+      "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/searches/Q-PRIVACY-TRACE.spl",
+      "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/searches/Q-PRIVACY-COMPARE.spl"
+    ]
+  }
+}

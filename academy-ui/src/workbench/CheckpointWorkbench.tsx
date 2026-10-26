@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Badge, Button } from "../ui";
 import { Callout, CopyButton } from "../mission/parts";
 import type { Checkpoint } from "../curriculum";
+import { StudyPractice, StudyProve } from "./StudyWorkbench";
 import { NOT_RECORDED, answer, answerable, classification, dig, differing, field, items, modeOf, modes, order, selectWhere, text } from "./checkpoint";
 
 const tone = (d?: string) => d === "ALLOW" || d === "MATCH" || d === "yes" ? "allow" : d === "DENY" || d === "MISMATCH" || d === "no" ? "deny" : d === "ERROR" || d === "FAIL_OPEN" ? "warning" : "muted";
@@ -85,11 +86,13 @@ function InventoryPractice({ cp }: { cp: Checkpoint }) {
 
 /** Practice for a simulated or documented packet checkpoint: predict each case, spot the difference, compare. Nothing here launches a run. */
 export function CheckpointPractice({ cp }: { cp: Checkpoint }) {
+  if (cp.spec.kind === "study") return <StudyPractice cp={cp} />;
   return cp.spec.kind === "inventory" ? <InventoryPractice cp={cp} /> : <ModePractice cp={cp} />;
 }
 
 /** Prove for a checkpoint: the decisive fields of each case, the packet's own assertions and limits, provenance and the lab's search. */
 export function CheckpointProve({ cp }: { cp: Checkpoint }) {
+  if (cp.spec.kind === "study") return <StudyProve cp={cp} />;
   const spec = cp.spec;
   return <div className="m-sec rec" data-testid="checkpoint-prove">
     <h3>The decisive evidence, and where it comes from <Badge tone="replay">{badge(cp)}</Badge></h3>
@@ -100,7 +103,7 @@ export function CheckpointProve({ cp }: { cp: Checkpoint }) {
         <thead><tr><th scope="col">Case</th>{(spec.decisive ?? []).map((d) => <th scope="col" key={d.field}>{d.label}</th>)}</tr></thead>
         <tbody>{modes(cp).map((m) => <tr key={String(m.mode)}><th scope="row">{String(m.mode)}</th>{(spec.decisive ?? []).map((d) => <td key={d.field} data-label={d.label}>{field(m, d.field) ?? NOT_RECORDED}</td>)}</tr>)}</tbody></table></div>}
     <div className="m-sec"><h4>What the packet itself asserts</h4>
-      <dl className="rec-fields">{spec.packet_facts.map((f) => <div key={f.path}><dt>{f.label}</dt><dd>{text(dig(cp.packet, f.path))}</dd></div>)}</dl></div>
+      <dl className="rec-fields">{(spec.packet_facts ?? []).map((f) => <div key={f.path}><dt>{f.label}</dt><dd>{text(dig(cp.packet, f.path))}</dd></div>)}</dl></div>
     {(spec.tables ?? []).map((t) => <div className="m-sec" key={t.path}><h4>{t.title}</h4><div className="table-wrap" tabIndex={0} role="region" aria-label={`${t.title}; scrolls sideways on a narrow screen`}><table className="m-stack"><caption className="m-caption">{t.title}, unedited</caption>
       <thead><tr>{t.columns.map(([, l]) => <th scope="col" key={l}>{l}</th>)}</tr></thead>
       <tbody>{(dig(cp.packet, t.path) as Record<string, unknown>[]).map((r, i) => <tr key={i}>{t.columns.map(([k, l]) => <td key={k} data-label={l}>{text(r[k])}</td>)}</tr>)}</tbody></table></div></div>)}

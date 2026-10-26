@@ -1,0 +1,526 @@
+{
+  "lab_id": "LAB-THREAT-MODELING-001",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-26",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. Every option and every answer in Practice is computed from the committed sources by the exporter, and each source file is shown with its SHA-256."
+  },
+  "summary": {
+    "text": "A threat model starts with what you are protecting and where trust changes, not with a list of attacks. This checkpoint reads the lab's committed architecture and threat catalog and asks you to find the assets, boundaries, threats, controls and residual risks in them.",
+    "grounds": [
+      "learning/level_1/LAB-THREAT-MODELING-001/challenge.md"
+    ],
+    "facts": [
+      "AcmeBank wants an internal customer-operations assistant that summarizes lending policy and may perform explicitly authorized read-only lookups."
+    ]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "An internal assistant summarizes lending policy and may do explicitly authorized read-only lookups. You model the platform; you do not attack it.",
+      "grounds": [
+        "learning/level_1/LAB-THREAT-MODELING-001/challenge.md"
+      ],
+      "facts": [
+        "AcmeBank wants an internal customer-operations assistant that summarizes lending policy and may perform explicitly authorized read-only lookups."
+      ]
+    },
+    {
+      "id": "controls",
+      "label": "The threat",
+      "text": "The catalog lists nine reasoning prompts, such as prompt manipulation, memory poisoning and excessive authority. It is a set of prompts, not a finished model.",
+      "grounds": [
+        "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json"
+      ],
+      "facts": [
+        "REASONING PROMPTS / NOT A COMPLETED THREAT MODEL"
+      ]
+    },
+    {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Each trust boundary in the architecture file carries the question to ask there. The first one asks what untrusted data enters.",
+      "grounds": [
+        "learning/level_1/LAB-THREAT-MODELING-001/architecture.json"
+      ],
+      "facts": [
+        "What untrusted request data enters, and which input control evaluates it?"
+      ]
+    },
+    {
+      "id": "rule",
+      "label": "The security control",
+      "text": "Retrieved content and memory can influence requests but cannot grant authority, and one control decides tool authorization.",
+      "grounds": [
+        "learning/level_1/LAB-THREAT-MODELING-001/challenge.md"
+      ],
+      "facts": [
+        "Retrieved content and memory can influence requests but cannot grant authority.",
+        "CTRL-MCP-001 is the sole tool PDP."
+      ]
+    },
+    {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "The architecture says what it does not model, and the challenge forbids a risk score. Nothing here is an assessment of a real system.",
+      "grounds": [
+        "learning/level_1/LAB-THREAT-MODELING-001/challenge.md"
+      ],
+      "facts": [
+        "Authentication is NOT MODELED.",
+        "Do not assign a numerical risk score."
+      ]
+    }
+  ],
+  "known": [
+    {
+      "text": "The challenge rules say a scanner finding is not exploitation and an evaluation pass is not safety.",
+      "grounds": [
+        "learning/level_1/LAB-THREAT-MODELING-001/challenge.md"
+      ],
+      "facts": [
+        "A scanner finding is not exploitation.",
+        "An evaluation pass is not safety."
+      ]
+    }
+  ],
+  "cannot_claim_lines": {
+    "source": "learning/level_1/LAB-THREAT-MODELING-001/challenge.md",
+    "lines": [
+      "The platform is a learning environment, not a production banking architecture.",
+      "Do not assign a numerical risk score.",
+      "Absence of evidence is not evidence of absence."
+    ]
+  },
+  "checkpoint": {
+    "kind": "study",
+    "label": "DOCUMENTED ARCHITECTURE AND THREAT CATALOG — NOT AN ASSESSMENT",
+    "verification": "These are the lab's documented architecture and threat catalog. No assessment of a real system was performed, no runtime event exists for them and no receipt from a verifier is attached. The catalog calls itself reasoning prompts, not a completed threat model, and the lab states it is not compliance.",
+    "sources": {
+      "architecture": "learning/level_1/LAB-THREAT-MODELING-001/architecture.json",
+      "catalog": "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json"
+    },
+    "steps": [
+      {
+        "title": "1. Assets: what are we protecting?",
+        "intro": "Read the asset list in the architecture file, then decide which assets each catalog threat puts at stake.",
+        "questions": [
+          {
+            "id": "a1",
+            "prompt": "Which assets does threat TM-T04 (excessive authority / tool abuse) put at stake?",
+            "mode": "multi",
+            "candidates": {
+              "items": "architecture.assets[]",
+              "pick": "id"
+            },
+            "answer": {
+              "items": "catalog.threats[]",
+              "where": {
+                "field": "id",
+                "equals": "TM-T04"
+              },
+              "pick": "assets"
+            },
+            "quote": {
+              "file": "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json",
+              "text": "Can the agent request or execute a tool, scope, or resource beyond coded authority?"
+            },
+            "how": "catalog threat TM-T04, assets"
+          },
+          {
+            "id": "a2",
+            "prompt": "Which assets does the architecture file categorise as DATA?",
+            "mode": "multi",
+            "candidates": {
+              "items": "architecture.assets[]",
+              "pick": "id"
+            },
+            "answer": {
+              "items": "architecture.assets[]",
+              "where": {
+                "field": "category",
+                "equals": "DATA"
+              },
+              "pick": "id"
+            },
+            "quote": {
+              "file": "learning/level_1/LAB-THREAT-MODELING-001/architecture.json",
+              "text": "Unauthorized disclosure or modification can affect customers and business operations."
+            },
+            "how": "architecture assets where category equals DATA"
+          },
+          {
+            "id": "a3",
+            "prompt": "Which assets does TM-T06 (sensitive-data exposure) put at stake?",
+            "mode": "multi",
+            "candidates": {
+              "items": "architecture.assets[]",
+              "pick": "id"
+            },
+            "answer": {
+              "items": "catalog.threats[]",
+              "where": {
+                "field": "id",
+                "equals": "TM-T06"
+              },
+              "pick": "assets"
+            },
+            "quote": {
+              "file": "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json",
+              "text": "Can prompts, context, memory, tool results, or telemetry disclose customer or business data?"
+            },
+            "how": "catalog threat TM-T06, assets"
+          }
+        ]
+      },
+      {
+        "title": "2. Trust boundaries: where does trust change?",
+        "intro": "A boundary is a place to ask a question. Crossing one is not proof of compromise.",
+        "questions": [
+          {
+            "id": "b1",
+            "prompt": "Which trust boundaries does TM-T03 (goal manipulation) cross?",
+            "mode": "multi",
+            "candidates": {
+              "items": "architecture.trust_boundaries[]",
+              "pick": "id"
+            },
+            "answer": {
+              "items": "catalog.threats[]",
+              "where": {
+                "field": "id",
+                "equals": "TM-T03"
+              },
+              "pick": "boundaries"
+            },
+            "quote": {
+              "file": "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json",
+              "text": "Can an instruction expand the authorized business purpose while using an allowed tool?"
+            },
+            "how": "catalog threat TM-T03, boundaries"
+          },
+          {
+            "id": "b2",
+            "prompt": "Which boundary sits between the orchestrator and the MCP server?",
+            "mode": "single",
+            "candidates": {
+              "items": "architecture.trust_boundaries[]",
+              "pick": "id"
+            },
+            "answer": {
+              "items": "architecture.trust_boundaries[]",
+              "where": {
+                "field": "between",
+                "contains": "CMP-MCP"
+              },
+              "pick": "id"
+            },
+            "quote": {
+              "file": "learning/level_1/LAB-THREAT-MODELING-001/architecture.json",
+              "text": "Who authorizes the requested tool, scope, and resource before execution?"
+            },
+            "how": "architecture trust boundaries where between contains CMP-MCP"
+          },
+          {
+            "id": "b3",
+            "prompt": "Which boundaries does TM-T06 cross?",
+            "mode": "multi",
+            "candidates": {
+              "items": "architecture.trust_boundaries[]",
+              "pick": "id"
+            },
+            "answer": {
+              "items": "catalog.threats[]",
+              "where": {
+                "field": "id",
+                "equals": "TM-T06"
+              },
+              "pick": "boundaries"
+            },
+            "quote": {
+              "file": "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json",
+              "text": "Observability itself can become a sensitive-data store."
+            },
+            "how": "catalog threat TM-T06, boundaries"
+          }
+        ]
+      },
+      {
+        "title": "3. Threats: what could go wrong?",
+        "intro": "The catalog is a set of reasoning prompts, not a completed threat model.",
+        "questions": [
+          {
+            "id": "t1",
+            "prompt": "Which catalog threats put the authority asset AST-AUTHORITY at stake?",
+            "mode": "multi",
+            "candidates": {
+              "items": "catalog.threats[]",
+              "pick": "id"
+            },
+            "answer": {
+              "items": "catalog.threats[]",
+              "where": {
+                "field": "assets",
+                "contains": "AST-AUTHORITY"
+              },
+              "pick": "id"
+            },
+            "quote": {
+              "file": "learning/level_1/LAB-THREAT-MODELING-001/architecture.json",
+              "text": "Authority determines which security-sensitive actions can occur."
+            },
+            "how": "catalog threats where assets contains AST-AUTHORITY"
+          },
+          {
+            "id": "t2",
+            "prompt": "Which catalog threats involve the observability boundary TB-06?",
+            "mode": "multi",
+            "candidates": {
+              "items": "catalog.threats[]",
+              "pick": "id"
+            },
+            "answer": {
+              "items": "catalog.threats[]",
+              "where": {
+                "field": "boundaries",
+                "contains": "TB-06"
+              },
+              "pick": "id"
+            },
+            "quote": {
+              "file": "learning/level_1/LAB-THREAT-MODELING-001/architecture.json",
+              "text": "Which emitted events become searchable, and what completeness can be proven?"
+            },
+            "how": "catalog threats where boundaries contains TB-06"
+          }
+        ]
+      },
+      {
+        "title": "4. Mitigations: which controls does the catalog name?",
+        "intro": "A named control is not proof that it works. The catalog records each existing control and its class.",
+        "questions": [
+          {
+            "id": "m1",
+            "prompt": "Which controls does the catalog name for TM-T05 (identity spoofing / delegation abuse)?",
+            "mode": "multi",
+            "candidates": {
+              "items": "catalog.threats[]",
+              "pick": "existing_controls[].id"
+            },
+            "answer": {
+              "items": "catalog.threats[]",
+              "where": {
+                "field": "id",
+                "equals": "TM-T05"
+              },
+              "pick": "existing_controls[].id"
+            },
+            "quote": {
+              "file": "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json",
+              "text": "Claim fields provide attribution context but cannot establish who authenticated."
+            },
+            "how": "catalog threat TM-T05, existing controls"
+          },
+          {
+            "id": "m2",
+            "prompt": "Which catalog threats name no control whose class contains PREVENTIVE?",
+            "mode": "multi",
+            "candidates": {
+              "items": "catalog.threats[]",
+              "pick": "id"
+            },
+            "answer": {
+              "items": "catalog.threats[]",
+              "where": {
+                "field": "existing_controls",
+                "not_contains": "PREVENTIVE"
+              },
+              "pick": "id"
+            },
+            "quote": {
+              "file": "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json",
+              "text": "Analysts can still overstate what valid evidence proves."
+            },
+            "how": "catalog threats where existing controls do not contain PREVENTIVE"
+          }
+        ]
+      },
+      {
+        "title": "5. Residual risk and gaps: what remains?",
+        "intro": "An effective control still leaves risk, and a gap is not a finding. Check what the catalog records as unproven or not modeled.",
+        "questions": [
+          {
+            "id": "r1",
+            "prompt": "Which catalog threats record a gap that says NOT PROVEN?",
+            "mode": "multi",
+            "candidates": {
+              "items": "catalog.threats[]",
+              "pick": "id"
+            },
+            "answer": {
+              "items": "catalog.threats[]",
+              "where": {
+                "field": "gap",
+                "contains": "NOT PROVEN"
+              },
+              "pick": "id"
+            },
+            "quote": {
+              "file": "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json",
+              "text": "Semantic resistance outside controlled fixtures is NOT PROVEN."
+            },
+            "how": "catalog threats where gap contains NOT PROVEN"
+          },
+          {
+            "id": "r2",
+            "prompt": "Which catalog threats record a gap that says NOT MODELED?",
+            "mode": "multi",
+            "candidates": {
+              "items": "catalog.threats[]",
+              "pick": "id"
+            },
+            "answer": {
+              "items": "catalog.threats[]",
+              "where": {
+                "field": "gap",
+                "contains": "NOT MODELED"
+              },
+              "pick": "id"
+            },
+            "quote": {
+              "file": "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json",
+              "text": "Production persistence, retention, deletion, and tenant isolation are NOT MODELED."
+            },
+            "how": "catalog threats where gap contains NOT MODELED"
+          }
+        ]
+      }
+    ],
+    "facts": [
+      {
+        "label": "Catalog role",
+        "path": "catalog.catalog_role"
+      },
+      {
+        "label": "Architecture scenario",
+        "path": "architecture.scenario"
+      },
+      {
+        "label": "Not authorization",
+        "path": "architecture.not_authorization"
+      },
+      {
+        "label": "Not compliance",
+        "path": "architecture.not_compliance"
+      },
+      {
+        "label": "Who authorizes a tool request",
+        "path": "architecture.authority.authorizer"
+      },
+      {
+        "label": "Execution gate",
+        "path": "architecture.authority.execution_gate"
+      },
+      {
+        "label": "Boundaries the lab does not model",
+        "path": "architecture.model_boundaries"
+      }
+    ],
+    "tables": [
+      {
+        "title": "Assets",
+        "path": "architecture.assets",
+        "columns": [
+          [
+            "id",
+            "Id"
+          ],
+          [
+            "category",
+            "Category"
+          ],
+          [
+            "name",
+            "Name"
+          ],
+          [
+            "reason",
+            "Why it matters"
+          ]
+        ]
+      },
+      {
+        "title": "Trust boundaries",
+        "path": "architecture.trust_boundaries",
+        "columns": [
+          [
+            "id",
+            "Id"
+          ],
+          [
+            "name",
+            "Name"
+          ],
+          [
+            "between",
+            "Between"
+          ],
+          [
+            "question",
+            "Question to ask"
+          ]
+        ]
+      },
+      {
+        "title": "Catalog threats, controls and what remains",
+        "path": "catalog.threats",
+        "columns": [
+          [
+            "id",
+            "Id"
+          ],
+          [
+            "category",
+            "Category"
+          ],
+          [
+            "assets",
+            "Assets"
+          ],
+          [
+            "boundaries",
+            "Boundaries"
+          ],
+          [
+            "existing_controls",
+            "Existing controls"
+          ],
+          [
+            "gap",
+            "Gap"
+          ],
+          [
+            "residual_risk",
+            "Residual risk"
+          ]
+        ]
+      }
+    ],
+    "limits": [
+      {
+        "file": "learning/level_1/LAB-THREAT-MODELING-001/challenge.md",
+        "text": "The platform is a learning environment, not a production banking architecture."
+      },
+      {
+        "file": "learning/level_1/LAB-THREAT-MODELING-001/challenge.md",
+        "text": "Do not assign a numerical risk score."
+      },
+      {
+        "file": "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json",
+        "text": "REASONING PROMPTS / NOT A COMPLETED THREAT MODEL"
+      }
+    ],
+    "spl": []
+  }
+}

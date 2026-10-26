@@ -1,12 +1,15 @@
-# Academy completion status (after Increment 11D)
+# Academy completion status (after Increment 11E, not yet deployed)
 
 Source of truth: `learning/academy/lab_registry_data.json` (32 entries) and the exported curriculum. Registry tiers are unchanged; nothing here promotes a lab to LIVE.
 
-**26 of 32 have a native Academy experience:**
+**29 of 32 have a native Academy experience:**
 - 8 native: PI, MCP-001, Loan Desk, RAG, Memory, Goal, Delegation, Capstone.
 - 3 recorded-evidence (Increment 11B): MCP-003, MCP-004, MCP-005.
 - 6 recorded-evidence (Increment 11C): MCP-006, MCP-CATALOG, Scanner + Runtime Evidence, Blue-Team Incident, Multi-Stage Incident, Advanced Capstone.
 - 9 simulated or documented checkpoints (Increment 11D): A2A Authentication and Delegation, Human Approval and Action Binding, Short-Lived Credential Lifetime, Code Agent Bounds, Change Bounds, RAG Purpose Authorization, Memory Ownership and Isolation, Component Provenance (simulated packets) and AI Asset Inventory (a documented component list). Each is labelled with its packet's own classification and "NOT A LIVE RUN".
+- 3 study checkpoints (Increment 11E): Privacy and Agentic Data Governance (documented data map, "NOT A LIVE RUN"), Threat Modeling (documented architecture and catalog, "NOT AN ASSESSMENT") and the garak evaluation (one recorded probe on one model, "NOT RE-RUN"). Their options and answers are computed from the committed sources and each source file is shown with its SHA-256.
+
+NOT A LIVE RUN".
 
 ## Blocked on missing recorded evidence
 
@@ -18,12 +21,8 @@ Source of truth: `learning/academy/lab_registry_data.json` (32 entries) and the 
 
 Acceptance criteria are not weakened. No search result, detection, coverage figure or identity record may be written by hand. What unblocks them: a committed export of real search results from a verified Splunk run, or a committed packet or specimen set for the lab, with its provenance.
 
-## Remaining 6 entries
+## Remaining 3 entries
 
-**Evidence-blocked investigations (3):** LAB-SPLUNK-DEFENDER-BRIDGE, LAB-DETECTION-ENGINEERING, LAB-AGENT-IDENTITY-NHI (above).
+LAB-SPLUNK-DEFENDER-BRIDGE, LAB-DETECTION-ENGINEERING and LAB-AGENT-IDENTITY-NHI, all blocked on missing committed Splunk search-result evidence (above). Nothing else remains without a native experience.
 
-**Existing-runtime opportunity (1):** LAB-PRIVACY-DATA-GOVERNANCE-001. `src/agentsec/privacy/pipeline.py` implements PRIVACY-001 and is covered by `tests/security/test_l8_privacy_runtime.py`, but the lab is CONTENT-ONLY and not on the launch allowlist.
-
-**Other incomplete entries (2):**
-- LAB-THREAT-MODELING-001: a structured exercise (`architecture.json`, `threat-catalog.json`); no execution or recorded run.
-- LAB-EXTERNAL-EVALUATION-GARAK: CONTENT-ONLY; the only recorded garak run (one probe, one model) lives in `docs/p1a-evidence/`, outside the lab directory.
+Privacy stays CONTENT-ONLY and off the launch allowlist: its study checkpoint is a documented comparison, not a live run, and no backend or allowlist was changed.

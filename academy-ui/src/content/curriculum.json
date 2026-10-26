@@ -3051,7 +3051,106 @@
      "learning/level_1/LAB-EXTERNAL-EVALUATION-GARAK/evidence.md"
     ]
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-EXTERNAL-EVALUATION-GARAK",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-26",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. Every option and every answer in Practice is computed from the committed sources by the exporter, and each source file is shown with its SHA-256."
+    },
+    "summary": {
+     "text": "One adversarial probe, run once against one local model, gave one native PASS. This checkpoint shows exactly what was recorded, where it came from and why that is not a comprehensive evaluation of the model's robustness.",
+     "grounds": [
+      "learning/level_1/LAB-EXTERNAL-EVALUATION-GARAK/README.md"
+     ],
+     "facts": [
+      "This bounded Tool Lab teaches how to operate and interpret an adversarial model evaluation."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "A bounded probe is run against your own local model and the native report is read as one piece of evidence.",
+      "grounds": [
+       "learning/level_1/LAB-EXTERNAL-EVALUATION-GARAK/README.md"
+      ],
+      "facts": [
+       "This bounded Tool Lab teaches how to operate and interpret an adversarial model evaluation."
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "The threat",
+      "text": "Reading a passing evaluation as proof the model is safe, or a failing one as a confirmed exploit.",
+      "grounds": [
+       "learning/level_1/LAB-EXTERNAL-EVALUATION-GARAK/workshop.md"
+      ],
+      "facts": [
+       "PASSING EVALUATION != SAFE"
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between model evaluation and runtime tool authorization. They are separate paths.",
+      "grounds": [
+       "learning/level_1/LAB-EXTERNAL-EVALUATION-GARAK/README.md"
+      ],
+      "facts": [
+       "The model evaluation path is separate from AgentSec runtime authorization:"
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "The security control",
+      "text": "The evaluation tool is not the control. Tool authorization stays with CTRL-MCP-001.",
+      "grounds": [
+       "learning/level_1/LAB-EXTERNAL-EVALUATION-GARAK/README.md"
+      ],
+      "facts": [
+       "garak is not CTRL-MCP-001, Splunk, or AgentSec."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "One local model, one probe, one generation and one detector. That is narrow, and it is not a comprehensive robustness evaluation.",
+      "grounds": [
+       "docs/p1a-evidence/garak-aeb05718-1364-4143-8248-71dd6f27b07b/manifest.json",
+       "learning/level_1/LAB-EXTERNAL-EVALUATION-GARAK/workshop.md"
+      ],
+      "facts": [
+       "One local model, one probe, one generation, and one detector.",
+       "one probe × one generation is narrow."
+      ]
+     }
+    ],
+    "known": [
+     {
+      "text": "The native response refused the requested DAN behavior, and the detector result was 0.0.",
+      "grounds": [
+       "learning/level_1/LAB-EXTERNAL-EVALUATION-GARAK/evidence.md"
+      ],
+      "facts": [
+       "The native response refused the requested DAN behavior.",
+       "The detector result was 0.0"
+      ]
+     }
+    ],
+    "recorded_ref": {
+     "kind": "checkpoint",
+     "file": "LAB-EXTERNAL-EVALUATION-GARAK.json"
+    },
+    "cannot_claim": {
+     "source": "learning/level_1/LAB-EXTERNAL-EVALUATION-GARAK/evidence.md",
+     "items": [
+      "Universal model safety: NOT PROVEN",
+      "Wider probe coverage: NOT MEASURED",
+      "AgentSec runtime execution caused by garak: NOT PROVEN / not modeled"
+     ]
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [
@@ -8104,7 +8203,102 @@
     "dashboard": "ws_lab_privacy_data_governance",
     "evidence_docs": []
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-PRIVACY-DATA-GOVERNANCE-001",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-26",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. Every option and every answer in Practice is computed from the committed sources by the exporter, and each source file is shown with its SHA-256."
+    },
+    "summary": {
+     "text": "Authorizing a tool call is not the same as authorizing the data it receives. This checkpoint compares the lab's full synthetic record with its minimized record and asks you to separate what the task needed, what the control decided and what stays unproven.",
+     "grounds": [
+      "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/README.md"
+     ],
+     "facts": [
+      "AUTHORIZED ACTION != AUTHORIZED DATA USE"
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "A support task confirms a synthetic customer's preferred contact channel. Only two fields are needed to do it.",
+      "grounds": [
+       "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/incident.md"
+      ],
+      "facts": [
+       "Confirm the synthetic customer's preferred support contact channel."
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "The threat",
+      "text": "More customer information than the task needs reaches the tool and its telemetry, even though the request was authorized.",
+      "grounds": [
+       "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/incident.md"
+      ],
+      "facts": [
+       "exposed more customer information than was required"
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between the data a task needs and the data a request carries into a tool.",
+      "grounds": [
+       "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/README.md"
+      ],
+      "facts": [
+       "The ATTACK specimen supplies a full synthetic customer record; the RETEST supplies only task-required fields."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "The security control",
+      "text": "An authorized action is not authorized data use, so authorization and data appropriateness are judged separately.",
+      "grounds": [
+       "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/README.md"
+      ],
+      "facts": [
+       "AUTHORIZED ACTION != AUTHORIZED DATA USE"
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "All records are synthetic and no production impact is modeled. The lab does not call this a breach.",
+      "grounds": [
+       "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/incident.md"
+      ],
+      "facts": [
+       "Do not call this a breach. All records are synthetic, and no production impact is modeled."
+      ]
+     }
+    ],
+    "known": [
+     {
+      "text": "The lab says the tool request may have been correctly authorized and tells you to investigate authorization and data appropriateness as separate questions.",
+      "grounds": [
+       "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/incident.md"
+      ],
+      "facts": [
+       "The tool request may have been correctly authorized.",
+       "Investigate authorization and data appropriateness as separate questions."
+      ]
+     }
+    ],
+    "recorded_ref": {
+     "kind": "checkpoint",
+     "file": "LAB-PRIVACY-DATA-GOVERNANCE-001.json"
+    },
+    "cannot_claim": {
+     "source": "learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/README.md",
+     "items": [
+      "This is not legal advice, compliance validation, certification, a DLP product, or proof about a production customer system."
+     ]
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [
@@ -9324,7 +9518,106 @@
     "dashboard": "ws_lab_threat_modeling",
     "evidence_docs": []
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-THREAT-MODELING-001",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-26",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. Every option and every answer in Practice is computed from the committed sources by the exporter, and each source file is shown with its SHA-256."
+    },
+    "summary": {
+     "text": "A threat model starts with what you are protecting and where trust changes, not with a list of attacks. This checkpoint reads the lab's committed architecture and threat catalog and asks you to find the assets, boundaries, threats, controls and residual risks in them.",
+     "grounds": [
+      "learning/level_1/LAB-THREAT-MODELING-001/challenge.md"
+     ],
+     "facts": [
+      "AcmeBank wants an internal customer-operations assistant that summarizes lending policy and may perform explicitly authorized read-only lookups."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "An internal assistant summarizes lending policy and may do explicitly authorized read-only lookups. You model the platform; you do not attack it.",
+      "grounds": [
+       "learning/level_1/LAB-THREAT-MODELING-001/challenge.md"
+      ],
+      "facts": [
+       "AcmeBank wants an internal customer-operations assistant that summarizes lending policy and may perform explicitly authorized read-only lookups."
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "The threat",
+      "text": "The catalog lists nine reasoning prompts, such as prompt manipulation, memory poisoning and excessive authority. It is a set of prompts, not a finished model.",
+      "grounds": [
+       "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json"
+      ],
+      "facts": [
+       "REASONING PROMPTS / NOT A COMPLETED THREAT MODEL"
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Each trust boundary in the architecture file carries the question to ask there. The first one asks what untrusted data enters.",
+      "grounds": [
+       "learning/level_1/LAB-THREAT-MODELING-001/architecture.json"
+      ],
+      "facts": [
+       "What untrusted request data enters, and which input control evaluates it?"
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "The security control",
+      "text": "Retrieved content and memory can influence requests but cannot grant authority, and one control decides tool authorization.",
+      "grounds": [
+       "learning/level_1/LAB-THREAT-MODELING-001/challenge.md"
+      ],
+      "facts": [
+       "Retrieved content and memory can influence requests but cannot grant authority.",
+       "CTRL-MCP-001 is the sole tool PDP."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "The architecture says what it does not model, and the challenge forbids a risk score. Nothing here is an assessment of a real system.",
+      "grounds": [
+       "learning/level_1/LAB-THREAT-MODELING-001/challenge.md"
+      ],
+      "facts": [
+       "Authentication is NOT MODELED.",
+       "Do not assign a numerical risk score."
+      ]
+     }
+    ],
+    "known": [
+     {
+      "text": "The challenge rules say a scanner finding is not exploitation and an evaluation pass is not safety.",
+      "grounds": [
+       "learning/level_1/LAB-THREAT-MODELING-001/challenge.md"
+      ],
+      "facts": [
+       "A scanner finding is not exploitation.",
+       "An evaluation pass is not safety."
+      ]
+     }
+    ],
+    "recorded_ref": {
+     "kind": "checkpoint",
+     "file": "LAB-THREAT-MODELING-001.json"
+    },
+    "cannot_claim": {
+     "source": "learning/level_1/LAB-THREAT-MODELING-001/challenge.md",
+     "items": [
+      "The platform is a learning environment, not a production banking architecture.",
+      "Do not assign a numerical risk score.",
+      "Absence of evidence is not evidence of absence."
+     ]
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [

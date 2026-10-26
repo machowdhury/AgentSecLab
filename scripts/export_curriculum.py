@@ -252,6 +252,8 @@ def source_text(path: Path) -> str:
 
 def checkpoint_for(lab_id: str, spec: dict) -> dict:
     """A simulated or documented packet and the interaction spec for it. The packet is embedded unchanged; every field the spec names must exist in it."""
+    if spec.get("kind") == "study":
+        return study_for(lab_id, spec)
     f = ROOT / spec["packet"]
     raw = f.read_bytes()
     packet = json.loads(raw)
@@ -308,6 +310,97 @@ def checkpoint_for(lab_id: str, spec: dict) -> dict:
                 raise SystemExit(f"{lab_id}: {x['path']} is not a list in the packet")
     body = {k: v for k, v in spec.items() if k not in ("packet", "spl")}
     return {"kind": "checkpoint", "packet_file": spec["packet"], "sha256": hashlib.sha256(raw).hexdigest(), "packet": packet, "spec": body, "spl": spl_for(spec["spl"])}
+
+
+def _t(v) -> str:
+    return v if isinstance(v, str) else json.dumps(v)
+
+
+def _walk(o, path: str) -> list:
+    """Every value at a dotted path; a trailing [] on a key steps into each element of that list."""
+    cur = [o]
+    for part in path.split("."):
+        many = part.endswith("[]")
+        key = part[:-2] if many else part
+        cur = [(c[int(key)] if isinstance(c, list) else c[key]) if key else c for c in cur]
+        if many:
+            cur = [x for c in cur for x in c]
+    return cur
+
+
+def _keep(item, w) -> bool:
+    if isinstance(w, list):   # every condition must hold
+        return all(_keep(item, x) for x in w)
+    v = _t(_walk(item, w["field"])[0]) if "field" in w else item
+    if "equals" in w:
+        return v == w["equals"]
+    if "not_equals" in w:
+        return v != w["not_equals"]
+    if "contains" in w:
+        return w["contains"].lower() in v.lower()
+    return w["not_contains"].lower() not in v.lower()
+
+
+def _sel(packet: dict, s: dict) -> list[str]:
+    """A list of strings read from the committed sources. Used for both the options a learner sees and the answer, so no answer is typed beside its question."""
+    if "literal" in s:
+        return list(s["literal"])
+    if "value" in s:
+        return [_t(x) for x in _walk(packet, s["value"])]
+    if "count" in s:   # distinct values at a path
+        return [str(len({_t(x) for x in _walk(packet, s["count"])}))]
+    if "keys" in s:
+        return list(_walk(packet, s["keys"])[0])
+    if "minus" in s:
+        a, b = (_sel(packet, x) for x in s["minus"])
+        return [x for x in a if x not in b]
+    if "quote_token" in s:
+        q = s["quote_token"]
+        if clean(q["text"]) not in source_text(ROOT / q["file"]) or q["token"] not in q["text"]:
+            raise SystemExit(f"quote_token {q['text']!r} is not in {q['file']} or does not contain {q['token']!r}")
+        return [q.get("answer", q["token"])]
+    items = bullets(md_sections((ROOT / s["bullets"]["file"]).read_text(encoding="utf-8"))[s["bullets"]["section"]]) if "bullets" in s else _walk(packet, s["items"])
+    items = [i for i in items if _keep(i, s["where"])] if "where" in s else items
+    vals = [x for i in items for x in (_walk(i, s["pick"]) if "pick" in s else [i])]
+    return list(dict.fromkeys(_t(y) for x in vals for y in (x if isinstance(x, list) else [x])))
+
+
+def study_for(lab_id: str, spec: dict) -> dict:
+    """Documented or recorded sources read as one study. Each question's options and answer are computed from the sources; every quoted line must be in its file."""
+    packet: dict = {}
+    files = []
+    for name, f in spec["sources"].items():
+        raw = (ROOT / f).read_bytes()
+        packet[name] = json.loads(raw)
+        files.append({"name": name, "file": f, "sha256": hashlib.sha256(raw).hexdigest()})
+    for name, j in spec.get("jsonl", {}).items():   # a native report: chosen rows, chosen fields, values unchanged; the hash is of the whole file
+        raw = (ROOT / j["file"]).read_bytes()
+        rows = [json.loads(l) for l in raw.decode("utf-8").splitlines() if l.strip()]
+        packet[name] = {t: [({k: r[k] for k in keep} if keep else r) for r in rows if r.get("entry_type") == t] for t, keep in j["rows"].items()}
+        files.append({"name": name, "file": j["file"], "sha256": hashlib.sha256(raw).hexdigest()})
+    for st in spec["steps"]:
+        for q in st["questions"]:
+            q["candidates"], q["answer"] = _sel(packet, q["candidates"]), _sel(packet, q["answer"])
+            if not q["answer"] or not set(q["answer"]) <= set(q["candidates"]) or (q["mode"] == "single" and len(q["answer"]) != 1) or len(q["candidates"]) < 2:
+                raise SystemExit(f"{lab_id} {q['id']}: options {q['candidates']} and answer {q['answer']} do not make a question")
+            if "quote" in q and clean(q["quote"]["text"]) not in source_text(ROOT / q["quote"]["file"]):
+                raise SystemExit(f"quote for {q['id']} is not in {q['quote']['file']}")
+    for k in ("documented", "limits"):
+        for x in spec.get(k, []):
+            if clean(x["text"]) not in source_text(ROOT / x["file"]):
+                raise SystemExit(f"{lab_id}: {k} line {x['text']!r} is not in {x['file']}")
+    paths = [x["path"] for k in ("facts", "tables", "lists") for x in spec.get(k, [])]
+    if "compare" in spec:
+        c = spec["compare"]
+        paths += [c["left"]["path"], c["right"]["path"], c["need"]["path"]]
+    for pth in paths:
+        if not _walk(packet, pth):
+            raise SystemExit(f"{lab_id}: the sources have no {pth}")
+    for x in spec.get("tables", []) + spec.get("lists", []):
+        if not _walk(packet, x["path"])[0]:
+            raise SystemExit(f"{lab_id}: {x['path']} is empty")
+    body = {k: v for k, v in spec.items() if k not in ("sources", "jsonl", "spl")}
+    return {"kind": "checkpoint", "packet_file": files[0]["file"], "sha256": files[0]["sha256"], "files": files, "packet": packet, "spec": body, "spl": spl_for(spec.get("spl", []))}
 
 
 def write_recorded(lab_id: str, data: dict) -> dict:
