@@ -16,7 +16,7 @@ validate() { PYTHONPATH="$ROOT/src" "$PY" -m agentsec.gateway_config validate; }
 case "${1:-}" in
   init)   # LOCAL_DEV: disposable CA + server certificate + two users. Refuses to overwrite an existing directory.
     [ ! -e "$GDIR" ] || { echo "refusing: $GDIR already exists (move it away first)"; exit 1; }
-    HOST="${AGENTSEC_PUBLIC_HOST:-localhost}"; PORT="${AGENTSEC_HTTPS_PORT:-8443}"
+    HOST="${AGENTSEC_PUBLIC_HOST:-localhost}"; PORT="${AGENTSEC_PUBLIC_PORT:-${AGENTSEC_HTTPS_PORT:-443}}"
     umask 077; mkdir -p "$GDIR/tls"
     openssl req -x509 -newkey rsa:2048 -nodes -days 90 -subj "/CN=agentsec-local-dev-ca" -keyout "$GDIR/tls/ca.key" -out "$GDIR/tls/ca.pem" \
       -addext "basicConstraints=critical,CA:TRUE" -addext "keyUsage=critical,keyCertSign,cRLSign" 2>/dev/null
@@ -27,18 +27,18 @@ case "${1:-}" in
     L=$(openssl rand -hex 12); O=$(openssl rand -hex 12)
     printf 'learner:%s\noperator:%s\n' "$(openssl passwd -apr1 "$L")" "$(openssl passwd -apr1 "$O")" > "$GDIR/htpasswd"
     printf 'learner=%s\noperator=%s\n' "$L" "$O" > "$GDIR/credentials.txt"
-    printf 'AGENTSEC_TLS_MODE=LOCAL_DEV\nAGENTSEC_PUBLIC_HOST=%s\nAGENTSEC_HTTPS_PORT=%s\n' "$HOST" "$PORT" > "$GDIR/gateway.env"
+    printf 'AGENTSEC_TLS_MODE=LOCAL_DEV\nAGENTSEC_PUBLIC_HOST=%s\nAGENTSEC_PUBLIC_PORT=%s\n' "$HOST" "$PORT" > "$GDIR/gateway.env"
     chmod 644 "$GDIR/htpasswd"   # the nginx container reads it; it holds hashes only
     echo "LOCAL_DEV gateway material written to $GDIR (test-only; credentials in credentials.txt, mode 0600)."
     echo "Trust $GDIR/tls/ca.pem in your browser yourself if you want a green padlock; this script never changes a trust store." ;;
   validate) load_env; validate ;;
   up)
-    load_env; validate
+    load_env; AGENTSEC_CHECK_PORT_FREE=1 validate
     CERT="${AGENTSEC_TLS_CERT_FILE:-$GDIR/tls/server.pem}"; CHAIN="${AGENTSEC_TLS_CHAIN_FILE:-$GDIR/tls/ca.pem}"
     mkdir -p "$GDIR/tls"; cat "$CERT" "$CHAIN" > "$GDIR/tls/fullchain.pem"
     export AGENTSEC_TLS_KEY_FILE="${AGENTSEC_TLS_KEY_FILE:-$GDIR/tls/server.key}" AGENTSEC_AUTH_FILE="${AGENTSEC_AUTH_FILE:-$GDIR/htpasswd}"
     dc up -d --no-deps gateway attack_service acmebank
-    echo "Canonical learner URL: https://${AGENTSEC_PUBLIC_HOST:-localhost}:${AGENTSEC_HTTPS_PORT:-443}/learn" ;;
+    echo "Canonical learner URL: https://${AGENTSEC_PUBLIC_HOST:-localhost}:${AGENTSEC_PUBLIC_PORT:-${AGENTSEC_HTTPS_PORT:-443}}/learn" ;;
   down) load_env; dc stop gateway; dc rm -f gateway ;;   # gateway only: no volumes, no other services
   *) echo "usage: gateway.sh init | validate | up | down"; exit 2 ;;
 esac

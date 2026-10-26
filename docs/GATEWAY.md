@@ -1,54 +1,68 @@
 # Unified HTTPS gateway (v1.3.0, opt-in)
 
-One HTTPS entry point in front of the Academy and Attack Service. **It is off by default**: nothing changes for an existing install until you opt in. The base `docker-compose.yml` is not modified.
+One externally reachable application port: **443 (default) or 8000**, both HTTPS. Everything else (Attack Service, AcmeBank, Splunk, Ollama, HEC, OTel) stays internal or loopback-only. The gateway is **off by default**: nothing changes for an existing install until you opt in, and the base `docker-compose.yml` is not modified. The v1.2.0 documentation and release history are unchanged.
 
-## What is implemented, tested, planned
+## Implemented, tested, planned
 
 | Capability | State |
 |---|---|
-| Gateway as an opt-in compose overlay + profile (`docker-compose.gateway.yml`, `--profile gateway`) | Implemented, **tested** |
-| Canonical learner URL `https://<AGENTSEC_PUBLIC_HOST>:<AGENTSEC_HTTPS_PORT>/learn` (`/` redirects to `/learn`); port 443 by default, any port for local development | Implemented, **tested** |
-| Attack Service and AcmeBank with no host ports (internal network only) | Implemented, **tested** |
-| TLS mode `LOCAL_DEV` (generated test-only CA and certificate) | Implemented, **tested** |
-| TLS mode `ORG_CERT` (your certificate, private key and CA chain from files) | Implemented, **tested** with a disposable private CA (root, intermediate, server) |
-| Configuration validation that fails closed (certificate/key mismatch, expiry, hostname, wrong CA, missing intermediate, bad port/host/mode, weak htpasswd) | Implemented, **tested** |
-| Authentication `LOCAL_BASIC` with two roles (`learner`, `operator`); attack routes need `operator` | Implemented, **tested** |
-| Attack tier on/off (`AGENTSEC_ATTACK_TIER=enabled|disabled`) | Implemented, **tested** |
-| Default-deny route allowlist checked against the real Flask routes and against what the Academy actually calls | Implemented, **tested** |
-| TLS mode `EDGE_TERMINATED` (your own load balancer terminates TLS) | **Planned**; refused by the validator |
-| OIDC / edge-header authentication | **Planned**; refused by the validator |
-| Splunk Web behind the gateway | **NOT VERIFIED**; not routed (Splunk stays on its loopback port 8000) |
-| External Splunk Enterprise, Splunk Cloud | **Not implemented**; no support is claimed |
-| Gateway-aware `lab-ready.sh` and capture scripts | **Planned** (they still assume `127.0.0.1:5001`/`:5000`) |
+| Opt-in overlay `docker-compose.gateway.yml` + profile `gateway`; `scripts/gateway.sh` | Implemented, **tested** |
+| Exactly one externally reachable port: 443 or 8000 (`AGENTSEC_PUBLIC_PORT`); validated in the fully rendered compose for both values | Implemented, **tested** (config level for both; real host bind tested for 443 on macOS Docker Desktop; **real bind of 8000 NOT VERIFIED**, see below) |
+| Canonical URL `https://<AGENTSEC_PUBLIC_HOST>[:8000]/learn`; `/` redirects there | Implemented, **tested** |
+| Attack Service and AcmeBank with no host ports; Splunk Web moved off 8000 to a loopback-only port (`AGENTSEC_SPLUNK_LOCAL_PORT`, default 18000); HEC and OTel stay loopback-only | Implemented, **tested** (rendered config) |
+| TLS `LOCAL_DEV` (generated test-only material) and `ORG_CERT` (your certificate, key and chain from files) | Implemented, **tested** (disposable private CA: root, intermediate, server) |
+| Fail-closed configuration validation incl. port, certificate, hostname, chain, expiry, htpasswd, occupied port | Implemented, **tested** |
+| `LOCAL_BASIC` authentication, roles `learner` and `operator`; attack tier on/off; default-deny allowlist checked against the real routes and the Academy's real traffic | Implemented, **tested** |
+| Gateway-aware readiness (`lab-ready.sh` delegates to `gateway-ready.sh`) | Implemented; tested with shim commands only, **not end to end** |
+| TLS `EDGE_TERMINATED`; OIDC / edge-header authentication | **Planned**; refused by the validator |
+| Splunk Web behind the gateway | **NOT VERIFIED**; not routed |
+| External Splunk Enterprise; Splunk Cloud | **Not implemented**; no support is claimed |
 
-## Quick start (local development)
+## 443 or 8000
+- **443** is the default. A rootful Docker daemon (Docker Desktop, standard Docker Engine) can bind it. Rootless Docker and Podman-rootless cannot bind ports below 1024 unless the host allows it (for example `net.ipv4.ip_unprivileged_port_start`); use 8000 there.
+- **8000** is the alternative. Splunk Web normally publishes host port 8000 (loopback), so in gateway mode the overlay moves it to `127.0.0.1:18000`. `gateway.sh up` refuses with `PORT_IN_USE` if something already listens on the public port, and never stops it. An already-running lab keeps Splunk on 8000 until Splunk is recreated with the overlay, so on such a host use 443 or move Splunk first (a separate, deliberate step).
+- Any other port is accepted for local development with a warning. Internal service ports (5000, 5001, 8088, 8089, 4317, 4318, 11434) are refused as the public port.
+
+## Install
+**Local Docker (macOS, Linux, Windows with Docker Desktop):**
 ```bash
-AGENTSEC_PUBLIC_HOST=localhost AGENTSEC_HTTPS_PORT=8443 sh scripts/gateway.sh init     # test-only certificate + users in ./.gateway (git-ignored)
-sh scripts/gateway.sh validate                                                         # fails closed with a specific error code
-sh scripts/gateway.sh up                                                               # gateway + attack_service + acmebank only
-# open https://localhost:8443/learn ; credentials are in .gateway/credentials.txt (mode 0600)
-sh scripts/gateway.sh down                                                             # removes only the gateway container
+AGENTSEC_PUBLIC_HOST=localhost AGENTSEC_PUBLIC_PORT=8000 sh scripts/gateway.sh init   # test-only certificate + users in ./.gateway (git-ignored)
+sh scripts/gateway.sh validate
+sh scripts/gateway.sh up                      # gateway + attack_service + acmebank only; prints the canonical URL
+sh scripts/lab-ready.sh                       # gateway-aware readiness (see below)
+sh scripts/gateway.sh down                    # removes only the gateway container
 ```
-`init` never changes a trust store; trust `.gateway/tls/ca.pem` in your browser yourself if you want a green padlock. Requires Docker Compose 2.24 or later (`!reset`/`!override`).
+**Generic Linux server or VM (including cloud VMs):** the same commands, with `AGENTSEC_GATEWAY_BIND=0.0.0.0` and `AGENTSEC_GATEWAY_ALLOW_NONLOOPBACK=1` to make the one port reachable, your DNS name in `AGENTSEC_PUBLIC_HOST`, and your own certificate (below). Open only the chosen port in whatever firewall or network rule your environment uses; nothing here depends on a cloud provider's services.
 
-## Organization-provided certificate
-Put the files anywhere readable and set (see `.env.example`): `AGENTSEC_TLS_MODE=ORG_CERT`, `AGENTSEC_PUBLIC_HOST`, `AGENTSEC_TLS_CERT_FILE` (server certificate), `AGENTSEC_TLS_KEY_FILE` (unencrypted PEM key, mode 0400/0600), `AGENTSEC_TLS_CHAIN_FILE` (intermediates plus root), `AGENTSEC_AUTH_FILE` (htpasswd with users `learner` and `operator`, hashes only). `gateway.sh up` validates first, builds `fullchain.pem` (certificate plus chain, no secrets) and starts the gateway; the key is mounted read-only from where you keep it. There is no option to skip certificate or hostname verification.
+**Organization-provided certificate:** set `AGENTSEC_TLS_MODE=ORG_CERT`, `AGENTSEC_TLS_CERT_FILE` (server certificate), `AGENTSEC_TLS_KEY_FILE` (unencrypted PEM key, mode 0400/0600), `AGENTSEC_TLS_CHAIN_FILE` (intermediates plus root) and `AGENTSEC_AUTH_FILE` (htpasswd with users `learner` and `operator`, hashes only). Validation checks the key matches, the dates, the hostname against `AGENTSEC_PUBLIC_HOST`, and that the chain verifies. There is no option to skip certificate or hostname verification, and no certificate or key is ever written outside `./.gateway`.
 
-## Configuration reference
-`AGENTSEC_PUBLIC_HOST` (DNS name, default `localhost`), `AGENTSEC_HTTPS_PORT` (default 443), `AGENTSEC_GATEWAY_BIND` (default `127.0.0.1`; a non-loopback value warns until you set `AGENTSEC_GATEWAY_ALLOW_NONLOOPBACK=1`), `AGENTSEC_TLS_MODE`, `AGENTSEC_TLS_CERT_FILE`, `AGENTSEC_TLS_KEY_FILE`, `AGENTSEC_TLS_CHAIN_FILE`, `AGENTSEC_AUTH_MODE` (`LOCAL_BASIC`), `AGENTSEC_AUTH_FILE`, `AGENTSEC_ATTACK_TIER`, `AGENTSEC_GATEWAY_DIR` (default `./.gateway`). Run `python -m agentsec.gateway_config validate` (with `PYTHONPATH=src`) to check them.
+## Readiness (what each word means)
+`lab-ready.sh` switches to gateway mode when the `agentsec_gateway` container exists and runs `scripts/gateway-ready.sh`. It reports separate facts and never lets one stand in for another:
+**GATEWAY READY** (container, nginx config, TLS verified against your CA, authentication required) · **ACADEMY READY** (`/learn` served, checked inside the network) · **ATTACK SERVICE READY** (`/health`; not proof an attack runs) · **SPLUNK REACHABLE** (loopback Splunk Web only) · **TELEMETRY NOT VERIFIED** (always, unless you pass `--run-id <id>` and indexed events for that run are found) · **LIVE WORKFLOW NOT VERIFIED** (always; a readiness check never launches an attack). Exit status reflects gateway, Academy and Attack Service only.
+
+## Bundled and external Splunk
+- **Bundled Splunk** (default) is unchanged: the telemetry pipeline, dashboards, volumes and credentials are untouched. In gateway mode its web UI is on `127.0.0.1:18000` only (reach it from another machine through your own tunnel). Proxying Splunk Web through the gateway is **NOT VERIFIED** and not routed.
+- **External Splunk Enterprise and Splunk Cloud** are **not implemented**. Today the lab's search, verifier and probes assume the bundled container; a strict-TLS REST probe exists in the code and was exercised only against a mock. Do not point the lab at an external Splunk yet.
+
+## Safe upgrade and rollback
+1. Nothing runs until you opt in. Splunk volumes, `.env`, credentials and the host verifier are not touched by any gateway command.
+2. `gateway.sh up` starts the gateway and **recreates `attack_service` and `acmebank`** without host ports (a short interruption). Their data lives in the bind-mounted `./artifacts` directory and the named `shared_telemetry` volume, which are kept. It never starts, stops or recreates Splunk, the collector or Ollama.
+3. `http://127.0.0.1:5001` and `:5000` stop answering; use the canonical URL. The capture scripts still probe those ports.
+4. Roll back: `gateway.sh down`, then `docker compose up -d --no-deps attack_service acmebank` from the unmodified compose file restores the original port mappings from the existing images.
+5. Not tested: running `gateway.sh up` against an existing populated lab (kept untouched on purpose).
+
+## Platform status (be precise)
+| Platform | Status |
+|---|---|
+| macOS with Docker Desktop (Apple Silicon) | **Runtime-tested** (config, isolated runtime stack, real bind of 127.0.0.1:443) |
+| Linux with Docker Engine | Shell syntax checked under Debian dash and Alpine busybox; compose rendered the same everywhere. **Not runtime-tested** |
+| Windows with Docker Desktop, rootless Docker, Podman | **Not tested** |
+| Generic VM, AWS, Azure, GCP VMs running Docker | **Not tested.** Static checks show no provider-specific service or non-portable container feature (no host networking, privileged mode, Docker socket or metadata service) |
+
+Host prerequisites: Docker Engine or Desktop with Compose 2.24+ (`!reset`/`!override`), the `openssl` command (1.1.1+; LibreSSL untested), a public DNS name or `localhost`, and permission to bind the chosen port. Images are the official `nginx:1.27-alpine` (amd64 and arm64).
 
 ## Security properties (tested)
-Only the gateway publishes a port; unknown hosts fail the TLS handshake; anonymous requests get 401; a learner gets 403 on every attack route; unlisted routes and non-GET methods on the learner tier fail closed; client-supplied identity headers are overwritten or removed before a request reaches a backend; the attack tier is rate-limited; redirects stay relative. Basic authentication is a stand-in, not production RBAC or SSO. The Attack Service itself still has no authentication or TLS: **never publish it directly**.
-
-## Migrating an existing install (safe, reversible)
-1. Nothing happens until you opt in. Your Splunk volumes, `.env`, credentials and host verifier are not touched by any gateway command.
-2. Update the checkout, run `gateway.sh init` or prepare your certificate files, then `gateway.sh validate`.
-3. `gateway.sh up` starts the gateway and **recreates `attack_service` and `acmebank`** without host ports (a short interruption). Their data lives in the bind-mounted `./artifacts` directory and the named `shared_telemetry` volume, which are kept. It never starts, stops or recreates Splunk, the collector or Ollama.
-4. Consequence: `http://127.0.0.1:5001` and `:5000` stop answering; use the canonical URL. `lab-ready.sh` and the capture scripts still probe those ports and will report a failure until they are made gateway-aware.
-5. Roll back: `gateway.sh down`, then `docker compose up -d --no-deps attack_service acmebank` from the unmodified compose file restores the original port mappings from the existing images.
-
-## Data preservation and limits
-Guaranteed by design and by the isolated runtime test: no Docker volume is created, modified or removed by the gateway; the runtime tests also snapshot the real lab's containers, mounts, networks and volumes before and after and require them to be identical. Not tested: running `gateway.sh up` against an existing populated lab (it was kept untouched on purpose). Installs whose Splunk uses the legacy anonymous volumes keep them; `lab-up.sh` still refuses to replace them without `--fresh-splunk-data`.
+Unknown hosts fail the TLS handshake; anonymous requests get 401; a learner gets 403 on every attack route; unlisted routes and non-GET methods on the learner tier fail closed; client-supplied identity headers are overwritten or removed; the attack tier is rate-limited; redirects stay relative. Basic authentication is a stand-in, not production RBAC or SSO. The Attack Service itself still has no authentication or TLS: **never publish it directly**.
 
 ## Tests
-`pytest tests/gateway` runs the configuration, compose and route tests (about 10 s). `AGENTSEC_GATEWAY_RUNTIME_TESTS=1 pytest tests/gateway/test_gateway_runtime.py` builds the images and starts an isolated project named `agentsec-gw-dev` (about a minute). The Academy-traffic route check also needs Playwright and `AGENTSEC_CHROMIUM`; without them it is skipped, not passed.
+`pytest tests/gateway` runs configuration, compose, route, readiness and portability checks in seconds. `AGENTSEC_GATEWAY_RUNTIME_TESTS=1 pytest tests/gateway/test_gateway_runtime.py` builds the images and starts an isolated project named `agentsec-gw-dev` (about a minute); it needs free host port 443 for the real-bind test and otherwise skips it. The Academy-traffic route check needs Playwright and `AGENTSEC_CHROMIUM`; without them it is skipped, not passed.

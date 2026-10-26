@@ -214,10 +214,23 @@ def test_gateway_doc_separates_implemented_tested_and_planned_and_matches_the_sc
     g = _text("docs/GATEWAY.md")
     for planned in ("EDGE_TERMINATED", "OIDC"):
         assert re.search(rf"{planned}.*\*\*Planned\*\*", g)
-    assert "NOT VERIFIED" in g and "Not implemented" in g and "Splunk Cloud" in g
+    assert "NOT VERIFIED" in g and "Not implemented" in g and "Splunk Cloud" in g and "Not runtime-tested" in g
+    sh = _text("scripts/gateway.sh")
     for sub in ("init", "validate", "up", "down"):
-        assert f"gateway.sh {sub}" in g and re.search(rf"^\s+{sub}[\s)]", _text("scripts/gateway.sh"), re.M) or f"{sub})" in _text("scripts/gateway.sh")
+        assert f"gateway.sh {sub}" in g and f"{sub})" in sh
     assert (ROOT / "docker-compose.gateway.yml").exists() and "--profile gateway" in _text("docker-compose.gateway.yml")
-    assert "no built-in" not in g or True
+    assert (ROOT / "scripts/gateway-ready.sh").exists() and "gateway-ready.sh" in g
     assert "/Users/" not in g and "@splunk.com" not in g
     assert "docs/GATEWAY.md" in _text(".env.example") and "GATEWAY.md" in _text("docs/README.md")
+
+
+def test_gateway_doc_states_the_single_port_contract_and_does_not_overclaim_platforms():
+    g = _text("docs/GATEWAY.md")
+    assert "443 (default) or 8000" in g and "AGENTSEC_PUBLIC_PORT" in g and "AGENTSEC_SPLUNK_LOCAL_PORT" in g
+    assert "real bind of 8000 NOT VERIFIED" in g
+    for platform in ("Linux with Docker Engine", "Generic VM, AWS, Azure, GCP VMs running Docker"):
+        row = [l for l in g.splitlines() if platform in l][0]
+        assert "**Runtime-tested**" not in row and re.search(r"not (runtime-)?tested", row.lower()), row
+    assert "TELEMETRY NOT VERIFIED" in g and "LIVE WORKFLOW NOT VERIFIED" in g
+    env = _text(".env.example")
+    assert "AGENTSEC_PUBLIC_PORT=443" in env and "AGENTSEC_HTTPS_PORT" not in env

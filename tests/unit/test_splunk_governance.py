@@ -9,9 +9,6 @@ from __future__ import annotations
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-RULE = ROOT / ".cursor" / "rules" / "33-splunk-agent-skills.mdc"
-SKILL = ROOT / ".cursor" / "skills" / "splunk-ko-review" / "SKILL.md"
-SKILL_REF = ROOT / ".cursor" / "skills" / "splunk-ko-review" / "reference.md"
 INVENTORY = ROOT / "docs" / "SPLUNK_KNOWLEDGE_OBJECT_INVENTORY.md"
 GOVERNANCE = ROOT / "docs" / "SPLUNK_ENGINEERING_GOVERNANCE.md"
 BASELINE = ROOT / "docs" / "reviews" / "splunk-ko-review-baseline-2026-09-15.md"
@@ -25,66 +22,12 @@ RUNTIME = ROOT / "src" / "agentsec" / "mcp" / "delegation.py"
 
 
 def test_governance_files_exist():
-    for path in (RULE, SKILL, SKILL_REF, INVENTORY, GOVERNANCE, BASELINE, NOTE):
+    # Tracked documents only. The Cursor rule/skill files are local editor tooling and are checked in tests/devtools/.
+    for path in (INVENTORY, GOVERNANCE, BASELINE, NOTE):
         assert path.is_file(), path
 
 
-def test_rule_is_glob_scoped_not_always_apply():
-    text = RULE.read_text(encoding="utf-8")
-    assert "alwaysApply: false" in text
-    assert "alwaysApply: true" not in text
-    assert "splunk_app/**" in text
-    assert "learning/**/searches/**" in text
-    assert "write SPL first" in text
-    assert "SECURITY / OPERATIONAL QUESTION" in text
-    assert "TELEMETRY GAP" in text
-    assert "DETECTION ANALYZED" in text
-    assert "splunk-ko-review" in text
-    assert "https://splunkbase.splunk.com/skills" in text
 
-
-def test_skill_has_required_review_template():
-    text = SKILL.read_text(encoding="utf-8")
-    assert text.startswith("---")
-    assert "name: splunk-ko-review" in text
-    for needle in (
-        "SPLUNK KNOWLEDGE OBJECT REVIEW",
-        "INDEXED FIELDS VERIFIED:",
-        "FIELD CONTRACT:",
-        "CORRELATION CONTRACT:",
-        "DETECTION READINESS:",
-        "LIVE SPLUNK VALIDATION:",
-        "DASHBOARD CONSUMER:",
-        "TELEMETRY SOURCE:",
-        "VERDICT:",
-        "DO NOT PUBLISH",
-        "HUNT ONLY",
-        "CIM:",
-        "ALLOW does not mean execution",
-    ):
-        assert needle in text, needle
-    assert "write SPL first" in text
-
-
-def test_official_skills_are_catalog_names_not_invented():
-    ref = SKILL_REF.read_text(encoding="utf-8")
-    for skill in (
-        "Splunk Search",
-        "Search Performance Optimizer",
-        "Search and Dashboard Troubleshooter",
-        "Field Extraction and CIM Mapping",
-        "Knowledge Object Governance",
-        "Dashboard, Report, and Alert Performance Advisor",
-        "Report Authoring Specialist",
-        "Alerting and Notable Workflows",
-        "Data Model and Search Acceleration",
-        "Data Source Onboarding Advisor",
-        "Ingestion Pipeline Design",
-        "HEC Setup and Troubleshooting",
-        "App and Add-on Lifecycle Advisor",
-    ):
-        assert skill in ref, skill
-    assert "Do not invent" in ref
 
 
 def test_inventory_covers_required_labs_and_objects():

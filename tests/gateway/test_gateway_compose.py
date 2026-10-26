@@ -33,13 +33,36 @@ def test_base_compose_is_untouched_by_the_gateway_work():
     assert out.strip() == ""
 
 
-def test_with_the_gateway_only_it_publishes_the_learner_facing_port():
-    base, gw = cfg(BASE), cfg(OVL, profiles=("local", "gateway"))
-    assert pubs(gw["attack_service"]) == [] and pubs(gw["acmebank"]) == []
-    assert pubs(base["attack_service"]) != [] and pubs(base["acmebank"]) != []     # the overlay is what removes them
-    assert pubs(gw["gateway"]) == ["127.0.0.1:443->8443"]
-    for name in set(base) - {"attack_service", "acmebank"}:
-        assert pubs(gw[name]) == pubs(base[name]), name           # splunk, collector, ollama keep their base bindings (loopback)
+def published(services):
+    return [(name, x.get("host_ip", ""), int(x["published"]), x["target"]) for name, svc in services.items() for x in (svc.get("ports") or [])]
+
+
+@pytest.mark.parametrize("port", ["443", "8000"])
+def test_exactly_one_externally_reachable_port_in_the_fully_rendered_compose(port):
+    """Fully rendered config (base + overlay, every profile), gateway bound to all interfaces as on a server, legacy remote bind also set."""
+    env = {"AGENTSEC_PUBLIC_PORT": port, "AGENTSEC_GATEWAY_BIND": "0.0.0.0", "AGENTSEC_BIND_ADDRESS": "0.0.0.0"}
+    gw = cfg(OVL, env=env, profiles=("local", "gateway"))
+    pubs_ = published(gw)
+    external = [p for p in pubs_ if p[1] not in ("127.0.0.1", "::1")]
+    assert external == [("gateway", "0.0.0.0", int(port), 8443)], external
+    internal_only = {name for name in gw if name not in {"gateway"}}
+    assert {p[0] for p in pubs_} - {"gateway"} <= {"splunk", "otel_collector"}            # nothing else publishes anything
+    for name, host_ip, _, _ in pubs_:
+        if name != "gateway": assert host_ip == "127.0.0.1", (name, host_ip)           # Splunk, HEC, OTel: host loopback only
+    assert len({p[2] for p in pubs_}) == len(pubs_), "two services publish the same host port"
+    splunk_web = [p for p in pubs_ if p[0] == "splunk" and p[3] == 8000]
+    assert splunk_web == [("splunk", "127.0.0.1", 18000, 8000)]                            # Splunk Web never on the public port, even for 8000
+    assert not [p for p in pubs_ if p[0] in ("attack_service", "acmebank", "ollama")]
+
+
+def test_without_the_overlay_splunk_web_would_collide_with_public_port_8000():
+    base = published(cfg(BASE))
+    assert ("splunk", "127.0.0.1", 8000, 8000) in base       # why the overlay must move it
+
+
+def test_public_port_takes_precedence_over_the_older_alias():
+    gw = cfg(OVL, env={"AGENTSEC_PUBLIC_PORT": "8000", "AGENTSEC_HTTPS_PORT": "9999"}, profiles=("gateway",))
+    assert pubs(gw["gateway"]) == ["127.0.0.1:8000->8443"]
 
 
 def test_https_port_and_bind_address_are_configurable():

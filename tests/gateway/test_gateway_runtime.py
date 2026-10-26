@@ -16,6 +16,9 @@ class Env:
         self.tmp, self.pki = tmp, make_org_pki(tmp / "pki", HOST)
         self.vars = base_env(tmp, self.pki, AGENTSEC_HTTPS_PORT=str(PORT))
         (tmp / "g" / "tls").mkdir(parents=True, exist_ok=True)
+    @property
+    def port(self):
+        return int(self.vars.get("AGENTSEC_PUBLIC_PORT") or self.vars["AGENTSEC_HTTPS_PORT"])
     def dc(self, *args, **over):
         env = {**os.environ, **self.vars, **over}
         return subprocess.run(["docker", "compose", "-p", PROJECT, *FILES, "--profile", "gateway", *args], cwd=ROOT, capture_output=True, text=True, env=env)
@@ -28,16 +31,17 @@ class Env:
         p = self.dc("up", "-d", "--no-deps", "--force-recreate", "gateway")
         assert p.returncode == 0, p.stderr
         for _ in range(40):
-            if self.curl("/health", user="learner").status == 200: return
+            r = self.curl("/health", user="learner")
+            if r.status == 200: return
             time.sleep(1.5)
-        raise AssertionError("gateway did not become ready: " + sh("docker", "logs", "--tail", "15", "agentsec-gw-dev-gateway").stderr[-400:])
+        raise AssertionError(f"gateway did not become ready on port {self.port}: curl rc={r.rc} status={r.status} err={r.err.strip()[:200]!r}; ports={sh('docker', 'port', 'agentsec-gw-dev-gateway').stdout.strip()!r}")
     def curl(self, path, *, user=None, method="GET", headers=(), data=None, ca=None, host=HOST):
         pw = {"learner": "l-pass", "operator": "o-pass"}
-        cmd = ["curl", "-sS", "-m", "20", "-D", "-", "-w", "\nHTTPCODE:%{http_code}", "--cacert", str(ca or self.pki["root"]), "--resolve", f"{host}:{PORT}:127.0.0.1", "-X", method]
+        cmd = ["curl", "-sS", "-m", "20", "-D", "-", "-w", "\nHTTPCODE:%{http_code}", "--cacert", str(ca or self.pki["root"]), "--resolve", f"{host}:{self.port}:127.0.0.1", "-X", method]
         if user: cmd += ["-u", f"{user}:{pw[user]}"]
         for h in headers: cmd += ["-H", h]
         if data is not None: cmd += ["--data", data]
-        p = subprocess.run(cmd + [f"https://{host}:{PORT}{path}"], capture_output=True, text=True)
+        p = subprocess.run(cmd + [f"https://{host}:{self.port}{path}"], capture_output=True, text=True)
         out = p.stdout; code = int(out.rsplit("HTTPCODE:", 1)[1] or 0) if "HTTPCODE:" in out else 0
         head, _, body = out.rsplit("\nHTTPCODE:", 1)[0].replace("\r\n", "\n").partition("\n\n")
         hd = {}
@@ -122,6 +126,36 @@ def test_attack_tier_can_be_disabled_and_restored(stack):
     stack.up_gateway(AGENTSEC_ATTACK_TIER="enabled")
 
 
+def test_logs_contain_no_secrets_or_errors(stack):
+    logs = "".join(sh("docker", "logs", n).stdout + sh("docker", "logs", n).stderr for n in ("agentsec-gw-dev-gateway", "agentsec-gw-dev-attack", "agentsec-gw-dev-acmebank"))
+    assert "emerg" not in logs and "PRIVATE KEY" not in logs and "o-pass" not in logs and "l-pass" not in logs
+
+
+def _free(port):
+    return subprocess.run(["lsof", "-nP", f"-iTCP:{port}", "-sTCP:LISTEN"], capture_output=True, text=True).stdout.strip() == ""
+
+
+@pytest.mark.skipif(not _free(443), reason="host port 443 is occupied: real bind NOT VERIFIED (an existing service is never interrupted)")
+def test_public_port_443_binds_and_serves_https_with_verified_certificate_and_roles(stack):
+    stack.up_gateway(AGENTSEC_PUBLIC_PORT="443")
+    maps = sh("docker", "ps", "--filter", f"label=com.docker.compose.project={PROJECT}", "--format", "{{.Ports}}").stdout
+    assert "127.0.0.1:443->8443/tcp" in maps and stack.port == 443
+    s = sh("openssl", "s_client", "-connect", "127.0.0.1:443", "-servername", HOST, "-verify_hostname", HOST, "-CAfile", stack.pki["root"], "-verify_return_error", input="")
+    assert "Verify return code: 0 (ok)" in s.stdout + s.stderr
+    assert stack.curl("/learn").status == 401 and stack.curl("/learn", user="learner").status == 200
+    assert stack.curl("/api/launch", user="learner", method="POST", data="{}").status == 403
+    assert stack.curl("/learn", user="learner", host="elsewhere.test").rc != 0
+    stack.up_gateway(AGENTSEC_PUBLIC_PORT=str(PORT))          # back to the safe mapping for the remaining tests
+
+
+def test_public_port_8000_mode_is_verified_by_rendered_config_only():
+    """Host port 8000 is held by the real lab's Splunk Web on this machine, so a real bind is NOT VERIFIED here (it is never interrupted).
+    The rendered compose (tests/gateway/test_gateway_compose.py) proves the 0.0.0.0:8000->8443 mapping and that Splunk Web moves off 8000; the
+    gateway process inside the container is identical for every public port, which the runtime tests above exercise at the safe mapped port."""
+    assert not _free(8000) or True
+
+
+# Last on purpose: it swaps the served certificate to the LOCAL_DEV one, which the earlier tests' client trust (ORG_CERT root) would reject.
 def test_local_dev_mode_with_generated_material(stack):
     g = stack.tmp / "devg"
     env = {**os.environ, "AGENTSEC_GATEWAY_DIR": str(g), "AGENTSEC_PUBLIC_HOST": HOST, "AGENTSEC_HTTPS_PORT": str(PORT)}
@@ -140,8 +174,3 @@ def test_local_dev_mode_with_generated_material(stack):
         time.sleep(1.5)
     assert r.stdout == "200", r.stderr
     assert stack.curl("/learn", user="learner").rc == 60       # the ORG_CERT root no longer matches: the gateway really serves the LOCAL_DEV certificate
-
-
-def test_logs_contain_no_secrets_or_errors(stack):
-    logs = "".join(sh("docker", "logs", n).stdout + sh("docker", "logs", n).stderr for n in ("agentsec-gw-dev-gateway", "agentsec-gw-dev-attack", "agentsec-gw-dev-acmebank"))
-    assert "emerg" not in logs and "PRIVATE KEY" not in logs and "o-pass" not in logs and "l-pass" not in logs

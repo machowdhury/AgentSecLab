@@ -121,3 +121,39 @@ def test_gateway_script_refuses_to_start_docker_when_configuration_is_invalid(tm
     env = {**os.environ, **base_env(tmp_path, pki, AGENTSEC_PUBLIC_HOST="elsewhere.test"), "PATH": f"{shim}:{os.environ['PATH']}", "PYTHONPATH": str(ROOT / "src")}
     p = subprocess.run(["sh", str(ROOT / "scripts/gateway.sh"), "up"], env=env, capture_output=True, text=True, cwd=ROOT)
     assert p.returncode != 0 and "TLS_HOSTNAME_MISMATCH" in p.stdout and not log.exists()
+
+
+# ---- single public port contract (443 default, 8000 alternative) ----
+@pytest.mark.parametrize("port", ["443", "8000"])
+def test_supported_public_ports_are_accepted_without_warnings(tmp_path, pki, port):
+    c = codes(base_env(tmp_path, pki, AGENTSEC_PUBLIC_PORT=port))
+    assert not any(code.startswith("PORT") for _, code in c)
+
+
+@pytest.mark.parametrize("port", ["5000", "5001", "8088", "8089", "4317", "4318", "11434"])
+def test_internal_service_ports_can_never_be_the_public_port(tmp_path, pki, port):
+    assert ("ERROR", "PORT_RESERVED") in codes(base_env(tmp_path, pki, AGENTSEC_PUBLIC_PORT=port))
+
+
+def test_other_ports_warn_as_development_only_and_the_old_alias_still_works(tmp_path, pki):
+    assert ("WARN", "PORT_NONSTANDARD") in codes(base_env(tmp_path, pki, AGENTSEC_PUBLIC_PORT="8443"))
+    env = base_env(tmp_path, pki); env.pop("AGENTSEC_PUBLIC_PORT", None)               # base_env sets the alias AGENTSEC_HTTPS_PORT=8443
+    assert ("WARN", "PORT_NONSTANDARD") in codes(env)
+    assert ("ERROR", "PORT_INVALID") in codes(base_env(tmp_path, pki, AGENTSEC_PUBLIC_PORT="abc"))
+
+
+def test_splunk_local_port_must_not_collide_with_the_public_port(tmp_path, pki):
+    assert ("ERROR", "PORT_CONFLICT") in codes(base_env(tmp_path, pki, AGENTSEC_PUBLIC_PORT="8000", AGENTSEC_SPLUNK_LOCAL_PORT="8000"))
+    assert ("ERROR", "SPLUNK_LOCAL_PORT_INVALID") in codes(base_env(tmp_path, pki, AGENTSEC_SPLUNK_LOCAL_PORT="x"))
+
+
+def test_an_occupied_port_is_reported_before_anything_is_started(tmp_path, pki):
+    import socket
+    s = socket.socket(); s.bind(("127.0.0.1", 0)); s.listen(1)
+    try:
+        port = str(s.getsockname()[1])
+        c = codes(base_env(tmp_path, pki, AGENTSEC_PUBLIC_PORT=port, AGENTSEC_CHECK_PORT_FREE="1"))
+        assert ("ERROR", "PORT_IN_USE") in c
+        assert ("ERROR", "PORT_IN_USE") not in codes(base_env(tmp_path, pki, AGENTSEC_PUBLIC_PORT=port))     # only checked when asked (gateway.sh up asks)
+    finally:
+        s.close()

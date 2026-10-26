@@ -13,6 +13,15 @@ fail() {
   exit 1
 }
 
+# Gateway mode: when the opt-in gateway container exists, host ports 5000/5001 are not published, so the application checks run inside the
+# network, and the readiness taxonomy comes from scripts/gateway-ready.sh (see docs/GATEWAY.md). Direct mode is unchanged.
+GATEWAY_MODE=0
+if docker ps --format '{{.Names}}' 2>/dev/null | grep -qx agentsec_gateway; then GATEWAY_MODE=1; fi
+http_code() {  # http_code <container> <port>
+  if [ "$GATEWAY_MODE" = 1 ]; then docker exec "$1" curl -sS -o /dev/null -w "%{http_code}" --max-time 10 "http://127.0.0.1:$2/health" 2>/dev/null || echo 000
+  else curl -sS -o /dev/null -w "%{http_code}" --max-time 10 "http://127.0.0.1:$2/health" || echo 000; fi
+}
+
 load_env_value() {
   key="$1"
   if [ ! -f "$ROOT/.env" ]; then
@@ -336,8 +345,8 @@ if [ "$mastery_view_code" != "200" ]; then
 fi
 log "Dashboard view ws_agentsec_mastery is available via Splunk REST."
 
-acme_code="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 10 http://127.0.0.1:5000/health || echo 000)"
-atk_code="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 10 http://127.0.0.1:5001/health || echo 000)"
+acme_code="$(http_code agentsec_acmebank 5000)"
+atk_code="$(http_code agentsec_attack_service 5001)"
 if [ "$acme_code" != "200" ]; then
   fail "AcmeBank health HTTP ${acme_code}"
 fi
@@ -353,7 +362,8 @@ MODEL="$(load_env_value OLLAMA_MODEL || true)"
 if [ -z "${MODEL:-}" ]; then
   MODEL="llama3.2:1b"
 fi
-acme_status="$(curl -sf --max-time 10 http://127.0.0.1:5000/health || true)"
+if [ "$GATEWAY_MODE" = 1 ]; then acme_status="$(docker exec agentsec_acmebank curl -sf --max-time 10 http://127.0.0.1:5000/health || true)"
+else acme_status="$(curl -sf --max-time 10 http://127.0.0.1:5000/health || true)"; fi
 if [ -n "$acme_status" ]; then
   log "AcmeBank /health: ${acme_status}"
 fi
@@ -382,6 +392,11 @@ else
   fi
 fi
 unset SPLUNK_PASSWORD HEC_TOKEN
+if [ "$GATEWAY_MODE" = 1 ]; then
+  log "Deployment mode: GATEWAY (single HTTPS entry point; see below)"
+  sh "$ROOT/scripts/gateway-ready.sh" || fail "gateway readiness failed (details above)"
+  exit 0
+fi
 if [ "${AGENTSEC_DEPLOYMENT:-local}" = "remote" ]; then
   log "Deployment mode: REMOTE"
   log "Internal readiness URL: http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home"

@@ -73,7 +73,8 @@ def test_shell_bar_marks_the_active_surface_and_hardcodes_no_host():
     app = create_attack_app(AcmeBankClient("http://acmebank.example:5000"))
     app.config["TESTING"] = True
     client = app.test_client()
-    for path, label in (("/", "Attack Service"), ("/academy", "Academy"), ("/acmebank", "AcmeBank")):
+    # bare /academy is the redirect to /learn (tests/test_learn_web.py); the classic home at /academy/home still renders the shell bar
+    for path, label in (("/", "Attack Service"), ("/academy/home", "Academy"), ("/acmebank", "AcmeBank")):
         html = client.get(path, headers={"Host": "lab.example:5001"}).get_data(as_text=True)
         bar = html.split('data-shell>')[1].split("</nav>")[0]
         current = re.findall(r'aria-current="page"[^>]*>([^<]+)<', bar)

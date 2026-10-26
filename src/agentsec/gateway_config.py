@@ -16,6 +16,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
+SUPPORTED_PUBLIC_PORTS = {443, 8000}
+INTERNAL_PORTS = {5000, 5001, 8088, 8089, 4317, 4318, 11434, 13133}
 TLS_IMPLEMENTED = {"LOCAL_DEV", "ORG_CERT"}
 TLS_PLANNED = {"EDGE_TERMINATED"}
 AUTH_IMPLEMENTED = {"LOCAL_BASIC"}
@@ -30,6 +32,15 @@ class Finding:
     level: str   # ERROR | WARN
     code: str
     message: str
+
+
+def _in_use(host: str, port: int) -> bool:
+    import socket
+    try:
+        with socket.create_connection(("127.0.0.1" if host in ("0.0.0.0", "") else host, port), timeout=0.5):
+            return True
+    except OSError:
+        return False
 
 
 def _openssl(*args, stdin: str | None = None) -> subprocess.CompletedProcess:
@@ -62,9 +73,22 @@ def validate(env: dict[str, str] | None = None, now: datetime | None = None) -> 
     host = env.get("AGENTSEC_PUBLIC_HOST", "localhost")
     if not HOST_RE.match(host) or host.startswith("*"):
         err("HOST_INVALID", "AGENTSEC_PUBLIC_HOST must be a DNS name (no scheme, port, wildcard or spaces)")
-    port = env.get("AGENTSEC_HTTPS_PORT", "443")
+    port = env.get("AGENTSEC_PUBLIC_PORT") or env.get("AGENTSEC_HTTPS_PORT", "443")      # AGENTSEC_HTTPS_PORT is the older alias
     if not (port.isdigit() and 1 <= int(port) <= 65535):
-        err("PORT_INVALID", "AGENTSEC_HTTPS_PORT must be an integer from 1 to 65535 (443 by default, e.g. 8443 for local development)")
+        err("PORT_INVALID", "AGENTSEC_PUBLIC_PORT must be an integer from 1 to 65535: 443 (default) or 8000 are the supported values")
+    elif int(port) in INTERNAL_PORTS:
+        err("PORT_RESERVED", f"port {port} belongs to an internal service and must never be the public port; use 443 or 8000")
+    else:
+        if int(port) not in SUPPORTED_PUBLIC_PORTS:
+            warn("PORT_NONSTANDARD", f"supported public ports are 443 and 8000; {port} is for local development only")
+        sp = env.get("AGENTSEC_SPLUNK_LOCAL_PORT", "18000")
+        if not (sp.isdigit() and 1 <= int(sp) <= 65535):
+            err("SPLUNK_LOCAL_PORT_INVALID", "AGENTSEC_SPLUNK_LOCAL_PORT must be an integer from 1 to 65535")
+        elif sp == port:
+            err("PORT_CONFLICT", "AGENTSEC_SPLUNK_LOCAL_PORT must differ from the public port")
+        if env.get("AGENTSEC_CHECK_PORT_FREE") == "1" and _in_use(env.get("AGENTSEC_GATEWAY_BIND", "127.0.0.1"), int(port)):
+            err("PORT_IN_USE", f"something already listens on {env.get('AGENTSEC_GATEWAY_BIND', '127.0.0.1')}:{port}; nothing was changed. Stop that service yourself or choose the other supported port"
+                + (" (an existing Splunk Web on 8000 must first be moved with the gateway overlay's loopback mapping)" if port == "8000" else ""))
     tier = env.get("AGENTSEC_ATTACK_TIER", "enabled")
     if tier not in ("enabled", "disabled"):
         err("ATTACK_TIER_INVALID", "AGENTSEC_ATTACK_TIER must be 'enabled' or 'disabled'")
@@ -96,9 +120,12 @@ def validate(env: dict[str, str] | None = None, now: datetime | None = None) -> 
     if mode not in TLS_IMPLEMENTED:
         err("TLS_MODE_INVALID", f"AGENTSEC_TLS_MODE must be one of {sorted(TLS_IMPLEMENTED)}")
         return out
-    if _openssl("version").returncode != 0:
+    ver = _openssl("version")
+    if ver.returncode != 0:
         err("OPENSSL_MISSING", "the openssl command is required to validate certificates")
         return out
+    if "libressl" in ver.stdout.lower():
+        warn("OPENSSL_LIBRESSL", "LibreSSL's openssl was not tested with this validator; OpenSSL 1.1.1 or later (3.x recommended) is the supported tool")
 
     cert_f = env.get("AGENTSEC_TLS_CERT_FILE", f"{gdir}/tls/server.pem")
     key_f = env.get("AGENTSEC_TLS_KEY_FILE", f"{gdir}/tls/server.key")
