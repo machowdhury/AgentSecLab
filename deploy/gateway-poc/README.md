@@ -22,5 +22,8 @@ URL used: `https://learn.poc.test:18443/learn` (clients pass `--resolve learn.po
 ## Layout
 `docker-compose.yml`; `gateway/` (nginx.conf, attack-tier.conf, identity-headers.conf, tls-probe.conf); `stubs/splunk_stub.py` (NOT Splunk); `scripts/make_certs.sh`, `scripts/run_poc.sh`; `tests/`; `config-examples/`; `ARCHITECTURE.md`; `evidence/` (matrix, results, resources).
 
+## Milestone 2
+See [MILESTONE2.md](MILESTONE2.md): environment proposal, real-Splunk test plan (not run), route-allowlist regression (`tests/test_route_allowlist.py`), enterprise readiness assessment.
+
 ## What this proves and does not prove
 See [EVIDENCE.md](evidence/EVIDENCE.md). In short: gateway TLS modes, certificate failures, authentication and role separation, header-spoofing resistance, fail-closed routing, rate limiting, strict-TLS external-Splunk probe behaviour (against a mock) and isolation from the real lab are demonstrated. **Real Splunk Web, SSO, EDGE_TERMINATED mode, Splunk Cloud/Enterprise and production RBAC are NOT VERIFIED.**

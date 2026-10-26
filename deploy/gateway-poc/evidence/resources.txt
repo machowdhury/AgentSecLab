@@ -1,11 +1,11 @@
-agentsec-gw-poc-tls-hostname cpu=0.00% mem=2.301MiB / 11.66GiB
-agentsec-gw-poc-tls-expired cpu=0.00% mem=2.324MiB / 11.66GiB
-agentsec-gw-poc-tls-org cpu=0.00% mem=2.328MiB / 11.66GiB
-agentsec-gw-poc-splunk-stub cpu=0.01% mem=12.45MiB / 11.66GiB
-agentsec-gw-poc-gateway cpu=0.00% mem=6.066MiB / 11.66GiB
-agentsec-gw-poc-attack cpu=0.01% mem=34.59MiB / 11.66GiB
-agentsec-gw-poc-acmebank cpu=0.02% mem=35.46MiB / 11.66GiB
-agentsec-gw-poc/attack:m1 290MB
-agentsec-gw-poc/acmebank:m1 289MB
+agentsec-gw-poc-tls-hostname cpu=0.00% mem=2.324MiB / 11.66GiB
+agentsec-gw-poc-tls-expired cpu=0.00% mem=2.289MiB / 11.66GiB
+agentsec-gw-poc-tls-org cpu=0.00% mem=2.336MiB / 11.66GiB
+agentsec-gw-poc-gateway cpu=0.00% mem=4.598MiB / 11.66GiB
+agentsec-gw-poc-attack cpu=0.02% mem=36.66MiB / 11.66GiB
+agentsec-gw-poc-splunk-stub cpu=0.03% mem=12.41MiB / 11.66GiB
+agentsec-gw-poc-acmebank cpu=0.04% mem=33.71MiB / 11.66GiB
+agentsec-gw-poc/attack:m1 293MB
+agentsec-gw-poc/acmebank:m1 293MB
 python:3.12-alpine 79.5MB
 nginx:1.27-alpine 76.8MB

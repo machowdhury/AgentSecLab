@@ -21,6 +21,7 @@ MATRIX = {
     "T20": "Invalid external token fails authentication", "T21": "Existing running AgentSecLab containers remain unchanged",
     "T22": "Existing Splunk volumes and indexes remain unchanged", "T23": "No private keys, credentials or tokens in Git changes or logs",
     "T24": "POC resources can be removed independently without touching the existing lab", "T25": "Rate limit applies to privileged attack operations",
+    "R1": "No non-GET application route is reachable on the read tier", "R2": "Every POST route is attack-tier or denied", "R3": "Routes the Academy actually calls are allowed for a learner",
 }
 RES = EVID / "results.json"
 

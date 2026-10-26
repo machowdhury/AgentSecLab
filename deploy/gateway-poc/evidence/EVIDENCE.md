@@ -5,7 +5,10 @@ Host: macOS, Docker Desktop VM 11.66 GiB RAM, 18 CPUs. nginx 1.27-alpine, python
 ## Resource gate and why real Splunk was not started
 The protected lab's Splunk (amd64, emulated) already uses about 5.9 GiB of the VM's 11.66 GiB. A second Splunk would risk pushing the VM into memory pressure and an OOM kill of the existing lab, so the Splunk Web tests ran against a **stub** that mimics only proxy-relevant behaviour. Real-Splunk tests are marked NOT VERIFIED, with this plan: run on a separate machine/VM with at least 8 GiB free, `splunk/splunk:10.2`, the same gateway and the same flow (login, session cookies, CSRF form key, redirects, static assets, an app page, logout, a streaming/WebSocket request).
 
-## Matrix (24 required tests + one extra)
+## Milestone 2 addendum
+Re-ran all 22 executed tests after the allowlist change (22 PASS) and added route-table and Academy-traffic checks R1-R3 (3 PASS). See [../MILESTONE2.md](../MILESTONE2.md). Real Splunk Web remains NOT VERIFIED.
+
+## Matrix (24 required tests + one extra + R1-R3)
 See [MATRIX.md](MATRIX.md). Summary: **22 PASS, 3 NOT VERIFIED (T15-T17: stub mechanics PASS, real Splunk not run), 0 FAIL.**
 
 ## What each group establishes

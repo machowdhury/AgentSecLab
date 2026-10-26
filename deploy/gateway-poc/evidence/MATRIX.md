@@ -21,7 +21,10 @@
 | T19 | Invalid external CA fails closed | PASS | wrong CA -> tls_verification_failed; hostname mismatch -> tls_verification_failed; missing CA file -> probe_misconfigured; http:// URL -> probe_misconfigured; none reported success |
 | T20 | Invalid external token fails authentication | PASS | invalid token -> probe_auth_failed; connection refused -> splunk_probe_failed |
 | T21 | Existing running AgentSecLab containers remain unchanged | PASS | 7 protected containers: same ids, images, start times, restart counts, mounts, networks |
-| T22 | Existing Splunk volumes and indexes remain unchanged | PASS | 25 non-POC volumes: same set and creation times; agentsec_telemetry index count read-only query = 3,986 after the POC (also 3,986 at the earlier diagnosis); the two anonymous Splunk volumes were not touched |
-| T23 | No private keys, credentials or tokens in Git changes or logs | PASS | scanned 15 non-ignored files and 4 container logs for the generated passwords and key blocks; runtime dir git-ignored=True |
+| T22 | Existing Splunk volumes and indexes remain unchanged | PASS | 25 non-POC volumes: same set and creation times (index event count not re-queried in this run) |
+| T23 | No private keys, credentials or tokens in Git changes or logs | PASS | scanned 25 non-ignored files and 4 container logs for the generated passwords and key blocks; runtime dir git-ignored=True |
 | T24 | POC resources can be removed independently without touching the existing lab | PASS | cleanup rc 0; POC containers/images/networks left: 0/0/0; .runtime removed; protected lab snapshot identical (containers, mounts, networks, 25 volumes) |
 | T25 | Rate limit applies to privileged attack operations | PASS | statuses [429]; first 429 after 0 requests |
+| R1 | No non-GET application route is reachable on the read tier | PASS | 38 route/method pairs: attack tier 11, read tier 10, denied 17; non-GET routes reachable on the read tier: none |
+| R2 | Every POST route is attack-tier or denied | PASS | 7 POST routes: 6 reachable only via the operator-only attack tier (exactly the intended set), 1 denied by default: ['POST /api/compare-handoff'] |
+| R3 | Routes the Academy actually calls are allowed for a learner | PASS | 16 Academy pages crawled in Chromium; API/fetch requests seen: ['/api/academy/status', '/api/labs/LAB-MCP-001', '/api/learn/config', '/api/missions/loan-desk/status']; blocked for a plain learner by the gateway: none; documents blocked: none |

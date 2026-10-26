@@ -106,7 +106,7 @@ def test_t11_anonymous_attack_denied(stack_up):
 def wait_bucket():
     """The attack tier is rate-limited per client; wait until the bucket refills so functional tests are not 429."""
     for _ in range(40):
-        if curl("learn.poc.test", "/api/missions/loan-desk/status", user="operator").status != 429:
+        if curl("learn.poc.test", "/api/missions/loan-desk/search/templates", user="operator").status != 429:
             time.sleep(11); return                      # one more token (6 requests/minute) so the next call is certain to pass
         time.sleep(3)
 

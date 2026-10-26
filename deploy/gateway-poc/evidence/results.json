@@ -1,4 +1,16 @@
 {
+ "R1": {
+  "note": "38 route/method pairs: attack tier 11, read tier 10, denied 17; non-GET routes reachable on the read tier: none",
+  "status": "PASS"
+ },
+ "R2": {
+  "note": "7 POST routes: 6 reachable only via the operator-only attack tier (exactly the intended set), 1 denied by default: ['POST /api/compare-handoff']",
+  "status": "PASS"
+ },
+ "R3": {
+  "note": "16 Academy pages crawled in Chromium; API/fetch requests seen: ['/api/academy/status', '/api/labs/LAB-MCP-001', '/api/learn/config', '/api/missions/loan-desk/status']; blocked for a plain learner by the gateway: none; documents blocked: none",
+  "status": "PASS"
+ },
  "T01": {
   "note": "published mappings: ['127.0.0.1:18443->8443/tcp']; containers: 4",
   "status": "PASS"
@@ -84,11 +96,11 @@
   "status": "PASS"
  },
  "T22": {
-  "note": "25 non-POC volumes: same set and creation times; agentsec_telemetry index count read-only query = 3,986 after the POC (also 3,986 at the earlier diagnosis); the two anonymous Splunk volumes were not touched",
+  "note": "25 non-POC volumes: same set and creation times (index event count not re-queried in this run)",
   "status": "PASS"
  },
  "T23": {
-  "note": "scanned 15 non-ignored files and 4 container logs for the generated passwords and key blocks; runtime dir git-ignored=True",
+  "note": "scanned 25 non-ignored files and 4 container logs for the generated passwords and key blocks; runtime dir git-ignored=True",
   "status": "PASS"
  },
  "T24": {
