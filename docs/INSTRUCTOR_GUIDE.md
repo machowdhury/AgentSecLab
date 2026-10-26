@@ -40,7 +40,7 @@ This is not a hidden privileged learner mode. Instructors use the same Attack Se
 
 ### Suggested flow (about 90 minutes)
 1. 10 min: the AcmeBank scenario and the Learn tab of LAB-MCP-003.
-2. 20 min: learners predict and reveal the three recorded runs (Practice tab).
+2. 20 min: learners predict and reveal the recorded packet in LAB-HITL-APPROVAL (Practice tab), then read its Prove tab.
 3. 20 min: Splunk investigation of the same runs.
 4. 20 min: EVAL Center, reading findings and the limitations of a single run.
 5. 20 min: Risk Center, each learner drafts one assessment; compare judgments.

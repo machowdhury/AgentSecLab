@@ -9,6 +9,7 @@
 | [Evaluation and risk](EVALUATION_AND_RISK_GUIDE.md) | EVAL and Risk Center semantics |
 | [Governance](GOVERNANCE_GUIDE.md) | What a framework relationship is and is not |
 | [HTTPS ingress proposal](HTTPS_INGRESS_PROPOSAL.md) | Proposed TLS and authentication front door; not deployed |
+| [v1.2.0 release notes (draft)](RELEASE_NOTES_v1.2.0.md) | What the Academy, EVAL, Risk and Governance release contains and does not |
 | [Full project reference](PROJECT_REFERENCE.md) | The previous long README |
 | [Security boundary](SECURITY_BOUNDARY.md) · [Remote access](REMOTE_ACCESS.md) · [Troubleshooting](TROUBLESHOOTING.md) · [Prerequisites](AGENTSEC_PREREQUISITES.md) | Operations |
 

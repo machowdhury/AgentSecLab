@@ -23,8 +23,9 @@ Security learners, instructors running a workshop, SOC analysts and security arc
 ## Release status: read this first
 
 - `main` (tag `v1.1.0`) is the released academy served from the original pages.
-- The React Academy shell, the Security Assurance workshop, the EVAL Center, the Risk Center and the Governance Center are on the **`feature/academy-react-shell`** development branch. They are not on `main` yet.
-- The browser experience of the deployed development branch has **not** been tested in a real browser by the maintainers. Tests ran in headless Chromium against a local build.
+- The React Academy shell, the Security Assurance workshop, the EVAL Center, the Risk Center, the Governance Center and the Workshop path bar exist **only on the `feature/academy-react-shell` development branch** until it is merged.
+- **Recorded versus live.** Everything in the EVAL, Risk and Governance Centers and almost every lab is recorded, replayed or simulated evidence, and says so on the page. Only the Loan Desk mission's Attack stage runs a live agent, and it needs the local model (Ollama).
+- **What was tested on this branch's deployed build:** automated headless-Chromium checks (navigation, lazy-loaded pages, exports, recorded workbenches, console errors) through a private tunnel. The live Attack stage was **not** run or verified, and no human or screen-reader pass has been done.
 
 ## Quick start
 
@@ -43,11 +44,24 @@ The commands above start the **local Docker lab**. **External Splunk** is not st
 
 Open the Academy at <http://127.0.0.1:5001/learn> or Splunk Academy Home at http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home. Pause the lab with `./scripts/lab-down.sh` (it pauses; it does not delete data).
 
+## The learning journey
+
+A **Workshop path** bar on lab, mission and Center pages shows six steps in order. These are the six stages of the journey:
+
+1. **Learn**: read a lab or the curriculum.
+2. **Attack**: the Loan Desk mission's Attack stage (live agent; locked until you lock a prediction).
+3. **Investigate**: prove what happened from recorded Splunk evidence.
+4. **EVAL**: read recorded and simulated experiments, findings and a report export.
+5. **Risk**: assess source-backed risks yourself in a local, unapproved draft.
+6. **Governance**: see framework relationships, controls and gaps, with an export.
+
+The **Loan Desk mission** (`/learn/loan-desk`) is separate and has its own seven stages: Learn, Prepare, Attack, Investigate, Defend, Retest, Explain. Its Attack, Investigate, Defend and Retest stages unlock in order. The path bar's Attack and Investigate steps point into that mission; Learn, EVAL, Risk and Governance have their own pages.
+
 ## LIVE and REPLAY
 
 Ollama is the local LLM runtime AgentSec uses for LIVE labs. It is not part of Splunk. **LIVE** labs run a fresh attack. **REPLAY** labs investigate previously captured evidence and do not need Ollama; a REPLAY page is not proof you just ran that attack. See [LIVE vs REPLAY](docs/LIVE_VS_REPLAY.md).
 
-Your first successful experience: open **LAB-MCP-003**, use the Practice tab to predict and reveal the three recorded runs, then follow the [Learner guide](docs/LEARNER_GUIDE.md) into the EVAL, Risk and Governance Centers.
+Your first successful experience: open **LAB-HITL-APPROVAL** (Human Approval and Action Binding), choose a prediction on the **Practice** tab (was the action inside the approval's time window, and was the approval bound to it?), reveal the recorded packet, then open **Prove** to see its sources and SHA-256 digests. Then follow the [Learner guide](docs/LEARNER_GUIDE.md) into the EVAL, Risk and Governance Centers. This lab is recorded and simulated; it runs nothing live.
 
 ## Documentation
 
