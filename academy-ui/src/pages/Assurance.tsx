@@ -5,7 +5,7 @@ import { Link, labPath, navigate, ASSURANCE_PATH, JOURNEY_PATH } from "../router
 import { Question } from "../workbench/StudyWorkbench";
 import type { StudyQuestion } from "../curriculum";
 import { EvidenceBadge, LimitationsList, MappingTable, NotImplemented, ObservationCard, StatusBadge, StepBar, VerificationBadge, classMeaning } from "../assurance/parts";
-import { checked, complete, markSeen, resetWorkshop, setAnswer, useProgress } from "../assurance/store";
+import { checked, complete, markSeen, resetWorkshop, setAnswer, update, useProgress } from "../assurance/store";
 import { STEP_IDS, type EvidenceClass, type Journey, type StepId } from "../assurance/types";
 
 // The journey is evidence, so it lives in its own file and is fetched only when the workshop opens, never in the main bundle.
@@ -81,7 +81,7 @@ function PracticeStep({ j }: { j: Journey }) {
   return <section className="wk-sec"><h2>Practice in the existing workbench</h2>
     <p>The lab already lets you predict, reveal and compare the three recorded runs. Open it, then come back.</p>
     <div className="m-actions"><LinkButton href={labPath(j.lab_id)} icon="arrow" internal>Open the {j.lab_id} lab</LinkButton></div>
-    <label className="wk-confirm"><input type="checkbox" checked={p.practiceConfirmed} onChange={(e) => { const v = e.target.checked; import("../assurance/store").then((s) => s.update((x) => ({ ...x, practiceConfirmed: v }))); }} /> I completed the Practice workbench <small>(self-reported; it is not evidence)</small></label>
+    <label className="wk-confirm"><input type="checkbox" checked={p.practiceConfirmed} onChange={(e) => { const v = e.target.checked; update((x) => ({ ...x, practiceConfirmed: v })); }} /> I completed the Practice workbench <small>(self-reported; it is not evidence)</small></label>
     <p className="m-muted" role="status">{p.practiceConfirmed ? "Marked complete on this browser only." : "Not marked complete. You can still continue."}</p></section>;
 }
 

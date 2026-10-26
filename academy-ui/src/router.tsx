@@ -32,7 +32,9 @@ export function Link({ to, children, onClick, ...rest }: { to: string; children:
 
 export type EvalView = "overview" | "catalog" | "results" | "compare" | "findings" | "export";
 export const EVAL_VIEWS: EvalView[] = ["overview", "catalog", "results", "compare", "findings", "export"];
-export type Route = { name: "evals"; view: EvalView; id: string | null } | { name: "assurance"; step: StepId | null | "hub" } | { name: "home" } | { name: "acmebank" } | { name: "path" } | { name: "foundations" } | { name: "mastery" } | { name: "mcp" } | { name: "curriculum" } | { name: "lab"; id: string } | { name: "mission"; stage: StageId | null } | { name: "missing" };
+export type RiskView = { view: "overview" } | { view: "register"; filter: string } | { view: "method" } | { view: "new" } | { view: "detail"; id: string };
+export const RISK_FILTERS = ["all", "unassessed", "with-findings", "gaps", "treatment", "awaiting-review"];
+export type Route = { name: "risk" } & RiskView | { name: "evals"; view: EvalView; id: string | null } | { name: "assurance"; step: StepId | null | "hub" } | { name: "home" } | { name: "acmebank" } | { name: "path" } | { name: "foundations" } | { name: "mastery" } | { name: "mcp" } | { name: "curriculum" } | { name: "lab"; id: string } | { name: "mission"; stage: StageId | null } | { name: "missing" };
 
 export function matchRoute(path: string): Route {
   const parts = path.replace(/\/+$/, "").split("/").filter(Boolean); // ["learn", ...]
@@ -40,6 +42,12 @@ export function matchRoute(path: string): Route {
   if (parts.length === 1) return { name: "home" };
   if (parts.length === 2 && parts[1] === "acmebank") return { name: "acmebank" };  // retired: redirected to the Prepare stage
   if (parts.length === 2 && parts[1] === "curriculum") return { name: "curriculum" };
+  if (parts[1] === "risk") {
+    if (parts.length === 2) return { name: "risk", view: "overview" };
+    if (parts[2] === "register" && parts.length <= 4 && (parts.length === 3 || RISK_FILTERS.includes(parts[3]))) return { name: "risk", view: "register", filter: parts[3] ?? "all" };
+    if ((parts[2] === "method" || parts[2] === "new") && parts.length === 3) return { name: "risk", view: parts[2] as "method" | "new" } as Route;
+    if (parts.length === 3 && /^[A-Za-z0-9][A-Za-z0-9-]{0,63}$/.test(parts[2]) && !["register", "method", "new"].includes(parts[2])) return { name: "risk", view: "detail", id: parts[2] };
+  }
   if (parts[1] === "evals") {
     if (parts.length === 2) return { name: "evals", view: "overview", id: null };
     const v = parts[2] as EvalView;
@@ -62,6 +70,7 @@ export function matchRoute(path: string): Route {
   return { name: "missing" };
 }
 
+export const RISK_PATH = `${BASE}/risk`;
 export const EVALS_PATH = `${BASE}/evals`;
 export const ASSURANCE_PATH = `${BASE}/assurance`, JOURNEY_PATH = `${BASE}/assurance/mcp-unauthorized-scope`;
 export const PATH_PATH = `${BASE}/path`, FOUNDATIONS_PATH = `${BASE}/foundations`, MASTERY_PATH = `${BASE}/mastery`, MCP_PATH = `${BASE}/mcp`, CURRICULUM_PATH = `${BASE}/curriculum`;

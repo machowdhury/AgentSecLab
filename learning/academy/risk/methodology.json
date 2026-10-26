@@ -1,0 +1,42 @@
+{
+  "schema": "agentsec.risk_methodology.v1",
+  "version": 1,
+  "name": "Workshop qualitative risk method",
+  "statement": "Qualitative and ordinal. There are no numbers. A level is a label looked up in a table from two judgments a person entered, not a measurement. The scale definitions below are a workshop convention to be replaced by an organisation's own risk criteria. This method does not implement any standard, and no alignment with a framework is claimed.",
+  "source_rule": {"file": "learning/level_1/LAB-THREAT-MODELING-001/challenge.md", "text": "Do not assign a numerical risk score."},
+  "impact": [
+    {"id": "LOW", "label": "Low", "definition": "Limited effect, easily corrected, no customer or business data exposed beyond what the task needs."},
+    {"id": "MODERATE", "label": "Moderate", "definition": "Noticeable effect on operations or on customer or business data, correctable with effort."},
+    {"id": "HIGH", "label": "High", "definition": "Serious effect on customers, business data or operations that is hard to reverse."}
+  ],
+  "likelihood": [
+    {"id": "UNLIKELY", "label": "Unlikely", "definition": "Not expected to occur under the conditions that apply, with no known path."},
+    {"id": "POSSIBLE", "label": "Possible", "definition": "Could occur, and a path is known or has been demonstrated in a lab."},
+    {"id": "LIKELY", "label": "Likely", "definition": "Expected to occur under normal conditions without unusual effort."}
+  ],
+  "matrix": {
+    "LOW": {"UNLIKELY": "LOW", "POSSIBLE": "LOW", "LIKELY": "MEDIUM"},
+    "MODERATE": {"UNLIKELY": "LOW", "POSSIBLE": "MEDIUM", "LIKELY": "HIGH"},
+    "HIGH": {"UNLIKELY": "MEDIUM", "POSSIBLE": "HIGH", "LIKELY": "HIGH"}
+  },
+  "levels": ["LOW", "MEDIUM", "HIGH"],
+  "rules": [
+    "Impact and likelihood are always entered by a person, with a written rationale. The tool never proposes them.",
+    "Inherent risk is judged as if no control worked. Residual risk is judged with the controls you name.",
+    "A recorded test result is evidence about one run. It never lowers a residual judgment by itself, and the tool never lowers one for you.",
+    "A level shown next to your entries is derived from them by the table above. If either entry is missing, the level is NOT ASSESSED.",
+    "Treatment is a decision someone recorded. Nothing is shown as approved or completed unless the record says who approved it, or what the evidence for completion is, and even then the page cannot verify it."
+  ],
+  "treatment": [
+    {"id": "MITIGATE", "label": "Mitigate", "meaning": "Reduce likelihood or impact with a control or change."},
+    {"id": "ACCEPT", "label": "Accept", "meaning": "Keep the risk as it is. Acceptance needs a recorded approver."},
+    {"id": "TRANSFER", "label": "Transfer", "meaning": "Share or move the risk, for example through a supplier or insurance."},
+    {"id": "AVOID", "label": "Avoid", "meaning": "Stop or change the activity that creates the risk."}
+  ],
+  "origins": [
+    {"id": "SOURCE", "label": "Source-backed fact", "meaning": "Read from a committed file. The file and its SHA-256 are shown."},
+    {"id": "DERIVED", "label": "Derived", "meaning": "Computed by fixed rules from source-backed facts or from your entries. Not a measurement."},
+    {"id": "ANALYST", "label": "Analyst judgment", "meaning": "Entered by a person in this browser. Not verified."},
+    {"id": "MISSING", "label": "Missing", "meaning": "No source and no entry. Shown as NOT ASSESSED or NOT ASSIGNED, never filled in."}
+  ]
+}
