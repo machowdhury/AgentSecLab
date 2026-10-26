@@ -245,3 +245,10 @@ def test_splunk_integration_doc_separates_real_from_mock_and_matches_the_code():
         assert stage in d
     assert "docs/SPLUNK_INTEGRATION.md" in _text(".env.example") and "SPLUNK_INTEGRATION.md" in _text("docs/README.md") and "SPLUNK_INTEGRATION.md" in _text("docs/GATEWAY.md")
     assert not re.search(r"Splunk Cloud (is|are) (fully )?(supported|compatible)", d, re.I) and "/Users/" not in d
+
+
+def test_splunk_real_verification_record_is_honest_about_what_was_blocked():
+    d = _text("docs/SPLUNK_INTEGRATION.md")
+    assert "partially verified" in d and "BLOCKED" in d and "SplunkServerDefaultCert" in d and "no subject alternative name" in d
+    assert "Do not trust `SplunkCommonCA`" in d and "3545" in d and "3986" in d
+    assert not re.search(r"authenticated stages[^.]*(PASS|verified against real)", d)

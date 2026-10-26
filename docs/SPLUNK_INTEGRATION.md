@@ -29,6 +29,30 @@ Check it: `PYTHONPATH=src python -m agentsec.splunk_client validate`, then `... 
 ## Security properties (tested against the mock)
 Certificate and hostname verification always on (wrong CA, wrong hostname, expired certificate all fail as `tls_verification_failed`); redirects are never followed, so a token cannot reach another host; tokens travel only in the `Authorization` header and never appear in findings, errors, reprs or the CLI output; responses are size-capped and searches have a wall-clock limit; only application-built read-only SPL is accepted (learners still send only a template id; commands such as `delete`, `outputlookup`, `collect`, `rest`, `script` are refused before any request); the REST client is used only server-side (verifier, readiness) and is not reachable from the learner interface.
 
+## Real-Splunk verification record (the lab's bundled Splunk 10.2, 2026-10-26, read-only)
+**Result: partially verified. The authenticated stages through the new client are BLOCKED.**
+
+*Why searches "reported zero".* Data: 3,986 events in `agentsec_telemetry`, `_time` from 1789158299 to 1792784280 (the newest is about 3.1 days old). Splunk's own job record for `search index=agentsec_telemetry earliest=-30d | stats count` shows `dispatchState=DONE`, `eventCount=scanCount=3545`, `resultCount=1`, bounds 2026-09-26T22:46:44Z to 2026-10-26T22:46:44Z, run time 0.07 s, result `count=3545`.
+
+| Endpoint | Exact SPL (plus API time parameter) | Result |
+|---|---|---|
+| REST `/services/search/v2/jobs/export` | `search index=agentsec_telemetry \| stats count` (none) | 3986 |
+| same | same + `earliest_time=0` | 3986 |
+| same | `search index=... earliest=-24h \| stats count` + `earliest_time=0` | **0** (inline bound wins; the data is older than 24 h) |
+| same | `search index=... earliest=-30d \| stats count` + `earliest_time=0` | 3545 |
+| same | `\| eventcount summarize=false index=agentsec_telemetry` | 3986 |
+| CLI `splunk search` | `index=agentsec_telemetry earliest=0 \| stats count` | 3986 |
+| CLI `splunk search` | `index=agentsec_telemetry earliest=-30d \| stats count` | 3545 |
+| CLI `splunk search` | **`search index=agentsec_telemetry earliest=0 \| stats count`** | **0** |
+
+Explanation: (1) the CLI prepends `search` itself, so a leading word `search` becomes a literal term and matches nothing; the REST endpoints require the leading `search`. The application's searches start with `index=...`, so the docker backend is correct, but a caller that passes a leading `search` to it silently gets 0. (2) Every application template carries `earliest=-24h`, which correctly returns 0 for data older than a day; that is not a defect. (3) An inline `earliest` overrides the client's default `earliest_time=0`, so the client never widens a template's own window. The bundled docker backend uses the Splunk CLI, whose hostname validation is disabled by default (`cliVerifyServerName`); only the REST client verifies hostnames.
+
+*Strict TLS against real Splunk (isolated, read-only probe container on the lab's private Docker network: no capabilities, read-only filesystem, no volumes except read-only source and CA, removed afterwards; no search, no ingest, no configuration change).* Splunk's default management certificate is `CN=SplunkServerDefaultCert` with **no subject alternative name**, issued by the publicly distributed default `SplunkCommonCA`. The client therefore fails closed: `tls_verification_failed` with the system trust store, with Splunk's default CA bundle, and via the other DNS alias. A closed port is `connect_failed`; an unroutable address is `timeout`, bounded at the configured 3.0 s (measured 3.00 s). A dummy token never left the client because the handshake failed first. **Do not trust `SplunkCommonCA`**: it is the same default CA on every Splunk install.
+
+*BLOCKED against real Splunk:* authentication, authorization, search execution and result parsing **through the client**, because (a) the default certificate can never pass hostname verification, so strict TLS cannot succeed without installing a certificate that has a matching SAN (a Splunk configuration change), and (b) no least-privilege search token exists, and creating one changes Splunk. Splunk's own job lifecycle and CSV result format were checked above with administrator access through `splunk _internal call`, not through the client.
+
+*Smallest safe prerequisite to unblock:* a Splunk (disposable or the lab's, with your approval) whose management port presents a certificate with a SAN for the hostname the client uses, signed by a CA you control and give to the client as `AGENTSEC_SPLUNK_CA_BUNDLE_FILE`, plus a role limited to the `search` capability on `agentsec_telemetry` and a token for it. Alternatively a separate disposable Splunk on a host with enough memory.
+
 ## Where the code assumed a local Splunk (inventory)
 | Place | Before | Now |
 |---|---|---|
