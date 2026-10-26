@@ -13,4 +13,4 @@
 | [Full project reference](PROJECT_REFERENCE.md) | The previous long README |
 | [Security boundary](SECURITY_BOUNDARY.md) · [Remote access](REMOTE_ACCESS.md) · [Troubleshooting](TROUBLESHOOTING.md) · [Prerequisites](AGENTSEC_PREREQUISITES.md) | Operations |
 
-Pages for the React Academy, EVAL, Risk and Governance Centers describe the `feature/academy-react-shell` development branch, not `main`.
+Pages for the React Academy, EVAL, Risk and Governance Centers describe release v1.2.0 (`main`).

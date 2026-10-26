@@ -22,8 +22,7 @@ Security learners, instructors running a workshop, SOC analysts and security arc
 
 ## Release status: read this first
 
-- `main` (tag `v1.1.0`) is the released academy served from the original pages.
-- The React Academy shell, the Security Assurance workshop, the EVAL Center, the Risk Center, the Governance Center and the Workshop path bar exist **only on the `feature/academy-react-shell` development branch** until it is merged.
+- `main` is release **v1.2.0**. It includes the React Academy shell, the Security Assurance workshop, the EVAL Center, the Risk Center, the Governance Center and the Workshop path bar. The previous release, `v1.1.0`, served the original Splunk-based pages, which still work.
 - **Recorded versus live.** Everything in the EVAL, Risk and Governance Centers and almost every lab is recorded, replayed or simulated evidence, and says so on the page. Only the Loan Desk mission's Attack stage runs a live agent, and it needs the local model (Ollama).
 - **What was tested on this branch's deployed build:** automated headless-Chromium checks (navigation, lazy-loaded pages, exports, recorded workbenches, console errors) through a private tunnel. The live Attack stage was **not** run or verified, and no human or screen-reader pass has been done.
 
@@ -34,7 +33,6 @@ You need Docker Engine with Compose v2, Git, `python3`, `curl` and a browser. Po
 ```bash
 git clone https://github.com/machowdhury/AgentSecLab.git
 cd AgentSecLab
-git checkout feature/academy-react-shell   # for the development-branch experiences; omit for main
 cp .env.example .env
 ./scripts/lab-preflight.sh
 ./scripts/lab-up.sh

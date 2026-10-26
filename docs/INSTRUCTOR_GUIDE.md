@@ -36,7 +36,7 @@ This is not a hidden privileged learner mode. Instructors use the same Attack Se
 - This Phase 17D environment was **not** a clean-room VM; REPLAY specimens may already exist on the instructor’s Splunk volume and may be absent on a student’s first Splunk
 
 
-## Workshop flow with the EVAL, Risk and Governance Centers (development branch)
+## Workshop flow with the EVAL, Risk and Governance Centers (v1.2.0)
 
 ### Suggested flow (about 90 minutes)
 1. 10 min: the AcmeBank scenario and the Learn tab of LAB-MCP-003.

@@ -52,7 +52,7 @@ def test_journey_docs_name_both_the_six_steps_and_the_seven_mission_stages():
     for text in ((ROOT / "README.md").read_text(encoding="utf-8"), notes):
         assert re.search(r"Learn.*Attack.*Investigate.*EVAL.*Risk.*Governance", text, re.S)
         assert re.search(r"Learn, (Prepare, )?Attack, Investigate, Defend, Retest, Explain", text)
-    assert "not verified" in notes.lower() and "not tagged" in notes.lower()
+    assert "not verified" in notes.lower() and "(DRAFT" not in notes and "No tag exists" not in notes   # written for the published release
 
 
 def test_learner_entry_point_is_the_react_academy_not_the_legacy_splunk_dashboard():
@@ -107,3 +107,9 @@ def test_every_learner_start_instruction_names_the_react_academy_first():
     assert "5001/learn/loan-desk" in (ROOT / "docs/LOAN_DESK_MISSION.md").read_text(encoding="utf-8")
     ops = (ROOT / "docs/OPERATIONS.md").read_text(encoding="utf-8")
     assert "5001/learn" in ops and "legacy" in ops.lower()
+
+
+def test_readme_describes_the_released_state_not_a_pending_branch():
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "release **v1.2.0**" in readme and "only on the `feature/academy-react-shell`" not in readme
+    assert "git checkout feature/academy-react-shell" not in readme and "git checkout feature/academy-react-shell" not in (ROOT / "docs/GETTING_STARTED.md").read_text(encoding="utf-8")

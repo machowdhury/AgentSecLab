@@ -24,9 +24,9 @@ After L5, the Splunk Defender Bridge is the REPLAY checkpoint before L6. See [SP
 Do not follow historical `docs/PHASE*.md` files as the install path. Those remain provenance.
 
 
-## Academy shell, Centers and tests (development branch)
+## Academy shell, Centers and tests (v1.2.0)
 
-### Rebuild the Academy UI (development branch)
+### Rebuild the Academy UI
 ```bash
 sh scripts/build_academy_ui.sh   # needs Docker; runs the typecheck; writes src/agentsec/static/learn
 ```

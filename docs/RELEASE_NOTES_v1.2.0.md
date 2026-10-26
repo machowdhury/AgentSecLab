@@ -1,6 +1,6 @@
-# AgentSecLab v1.2.0 release notes (DRAFT: not tagged, not published)
+# AgentSecLab v1.2.0 release notes
 
-**Academy, EVAL, Risk and Governance Centers.** A browser-based Academy for learning how AI agents fail and how to investigate, evaluate and govern them, served at `/learn`. Delivered from `feature/academy-react-shell`. Package metadata (`pyproject.toml`, `agentsec.__version__`, the Splunk app and its dashboard build panel) still says 1.1.0: a coordinated version bump touches the Splunk app and dashboards and is not part of this release candidate. No tag exists yet.
+**Academy, EVAL, Risk and Governance Centers.** A browser-based Academy for learning how AI agents fail and how to investigate, evaluate and govern them, served at `/learn`. Platform release v1.2.0. Package metadata (`pyproject.toml`, `agentsec.__version__`, the Splunk app and its dashboard build panel) still says 1.1.0: a coordinated version bump touches the Splunk app and dashboards and is not part of this release.
 
 ## Deployed build and traceability
 - The validated, deployed build was commit `4d3c110` before a metadata-only history rewrite (a contributor email was replaced). After the rewrite the same tree is commit `6e311b227a48`. Every commit SHA changed; source trees are identical.
@@ -35,4 +35,4 @@ The **Loan Desk mission** is separate and has seven stages of its own: Learn, Pr
 - **Testing.** Deployed-build checks were automated headless Chromium through a private tunnel (55 smoke and 23 journey checks), plus instance acceptance. No human browser pass, no screen-reader testing, Splunk not exercised through the tunnel.
 - **No authentication or TLS.** Keep the lab on loopback or behind a tunnel. An HTTPS front door is proposed in `docs/HTTPS_INGRESS_PROPOSAL.md` and is not deployed.
 - **Risk drafts** are browser-local with status `LOCAL_DRAFT_NOT_APPROVED`; the checksum is not a signature.
-- **Branch scope.** These features are not on `main` until merged.
+- **Release scope.** v1.2.0 adds these features on top of v1.1.0; the original Splunk-based Academy Home still works.
