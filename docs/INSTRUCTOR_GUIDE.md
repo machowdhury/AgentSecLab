@@ -34,3 +34,20 @@ This is not a hidden privileged learner mode. Instructors use the same Attack Se
 - Docker resource sliders on Docker Desktop are not documented as a product setting
 - First-boot time varies; 10–20 minutes is observed, not guaranteed
 - This Phase 17D environment was **not** a clean-room VM; REPLAY specimens may already exist on the instructor’s Splunk volume and may be absent on a student’s first Splunk
+
+
+## Workshop flow with the EVAL, Risk and Governance Centers (development branch)
+
+### Suggested flow (about 90 minutes)
+1. 10 min: the AcmeBank scenario and the Learn tab of LAB-MCP-003.
+2. 20 min: learners predict and reveal the three recorded runs (Practice tab).
+3. 20 min: Splunk investigation of the same runs.
+4. 20 min: EVAL Center, reading findings and the limitations of a single run.
+5. 20 min: Risk Center, each learner drafts one assessment; compare judgments.
+
+### Discussion prompts
+- What does a recorded run prove, and what can it not?
+- Where did your risk judgment come from, and what evidence was missing?
+- Does a framework relationship mean the control works? (No: see the [Governance guide](GOVERNANCE_GUIDE.md).)
+
+Risk drafts are local, unapproved learning artifacts, not authoritative records.

@@ -34,7 +34,9 @@ export type EvalView = "overview" | "catalog" | "results" | "compare" | "finding
 export const EVAL_VIEWS: EvalView[] = ["overview", "catalog", "results", "compare", "findings", "export"];
 export type RiskView = { view: "overview" } | { view: "register"; filter: string } | { view: "method" } | { view: "new" } | { view: "detail"; id: string };
 export const RISK_FILTERS = ["all", "unassessed", "with-findings", "gaps", "treatment", "awaiting-review"];
-export type Route = { name: "risk" } & RiskView | { name: "evals"; view: EvalView; id: string | null } | { name: "assurance"; step: StepId | null | "hub" } | { name: "home" } | { name: "acmebank" } | { name: "path" } | { name: "foundations" } | { name: "mastery" } | { name: "mcp" } | { name: "curriculum" } | { name: "lab"; id: string } | { name: "mission"; stage: StageId | null } | { name: "missing" };
+export type GovView = "overview" | "frameworks" | "threats" | "export";
+export const GOV_VIEWS: GovView[] = ["overview", "frameworks", "threats", "export"];
+export type Route = { name: "governance"; view: GovView } | { name: "risk" } & RiskView | { name: "evals"; view: EvalView; id: string | null } | { name: "assurance"; step: StepId | null | "hub" } | { name: "home" } | { name: "acmebank" } | { name: "path" } | { name: "foundations" } | { name: "mastery" } | { name: "mcp" } | { name: "curriculum" } | { name: "lab"; id: string } | { name: "mission"; stage: StageId | null } | { name: "missing" };
 
 export function matchRoute(path: string): Route {
   const parts = path.replace(/\/+$/, "").split("/").filter(Boolean); // ["learn", ...]
@@ -42,6 +44,7 @@ export function matchRoute(path: string): Route {
   if (parts.length === 1) return { name: "home" };
   if (parts.length === 2 && parts[1] === "acmebank") return { name: "acmebank" };  // retired: redirected to the Prepare stage
   if (parts.length === 2 && parts[1] === "curriculum") return { name: "curriculum" };
+  if (parts[1] === "governance" && parts.length <= 3 && (parts.length === 2 || (GOV_VIEWS as string[]).includes(parts[2]) && parts[2] !== "overview")) return { name: "governance", view: (parts[2] ?? "overview") as GovView };
   if (parts[1] === "risk") {
     if (parts.length === 2) return { name: "risk", view: "overview" };
     if (parts[2] === "register" && parts.length <= 4 && (parts.length === 3 || RISK_FILTERS.includes(parts[3]))) return { name: "risk", view: "register", filter: parts[3] ?? "all" };
@@ -70,6 +73,7 @@ export function matchRoute(path: string): Route {
   return { name: "missing" };
 }
 
+export const GOV_PATH = `${BASE}/governance`;
 export const RISK_PATH = `${BASE}/risk`;
 export const EVALS_PATH = `${BASE}/evals`;
 export const ASSURANCE_PATH = `${BASE}/assurance`, JOURNEY_PATH = `${BASE}/assurance/mcp-unauthorized-scope`;

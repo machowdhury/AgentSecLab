@@ -1,0 +1,1271 @@
+{
+ "schema": "agentsec.governance.v1",
+ "title": "Governance and Compliance Center",
+ "distinctions": [
+  {
+   "name": "Framework relevance",
+   "meaning": "A framework names a risk or technique the scenario resembles. It says nothing about whether anything was done.",
+   "where": "relationships"
+  },
+  {
+   "name": "Proposed control mapping",
+   "meaning": "A person or the lab proposes that a control relates to a framework item. The reference file marks each relationship PROPOSED or RELATED.",
+   "where": "relationships"
+  },
+  {
+   "name": "Observed technical evidence",
+   "meaning": "A decision or event recorded in a committed run.",
+   "where": "controls[].recorded_decisions"
+  },
+  {
+   "name": "Evaluation outcome",
+   "meaning": "What an EVAL Center experiment produced. One recorded run, not a rate.",
+   "where": "findings"
+  },
+  {
+   "name": "Analyst assessment",
+   "meaning": "A person's impact, likelihood and treatment. It lives in the Risk Center's local draft and is never held or shown here.",
+   "where": null
+  },
+  {
+   "name": "Control attestation",
+   "meaning": "A named owner stating a control operates. None is recorded for any control.",
+   "where": null
+  },
+  {
+   "name": "Independent verification",
+   "meaning": "A verifier receipt for the evidence. None applies to any run.",
+   "where": null
+  },
+  {
+   "name": "Formal compliance or certification",
+   "meaning": "A conclusion by a qualified assessor against a framework. None exists and none is claimed.",
+   "where": null
+  }
+ ],
+ "frameworks": [
+  {
+   "name": "MITRE ATLAS",
+   "status": "REFERENCED",
+   "items": [
+    {
+     "id": "AML.T0050",
+     "name": "Command and Scripting Interpreter",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+     "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+     "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    },
+    {
+     "id": "AML.T0051",
+     "name": "LLM Prompt Injection",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+     "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+     "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    },
+    {
+     "id": "AML.T0051.000",
+     "name": "Direct",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+     "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+     "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    },
+    {
+     "id": "AML.T0051.001",
+     "name": "Indirect",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+     "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+     "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    },
+    {
+     "id": "AML.T0053",
+     "name": "AI Agent Tool Invocation",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+     "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+     "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    },
+    {
+     "id": "AML.T0054",
+     "name": "LLM Jailbreak",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+     "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+     "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    },
+    {
+     "id": "AML.T0070",
+     "name": "RAG Poisoning",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+     "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+     "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    },
+    {
+     "id": "AML.T0073",
+     "name": "Impersonation",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+     "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+     "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    },
+    {
+     "id": "AML.T0080",
+     "name": "AI Agent Context Poisoning",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+     "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+     "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page."
+    }
+   ],
+   "mapped_relationships": 2
+  },
+  {
+   "name": "OWASP LLM 2025",
+   "status": "REFERENCED",
+   "items": [
+    {
+     "id": "LLM01:2025",
+     "name": "Prompt Injection",
+     "status": "VERIFIED",
+     "source_url": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+     "version_or_date": "2025",
+     "limits": ""
+    },
+    {
+     "id": "LLM06:2025",
+     "name": "Excessive Agency",
+     "status": "VERIFIED",
+     "source_url": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+     "version_or_date": "2025",
+     "limits": ""
+    }
+   ],
+   "mapped_relationships": 2
+  },
+  {
+   "name": "OWASP Agentic 2026",
+   "status": "REFERENCED",
+   "items": [
+    {
+     "id": "ASI01",
+     "name": "Agent Goal Hijack",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+     "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+     "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+     "id": "ASI02",
+     "name": "Tool Misuse",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+     "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+     "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+     "id": "ASI03",
+     "name": "Identity & Privilege Abuse",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+     "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+     "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+     "id": "ASI04",
+     "name": "Agentic Supply Chain Vulnerabilities",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+     "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+     "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+     "id": "ASI05",
+     "name": "Unexpected Code Execution",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+     "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+     "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+     "id": "ASI06",
+     "name": "Memory & Context Poisoning",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+     "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+     "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+     "id": "ASI07",
+     "name": "Insecure Inter-Agent Communication",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+     "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+     "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+     "id": "ASI08",
+     "name": "Cascading Failures",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+     "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+     "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+     "id": "ASI09",
+     "name": "Human-Agent Trust Exploitation",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+     "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+     "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    },
+    {
+     "id": "ASI10",
+     "name": "Rogue Agents",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+     "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+     "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages."
+    }
+   ],
+   "mapped_relationships": 1
+  },
+  {
+   "name": "NIST AI 100-2",
+   "status": "REFERENCED",
+   "items": [
+    {
+     "id": "NIST AI 100-2 E2025",
+     "name": "Adversarial Machine Learning: A Taxonomy and Terminology of Attacks and Mitigations",
+     "status": "VERIFIED_WITH_LIMITS",
+     "source_url": "https://csrc.nist.gov/pubs/ai/100/2/e2025/final",
+     "version_or_date": "Final 2025-03-24 (Date Published: March 2025)",
+     "limits": "Edition and date read from the NIST CSRC page; the PDF was not opened."
+    }
+   ],
+   "mapped_relationships": 0
+  },
+  {
+   "name": "MCP spec",
+   "status": "REFERENCED",
+   "items": [
+    {
+     "id": "2026-07-28",
+     "name": "Model Context Protocol Specification",
+     "status": "VERIFIED",
+     "source_url": "https://modelcontextprotocol.io/specification/2026-07-28",
+     "version_or_date": "Version 2026-07-28 (latest)",
+     "limits": ""
+    }
+   ],
+   "mapped_relationships": 0
+  },
+  {
+   "name": "NIST AI RMF",
+   "status": "NOT_VERIFIED_IN_THIS_REPOSITORY",
+   "items": [],
+   "mapped_relationships": 0,
+   "reason": "The repository's mapping model allows it as educational tags only, and the framework claim audit records NIST as unmapped on every Academy surface. No identifier is verified here, so none is listed and none is mapped.",
+   "sources": [
+    {
+     "file": "docs/FRAMEWORK_MAPPING_MODEL.md",
+     "sha256": "bad7b9b75de0c0f1fe4b14b5780115647cd120a59b76befba2cf57dc4de7c722",
+     "locator": "allowed frameworks table"
+    },
+    {
+     "file": "docs/AGENTSEC_FRAMEWORK_CLAIM_AUDIT.md",
+     "sha256": "9abbcc0ffae41d5a665dc051805e3fdc3dcddc6fe1effcbf8d7aa3e54fa4f5ca",
+     "locator": "NIST row"
+    }
+   ]
+  }
+ ],
+ "relationships": [
+  {
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0051.000",
+   "name": "Direct",
+   "verification_status": "VERIFIED_WITH_LIMITS",
+   "relationship": "PROPOSED",
+   "rationale": "Payload is a direct instruction-override attempt in user input.",
+   "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page.",
+   "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+   "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+   "claims_compliance": false,
+   "threats": [
+    "TM-T01"
+   ]
+  },
+  {
+   "framework": "OWASP LLM 2025",
+   "id": "LLM01:2025",
+   "name": "Prompt Injection",
+   "verification_status": "VERIFIED",
+   "relationship": "RELATED",
+   "rationale": "Prompt injection family.",
+   "limits": "",
+   "version_or_date": "2025",
+   "source_url": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+   "claims_compliance": false,
+   "threats": [
+    "TM-T01"
+   ]
+  },
+  {
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0053",
+   "name": "AI Agent Tool Invocation",
+   "verification_status": "VERIFIED_WITH_LIMITS",
+   "relationship": "PROPOSED",
+   "rationale": "Agent requests a tool that is not granted.",
+   "limits": "Read from MITRE's atlas-data release 2026.09 (dist/v6), not from an atlas.mitre.org page.",
+   "version_or_date": "ATLAS data release 2026.09 (collection modified 2026-09-15), format 6.0.0",
+   "source_url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.09.yaml",
+   "claims_compliance": false,
+   "threats": [
+    "TM-T04"
+   ]
+  },
+  {
+   "framework": "OWASP LLM 2025",
+   "id": "LLM06:2025",
+   "name": "Excessive Agency",
+   "verification_status": "VERIFIED",
+   "relationship": "RELATED",
+   "rationale": "Excessive agency (over-grant in the vulnerable profile).",
+   "limits": "",
+   "version_or_date": "2025",
+   "source_url": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+   "claims_compliance": false,
+   "threats": [
+    "TM-T04"
+   ]
+  },
+  {
+   "framework": "OWASP Agentic 2026",
+   "id": "ASI02",
+   "name": "Tool Misuse",
+   "verification_status": "VERIFIED_WITH_LIMITS",
+   "relationship": "RELATED",
+   "rationale": "Tool misuse.",
+   "limits": "Title taken from a summary of OWASP's 2025-12-09 announcement page; wording varies slightly across OWASP pages.",
+   "version_or_date": "Published 2025-12-09 (resource page: genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)",
+   "source_url": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+   "claims_compliance": false,
+   "threats": [
+    "TM-T04"
+   ]
+  }
+ ],
+ "threats": [
+  {
+   "id": "TM-T01",
+   "title": "PROMPT / CONTEXT MANIPULATION",
+   "question": "Can untrusted user or retrieved content alter the agent's requested behavior?",
+   "mapped": true,
+   "relationships": [
+    {
+     "framework": "MITRE ATLAS",
+     "id": "AML.T0051.000",
+     "name": "Direct",
+     "relationship": "PROPOSED",
+     "rationale": "Payload is a direct instruction-override attempt in user input.",
+     "via_experiment": "pi-001"
+    },
+    {
+     "framework": "OWASP LLM 2025",
+     "id": "LLM01:2025",
+     "name": "Prompt Injection",
+     "relationship": "RELATED",
+     "rationale": "Prompt injection family.",
+     "via_experiment": "pi-001"
+    }
+   ],
+   "controls": [
+    {
+     "id": "CTRL-INPUT-001",
+     "class": "PREVENTIVE / ENFORCE"
+    },
+    {
+     "id": "CTRL-RAG-CONTEXT-001",
+     "class": "OBSERVE"
+    }
+   ],
+   "findings": [
+    {
+     "id": "F-pi-001-execution",
+     "title": "Prompt injection against the loan pipeline (ATK-002): execution followed a fail-open ALLOW",
+     "experiment": "pi-001"
+    },
+    {
+     "id": "F-rag-context-execution",
+     "title": "Malicious retrieved document (RAG-001): execution followed a fail-open ALLOW",
+     "experiment": "rag-context"
+    }
+   ],
+   "experiments": [
+    "pi-001",
+    "rag-context"
+   ],
+   "evidence_classes": [
+    "RECORDED"
+   ],
+   "gaps": [
+    "No linked test case has a verifier receipt.",
+    "Semantic resistance outside controlled fixtures is NOT PROVEN."
+   ],
+   "risk": {
+    "id": "TM-T01",
+    "note": "Impact, likelihood and treatment are entered in the Risk Center's local draft and are not held here."
+   }
+  },
+  {
+   "id": "TM-T02",
+   "title": "MEMORY POISONING",
+   "question": "Can untrusted stored content influence a later run?",
+   "mapped": false,
+   "relationships": [],
+   "controls": [
+    {
+     "id": "CTRL-MEMORY-CONTEXT-001",
+     "class": "OBSERVE"
+    },
+    {
+     "id": "MEMORY-STORE-VALIDATION",
+     "class": "PREVENTIVE / ENFORCE"
+    }
+   ],
+   "findings": [],
+   "experiments": [],
+   "evidence_classes": [],
+   "gaps": [
+    "No evaluation experiment is linked to this threat, so there is no recorded test evidence for it.",
+    "CTRL-MEMORY-CONTEXT-001: no recorded decision in the linked experiments.",
+    "MEMORY-STORE-VALIDATION: no recorded decision in the linked experiments.",
+    "Production persistence, retention, deletion, and tenant isolation are NOT MODELED."
+   ],
+   "risk": {
+    "id": "TM-T02",
+    "note": "Impact, likelihood and treatment are entered in the Risk Center's local draft and are not held here."
+   }
+  },
+  {
+   "id": "TM-T03",
+   "title": "GOAL MANIPULATION",
+   "question": "Can an instruction expand the authorized business purpose while using an allowed tool?",
+   "mapped": false,
+   "relationships": [],
+   "controls": [
+    {
+     "id": "CTRL-GOAL-INTEGRITY-001",
+     "class": "PREVENTIVE / ENFORCE IN DEFENDED EXPERIMENT"
+    }
+   ],
+   "findings": [],
+   "experiments": [],
+   "evidence_classes": [],
+   "gaps": [
+    "No evaluation experiment is linked to this threat, so there is no recorded test evidence for it.",
+    "CTRL-GOAL-INTEGRITY-001: no recorded decision in the linked experiments.",
+    "Open-ended goal semantics beyond the deterministic lab are NOT PROVEN."
+   ],
+   "risk": {
+    "id": "TM-T03",
+    "note": "Impact, likelihood and treatment are entered in the Risk Center's local draft and are not held here."
+   }
+  },
+  {
+   "id": "TM-T04",
+   "title": "EXCESSIVE AUTHORITY / TOOL ABUSE",
+   "question": "Can the agent request or execute a tool, scope, or resource beyond coded authority?",
+   "mapped": true,
+   "relationships": [
+    {
+     "framework": "MITRE ATLAS",
+     "id": "AML.T0053",
+     "name": "AI Agent Tool Invocation",
+     "relationship": "PROPOSED",
+     "rationale": "Agent requests a tool that is not granted.",
+     "via_experiment": "mcp-004"
+    },
+    {
+     "framework": "OWASP Agentic 2026",
+     "id": "ASI02",
+     "name": "Tool Misuse",
+     "relationship": "RELATED",
+     "rationale": "Tool misuse.",
+     "via_experiment": "mcp-004"
+    },
+    {
+     "framework": "OWASP LLM 2025",
+     "id": "LLM06:2025",
+     "name": "Excessive Agency",
+     "relationship": "RELATED",
+     "rationale": "Excessive agency (over-grant in the vulnerable profile).",
+     "via_experiment": "mcp-004"
+    }
+   ],
+   "controls": [
+    {
+     "id": "CTRL-MCP-001",
+     "class": "PREVENTIVE / ENFORCE"
+    },
+    {
+     "id": "ALLOW-TICKET",
+     "class": "PREVENTIVE / ENFORCE"
+    }
+   ],
+   "findings": [
+    {
+     "id": "F-mcp-001-execution",
+     "title": "Ungranted tool request (MCP-002): execution followed a fail-open ALLOW",
+     "experiment": "mcp-001"
+    },
+    {
+     "id": "F-mcp-003-execution",
+     "title": "Scope escalation on a granted tool (MCP-003): execution followed a fail-open ALLOW",
+     "experiment": "mcp-003"
+    },
+    {
+     "id": "F-mcp-004-execution",
+     "title": "Ungranted resource on a granted tool and scope (MCP-004): execution followed a fail-open ALLOW",
+     "experiment": "mcp-004"
+    },
+    {
+     "id": "F-mcp-006-execution",
+     "title": "Confused deputy: ambient authority substitution (MCP-006): execution followed a fail-open ALLOW",
+     "experiment": "mcp-006"
+    }
+   ],
+   "experiments": [
+    "mcp-001",
+    "mcp-003",
+    "mcp-004",
+    "mcp-006"
+   ],
+   "evidence_classes": [
+    "RECORDED"
+   ],
+   "gaps": [
+    "ALLOW-TICKET: no recorded decision in the linked experiments.",
+    "No linked test case has a verifier receipt.",
+    "Production downstream credentials and row-level authorization are NOT MODELED."
+   ],
+   "risk": {
+    "id": "TM-T04",
+    "note": "Impact, likelihood and treatment are entered in the Risk Center's local draft and are not held here."
+   }
+  },
+  {
+   "id": "TM-T05",
+   "title": "IDENTITY SPOOFING / DELEGATION ABUSE",
+   "question": "Can identity or delegation claims be mistaken for authenticated or delegated authority?",
+   "mapped": false,
+   "relationships": [],
+   "controls": [
+    {
+     "id": "CTRL-IDENTITY-001",
+     "class": "OBSERVE"
+    },
+    {
+     "id": "CTRL-MCP-001",
+     "class": "PREVENTIVE / ENFORCE"
+    }
+   ],
+   "findings": [
+    {
+     "id": "F-delegation-001-execution",
+     "title": "Privileged delegation claim (A2A-001): execution followed a fail-open ALLOW",
+     "experiment": "delegation-001"
+    }
+   ],
+   "experiments": [
+    "delegation-001"
+   ],
+   "evidence_classes": [
+    "RECORDED"
+   ],
+   "gaps": [
+    "No linked test case has a verifier receipt.",
+    "Authentication, OAuth/OIDC, workload identity, and cryptographic delegation are NOT MODELED."
+   ],
+   "risk": {
+    "id": "TM-T05",
+    "note": "Impact, likelihood and treatment are entered in the Risk Center's local draft and are not held here."
+   }
+  },
+  {
+   "id": "TM-T06",
+   "title": "SENSITIVE-DATA EXPOSURE",
+   "question": "Can prompts, context, memory, tool results, or telemetry disclose customer or business data?",
+   "mapped": false,
+   "relationships": [],
+   "controls": [
+    {
+     "id": "BOUNDED-PREVIEW",
+     "class": "PREVENTIVE / DATA MINIMIZATION"
+    }
+   ],
+   "findings": [],
+   "experiments": [],
+   "evidence_classes": [],
+   "gaps": [
+    "No evaluation experiment is linked to this threat, so there is no recorded test evidence for it.",
+    "BOUNDED-PREVIEW: no recorded decision in the linked experiments.",
+    "A privacy impact assessment, retention policy, DLP, and production customer-data model are NOT MODELED."
+   ],
+   "risk": {
+    "id": "TM-T06",
+    "note": "Impact, likelihood and treatment are entered in the Risk Center's local draft and are not held here."
+   }
+  },
+  {
+   "id": "TM-T07",
+   "title": "SUPPLY-CHAIN / EXTERNAL DEPENDENCY",
+   "question": "Can a model, package, tool description, external service, or security tool provide misleading or compromised input?",
+   "mapped": false,
+   "relationships": [],
+   "controls": [
+    {
+     "id": "CATALOG-VALIDATION",
+     "class": "PREVENTIVE / OBSERVE"
+    },
+    {
+     "id": "EXTERNAL-EVIDENCE-CONTRACT",
+     "class": "ASSESSMENT EVIDENCE"
+    }
+   ],
+   "findings": [
+    {
+     "id": "F-mcp-catalog-execution",
+     "title": "Poisoned tool description (MCP-CATALOG-001): execution followed a fail-open ALLOW",
+     "experiment": "mcp-catalog"
+    },
+    {
+     "id": "F-scanner-malicious-1",
+     "title": "Scanner native finding on the MALICIOUS catalog: PROMPT INJECTION",
+     "experiment": "scanner-catalog"
+    }
+   ],
+   "experiments": [
+    "mcp-catalog",
+    "garak-dan",
+    "scanner-catalog",
+    "component-provenance"
+   ],
+   "evidence_classes": [
+    "RECORDED",
+    "SIMULATED"
+   ],
+   "gaps": [
+    "CATALOG-VALIDATION: no recorded decision in the linked experiments.",
+    "EXTERNAL-EVIDENCE-CONTRACT: no recorded decision in the linked experiments.",
+    "No linked test case has a verifier receipt.",
+    "AI-BOM, package provenance, and production supplier assurance are NOT MODELED."
+   ],
+   "risk": {
+    "id": "TM-T07",
+    "note": "Impact, likelihood and treatment are entered in the Risk Center's local draft and are not held here."
+   }
+  },
+  {
+   "id": "TM-T08",
+   "title": "OBSERVABILITY / EVIDENCE GAP",
+   "question": "Could a security-sensitive action occur without enough evidence to reconstruct it?",
+   "mapped": false,
+   "relationships": [],
+   "controls": [
+    {
+     "id": "INV-007-TELEMETRY",
+     "class": "DETECTIVE / OBSERVE"
+    },
+    {
+     "id": "SPLUNK",
+     "class": "DETECTIVE / INVESTIGATION"
+    }
+   ],
+   "findings": [],
+   "experiments": [],
+   "evidence_classes": [],
+   "gaps": [
+    "No evaluation experiment is linked to this threat, so there is no recorded test evidence for it.",
+    "INV-007-TELEMETRY: no recorded decision in the linked experiments.",
+    "SPLUNK: no recorded decision in the linked experiments.",
+    "Missing events can reflect export, ingestion, extraction, or instrumentation failure."
+   ],
+   "risk": {
+    "id": "TM-T08",
+    "note": "Impact, likelihood and treatment are entered in the Risk Center's local draft and are not held here."
+   }
+  },
+  {
+   "id": "TM-T09",
+   "title": "SECURITY-EVIDENCE OVERCLAIM",
+   "question": "Can scanner findings, evaluation results, detections, or correlations be mistaken for exploitation, prevention, or causation?",
+   "mapped": false,
+   "relationships": [],
+   "controls": [
+    {
+     "id": "EVIDENCE-PLANE-SEPARATION",
+     "class": "CORRECTIVE / REASONING"
+    }
+   ],
+   "findings": [],
+   "experiments": [],
+   "evidence_classes": [],
+   "gaps": [
+    "No evaluation experiment is linked to this threat, so there is no recorded test evidence for it.",
+    "EVIDENCE-PLANE-SEPARATION: no recorded decision in the linked experiments.",
+    "Correlation may remain unavailable or non-causal."
+   ],
+   "risk": {
+    "id": "TM-T09",
+    "note": "Impact, likelihood and treatment are entered in the Risk Center's local draft and are not held here."
+   }
+  }
+ ],
+ "controls": [
+  {
+   "id": "ALLOW-TICKET",
+   "class": "PREVENTIVE / ENFORCE",
+   "placement": "MCP execution gate",
+   "code_reference": "src/agentsec/mcp/server.py:McpServer.execute",
+   "threats": [
+    "TM-T04"
+   ],
+   "recorded_decisions": [],
+   "findings": [
+    "F-mcp-001-execution",
+    "F-mcp-003-execution",
+    "F-mcp-004-execution",
+    "F-mcp-006-execution"
+   ],
+   "evidence_state": "NO_RECORDED_EVIDENCE",
+   "owner": "NOT ASSIGNED",
+   "review": "NOT REVIEWED",
+   "attestation": "NONE RECORDED",
+   "independent_verification": "NONE",
+   "compliance": "NO ASSERTION"
+  },
+  {
+   "id": "BOUNDED-PREVIEW",
+   "class": "PREVENTIVE / DATA MINIMIZATION",
+   "placement": "Telemetry creation",
+   "code_reference": "src/agentsec/events.py",
+   "threats": [
+    "TM-T06"
+   ],
+   "recorded_decisions": [],
+   "findings": [],
+   "evidence_state": "NO_RECORDED_EVIDENCE",
+   "owner": "NOT ASSIGNED",
+   "review": "NOT REVIEWED",
+   "attestation": "NONE RECORDED",
+   "independent_verification": "NONE",
+   "compliance": "NO ASSERTION"
+  },
+  {
+   "id": "CATALOG-VALIDATION",
+   "class": "PREVENTIVE / OBSERVE",
+   "placement": "Tool catalog boundary",
+   "code_reference": "src/agentsec/mcp/metadata_trust.py",
+   "threats": [
+    "TM-T07"
+   ],
+   "recorded_decisions": [],
+   "findings": [
+    "F-mcp-catalog-execution",
+    "F-scanner-malicious-1"
+   ],
+   "evidence_state": "NO_RECORDED_EVIDENCE",
+   "owner": "NOT ASSIGNED",
+   "review": "NOT REVIEWED",
+   "attestation": "NONE RECORDED",
+   "independent_verification": "NONE",
+   "compliance": "NO ASSERTION"
+  },
+  {
+   "id": "CTRL-GOAL-INTEGRITY-001",
+   "class": "PREVENTIVE / ENFORCE IN DEFENDED EXPERIMENT",
+   "placement": "Before wrong-goal execution",
+   "code_reference": "src/agentsec/goal/pipeline.py:run_goal_integrity",
+   "threats": [
+    "TM-T03"
+   ],
+   "recorded_decisions": [],
+   "findings": [],
+   "evidence_state": "NO_RECORDED_EVIDENCE",
+   "owner": "NOT ASSIGNED",
+   "review": "NOT REVIEWED",
+   "attestation": "NONE RECORDED",
+   "independent_verification": "NONE",
+   "compliance": "NO ASSERTION"
+  },
+  {
+   "id": "CTRL-IDENTITY-001",
+   "class": "OBSERVE",
+   "placement": "Claim interpretation",
+   "code_reference": "src/agentsec/identity/pipeline.py:run_identity_delegation",
+   "threats": [
+    "TM-T05"
+   ],
+   "recorded_decisions": [
+    {
+     "experiment": "delegation-001",
+     "case": "delegation-001:BASELINE",
+     "role": "BASELINE",
+     "decision": "OBSERVE",
+     "reason": "identity_claim_is_not_grant"
+    },
+    {
+     "experiment": "delegation-001",
+     "case": "delegation-001:ATTACK",
+     "role": "ATTACK",
+     "decision": "OBSERVE",
+     "reason": "identity_claim_is_not_grant"
+    },
+    {
+     "experiment": "delegation-001",
+     "case": "delegation-001:RETEST",
+     "role": "RETEST",
+     "decision": "OBSERVE",
+     "reason": "identity_claim_is_not_grant"
+    }
+   ],
+   "findings": [
+    "F-delegation-001-execution"
+   ],
+   "evidence_state": "RECORDED_DECISIONS_EXIST",
+   "owner": "NOT ASSIGNED",
+   "review": "NOT REVIEWED",
+   "attestation": "NONE RECORDED",
+   "independent_verification": "NONE",
+   "compliance": "NO ASSERTION"
+  },
+  {
+   "id": "CTRL-INPUT-001",
+   "class": "PREVENTIVE / ENFORCE",
+   "placement": "HTTP input boundary",
+   "code_reference": "src/agentsec/pipeline.py:run_loan_pipeline",
+   "threats": [
+    "TM-T01"
+   ],
+   "recorded_decisions": [
+    {
+     "experiment": "pi-001",
+     "case": "pi-001:BASELINE",
+     "role": "BASELINE",
+     "decision": "ALLOW",
+     "reason": "benign_loan_request"
+    },
+    {
+     "experiment": "pi-001",
+     "case": "pi-001:BASELINE",
+     "role": "BASELINE",
+     "decision": "ALLOW",
+     "reason": "benign_loan_request"
+    },
+    {
+     "experiment": "pi-001",
+     "case": "pi-001:BASELINE",
+     "role": "BASELINE",
+     "decision": "ALLOW",
+     "reason": "benign_loan_request"
+    },
+    {
+     "experiment": "pi-001",
+     "case": "pi-001:BASELINE",
+     "role": "BASELINE",
+     "decision": "ALLOW",
+     "reason": "benign_loan_request"
+    },
+    {
+     "experiment": "pi-001",
+     "case": "pi-001:ATTACK",
+     "role": "ATTACK",
+     "decision": "ALLOW",
+     "reason": "vulnerable_profile_fail_open:CTRL-INPUT-001 is a lightweight lab reference control and intentionally returns ALLOW (fail-open) for matched rule ignore_previous_instructions"
+    },
+    {
+     "experiment": "pi-001",
+     "case": "pi-001:ATTACK",
+     "role": "ATTACK",
+     "decision": "ALLOW",
+     "reason": "vulnerable_profile_fail_open:CTRL-INPUT-001 is a lightweight lab reference control and intentionally returns ALLOW (fail-open) for matched rule ignore_previous_instructions"
+    },
+    {
+     "experiment": "pi-001",
+     "case": "pi-001:ATTACK",
+     "role": "ATTACK",
+     "decision": "ALLOW",
+     "reason": "vulnerable_profile_fail_open:CTRL-INPUT-001 is a lightweight lab reference control and intentionally returns ALLOW (fail-open) for matched rule ignore_previous_instructions"
+    },
+    {
+     "experiment": "pi-001",
+     "case": "pi-001:ATTACK",
+     "role": "ATTACK",
+     "decision": "ALLOW",
+     "reason": "vulnerable_profile_fail_open:CTRL-INPUT-001 is a lightweight lab reference control and intentionally returns ALLOW (fail-open) for matched rule ignore_previous_instructions"
+    },
+    {
+     "experiment": "pi-001",
+     "case": "pi-001:RETEST",
+     "role": "RETEST",
+     "decision": "DENY",
+     "reason": "input_pattern_matched"
+    },
+    {
+     "experiment": "pi-001",
+     "case": "pi-001:DEFENDED_ATTACK",
+     "role": "DEFENDED_ATTACK",
+     "decision": "DENY",
+     "reason": "input_pattern_matched"
+    }
+   ],
+   "findings": [
+    "F-pi-001-execution",
+    "F-rag-context-execution"
+   ],
+   "evidence_state": "RECORDED_DECISIONS_EXIST",
+   "owner": "NOT ASSIGNED",
+   "review": "NOT REVIEWED",
+   "attestation": "NONE RECORDED",
+   "independent_verification": "NONE",
+   "compliance": "NO ASSERTION"
+  },
+  {
+   "id": "CTRL-MCP-001",
+   "class": "PREVENTIVE / ENFORCE",
+   "placement": "MCP server before handler",
+   "code_reference": "src/agentsec/mcp/authorize.py:authorize_tool",
+   "threats": [
+    "TM-T04",
+    "TM-T05"
+   ],
+   "recorded_decisions": [
+    {
+     "experiment": "mcp-001",
+     "case": "mcp-001:BASELINE",
+     "role": "BASELINE",
+     "decision": "ALLOW",
+     "reason": "tool_granted"
+    },
+    {
+     "experiment": "mcp-001",
+     "case": "mcp-001:ATTACK",
+     "role": "ATTACK",
+     "decision": "ALLOW",
+     "reason": "vulnerable_profile_fail_open:CTRL-MCP-001 known tool lookup_customer_tier is not in mcp_policy_agent allowed_tools; lab profile intentionally returns ALLOW (fail-open) so the handler executes"
+    },
+    {
+     "experiment": "mcp-001",
+     "case": "mcp-001:RETEST",
+     "role": "RETEST",
+     "decision": "DENY",
+     "reason": "tool_not_granted"
+    },
+    {
+     "experiment": "mcp-003",
+     "case": "mcp-003:BASELINE",
+     "role": "BASELINE",
+     "decision": "ALLOW",
+     "reason": "tool_granted"
+    },
+    {
+     "experiment": "mcp-003",
+     "case": "mcp-003:ATTACK",
+     "role": "ATTACK",
+     "decision": "ALLOW",
+     "reason": "vulnerable_profile_fail_open:scope_not_granted"
+    },
+    {
+     "experiment": "mcp-003",
+     "case": "mcp-003:RETEST",
+     "role": "RETEST",
+     "decision": "DENY",
+     "reason": "scope_not_granted"
+    },
+    {
+     "experiment": "mcp-004",
+     "case": "mcp-004:BASELINE",
+     "role": "BASELINE",
+     "decision": "ALLOW",
+     "reason": "tool_granted"
+    },
+    {
+     "experiment": "mcp-004",
+     "case": "mcp-004:ATTACK",
+     "role": "ATTACK",
+     "decision": "ALLOW",
+     "reason": "vulnerable_profile_fail_open:resource_not_granted"
+    },
+    {
+     "experiment": "mcp-004",
+     "case": "mcp-004:RETEST",
+     "role": "RETEST",
+     "decision": "DENY",
+     "reason": "resource_not_granted"
+    },
+    {
+     "experiment": "mcp-006",
+     "case": "mcp-006:BASELINE",
+     "role": "BASELINE",
+     "decision": "ALLOW",
+     "reason": "tool_granted"
+    },
+    {
+     "experiment": "mcp-006",
+     "case": "mcp-006:ATTACK",
+     "role": "ATTACK",
+     "decision": "ALLOW",
+     "reason": "tool_granted"
+    },
+    {
+     "experiment": "delegation-001",
+     "case": "delegation-001:BASELINE",
+     "role": "BASELINE",
+     "decision": "ALLOW",
+     "reason": "tool_granted"
+    },
+    {
+     "experiment": "delegation-001",
+     "case": "delegation-001:ATTACK",
+     "role": "ATTACK",
+     "decision": "ALLOW",
+     "reason": "vulnerable_profile_fail_open:caller_identity_derived_authority"
+    },
+    {
+     "experiment": "delegation-001",
+     "case": "delegation-001:RETEST",
+     "role": "RETEST",
+     "decision": "DENY",
+     "reason": "tool_not_granted"
+    }
+   ],
+   "findings": [
+    "F-mcp-001-execution",
+    "F-mcp-003-execution",
+    "F-mcp-004-execution",
+    "F-mcp-006-execution",
+    "F-delegation-001-execution"
+   ],
+   "evidence_state": "RECORDED_DECISIONS_EXIST",
+   "owner": "NOT ASSIGNED",
+   "review": "NOT REVIEWED",
+   "attestation": "NONE RECORDED",
+   "independent_verification": "NONE",
+   "compliance": "NO ASSERTION"
+  },
+  {
+   "id": "CTRL-MEMORY-CONTEXT-001",
+   "class": "OBSERVE",
+   "placement": "Memory recall path",
+   "code_reference": "src/agentsec/memory/pipeline.py:run_memory_recall",
+   "threats": [
+    "TM-T02"
+   ],
+   "recorded_decisions": [],
+   "findings": [],
+   "evidence_state": "NO_RECORDED_EVIDENCE",
+   "owner": "NOT ASSIGNED",
+   "review": "NOT REVIEWED",
+   "attestation": "NONE RECORDED",
+   "independent_verification": "NONE",
+   "compliance": "NO ASSERTION"
+  },
+  {
+   "id": "CTRL-RAG-CONTEXT-001",
+   "class": "OBSERVE",
+   "placement": "Retrieved-context boundary",
+   "code_reference": "src/agentsec/rag/pipeline.py:run_rag_retrieve",
+   "threats": [
+    "TM-T01"
+   ],
+   "recorded_decisions": [
+    {
+     "experiment": "rag-context",
+     "case": "rag-context:BASELINE",
+     "role": "BASELINE",
+     "decision": "OBSERVE",
+     "reason": "retrieved_context_is_data"
+    },
+    {
+     "experiment": "rag-context",
+     "case": "rag-context:ATTACK",
+     "role": "ATTACK",
+     "decision": "OBSERVE",
+     "reason": "retrieved_context_is_data"
+    },
+    {
+     "experiment": "rag-context",
+     "case": "rag-context:RETEST",
+     "role": "RETEST",
+     "decision": "OBSERVE",
+     "reason": "retrieved_context_is_data"
+    }
+   ],
+   "findings": [
+    "F-pi-001-execution",
+    "F-rag-context-execution"
+   ],
+   "evidence_state": "RECORDED_DECISIONS_EXIST",
+   "owner": "NOT ASSIGNED",
+   "review": "NOT REVIEWED",
+   "attestation": "NONE RECORDED",
+   "independent_verification": "NONE",
+   "compliance": "NO ASSERTION"
+  },
+  {
+   "id": "EVIDENCE-PLANE-SEPARATION",
+   "class": "CORRECTIVE / REASONING",
+   "placement": "Learning and investigation layer",
+   "code_reference": "docs/BLUE_TEAM_INVESTIGATION_AND_THREAT_HUNTING.md",
+   "threats": [
+    "TM-T09"
+   ],
+   "recorded_decisions": [],
+   "findings": [],
+   "evidence_state": "NO_RECORDED_EVIDENCE",
+   "owner": "NOT ASSIGNED",
+   "review": "NOT REVIEWED",
+   "attestation": "NONE RECORDED",
+   "independent_verification": "NONE",
+   "compliance": "NO ASSERTION"
+  },
+  {
+   "id": "EXTERNAL-EVIDENCE-CONTRACT",
+   "class": "ASSESSMENT EVIDENCE",
+   "placement": "External evidence normalization",
+   "code_reference": "src/agentsec/external_evidence/contract.py:ExternalEvidence",
+   "threats": [
+    "TM-T07"
+   ],
+   "recorded_decisions": [],
+   "findings": [
+    "F-mcp-catalog-execution",
+    "F-scanner-malicious-1"
+   ],
+   "evidence_state": "NO_RECORDED_EVIDENCE",
+   "owner": "NOT ASSIGNED",
+   "review": "NOT REVIEWED",
+   "attestation": "NONE RECORDED",
+   "independent_verification": "NONE",
+   "compliance": "NO ASSERTION"
+  },
+  {
+   "id": "INV-007-TELEMETRY",
+   "class": "DETECTIVE / OBSERVE",
+   "placement": "Runtime event emitters",
+   "code_reference": "src/agentsec/events.py",
+   "threats": [
+    "TM-T08"
+   ],
+   "recorded_decisions": [],
+   "findings": [],
+   "evidence_state": "NO_RECORDED_EVIDENCE",
+   "owner": "NOT ASSIGNED",
+   "review": "NOT REVIEWED",
+   "attestation": "NONE RECORDED",
+   "independent_verification": "NONE",
+   "compliance": "NO ASSERTION"
+  },
+  {
+   "id": "MEMORY-STORE-VALIDATION",
+   "class": "PREVENTIVE / ENFORCE",
+   "placement": "Memory write",
+   "code_reference": "src/agentsec/memory/store.py:InProcessMemoryStore.write",
+   "threats": [
+    "TM-T02"
+   ],
+   "recorded_decisions": [],
+   "findings": [],
+   "evidence_state": "NO_RECORDED_EVIDENCE",
+   "owner": "NOT ASSIGNED",
+   "review": "NOT REVIEWED",
+   "attestation": "NONE RECORDED",
+   "independent_verification": "NONE",
+   "compliance": "NO ASSERTION"
+  },
+  {
+   "id": "SPLUNK",
+   "class": "DETECTIVE / INVESTIGATION",
+   "placement": "Downstream",
+   "code_reference": "docs/BLUE_TEAM_LIVE_SPLUNK_VALIDATION.md",
+   "threats": [
+    "TM-T08"
+   ],
+   "recorded_decisions": [],
+   "findings": [],
+   "evidence_state": "NO_RECORDED_EVIDENCE",
+   "owner": "NOT ASSIGNED",
+   "review": "NOT REVIEWED",
+   "attestation": "NONE RECORDED",
+   "independent_verification": "NONE",
+   "compliance": "NO ASSERTION"
+  }
+ ],
+ "gaps": {
+  "unmapped_threats": [
+   "TM-T02",
+   "TM-T03",
+   "TM-T05",
+   "TM-T06",
+   "TM-T07",
+   "TM-T08",
+   "TM-T09"
+  ],
+  "controls_without_recorded_evidence": [
+   "CTRL-MEMORY-CONTEXT-001",
+   "MEMORY-STORE-VALIDATION",
+   "CTRL-GOAL-INTEGRITY-001",
+   "ALLOW-TICKET",
+   "BOUNDED-PREVIEW",
+   "CATALOG-VALIDATION",
+   "EXTERNAL-EVIDENCE-CONTRACT",
+   "INV-007-TELEMETRY",
+   "SPLUNK",
+   "EVIDENCE-PLANE-SEPARATION"
+  ],
+  "threats_without_evaluation_evidence": [
+   "TM-T02",
+   "TM-T03",
+   "TM-T06",
+   "TM-T08",
+   "TM-T09"
+  ],
+  "frameworks_not_mapped": [
+   "NIST AI 100-2",
+   "MCP spec",
+   "NIST AI RMF"
+  ],
+  "owners_assigned": 0,
+  "controls_attested": 0,
+  "independently_verified_runs": 0,
+  "statement": "No control has an owner, a review, an attestation or independent verification on record, and no compliance assertion exists."
+ },
+ "sources": [
+  {
+   "file": "learning/academy/framework_refs.json",
+   "sha256": "f7794827a9a0996ac66d86b5de1ad6f18144d5e9a07bc815b34f0b79bcaeefa8",
+   "locator": "items, lab_references"
+  },
+  {
+   "file": "learning/level_1/LAB-THREAT-MODELING-001/threat-catalog.json",
+   "sha256": "2b6ee60568521cd9535c07e23de3575dcd4d597b06d03785639174598a9b645c",
+   "locator": "threats"
+  },
+  {
+   "file": "academy-ui/src/content/risk/seed.json",
+   "sha256": "f176bdc9185e9e3e690cd1121390e25e7d34c18338b77df05ef1f3b93702ecbe",
+   "locator": "candidates"
+  },
+  {
+   "file": "academy-ui/src/content/evals/index.json",
+   "sha256": "729943129974775724b7e75f260e3e3bfce30f25ba32be7684fdf59c22d59a00",
+   "locator": "experiments, findings"
+  }
+ ]
+}

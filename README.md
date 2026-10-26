@@ -1,274 +1,66 @@
-# AgentSec Lab
+# AgentSecLab
 
-AgentSec is an **agentic security academy**: a local, hands-on lab for learning agentic security, security fundamentals, Splunk investigation, blue-team reasoning, threat modeling, privacy, and evidence-based analysis.
+**A hands-on lab for learning how AI agents fail, how to investigate them in Splunk, and how to turn the evidence into an evaluation, a risk assessment and a governance record.**
 
-You run controlled experiments against an educational agent, then investigate the evidence in Splunk. AcmeBank is where reference controls run. The Attack Service is a closed educational launcher. On a local install it is on localhost. On a remote install, open the host already in the browser address bar. Splunk is the investigation workbench. Splunk does **not** authorize tools.
-
-Ollama is the local LLM runtime AgentSec uses for LIVE labs. It is not part of Splunk. REPLAY workshops do not require it.
+AgentSecLab runs a small, deliberately simple bank assistant (AcmeBank) that you attack in controlled experiments, then investigate with real telemetry. Nothing in it is a production system. Everything it shows says whether it was run live, replayed from a committed recording, simulated, or only documented.
 
 ## Who it is for
 
-Technically capable learners, instructors, SOC analysts, and security architects who want a **local** lab. Some security background helps. You do not need to already know agents, RAG, or Splunk search language. The early labs teach those ideas on purpose.
+Security learners, instructors running a workshop, SOC analysts and security architects who want a local, reproducible place to practise agentic AI security. You do not need to know agents or Splunk search first.
 
-## What you will learn
+## What you can do
 
-The Academy on this branch runs from orientation through an advanced investigation:
+| Step | Where | What it is |
+|------|-------|-----------|
+| Learn and practice | `/learn` (32 labs) | Guided experiences on prompt injection, tool authorization (MCP), RAG, memory, identity and delegation, scanner and model evaluations, Splunk investigation, threat modeling and privacy |
+| Attack | Attack Service (port 5001) | A closed launcher that runs educational attacks against AcmeBank |
+| Investigate | Splunk (port 8000) | Dashboards and searches over the telemetry each run produces |
+| Evaluate | `/learn/evals` | Recorded and simulated experiments, test cases, findings, comparisons and a report export |
+| Assess risk | `/learn/risk` | Source-backed risks you assess yourself, with a qualitative method and a browser-local draft |
+| Map controls | `/learn/governance` | Framework relationships, controls, evidence and gaps, with an export |
+| Prove | each page | Source files, SHA-256 hashes, limitations and verification status |
 
-```text
-Orientation and foundations
-        ↓
-Controlled security labs (input and tool authority)
-        ↓
-RAG, memory, goal, and identity
-        ↓
-External security evidence
-        ↓
-Blue-team investigation
-        ↓
-Threat modeling
-        ↓
-Privacy and data governance
-        ↓
-Multi-stage incident investigation
-        ↓
-Advanced Capstone, then an optional Mastery Check
-```
+## Release status: read this first
 
-Level names and what each one asks you to do are in [Academy L0-L10](#academy-l0-l10). The exercise table is [docs/AGENTSEC_RELEASE_LAB_MATRIX.md](docs/AGENTSEC_RELEASE_LAB_MATRIX.md).
-
-## Current repository and release status
-
-Two git refs matter. They are not the same product snapshot.
-
-| Ref | What it is |
-|-----|------------|
-| `main` and annotated tag `v1.1.0` | Current academy. Package `1.1.0`. Splunk app `1.1.0`. |
-| annotated tag `v1.0.0` | Previous release. It stays on its original commit. Package `1.0.0`. |
-| annotated tag `v1.0.0-rc1` | Historical RC1 baseline. The tag peels to commit `e6115b6d1c03a1672b4364e84748c7840671fbfc`. That snapshot does **not** contain the L6–L10 academy. |
-| annotated tag `v1.0.0-rc2` | Historical previous candidate. It stays on its original commit. |
-| annotated tag `v1.0.0-rc3` | Historical candidate. It peels to `6c7af8e87f96cda4ee929664fbb17ec763dd135c` and was not moved. |
-
-Package metadata is `1.1.0` in `pyproject.toml`. The Splunk app version is `1.1.0`. Those strings are the product version.
-
-Telemetry schema remains **1.9.0**. The external-evidence contract remains **1.0.0**. Product version, schema, and the external-evidence contract are independent.
-
-A default `git clone` follows `origin/HEAD`, which is `main`. That branch is this v1.1.0 release.
-
-Clean-room service start was proven on 2026-10-02 with fresh volumes. AcmeBank on that run was `degraded` because `llama3.2:1b` was not listed. That degraded state is not a PASS for LIVE generation. See [docs/releases/V1_0_0_RELEASE_NOTES.md](docs/releases/V1_0_0_RELEASE_NOTES.md).
-
-## Prerequisites
-
-You need Docker Engine with Compose v2, Git, `python3`, `curl`, and a browser. Podman is **not validated**. Windows is **not validated**. Hardware minimums are **NOT BENCHMARKED**.
-
-Host setup for macOS, the unvalidated Windows path, and Linux: [docs/AGENTSEC_PREREQUISITES.md](docs/AGENTSEC_PREREQUISITES.md).
+- `main` (tag `v1.1.0`) is the released academy served from the original pages.
+- The React Academy shell, the Security Assurance workshop, the EVAL Center, the Risk Center and the Governance Center are on the **`feature/academy-react-shell`** development branch. They are not on `main` yet.
+- The browser experience of the deployed development branch has **not** been tested in a real browser by the maintainers. Tests ran in headless Chromium against a local build.
 
 ## Quick start
 
-Run these from the repository root after Docker is installed and `docker info` succeeds.
-
-1. Check requirements in [docs/AGENTSEC_PREREQUISITES.md](docs/AGENTSEC_PREREQUISITES.md).
-2. Install Docker Engine and Compose v2. On macOS that is Docker Desktop. Start the engine.
-3. Verify Docker:
-
-```bash
-docker --version
-docker compose version
-docker info
-```
-
-4. Clone the repository. `main` and tag `v1.1.0` are this release. Tag `v1.0.0` is the previous release.
+You need Docker Engine with Compose v2, Git, `python3`, `curl` and a browser. Podman is **not validated**. Windows is **not validated**. Hardware minimums are **NOT BENCHMARKED**. Details: [Quickstart](docs/QUICKSTART.md), [Getting started](docs/GETTING_STARTED.md), [Troubleshooting](docs/TROUBLESHOOTING.md).
 
 ```bash
 git clone https://github.com/machowdhury/AgentSecLab.git
 cd AgentSecLab
-git checkout v1.1.0
-```
-
-5. Create the local env file, then run preflight. Preflight fails if `.env` is missing. It does not install software.
-
-```bash
+git checkout feature/academy-react-shell   # for the development-branch experiences; omit for main
 cp .env.example .env
 ./scripts/lab-preflight.sh
-```
-
-6. Start the lab. This pulls or builds images, starts the containers, and waits for service health.
-
-```bash
 ./scripts/lab-up.sh
 ```
 
-7. Wait until the script exits. The script itself says the first Splunk boot can take 10–20 minutes. A measured clean-room was shorter; that measurement is not a promise. See [docs/QUICKSTART.md](docs/QUICKSTART.md).
-8. Open Academy Home: http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home
-9. Read the status the script printed. `SERVICE READY` means the Academy stack answered. `MODEL ABSENT` means LIVE generation is **DEGRADED**, not a pass. REPLAY pages can still be opened.
-10. Begin at Academy Home. The first action is Direct Prompt Injection. Your path is the authoritative progress surface. It records NOT STARTED, IN PROGRESS, and INVESTIGATED in this browser. Native Splunk navigation does not show those marks. That list is navigation. It is not a Splunk index and not a security verdict. Reset on Your path clears only that list.
+The commands above start the **local Docker lab**. **External Splunk** is not started by `lab-up.sh`; see [Local Docker lab](docs/LOCAL_DOCKER_LAB.md).
 
-On a remote Linux server or cloud VM, use the remote commands instead of a plain `lab-up`:
+Open the Academy at <http://127.0.0.1:5001/learn> or Splunk Academy Home at http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home. Pause the lab with `./scripts/lab-down.sh` (it pauses; it does not delete data).
 
-```bash
-./scripts/lab-preflight.sh --remote
-./scripts/lab-up.sh --remote
-```
+## LIVE and REPLAY
 
-Open the server URL that command prints. Print it again with `./scripts/agentsec-access.sh`. Remote mode publishes Academy `8000`, Attack Service `5001` and AcmeBank `5000` on `0.0.0.0` (`AGENTSEC_BIND_ADDRESS`). It does not publish HEC, OTel, Splunk management or Ollama. `0.0.0.0` does not make the lab safe for the internet: there is no TLS and no application login, and it supports one trusted learner at a time. The cloud firewall must allow TCP 8000, 5001 and 5000 only from the learner's IP. Do not open those ports to `0.0.0.0/0`. Details: [docs/REMOTE_ACCESS.md](docs/REMOTE_ACCESS.md).
+Ollama is the local LLM runtime AgentSec uses for LIVE labs. It is not part of Splunk. **LIVE** labs run a fresh attack. **REPLAY** labs investigate previously captured evidence and do not need Ollama; a REPLAY page is not proof you just ran that attack. See [LIVE vs REPLAY](docs/LIVE_VS_REPLAY.md).
 
-The Ollama container tries to pull `llama3.2:1b` on startup. `lab-up.sh` does not run that pull itself. A certificate error has to be fixed at the trust layer. Do not disable certificate verification.
+Your first successful experience: open **LAB-MCP-003**, use the Practice tab to predict and reveal the three recorded runs, then follow the [Learner guide](docs/LEARNER_GUIDE.md) into the EVAL, Risk and Governance Centers.
 
-Step-by-step detail: [docs/QUICKSTART.md](docs/QUICKSTART.md). Map: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md).
+## Documentation
 
-Service health means the services answer. It does not mean a `run.id` is searchable, and it does not mean the Ollama model is present. An HEC HTTP 200 is not indexed evidence. `MODEL ABSENT` means LIVE generation is degraded.
+[Documentation index](docs/README.md) · [Getting started](docs/GETTING_STARTED.md) · [Learner guide](docs/LEARNER_GUIDE.md) · [Instructor guide](docs/INSTRUCTOR_GUIDE.md) · [Architecture](docs/ARCHITECTURE_GUIDE.md) · [Evaluation and risk](docs/EVALUATION_AND_RISK_GUIDE.md) · [Governance](docs/GOVERNANCE_GUIDE.md) · [Contributing](CONTRIBUTING.md) · [Full project reference](docs/PROJECT_REFERENCE.md)
 
-| URL | What it is |
-|-----|------------|
-| http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home | Academy Home (start here) |
-| http://127.0.0.1:8000 | Splunk login (`admin`; password from `.env`) |
-| http://127.0.0.1:5001 | Attack Service (LIVE launch only) |
-| http://127.0.0.1:5000/health | AcmeBank health |
+## Safety and limitations
 
-Do not publish these ports to untrusted networks. Attack Service is unauthenticated by design.
+- The lab is for **local, educational** use. It intentionally contains vulnerable agent profiles and contains deliberately vulnerable profiles. Do not expose it to the Internet. The default bind address is `127.0.0.1`; see [Remote access](docs/REMOTE_ACCESS.md) before changing it.
+- Lab defaults in `.env.example` are not production secrets. Never commit `.env`.
+- Recorded evidence shows what happened in one run. It is not a rate, a guarantee or an assessment of any real system.
+- Framework relationships are educational links. AgentSecLab makes no compliance or certification claim.
+- No run shown in the new Centers has an independent verifier receipt, so they are labelled `NOT_VERIFIED`.
 
-The commands above start the **local Docker lab**. **External Splunk** is not started by `lab-up.sh`. Details: [docs/LOCAL_DOCKER_LAB.md](docs/LOCAL_DOCKER_LAB.md).
+## Contributing and license
 
-## First lab
-
-1. Open Academy Home. Read orientation. Confirm you are on the L0–L10 path, not a shorter RC1 description.
-2. Open **Direct Prompt Injection** (L1). Predict before you launch.
-3. On Attack Service, launch that lab in **ATTACK** mode with execution **live**.
-4. Copy the fresh `run.id` from **this** launch.
-5. In Splunk Search, investigate that id (Path A). A starter constraint is in the quickstart.
-6. Read the lab’s ATTACK and RETEST comparison as a controlled pair, not as proof the system is safe or fully compromised.
-7. Continue in Academy order. Do not stop at the L5 Capstone. Complete the Splunk Defender Bridge, then L6 through L10 and the optional Mastery Check.
-
-Workshop pages may show canonical specimen ids. Those are REPLAY or reference evidence. They are not the launch you just executed. Use the `run.id` Attack Service minted for this session. A Search that returns zero rows for a documented REPLAY id means this Splunk volume does not contain that historical copy. The lab does not invent those events on upgrade.
-
-## LIVE, REPLAY, static reasoning, and simulated data
-
-**LIVE.** A fresh supported execution is launched and produces new runtime evidence, including a new `run.id`. Seven labs can be launched. The count comes from the Attack Service allowlist, not from the number of Academy pages.
-
-**REPLAY.** You investigate previously captured or canonical evidence. A REPLAY page is not proof that you just ran that attack.
-
-**Static / reasoning.** You analyze architecture, controls, privacy, or a threat model without claiming a fresh attack. L0 orientation and L4 investigation craft are this kind of work. L7 is architecture reasoning and does not launch an attack.
-
-**Simulated.** Several LIVE labs use fixture-backed or in-process data (retrieved documents, memory, identity claims) to teach a bounded idea. A fixture is not a production system, and it is not proof of a real customer incident.
-
-Full note: [docs/LIVE_VS_REPLAY.md](docs/LIVE_VS_REPLAY.md).
-
-## Academy L0-L10
-
-Names below are the curriculum titles. Menus use shorter collection labels. “Capstone” in the menu is **L5 only**.
-
-| Level | Curriculum title | What you do | Launch? |
-|-------|------------------|-------------|---------|
-| L0 | Orientation | Learn what AgentSec is, what LIVE means, and what Splunk does not do. | No. This is Academy Home. |
-| L1 | Input and tool authority | See that untrusted input can influence an agent, and that a tool request is not a grant. | Yes for Direct Prompt Injection and Tool Authorization. Scope and parameter workshops are REPLAY. |
-| L2 | Context and evidence are data | See that retrieved content, memory, scanner findings, and model evaluations inform an investigation and do not mint grants. | Yes for RAG and Memory. Tool result, catalog, scanner, and garak workshops are REPLAY. |
-| L3 | Intent and identity | Separate an authorized tool from an authorized goal, and an identity claim from authentication. | Yes for Goal and Identity. Confused Deputy is REPLAY. |
-| L4 | Investigation craft | Practice hunt versus detection and evidence quality on LIVE Path A. Zero rows is not safe. | No separate workshop. |
-| L5 | Integrated purple team | **L5 Capstone:** Lending Assistant Investigation. Reconstruct a chain you launch. | Yes. Last LIVE launcher. |
-| Checkpoint | Splunk Defender Bridge | Investigate tool-authorization evidence without a supplied run identifier. Then continue to L6. | No. REPLAY / static. Not an eighth LIVE lab. |
-| L6 | Blue-team investigation and threat hunting | Investigate AcmeBank Incident AI-2026-001 from incomplete evidence. | No. REPLAY. |
-| L7 | Threat modeling and security architecture | Model an unfamiliar agentic system and state residual risk. | No. Reasoning. No fresh attack. |
-| L8 | Privacy, data protection and agentic data governance | Separate an authorized action from an appropriate use of data. | No. REPLAY investigation. |
-| L9 | Multi-stage agentic attack, investigation and defense | Investigate Acme Bank Incident AGENT-2026-009. | No. REPLAY. |
-| L10 | Advanced capstone and mastery | **Advanced Capstone:** Acme Bank Capstone MASTER-2026-001. Investigate without starting from a run id. | No. REPLAY. |
-
-**Mastery Check** is a separate, unscored self-check (`ws_agentsec_mastery`). It is not the L5 Capstone and not the L10 Advanced Capstone. It does not certify you.
-
-The seven LIVE labs, and only these, are on the Attack Service allowlist:
-
-`LAB-PI-001`, `LAB-MCP-001`, `LAB-RAG-CONTEXT`, `LAB-MEMORY-001`, `LAB-AGENT-GOAL-INTEGRITY-001`, `LAB-AGENT-DELEGATION-001`, `LAB-AGENTSEC-CAPSTONE-001`.
-
-## Splunk’s role
-
-Splunk is where you search, correlate, reconstruct, compare, investigate, hunt, and practice detection thinking.
-
-Splunk is not CTRL-MCP-001. It is not the tool authorization decision point. Zero rows do not prove an event never happened and do not prove safety. HEC acceptance does not prove the evidence set is complete.
-
-![AgentSec architecture. The gate is CTRL-MCP-001. Splunk stays downstream.](docs/brand/agentsec-architecture.svg)
-
-The picture matches the text in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). It does not add components.
-
-## External security evidence
-
-Cisco **mcp-scanner** (Cisco AI Defense) and **garak** (NVIDIA) are third-party tools. AgentSec did not build them. The lab imports their output as adjacent evidence:
-
-```text
-external tool → adapter → ExternalEvidence → Splunk → learner investigation
-```
-
-A scanner finding does not authorize or deny a tool. A HIGH finding is not a DENY. Zero findings are not safe. A garak pass is not proof the runtime is safe. Detail: [docs/EXTERNAL_SECURITY_EVIDENCE.md](docs/EXTERNAL_SECURITY_EVIDENCE.md).
-
-## Security semantics
-
-These words are bounded on purpose.
-
-| Word | Meaning here | What it does not mean |
-|------|----------------|------------------------|
-| ATTACK | A vulnerable or attack-condition experiment | Universal compromise |
-| RETEST | A controlled defended comparison | The system is universally safe |
-| BASELINE | An expected or legitimate comparison | Trusted forever, or the absence of risk |
-| OBSERVE | A control recorded what it saw | Authorization, or the same thing as ALLOW |
-| ALLOW | A control permitted a requested action in this lab | The action succeeded, or the outcome was safe |
-| DENY | A control refused a request it is responsible for | The whole system is safe |
-
-CTRL-MCP-001 is the tool policy decision point. RAG and memory observations do not mint tool grants. External evidence does not mint tool grants. Goal control can refuse a task expansion; that refusal is not itself a tool grant.
-
-Two evidence vocabularies answer different questions. **MEASURED, OBSERVED, TESTED, DOCUMENTED, REPLAYED, SIMULATED** describe how evidence was obtained. **PROVEN, SUPPORTED, INFERRED, NOT OBSERVED, NOT MODELED, NOT PROVEN, REFUTED** describe how strongly an investigative claim is supported. Correlation is not causation.
-
-Deeper picture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/SECURITY_BOUNDARY.md](docs/SECURITY_BOUNDARY.md).
-
-## What AgentSec is not
-
-AgentSec is not evidence of production security effectiveness, complete AI governance, compliance certification, production IAM, production non-human identity, production agent-to-agent identity, cryptographic delegation, universal attack prevention, or complete privacy compliance.
-
-Path B is visible. It is pedagogical guidance, not access control. Early mission cards may state an expected outcome; that is a known learning-design limit, not a hidden answer key behind a lock.
-
-Boundaries: [docs/AGENTSEC_V1_PRODUCT_BOUNDARY.md](docs/AGENTSEC_V1_PRODUCT_BOUNDARY.md).
-
-## Known limitations
-
-- Path B is intentionally learner-accessible. Studio does not hide it.
-- This academy is not a certification. Mastery Check is unscored. L10 does not certify you.
-- Clean-room service start was measured. On that run LIVE generation stayed degraded because the model was absent. That degraded result is not a pass. Windows and Podman were not part of the measurement.
-- Screen-reader coverage is partial and not fully tested. That is not a WCAG conformance claim.
-- Production authentication and cryptographic delegation are not modeled.
-- One RETEST does not prove universal effectiveness.
-- A missing Splunk row is not automatically “the attack was blocked.”
-
-List: [docs/KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md).
-
-## Stop and reset
-
-| Intent | Command |
-|--------|---------|
-| Pause (keep everything) | `./scripts/lab-down.sh` (this is `docker compose stop`: nothing is removed) |
-| Resume | `./scripts/lab-up.sh` |
-| Remove containers, keep data | `./scripts/lab-down.sh --remove-containers` (refused while Splunk is on legacy anonymous volumes) |
-| Rebuild app images | `./scripts/lab-up.sh --build` |
-| Restage Splunk XML | `./scripts/lab-up.sh --refresh-app` |
-| Full reset (destroys volumes, including indexed events) | `./scripts/lab-down.sh --purge --yes-delete-all-lab-data` — see [docs/OPERATIONS.md](docs/OPERATIONS.md) |
-
-Troubleshooting: [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
-
-## License
-
-Apache License 2.0. See [LICENSE](LICENSE).
-
-## Deeper documentation
-
-| Doc | Use |
-|-----|-----|
-| [docs/QUICKSTART.md](docs/QUICKSTART.md) | Linear first run |
-| [docs/AGENTSEC_RELEASE_LAB_MATRIX.md](docs/AGENTSEC_RELEASE_LAB_MATRIX.md) | Exercise modes and outcomes |
-| [docs/AGENTSEC_V1_PRODUCT_BOUNDARY.md](docs/AGENTSEC_V1_PRODUCT_BOUNDARY.md) | What the lab is and is not |
-| [docs/INSTRUCTOR_GUIDE.md](docs/INSTRUCTOR_GUIDE.md) | Workshop preparation |
-| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Learner vs developer workflow |
-| [CHANGELOG.md](CHANGELOG.md) | Product changelog |
-| [docs/releases/V1_0_0_RC2_RELEASE_NOTES.md](docs/releases/V1_0_0_RC2_RELEASE_NOTES.md) | Current candidate notes |
-| [docs/releases/V1_0_0_RC1_RELEASE_NOTES.md](docs/releases/V1_0_0_RC1_RELEASE_NOTES.md) | Historical RC1 notes for the tagged baseline |
-| [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) | Historical phase provenance |
-
-Developer tests are optional and are not required to learn:
-
-```bash
-uv run --extra test python -m pytest tests -q --tb=line -m "not live_ollama and not live_splunk"
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md). Licensed under the Apache License 2.0; see [LICENSE](LICENSE).

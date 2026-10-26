@@ -223,3 +223,11 @@ artifacts/*
 
 # HEC TLS material (private keys). Never commit.
 .certs/
+
+# Local development and AI-assistant files that do not belong in the public repository
+.cursor/
+.claude/
+.tmp-*/
+graphify-out/
+.env.bak*
+*.bak

@@ -20,3 +20,20 @@ Your path is the authoritative progress surface. Native Splunk navigation and Da
 After L5, the Splunk Defender Bridge is the REPLAY checkpoint before L6. See [SPLUNK_DEFENDER_BRIDGE.md](SPLUNK_DEFENDER_BRIDGE.md).
 
 Do not follow historical `docs/PHASE*.md` files as the install path. Those remain provenance.
+
+
+## Academy shell, Centers and tests (development branch)
+
+### Rebuild the Academy UI (development branch)
+```bash
+sh scripts/build_academy_ui.sh   # needs Docker; runs the typecheck; writes src/agentsec/static/learn
+```
+
+### Run the tests
+```bash
+python3 -m venv .venv && .venv/bin/pip install -e '.[test,ui]'
+PYTHONPATH=src .venv/bin/python -m pytest
+```
+Browser tests need Chromium: run `playwright install chromium` or set `AGENTSEC_CHROMIUM`.
+
+Problems: [Troubleshooting](TROUBLESHOOTING.md).
