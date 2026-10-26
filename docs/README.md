@@ -8,6 +8,7 @@
 | [Architecture](ARCHITECTURE_GUIDE.md) | How the pieces fit and where evidence comes from |
 | [Evaluation and risk](EVALUATION_AND_RISK_GUIDE.md) | EVAL and Risk Center semantics |
 | [Governance](GOVERNANCE_GUIDE.md) | What a framework relationship is and is not |
+| [HTTPS ingress proposal](HTTPS_INGRESS_PROPOSAL.md) | Proposed TLS and authentication front door; not deployed |
 | [Full project reference](PROJECT_REFERENCE.md) | The previous long README |
 | [Security boundary](SECURITY_BOUNDARY.md) · [Remote access](REMOTE_ACCESS.md) · [Troubleshooting](TROUBLESHOOTING.md) · [Prerequisites](AGENTSEC_PREREQUISITES.md) | Operations |
 

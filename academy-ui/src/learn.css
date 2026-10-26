@@ -506,3 +506,9 @@ tr.is-different td, tr.is-different th { background: #f4f9f9; }
 .rk fieldset:disabled { opacity: .6; }
 @media (max-width: 560px) { .rk-origins > div { grid-template-columns: 1fr; } }
 .rk p, .rk dd, .rk li, .rk q, .rk h2, .rk h3, .rk summary, .rk legend, .rk label { overflow-wrap: anywhere; }
+
+.wf ol { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 0 0 12px; counter-reset: wf; }
+.wf li { counter-increment: wf; }
+.wf a { display: block; padding: 10px 14px; min-height: 44px; border: 1px solid var(--line); border-radius: 999px; font-weight: 700; color: var(--muted); text-decoration: none; }
+.wf a::before { content: counter(wf) ". "; }
+.wf a.is-current { color: var(--navy); border-color: var(--teal); }

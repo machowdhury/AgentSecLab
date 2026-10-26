@@ -9,4 +9,6 @@
    - **Risk Center** (`/learn/risk`): write a risk assessment of your own from source-backed facts. It stays in your browser as a draft with status `LOCAL_DRAFT_NOT_APPROVED`.
    - **Governance Center** (`/learn/governance`): see which framework items relate to which controls, and where the gaps are.
 
+A **Workshop path** bar on the lab, mission and Center pages links Learn, Attack, Investigate, EVAL, Risk and Governance in order and marks where you are.
+
 Every page labels its evidence as live, recorded, simulated or documented. A recorded run is one run, not a rate.
