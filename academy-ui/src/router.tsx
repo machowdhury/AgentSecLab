@@ -1,5 +1,6 @@
 import { useSyncExternalStore, type AnchorHTMLAttributes, type MouseEvent, type ReactNode } from "react";
 import { isStage, type StageId } from "./stages";
+import { STEP_IDS, type StepId } from "./assurance/types";
 
 // Real URLs (History API) under /learn: Back, Forward, Refresh and deep links all work, and the Flask route serves the same page for each.
 export const BASE = "/learn";
@@ -29,7 +30,7 @@ export function Link({ to, children, onClick, ...rest }: { to: string; children:
   return <a href={to} onClick={go} {...rest}>{children}</a>;
 }
 
-export type Route = { name: "home" } | { name: "acmebank" } | { name: "path" } | { name: "foundations" } | { name: "mastery" } | { name: "mcp" } | { name: "curriculum" } | { name: "lab"; id: string } | { name: "mission"; stage: StageId | null } | { name: "missing" };
+export type Route = { name: "assurance"; step: StepId | null | "hub" } | { name: "home" } | { name: "acmebank" } | { name: "path" } | { name: "foundations" } | { name: "mastery" } | { name: "mcp" } | { name: "curriculum" } | { name: "lab"; id: string } | { name: "mission"; stage: StageId | null } | { name: "missing" };
 
 export function matchRoute(path: string): Route {
   const parts = path.replace(/\/+$/, "").split("/").filter(Boolean); // ["learn", ...]
@@ -37,6 +38,11 @@ export function matchRoute(path: string): Route {
   if (parts.length === 1) return { name: "home" };
   if (parts.length === 2 && parts[1] === "acmebank") return { name: "acmebank" };  // retired: redirected to the Prepare stage
   if (parts.length === 2 && parts[1] === "curriculum") return { name: "curriculum" };
+  if (parts[1] === "assurance") {
+    if (parts.length === 2) return { name: "assurance", step: "hub" };
+    if (parts[2] === "mcp-unauthorized-scope" && parts.length === 3) return { name: "assurance", step: null };
+    if (parts[2] === "mcp-unauthorized-scope" && parts.length === 4 && (STEP_IDS as string[]).includes(parts[3])) return { name: "assurance", step: parts[3] as StepId };
+  }
   if (parts.length === 3 && parts[1] === "lab" && /^LAB-[A-Z0-9-]+$/.test(parts[2])) return { name: "lab", id: parts[2] };
   if (parts.length === 2 && ["path", "foundations", "mastery", "mcp"].includes(parts[1])) return { name: parts[1] as "path" | "foundations" | "mastery" | "mcp" };
   if (parts[1] === "loan-desk") {
@@ -46,6 +52,7 @@ export function matchRoute(path: string): Route {
   return { name: "missing" };
 }
 
+export const ASSURANCE_PATH = `${BASE}/assurance`, JOURNEY_PATH = `${BASE}/assurance/mcp-unauthorized-scope`;
 export const PATH_PATH = `${BASE}/path`, FOUNDATIONS_PATH = `${BASE}/foundations`, MASTERY_PATH = `${BASE}/mastery`, MCP_PATH = `${BASE}/mcp`, CURRICULUM_PATH = `${BASE}/curriculum`;
 export const labPath = (id: string) => `${BASE}/lab/${id}`;
 export const missionPath = (stage?: StageId) => `${BASE}/loan-desk${stage ? `/${stage}` : ""}`;

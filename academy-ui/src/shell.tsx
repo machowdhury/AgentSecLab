@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Badge, Icon, type IconName } from "./ui";
-import { Link, missionPath, BASE, PATH_PATH, FOUNDATIONS_PATH, MASTERY_PATH, MCP_PATH, CURRICULUM_PATH } from "./router";
+import { Link, missionPath, BASE, PATH_PATH, FOUNDATIONS_PATH, MASTERY_PATH, MCP_PATH, CURRICULUM_PATH, ASSURANCE_PATH } from "./router";
 import { useConfig, useEnvironment } from "./config";
 
 type Item = { label: string; icon: IconName; to?: string; href?: string; tag?: string };
@@ -16,6 +16,7 @@ const groups: Group[] = [
     { label: "MCP Tool Authorization", icon: "shield", to: MCP_PATH },
   ] },
   { label: "Assess", items: [{ label: "Mastery", icon: "chart", to: MASTERY_PATH }] },
+  { label: "Assure", items: [{ label: "Security Assurance", icon: "shield", to: ASSURANCE_PATH }] },
 ];
 
 const activeFor = (item: Item, path: string) => Boolean(item.to) && (item.to === BASE ? path.replace(/\/$/, "") === BASE : path.startsWith(item.to!));
