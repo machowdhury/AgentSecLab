@@ -44,7 +44,7 @@ Change: each stored row keeps the client label and, when the launch response has
 
 Tests: `tests/unit/test_learner_session_contract.py` executes the browser script. It requires the history line to contain `LAST KNOWN CLIENT STATE: RUN IN PROGRESS`, `launcher terminal=completed_allowed`, `evidence=WAITING_FOR_EVIDENCE`, and `not a Splunk verdict`.
 
-Live Browser: OBSERVED on `http://3.17.29.24:5001/labs/LAB-PI-001` after commit `0eeae92` was rebuilt. Before reload and after reload the ATTACK row was `LAST KNOWN CLIENT STATE: RUN IN PROGRESS` and `launcher terminal=completed_allowed`. The run id did not change. `WAITING_FOR_EVIDENCE` stayed on the line and was not presented as the control decision.
+Live Browser: OBSERVED on `http://<lab-host>:5001/labs/LAB-PI-001` after commit `0eeae92` was rebuilt. Before reload and after reload the ATTACK row was `LAST KNOWN CLIENT STATE: RUN IN PROGRESS` and `launcher terminal=completed_allowed`. The run id did not change. `WAITING_FOR_EVIDENCE` stayed on the line and was not presented as the control decision.
 
 Before: history text was `MODE · RUN IN PROGRESS · run.id · time`.
 
@@ -64,7 +64,7 @@ Change: `splunk_app/agentsec/appserver/static/agentsec_studio_focus.css` sets a 
 
 Tests: the unit test checks the CSS contains `:focus-visible` and `role="tab"`, and that every `ws_*.xml` references the stylesheet. That proves packaging. It does not prove a rendered tab.
 
-Live Browser: the stylesheet URL `http://3.17.29.24:8000/en-US/static/app/agentsec/agentsec_studio_focus.css` returned HTTP 200, `text/css`. OBSERVED.
+Live Browser: the stylesheet URL `http://<lab-host>:8000/en-US/static/app/agentsec/agentsec_studio_focus.css` returned HTTP 200, `text/css`. OBSERVED.
 
 Computed Style: NOT MEASURED. Academy Home redirected to Splunk login. No tab element was focused.
 
@@ -147,7 +147,7 @@ Rebuild command, as `ubuntu`, no volume delete and no prune:
 
 Exit 0. Elapsed 2m 53s. Checkout `0eeae924c643eec9edffdc28b679a4f21073a8d6`.
 
-OBSERVED in the browser: Attack Service Search and Academy links used `http://3.17.29.24:8000`. Home and Search unauthenticated requests stayed on `3.17.29.24` and redirected to login. Before launch, the Attack page text did not contain `input_pattern_matched`.
+OBSERVED in the browser: Attack Service Search and Academy links used `http://<lab-host>:8000`. Home and Search unauthenticated requests stayed on `<lab-host>` and redirected to login. Before launch, the Attack page text did not contain `input_pattern_matched`.
 
 ## Answer Leakage Regression
 

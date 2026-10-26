@@ -1,7 +1,7 @@
 # MCP Predecessor Analysis (AgentWatch Range)
 
 **Status:** Phase 3A planning. **No AgentSec MCP runtime.**  
-**Predecessor:** `/Users/mahamudc/Documents/workspace/AgentwatchRange` (READ-ONLY).  
+**Predecessor:** `<predecessor-agentwatch-range>` (READ-ONLY).  
 **Evidence class:** OBSERVED from source (this analysis). Not a live AgentWatch experiment. Not MEASURED AgentSec MCP behavior.  
 **Related:** `docs/MIGRATION_INVENTORY.md` (Phase 0 already classified the gateway as REDESIGN). This file is the MCP-domain deep dive.
 

@@ -4,7 +4,7 @@
 **Companion:** `docs/MIGRATION_INVENTORY.md`  
 **Rule:** Identify proven assets. Do not blindly copy. Do not migrate code in this phase.
 
-Evidence is **OBSERVED** (source inspection of `/Users/mahamudc/Documents/workspace/AgentwatchRange`) or **DOCUMENTED** (AgentWatch docs). Live attack outcomes and live Splunk results are **NOT MEASURED**.
+Evidence is **OBSERVED** (source inspection of `<predecessor-agentwatch-range>`) or **DOCUMENTED** (AgentWatch docs). Live attack outcomes and live Splunk results are **NOT MEASURED**.
 
 ---
 

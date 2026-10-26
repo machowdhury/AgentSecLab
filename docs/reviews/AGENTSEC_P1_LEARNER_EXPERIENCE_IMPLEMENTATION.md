@@ -16,7 +16,7 @@ Evidence classes follow `.cursor/rules/50-research-integrity.mdc`. MEASURED = ta
 | Deployed SHA (EC2 `agentlabs`, `/home/ubuntu/AgentSecLab`) | `49de0f82785707625a1db5c3f336dc21c2568c48` |
 | `.tmp-path-pre/` | not touched, not committed |
 
-Deploy path: AWS SSM, instance `i-03e570d023ce16d6f`, us-east-2, `./scripts/lab-up.sh --build --refresh-app --remote`. Volumes preserved; no Docker prune; no Splunk/Mongo/kernel change; AcmeBank :5000 not publicly exposed. Disk before and after: 96G total, 9.0–9.1G free, 91% used. No cleanup performed.
+Deploy path: AWS SSM, instance `<instance-id>`, us-east-2, `./scripts/lab-up.sh --build --refresh-app --remote`. Volumes preserved; no Docker prune; no Splunk/Mongo/kernel change; AcmeBank :5000 not publicly exposed. Disk before and after: 96G total, 9.0–9.1G free, 91% used. No cleanup performed.
 
 ## 2. Slice results
 

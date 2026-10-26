@@ -48,13 +48,13 @@ First rebuild in this program moved the checkout `07f37e7..77a4f0d`. `lab-up` ex
 
 Final rebuild moved `77a4f0d..496e849`. `lab-up` exited 0 in 2m 42s. `SERVICE READY`. The script still prints that external browser reachability is not measured by `lab-ready`. The browser measurements below were made from this workstation.
 
-Home -> Search: OBSERVED. `http://3.17.29.24:8000/en-US/app/search/search` stayed on `3.17.29.24` and redirected to Splunk login with `return_to` for Search. The logged-in Search page was not rendered. No Splunk password was read.
+Home -> Search: OBSERVED. `http://<lab-host>:8000/en-US/app/search/search` stayed on `<lab-host>` and redirected to Splunk login with `return_to` for Search. The logged-in Search page was not rendered. No Splunk password was read.
 
-Home -> Attack Service: the served `agentsec_open_attack.js` was fetched after the final deploy (655 bytes). It uses `window.location.hostname` and contains no `127.0.0.1` and no `localhost`. Execution of that script onto `http://3.17.29.24:5001/` was OBSERVED earlier the same day on this host. The script file was not part of commit `496e849`.
+Home -> Attack Service: the served `agentsec_open_attack.js` was fetched after the final deploy (655 bytes). It uses `window.location.hostname` and contains no `127.0.0.1` and no `localhost`. Execution of that script onto `http://<lab-host>:5001/` was OBSERVED earlier the same day on this host. The script file was not part of commit `496e849`.
 
-Attack Service -> Search: OBSERVED on the final page. Open Splunk Search, Open ATTACK in Search, Open RETEST in Search, and Compare in Search all used `http://3.17.29.24:8000/...`.
+Attack Service -> Search: OBSERVED on the final page. Open Splunk Search, Open ATTACK in Search, Open RETEST in Search, and Compare in Search all used `http://<lab-host>:8000/...`.
 
-Attack Service -> Academy: OBSERVED. Return to Academy was `http://3.17.29.24:8000/en-US/app/agentsec/ws_agentsec_home`.
+Attack Service -> Academy: OBSERVED. Return to Academy was `http://<lab-host>:8000/en-US/app/agentsec/ws_agentsec_home`.
 
 Learner-facing loopback defects: 0 on the final Attack page. Visible text did not contain `127.0.0.1` or `localhost`. Served HTML did not contain `http://127.0.0.1:8000` or `http://localhost:8000`.
 
@@ -68,7 +68,7 @@ run.id UX: both ids were shown in the meta line as an investigation handle, not 
 
 Search handoff: remote host and port 8000, as above. Local, loopback, remote IPv4, and DNS hostname behavior remains covered by the existing navigation tests. The real EC2 address is not hardcoded in production code or in those tests.
 
-ATTACK/RETEST comparison: one browser session held both runs. Session history listed RETEST `RUN DENIED` `db8ba6ba-f4df-4016-a6de-a2373b1f18cd` and ATTACK `RUN IN PROGRESS` `20a3d2e1-91a4-4519-b214-b8f2324e2873`. Compare in Search used both ids on `3.17.29.24:8000`. The history line is mode, state, run id, and timestamp. It is not a verdict.
+ATTACK/RETEST comparison: one browser session held both runs. Session history listed RETEST `RUN DENIED` `db8ba6ba-f4df-4016-a6de-a2373b1f18cd` and ATTACK `RUN IN PROGRESS` `20a3d2e1-91a4-4519-b214-b8f2324e2873`. Compare in Search used both ids on `<lab-host>:8000`. The history line is mode, state, run id, and timestamp. It is not a verdict.
 
 Session history: browser tab only. No account. No identity claim.
 
@@ -152,11 +152,11 @@ WCAG Claim: none.
 
 ## Live validation
 
-Host: `3.17.29.24`. Checkout `496e84917313e41667da5138cccdaf68f9de94f4`. One browser session on `http://3.17.29.24:5001/labs/LAB-PI-001`.
+Host: `<lab-host>`. Checkout `496e84917313e41667da5138cccdaf68f9de94f4`. One browser session on `http://<lab-host>:5001/labs/LAB-PI-001`.
 
 ATTACK run.id: `20a3d2e1-91a4-4519-b214-b8f2324e2873`
 
-ATTACK searchable: the Search handoff URL uses that id on `http://3.17.29.24:8000`. Splunk Web was not logged in, so a search result row was NOT MEASURED. After the run, `hot_v1_3/Strings.data` and `hot_v1_3/rawdata/0` both contained the id. That is index presence, not a search row.
+ATTACK searchable: the Search handoff URL uses that id on `http://<lab-host>:8000`. Splunk Web was not logged in, so a search result row was NOT MEASURED. After the run, `hot_v1_3/Strings.data` and `hot_v1_3/rawdata/0` both contained the id. That is index presence, not a search row.
 
 ATTACK decision: `ALLOW`. Reason text is the vulnerable-profile fail-open reason for `ignore_previous_instructions`. Four control rows.
 
@@ -164,7 +164,7 @@ ATTACK execution: `llm_call_count=4`. `terminal=completed_allowed`. `evidence_st
 
 RETEST run.id: `db8ba6ba-f4df-4016-a6de-a2373b1f18cd`
 
-RETEST searchable: same split. Handoff URL on `3.17.29.24:8000`. Both the lexicon file and `rawdata/0` in `hot_v1_3` contained the id. A Splunk Web result row was NOT MEASURED.
+RETEST searchable: same split. Handoff URL on `<lab-host>:8000`. Both the lexicon file and `rawdata/0` in `hot_v1_3` contained the id. A Splunk Web result row was NOT MEASURED.
 
 RETEST decision: `DENY`. Reason `input_pattern_matched`.
 
@@ -207,8 +207,8 @@ Remediation of the MEDIUM finding: commit `496e849`. The launcher asks for the p
 Rerun after the fix:
 
 - Unit tests 83 passed. Full suite 1082 passed, 3 deselected, then 10 more consecutive clean runs.
-- Served `http://3.17.29.24:5001/labs/LAB-PI-001` after the rebuild: prediction form present, `input_pattern_matched` absent, loopback Search hrefs absent.
-- The same page, in one browser session, launched the ATTACK and RETEST recorded above. Visible text still had no loopback. Search and Academy links stayed on `3.17.29.24`.
+- Served `http://<lab-host>:5001/labs/LAB-PI-001` after the rebuild: prediction form present, `input_pattern_matched` absent, loopback Search hrefs absent.
+- The same page, in one browser session, launched the ATTACK and RETEST recorded above. Visible text still had no loopback. Search and Academy links stayed on `<lab-host>`.
 
 No BLOCKER, HIGH, or MEDIUM finding remained after that rerun.
 

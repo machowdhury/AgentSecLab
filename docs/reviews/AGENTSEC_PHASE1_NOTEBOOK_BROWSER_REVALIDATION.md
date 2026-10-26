@@ -43,9 +43,9 @@ history is per-browser-session and the two states had to exist in one continuous
 session: ATTACK `29d8cfb5-01f2-4288-bc6c-b73cb7b841ba`, RETEST
 `c3efad7c-a0e2-4719-81a9-f738e7058f89`. These are labelled wherever used.
 
-Workshop URL: `http://3.17.29.24:8000/en-US/app/agentsec/ws_lab_mcp_001`
+Workshop URL: `http://<lab-host>:8000/en-US/app/agentsec/ws_lab_mcp_001`
 Notebook tab: `?tab=layout_investigate` (INVESTIGATE)
-Splunk Search URL: `http://3.17.29.24:8000/en-US/app/search/search`
+Splunk Search URL: `http://<lab-host>:8000/en-US/app/search/search`
 
 ## Executive Result
 
@@ -108,7 +108,7 @@ showing a query that does not reproduce the result is the wrong kind of wrong.
 
 ## Learner Journey
 
-Started at `http://3.17.29.24:5001/acmebank` with no prior state.
+Started at `http://<lab-host>:5001/acmebank` with no prior state.
 
 The read-only AcmeBank page renders correctly: WORLD 1 framing, profile
 `defended`, model `llama3.2:1b`, version 1.1.0, a DOCUMENTED evidence label, and
@@ -134,9 +134,9 @@ merely suggested.
 
 | | |
 |---|---|
-| Source page | `http://3.17.29.24:5001/labs/LAB-MCP-001` |
+| Source page | `http://<lab-host>:5001/labs/LAB-MCP-001` |
 | Control clicked | `#open-notebook-primary`, labelled **Investigate evidence**, in the NEXT INVESTIGATION section |
-| Destination URL | `http://3.17.29.24:8000/en-US/app/agentsec/ws_lab_mcp_001?form.run_id=163d11e2-…&tab=layout_mission` |
+| Destination URL | `http://<lab-host>:8000/en-US/app/agentsec/ws_lab_mcp_001?form.run_id=163d11e2-…&tab=layout_mission` |
 | Destination tab | **MISSION** |
 | Visible destination heading | "Where you are" / "What you are learning" / "What you do now" |
 
@@ -151,7 +151,7 @@ guided Investigation Notebook on the workshop's INVESTIGATE tab". It opens on
 MISSION. The learner must notice the tab strip and click INVESTIGATE themselves.
 MISSION does eventually point there, but only in a paragraph below the fold.
 
-Pre-run the link is already absolute and correct (`http://3.17.29.24:8000/…`,
+Pre-run the link is already absolute and correct (`http://<lab-host>:8000/…`,
 HTTP 303 to the login flow) — no `localhost`, no `127.0.0.1`, no relative path
 resolving against port 5001.
 
@@ -447,7 +447,7 @@ Splunk Search instead*, below the primary Investigate evidence button. The href
 resolves to the correct public host with a run-scoped query:
 
 ```
-http://3.17.29.24:8000/en-US/app/search/search?q=search index=agentsec_telemetry
+http://<lab-host>:8000/en-US/app/search/search?q=search index=agentsec_telemetry
 sourcetype=otel:agentic:json earliest=-1h "agentsec.run.id"="eed80a6c-…"
 ```
 

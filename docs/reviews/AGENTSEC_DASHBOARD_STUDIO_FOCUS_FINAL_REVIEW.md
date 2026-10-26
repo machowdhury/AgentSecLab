@@ -71,7 +71,7 @@ Unsupported DOM Injection Added: NO
 
 ## LIVE VALIDATION
 
-Studio View: `ws_lab_a2a_auth_delegation` on `http://3.17.29.24:8000`
+Studio View: `ws_lab_a2a_auth_delegation` on `http://<lab-host>:8000`
 
 Focused Element: `BUTTON` `role="tab"`, text `CLAIMS`
 

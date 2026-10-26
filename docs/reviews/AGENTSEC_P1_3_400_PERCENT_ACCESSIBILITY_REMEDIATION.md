@@ -41,9 +41,9 @@ Corrections to P1.2:
 
 ## 4. Network access status
 
-- At the start of P1.3, direct requests from the operator machine to ports 8000 and 5001 failed. The host was healthy over AWS SSM. The security group `sg-0af39dc78b9126eb1` allows 8000, 5001, 5000, 22 and all traffic (`-1`) only from `99.232.130.106/32` (8888 also from `151.186.182.87/32`) (MEASURED, read-only `describe-security-groups`). The operator's public IP at the time was `184.94.36.185` (MEASURED).
+- At the start of P1.3, direct requests from the operator machine to ports 8000 and 5001 failed. The host was healthy over AWS SSM. The security group `sg-0af39dc78b9126eb1` allows 8000, 5001, 5000, 22 and all traffic (`-1`) only from `<operator-ip>/32` (8888 also from `<operator-ip>/32`) (MEASURED, read-only `describe-security-groups`). The operator's public IP at the time was `<operator-ip>` (MEASURED).
 - Browser work was done through AWS SSM port forwarding (`AWS-StartPortForwardingSession`: local 18000 → 8000, 15001 → 5001). This needed no security-group, allowlist, auth or TLS change. The tunnels dropped several times. A local supervisor script restarted them, and the probes wait for the tunnel before logging in.
-- At the end of P1.3 the operator's public IP was `99.232.130.106` (MEASURED), and a direct request to `http://<host>:8000` returned 200 (MEASURED).
+- At the end of P1.3 the operator's public IP was `<operator-ip>` (MEASURED), and a direct request to `http://<host>:8000` returned 200 (MEASURED).
 - **Diagnosis: local (client egress address).** The operator's network egress changed during the session, not the host or the rule. No firewall or exposure change was made.
 
 ## 5. Disk capacity

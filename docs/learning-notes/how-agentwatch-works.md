@@ -2,7 +2,7 @@
 
 This note is for AgentSec Phase 0. It explains the predecessor lab in simple language first, then with enough technical detail to reuse the right ideas and reject the wrong ones.
 
-**Predecessor location:** `/Users/mahamudc/Documents/workspace/AgentwatchRange`  
+**Predecessor location:** `<predecessor-agentwatch-range>`  
 **Rule:** Read-only. Proven assets only. Do not copy blindly.  
 **Evidence:** OBSERVED from source in this pass. Live Splunk hunts and live attack success rates were **NOT MEASURED**. Packaging scripts were **not run**.
 

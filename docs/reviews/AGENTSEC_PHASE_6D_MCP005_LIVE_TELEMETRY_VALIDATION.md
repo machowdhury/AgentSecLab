@@ -5,7 +5,7 @@
 **Date:** 2026-10-09  
 **Repository:** `machowdhury/AgentSecLab`  
 **Branch:** `develop`  
-**Workspace (actual clone):** `/Users/mahamudc/Documents/workspace/AgentSecLab`
+**Workspace (actual clone):** `<repo>`
 
 This phase resolves conversation Phase 6C (invented SPL rejection). It is **not** a rewrite of the September 2026 repository Phase 6C/6D MCP-005 workshop delivery. Historical hunts remain on disk; this session did **not** re-execute them against live Splunk.
 

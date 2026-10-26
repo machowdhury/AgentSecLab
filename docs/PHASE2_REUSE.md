@@ -5,7 +5,7 @@ AgentWatch Range is READ-ONLY. Phase 2 borrowed shapes, not a fork.
 **Event/operation/dimension contract:** `SECURITY_EVENT_MODEL.md` (Phase 1B) is authoritative. This ledger records what was reused from AgentWatch; it is not the telemetry contract. `testbed.mode=LIVE` is not valid. `LIVE` is `execution.mode`.
 
 ## ORIGINAL FILE
-`/Users/mahamudc/Documents/AgenticProject/apps/agents/agent_router.py`
+`<predecessor-agentic-project>/apps/agents/agent_router.py`
 
 **WHAT WAS REUSED:** Four sequential in-process agents, system-prompt roles, string handoff of prior output into the next prompt.
 
@@ -16,7 +16,7 @@ AgentWatch Range is READ-ONLY. Phase 2 borrowed shapes, not a fork.
 ---
 
 ## ORIGINAL FILE
-`/Users/mahamudc/Documents/AgenticProject/apps/agents/llm_client.py`
+`<predecessor-agentic-project>/apps/agents/llm_client.py`
 
 **WHAT WAS REUSED:** HTTP `POST /api/generate` to Ollama, health check against `/api/tags`, optional OTLP log export idea.
 
@@ -27,7 +27,7 @@ AgentWatch Range is READ-ONLY. Phase 2 borrowed shapes, not a fork.
 ---
 
 ## ORIGINAL FILE
-`/Users/mahamudc/Documents/AgenticProject/apps/app_runtime.py`
+`<predecessor-agentic-project>/apps/app_runtime.py`
 
 **WHAT WAS REUSED:** Flask `/health`, `POST /process`, `/api/v1/agents`, in-memory recent-run lookup, localhost lab service on port 5000.
 
@@ -38,7 +38,7 @@ AgentWatch Range is READ-ONLY. Phase 2 borrowed shapes, not a fork.
 ---
 
 ## ORIGINAL FILE
-`/Users/mahamudc/Documents/AgenticProject/apps/exploit_ui.py`
+`<predecessor-agentic-project>/apps/exploit_ui.py`
 
 **WHAT WAS REUSED:** Separate Flask process that only HTTP-POSTs into the bank app (port 5001).
 
@@ -49,7 +49,7 @@ AgentWatch Range is READ-ONLY. Phase 2 borrowed shapes, not a fork.
 ---
 
 ## ORIGINAL FILE
-`/Users/mahamudc/Documents/AgenticProject/apps/framework/traffic_simulator.py`
+`<predecessor-agentic-project>/apps/framework/traffic_simulator.py`
 
 **WHAT WAS REUSED:** Benign Canadian-loan style strings. BASELINE as a testbed intent distinct from ATTACK.
 
@@ -60,7 +60,7 @@ AgentWatch Range is READ-ONLY. Phase 2 borrowed shapes, not a fork.
 ---
 
 ## ORIGINAL FILE
-`/Users/mahamudc/Documents/AgenticProject/config/otel-collector-config.yaml`
+`<predecessor-agentic-project>/config/otel-collector-config.yaml`
 
 **WHAT WAS REUSED:** OTLP receiver → batch → Splunk HEC + file archive. Sourcetype `otel:agentic:json`.
 
@@ -71,7 +71,7 @@ AgentWatch Range is READ-ONLY. Phase 2 borrowed shapes, not a fork.
 ---
 
 ## ORIGINAL FILE
-`/Users/mahamudc/Documents/AgenticProject/docker-compose.yml` and `docker-compose.local.yml`
+`<predecessor-agentic-project>/docker-compose.yml` and `docker-compose.local.yml`
 
 **WHAT WAS REUSED:** Five-service mesh (bank, attack, ollama, collector, Splunk), healthchecks, local profile, HEC init sidecar.
 
@@ -82,7 +82,7 @@ AgentWatch Range is READ-ONLY. Phase 2 borrowed shapes, not a fork.
 ---
 
 ## ORIGINAL FILE
-`/Users/mahamudc/Documents/AgenticProject/apps/Dockerfile.banking` and `Dockerfile.attack`
+`<predecessor-agentic-project>/apps/Dockerfile.banking` and `Dockerfile.attack`
 
 **WHAT WAS REUSED:** python:3.11-slim, curl, non-root `appuser`, one process per image.
 
@@ -93,7 +93,7 @@ AgentWatch Range is READ-ONLY. Phase 2 borrowed shapes, not a fork.
 ---
 
 ## ORIGINAL FILE
-`/Users/mahamudc/Documents/AgenticProject/scripts/ollama_init.sh`
+`<predecessor-agentic-project>/scripts/ollama_init.sh`
 
 **WHAT WAS REUSED:** Serve, wait, pull `OLLAMA_MODEL`.
 
@@ -104,7 +104,7 @@ AgentWatch Range is READ-ONLY. Phase 2 borrowed shapes, not a fork.
 ---
 
 ## ORIGINAL FILE
-`/Users/mahamudc/Documents/AgenticProject/scripts/splunk_hec_init.sh`
+`<predecessor-agentic-project>/scripts/splunk_hec_init.sh`
 
 **WHAT WAS REUSED:** Wait for mgmt API, enable HEC, disable SSL in-mesh, create index + token, HTTP ingest probe.
 
@@ -115,7 +115,7 @@ AgentWatch Range is READ-ONLY. Phase 2 borrowed shapes, not a fork.
 ---
 
 ## ORIGINAL FILE
-`/Users/mahamudc/Documents/AgenticProject/apps/requirements.txt`
+`<predecessor-agentic-project>/apps/requirements.txt`
 
 **WHAT WAS REUSED:** Flask, requests, OpenTelemetry SDK + OTLP HTTP exporter.
 

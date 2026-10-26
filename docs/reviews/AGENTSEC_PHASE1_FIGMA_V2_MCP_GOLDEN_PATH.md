@@ -12,7 +12,7 @@ Implementation report for the LAB-MCP-001 reference journey.
 | AgentSec version | 1.1.0 |
 | Runtime schema | 1.9.0 — unchanged |
 | ExternalEvidence contract | 1.0.0 — unchanged |
-| Deployed to | `i-03e570d023ce16d6f` (`agentic_lab_machine`, us-east-2, 3.17.29.24) |
+| Deployed to | `<instance-id>` (`agentic_lab_machine`, us-east-2, <lab-host>) |
 | Deployed SHA on host | `1ef50ba` |
 | Report date | 2026-10-05 |
 
@@ -278,7 +278,7 @@ with the description saying so, and redeployed.
 `docker-compose.yml` binds AcmeBank to `127.0.0.1:5000:5000` with no
 `AGENTSEC_BIND_ADDRESS`, unlike Splunk Web (8000) and the Attack Service (5001).
 Confirmed on the host: `agentsec_acmebank|127.0.0.1:5000->5000/tcp`, and
-`curl http://3.17.29.24:5000/` fails **even from the host itself**. (MEASURED)
+`curl http://<lab-host>:5000/` fails **even from the host itself**. (MEASURED)
 
 So the documented journey's first step — "learner enters AcmeBank" — could not
 be opened from a remote browser. `tests/security/test_remote_listener_bindings.py`
@@ -302,9 +302,9 @@ Live on the host after deploy (MEASURED):
 
 | Check | Result |
 | --- | --- |
-| `GET http://3.17.29.24:5001/acmebank` | HTTP 200, 5449 bytes |
-| `POST http://3.17.29.24:5001/acmebank` | HTTP 405 |
-| `GET http://3.17.29.24:5000/` | connection refused — still unexposed |
+| `GET http://<lab-host>:5001/acmebank` | HTTP 200, 5449 bytes |
+| `POST http://<lab-host>:5001/acmebank` | HTTP 405 |
+| `GET http://<lab-host>:5000/` | connection refused — still unexposed |
 | Rendered profile / model | `defended` / `llama3.2:1b` — probed, not asserted |
 | Loan form, `/process`, any `<script>` | absent |
 

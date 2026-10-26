@@ -1,7 +1,7 @@
 # MCP-003 predecessor analysis (AgentWatch Range)
 
 **Status:** Phase 4A **DESIGN**. No AgentSec MCP-003 runtime.  
-**Predecessor:** `/Users/mahamudc/Documents/workspace/AgentwatchRange` (READ-ONLY).  
+**Predecessor:** `<predecessor-agentwatch-range>` (READ-ONLY).  
 **Evidence class:** **OBSERVED** from source. Not a live AgentWatch experiment. Not MEASURED AgentSec MCP-003 behavior.  
 **Related:** `docs/MCP_PREDECESSOR_ANALYSIS.md` (Phase 3A MCP-001/002). This file is the **scope** slice only.
 

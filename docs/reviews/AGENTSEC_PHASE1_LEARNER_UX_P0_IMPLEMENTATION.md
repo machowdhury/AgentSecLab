@@ -18,7 +18,7 @@ names what was measured.
 
 ## Why deployment stopped
 
-- Stage 13 needs shell access to the EC2 host. `ssh ubuntu@3.17.29.24` returned
+- Stage 13 needs shell access to the EC2 host. `ssh <ssh-user>@<lab-host>` returned
   `Permission denied (publickey)` with the default identities, and again with the
   one other key file present in `~/.ssh`. I did not try other usernames, other
   keys, or other access routes: guessing credentials is not "establishing state".
@@ -192,7 +192,7 @@ No evidence, security-semantics or schema regression was found.
 
 ## Access and remote state
 
-- Access route: AWS SSM to the AgentSec instance (`i-03e570d023ce16d6f`, region `us-east-2`, hostname `agentlabs`), running as user `ubuntu` in `/home/ubuntu/AgentSecLab`. SSH key login still fails; SSM is the working route. No key contents were read or printed.
+- Access route: AWS SSM to the AgentSec instance (`<instance-id>`, region `us-east-2`, hostname `agentlabs`), running as user `ubuntu` in `/home/ubuntu/AgentSecLab`. SSH key login still fails; SSM is the working route. No key contents were read or printed.
 - Remote refs (MEASURED via `git ls-remote` before deploying): `origin/develop` = `db406fe361e7adc1a616c7326289ecce2b91d12d`, `origin/main` = `0178c70e20cfe0152648e2aafb8e607280625c40` (unchanged).
 - `git diff --stat a42d7bf db406fe`: only `docs/reviews/AGENTSEC_PHASE1_LEARNER_UX_P0_IMPLEMENTATION.md` and `docs/learning-notes/learner-ux-p0-journey.md`. No application change after `a42d7bf`.
 - **DEPLOYED REPO SHA:** `db406fe361e7adc1a616c7326289ecce2b91d12d` (host was at `b68d0dd`, fast-forwarded with `git pull --ff-only`).

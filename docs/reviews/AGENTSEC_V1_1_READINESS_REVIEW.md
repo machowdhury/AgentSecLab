@@ -30,13 +30,13 @@ DET-MCP-001: disabled (`disabled = 1`, `enableSched = 0`)
 
 REMOTE DEPLOYMENT
 
-Home -> Search: stayed on `3.17.29.24:8000` (login redirect). OBSERVED.
+Home -> Search: stayed on `<lab-host>:8000` (login redirect). OBSERVED.
 
 Home -> Attack Service: open-attack script uses the page hostname and has no loopback. Fetched after the final deploy.
 
-Attack Service -> Search: `3.17.29.24:8000`. OBSERVED.
+Attack Service -> Search: `<lab-host>:8000`. OBSERVED.
 
-Attack Service -> Academy: `3.17.29.24:8000`. OBSERVED.
+Attack Service -> Academy: `<lab-host>:8000`. OBSERVED.
 
 Learner-facing loopback defects: 0
 

@@ -189,7 +189,7 @@ initially had no explicit evidence boundary. The boundary was added to the cell.
 
 ## 7. Deployment
 
-Host `3.17.29.24`, instance `i-03e570d023ce16d6f`, region `us-east-2`.
+Host `<lab-host>`, instance `<instance-id>`, region `us-east-2`.
 
 | Check | Result | Class |
 |---|---|---|

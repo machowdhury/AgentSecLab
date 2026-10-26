@@ -1,7 +1,7 @@
 # MCP-005 predecessor analysis (AgentWatch Range)
 
 **Status:** Phase 6A **DESIGN**. No AgentSec MCP-005 runtime.  
-**Predecessor:** `/Users/mahamudc/Documents/workspace/AgentwatchRange` (READ-ONLY).  
+**Predecessor:** `<predecessor-agentwatch-range>` (READ-ONLY).  
 **Evidence class:** **OBSERVED** from source. Not a live AgentWatch experiment. Not MEASURED AgentSec MCP-005 behavior.  
 **Related:** `docs/MCP_PREDECESSOR_ANALYSIS.md` (MCP-001/002), `docs/MCP003_PREDECESSOR_ANALYSIS.md` (scope), `docs/MCP004_PREDECESSOR_ANALYSIS.md` (resource). This file is the **tool-result / data-cannot-grant-authority** slice only.
 

@@ -1,7 +1,7 @@
 # AgentWatch Range — Migration Inventory
 
 **Phase:** AgentSec Phase 0 (archaeology only)  
-**Predecessor (read-only):** `/Users/mahamudc/Documents/workspace/AgentwatchRange`  
+**Predecessor (read-only):** `<predecessor-agentwatch-range>`  
 **This pass:** source inspection of the AgentWatch Range tree. No AgentWatch files were modified. No AgentSec application code, SPL, or dashboards were created. No dependencies were installed. Live attacks, live Splunk queries, and packaging scripts were **not executed**.
 
 **Status of this document:** IMPLEMENTED (documentation of a predecessor). Nothing below is an AgentSec implementation claim.
