@@ -1,6 +1,11 @@
 # AgentSecLab v1.2.0 release notes (DRAFT: not tagged, not published)
 
-**Academy, EVAL, Risk and Governance Centers.** A browser-based Academy for learning how AI agents fail and how to investigate, evaluate and govern them, served at `/learn`. Delivered from `feature/academy-react-shell`; `pyproject.toml` still says 1.1.0 and no tag exists.
+**Academy, EVAL, Risk and Governance Centers.** A browser-based Academy for learning how AI agents fail and how to investigate, evaluate and govern them, served at `/learn`. Delivered from `feature/academy-react-shell`. Package metadata (`pyproject.toml`, `agentsec.__version__`, the Splunk app and its dashboard build panel) still says 1.1.0: a coordinated version bump touches the Splunk app and dashboards and is not part of this release candidate. No tag exists yet.
+
+## Deployed build and traceability
+- The validated, deployed build was commit `4d3c110` before a metadata-only history rewrite (a contributor email was replaced). After the rewrite the same tree is commit `6e311b227a48`. Every commit SHA changed; source trees are identical.
+- The deployed build's health payload reports version 1.1.0, because the package version was not bumped.
+- Instance acceptance, a 55-check browser smoke test and a 23-check learner-journey test ran against the deployed build; none ran against the version-bump commit.
 
 ## The six-stage learning journey
 A **Workshop path** bar on lab, mission and Center pages links six steps:
