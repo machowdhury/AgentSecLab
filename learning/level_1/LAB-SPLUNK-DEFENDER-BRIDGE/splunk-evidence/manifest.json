@@ -1,0 +1,172 @@
+{
+  "schema": "agentsec.splunk_evidence_bundle.v1",
+  "lab_id": "LAB-SPLUNK-DEFENDER-BRIDGE",
+  "bundle_id": "splunk-evidence-11f-LAB-SPLUNK-DEFENDER-BRIDGE",
+  "classification": "CURRENT SPLUNK OBSERVATION, RECORDED — NOT RE-RUN, NOT_VERIFIED",
+  "collected_at": "2026-10-26T14:15:57Z",
+  "splunk": {
+    "build": "bcdcf0552e0c",
+    "version": "10.2.6"
+  },
+  "collection_file": "docs/splunk-evidence-11f/collection.json",
+  "collection_sha256": "aa911bec0869be1c7e5085d19ce19f786bf8b5c5a9e5e764092727b7c79a4550",
+  "files": {
+    "searches.json": "24741ab74c9770527fe75856405b62f06bf0d3e00a2b69928966efb1be5034bf",
+    "pack-matching.json": "eb77e584fa58f2a213a05f609501ca2a4323b72be72b92935f0390ab2c4ee903"
+  },
+  "searches": [
+    {
+      "id": "Q-BRIDGE-DISCOVER",
+      "spl_file": "learning/level_1/LAB-SPLUNK-DEFENDER-BRIDGE/searches/Q-BRIDGE-DISCOVER.spl",
+      "spl_sha256": "a1da67b987f5239234f83eb302e4e411d5571a351daacb78af797cfbd0f7ee5e",
+      "result_count": 25,
+      "sid": "1793024157.978",
+      "attribution_kind": "unattributed_sample"
+    },
+    {
+      "id": "Q-BRIDGE-FIELDS",
+      "spl_file": "learning/level_1/LAB-SPLUNK-DEFENDER-BRIDGE/searches/Q-BRIDGE-FIELDS.spl",
+      "spl_sha256": "d40e3a24ca1b5b33ae1dd72036452137bbead726b97edb4b7b529dedd74fab3b",
+      "result_count": 9,
+      "sid": "1793024157.979",
+      "attribution_kind": "aggregate"
+    },
+    {
+      "id": "Q-BRIDGE-NARROW",
+      "spl_file": "learning/level_1/LAB-SPLUNK-DEFENDER-BRIDGE/searches/Q-BRIDGE-NARROW.spl",
+      "spl_sha256": "57d944c16e6add428cf35c25326a4b73107015c61d107b26df61f8aaaf9b54d7",
+      "result_count": 14,
+      "sid": "1793024158.980",
+      "attribution_kind": "per_run"
+    },
+    {
+      "id": "Q-BRIDGE-SEQUENCE",
+      "spl_file": "learning/level_1/LAB-SPLUNK-DEFENDER-BRIDGE/searches/Q-BRIDGE-SEQUENCE.spl",
+      "spl_sha256": "f38ad2d895d89ca157bd47351b186c4c854a9d113adfd7455374095b08fc3a0f",
+      "result_count": 29,
+      "sid": "1793024159.981",
+      "attribution_kind": "per_run"
+    },
+    {
+      "id": "Q-BRIDGE-COMPARE",
+      "spl_file": "learning/level_1/LAB-SPLUNK-DEFENDER-BRIDGE/searches/Q-BRIDGE-COMPARE.spl",
+      "spl_sha256": "e15549067a72aff253f2273cc13351eda37e57b46cc104ca2cd9835b5ba29a07",
+      "result_count": 5,
+      "sid": "1793024159.982",
+      "attribution_kind": "aggregate"
+    },
+    {
+      "id": "Q-BRIDGE-COMPARE-EXECUTION",
+      "spl_file": "learning/level_1/LAB-SPLUNK-DEFENDER-BRIDGE/searches/Q-BRIDGE-COMPARE-EXECUTION.spl",
+      "spl_sha256": "4a6a1e9621ebb60dc44b99211156d2f99e53c645a71abc4d39e7777ccdc17290",
+      "result_count": 13,
+      "sid": "1793024160.983",
+      "attribution_kind": "aggregate"
+    },
+    {
+      "id": "Q-BRIDGE-STATS",
+      "spl_file": "learning/level_1/LAB-SPLUNK-DEFENDER-BRIDGE/searches/Q-BRIDGE-STATS.spl",
+      "spl_sha256": "e15549067a72aff253f2273cc13351eda37e57b46cc104ca2cd9835b5ba29a07",
+      "result_count": 5,
+      "sid": "1793024160.984",
+      "attribution_kind": "aggregate"
+    },
+    {
+      "id": "Q-BRIDGE-DUPLICATES",
+      "spl_file": "learning/level_1/LAB-SPLUNK-DEFENDER-BRIDGE/searches/Q-BRIDGE-DUPLICATES.spl",
+      "spl_sha256": "c33784f416b4857bd16c96143d0974b717a94c24d9f21b173c78bbb199a5a9e1",
+      "result_count": 1,
+      "sid": "1793024161.985",
+      "attribution_kind": "aggregate"
+    },
+    {
+      "id": "Q-BRIDGE-DUPLICATES-BY-MODE",
+      "spl_file": "learning/level_1/LAB-SPLUNK-DEFENDER-BRIDGE/searches/Q-BRIDGE-DUPLICATES-BY-MODE.spl",
+      "spl_sha256": "e7d13e689dcb670eed1f9d6f2e3035d53d94d217417afc89cfed6bbc7ff0c239",
+      "result_count": 3,
+      "sid": "1793024162.986",
+      "attribution_kind": "aggregate"
+    },
+    {
+      "id": "Q-BRIDGE-EXTERNAL",
+      "spl_file": "learning/level_1/LAB-SPLUNK-DEFENDER-BRIDGE/searches/Q-BRIDGE-EXTERNAL.spl",
+      "spl_sha256": "a41f962fa7e41e59bbc0c2ba0c296d9f74a4ce27c62e3fb0a3196171b60ed24a",
+      "result_count": 2,
+      "sid": "1793024162.987",
+      "attribution_kind": "aggregate"
+    }
+  ],
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "receipt": null,
+    "mechanism_considered": "scripts/loan_desk_verifier.py, the host-side verifier that is already running on the instance",
+    "why_no_receipt": "That verifier only reconciles Loan Desk runs: it acts on request files for runs whose events AcmeBank holds. It had receipts for 13 Loan Desk runs in the index. None of the runs this bundle depends on is among them, and asking it to verify another run would need new request files for it, which this collection did not create. No verifier was created, modified or run.",
+    "runs_in_this_bundle_with_a_valid_receipt": 0,
+    "receipt_check": {
+      "receipt_files_on_the_host": [
+        "0a11f6ce-1150-4f7e-b8d3-4b5ed6f1c543",
+        "1eba745c-cf31-4824-9e5f-f8ceb46cb8b5",
+        "4861b943-4c32-4bc2-a799-e07aea80139e",
+        "6851c1cf-2462-4625-8883-f1e04984bb84",
+        "6d681a89-2268-4b2c-97a0-87edc692822c",
+        "716cbb1e-e2a2-49e0-945f-46aef07ed63d",
+        "92308615-27c7-466c-913a-0dda59609d89",
+        "9db35fe9-9a71-415c-9f36-117205dc1a69",
+        "ab5cac19-bbdb-4d9d-8ebf-ab7f5a52977c",
+        "bf4c29e0-01c6-4725-964c-4543114764d6",
+        "d1facb68-a06f-45d0-afc8-df90a04ab1d1",
+        "d602a1dd-31a9-4e91-8f38-6fed9d43b8bf",
+        "e41faeba-2086-46c1-978a-7f8c7c228086",
+        "fa4ba231-ed2e-45b7-abe0-cd77bc452ad0",
+        "fed880df-5505-42e8-8c40-46954013513b"
+      ],
+      "receipt_run_ids_that_are_indexed_runs": [
+        "1eba745c-cf31-4824-9e5f-f8ceb46cb8b5",
+        "4861b943-4c32-4bc2-a799-e07aea80139e",
+        "6851c1cf-2462-4625-8883-f1e04984bb84",
+        "6d681a89-2268-4b2c-97a0-87edc692822c",
+        "716cbb1e-e2a2-49e0-945f-46aef07ed63d",
+        "92308615-27c7-466c-913a-0dda59609d89",
+        "9db35fe9-9a71-415c-9f36-117205dc1a69",
+        "bf4c29e0-01c6-4725-964c-4543114764d6",
+        "d1facb68-a06f-45d0-afc8-df90a04ab1d1",
+        "d602a1dd-31a9-4e91-8f38-6fed9d43b8bf",
+        "e41faeba-2086-46c1-978a-7f8c7c228086",
+        "fa4ba231-ed2e-45b7-abe0-cd77bc452ad0",
+        "fed880df-5505-42e8-8c40-46954013513b"
+      ],
+      "receipt_run_ids_that_are_in_this_bundle": "none: see the runs listed in pack-matching.json",
+      "checked": "file names only, read-only; receipt authenticity was not audited because none applies to a run in this bundle"
+    }
+  },
+  "limitations": [
+    "The rows are what the live index returned at one moment (collected_at). The index is mutable and was not frozen; running the same searches later can return different rows.",
+    "The index holds 104 runs. 51 of them have no committed specimen pack, so aggregate results that include them cannot be reproduced from committed evidence.",
+    "Aggregate searches count events or runs across the whole index and do not expose which runs they counted. They are marked as aggregates and are not attributed to individual runs.",
+    "The searches were submitted through the Splunk REST API with the 'search ' command prefix that the CLI adds; the SPL text is otherwise unchanged. job.published is null in the API response, so the execution time is the submitted_at time on the instance clock.",
+    "Each SPL sets earliest=0. The job's earliest_time is the earliest event time it scanned and latest_time was not reported; they are recorded as returned.",
+    "No verifier receipt exists for any run in this bundle, so nothing here is marked verified."
+  ],
+  "claims_not_made": [
+    "SPLUNK-VERIFIED",
+    "that these rows are a complete or current view of any run",
+    "that the lab's detection or search is correct",
+    "that any run is safe, blocked or compromised",
+    "production behaviour"
+  ],
+  "documented_statements": [
+    {
+      "file": "docs/SPLUNK_DEFENDER_BRIDGE.md",
+      "text": "Empty results mean NO EVIDENCE FOUND for that search and time range."
+    },
+    {
+      "file": "docs/SPLUNK_DEFENDER_BRIDGE.md",
+      "text": "Indexed row count is not an execution count."
+    },
+    {
+      "file": "docs/SPLUNK_DEFENDER_BRIDGE.md",
+      "text": "Classification: REPLAY / static."
+    }
+  ],
+  "attribution_summary": "Q-BRIDGE-NARROW and Q-BRIDGE-SEQUENCE expose run ids; the other eight searches are aggregates or a sample."
+}

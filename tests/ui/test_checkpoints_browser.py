@@ -163,11 +163,7 @@ def test_asset_inventory_questions_are_computed_from_the_documented_list(page, r
         assert all(w in text for w in INVENTORY_ANSWERS[q["id"]])
 
 
-def test_blocked_labs_and_neighbouring_experiences_are_unchanged(page, root):
-    for lab in ("LAB-SPLUNK-DEFENDER-BRIDGE", "LAB-DETECTION-ENGINEERING", "LAB-AGENT-IDENTITY-NHI"):
-        page.goto(root + lab)
-        assert page.get_by_role("tab", name=re.compile("Practice")).count() == 0 or page.get_by_test_id("checkpoint-workbench").count() == 0
-        assert page.get_by_test_id("checkpoint-workbench").count() == 0 and page.get_by_test_id("investigation-workbench").count() == 0
+def test_neighbouring_experiences_are_unchanged(page, root):
     page.goto(root + "LAB-MCP-004"); tab(page, "Practice")
     assert page.get_by_test_id("recorded-workbench").count() == 1
     page.goto(root + "LAB-BLUE-TEAM-INCIDENT-001"); tab(page, "Practice")

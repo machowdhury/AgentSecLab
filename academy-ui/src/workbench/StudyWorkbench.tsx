@@ -8,7 +8,7 @@ type Spec = Study & Checkpoint["spec"];
 const src = (f: string) => f.split("/").pop();
 const sameSet = (a: string[], b: string[]) => a.length === b.length && a.every((x) => b.includes(x));
 
-function Question({ q, picked, onPick, shown, onCheck }: { q: StudyQuestion; picked: string[]; onPick: (v: string[]) => void; shown: boolean; onCheck: () => void }) {
+export function Question({ q, picked, onPick, shown, onCheck }: { q: StudyQuestion; picked: string[]; onPick: (v: string[]) => void; shown: boolean; onCheck: () => void }) {
   const toggle = (o: string, on: boolean) => onPick(q.mode === "single" ? [o] : on ? [...picked, o] : picked.filter((x) => x !== o));
   return <li className="rec-q"><fieldset disabled={shown}><legend>{q.prompt}</legend>
     <div className="rec-options">{q.candidates.map((o) => <label key={o}><input type={q.mode === "single" ? "radio" : "checkbox"} name={q.id} value={o} checked={picked.includes(o)} onChange={(e) => toggle(o, e.target.checked)} /> {o}</label>)}</div></fieldset>

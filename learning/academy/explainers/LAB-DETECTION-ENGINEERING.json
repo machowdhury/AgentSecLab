@@ -1,0 +1,379 @@
+{
+  "lab_id": "LAB-DETECTION-ENGINEERING",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-26",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. Every option and answer in Practice and Prove is computed from the committed 11F Splunk evidence files, which are shown with their SHA-256."
+  },
+  "summary": {
+    "text": "Not every suspicious behavior should become an alert. This checkpoint replays three recorded searches, event counts, a broad rule and a tuned rule, and asks what each one shows, and what a zero-row result does and does not mean.",
+    "grounds": [
+      "docs/AGENTSEC_DETECTION_ENGINEERING_CURRICULUM.md"
+    ],
+    "facts": [
+      "Not every suspicious behavior should become an alert."
+    ]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "Count the events, write a rule, then tighten it until it names a repeatable condition.",
+      "grounds": [
+        "docs/AGENTSEC_DETECTION_ENGINEERING_CURRICULUM.md"
+      ],
+      "facts": [
+        "Is there a repeatable, high-precision condition?"
+      ]
+    },
+    {
+      "id": "controls",
+      "label": "The threat",
+      "text": "A broad rule that fires on activity that is not a violation, or a silent rule trusted as proof.",
+      "grounds": [
+        "docs/AGENTSEC_DETECTION_ENGINEERING_CURRICULUM.md"
+      ],
+      "facts": [
+        "Not every DENY is an alert."
+      ]
+    },
+    {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between observing a decision and alerting on it. A lab signal is not a production alert.",
+      "grounds": [
+        "docs/AGENTSEC_DETECTION_ENGINEERING_CURRICULUM.md"
+      ],
+      "facts": [
+        "Overlay fail-open is a lab signal, not a production notable."
+      ]
+    },
+    {
+      "id": "rule",
+      "label": "The security control",
+      "text": "Detections observe; the control decides. A silent detector is not a verdict.",
+      "grounds": [
+        "docs/AGENTSEC_DETECTION_ENGINEERING_CURRICULUM.md"
+      ],
+      "facts": [
+        "DET-MCP-001 0 rows ≠ SAFE."
+      ]
+    },
+    {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "A zero-row search means the invariant was not violated in the indexed evidence for that search, and nothing more.",
+      "grounds": [
+        "docs/AGENTSEC_DETECTION_CLAIM_AUDIT.md"
+      ],
+      "facts": [
+        "0 rows may mean: the DENY-then-start invariant was not violated by indexed evidence for that run.id and tool."
+      ]
+    }
+  ],
+  "known": [
+    {
+      "text": "The lab's own audit says not every attack deserves a detector.",
+      "grounds": [
+        "docs/AGENTSEC_DETECTION_ENGINEERING_CURRICULUM.md"
+      ],
+      "facts": [
+        "Not every attack deserves a detector."
+      ]
+    }
+  ],
+  "cannot_claim_lines": {
+    "source": "docs/AGENTSEC_DETECTION_CLAIM_AUDIT.md",
+    "lines": [
+      "0 rows must not automatically mean: SAFE, ATTACK BLOCKED, NO EXECUTION, NO COMPROMISE, CONTROL EFFECTIVE."
+    ]
+  },
+  "checkpoint": {
+    "kind": "splunk",
+    "label": "RECORDED SPLUNK OBSERVATION — NOT RE-RUN",
+    "verification": "This is a recorded observation: rows the lab's own shipped searches returned from the lab's Splunk index when they were collected. Nothing is searched from this page. No receipt from the host verifier applies to any run shown, so the evidence is NOT_VERIFIED, and nothing here claims it is Splunk-verified. This page does not claim a detection is validated.",
+    "sources": {
+      "manifest": "learning/level_1/LAB-DETECTION-ENGINEERING/splunk-evidence/manifest.json",
+      "searches": "learning/level_1/LAB-DETECTION-ENGINEERING/splunk-evidence/searches.json",
+      "matching": "learning/level_1/LAB-DETECTION-ENGINEERING/splunk-evidence/pack-matching.json"
+    },
+    "stages": [
+      {
+        "search": "Q-DET-EVENTS",
+        "title": "1. What events exist?",
+        "goal": "Before writing a rule, count what the index holds by mode.",
+        "questions": [
+          {
+            "id": "d1",
+            "prompt": "Which event names will ATTACK show?",
+            "mode": "multi",
+            "candidates": {
+              "literal": [
+                "agentsec.control.decision",
+                "agentsec.mcp.started",
+                "agentsec.mcp.completed",
+                "agentsec.mcp.failed"
+              ]
+            },
+            "answer": {
+              "rows": "Q-DET-EVENTS",
+              "pick": "event_name",
+              "where": {
+                "field": "mode",
+                "equals": "ATTACK"
+              }
+            },
+            "how": "event_name where mode is ATTACK"
+          },
+          {
+            "id": "d2",
+            "prompt": "In which mode does agentsec.mcp.failed appear?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "ATTACK",
+                "BASELINE",
+                "RETEST"
+              ]
+            },
+            "answer": {
+              "rows": "Q-DET-EVENTS",
+              "pick": "mode",
+              "where": {
+                "field": "event_name",
+                "equals": "agentsec.mcp.failed"
+              }
+            },
+            "how": "mode where the event is agentsec.mcp.failed"
+          }
+        ]
+      },
+      {
+        "search": "Q-DET-BROAD",
+        "title": "2. A broad rule",
+        "goal": "Flag any run where a CTRL-MCP-001 deny is followed by any tool starting.",
+        "questions": [
+          {
+            "id": "d3",
+            "prompt": "How many runs will the broad rule flag?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "none",
+                "1",
+                "2–5",
+                "6–10",
+                "more than 10"
+              ]
+            },
+            "answer": {
+              "bucket": {
+                "n": {
+                  "rows": "Q-DET-BROAD",
+                  "pick": "run_id"
+                }
+              }
+            },
+            "how": "distinct run ids in the recorded rows"
+          },
+          {
+            "id": "d4",
+            "prompt": "In the flagged runs, is the denied tool the same tool that started?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "yes",
+                "no"
+              ]
+            },
+            "answer": {
+              "cols_equal": {
+                "rows": "Q-DET-BROAD",
+                "a": "deny_tools",
+                "b": "start_tools"
+              }
+            },
+            "quote": {
+              "file": "docs/AGENTSEC_DETECTION_CLAIM_AUDIT.md",
+              "text": "Same run.id + gen_ai.tool.name: CTRL-MCP-001 DENY then later event.name=agentsec.mcp.started with sequence > deny_sequence"
+            },
+            "how": "deny_tools and start_tools in the recorded rows"
+          }
+        ]
+      },
+      {
+        "search": "Q-DET-TUNED",
+        "title": "3. A tuned rule",
+        "goal": "Require the same run and the same tool, with the start after the deny.",
+        "questions": [
+          {
+            "id": "d5",
+            "prompt": "How many rows will the tuned rule return?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "none",
+                "1",
+                "2–5",
+                "6–10",
+                "more than 10"
+              ]
+            },
+            "answer": {
+              "bucket": {
+                "n": {
+                  "rows": "Q-DET-TUNED"
+                }
+              }
+            },
+            "how": "the recorded row count"
+          },
+          {
+            "id": "d6",
+            "prompt": "Does a zero-row result show that the detection is correct?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "yes",
+                "no"
+              ]
+            },
+            "answer": {
+              "quote_token": {
+                "file": "docs/AGENTSEC_DETECTION_CLAIM_AUDIT.md",
+                "text": "0 rows must not automatically mean: SAFE, ATTACK BLOCKED, NO EXECUTION, NO COMPROMISE, CONTROL EFFECTIVE.",
+                "token": "must not",
+                "answer": "no"
+              }
+            },
+            "quote": {
+              "file": "docs/AGENTSEC_DETECTION_CLAIM_AUDIT.md",
+              "text": "0 rows must not automatically mean: SAFE, ATTACK BLOCKED, NO EXECUTION, NO COMPROMISE, CONTROL EFFECTIVE."
+            },
+            "how": "the lab's claim audit"
+          }
+        ]
+      }
+    ],
+    "comparisons": [
+      {
+        "title": "Broad rule, then tuned rule",
+        "note": "Both rules look at the same events. Compare what each returned.",
+        "left": {
+          "label": "Broad",
+          "search": "Q-DET-BROAD"
+        },
+        "right": {
+          "label": "Tuned",
+          "search": "Q-DET-TUNED"
+        }
+      }
+    ],
+    "provenance": {
+      "title": "Which runs can you trace to committed packs?",
+      "intro": "The two runs the broad rule flagged can be checked against committed packs. The events-by-mode counts cover a whole index.",
+      "questions": [
+        {
+          "id": "v1",
+          "prompt": "How many of the runs the broad rule flagged have a committed specimen pack?",
+          "mode": "single",
+          "candidates": {
+            "literal": [
+              "0",
+              "1",
+              "2"
+            ]
+          },
+          "answer": {
+            "n": {
+              "items": "matching.runs[]",
+              "where": {
+                "field": "committed_pack",
+                "not_equals": "null"
+              },
+              "pick": "run_id"
+            }
+          },
+          "how": "pack-matching.json runs with a committed pack"
+        },
+        {
+          "id": "v2",
+          "prompt": "Are the events-by-mode counts limited to runs with committed packs?",
+          "mode": "single",
+          "candidates": {
+            "literal": [
+              "yes",
+              "no"
+            ]
+          },
+          "answer": {
+            "quote_token": {
+              "file": "learning/level_1/LAB-DETECTION-ENGINEERING/splunk-evidence/manifest.json",
+              "text": "do not expose which runs they counted",
+              "token": "do not expose",
+              "answer": "no"
+            }
+          },
+          "quote": {
+            "file": "learning/level_1/LAB-DETECTION-ENGINEERING/splunk-evidence/manifest.json",
+            "text": "Aggregate searches count events or runs across the whole index and do not expose which runs they counted."
+          },
+          "how": "the manifest's own limitation"
+        }
+      ]
+    },
+    "conclusion": {
+      "title": "Conclusion exercise",
+      "intro": "Choose every conclusion the recorded evidence supports.",
+      "questions": [
+        {
+          "id": "z1",
+          "prompt": "Which conclusions does the recorded evidence support?",
+          "mode": "multi",
+          "candidates": {
+            "literal": [
+              "Q-DET-TUNED returned zero rows.",
+              "Q-DET-TUNED returning zero rows validates the detection.",
+              "Q-DET-BROAD returned runs that Q-DET-TUNED did not.",
+              "In both Q-DET-BROAD rows the denied tool differs from the tool that started.",
+              "The events-by-mode counts are limited to runs with committed packs."
+            ]
+          },
+          "answer": {
+            "literal": [
+              "Q-DET-TUNED returned zero rows.",
+              "Q-DET-BROAD returned runs that Q-DET-TUNED did not.",
+              "In both Q-DET-BROAD rows the denied tool differs from the tool that started."
+            ]
+          },
+          "quote": {
+            "file": "docs/AGENTSEC_DETECTION_CLAIM_AUDIT.md",
+            "text": "0 rows must not automatically mean: SAFE, ATTACK BLOCKED, NO EXECUTION, NO COMPROMISE, CONTROL EFFECTIVE."
+          },
+          "how": "the recorded rows and the lab's claim audit"
+        }
+      ]
+    },
+    "documented": [
+      {
+        "file": "docs/AGENTSEC_DETECTION_CLAIM_AUDIT.md",
+        "text": "On validated LIVE/REPLAY BASELINE / ATTACK / RETEST the expected result is 0 / 0 / 0."
+      },
+      {
+        "file": "docs/AGENTSEC_DETECTION_CLAIM_AUDIT.md",
+        "text": "0 rows must not automatically mean: SAFE, ATTACK BLOCKED, NO EXECUTION, NO COMPROMISE, CONTROL EFFECTIVE."
+      }
+    ],
+    "limits": [
+      {
+        "file": "docs/AGENTSEC_DETECTION_CLAIM_AUDIT.md",
+        "text": "0 rows must not automatically mean: SAFE, ATTACK BLOCKED, NO EXECUTION, NO COMPROMISE, CONTROL EFFECTIVE."
+      },
+      {
+        "file": "docs/AGENTSEC_DETECTION_ENGINEERING_CURRICULUM.md",
+        "text": "Not every attack deserves a detector."
+      }
+    ],
+    "spl": []
+  }
+}

@@ -168,11 +168,7 @@ def test_prove_shows_provenance_verification_status_limits_and_the_labs_searches
         assert box.is_checked()
 
 
-def test_blocked_labs_keep_the_generic_page_and_the_other_labs_still_load(page, root):
-    for lab in ("LAB-SPLUNK-DEFENDER-BRIDGE", "LAB-DETECTION-ENGINEERING"):
-        page.goto(root + lab)
-        assert page.get_by_role("tab", name=re.compile("Practice")).count() == 0, "these labs have no recorded evidence of their own, so there is no Practice step"
-        assert page.get_by_test_id("recorded-workbench").count() == 0 and page.get_by_test_id("investigation-workbench").count() == 0
+def test_the_other_labs_still_load(page, root):
     for lab in ("LAB-MCP-003", "LAB-PI-001", "LAB-MEMORY-001"):
         assert page.goto(root + lab).status == 200
     page.goto(root + "LAB-MCP-004"); tab(page, "Practice")

@@ -1,0 +1,519 @@
+{
+  "schema": "agentsec.splunk_pack_matching.v1",
+  "lab_id": "LAB-AGENT-IDENTITY-NHI",
+  "collection_sha256": "aa911bec0869be1c7e5085d19ce19f786bf8b5c5a9e5e764092727b7c79a4550",
+  "comparison": "sha256 of each indexed event's _raw text against sha256 of each line of the committed specimen pack, byte for byte; canonical-JSON equality is also recorded",
+  "index_wide": {
+    "otel_runs_in_index": 104,
+    "otel_events_in_index": 1430,
+    "runs_with_committed_pack": 53,
+    "runs_without_committed_pack": 51,
+    "runs_without_committed_pack_by_mode": {
+      "RETEST": 10,
+      "BASELINE": 30,
+      "ATTACK": 11
+    },
+    "all_runs_with_a_pack_match_it_exactly": true,
+    "committed_pack_ids_that_are_not_otel_runs": [
+      "7ae3ea64-4e7a-40fe-943f-3e582bce5ee8",
+      "aeb05718-1364-4143-8248-71dd6f27b07b",
+      "b3061c4e-7a81-445c-8fd8-3108dd14c419"
+    ],
+    "committed_pack_ids_note": "these are two scanner scan ids and one garak evaluation id; they appear in the index as external events (see external_events), not as otel runs",
+    "statement": "Not all indexed runs are independently reproducible: runs without a committed pack can only be shown as Splunk observations. The full per-run list is in docs/splunk-evidence-11f/collection.json (index_inventory.runs)."
+  },
+  "runs": [
+    {
+      "run_id": "271695f5-4739-44f2-8bf4-0749d04f4b03",
+      "mode": [
+        "RETEST"
+      ],
+      "workflow_entry": [
+        "/identity/delegate"
+      ],
+      "indexed_rows": 9,
+      "distinct_raw": 9,
+      "first_indexed_time": "2026-09-18T21:53:23.000+00:00",
+      "committed_pack": {
+        "pack_events": 9,
+        "path": "learning/level_1/LAB-AGENT-DELEGATION-001/specimens/271695f5-4739-44f2-8bf4-0749d04f4b03.jsonl",
+        "sha256": "5807d08a4e7b9acd2bf52b8170f59e6eb6aa5d52f5e139c37ad1f84a102c9ecc"
+      },
+      "other_committed_copies": [],
+      "match": {
+        "canonical_json": 9,
+        "different_content_count": 0,
+        "exact_raw_bytes": 9,
+        "pack_events": 9,
+        "pack_lines_not_in_splunk_exactly": 0,
+        "pack_seq_event_not_found_in_splunk": [],
+        "same_sequence_and_event_but_different_content": [],
+        "splunk_distinct_not_matching_any_pack_line_exactly": 0,
+        "splunk_distinct_raw": 9
+      },
+      "event_hashes": [
+        {
+          "canon_sha256": "b639964d765484a95ddc67d586580c304883c02abe8da2f47deeb09fd5d5a0b0",
+          "event": "agentsec.run.started",
+          "raw_sha256": "87fd9aabe2aeab430c11bc8c48b1e539465805d1b2a85ef8755bdec30e6764c9",
+          "seq": 1
+        },
+        {
+          "canon_sha256": "2d41b76cd3ef0417a5902045a0238cd99300d26dc209e6eb740f12d92002165d",
+          "event": "agentsec.hop.started",
+          "raw_sha256": "63c093942ac0bd707c59f738c327519a66611e17e837451592fe1a02c1c7e9f6",
+          "seq": 2
+        },
+        {
+          "canon_sha256": "dc8acaf73c74f5f12434706d6645395aa307944f79bb93efa15c32c692c3483a",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "9b07ed6b6eb77af66bc960bd2414d4e971f48b8cc1fc8b28e92f6e5c182dabe6",
+          "seq": 3
+        },
+        {
+          "canon_sha256": "b8fb7823c5520ca7d5030aa4921a352f39b1b3699545e8d6063e2f11cd9d894b",
+          "event": "agentsec.hop.completed",
+          "raw_sha256": "f737c6ddd43901e738d37d89c545507ec817d6a474d5ab779f7cc55a0e1400f4",
+          "seq": 4
+        },
+        {
+          "canon_sha256": "56dfcbf44351d7ff4ece3aacf2fcac370d9f098b5c65ca2a310b233d1a07fe1f",
+          "event": "agentsec.hop.started",
+          "raw_sha256": "d046245fd6b29f35d86161eab6bfc655fa76f463aa7308b4dc9938372d245b42",
+          "seq": 5
+        },
+        {
+          "canon_sha256": "b5c3efd6b5c4fd1eb43bf5a3a35ebf6e1b0d70800cb6332bd8f14f1ba7e072e0",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "6c6bf8722a4bbc2142f05c8af8e87f0acb1eab31325df0c1db62ec8014d8d603",
+          "seq": 6
+        },
+        {
+          "canon_sha256": "f83d9d6322dee191c6e50ef1e08d8c9ae7a12504b126e9845fd26f16aba0c7e5",
+          "event": "agentsec.pipeline.stopped",
+          "raw_sha256": "5806b5e6805c1a0ccbd2dffd68137c38f56186948a7a6bddf1aa7a26de385046",
+          "seq": 7
+        },
+        {
+          "canon_sha256": "9feb3e2dc3ce7de9255620422590e3e5446f29bdad9f7dcf766620362d4c2796",
+          "event": "agentsec.hop.completed",
+          "raw_sha256": "a920e7824a48e084579a5fae4a83a567f23472502355aadd8aa9b6b827c8eef9",
+          "seq": 8
+        },
+        {
+          "canon_sha256": "50f265c1d2c861b465c17d0a21602ba1573da39803ccfcba47e531df8a958a70",
+          "event": "agentsec.run.completed",
+          "raw_sha256": "5c3a86529394ddd2e14fb7a0a46c869b0e11386f14f18d5690a34423c5586bd4",
+          "seq": 9
+        }
+      ]
+    },
+    {
+      "run_id": "3254c7b0-80a8-4e8e-bc0a-5cec355faeeb",
+      "mode": [
+        "BASELINE"
+      ],
+      "workflow_entry": [
+        "/identity/delegate"
+      ],
+      "indexed_rows": 10,
+      "distinct_raw": 10,
+      "first_indexed_time": "2026-10-24T00:03:49.884+00:00",
+      "committed_pack": null,
+      "other_committed_copies": [],
+      "match": null,
+      "event_hashes": [
+        {
+          "canon_sha256": "b391a938166ca0b725de7bcef3965459250c18e0f441b8b624cfa37a884b44c0",
+          "event": "agentsec.run.started",
+          "raw_sha256": "89dcbfc8d629366e48ea1f1426dd7e68585bf2a4a0c77a0c5afba256ca94fbb5",
+          "seq": 1
+        },
+        {
+          "canon_sha256": "ef54e6f3dee597dc1242bd165e8d1b24f8b9a0544164b137f9d38b7a7d917bb3",
+          "event": "agentsec.hop.started",
+          "raw_sha256": "5dd0f1315e810af08337718ab5e7493e272b34eef5c813c4416d725a68b0cb8b",
+          "seq": 2
+        },
+        {
+          "canon_sha256": "15beb39ef2db5e56cfdc3e338c78060e57620e96035bc781bf843e865e72916e",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "24ea1f9956b7957fe0d82dbcce5bf73a99fb44acf8fbe3e8a2dc0e47c83d8973",
+          "seq": 3
+        },
+        {
+          "canon_sha256": "c4852d6a59272b5f2d8d3eb31ff6098581044b6124f9fb39712d49eb36c65a6f",
+          "event": "agentsec.hop.completed",
+          "raw_sha256": "45a90f1a71b5af1baeb9940f25c15a9d0a59c9c86814100b7e8c5bcd88643df9",
+          "seq": 4
+        },
+        {
+          "canon_sha256": "6e31a5adb5a93a6c3c307d80c8c312ae0d0198cbea113b9d37a3e2b3e4ad4537",
+          "event": "agentsec.hop.started",
+          "raw_sha256": "6639cd70985cd4b856868863babf5bbd67bbc0e202fe8fbd5475053031d1650d",
+          "seq": 5
+        },
+        {
+          "canon_sha256": "4dda39ae09f3d0d62b2ac65ebc2745bcd861dbbf1f659fcc976ccd789126edbc",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "74fb41c4feb674b1bd90308bca1730462c33341f3bc4176026c6db761e4e3e3b",
+          "seq": 6
+        },
+        {
+          "canon_sha256": "3733b0da3f101ccf15917425caaf2cf04385b26acaf1eafb6ef84afb6452d419",
+          "event": "agentsec.mcp.started",
+          "raw_sha256": "265f473139df91c2dd14a5926aa04d60cc607dca359769decdfbdd7b6074a65d",
+          "seq": 7
+        },
+        {
+          "canon_sha256": "7655a432cb34bc58eb1ac603c00525fee765386bb1514cc4da0d4ec3d92f485c",
+          "event": "agentsec.mcp.completed",
+          "raw_sha256": "a5f82987dc159b6fdc05bf211f49b72cb044afc8eb9eb6a16893c19ec767cc19",
+          "seq": 8
+        },
+        {
+          "canon_sha256": "cc4a589f82e4e0ea6b5f8e518e653f870df3d336b254e9f15115e9ecbd41192f",
+          "event": "agentsec.hop.completed",
+          "raw_sha256": "5b83d58053ac044dad15cfb50d20e97d9436622eb5faf9eb8f8433b8875821b5",
+          "seq": 9
+        },
+        {
+          "canon_sha256": "b37dc5c8c124115890fa3593b36d9fa0fbabbd2af7f2403a9f0327f96abb2727",
+          "event": "agentsec.run.completed",
+          "raw_sha256": "26614e56c84dc6e451ee90e96d5f50e4776c4258dc6cff46e7f370027a897049",
+          "seq": 10
+        }
+      ]
+    },
+    {
+      "run_id": "b419465c-84d8-4639-8449-34dd99841ba9",
+      "mode": [
+        "BASELINE"
+      ],
+      "workflow_entry": [
+        "/identity/delegate"
+      ],
+      "indexed_rows": 10,
+      "distinct_raw": 10,
+      "first_indexed_time": "2026-09-18T21:46:29.000+00:00",
+      "committed_pack": {
+        "pack_events": 10,
+        "path": "learning/level_1/LAB-AGENT-DELEGATION-001/specimens/b419465c-84d8-4639-8449-34dd99841ba9.jsonl",
+        "sha256": "d8d80b5bb3a2dab5eba8ae6dcb654d41dda234274829b119ad1f0bac1202e2bf"
+      },
+      "other_committed_copies": [],
+      "match": {
+        "canonical_json": 10,
+        "different_content_count": 0,
+        "exact_raw_bytes": 10,
+        "pack_events": 10,
+        "pack_lines_not_in_splunk_exactly": 0,
+        "pack_seq_event_not_found_in_splunk": [],
+        "same_sequence_and_event_but_different_content": [],
+        "splunk_distinct_not_matching_any_pack_line_exactly": 0,
+        "splunk_distinct_raw": 10
+      },
+      "event_hashes": [
+        {
+          "canon_sha256": "e1a30230eade8ca2bc02b8cfca2d5ab3fbec5a660dddfa3289424c86c4ab4616",
+          "event": "agentsec.run.started",
+          "raw_sha256": "fdd844c18a7ec62c4ab253d4efe7b4ef35b2189e26a6464c594c03c60900df88",
+          "seq": 1
+        },
+        {
+          "canon_sha256": "8ee546ecd064c30e2149c71c76fab90eca56bf7e8b85e1120c2717e36a52feb6",
+          "event": "agentsec.hop.started",
+          "raw_sha256": "5992b94a5128d6401dd048732e4f097a7886e0c3a08549d8bb96121895ce3afc",
+          "seq": 2
+        },
+        {
+          "canon_sha256": "f65d2b5a2794e84ad0bc6977e94a68f3a7fb5dabb40102129fad8a9f6dc7e00d",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "a113523a9e596395ca2b5ccf844ab646367400d509f80ee187234fbe8de61796",
+          "seq": 3
+        },
+        {
+          "canon_sha256": "e68e6ee8737ef48a28c8ac74f64da78bc8f2b59b510f785310249e3316685727",
+          "event": "agentsec.hop.completed",
+          "raw_sha256": "f4867930c51a5224082c68693da09530b1ce93c7d96e7380275c423ed978b082",
+          "seq": 4
+        },
+        {
+          "canon_sha256": "f2d724ff25d6390d7dbf8162c55e825a14e1b25405e326b5ce236e7a48cc3087",
+          "event": "agentsec.hop.started",
+          "raw_sha256": "ea9f8b01be0ff89990042a1e577717fb3719e3d927445fb696f7f4e391feacef",
+          "seq": 5
+        },
+        {
+          "canon_sha256": "0911199929581f7ba76590ee2167155f1f605ffdcfcba4fe1e218860b25bd6ce",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "d5f803b1a3beffe9560f0408b793c9622917d3fa6cce2f6f539db715deade82d",
+          "seq": 6
+        },
+        {
+          "canon_sha256": "c2fdccd5b01b092d41f515a1eb8d46d03da94e4514618a8b4fa8c94387d654c2",
+          "event": "agentsec.mcp.started",
+          "raw_sha256": "b39126b5fc30d4144cd3247df8e0c078b1fa6e9bc1b8951001f3c0aff2332005",
+          "seq": 7
+        },
+        {
+          "canon_sha256": "a42e9660f29cccbbb358f0e856a147f6afddcb051ef44167118599e9f06e0c60",
+          "event": "agentsec.mcp.completed",
+          "raw_sha256": "1499881f54ec395d6fe63d33b1de553e83f32eac82279d9c224a95f614fcc79b",
+          "seq": 8
+        },
+        {
+          "canon_sha256": "1957a74d9306af0edf7900595f9ec455b68bc811c763f96e4a04c81c72c44616",
+          "event": "agentsec.hop.completed",
+          "raw_sha256": "ba7c6459573530ec36e20d4c41aeda20ff8f61490d3bcce29b2b94d8ad36ee37",
+          "seq": 9
+        },
+        {
+          "canon_sha256": "fdc36d3613bae9e7f41594881a2ba8ea882e75ab75141e9e60f76d38b6122327",
+          "event": "agentsec.run.completed",
+          "raw_sha256": "5e55e9ba63c60cb842ca0724f48ddaee9ae0d409bbf937f197dd5494bc9ccd2b",
+          "seq": 10
+        }
+      ]
+    },
+    {
+      "run_id": "dd7c01aa-66e3-42e9-bcbf-10a3866f4661",
+      "mode": [
+        "RETEST"
+      ],
+      "workflow_entry": [
+        "/identity/delegate"
+      ],
+      "indexed_rows": 9,
+      "distinct_raw": 9,
+      "first_indexed_time": "2026-10-24T00:03:49.989+00:00",
+      "committed_pack": null,
+      "other_committed_copies": [],
+      "match": null,
+      "event_hashes": [
+        {
+          "canon_sha256": "54034a72b8d54019343c8aaf9cb26544e6bbd40a0b3026be89eb8feafe818539",
+          "event": "agentsec.run.started",
+          "raw_sha256": "e1a4bf7628efcc37b2dedd79ffb2d6b36c4a84733a646b18cecc55211bfc0b78",
+          "seq": 1
+        },
+        {
+          "canon_sha256": "057ca80e5d7687854498ebca5100fa4212ae29e26a4d95d79e60ff434fa40d6e",
+          "event": "agentsec.hop.started",
+          "raw_sha256": "e8075007f3f1f6661f2315ba46d14c04521ea58972b820faef675e2ba1e685b4",
+          "seq": 2
+        },
+        {
+          "canon_sha256": "25899a6cedaaef3361fe9e9ab8f1a98d614e90ca189c8447a7b14e93964518cf",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "1ee76ee8a0d8151b904cd5a54501bb7a21b364b5c051737c85a0e50b420aee66",
+          "seq": 3
+        },
+        {
+          "canon_sha256": "a30cb81dc2500715004d7b76d607bcef4c8e5626d4569b73d1d9b61cd43eb540",
+          "event": "agentsec.hop.completed",
+          "raw_sha256": "91f269ee152ad6d3122b533a2f2755dbf9047f7b01e8434f36e12295530f28f5",
+          "seq": 4
+        },
+        {
+          "canon_sha256": "9c141fd2f37fd92dc135c36f0192a8559c76ebd92df085d7bf14ef81d9d8730b",
+          "event": "agentsec.hop.started",
+          "raw_sha256": "839f5491ad5bc85cfba48744a4558591e1efc09814e0d54edd1a5a633ff7a27e",
+          "seq": 5
+        },
+        {
+          "canon_sha256": "daa41c33e2af1b17f2afce79fbb204807e249f58954b509643d996712cf8eb1d",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "2e6cc2182da4e973a3a3a64d5439d82bff1ed36e797571f2de30acd9072699ff",
+          "seq": 6
+        },
+        {
+          "canon_sha256": "198cc93c66a004e59e1194dc0da91a4187e80c25e8b7ebcf4bbe76f0d1086770",
+          "event": "agentsec.pipeline.stopped",
+          "raw_sha256": "ac5ffb1e835ecdbf3be08a607d1ebf07d60cda0b81c6e0dcde0ce32da9c72139",
+          "seq": 7
+        },
+        {
+          "canon_sha256": "83e8db1841efd477488d578915c22d7404a92b07dca95c7fbbe8467166d41c77",
+          "event": "agentsec.hop.completed",
+          "raw_sha256": "3fede1498cc656c91d5f94128183f449fb712bab8e7b6e25ddf005258bfaee35",
+          "seq": 8
+        },
+        {
+          "canon_sha256": "77a333f22a57c7744176826ed9cdabfd6c65b937c43b4bfd439f5dfe99193962",
+          "event": "agentsec.run.completed",
+          "raw_sha256": "29823c3e32b16c74c47b4af47823f8e140f9abcec2861110483a869ea8d57c07",
+          "seq": 9
+        }
+      ]
+    },
+    {
+      "run_id": "f0f7218d-7e6a-4cbd-9029-478010663590",
+      "mode": [
+        "ATTACK"
+      ],
+      "workflow_entry": [
+        "/identity/delegate"
+      ],
+      "indexed_rows": 10,
+      "distinct_raw": 10,
+      "first_indexed_time": "2026-10-24T00:03:49.936+00:00",
+      "committed_pack": null,
+      "other_committed_copies": [],
+      "match": null,
+      "event_hashes": [
+        {
+          "canon_sha256": "0b5e86f80fa3bb76882aeefdbca8dbb8eeead614ae7dbe9365f5cc00268181cc",
+          "event": "agentsec.run.started",
+          "raw_sha256": "7ebd3c20e7ff5863593ab864ca671b7e86ed09ddf2959e2e88c819230a7cb33a",
+          "seq": 1
+        },
+        {
+          "canon_sha256": "6582cf4735c11d16d328ea635a292fb635af700fb062ad3a80fc2b26364db06a",
+          "event": "agentsec.hop.started",
+          "raw_sha256": "3a064940628d6b5d2d3becb30621de58eadba9c9205228f7b55dda87d1fae2bc",
+          "seq": 2
+        },
+        {
+          "canon_sha256": "8b2b8ae5fc59465ee9d3a017c58add12be0b1a68021fbc458d650c70c1314068",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "3ed2295e10b81608e980ee10a49e7611dc27cf89db8bad14548c7ed1cc613cb6",
+          "seq": 3
+        },
+        {
+          "canon_sha256": "4ddc2b6e72484755de6b3716f85a33ebdca07514f3fd9344c2e633b2fd8fa31c",
+          "event": "agentsec.hop.completed",
+          "raw_sha256": "179d32f83418066c80de4e3989e704ab78c69fa47cacf499547112a3b40026cb",
+          "seq": 4
+        },
+        {
+          "canon_sha256": "632ab141347a08b65f84ab9c084e1eb194debbd13c49e54c139c58eeafd6addc",
+          "event": "agentsec.hop.started",
+          "raw_sha256": "01371e1fda982997e78eb8d55af67b56301bedd4b27b91a582c3f2cac39f8594",
+          "seq": 5
+        },
+        {
+          "canon_sha256": "dc8f3ff2043a047bafb4fa9b0878d3b14af9b14c566dffa756f41e1b6bd040f4",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "fe73cf353a9d533e87e616ce7c0b9509b17b38219520178163364e720111e7fa",
+          "seq": 6
+        },
+        {
+          "canon_sha256": "8f3be203a9cfa0ea1f452608c2dfe88171ac85125a727029bc9f409ac60a22ec",
+          "event": "agentsec.mcp.started",
+          "raw_sha256": "c3585f46526b26801fecded00a6d882a58f1bb9fd67a6d1940ac40abcbbc7faf",
+          "seq": 7
+        },
+        {
+          "canon_sha256": "3011e28a4dccec5e767b7b431c8bceddef987b55f0605deb5b3c7d09e39b7cce",
+          "event": "agentsec.mcp.completed",
+          "raw_sha256": "edb2472c468a6a2af8fe99c0c6521562625fa208f9a10ed0eda27dcb3710cc48",
+          "seq": 8
+        },
+        {
+          "canon_sha256": "c0c8f8a229bbbb06cfdacd41e3c56042cfb45a49ebefd0184728618d92aa616c",
+          "event": "agentsec.hop.completed",
+          "raw_sha256": "45ddc998ff68e809e884e2234e41300268477b80515b20d52132c0c0c70ac3ae",
+          "seq": 9
+        },
+        {
+          "canon_sha256": "40a300e4fd31c68c0c165750cf5739aecff90383ace1f2bed55fc32b0dc8167c",
+          "event": "agentsec.run.completed",
+          "raw_sha256": "4e951f758ec8f82c8b7dad01baf267d7a9a0ff4eee4b7ad99905447ee34344d1",
+          "seq": 10
+        }
+      ]
+    },
+    {
+      "run_id": "f846be88-1f9d-4dde-ac80-193c01b47660",
+      "mode": [
+        "ATTACK"
+      ],
+      "workflow_entry": [
+        "/identity/delegate"
+      ],
+      "indexed_rows": 10,
+      "distinct_raw": 10,
+      "first_indexed_time": "2026-09-18T21:52:57.000+00:00",
+      "committed_pack": {
+        "pack_events": 10,
+        "path": "learning/level_1/LAB-AGENT-DELEGATION-001/specimens/f846be88-1f9d-4dde-ac80-193c01b47660.jsonl",
+        "sha256": "1aea808c27a0c22f78a9bf8228941ce0962dc83ceaf0fd6e65239b817df5b0f1"
+      },
+      "other_committed_copies": [],
+      "match": {
+        "canonical_json": 10,
+        "different_content_count": 0,
+        "exact_raw_bytes": 10,
+        "pack_events": 10,
+        "pack_lines_not_in_splunk_exactly": 0,
+        "pack_seq_event_not_found_in_splunk": [],
+        "same_sequence_and_event_but_different_content": [],
+        "splunk_distinct_not_matching_any_pack_line_exactly": 0,
+        "splunk_distinct_raw": 10
+      },
+      "event_hashes": [
+        {
+          "canon_sha256": "efd595477631b22037c465e6b1b4e38b833ebcb70c9c1c9046dca5dfacf40230",
+          "event": "agentsec.run.started",
+          "raw_sha256": "6e4a4ca90f1889d5d637e4dc6673c65172c47c870d315b89131217f98f06c896",
+          "seq": 1
+        },
+        {
+          "canon_sha256": "bc64cda78433d0d356221154450173fbfa1b837129ffbde5dcdcbf2e99a8b0db",
+          "event": "agentsec.hop.started",
+          "raw_sha256": "e58eba07a32514812160faef8f4228b9ef3f2c8fdfc9ca6947ff09240f65e8a0",
+          "seq": 2
+        },
+        {
+          "canon_sha256": "0df4718cac9a8ef764a3b58a696150d88492ee03346f2941e6e5469e9908bcc9",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "43ac065da87caae3448dd0da355dbc58d1ced4066b26d20456a13fd2cf41b6c9",
+          "seq": 3
+        },
+        {
+          "canon_sha256": "5ab0542c9c06803ba75766fa99166e3f86e5ff11d66e531e0cf7736cca96ee4f",
+          "event": "agentsec.hop.completed",
+          "raw_sha256": "e747bcda0dceb819e929404ac793ac32d7241abf8af529da748dbc8c6d2694fb",
+          "seq": 4
+        },
+        {
+          "canon_sha256": "3fe4fd611ef95f25b3b524a314a3fb0abf7f03045ae9a927d1f671b1c2391852",
+          "event": "agentsec.hop.started",
+          "raw_sha256": "d87104b9f407f15127d4b7032e223ee6c1b4e951e1ad4e900e0bdc742e667533",
+          "seq": 5
+        },
+        {
+          "canon_sha256": "5500b289e7724eec25107837ab0eb2ad1b63ab38190e28db829d226554268adf",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "d6e6a121ed002fc35bc2fed9095affd51d98ea8158b08e4a350bf805dd0d0a2f",
+          "seq": 6
+        },
+        {
+          "canon_sha256": "74a81114c5ac73a4ca86ffa0fd7cf88ab71eee74fd942670468d3c668392ef67",
+          "event": "agentsec.mcp.started",
+          "raw_sha256": "98513e51d7f6930c8949a90796e15e4f6e2401cc18c57a47614c6ad8208ca714",
+          "seq": 7
+        },
+        {
+          "canon_sha256": "61c9ffe29e2df67a1709e631bb4d034fafa7ca64f1d4ea172c39ddb5a40f00d8",
+          "event": "agentsec.mcp.completed",
+          "raw_sha256": "3e43c6ff88fd3d1726e91de26d55ab2829d4b622f53d03ca01fe0be887407393",
+          "seq": 8
+        },
+        {
+          "canon_sha256": "9dec0c9570c39e191aadeb02a81eda44a2def2440fb392c206509fa5da5b1a5f",
+          "event": "agentsec.hop.completed",
+          "raw_sha256": "22a660645d7a4547494c3c97efbaf96fa42b502eed033d2f1d891c15035e7c7a",
+          "seq": 9
+        },
+        {
+          "canon_sha256": "a4d6bfdb3d248072bdca8ee35d713b98f4baf3efaba81ad1fa0c76b7f195688d",
+          "event": "agentsec.run.completed",
+          "raw_sha256": "aa8c4f2660a0ee064f3456f97b71774f2da3518f154db97427f6d4fa86b9b633",
+          "seq": 10
+        }
+      ]
+    }
+  ]
+}

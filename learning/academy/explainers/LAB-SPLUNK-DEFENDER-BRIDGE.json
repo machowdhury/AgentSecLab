@@ -1,0 +1,679 @@
+{
+  "lab_id": "LAB-SPLUNK-DEFENDER-BRIDGE",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-26",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. Every option and answer in Practice and Prove is computed from the committed 11F Splunk evidence files, which are shown with their SHA-256."
+  },
+  "summary": {
+    "text": "A good investigation starts from a question, not a run id. This checkpoint replays the lab's ten shipped searches as they were recorded from Splunk, and asks you to discover, narrow, sequence, compare and check duplicates, while keeping track of which results can be traced to committed runs.",
+    "grounds": [
+      "docs/SPLUNK_DEFENDER_BRIDGE.md"
+    ],
+    "facts": [
+      "Start without a supplied run identifier."
+    ]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "The workbench searches evidence already indexed in the lab, starting from a bounded hypothesis and ending at a candidate run.",
+      "grounds": [
+        "docs/SPLUNK_DEFENDER_BRIDGE.md"
+      ],
+      "facts": [
+        "The workbench searches evidence already indexed in the lab."
+      ]
+    },
+    {
+      "id": "controls",
+      "label": "The threat",
+      "text": "Reading a row count as an execution count, or a duplicate indexed copy as another action.",
+      "grounds": [
+        "docs/SPLUNK_DEFENDER_BRIDGE.md"
+      ],
+      "facts": [
+        "Indexed row count is not an execution count."
+      ]
+    },
+    {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between a question you begin with and a run id you derive from the evidence.",
+      "grounds": [
+        "docs/SPLUNK_DEFENDER_BRIDGE.md"
+      ],
+      "facts": [
+        "Derive a candidate agentsec.run.id from denied CTRL-MCP-001 decisions."
+      ]
+    },
+    {
+      "id": "rule",
+      "label": "The security control",
+      "text": "The tool control stays the tool decision. Splunk observes and never authorizes.",
+      "grounds": [
+        "docs/SPLUNK_DEFENDER_BRIDGE.md"
+      ],
+      "facts": [
+        "CTRL-MCP-001 remains the tool policy decision point. Splunk does not authorize."
+      ]
+    },
+    {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "An empty result is no evidence found, not safe, and a candidate search is not a validated detection. The recorded counts here are aggregates over a whole index.",
+      "grounds": [
+        "docs/SPLUNK_DEFENDER_BRIDGE.md"
+      ],
+      "facts": [
+        "Empty results mean NO EVIDENCE FOUND for that search and time range.",
+        "This checkpoint does not enable DET-MCP-001, create an alert, or claim a candidate search is a validated detection."
+      ]
+    }
+  ],
+  "known": [
+    {
+      "text": "The lab classifies itself as a replay: a row on the page is not a new measured experiment.",
+      "grounds": [
+        "docs/SPLUNK_DEFENDER_BRIDGE.md"
+      ],
+      "facts": [
+        "A row on the page is not a new measured experiment."
+      ]
+    }
+  ],
+  "cannot_claim_lines": {
+    "source": "docs/SPLUNK_DEFENDER_BRIDGE.md",
+    "lines": [
+      "Empty results mean NO EVIDENCE FOUND for that search and time range.",
+      "Duplicate indexed copies are not extra executions.",
+      "HEC acceptance is not searchable completeness."
+    ]
+  },
+  "checkpoint": {
+    "kind": "splunk",
+    "label": "RECORDED SPLUNK OBSERVATION — NOT RE-RUN",
+    "verification": "This is a recorded observation: rows the lab's own shipped searches returned from the lab's Splunk index when they were collected. Nothing is searched from this page. No receipt from the host verifier applies to any run shown, so the evidence is NOT_VERIFIED, and nothing here claims it is Splunk-verified.",
+    "sources": {
+      "manifest": "learning/level_1/LAB-SPLUNK-DEFENDER-BRIDGE/splunk-evidence/manifest.json",
+      "searches": "learning/level_1/LAB-SPLUNK-DEFENDER-BRIDGE/splunk-evidence/searches.json",
+      "matching": "learning/level_1/LAB-SPLUNK-DEFENDER-BRIDGE/splunk-evidence/pack-matching.json"
+    },
+    "stages": [
+      {
+        "search": "Q-BRIDGE-DISCOVER",
+        "title": "1. Discover",
+        "goal": "You start without a run id. Look at recent control decisions to learn what the evidence looks like.",
+        "questions": [
+          {
+            "id": "b1",
+            "prompt": "Which control ids will appear among the 25 decision events it returns?",
+            "mode": "multi",
+            "candidates": {
+              "literal": [
+                "CTRL-MCP-001",
+                "CTRL-MEMORY-CONTEXT-001",
+                "CTRL-RAG-CONTEXT-001",
+                "CTRL-GOAL-INTEGRITY-001",
+                "CTRL-IDENTITY-001",
+                "CTRL-INPUT-001",
+                "CTRL-LOANDESK-001"
+              ]
+            },
+            "answer": {
+              "rows": "Q-BRIDGE-DISCOVER",
+              "pick": "control_id"
+            },
+            "quote": {
+              "file": "docs/SPLUNK_DEFENDER_BRIDGE.md",
+              "text": "Start without a supplied run identifier."
+            },
+            "how": "the control_id column of the recorded rows"
+          },
+          {
+            "id": "b2",
+            "prompt": "How many rows will it return?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "none",
+                "1",
+                "2–5",
+                "6–10",
+                "more than 10"
+              ]
+            },
+            "answer": {
+              "bucket": {
+                "n": {
+                  "rows": "Q-BRIDGE-DISCOVER"
+                }
+              }
+            },
+            "how": "the number of recorded rows"
+          }
+        ]
+      },
+      {
+        "search": "Q-BRIDGE-FIELDS",
+        "title": "2. Inspect fields",
+        "goal": "Before you filter, check which fields exist and how many distinct values they hold.",
+        "questions": [
+          {
+            "id": "b3",
+            "prompt": "How many distinct values does agentsec.security.profile hold?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "1",
+                "2",
+                "4",
+                "10"
+              ]
+            },
+            "answer": {
+              "rows": "Q-BRIDGE-FIELDS",
+              "pick": "distinct_count",
+              "where": {
+                "field": "field",
+                "equals": "agentsec.security.profile"
+              }
+            },
+            "quote": {
+              "file": "docs/SPLUNK_DEFENDER_BRIDGE.md",
+              "text": "Discover real fields."
+            },
+            "how": "distinct_count for that field in the recorded rows"
+          }
+        ]
+      },
+      {
+        "search": "Q-BRIDGE-NARROW",
+        "title": "3. Narrow",
+        "goal": "Narrow to denied CTRL-MCP-001 decisions and read which tools and reasons they name.",
+        "questions": [
+          {
+            "id": "b4",
+            "prompt": "Which reasons will the denied decisions give?",
+            "mode": "multi",
+            "candidates": {
+              "literal": [
+                "tool_not_granted",
+                "scope_not_granted",
+                "resource_not_granted",
+                "tool_granted",
+                "invalid_arguments"
+              ]
+            },
+            "answer": {
+              "rows": "Q-BRIDGE-NARROW",
+              "pick": "reasons"
+            },
+            "how": "the reasons column of the recorded rows"
+          },
+          {
+            "id": "b5",
+            "prompt": "Which mode will every denied run be in?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "ATTACK",
+                "BASELINE",
+                "RETEST"
+              ]
+            },
+            "answer": {
+              "rows": "Q-BRIDGE-NARROW",
+              "pick": "mode"
+            },
+            "how": "the mode column of the recorded rows"
+          },
+          {
+            "id": "b6",
+            "prompt": "How many runs will it name?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "none",
+                "1",
+                "2–5",
+                "6–10",
+                "more than 10"
+              ]
+            },
+            "answer": {
+              "bucket": {
+                "n": {
+                  "rows": "Q-BRIDGE-NARROW",
+                  "pick": "run_id"
+                }
+              }
+            },
+            "how": "distinct run ids in the recorded rows"
+          }
+        ]
+      },
+      {
+        "search": "Q-BRIDGE-SEQUENCE",
+        "title": "4. Sequence",
+        "goal": "Take three of those run ids and reconstruct the stages of each run, in order.",
+        "questions": [
+          {
+            "id": "b7",
+            "prompt": "Which event names will the reconstruction show?",
+            "mode": "multi",
+            "candidates": {
+              "literal": [
+                "agentsec.run.started",
+                "agentsec.hop.started",
+                "agentsec.control.decision",
+                "agentsec.hop.completed",
+                "agentsec.run.completed",
+                "agentsec.memory.recalled",
+                "agentsec.pipeline.stopped",
+                "agentsec.mcp.started",
+                "agentsec.mcp.completed"
+              ]
+            },
+            "answer": {
+              "rows": "Q-BRIDGE-SEQUENCE",
+              "pick": "event_name"
+            },
+            "how": "the event_name column of the recorded rows"
+          },
+          {
+            "id": "b8",
+            "prompt": "How many runs does it reconstruct?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "1",
+                "3",
+                "5",
+                "10"
+              ]
+            },
+            "answer": {
+              "n": {
+                "rows": "Q-BRIDGE-SEQUENCE",
+                "pick": "run_id"
+              }
+            },
+            "how": "distinct run ids in the recorded rows"
+          }
+        ]
+      },
+      {
+        "search": "Q-BRIDGE-COMPARE",
+        "title": "5. Compare decisions by mode",
+        "goal": "Compare what CTRL-MCP-001 decided in each testbed mode.",
+        "questions": [
+          {
+            "id": "b9",
+            "prompt": "Which decisions will ATTACK show?",
+            "mode": "multi",
+            "candidates": {
+              "literal": [
+                "ALLOW",
+                "DENY",
+                "OBSERVE",
+                "ERROR"
+              ]
+            },
+            "answer": {
+              "rows": "Q-BRIDGE-COMPARE",
+              "pick": "decision",
+              "where": {
+                "field": "mode",
+                "equals": "ATTACK"
+              }
+            },
+            "how": "the decision column where mode is ATTACK"
+          },
+          {
+            "id": "b10",
+            "prompt": "Which mode will show DENY?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "ATTACK",
+                "BASELINE",
+                "RETEST"
+              ]
+            },
+            "answer": {
+              "rows": "Q-BRIDGE-COMPARE",
+              "pick": "mode",
+              "where": {
+                "field": "decision",
+                "equals": "DENY"
+              }
+            },
+            "how": "the mode column where decision is DENY"
+          }
+        ]
+      },
+      {
+        "search": "Q-BRIDGE-COMPARE-EXECUTION",
+        "title": "6. Compare execution",
+        "goal": "A decision is not an execution. Compare handler starts by mode.",
+        "questions": [
+          {
+            "id": "b11",
+            "prompt": "How many mcp.started rows will RETEST show?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "0",
+                "4",
+                "14",
+                "27"
+              ]
+            },
+            "answer": {
+              "rows": "Q-BRIDGE-COMPARE-EXECUTION",
+              "pick": "indexed_rows",
+              "where": [
+                {
+                  "field": "mode",
+                  "equals": "RETEST"
+                },
+                {
+                  "field": "event_name",
+                  "equals": "agentsec.mcp.started"
+                }
+              ]
+            },
+            "quote": {
+              "file": "docs/SPLUNK_DEFENDER_BRIDGE.md",
+              "text": "Indexed row count is not an execution count."
+            },
+            "how": "indexed_rows where mode is RETEST and the event is agentsec.mcp.started"
+          }
+        ]
+      },
+      {
+        "search": "Q-BRIDGE-STATS",
+        "title": "7. A second search for the same question",
+        "goal": "A different search can answer the same question. Check whether it adds anything.",
+        "questions": [
+          {
+            "id": "b12",
+            "prompt": "Will Q-BRIDGE-STATS return exactly the rows Q-BRIDGE-COMPARE returned?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "yes",
+                "no"
+              ]
+            },
+            "answer": {
+              "rows_equal": [
+                "Q-BRIDGE-COMPARE",
+                "Q-BRIDGE-STATS"
+              ]
+            },
+            "how": "the recorded rows of both searches compared"
+          }
+        ]
+      },
+      {
+        "search": "Q-BRIDGE-DUPLICATES",
+        "title": "8. Duplicates",
+        "goal": "Compare indexed rows with distinct raw events to see whether copies were indexed.",
+        "questions": [
+          {
+            "id": "b13",
+            "prompt": "Is indexed_rows equal to distinct_raw for CTRL-MCP-001 decisions across the whole index?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "yes",
+                "no"
+              ]
+            },
+            "answer": {
+              "cols_equal": {
+                "rows": "Q-BRIDGE-DUPLICATES",
+                "a": "indexed_rows",
+                "b": "distinct_raw"
+              }
+            },
+            "quote": {
+              "file": "docs/SPLUNK_DEFENDER_BRIDGE.md",
+              "text": "Duplicate indexed copies are not extra executions."
+            },
+            "how": "indexed_rows and distinct_raw in the recorded row"
+          }
+        ]
+      },
+      {
+        "search": "Q-BRIDGE-DUPLICATES-BY-MODE",
+        "title": "9. Duplicates by mode",
+        "goal": "Compare indexed rows with distinct raw events to see whether copies were indexed.",
+        "questions": [
+          {
+            "id": "b14",
+            "prompt": "Is indexed_rows equal to distinct_raw in every mode?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "yes",
+                "no"
+              ]
+            },
+            "answer": {
+              "cols_equal": {
+                "rows": "Q-BRIDGE-DUPLICATES-BY-MODE",
+                "a": "indexed_rows",
+                "b": "distinct_raw"
+              }
+            },
+            "quote": {
+              "file": "docs/SPLUNK_DEFENDER_BRIDGE.md",
+              "text": "Duplicate indexed copies are not extra executions."
+            },
+            "how": "indexed_rows and distinct_raw in the recorded rows"
+          }
+        ]
+      },
+      {
+        "search": "Q-BRIDGE-EXTERNAL",
+        "title": "10. External evidence, a false lead",
+        "goal": "Scanner and evaluation results sit in the same index. Check whether they tie to a runtime run.",
+        "questions": [
+          {
+            "id": "b15",
+            "prompt": "How many runtime run ids does the external evidence carry?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "0",
+                "1",
+                "2",
+                "3"
+              ]
+            },
+            "answer": {
+              "rows": "Q-BRIDGE-EXTERNAL",
+              "pick": "distinct_runtime_run_ids"
+            },
+            "how": "distinct_runtime_run_ids in the recorded rows"
+          },
+          {
+            "id": "b16",
+            "prompt": "How many distinct garak events are behind the indexed garak rows?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "1",
+                "2",
+                "3"
+              ]
+            },
+            "answer": {
+              "rows": "Q-BRIDGE-EXTERNAL",
+              "pick": "distinct_raw",
+              "where": {
+                "field": "sourcetype",
+                "equals": "agentsec:external:evaluation"
+              }
+            },
+            "how": "distinct_raw where the sourcetype is the external evaluation"
+          }
+        ]
+      }
+    ],
+    "comparisons": [
+      {
+        "title": "Decisions by mode, then events by mode",
+        "note": "The same three modes seen as control decisions and as execution events. Each search counts the whole index.",
+        "left": {
+          "label": "Decisions",
+          "search": "Q-BRIDGE-COMPARE"
+        },
+        "right": {
+          "label": "Execution events",
+          "search": "Q-BRIDGE-COMPARE-EXECUTION"
+        }
+      },
+      {
+        "title": "All duplicates, then duplicates by mode",
+        "note": "A single row for the whole index, then the same measure split by mode.",
+        "left": {
+          "label": "Whole index",
+          "search": "Q-BRIDGE-DUPLICATES"
+        },
+        "right": {
+          "label": "By mode",
+          "search": "Q-BRIDGE-DUPLICATES-BY-MODE"
+        }
+      }
+    ],
+    "provenance": {
+      "title": "Which runs can you trace to committed packs?",
+      "intro": "The recorded index holds many runs. Only some have a committed specimen pack, and aggregate searches do not say which runs they counted.",
+      "questions": [
+        {
+          "id": "v1",
+          "prompt": "How many of the runs that Q-BRIDGE-NARROW and Q-BRIDGE-SEQUENCE name have a committed specimen pack?",
+          "mode": "single",
+          "candidates": {
+            "literal": [
+              "5",
+              "9",
+              "14"
+            ]
+          },
+          "answer": {
+            "n": {
+              "items": "matching.runs[]",
+              "where": {
+                "field": "committed_pack",
+                "not_equals": "null"
+              },
+              "pick": "run_id"
+            }
+          },
+          "how": "pack-matching.json runs with a committed pack"
+        },
+        {
+          "id": "v2",
+          "prompt": "Can Q-BRIDGE-STATS be reproduced from committed packs alone?",
+          "mode": "single",
+          "candidates": {
+            "literal": [
+              "yes",
+              "no"
+            ]
+          },
+          "answer": {
+            "quote_token": {
+              "file": "learning/level_1/LAB-SPLUNK-DEFENDER-BRIDGE/splunk-evidence/manifest.json",
+              "text": "do not expose which runs they counted",
+              "token": "do not expose",
+              "answer": "no"
+            }
+          },
+          "quote": {
+            "file": "learning/level_1/LAB-SPLUNK-DEFENDER-BRIDGE/splunk-evidence/manifest.json",
+            "text": "Aggregate searches count events or runs across the whole index and do not expose which runs they counted."
+          },
+          "how": "the manifest's own limitation"
+        },
+        {
+          "id": "v3",
+          "prompt": "Does every pack-backed run match its pack byte for byte?",
+          "mode": "single",
+          "candidates": {
+            "literal": [
+              "yes",
+              "no"
+            ]
+          },
+          "answer": {
+            "yesno": "matching.index_wide.all_runs_with_a_pack_match_it_exactly"
+          },
+          "how": "pack-matching.json index_wide"
+        }
+      ]
+    },
+    "conclusion": {
+      "title": "Conclusion exercise",
+      "intro": "Choose every conclusion the recorded evidence supports.",
+      "questions": [
+        {
+          "id": "z1",
+          "prompt": "Which conclusions does the recorded evidence support?",
+          "mode": "multi",
+          "candidates": {
+            "literal": [
+              "DENY decisions appear only in RETEST in the recorded Q-BRIDGE-COMPARE rows.",
+              "The recorded aggregate counts can be fully reproduced from committed packs.",
+              "The recorded external evidence carries no runtime run id.",
+              "These recorded results are SPLUNK-VERIFIED.",
+              "Duplicate indexed copies of CTRL-MCP-001 decisions appear in the recorded results."
+            ]
+          },
+          "answer": {
+            "literal": [
+              "DENY decisions appear only in RETEST in the recorded Q-BRIDGE-COMPARE rows.",
+              "The recorded external evidence carries no runtime run id."
+            ]
+          },
+          "quote": {
+            "file": "learning/level_1/LAB-SPLUNK-DEFENDER-BRIDGE/splunk-evidence/manifest.json",
+            "text": "Aggregate searches count events or runs across the whole index and do not expose which runs they counted."
+          },
+          "how": "the recorded rows and the manifest limitations"
+        }
+      ]
+    },
+    "documented": [
+      {
+        "file": "docs/SPLUNK_DEFENDER_BRIDGE.md",
+        "text": "Classification: REPLAY / static."
+      },
+      {
+        "file": "docs/SPLUNK_DEFENDER_BRIDGE.md",
+        "text": "It does not launch an attack."
+      }
+    ],
+    "limits": [
+      {
+        "file": "docs/SPLUNK_DEFENDER_BRIDGE.md",
+        "text": "Empty results mean NO EVIDENCE FOUND for that search and time range."
+      },
+      {
+        "file": "docs/SPLUNK_DEFENDER_BRIDGE.md",
+        "text": "Duplicate indexed copies are not extra executions."
+      },
+      {
+        "file": "docs/SPLUNK_DEFENDER_BRIDGE.md",
+        "text": "This checkpoint does not enable DET-MCP-001, create an alert, or claim a candidate search is a validated detection."
+      }
+    ],
+    "spl": []
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "schema": "agentsec.splunk_evidence_bundle.v1",
+  "lab_id": "LAB-DETECTION-ENGINEERING",
+  "bundle_id": "splunk-evidence-11f-LAB-DETECTION-ENGINEERING",
+  "classification": "CURRENT SPLUNK OBSERVATION, RECORDED — NOT RE-RUN, NOT_VERIFIED",
+  "collected_at": "2026-10-26T14:15:57Z",
+  "splunk": {
+    "build": "bcdcf0552e0c",
+    "version": "10.2.6"
+  },
+  "collection_file": "docs/splunk-evidence-11f/collection.json",
+  "collection_sha256": "aa911bec0869be1c7e5085d19ce19f786bf8b5c5a9e5e764092727b7c79a4550",
+  "files": {
+    "searches.json": "fdc9f268e2bf982364d5acbf0959d0249462d584f6a310ac6cec2253f0682a65",
+    "pack-matching.json": "be221d773301074b4e584b3952e4c2ede7d8218c88deecf3db483543f165c4aa"
+  },
+  "searches": [
+    {
+      "id": "Q-DET-EVENTS",
+      "spl_file": "learning/level_1/LAB-DETECTION-ENGINEERING/searches/Q-DET-EVENTS.spl",
+      "spl_sha256": "54308841d32bc526a4cd8030230e9ffa09680ccd7305baa3b6eb2be6a1d3faec",
+      "result_count": 10,
+      "sid": "1793024163.988",
+      "attribution_kind": "aggregate"
+    },
+    {
+      "id": "Q-DET-BROAD",
+      "spl_file": "learning/level_1/LAB-DETECTION-ENGINEERING/searches/Q-DET-BROAD.spl",
+      "spl_sha256": "9b49cb835792bd4232f55d0a7306dea1742e7ab3e2bf205977271157a74fc4c8",
+      "result_count": 2,
+      "sid": "1793024163.989",
+      "attribution_kind": "per_run"
+    },
+    {
+      "id": "Q-DET-TUNED",
+      "spl_file": "learning/level_1/LAB-DETECTION-ENGINEERING/searches/Q-DET-TUNED.spl",
+      "spl_sha256": "a7fbfb16f95ad430b631ce2a1da64aad08b9d4cd94ccd074758f3d3a747734db",
+      "result_count": 0,
+      "sid": "1793024164.990",
+      "attribution_kind": "aggregate"
+    }
+  ],
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "receipt": null,
+    "mechanism_considered": "scripts/loan_desk_verifier.py, the host-side verifier that is already running on the instance",
+    "why_no_receipt": "That verifier only reconciles Loan Desk runs: it acts on request files for runs whose events AcmeBank holds. It had receipts for 13 Loan Desk runs in the index. None of the runs this bundle depends on is among them, and asking it to verify another run would need new request files for it, which this collection did not create. No verifier was created, modified or run.",
+    "runs_in_this_bundle_with_a_valid_receipt": 0,
+    "receipt_check": {
+      "receipt_files_on_the_host": [
+        "0a11f6ce-1150-4f7e-b8d3-4b5ed6f1c543",
+        "1eba745c-cf31-4824-9e5f-f8ceb46cb8b5",
+        "4861b943-4c32-4bc2-a799-e07aea80139e",
+        "6851c1cf-2462-4625-8883-f1e04984bb84",
+        "6d681a89-2268-4b2c-97a0-87edc692822c",
+        "716cbb1e-e2a2-49e0-945f-46aef07ed63d",
+        "92308615-27c7-466c-913a-0dda59609d89",
+        "9db35fe9-9a71-415c-9f36-117205dc1a69",
+        "ab5cac19-bbdb-4d9d-8ebf-ab7f5a52977c",
+        "bf4c29e0-01c6-4725-964c-4543114764d6",
+        "d1facb68-a06f-45d0-afc8-df90a04ab1d1",
+        "d602a1dd-31a9-4e91-8f38-6fed9d43b8bf",
+        "e41faeba-2086-46c1-978a-7f8c7c228086",
+        "fa4ba231-ed2e-45b7-abe0-cd77bc452ad0",
+        "fed880df-5505-42e8-8c40-46954013513b"
+      ],
+      "receipt_run_ids_that_are_indexed_runs": [
+        "1eba745c-cf31-4824-9e5f-f8ceb46cb8b5",
+        "4861b943-4c32-4bc2-a799-e07aea80139e",
+        "6851c1cf-2462-4625-8883-f1e04984bb84",
+        "6d681a89-2268-4b2c-97a0-87edc692822c",
+        "716cbb1e-e2a2-49e0-945f-46aef07ed63d",
+        "92308615-27c7-466c-913a-0dda59609d89",
+        "9db35fe9-9a71-415c-9f36-117205dc1a69",
+        "bf4c29e0-01c6-4725-964c-4543114764d6",
+        "d1facb68-a06f-45d0-afc8-df90a04ab1d1",
+        "d602a1dd-31a9-4e91-8f38-6fed9d43b8bf",
+        "e41faeba-2086-46c1-978a-7f8c7c228086",
+        "fa4ba231-ed2e-45b7-abe0-cd77bc452ad0",
+        "fed880df-5505-42e8-8c40-46954013513b"
+      ],
+      "receipt_run_ids_that_are_in_this_bundle": "none: see the runs listed in pack-matching.json",
+      "checked": "file names only, read-only; receipt authenticity was not audited because none applies to a run in this bundle"
+    }
+  },
+  "limitations": [
+    "The rows are what the live index returned at one moment (collected_at). The index is mutable and was not frozen; running the same searches later can return different rows.",
+    "The index holds 104 runs. 51 of them have no committed specimen pack, so aggregate results that include them cannot be reproduced from committed evidence.",
+    "Aggregate searches count events or runs across the whole index and do not expose which runs they counted. They are marked as aggregates and are not attributed to individual runs.",
+    "The searches were submitted through the Splunk REST API with the 'search ' command prefix that the CLI adds; the SPL text is otherwise unchanged. job.published is null in the API response, so the execution time is the submitted_at time on the instance clock.",
+    "Each SPL sets earliest=0. The job's earliest_time is the earliest event time it scanned and latest_time was not reported; they are recorded as returned.",
+    "No verifier receipt exists for any run in this bundle, so nothing here is marked verified."
+  ],
+  "claims_not_made": [
+    "SPLUNK-VERIFIED",
+    "that these rows are a complete or current view of any run",
+    "that the lab's detection or search is correct",
+    "that any run is safe, blocked or compromised",
+    "production behaviour"
+  ],
+  "documented_expectations": [
+    {
+      "file": "docs/AGENTSEC_DETECTION_CLAIM_AUDIT.md",
+      "text": "On validated LIVE/REPLAY BASELINE / ATTACK / RETEST the expected result is 0 / 0 / 0."
+    },
+    {
+      "file": "docs/AGENTSEC_DETECTION_CLAIM_AUDIT.md",
+      "text": "0 rows must not automatically mean: SAFE, ATTACK BLOCKED, NO EXECUTION, NO COMPROMISE, CONTROL EFFECTIVE."
+    }
+  ],
+  "observed_summary": "Q-DET-BROAD returned 2 rows. Q-DET-TUNED executed successfully and returned 0 rows. Q-DET-EVENTS returned 10 mode/event rows. This bundle does not interpret the zero rows as proof that a detection is correct.",
+  "attribution_summary": "Q-DET-BROAD and Q-DET-TUNED expose run ids (TUNED has none because it returned no rows); Q-DET-EVENTS is an aggregate over the whole index."
+}

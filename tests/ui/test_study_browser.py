@@ -173,10 +173,7 @@ def test_garak_prove_shows_model_probe_result_hash_response_and_the_narrow_scope
     assert "not a comprehensive" in page.locator("main, .page").first.inner_text().lower()
 
 
-def test_blocked_labs_and_earlier_checkpoints_are_unchanged(page, root):
-    for lab in ("LAB-SPLUNK-DEFENDER-BRIDGE", "LAB-DETECTION-ENGINEERING", "LAB-AGENT-IDENTITY-NHI"):
-        page.goto(root + lab)
-        assert page.get_by_test_id("checkpoint-workbench").count() == 0 and page.get_by_test_id("investigation-workbench").count() == 0
+def test_earlier_checkpoints_are_unchanged(page, root):
     page.goto(root + "LAB-ASSET-INVENTORY"); tab(page, "Practice")
     assert "DOCUMENTED — NOT A LIVE RUN" in page.get_by_test_id("checkpoint-workbench").inner_text()
     page.goto(root + "LAB-HITL-APPROVAL"); tab(page, "Practice")

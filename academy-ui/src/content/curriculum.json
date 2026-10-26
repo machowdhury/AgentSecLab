@@ -1564,7 +1564,104 @@
     "dashboard": "ws_lab_agent_identity_nhi",
     "evidence_docs": []
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-AGENT-IDENTITY-NHI",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-26",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. Every option and answer in Practice and Prove is computed from the committed 11F Splunk evidence files, which are shown with their SHA-256."
+    },
+    "summary": {
+     "text": "An agent's identity claim is a label, not a grant. This checkpoint reads what the lab's three shipped searches recorded about claims, control decisions and handler starts, and keeps three kinds of evidence apart: committed packs, the current Splunk observation and the September documentation.",
+     "grounds": [
+      "docs/AGENT_IDENTITY_SECURITY_MODEL.md"
+     ],
+     "facts": [
+      "Identity is a label."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "One agent calls another, presenting an identity claim and a requested operation.",
+      "grounds": [
+       "docs/AGENT_IDENTITY_SECURITY_MODEL.md"
+      ],
+      "facts": [
+       "A2A-shaped request (identity claim + requested operation)"
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "The threat",
+      "text": "Treating a trusted internal agent's request as permission.",
+      "grounds": [
+       "docs/AGENT_IDENTITY_SECURITY_MODEL.md"
+      ],
+      "facts": [
+       "a trusted internal agent asked, therefore the tool is allowed."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between an identity claim and a server-owned authorization decision.",
+      "grounds": [
+       "docs/AGENT_IDENTITY_SECURITY_MODEL.md"
+      ],
+      "facts": [
+       "Trust boundary sits before CTRL-MCP-001."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "The security control",
+      "text": "The identity control observes the claim and mints nothing. The tool control decides.",
+      "grounds": [
+       "docs/AGENT_IDENTITY_SECURITY_MODEL.md"
+      ],
+      "facts": [
+       "CTRL-IDENTITY-001 never executes a tool and never mints AllowTicket."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "A claim is not a verified identity, and authentication is not authorization. Observing a claim proves neither.",
+      "grounds": [
+       "docs/AGENT_IDENTITY_SECURITY_MODEL.md"
+      ],
+      "facts": [
+       "IDENTITY CLAIM != VERIFIED IDENTITY",
+       "AUTHENTICATED != AUTHORIZED"
+      ]
+     }
+    ],
+    "known": [
+     {
+      "text": "The committed delegation packs are the reproducible baseline, and they do not cover every current identity run.",
+      "grounds": [
+       "learning/level_1/LAB-AGENT-IDENTITY-NHI/splunk-evidence/manifest.json"
+      ],
+      "facts": [
+       "the reproducible baseline"
+      ]
+     }
+    ],
+    "recorded_ref": {
+     "kind": "checkpoint",
+     "file": "LAB-AGENT-IDENTITY-NHI.json"
+    },
+    "cannot_claim": {
+     "source": "docs/AGENT_IDENTITY_SECURITY_MODEL.md",
+     "items": [
+      "IDENTITY CLAIM != VERIFIED IDENTITY",
+      "AUTHENTICATED != AUTHORIZED",
+      "OBSERVATION != AUTHORIZATION"
+     ]
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [],
@@ -2997,7 +3094,101 @@
     "dashboard": "ws_lab_detection_engineering",
     "evidence_docs": []
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-DETECTION-ENGINEERING",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-26",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. Every option and answer in Practice and Prove is computed from the committed 11F Splunk evidence files, which are shown with their SHA-256."
+    },
+    "summary": {
+     "text": "Not every suspicious behavior should become an alert. This checkpoint replays three recorded searches, event counts, a broad rule and a tuned rule, and asks what each one shows, and what a zero-row result does and does not mean.",
+     "grounds": [
+      "docs/AGENTSEC_DETECTION_ENGINEERING_CURRICULUM.md"
+     ],
+     "facts": [
+      "Not every suspicious behavior should become an alert."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "Count the events, write a rule, then tighten it until it names a repeatable condition.",
+      "grounds": [
+       "docs/AGENTSEC_DETECTION_ENGINEERING_CURRICULUM.md"
+      ],
+      "facts": [
+       "Is there a repeatable, high-precision condition?"
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "The threat",
+      "text": "A broad rule that fires on activity that is not a violation, or a silent rule trusted as proof.",
+      "grounds": [
+       "docs/AGENTSEC_DETECTION_ENGINEERING_CURRICULUM.md"
+      ],
+      "facts": [
+       "Not every DENY is an alert."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between observing a decision and alerting on it. A lab signal is not a production alert.",
+      "grounds": [
+       "docs/AGENTSEC_DETECTION_ENGINEERING_CURRICULUM.md"
+      ],
+      "facts": [
+       "Overlay fail-open is a lab signal, not a production notable."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "The security control",
+      "text": "Detections observe; the control decides. A silent detector is not a verdict.",
+      "grounds": [
+       "docs/AGENTSEC_DETECTION_ENGINEERING_CURRICULUM.md"
+      ],
+      "facts": [
+       "DET-MCP-001 0 rows ≠ SAFE."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "A zero-row search means the invariant was not violated in the indexed evidence for that search, and nothing more.",
+      "grounds": [
+       "docs/AGENTSEC_DETECTION_CLAIM_AUDIT.md"
+      ],
+      "facts": [
+       "0 rows may mean: the DENY-then-start invariant was not violated by indexed evidence for that run.id and tool."
+      ]
+     }
+    ],
+    "known": [
+     {
+      "text": "The lab's own audit says not every attack deserves a detector.",
+      "grounds": [
+       "docs/AGENTSEC_DETECTION_ENGINEERING_CURRICULUM.md"
+      ],
+      "facts": [
+       "Not every attack deserves a detector."
+      ]
+     }
+    ],
+    "recorded_ref": {
+     "kind": "checkpoint",
+     "file": "LAB-DETECTION-ENGINEERING.json"
+    },
+    "cannot_claim": {
+     "source": "docs/AGENTSEC_DETECTION_CLAIM_AUDIT.md",
+     "items": [
+      "0 rows must not automatically mean: SAFE, ATTACK BLOCKED, NO EXECUTION, NO COMPROMISE, CONTROL EFFECTIVE."
+     ]
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [],
@@ -9469,7 +9660,104 @@
     "dashboard": "ws_lab_splunk_defender_bridge",
     "evidence_docs": []
    },
-   "explainer": null,
+   "explainer": {
+    "lab_id": "LAB-SPLUNK-DEFENDER-BRIDGE",
+    "status": "full",
+    "authored": {
+     "on": "2026-10-26",
+     "note": "Explanations are written for learners. Facts are checked word for word against the cited files. Every option and answer in Practice and Prove is computed from the committed 11F Splunk evidence files, which are shown with their SHA-256."
+    },
+    "summary": {
+     "text": "A good investigation starts from a question, not a run id. This checkpoint replays the lab's ten shipped searches as they were recorded from Splunk, and asks you to discover, narrow, sequence, compare and check duplicates, while keeping track of which results can be traced to committed runs.",
+     "grounds": [
+      "docs/SPLUNK_DEFENDER_BRIDGE.md"
+     ],
+     "facts": [
+      "Start without a supplied run identifier."
+     ]
+    },
+    "glance": [
+     {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "The workbench searches evidence already indexed in the lab, starting from a bounded hypothesis and ending at a candidate run.",
+      "grounds": [
+       "docs/SPLUNK_DEFENDER_BRIDGE.md"
+      ],
+      "facts": [
+       "The workbench searches evidence already indexed in the lab."
+      ]
+     },
+     {
+      "id": "controls",
+      "label": "The threat",
+      "text": "Reading a row count as an execution count, or a duplicate indexed copy as another action.",
+      "grounds": [
+       "docs/SPLUNK_DEFENDER_BRIDGE.md"
+      ],
+      "facts": [
+       "Indexed row count is not an execution count."
+      ]
+     },
+     {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between a question you begin with and a run id you derive from the evidence.",
+      "grounds": [
+       "docs/SPLUNK_DEFENDER_BRIDGE.md"
+      ],
+      "facts": [
+       "Derive a candidate agentsec.run.id from denied CTRL-MCP-001 decisions."
+      ]
+     },
+     {
+      "id": "rule",
+      "label": "The security control",
+      "text": "The tool control stays the tool decision. Splunk observes and never authorizes.",
+      "grounds": [
+       "docs/SPLUNK_DEFENDER_BRIDGE.md"
+      ],
+      "facts": [
+       "CTRL-MCP-001 remains the tool policy decision point. Splunk does not authorize."
+      ]
+     },
+     {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "An empty result is no evidence found, not safe, and a candidate search is not a validated detection. The recorded counts here are aggregates over a whole index.",
+      "grounds": [
+       "docs/SPLUNK_DEFENDER_BRIDGE.md"
+      ],
+      "facts": [
+       "Empty results mean NO EVIDENCE FOUND for that search and time range.",
+       "This checkpoint does not enable DET-MCP-001, create an alert, or claim a candidate search is a validated detection."
+      ]
+     }
+    ],
+    "known": [
+     {
+      "text": "The lab classifies itself as a replay: a row on the page is not a new measured experiment.",
+      "grounds": [
+       "docs/SPLUNK_DEFENDER_BRIDGE.md"
+      ],
+      "facts": [
+       "A row on the page is not a new measured experiment."
+      ]
+     }
+    ],
+    "recorded_ref": {
+     "kind": "checkpoint",
+     "file": "LAB-SPLUNK-DEFENDER-BRIDGE.json"
+    },
+    "cannot_claim": {
+     "source": "docs/SPLUNK_DEFENDER_BRIDGE.md",
+     "items": [
+      "Empty results mean NO EVIDENCE FOUND for that search and time range.",
+      "Duplicate indexed copies are not extra executions.",
+      "HEC acceptance is not searchable completeness."
+     ]
+    }
+   },
    "integrated": false,
    "limitations": null,
    "checks": [],

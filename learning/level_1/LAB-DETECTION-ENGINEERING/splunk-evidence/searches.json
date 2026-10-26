@@ -1,0 +1,245 @@
+{
+  "schema": "agentsec.splunk_search_evidence.v1",
+  "lab_id": "LAB-DETECTION-ENGINEERING",
+  "collection_file": "docs/splunk-evidence-11f/collection.json",
+  "collection_sha256": "aa911bec0869be1c7e5085d19ce19f786bf8b5c5a9e5e764092727b7c79a4550",
+  "splunk": {
+    "build": "bcdcf0552e0c",
+    "version": "10.2.6"
+  },
+  "collected_at": "2026-10-26T14:15:57Z",
+  "repo_commit_on_instance": "35ea5724b80214f7b1450c1c36828224d0199244",
+  "searches": [
+    {
+      "dispatch_state": "DONE",
+      "errors_or_warnings": [],
+      "event_count": 446,
+      "fields": [
+        {
+          "groupby_rank": "0",
+          "name": "mode",
+          "type": "str"
+        },
+        {
+          "groupby_rank": "1",
+          "name": "event_name",
+          "type": "str"
+        },
+        {
+          "name": "indexed_rows"
+        },
+        {
+          "name": "distinct_raw"
+        }
+      ],
+      "id": "Q-DET-EVENTS",
+      "index_and_sourcetype": "as written in spl_text",
+      "is_failed": false,
+      "messages": [],
+      "result_count": 10,
+      "returned_rows": 10,
+      "rows": [
+        {
+          "distinct_raw": "47",
+          "event_name": "agentsec.control.decision",
+          "indexed_rows": "47",
+          "mode": "ATTACK"
+        },
+        {
+          "distinct_raw": "20",
+          "event_name": "agentsec.mcp.completed",
+          "indexed_rows": "20",
+          "mode": "ATTACK"
+        },
+        {
+          "distinct_raw": "20",
+          "event_name": "agentsec.mcp.started",
+          "indexed_rows": "20",
+          "mode": "ATTACK"
+        },
+        {
+          "distinct_raw": "170",
+          "event_name": "agentsec.control.decision",
+          "indexed_rows": "170",
+          "mode": "BASELINE"
+        },
+        {
+          "distinct_raw": "71",
+          "event_name": "agentsec.mcp.completed",
+          "indexed_rows": "71",
+          "mode": "BASELINE"
+        },
+        {
+          "distinct_raw": "2",
+          "event_name": "agentsec.mcp.failed",
+          "indexed_rows": "2",
+          "mode": "BASELINE"
+        },
+        {
+          "distinct_raw": "73",
+          "event_name": "agentsec.mcp.started",
+          "indexed_rows": "73",
+          "mode": "BASELINE"
+        },
+        {
+          "distinct_raw": "35",
+          "event_name": "agentsec.control.decision",
+          "indexed_rows": "35",
+          "mode": "RETEST"
+        },
+        {
+          "distinct_raw": "4",
+          "event_name": "agentsec.mcp.completed",
+          "indexed_rows": "4",
+          "mode": "RETEST"
+        },
+        {
+          "distinct_raw": "4",
+          "event_name": "agentsec.mcp.started",
+          "indexed_rows": "4",
+          "mode": "RETEST"
+        }
+      ],
+      "run_duration_s": 0.197,
+      "scan_count": 703,
+      "search_published": null,
+      "sid": "1793024163.988",
+      "spl_file": "learning/level_1/LAB-DETECTION-ENGINEERING/searches/Q-DET-EVENTS.spl",
+      "spl_sha256": "54308841d32bc526a4cd8030230e9ffa09680ccd7305baa3b6eb2be6a1d3faec",
+      "spl_text": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0\n(\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started OR \"event.name\"=agentsec.mcp.completed OR \"event.name\"=agentsec.mcp.failed)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| stats count as indexed_rows dc(_raw) as distinct_raw by mode event_name\n| sort mode event_name\n",
+      "submit_error": null,
+      "submitted_at": "2026-10-26T14:16:03Z",
+      "time_bounds": {
+        "earliest_time": "2026-09-11T20:24:59.000+00:00",
+        "latest_time": null,
+        "note": "the SPL itself sets earliest=0; no time bounds were passed to the job",
+        "search_earliest": null,
+        "search_latest": null
+      },
+      "submitted_as": "'search ' + spl_text",
+      "attribution": {
+        "kind": "aggregate",
+        "run_attribution": "not available from this search's output",
+        "scope": "every matching event in the index"
+      },
+      "row_count_check": {
+        "result_count": 10,
+        "returned_rows": 10,
+        "equal": true
+      }
+    },
+    {
+      "dispatch_state": "DONE",
+      "errors_or_warnings": [],
+      "event_count": 2,
+      "fields": [
+        {
+          "groupby_rank": "0",
+          "name": "run_id"
+        },
+        {
+          "name": "mode"
+        },
+        {
+          "name": "deny_tools"
+        },
+        {
+          "name": "start_tools"
+        }
+      ],
+      "id": "Q-DET-BROAD",
+      "index_and_sourcetype": "as written in spl_text",
+      "is_failed": false,
+      "messages": [],
+      "result_count": 2,
+      "returned_rows": 2,
+      "rows": [
+        {
+          "deny_tools": "lookup_customer_tier",
+          "mode": "RETEST",
+          "run_id": "0ab10594-a7fc-48b6-81bf-4cbca54a64c6",
+          "start_tools": "lookup_policy"
+        },
+        {
+          "deny_tools": "lookup_customer_tier",
+          "mode": "RETEST",
+          "run_id": "23c222ea-6a87-40b7-a3e9-f12a5b572fa1",
+          "start_tools": "lookup_policy"
+        }
+      ],
+      "run_duration_s": 0.222,
+      "scan_count": 555,
+      "search_published": null,
+      "sid": "1793024163.989",
+      "spl_file": "learning/level_1/LAB-DETECTION-ENGINEERING/searches/Q-DET-BROAD.spl",
+      "spl_sha256": "9b49cb835792bd4232f55d0a7306dea1742e7ab3e2bf205977271157a74fc4c8",
+      "spl_text": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0\n(\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval is_deny=if(event_name=\"agentsec.control.decision\" AND control_id=\"CTRL-MCP-001\" AND decision=\"DENY\",1,0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eventstats max(is_deny) as has_deny values(eval(if(is_deny=1,tool,null()))) as deny_tools by run_id\n| where has_deny=1 AND is_started=1\n| stats values(mode) as mode values(deny_tools) as deny_tools values(tool) as start_tools by run_id\n",
+      "submit_error": null,
+      "submitted_at": "2026-10-26T14:16:03Z",
+      "time_bounds": {
+        "earliest_time": "2026-09-11T20:24:59.000+00:00",
+        "latest_time": null,
+        "note": "the SPL itself sets earliest=0; no time bounds were passed to the job",
+        "search_earliest": null,
+        "search_latest": null
+      },
+      "submitted_as": "'search ' + spl_text",
+      "attribution": {
+        "kind": "per_run",
+        "run_ids": [
+          "0ab10594-a7fc-48b6-81bf-4cbca54a64c6",
+          "23c222ea-6a87-40b7-a3e9-f12a5b572fa1"
+        ],
+        "source": "the run_id column of the returned rows"
+      },
+      "row_count_check": {
+        "result_count": 2,
+        "returned_rows": 2,
+        "equal": true
+      }
+    },
+    {
+      "dispatch_state": "DONE",
+      "errors_or_warnings": [],
+      "event_count": 0,
+      "fields": null,
+      "id": "Q-DET-TUNED",
+      "index_and_sourcetype": "as written in spl_text",
+      "is_failed": false,
+      "messages": [],
+      "result_count": 0,
+      "returned_rows": 0,
+      "rows": [],
+      "run_duration_s": 0.234,
+      "scan_count": 555,
+      "search_published": null,
+      "sid": "1793024164.990",
+      "spl_file": "learning/level_1/LAB-DETECTION-ENGINEERING/searches/Q-DET-TUNED.spl",
+      "spl_sha256": "a7fbfb16f95ad430b631ce2a1da64aad08b9d4cd94ccd074758f3d3a747734db",
+      "spl_text": "index=agentsec_telemetry sourcetype=otel:agentic:json earliest=0\n(\"event.name\"=agentsec.control.decision OR \"event.name\"=agentsec.mcp.started)\n| eval run_id=mvindex(mvdedup('agentsec.run.id'),0)\n| eval tool=mvindex(mvdedup('gen_ai.tool.name'),0)\n| eval event_name=mvindex(mvdedup('event.name'),0)\n| eval decision=mvindex(mvdedup('agentsec.control.decision'),0)\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0)\n| eval sequence=tonumber(mvindex(mvdedup('agentsec.sequence'),0))\n| eval mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| eval is_deny=if(event_name=\"agentsec.control.decision\" AND control_id=\"CTRL-MCP-001\" AND decision=\"DENY\",1,0)\n| eval is_started=if(event_name=\"agentsec.mcp.started\",1,0)\n| eventstats min(eval(if(is_deny=1,sequence,null()))) as deny_sequence max(is_deny) as has_deny by run_id tool\n| where has_deny=1 AND is_started=1 AND sequence>deny_sequence\n| stats count as start_rows values(mode) as mode min(deny_sequence) as deny_sequence min(sequence) as start_sequence by run_id tool\n",
+      "submit_error": null,
+      "submitted_at": "2026-10-26T14:16:04Z",
+      "time_bounds": {
+        "earliest_time": "2026-09-11T20:24:59.000+00:00",
+        "latest_time": null,
+        "note": "the SPL itself sets earliest=0; no time bounds were passed to the job",
+        "search_earliest": null,
+        "search_latest": null
+      },
+      "submitted_as": "'search ' + spl_text",
+      "attribution": {
+        "kind": "aggregate",
+        "run_attribution": "not available from this search's output",
+        "scope": "every matching event in the index",
+        "zero_rows": true,
+        "executed_successfully": true,
+        "note": "dispatchState DONE, isFailed false, scanned events > 0; zero rows is a successful execution, not missing evidence"
+      },
+      "row_count_check": {
+        "result_count": 0,
+        "returned_rows": 0,
+        "equal": true
+      }
+    }
+  ]
+}

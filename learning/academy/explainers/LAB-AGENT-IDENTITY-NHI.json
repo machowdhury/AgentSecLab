@@ -1,0 +1,400 @@
+{
+  "lab_id": "LAB-AGENT-IDENTITY-NHI",
+  "status": "full",
+  "authored": {
+    "on": "2026-10-26",
+    "note": "Explanations are written for learners. Facts are checked word for word against the cited files. Every option and answer in Practice and Prove is computed from the committed 11F Splunk evidence files, which are shown with their SHA-256."
+  },
+  "summary": {
+    "text": "An agent's identity claim is a label, not a grant. This checkpoint reads what the lab's three shipped searches recorded about claims, control decisions and handler starts, and keeps three kinds of evidence apart: committed packs, the current Splunk observation and the September documentation.",
+    "grounds": [
+      "docs/AGENT_IDENTITY_SECURITY_MODEL.md"
+    ],
+    "facts": [
+      "Identity is a label."
+    ]
+  },
+  "glance": [
+    {
+      "id": "operation",
+      "label": "The legitimate workflow",
+      "text": "One agent calls another, presenting an identity claim and a requested operation.",
+      "grounds": [
+        "docs/AGENT_IDENTITY_SECURITY_MODEL.md"
+      ],
+      "facts": [
+        "A2A-shaped request (identity claim + requested operation)"
+      ]
+    },
+    {
+      "id": "controls",
+      "label": "The threat",
+      "text": "Treating a trusted internal agent's request as permission.",
+      "grounds": [
+        "docs/AGENT_IDENTITY_SECURITY_MODEL.md"
+      ],
+      "facts": [
+        "a trusted internal agent asked, therefore the tool is allowed."
+      ]
+    },
+    {
+      "id": "boundary",
+      "label": "The trust boundary",
+      "text": "Between an identity claim and a server-owned authorization decision.",
+      "grounds": [
+        "docs/AGENT_IDENTITY_SECURITY_MODEL.md"
+      ],
+      "facts": [
+        "Trust boundary sits before CTRL-MCP-001."
+      ]
+    },
+    {
+      "id": "rule",
+      "label": "The security control",
+      "text": "The identity control observes the claim and mints nothing. The tool control decides.",
+      "grounds": [
+        "docs/AGENT_IDENTITY_SECURITY_MODEL.md"
+      ],
+      "facts": [
+        "CTRL-IDENTITY-001 never executes a tool and never mints AllowTicket."
+      ]
+    },
+    {
+      "id": "evidence",
+      "label": "What the evidence can and cannot show",
+      "text": "A claim is not a verified identity, and authentication is not authorization. Observing a claim proves neither.",
+      "grounds": [
+        "docs/AGENT_IDENTITY_SECURITY_MODEL.md"
+      ],
+      "facts": [
+        "IDENTITY CLAIM != VERIFIED IDENTITY",
+        "AUTHENTICATED != AUTHORIZED"
+      ]
+    }
+  ],
+  "known": [
+    {
+      "text": "The committed delegation packs are the reproducible baseline, and they do not cover every current identity run.",
+      "grounds": [
+        "learning/level_1/LAB-AGENT-IDENTITY-NHI/splunk-evidence/manifest.json"
+      ],
+      "facts": [
+        "the reproducible baseline"
+      ]
+    }
+  ],
+  "cannot_claim_lines": {
+    "source": "docs/AGENT_IDENTITY_SECURITY_MODEL.md",
+    "lines": [
+      "IDENTITY CLAIM != VERIFIED IDENTITY",
+      "AUTHENTICATED != AUTHORIZED",
+      "OBSERVATION != AUTHORIZATION"
+    ]
+  },
+  "checkpoint": {
+    "kind": "splunk",
+    "label": "RECORDED SPLUNK OBSERVATION — NOT RE-RUN",
+    "verification": "This is a recorded observation: rows the lab's own shipped searches returned from the lab's Splunk index when they were collected. Nothing is searched from this page. No receipt from the host verifier applies to any run shown, so the evidence is NOT_VERIFIED, and nothing here claims it is Splunk-verified.",
+    "sources": {
+      "manifest": "learning/level_1/LAB-AGENT-IDENTITY-NHI/splunk-evidence/manifest.json",
+      "searches": "learning/level_1/LAB-AGENT-IDENTITY-NHI/splunk-evidence/searches.json",
+      "matching": "learning/level_1/LAB-AGENT-IDENTITY-NHI/splunk-evidence/pack-matching.json"
+    },
+    "stages": [
+      {
+        "search": "Q-ID-MODES",
+        "title": "1. How many identity runs are there?",
+        "goal": "Count the identity-delegation runs the index holds in each mode.",
+        "questions": [
+          {
+            "id": "i1",
+            "prompt": "How many identity runs will each mode count?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "1",
+                "2",
+                "3",
+                "6"
+              ]
+            },
+            "answer": {
+              "rows": "Q-ID-MODES",
+              "pick": "runs"
+            },
+            "how": "the runs column of the recorded rows"
+          }
+        ]
+      },
+      {
+        "search": "Q-ID-CONTROLS",
+        "title": "2. What did the controls decide?",
+        "goal": "Separate the identity control, which observes a claim, from the tool control, which decides.",
+        "questions": [
+          {
+            "id": "i2",
+            "prompt": "What did CTRL-IDENTITY-001 decide in every mode?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "ALLOW",
+                "DENY",
+                "OBSERVE"
+              ]
+            },
+            "answer": {
+              "rows": "Q-ID-CONTROLS",
+              "pick": "decision",
+              "where": {
+                "field": "control_id",
+                "equals": "CTRL-IDENTITY-001"
+              }
+            },
+            "quote": {
+              "file": "docs/AGENT_IDENTITY_SECURITY_MODEL.md",
+              "text": "CTRL-IDENTITY-001 never executes a tool and never mints AllowTicket."
+            },
+            "how": "decision where the control is CTRL-IDENTITY-001"
+          },
+          {
+            "id": "i3",
+            "prompt": "Which decision did CTRL-MCP-001 record for RETEST?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "ALLOW",
+                "DENY",
+                "OBSERVE"
+              ]
+            },
+            "answer": {
+              "rows": "Q-ID-CONTROLS",
+              "pick": "decision",
+              "where": [
+                {
+                  "field": "mode",
+                  "equals": "RETEST"
+                },
+                {
+                  "field": "control_id",
+                  "equals": "CTRL-MCP-001"
+                }
+              ]
+            },
+            "how": "decision where the mode is RETEST and the control is CTRL-MCP-001"
+          },
+          {
+            "id": "i4",
+            "prompt": "Which reason accompanied CTRL-MCP-001's ALLOW in ATTACK?",
+            "mode": "single",
+            "candidates": {
+              "literal": [
+                "tool_granted",
+                "tool_not_granted",
+                "vulnerable_profile_fail_open:caller_identity_derived_authority",
+                "identity_claim_is_not_grant"
+              ]
+            },
+            "answer": {
+              "rows": "Q-ID-CONTROLS",
+              "pick": "reason",
+              "where": [
+                {
+                  "field": "mode",
+                  "equals": "ATTACK"
+                },
+                {
+                  "field": "control_id",
+                  "equals": "CTRL-MCP-001"
+                }
+              ]
+            },
+            "how": "reason where the mode is ATTACK and the control is CTRL-MCP-001"
+          }
+        ]
+      },
+      {
+        "search": "Q-ID-STARTS",
+        "title": "3. Did a handler start?",
+        "goal": "An ALLOW is not an execution. Check which modes started a handler.",
+        "questions": [
+          {
+            "id": "i5",
+            "prompt": "In which modes does a handler start?",
+            "mode": "multi",
+            "candidates": {
+              "literal": [
+                "ATTACK",
+                "BASELINE",
+                "RETEST"
+              ]
+            },
+            "answer": {
+              "rows": "Q-ID-STARTS",
+              "pick": "mode"
+            },
+            "quote": {
+              "file": "docs/AGENT_IDENTITY_SECURITY_MODEL.md",
+              "text": "ALLOW != EXECUTION"
+            },
+            "how": "the mode column of the recorded rows"
+          }
+        ]
+      }
+    ],
+    "comparisons": [
+      {
+        "title": "Committed packs, then the current Splunk observation",
+        "note": "The left table is read from committed packs. The right is what the index returned. They are different populations: the index also holds identity runs that have no committed pack.",
+        "left": {
+          "label": "Committed specimen evidence",
+          "path": "manifest.three_kinds_of_evidence.committed_specimen_evidence.runs",
+          "columns": [
+            [
+              "run_id",
+              "Run"
+            ],
+            [
+              "mode",
+              "Mode"
+            ],
+            [
+              "control_decisions",
+              "Control decisions"
+            ],
+            [
+              "handler_starts",
+              "Handler starts"
+            ]
+          ]
+        },
+        "right": {
+          "label": "Current Splunk observation",
+          "search": "Q-ID-CONTROLS"
+        }
+      }
+    ],
+    "provenance": {
+      "title": "Which identity runs can you trace to committed packs?",
+      "intro": "Three delegation packs are committed. The index holds more identity runs than that, and the September document names runs that are no longer in it.",
+      "questions": [
+        {
+          "id": "v1",
+          "prompt": "How many of the identity runs in the index have a committed specimen pack?",
+          "mode": "single",
+          "candidates": {
+            "literal": [
+              "0",
+              "3",
+              "6"
+            ]
+          },
+          "answer": {
+            "n": {
+              "items": "matching.runs[]",
+              "where": {
+                "field": "committed_pack",
+                "not_equals": "null"
+              },
+              "pick": "run_id"
+            }
+          },
+          "how": "pack-matching.json runs with a committed pack"
+        },
+        {
+          "id": "v2",
+          "prompt": "How many current identity runs have no committed pack?",
+          "mode": "single",
+          "candidates": {
+            "literal": [
+              "0",
+              "3",
+              "6"
+            ]
+          },
+          "answer": {
+            "n": {
+              "items": "matching.runs[]",
+              "where": {
+                "field": "committed_pack",
+                "equals": "null"
+              },
+              "pick": "run_id"
+            }
+          },
+          "how": "pack-matching.json runs without a committed pack"
+        },
+        {
+          "id": "v3",
+          "prompt": "How many of the September validation run ids are in the current index?",
+          "mode": "single",
+          "candidates": {
+            "literal": [
+              "0",
+              "1",
+              "2"
+            ]
+          },
+          "answer": {
+            "n": {
+              "items": "manifest.three_kinds_of_evidence.historical_documented_expectations.historical_run_ids_present_in_the_current_index[]"
+            }
+          },
+          "how": "the historical run ids checked against the index"
+        }
+      ]
+    },
+    "conclusion": {
+      "title": "Conclusion exercise",
+      "intro": "Choose every conclusion the recorded evidence supports.",
+      "questions": [
+        {
+          "id": "z1",
+          "prompt": "Which conclusions does the recorded evidence support?",
+          "mode": "multi",
+          "candidates": {
+            "literal": [
+              "In the current observation CTRL-IDENTITY-001 recorded OBSERVE in every mode.",
+              "CTRL-IDENTITY-001's OBSERVE shows the caller was authenticated.",
+              "The RETEST denial came from CTRL-MCP-001, not from the identity control.",
+              "The committed delegation packs reproduce all six current identity runs.",
+              "The September document's runs are part of the current observation."
+            ]
+          },
+          "answer": {
+            "literal": [
+              "In the current observation CTRL-IDENTITY-001 recorded OBSERVE in every mode.",
+              "The RETEST denial came from CTRL-MCP-001, not from the identity control."
+            ]
+          },
+          "quote": {
+            "file": "docs/reviews/live-validation-goal-identity-2026-09-24.md",
+            "text": "authentication: NOT PROVEN / NOT MODELED"
+          },
+          "how": "the recorded rows, the pack matching and the September document"
+        }
+      ]
+    },
+    "documented": [
+      {
+        "file": "docs/reviews/live-validation-goal-identity-2026-09-24.md",
+        "text": "authentication: NOT PROVEN / NOT MODELED"
+      }
+    ],
+    "limits": [
+      {
+        "file": "docs/AGENT_IDENTITY_SECURITY_MODEL.md",
+        "text": "IDENTITY CLAIM != VERIFIED IDENTITY"
+      },
+      {
+        "file": "docs/AGENT_IDENTITY_SECURITY_MODEL.md",
+        "text": "OBSERVATION != AUTHORIZATION"
+      },
+      {
+        "file": "docs/reviews/live-validation-goal-identity-2026-09-24.md",
+        "text": "authentication: NOT PROVEN / NOT MODELED"
+      }
+    ],
+    "spl": []
+  }
+}

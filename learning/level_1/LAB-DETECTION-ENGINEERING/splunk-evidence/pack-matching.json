@@ -1,0 +1,240 @@
+{
+  "schema": "agentsec.splunk_pack_matching.v1",
+  "lab_id": "LAB-DETECTION-ENGINEERING",
+  "collection_sha256": "aa911bec0869be1c7e5085d19ce19f786bf8b5c5a9e5e764092727b7c79a4550",
+  "comparison": "sha256 of each indexed event's _raw text against sha256 of each line of the committed specimen pack, byte for byte; canonical-JSON equality is also recorded",
+  "index_wide": {
+    "otel_runs_in_index": 104,
+    "otel_events_in_index": 1430,
+    "runs_with_committed_pack": 53,
+    "runs_without_committed_pack": 51,
+    "runs_without_committed_pack_by_mode": {
+      "RETEST": 10,
+      "BASELINE": 30,
+      "ATTACK": 11
+    },
+    "all_runs_with_a_pack_match_it_exactly": true,
+    "committed_pack_ids_that_are_not_otel_runs": [
+      "7ae3ea64-4e7a-40fe-943f-3e582bce5ee8",
+      "aeb05718-1364-4143-8248-71dd6f27b07b",
+      "b3061c4e-7a81-445c-8fd8-3108dd14c419"
+    ],
+    "committed_pack_ids_note": "these are two scanner scan ids and one garak evaluation id; they appear in the index as external events (see external_events), not as otel runs",
+    "statement": "Not all indexed runs are independently reproducible: runs without a committed pack can only be shown as Splunk observations. The full per-run list is in docs/splunk-evidence-11f/collection.json (index_inventory.runs)."
+  },
+  "runs": [
+    {
+      "run_id": "0ab10594-a7fc-48b6-81bf-4cbca54a64c6",
+      "mode": [
+        "RETEST"
+      ],
+      "workflow_entry": [
+        "/mcp/invoke"
+      ],
+      "indexed_rows": 12,
+      "distinct_raw": 12,
+      "first_indexed_time": "2026-09-14T04:19:21.000+00:00",
+      "committed_pack": {
+        "pack_events": 12,
+        "path": "learning/level_1/LAB-MCP-005/specimens/0ab10594-a7fc-48b6-81bf-4cbca54a64c6.jsonl",
+        "sha256": "918729272087bd315af9271324a122cb40336f48d96f774383f0c465e5f9092e"
+      },
+      "other_committed_copies": [],
+      "match": {
+        "canonical_json": 12,
+        "different_content_count": 0,
+        "exact_raw_bytes": 12,
+        "pack_events": 12,
+        "pack_lines_not_in_splunk_exactly": 0,
+        "pack_seq_event_not_found_in_splunk": [],
+        "same_sequence_and_event_but_different_content": [],
+        "splunk_distinct_not_matching_any_pack_line_exactly": 0,
+        "splunk_distinct_raw": 12
+      },
+      "event_hashes": [
+        {
+          "canon_sha256": "0d85209c0f6c3c0ff7b8a55eb02198f8dc5f2b503490a236411dbd5c4a7be9a1",
+          "event": "agentsec.run.started",
+          "raw_sha256": "b263476f70178b018e71aae3c4840754fa4e1609094cbf31b5b9914dfcab2600",
+          "seq": 1
+        },
+        {
+          "canon_sha256": "3c461af9ca97d2297c00ce7690b82123252e23ac9adda03c52fd3ab3533590ae",
+          "event": "agentsec.hop.started",
+          "raw_sha256": "6f88c94b5993e3977e75473bd56d9f04841d0dc5c40aefc0e2a5be4647e31952",
+          "seq": 2
+        },
+        {
+          "canon_sha256": "536e7f51021cce58ce7d7b75abcf13eff883741f665147ce63ba1c40bed2fc17",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "fa91c1eecef7a35157b3a5e22006cacb9baac04cc9d7c2c62718e76ffd5a9ba2",
+          "seq": 3
+        },
+        {
+          "canon_sha256": "8ca4307d7f9e8f059e4a0d8d8fc126616b2cc545d844fd13c31e152e21208bbe",
+          "event": "agentsec.mcp.started",
+          "raw_sha256": "d7a8d6b573b7a61b51c565ff75198d420c4a5a2215c3ed19515eca7d78738cdf",
+          "seq": 4
+        },
+        {
+          "canon_sha256": "ae27e4c21732f2875025836166c89ce2febf9ba3f1bd681d239cd968ae8a7a3e",
+          "event": "agentsec.mcp.completed",
+          "raw_sha256": "c1a7bf3359a891264be6d5302454be843eeea0d0e9afe68ba0dfd84555d103c1",
+          "seq": 5
+        },
+        {
+          "canon_sha256": "ca20f2605e916631dee85fcec5e8889909eaf3702e44734ae3377d6b70582af2",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "a304c3069fa93cd6970bdb6219199abbfeb26596980b76231edfd011e1736edc",
+          "seq": 6
+        },
+        {
+          "canon_sha256": "761771c41a1d85b3ef376705e9746347dfd686b4b4516c9c8294490dba523241",
+          "event": "agentsec.hop.completed",
+          "raw_sha256": "b4bba5cbcbc9c0810a084e240a16179d642cf9745865efbe78787c49973dc934",
+          "seq": 7
+        },
+        {
+          "canon_sha256": "98dfc85a67067a1c133c57d6ac92ea99fd2f06d6bd6cdf9e7bf0397ace3e087b",
+          "event": "agentsec.hop.started",
+          "raw_sha256": "01432359deb0b756e180205acc18e8fd412e5562ea6442739bbe59a78f00cbfa",
+          "seq": 8
+        },
+        {
+          "canon_sha256": "202483b20df2524d48591d7fdbfdf95c54e9fdf1711df93b5717fbaf0c440c74",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "2f550cb4e61dc214cbcdf7afba382c55f3be058a2aadfdf2742d23a6cc3595a0",
+          "seq": 9
+        },
+        {
+          "canon_sha256": "9093a5a059dfa1c7c4483da59c4a82d2d04b0cb6a3e2fe503888072074ad2d87",
+          "event": "agentsec.pipeline.stopped",
+          "raw_sha256": "5aa8ce1ca4305df12ab13e0c54bd93d1b09a11f6ef1424dabf9a9efa005e7ef4",
+          "seq": 10
+        },
+        {
+          "canon_sha256": "f6f4293e9aa9edaf68e8e910687bab45251759130393f50d894a41a86dc3cfab",
+          "event": "agentsec.hop.completed",
+          "raw_sha256": "1092fae2aad30639e399f92b918a98f0fed804f5afc851372a38fc280a82ca1d",
+          "seq": 11
+        },
+        {
+          "canon_sha256": "1dc9db7921ffad2cf3703229a4271d1ce638ebb3bb84f5d1f17b598166fd001d",
+          "event": "agentsec.run.completed",
+          "raw_sha256": "94689b289ebe4507d8280785777afe2d905dc57b583cb431c98467cd25176c17",
+          "seq": 12
+        }
+      ]
+    },
+    {
+      "run_id": "23c222ea-6a87-40b7-a3e9-f12a5b572fa1",
+      "mode": [
+        "RETEST"
+      ],
+      "workflow_entry": [
+        "/mcp/invoke"
+      ],
+      "indexed_rows": 12,
+      "distinct_raw": 12,
+      "first_indexed_time": "2026-09-16T03:48:11.000+00:00",
+      "committed_pack": {
+        "pack_events": 12,
+        "path": "learning/level_1/LAB-MCP-CATALOG/specimens/23c222ea-6a87-40b7-a3e9-f12a5b572fa1.jsonl",
+        "sha256": "f23172b4999e5482a550221e9953b3f751d5a0e6bf624425ced5a06ec6ae12a6"
+      },
+      "other_committed_copies": [
+        {
+          "pack_events": 12,
+          "path": "learning/level_1/LAB-SCANNER-RUNTIME-EVIDENCE/specimens/23c222ea-6a87-40b7-a3e9-f12a5b572fa1.jsonl",
+          "sha256": "f23172b4999e5482a550221e9953b3f751d5a0e6bf624425ced5a06ec6ae12a6"
+        }
+      ],
+      "match": {
+        "canonical_json": 12,
+        "different_content_count": 0,
+        "exact_raw_bytes": 12,
+        "other_pack_copies_identical_sha": true,
+        "pack_events": 12,
+        "pack_lines_not_in_splunk_exactly": 0,
+        "pack_seq_event_not_found_in_splunk": [],
+        "same_sequence_and_event_but_different_content": [],
+        "splunk_distinct_not_matching_any_pack_line_exactly": 0,
+        "splunk_distinct_raw": 12
+      },
+      "event_hashes": [
+        {
+          "canon_sha256": "556db26b72c53b2aea0fa9213f007f7bd534600bc73cce7265f0b01b84654486",
+          "event": "agentsec.run.started",
+          "raw_sha256": "cfed144cd4ba072a3f60c96fe8b4d8939d8b54384f9da3efdafd3e745d48779b",
+          "seq": 1
+        },
+        {
+          "canon_sha256": "6c5fae5bffd3eb1198c0b5fb8fbb3c17da1fa6e93e700c924454291ebec02f44",
+          "event": "agentsec.hop.started",
+          "raw_sha256": "6850d95579effc8038bdc6e26c8e7cb5568c3700ec6ed4238ebfc00e100b49b5",
+          "seq": 2
+        },
+        {
+          "canon_sha256": "b52492dde443786fbae288a9be559ec377db1184f9efc417ae9f64c08ac75b69",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "91c965f62e6d5426f30824e26f42cccbf0aa99b74584e112d5ff83f41f29e90b",
+          "seq": 3
+        },
+        {
+          "canon_sha256": "14760b8da44dd307be5758414b064773fad5a43ad9eb2c5fd185f62543779f8f",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "f15f95ab2f61999ceadedbd43e0fd5aff2ee8f586fc6203ac82524ccc4e851fd",
+          "seq": 4
+        },
+        {
+          "canon_sha256": "a4f34c3e072a7b7b241efbc55355a5becd50193dd4ace29223875dfa6ee5f4bb",
+          "event": "agentsec.mcp.started",
+          "raw_sha256": "c67b761c32fe38bfef8171b94a8e47fd72d6ee36d90cc5d3504bf865013f4d74",
+          "seq": 5
+        },
+        {
+          "canon_sha256": "8017b3c05bdd6f1ef0d5bead9b5769cf7bdcdd5dc8772f748b8e94313f8819f2",
+          "event": "agentsec.mcp.completed",
+          "raw_sha256": "9424897bca8515b38aec3c88a37cfa9bfa964a13ed0499a0e10e1925026a79ee",
+          "seq": 6
+        },
+        {
+          "canon_sha256": "26f430006084a3b2057ca574f983ce084b03b0f2050075ee7c63585007bf3d47",
+          "event": "agentsec.hop.completed",
+          "raw_sha256": "2eadf7d461e2925c33f2891c7283119e4b03e7acbbcced7f7b7bec7a179a44c3",
+          "seq": 7
+        },
+        {
+          "canon_sha256": "9efcc95101d2bfd466c274561b83c1bf20d66d5317b9a61081901499d15a737e",
+          "event": "agentsec.hop.started",
+          "raw_sha256": "c5c1d53fbf144b9572dd8974b811a8ada0b8f8176d538e4b367110a426166bb0",
+          "seq": 8
+        },
+        {
+          "canon_sha256": "9fc65bd7ab550f7f790eb375005b43478d14bd47eea72f16cc2220cb0eff67f3",
+          "event": "agentsec.control.decision",
+          "raw_sha256": "470a35a0cfcd43736535192f3b0e869355adab888263f7286d0a1467c91c5f48",
+          "seq": 9
+        },
+        {
+          "canon_sha256": "40da62636dfea0426212782b4a9269f6f1f0a5a9df8814b98bfb17583a7798ea",
+          "event": "agentsec.pipeline.stopped",
+          "raw_sha256": "0d286ddbf30b07aba982b2cd4cdf0cb6ce82f2273127ff6ca0dc0d4462a20330",
+          "seq": 10
+        },
+        {
+          "canon_sha256": "1d5297128e07643bad2218a92685e6304d96d6226b96f02a50ff1f5bd8205ebe",
+          "event": "agentsec.hop.completed",
+          "raw_sha256": "0043ba10d7310f3e13079349c1a55eee1a652d8736ab8a4b20e06eb4f00f3a51",
+          "seq": 11
+        },
+        {
+          "canon_sha256": "6d891b399ba3250aed2cf8c5258ea7098c9d1289e7251e918bec42e17aea5c78",
+          "event": "agentsec.run.completed",
+          "raw_sha256": "22eb99b562ec70eb36d6007e6a05af1672a4ae286d6c324ffc9e866ff9858ce1",
+          "seq": 12
+        }
+      ]
+    }
+  ]
+}

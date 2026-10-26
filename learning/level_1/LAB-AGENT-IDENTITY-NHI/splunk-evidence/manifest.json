@@ -1,0 +1,246 @@
+{
+  "schema": "agentsec.splunk_evidence_bundle.v1",
+  "lab_id": "LAB-AGENT-IDENTITY-NHI",
+  "bundle_id": "splunk-evidence-11f-LAB-AGENT-IDENTITY-NHI",
+  "classification": "CURRENT SPLUNK OBSERVATION, RECORDED — NOT RE-RUN, NOT_VERIFIED",
+  "collected_at": "2026-10-26T14:15:57Z",
+  "splunk": {
+    "build": "bcdcf0552e0c",
+    "version": "10.2.6"
+  },
+  "collection_file": "docs/splunk-evidence-11f/collection.json",
+  "collection_sha256": "aa911bec0869be1c7e5085d19ce19f786bf8b5c5a9e5e764092727b7c79a4550",
+  "files": {
+    "searches.json": "d75b81cd95771d6a928f1fdad2c0e435606e31a85a6fd88109d545ea28d4cdae",
+    "pack-matching.json": "3673004f64018902a5af0a7e30d9f03a1487767c7024e4f17b241620a0b526d8"
+  },
+  "searches": [
+    {
+      "id": "Q-ID-MODES",
+      "spl_file": "learning/level_1/LAB-AGENT-IDENTITY-NHI/searches/Q-ID-MODES.spl",
+      "spl_sha256": "cad1e241e5bfdc414afa8d2f1135e404eca84b69c6a6ad6285e778f37ed02367",
+      "result_count": 3,
+      "sid": "1793024165.991",
+      "attribution_kind": "aggregate"
+    },
+    {
+      "id": "Q-ID-CONTROLS",
+      "spl_file": "learning/level_1/LAB-AGENT-IDENTITY-NHI/searches/Q-ID-CONTROLS.spl",
+      "spl_sha256": "d4f6ee33eb8dcab502a9e343112ce9aceb8d0ced9dc8c4fd6b6d53f00479906e",
+      "result_count": 6,
+      "sid": "1793024165.992",
+      "attribution_kind": "aggregate"
+    },
+    {
+      "id": "Q-ID-STARTS",
+      "spl_file": "learning/level_1/LAB-AGENT-IDENTITY-NHI/searches/Q-ID-STARTS.spl",
+      "spl_sha256": "2a066d1cf1fa3bdf653f85ebaf9828b49775a84e47d4cbff1e9364e2c69758bc",
+      "result_count": 2,
+      "sid": "1793024166.993",
+      "attribution_kind": "aggregate"
+    }
+  ],
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "receipt": null,
+    "mechanism_considered": "scripts/loan_desk_verifier.py, the host-side verifier that is already running on the instance",
+    "why_no_receipt": "That verifier only reconciles Loan Desk runs: it acts on request files for runs whose events AcmeBank holds. It had receipts for 13 Loan Desk runs in the index. None of the runs this bundle depends on is among them, and asking it to verify another run would need new request files for it, which this collection did not create. No verifier was created, modified or run.",
+    "runs_in_this_bundle_with_a_valid_receipt": 0,
+    "receipt_check": {
+      "receipt_files_on_the_host": [
+        "0a11f6ce-1150-4f7e-b8d3-4b5ed6f1c543",
+        "1eba745c-cf31-4824-9e5f-f8ceb46cb8b5",
+        "4861b943-4c32-4bc2-a799-e07aea80139e",
+        "6851c1cf-2462-4625-8883-f1e04984bb84",
+        "6d681a89-2268-4b2c-97a0-87edc692822c",
+        "716cbb1e-e2a2-49e0-945f-46aef07ed63d",
+        "92308615-27c7-466c-913a-0dda59609d89",
+        "9db35fe9-9a71-415c-9f36-117205dc1a69",
+        "ab5cac19-bbdb-4d9d-8ebf-ab7f5a52977c",
+        "bf4c29e0-01c6-4725-964c-4543114764d6",
+        "d1facb68-a06f-45d0-afc8-df90a04ab1d1",
+        "d602a1dd-31a9-4e91-8f38-6fed9d43b8bf",
+        "e41faeba-2086-46c1-978a-7f8c7c228086",
+        "fa4ba231-ed2e-45b7-abe0-cd77bc452ad0",
+        "fed880df-5505-42e8-8c40-46954013513b"
+      ],
+      "receipt_run_ids_that_are_indexed_runs": [
+        "1eba745c-cf31-4824-9e5f-f8ceb46cb8b5",
+        "4861b943-4c32-4bc2-a799-e07aea80139e",
+        "6851c1cf-2462-4625-8883-f1e04984bb84",
+        "6d681a89-2268-4b2c-97a0-87edc692822c",
+        "716cbb1e-e2a2-49e0-945f-46aef07ed63d",
+        "92308615-27c7-466c-913a-0dda59609d89",
+        "9db35fe9-9a71-415c-9f36-117205dc1a69",
+        "bf4c29e0-01c6-4725-964c-4543114764d6",
+        "d1facb68-a06f-45d0-afc8-df90a04ab1d1",
+        "d602a1dd-31a9-4e91-8f38-6fed9d43b8bf",
+        "e41faeba-2086-46c1-978a-7f8c7c228086",
+        "fa4ba231-ed2e-45b7-abe0-cd77bc452ad0",
+        "fed880df-5505-42e8-8c40-46954013513b"
+      ],
+      "receipt_run_ids_that_are_in_this_bundle": "none: see the runs listed in pack-matching.json",
+      "checked": "file names only, read-only; receipt authenticity was not audited because none applies to a run in this bundle"
+    }
+  },
+  "limitations": [
+    "The rows are what the live index returned at one moment (collected_at). The index is mutable and was not frozen; running the same searches later can return different rows.",
+    "The index holds 104 runs. 51 of them have no committed specimen pack, so aggregate results that include them cannot be reproduced from committed evidence.",
+    "Aggregate searches count events or runs across the whole index and do not expose which runs they counted. They are marked as aggregates and are not attributed to individual runs.",
+    "The searches were submitted through the Splunk REST API with the 'search ' command prefix that the CLI adds; the SPL text is otherwise unchanged. job.published is null in the API response, so the execution time is the submitted_at time on the instance clock.",
+    "Each SPL sets earliest=0. The job's earliest_time is the earliest event time it scanned and latest_time was not reported; they are recorded as returned.",
+    "No verifier receipt exists for any run in this bundle, so nothing here is marked verified."
+  ],
+  "claims_not_made": [
+    "SPLUNK-VERIFIED",
+    "that these rows are a complete or current view of any run",
+    "that the lab's detection or search is correct",
+    "that any run is safe, blocked or compromised",
+    "production behaviour"
+  ],
+  "three_kinds_of_evidence": {
+    "committed_specimen_evidence": {
+      "lab": "LAB-AGENT-DELEGATION-001",
+      "note": "the reproducible baseline; each pack matches its indexed run byte for byte (see pack-matching.json)",
+      "runs": [
+        {
+          "run_id": "271695f5-4739-44f2-8bf4-0749d04f4b03",
+          "mode": "RETEST",
+          "pack": "learning/level_1/LAB-AGENT-DELEGATION-001/specimens/271695f5-4739-44f2-8bf4-0749d04f4b03.jsonl",
+          "pack_sha256": "5807d08a4e7b9acd2bf52b8170f59e6eb6aa5d52f5e139c37ad1f84a102c9ecc",
+          "events": 9,
+          "control_decisions": [
+            {
+              "sequence": 3,
+              "control_id": "CTRL-IDENTITY-001",
+              "decision": "OBSERVE",
+              "reason": "identity_claim_is_not_grant"
+            },
+            {
+              "sequence": 6,
+              "control_id": "CTRL-MCP-001",
+              "decision": "DENY",
+              "reason": "tool_not_granted"
+            }
+          ],
+          "handler_starts": [],
+          "reads": "fields read directly from the committed pack's events"
+        },
+        {
+          "run_id": "b419465c-84d8-4639-8449-34dd99841ba9",
+          "mode": "BASELINE",
+          "pack": "learning/level_1/LAB-AGENT-DELEGATION-001/specimens/b419465c-84d8-4639-8449-34dd99841ba9.jsonl",
+          "pack_sha256": "d8d80b5bb3a2dab5eba8ae6dcb654d41dda234274829b119ad1f0bac1202e2bf",
+          "events": 10,
+          "control_decisions": [
+            {
+              "sequence": 3,
+              "control_id": "CTRL-IDENTITY-001",
+              "decision": "OBSERVE",
+              "reason": "identity_claim_is_not_grant"
+            },
+            {
+              "sequence": 6,
+              "control_id": "CTRL-MCP-001",
+              "decision": "ALLOW",
+              "reason": "tool_granted"
+            }
+          ],
+          "handler_starts": [
+            {
+              "sequence": 7,
+              "tool": "lookup_policy",
+              "executed": true
+            }
+          ],
+          "reads": "fields read directly from the committed pack's events"
+        },
+        {
+          "run_id": "f846be88-1f9d-4dde-ac80-193c01b47660",
+          "mode": "ATTACK",
+          "pack": "learning/level_1/LAB-AGENT-DELEGATION-001/specimens/f846be88-1f9d-4dde-ac80-193c01b47660.jsonl",
+          "pack_sha256": "1aea808c27a0c22f78a9bf8228941ce0962dc83ceaf0fd6e65239b817df5b0f1",
+          "events": 10,
+          "control_decisions": [
+            {
+              "sequence": 3,
+              "control_id": "CTRL-IDENTITY-001",
+              "decision": "OBSERVE",
+              "reason": "identity_claim_is_not_grant"
+            },
+            {
+              "sequence": 6,
+              "control_id": "CTRL-MCP-001",
+              "decision": "ALLOW",
+              "reason": "vulnerable_profile_fail_open:caller_identity_derived_authority"
+            }
+          ],
+          "handler_starts": [
+            {
+              "sequence": 7,
+              "tool": "lookup_customer_tier",
+              "executed": true
+            }
+          ],
+          "reads": "fields read directly from the committed pack's events"
+        }
+      ]
+    },
+    "current_splunk_observations": {
+      "note": "the three shipped searches as returned by the live index; they count identity runs both with and without committed packs",
+      "search_ids": [
+        "Q-ID-MODES",
+        "Q-ID-CONTROLS",
+        "Q-ID-STARTS"
+      ],
+      "identity_runs_in_index": [
+        "271695f5-4739-44f2-8bf4-0749d04f4b03",
+        "3254c7b0-80a8-4e8e-bc0a-5cec355faeeb",
+        "b419465c-84d8-4639-8449-34dd99841ba9",
+        "dd7c01aa-66e3-42e9-bcbf-10a3866f4661",
+        "f0f7218d-7e6a-4cbd-9029-478010663590",
+        "f846be88-1f9d-4dde-ac80-193c01b47660"
+      ],
+      "identity_runs_with_committed_pack": [
+        "271695f5-4739-44f2-8bf4-0749d04f4b03",
+        "b419465c-84d8-4639-8449-34dd99841ba9",
+        "f846be88-1f9d-4dde-ac80-193c01b47660"
+      ],
+      "identity_runs_without_committed_pack": [
+        "3254c7b0-80a8-4e8e-bc0a-5cec355faeeb",
+        "dd7c01aa-66e3-42e9-bcbf-10a3866f4661",
+        "f0f7218d-7e6a-4cbd-9029-478010663590"
+      ]
+    },
+    "historical_documented_expectations": {
+      "kept_separate": true,
+      "not_merged_with_the_above": true,
+      "source_file": "docs/reviews/live-validation-goal-identity-2026-09-24.md",
+      "historical_run_ids": [
+        "c9383fc4-3b91-45aa-81cc-95e7b00a3d9b",
+        "44076225-c390-4d63-9a87-659855fc0c61"
+      ],
+      "historical_run_ids_present_in_the_current_index": [],
+      "historical_run_ids_with_a_committed_pack": [],
+      "statements": [
+        {
+          "file": "docs/reviews/live-validation-goal-identity-2026-09-24.md",
+          "text": "Identity: OBSERVE identity_claim_is_not_grant"
+        },
+        {
+          "file": "docs/reviews/live-validation-goal-identity-2026-09-24.md",
+          "text": "MCP: ALLOW vulnerable_profile_fail_open:caller_identity_derived_authority"
+        },
+        {
+          "file": "docs/reviews/live-validation-goal-identity-2026-09-24.md",
+          "text": "MCP: DENY tool_not_granted"
+        },
+        {
+          "file": "docs/reviews/live-validation-goal-identity-2026-09-24.md",
+          "text": "authentication: NOT PROVEN / NOT MODELED"
+        }
+      ]
+    }
+  },
+  "attribution_summary": "The three Q-ID searches are aggregates (counts by mode); the identity runs behind them were listed by an independent provenance query on workflow entry /identity/delegate, not by the lab searches."
+}

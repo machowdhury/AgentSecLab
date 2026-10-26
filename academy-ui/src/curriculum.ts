@@ -37,10 +37,12 @@ export interface Labelled { label: string; field: string }
 export interface Pathed { label: string; path: string }
 export interface InvQuestion { id: string; prompt: string; where: { field: string; equals?: string; not_equals?: string; contains?: string }; quote: { file: string; text: string } }
 export interface StudyQuestion { id: string; prompt: string; mode: "single" | "multi"; candidates: string[]; answer: string[]; how?: string; quote?: { file: string; text: string } }
-export interface Study { facts?: Pathed[]; label: string; verification: string; steps: { title: string; intro: string; questions: StudyQuestion[] }[]; documented?: { label: string; file: string; text: string }[]; limits: { file: string; text: string }[];
+export interface CmpSide { label: string; search?: string; path?: string; columns?: [string, string][] }
+export interface QGroup { title: string; intro: string; questions: StudyQuestion[] }
+export interface Study { stages?: (QGroup & { search: string; goal: string })[]; comparisons?: { title: string; note: string; left: CmpSide; right: CmpSide }[]; provenance?: QGroup; conclusion?: QGroup; facts?: Pathed[]; label: string; verification: string; steps: { title: string; intro: string; questions: StudyQuestion[] }[]; documented?: { label: string; file: string; text: string }[]; limits: { file: string; text: string }[];
   compare?: { title: string; left: { label: string; path: string }; right: { label: string; path: string }; need: { path: string; key: string; flag: string; label: string } } }
 export interface CheckpointSpec extends Partial<Study> {
-  kind?: "inventory" | "study"; order?: string[]; context?: Pathed[]; setup?: Labelled[]; predictions?: Prediction[]; outcome?: Labelled[]; diff?: Labelled[]; decisive?: Labelled[];
+  kind?: "inventory" | "study" | "splunk"; order?: string[]; context?: Pathed[]; setup?: Labelled[]; predictions?: Prediction[]; outcome?: Labelled[]; diff?: Labelled[]; decisive?: Labelled[];
   packet_facts?: Pathed[]; tables?: { title: string; path: string; columns: [string, string][] }[]; lists?: { title: string; path: string }[];
   items_path?: string; name_field?: string; columns?: [string, string][]; questions?: InvQuestion[];
 }

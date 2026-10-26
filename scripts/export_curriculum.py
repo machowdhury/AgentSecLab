@@ -252,7 +252,7 @@ def source_text(path: Path) -> str:
 
 def checkpoint_for(lab_id: str, spec: dict) -> dict:
     """A simulated or documented packet and the interaction spec for it. The packet is embedded unchanged; every field the spec names must exist in it."""
-    if spec.get("kind") == "study":
+    if spec.get("kind") in ("study", "splunk"):
         return study_for(lab_id, spec)
     f = ROOT / spec["packet"]
     raw = f.read_bytes()
@@ -331,7 +331,10 @@ def _walk(o, path: str) -> list:
 def _keep(item, w) -> bool:
     if isinstance(w, list):   # every condition must hold
         return all(_keep(item, x) for x in w)
-    v = _t(_walk(item, w["field"])[0]) if "field" in w else item
+    try:
+        v = _t(_walk(item, w["field"])[0]) if "field" in w else item
+    except KeyError:   # a recorded row that has no such column does not match
+        return False
     if "equals" in w:
         return v == w["equals"]
     if "not_equals" in w:
@@ -339,6 +342,10 @@ def _keep(item, w) -> bool:
     if "contains" in w:
         return w["contains"].lower() in v.lower()
     return w["not_contains"].lower() not in v.lower()
+
+
+def _rows(packet: dict, search_id: str) -> list[dict]:
+    return next(x for x in packet["searches"]["searches"] if x["id"] == search_id)["rows"]
 
 
 def _sel(packet: dict, s: dict) -> list[str]:
@@ -354,6 +361,23 @@ def _sel(packet: dict, s: dict) -> list[str]:
     if "minus" in s:
         a, b = (_sel(packet, x) for x in s["minus"])
         return [x for x in a if x not in b]
+    if "n" in s:
+        return [str(len(_sel(packet, s["n"])))]
+    if "bucket" in s:
+        v = int(_sel(packet, s["bucket"])[0])
+        return ["none" if v == 0 else "1" if v == 1 else "2–5" if v <= 5 else "6–10" if v <= 10 else "more than 10"]
+    if "yesno" in s:
+        return ["yes" if _walk(packet, s["yesno"])[0] is True else "no"]
+    if "rows_equal" in s:
+        a, b = (_rows(packet, i) for i in s["rows_equal"])
+        return ["yes" if a == b else "no"]
+    if "cols_equal" in s:
+        c = s["cols_equal"]
+        return ["yes" if all(r[c["a"]] == r[c["b"]] for r in _rows(packet, c["rows"])) else "no"]
+    if "rows" in s:   # rows of one recorded search, values unchanged
+        rows = [r for r in _rows(packet, s["rows"]) if _keep(r, s["where"])] if "where" in s else _rows(packet, s["rows"])
+        vals = [x for r in rows for x in (_walk(r, s["pick"]) if "pick" in s else [r])]
+        return list(dict.fromkeys(_t(y) for x in vals for y in (x if isinstance(x, list) else [x])))
     if "quote_token" in s:
         q = s["quote_token"]
         if clean(q["text"]) not in source_text(ROOT / q["file"]) or q["token"] not in q["text"]:
@@ -378,7 +402,18 @@ def study_for(lab_id: str, spec: dict) -> dict:
         rows = [json.loads(l) for l in raw.decode("utf-8").splitlines() if l.strip()]
         packet[name] = {t: [({k: r[k] for k in keep} if keep else r) for r in rows if r.get("entry_type") == t] for t, keep in j["rows"].items()}
         files.append({"name": name, "file": j["file"], "sha256": hashlib.sha256(raw).hexdigest()})
-    for st in spec["steps"]:
+    ids = {x["id"] for x in packet.get("searches", {}).get("searches", [])}
+    groups = spec.get("steps", []) + spec.get("stages", []) + ([spec["provenance"]] if "provenance" in spec else []) + ([spec["conclusion"]] if "conclusion" in spec else [])
+    for st in spec.get("stages", []):
+        if st["search"] not in ids:
+            raise SystemExit(f"{lab_id}: stage search {st['search']} is not in the recorded searches")
+    for c in spec.get("comparisons", []):
+        for side in (c["left"], c["right"]):
+            if "search" in side and side["search"] not in ids:
+                raise SystemExit(f"{lab_id}: comparison search {side['search']} is not in the recorded searches")
+            if "path" in side and not _walk(packet, side["path"]):
+                raise SystemExit(f"{lab_id}: the sources have no {side['path']}")
+    for st in groups:
         for q in st["questions"]:
             q["candidates"], q["answer"] = _sel(packet, q["candidates"]), _sel(packet, q["answer"])
             if not q["answer"] or not set(q["answer"]) <= set(q["candidates"]) or (q["mode"] == "single" and len(q["answer"]) != 1) or len(q["candidates"]) < 2:

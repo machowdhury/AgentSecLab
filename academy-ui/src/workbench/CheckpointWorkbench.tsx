@@ -3,6 +3,7 @@ import { Badge, Button } from "../ui";
 import { Callout, CopyButton } from "../mission/parts";
 import type { Checkpoint } from "../curriculum";
 import { StudyPractice, StudyProve } from "./StudyWorkbench";
+import { SplunkPractice, SplunkProve } from "./SplunkWorkbench";
 import { NOT_RECORDED, answer, answerable, classification, dig, differing, field, items, modeOf, modes, order, selectWhere, text } from "./checkpoint";
 
 const tone = (d?: string) => d === "ALLOW" || d === "MATCH" || d === "yes" ? "allow" : d === "DENY" || d === "MISMATCH" || d === "no" ? "deny" : d === "ERROR" || d === "FAIL_OPEN" ? "warning" : "muted";
@@ -86,12 +87,14 @@ function InventoryPractice({ cp }: { cp: Checkpoint }) {
 
 /** Practice for a simulated or documented packet checkpoint: predict each case, spot the difference, compare. Nothing here launches a run. */
 export function CheckpointPractice({ cp }: { cp: Checkpoint }) {
+  if (cp.spec.kind === "splunk") return <SplunkPractice cp={cp} />;
   if (cp.spec.kind === "study") return <StudyPractice cp={cp} />;
   return cp.spec.kind === "inventory" ? <InventoryPractice cp={cp} /> : <ModePractice cp={cp} />;
 }
 
 /** Prove for a checkpoint: the decisive fields of each case, the packet's own assertions and limits, provenance and the lab's search. */
 export function CheckpointProve({ cp }: { cp: Checkpoint }) {
+  if (cp.spec.kind === "splunk") return <SplunkProve cp={cp} />;
   if (cp.spec.kind === "study") return <StudyProve cp={cp} />;
   const spec = cp.spec;
   return <div className="m-sec rec" data-testid="checkpoint-prove">
