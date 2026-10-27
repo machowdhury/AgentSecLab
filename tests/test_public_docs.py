@@ -274,6 +274,7 @@ def test_gateway_doc_has_the_deployment_mode_table_and_the_single_port_contract(
     for cell in ("Published v1.2.0", "v1.3.0 opt-in HTTPS gateway", "**Exactly one: 443 (default) or 8000**", "mock-tested only", "BLOCKED", "NOT VERIFIED"):
         assert cell in g, cell
     assert re.search(r"Not reachable through the gateway \(NOT VERIFIED, not routed\)", g, re.I)
+    assert re.search(r"Classic Attack Service page .*\*\*Not routed\*\* \(known v1.3.0 limitation\)", g) and "302 to `/learn`" in g
     assert "`lab-up.sh --remote` is not the gateway" in g
 
 

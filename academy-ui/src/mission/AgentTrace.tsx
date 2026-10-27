@@ -39,7 +39,7 @@ export function AgentTrace({ view, label }: { view: RunView; label: string }) {
   const notes = view.application?.notes ?? "", real = view.model?.proposal_source === "model";
   const done = view.status !== "RUNNING";
   return <section className="m-trace m-sec" aria-label={`What the agent did: ${label}`}>
-    <h3>What the agent did <Badge tone={real ? "live" : "warning"}>{real ? "REAL MODEL" : "TEST DOUBLE"}</Badge></h3>
+    <h3>What the agent did <Badge tone={real ? "live" : "simulated"}>{real ? "REAL MODEL" : "TEST DOUBLE"}</Badge></h3>
     <p className="m-muted">{real ? `Proposals below came from ${view.model.name} through Ollama.` : "These proposals came from a scripted test double, not a model."} Posture <strong>{view.posture.toUpperCase()}</strong>. Run <code>{view.run_id.slice(0, 8)}…</code>. Each row is a recorded field.</p>
     <div className="m-trace__attacker"><strong>Applicant notes: attacker-controlled customer text</strong>
       <p>{notes ? `“${notes}”` : "(no notes)"}</p><small>This is the only text in the case the applicant wrote. It reaches the model as untrusted data.</small></div>

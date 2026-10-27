@@ -133,6 +133,7 @@ code { font-family: "DM Mono", monospace; font-size: .82em; }
 /* Status badges: tint + Splunk fill border + accessible ink, and a glyph/border-style cue so no state relies on colour alone (the glyph is decorative; the text is the label). */
 .badge--live { border-color: var(--sp-good); background: var(--sp-tint-good); color: var(--sp-ink-good); }
 .badge--live::before { content: "\25CF" / ""; }
+.badge--live:has(.pulse)::before { content: none; } /* the pulse already carries the cue */
 .badge--replay, .badge--recorded { border-color: var(--sp-cat-4); background: var(--sp-tint-recorded); color: var(--sp-ink-recorded); }
 .badge--replay::before, .badge--recorded::before { content: "\25A3" / ""; }
 .badge--replayed { border-color: var(--sp-cat-7); background: var(--sp-tint-replayed); color: var(--sp-ink-replayed); }
@@ -141,7 +142,7 @@ code { font-family: "DM Mono", monospace; font-size: .82em; }
 .badge--simulated::before { content: "\25C7" / ""; }
 .badge--unverified { border: 1px dotted var(--sp-ink-high); background: var(--sp-tint-high); color: var(--sp-ink-high); }
 .badge--unverified::before { content: "\25B3" / ""; }
-.badge--allow, .badge--low { border-color: var(--sp-info); background: var(--sp-tint-info); color: var(--sp-ink-info); }
+.badge--allow, .badge--info, .badge--low { border-color: var(--sp-info); background: var(--sp-tint-info); color: var(--sp-ink-info); }
 .badge--deny, .badge--warning, .badge--medium { border-color: var(--sp-warning); background: var(--sp-tint-warning); color: var(--sp-ink-warning); }
 .badge--high { border-color: var(--sp-high); background: var(--sp-high); color: var(--sp-on-high); }
 .badge--critical { border-color: var(--sp-critical); background: var(--sp-tint-critical); color: var(--sp-ink-critical); }

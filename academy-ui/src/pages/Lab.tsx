@@ -40,7 +40,7 @@ export function LabPage({ id }: { id: string }) {
     <header className="page-header"><div>
       <div className="eyebrow">{domainName(lab.primary_domain)}{lab.secondary_domain ? ` · also ${domainName(lab.secondary_domain)}` : ""}</div>
       <h1>{lab.title}</h1>
-      <p><code>{lab.id}</code> · <Badge tone={availTone(lab.availability)}>{AVAIL[lab.availability].label.toUpperCase()}</Badge>{lab.launchable && <> <Badge tone="observed">ON THE ATTACK SERVICE ALLOWLIST</Badge></>}{lab.integrated && <> <Badge tone="live">NATIVE IN THIS ACADEMY</Badge></>}{lab.level && <> <Badge tone="neutral">{lab.level}</Badge></>}</p>
+      <p><code>{lab.id}</code> · <Badge tone={availTone(lab.availability)}>{AVAIL[lab.availability].label.toUpperCase()}</Badge>{lab.launchable && <> <Badge tone="observed">ON THE ATTACK SERVICE ALLOWLIST</Badge></>}{lab.integrated && <> <Badge tone="info">NATIVE IN THIS ACADEMY</Badge></>}{lab.level && <> <Badge tone="neutral">{lab.level}</Badge></>}</p>
       <p>{AVAIL[lab.availability].blurb} {REGISTRY_NOTE}</p>
     </div></header>
     {!full && <div className="m-notice" role="note"><Icon name="book" size={18} /><div><strong>Full guided lesson not yet available</strong><p>Only what this lab's own files support is shown below. Anything they do not document is left out rather than filled in.</p></div></div>}
@@ -53,7 +53,7 @@ export function LabPage({ id }: { id: string }) {
 
     {show("learn") && <section aria-label="Learn" className="m-card">
       <div className="panel-label">Learn</div><h2>Understand it in plain English</h2>
-      {ex?.summary && <div className="m-explain"><Badge tone="live">EXPLANATION</Badge><p className="m-lead">{ex.summary.text}</p><Based on={ex.summary.grounds} /></div>}
+      {ex?.summary && <div className="m-explain"><Badge tone="info">EXPLANATION</Badge><p className="m-lead">{ex.summary.text}</p><Based on={ex.summary.grounds} /></div>}
       {ex?.glance && <div className="m-glance"><h3>The attack at a glance</h3>
         <dl>{ex.glance.map((g) => <div key={g.id}><dt>{g.label}</dt><dd>{g.text}<Based on={g.grounds} /></dd></div>)}</dl></div>}
       {ex?.path && <AttackPath nodes={ex.path} title="How the attack could travel, from the lab's files" />}
@@ -79,7 +79,7 @@ export function LabPage({ id }: { id: string }) {
       {ex?.recorded && <RecordedPractice rec={ex.recorded} />}
       {ex?.recorded_ref && <LazyRecorded file={ex.recorded_ref.file} part="practice" />}
       {(ex?.practice?.defender || s.defend) && <div className="m-sec"><h3>How would a defender address the issue?</h3>
-        {ex?.practice?.defender ? <div className="m-explain"><Badge tone="live">EXPLANATION</Badge><p>{ex.practice.defender.text}</p><Based on={ex.practice.defender.grounds} /></div>
+        {ex?.practice?.defender ? <div className="m-explain"><Badge tone="info">EXPLANATION</Badge><p>{ex.practice.defender.text}</p><Based on={ex.practice.defender.grounds} /></div>
           : s.defend && <div className="m-quoted"><Badge tone="muted">QUOTED FROM THE LAB'S DOCUMENTS</Badge><p>{s.defend.text}</p><Src src={s.defend.source} /></div>}</div>}
     </section>}
 

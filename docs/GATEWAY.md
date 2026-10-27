@@ -32,6 +32,7 @@ The v1.2.0 column describes what is published and unchanged. The target for a ho
 | Gateway-aware readiness (`lab-ready.sh` delegates to `gateway-ready.sh`) | Implemented; tested with shim commands only, **not end to end** |
 | TLS `EDGE_TERMINATED`; OIDC / edge-header authentication | **Planned**; refused by the validator |
 | Splunk Web behind the gateway | **NOT VERIFIED**; not routed |
+| Classic Attack Service page (`/`, `/labs/*`, `/academy/*`) behind the gateway | **Not routed** (known v1.3.0 limitation). The gateway serves `/learn`, `/static/`, health and the read/attack APIs, and answers `/` with a 302 to `/learn`, so the Academy sidebar has no Attack Service link. The Attack stage inside the Academy is unaffected. A later gateway phase should investigate a dedicated route such as `/attack-service/` that proxies the existing UI with its assets, API calls, authentication and role enforcement. Not implemented. |
 | External Splunk Enterprise; Splunk Cloud (search and verification layer, see [Splunk integration](SPLUNK_INTEGRATION.md)) | Implemented and **mock-tested** only; real Splunk **NOT VERIFIED**; HEC export and app installation not covered |
 
 ## 443 or 8000
