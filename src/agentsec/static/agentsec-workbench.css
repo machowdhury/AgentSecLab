@@ -45,9 +45,10 @@
 }
 
 .workbench-meta .mode-badge {
-  background: #fff;
-  color: var(--chrome-navy);
+  background: var(--sp-tint-good);
+  color: var(--sp-ink-good);
 }
+.workbench-meta .mode-badge::before { content: "\25CF  " / ""; }
 
 .workbench {
   max-width: var(--max-width);
@@ -1032,18 +1033,18 @@
 }
 
 .fact-card[data-tone="allow"] {
-  border-left-color: var(--state-info);
-  background: #E8EEF5;
+  border-left-color: var(--sp-info);
+  background: var(--sp-tint-info);
 }
 
 .fact-card[data-tone="deny"] {
-  border-left-color: var(--state-warning);
-  background: #F6EBD8;
+  border-left-color: var(--sp-warning);
+  background: var(--sp-tint-warning);
 }
 
 .fact-card[data-tone="error"] {
-  border-left-color: var(--state-critical);
-  background: #F8E6E6;
+  border-left-color: var(--sp-critical);
+  background: var(--sp-tint-critical);
 }
 
 .fact-card[data-tone="executed"] {
@@ -1308,5 +1309,5 @@
 .workbench-page .status[data-state="RUNNING"],
 .workbench-page .status[data-state="LAUNCHING"],
 .workbench-page .status[data-state="WAITING FOR SPLUNK"] {
-  color: #7A4E00;
+  color: var(--sp-ink-warning);
 }

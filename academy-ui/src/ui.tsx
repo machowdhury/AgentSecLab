@@ -33,7 +33,7 @@ export function Button({ children, onClick, variant = "primary", icon, disabled 
   return <button className={`button button--${variant}`} onClick={onClick} disabled={disabled}>{children}{icon && <Icon name={icon} size={17}/>}</button>;
 }
 
-export function Badge({ children, tone = "neutral" }: { children: ReactNode; tone?: "live" | "replay" | "allow" | "deny" | "observed" | "muted" | "indexed" | "warning" | "neutral" }) {
+export function Badge({ children, tone = "neutral" }: { children: ReactNode; tone?: "live" | "replay" | "recorded" | "replayed" | "simulated" | "unverified" | "allow" | "deny" | "observed" | "muted" | "indexed" | "good" | "low" | "medium" | "high" | "critical" | "warning" | "neutral" }) {
   return <span className={`badge badge--${tone}`}>{children}</span>;
 }
 

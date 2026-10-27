@@ -3,7 +3,7 @@ import { Badge, Button } from "../ui";
 import { exportDoc, importText, resetDraft, useDraft } from "./store";
 import type { Level, Method, Origin, Problem } from "./types";
 
-const levelTone = { LOW: "allow", MEDIUM: "warning", HIGH: "deny" } as const;
+const levelTone = { LOW: "low", MEDIUM: "medium", HIGH: "high" } as const;
 export function LevelBadge({ level }: { level: Level | null }) { return level ? <Badge tone={levelTone[level]}>{level}</Badge> : <Badge tone="muted">NOT ASSESSED</Badge>; }
 const originTone: Record<Origin, "replay" | "observed" | "neutral" | "muted"> = { SOURCE: "replay", DERIVED: "observed", ANALYST: "neutral", MISSING: "muted" };
 export function OriginBadge({ o, method }: { o: Origin; method: Method }) { const m = method.origins.find((x) => x.id === o)!; return <span title={m.meaning}><Badge tone={originTone[o]}>{m.label.toUpperCase()}</Badge></span>; }

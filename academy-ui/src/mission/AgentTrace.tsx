@@ -51,7 +51,7 @@ export function AgentTrace({ view, label }: { view: RunView; label: string }) {
         {s.kind === "tool" && s.proposal && <ToolStep s={s} view={view} began={calls.get(s.step)?.executed} />}
         {s.kind === "invalid_proposal" && <p><strong>Unusable model reply</strong> (<code>{s.reason}</code>). Nothing was proposed, no policy decision was made and no handler ran.</p>}
         {s.kind === "final" && <><p><strong>The model gave its final answer</strong>: recommendation <code>{s.recommendation}</code></p>
-          <p className="m-trace__model"><Badge tone="warning">MODEL-WRITTEN, NOT VERIFIED</Badge> {s.summary}</p></>}
+          <p className="m-trace__model"><Badge tone="unverified">MODEL-WRITTEN, NOT VERIFIED</Badge> {s.summary}</p></>}
       </li>; })}
     </ol>
     {steps.length > 0 && steps[steps.length - 1].kind === "tool" && steps[steps.length - 1].decision?.decision === "DENY" && done && <p className="m-muted">The run ended after this denial.</p>}
@@ -59,7 +59,7 @@ export function AgentTrace({ view, label }: { view: RunView; label: string }) {
     {done && view.facts && <div className="m-trace__facts"><h4>Business facts computed by the Loan Desk (not model-written)</h4>
       <p>Screening result against the lab's reference rules: <strong>{view.facts.screening_result.replace(/_/g, " ")}</strong>. {view.facts.basis}</p>
       <ul className="m-rules">{view.facts.items.map((f) => <li key={f.id}>{f.label}: <strong>{f.value} {f.unit}</strong> <small className="m-src">from {f.source}</small></li>)}</ul></div>}
-    {done && view.advisory && <div className="m-trace__facts"><h4>The model's recommendation <Badge tone="warning">MODEL-WRITTEN, NOT VERIFIED</Badge></h4>
+    {done && view.advisory && <div className="m-trace__facts"><h4>The model's recommendation <Badge tone="unverified">MODEL-WRITTEN, NOT VERIFIED</Badge></h4>
       <p>{view.advisory.recommendation ? <>Recommendation <code>{view.advisory.recommendation}</code>. </> : null}{view.advisory.summary}</p>
       {view.advisory.differs_from_screening && <Callout kind="warn" role="status">The model's recommendation differs from the screening result computed above.</Callout>}
       {view.advisory.unsupported_figures && view.advisory.unsupported_figures.length > 0 && <p className="m-muted">Figures in the summary that no tool or computation supports: {view.advisory.unsupported_figures.join(", ")}.</p>}</div>}
