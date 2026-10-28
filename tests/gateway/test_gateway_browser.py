@@ -158,7 +158,8 @@ def test_every_link_the_academy_offers_through_the_gateway_is_implemented_by_it(
             route = queue.pop(0)
             if route in seen: continue
             seen.add(route)
-            page.goto(origin + route, wait_until="networkidle")
+            resp = page.goto(origin + route, wait_until="networkidle")
+            assert resp is not None and resp.status == 200, (route, resp and resp.status)        # an nginx error page has no anchors and would otherwise pass
             hrefs = page.eval_on_selector_all("a[href]", "els => els.map(e => e.href)")
             assert not page.get_by_text("Open in Splunk").count() and not page.get_by_role("link", name="System Status").count(), route
             for h in sorted(set(hrefs)):

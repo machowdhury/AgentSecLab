@@ -1,3 +1,4 @@
+import { SplunkLink } from "../config";
 import { useEffect, useState } from "react";
 import { Badge, Button, Icon } from "../ui";
 import { StageGuide } from "../StageGuide";
@@ -99,7 +100,7 @@ export function Mcp() {
       {st.prediction && <p className="m-score" role="status">You predicted <strong>{st.prediction}</strong> for the attack; the control recorded <strong>{ha["control.decision"]}</strong>{st.prediction === ha["control.decision"] ? " (match)." : " (differs)."}</p>}
       <div className="learning-note"><Icon name="book" size={18} /><div><strong>What this shows, and what it does not</strong>
         <p>The same request produced a different decision because the server-owned configuration changed. A DENY is not automatically SAFE, an ALLOW is not proof the handler ran (read the handler row), and missing mcp.started alone is not proof of prevention. Splunk observes these events; it never allowed or denied anything.</p></div></div>
-      <div className="m-actions">{cmp && <a className="button button--secondary" href={cmp.search_url} target="_blank" rel="noopener">Open both runs in Splunk <Icon name="arrow" size={15} /></a>}
+      <div className="m-actions">{cmp && <SplunkLink className="button button--secondary" href={cmp.search_url} target="_blank" rel="noopener">Open both runs in Splunk <Icon name="arrow" size={15} /></SplunkLink>}
         <Link className="button button--primary" to={MASTERY_PATH}>Test yourself in Mastery <Icon name="arrow" size={15} /></Link>
         <Link className="button button--ghost" to={FOUNDATIONS_PATH}>Review “Tools and MCP”</Link></div>
       {cmp && <details className="m-details"><summary>Starter SPL for both runs</summary><pre>{cmp.starter_spl}</pre><CopyButton text={cmp.starter_spl} label="Copy search" /></details>}
@@ -118,7 +119,7 @@ function Run({ rec, ev, onCheck, prediction }: { rec: McpRecord; ev: McpEvidence
       {prediction && h && rec.mode === "ATTACK" && <p className="m-muted">You predicted {prediction}; the control recorded {h["control.decision"]}.</p>}
     </div>
     <div className="m-verify"><Button variant="secondary" onClick={onCheck}>Check Splunk for this run <Icon name="search" size={15} /></Button>
-      <a className="button button--ghost" href={rec.search_handoff.search_url} target="_blank" rel="noopener">Open in Splunk <Icon name="arrow" size={15} /></a>
+      <SplunkLink className="button button--ghost" href={rec.search_handoff.search_url} target="_blank" rel="noopener">Open in Splunk <Icon name="arrow" size={15} /></SplunkLink>
       <span className="m-muted">This asks Splunk whether events for this run.id exist. It never makes the run SPLUNK-VERIFIED.</span></div>
     <details className="m-details"><summary>Technical details: the recorded hop, lifecycle and flags</summary>
       <div className="table-wrap"><table><caption className="m-caption">Authorization hop</caption><tbody>{h ? Object.entries(h).map(([k2, v]) => <tr key={k2}><th scope="row">{k2}</th><td>{String(v)}</td></tr>) : <tr><td>No hop recorded.</td></tr>}</tbody></table></div>

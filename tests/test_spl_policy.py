@@ -171,3 +171,21 @@ def test_the_reconcile_docker_path_never_lets_a_shell_see_the_search():
     script = argv[-1]
     assert "AGENTSEC_SPL=" + " ".join(spl.split()) in argv and script.count("$AGENTSEC_SPL") == 1
     assert "touch" not in script and "pwn" not in script and "index=a" not in script          # the constant script never contains the search text
+
+
+def test_the_readiness_probes_use_the_same_policy_and_pass_the_search_as_data(monkeypatch):
+    """Review F2: evidence_readiness had two more places that send SPL (bundled docker path, legacy REST probe)."""
+    from agentsec import evidence_readiness as er
+    import subprocess
+    seen = {}
+    runner = lambda argv, **kw: seen.setdefault("argv", argv) and subprocess.CompletedProcess(argv, 0, "count,n\n5,5\n", "")
+    out = er.probe_splunk_count(RUN, runner=runner)
+    argv = seen["argv"]
+    assert out["splunk_ok"] and any(a.startswith("AGENTSEC_SPL=index=") and RUN in a for a in argv) and RUN not in argv[-1] and argv[-1].count("$AGENTSEC_SPL") == 1
+    monkeypatch.setattr(er, "completeness_spl", lambda run_id, **k: "index=a | outputlookup x.csv")
+    calls = []
+    refused = er.probe_splunk_count(RUN, runner=lambda argv, **k: calls.append(argv))
+    assert refused["error"] == "forbidden_spl" and refused["splunk_attempted"] is False and calls == []
+    env = {"AGENTSEC_SPLUNK_PROBE_ENABLED": "true", "AGENTSEC_SPLUNK_PROBE_URL": "https://s.example:8089", "AGENTSEC_SPLUNK_PROBE_TOKEN": "t", "AGENTSEC_SPLUNK_PROBE_CA_FILE": __file__}
+    opened = []
+    assert er.probe_splunk_count_rest(RUN, env=env, opener=lambda *a, **k: opened.append(a))["error"] == "forbidden_spl" and opened == []

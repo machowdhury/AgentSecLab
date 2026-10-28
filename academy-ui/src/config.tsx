@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { api } from "./api";
 
 export interface MissionConfig {
@@ -22,6 +22,11 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 export const useConfig = () => useContext(Ctx);
+/** A link that opens Splunk Web. Behind the HTTPS gateway Splunk Web is not published, so such a link would be dead: render nothing there. */
+export function SplunkLink(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
+  const { config } = useConfig();
+  return config.gateway ? null : <a {...props} />;
+}
 
 export type EnvState = { level: "checking" | "ready" | "attention"; detail: string };
 /** Reads the real service checks; never claims readiness it did not measure. */
