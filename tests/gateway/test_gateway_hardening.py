@@ -85,7 +85,8 @@ def test_hardening_is_applied_to_the_running_containers_and_the_service_still_wo
     from gwhelpers import sh
     for name, mem in (("agentsec-gw-dev-gateway", 128 << 20), ("agentsec-gw-dev-attack", 512 << 20), ("agentsec-gw-dev-acmebank", 768 << 20)):
         h = json.loads(sh("docker", "inspect", name).stdout)[0]["HostConfig"]
-        assert h["CapDrop"] == ["ALL"] and "no-new-privileges:true" in h["SecurityOpt"] and h["Memory"] == mem and h["PidsLimit"] in (128, 256) and not h["Privileged"], (name, h["CapDrop"], h["SecurityOpt"], h["Memory"], h["PidsLimit"])
+        want = ["ALL"] if name != "agentsec-gw-dev-gateway" else ["NET_RAW", "MKNOD", "SETFCAP", "SETPCAP", "FSETID", "AUDIT_WRITE", "SYS_CHROOT", "NET_BIND_SERVICE"]
+        assert sorted(c.removeprefix("CAP_") for c in h["CapDrop"] or []) == sorted(want) and "no-new-privileges:true" in h["SecurityOpt"] and h["Memory"] == mem and h["PidsLimit"] in (128, 256) and not h["Privileged"], (name, h["CapDrop"], h["SecurityOpt"], h["Memory"], h["PidsLimit"])
     # bounded load through the gateway: the limits must not break normal use
     import concurrent.futures as cf
     codes = list(cf.ThreadPoolExecutor(16).map(lambda i: stack.curl(["/learn", "/api/learn/config", "/api/academy/status", "/health"][i % 4], user="learner").status, range(240)))

@@ -1,7 +1,7 @@
 # Opt-in unified HTTPS gateway. Not used unless you pass this file AND --profile gateway:
 #   docker compose -f docker-compose.yml -f docker-compose.gateway.yml --profile gateway up -d --no-deps gateway attack_service acmebank
 # (scripts/gateway.sh wraps this after validating the configuration). The base docker-compose.yml is unchanged.
-# Hardening (this overlay only; the base compose file is unchanged): cap_drop ALL, no-new-privileges, memory and pids limits on the gateway, Attack Service and AcmeBank.
+# Hardening (this overlay only; the base compose file is unchanged): dropped capabilities, no-new-privileges, memory and pids limits on the gateway, Attack Service and AcmeBank.
 #   NOT applied (see docs/GATEWAY.md): read_only root filesystems and CPU limits.
 # Effect: the gateway is the ONLY externally reachable application port (AGENTSEC_PUBLIC_PORT: 443 default, or 8000); Attack Service and AcmeBank lose their host port mappings and
 # stay reachable only on the internal agentsec_mesh network. Splunk Web moves to a loopback-only port; HEC and OTel stay loopback-only.
@@ -29,10 +29,10 @@ services:
       - ${AGENTSEC_TLS_KEY_FILE:-./.gateway/tls/server.key}:/certs/server.key:ro
       - ${AGENTSEC_AUTH_FILE:-./.gateway/htpasswd}:/etc/nginx/htpasswd:ro
     restart: unless-stopped
-    # Least privilege for the one internet-facing container (nginx drops to its worker user, binds 8443 > 1024): no capabilities except those the master
-    # needs to start workers, no privilege gain, bounded memory and processes. Raise the limits with the variables if your hardware needs it.
-    cap_drop: [ALL]
-    cap_add: [CHOWN, SETGID, SETUID]
+    # Least privilege for the one internet-facing container: drop the default capabilities nginx never uses (it binds 8443 > 1024), no privilege gain, bounded
+    # memory and processes. The master still needs CHOWN, DAC_OVERRIDE (to read a 0600 key owned by another host user), FOWNER, KILL, SETGID and SETUID, so
+    # dropping ALL and adding some back is deliberately NOT used (it is also not portable across rootless runtimes). Raise the limits with the variables if needed.
+    cap_drop: [NET_RAW, MKNOD, SETFCAP, SETPCAP, FSETID, AUDIT_WRITE, SYS_CHROOT, NET_BIND_SERVICE]
     security_opt: ["no-new-privileges:true"]
     mem_limit: ${AGENTSEC_GATEWAY_MEM_LIMIT:-128m}
     pids_limit: 128

@@ -111,9 +111,10 @@ def test_gateway_overlay_hardening_is_present_only_in_the_overlay():
         assert not base[name].get("cap_drop") and not base[name].get("security_opt") and not base[name].get("mem_limit")      # the base file is untouched
         assert gw[name]["cap_drop"] == ["ALL"] and gw[name]["security_opt"] == ["no-new-privileges:true"] and int(gw[name]["mem_limit"]) > 0 and int(gw[name]["pids_limit"]) > 0
     g = gw["gateway"]
-    assert g["cap_drop"] == ["ALL"] and sorted(g["cap_add"]) == ["CHOWN", "SETGID", "SETUID"] and g["security_opt"] == ["no-new-privileges:true"]
+    assert sorted(g["cap_drop"]) == sorted(["NET_RAW", "MKNOD", "SETFCAP", "SETPCAP", "FSETID", "AUDIT_WRITE", "SYS_CHROOT", "NET_BIND_SERVICE"]) and not g.get("cap_add")
+    assert not {"CHOWN", "DAC_OVERRIDE", "FOWNER", "KILL", "SETGID", "SETUID"} & set(g["cap_drop"]) and g["security_opt"] == ["no-new-privileges:true"]   # what nginx's master needs stays
     assert int(g["mem_limit"]) == 128 * 1024 * 1024 and int(g["pids_limit"]) == 128
-    assert not g.get("privileged") and not g.get("network_mode") and not g.get("pid") and not g.get("cap_add") == ["ALL"]
+    assert not g.get("privileged") and not g.get("network_mode") and not g.get("pid")
 
 
 def test_limits_can_be_raised_without_editing_the_file():
