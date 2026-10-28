@@ -49,6 +49,8 @@ sh scripts/gateway.sh up                      # gateway + attack_service + acmeb
 sh scripts/lab-ready.sh                       # gateway-aware readiness (see below)
 sh scripts/gateway.sh down                    # removes only the gateway container
 ```
+`init` creates a 90-day test CA that is name-constrained (it can only vouch for `AGENTSEC_PUBLIC_HOST` and `localhost`, so trusting it in a browser cannot be abused for other sites) and deletes the CA's signing key as soon as the server certificate is signed, on every exit path. To renew, move `./.gateway` away and run `init` again, then trust the new CA. Keys you supply for `ORG_CERT` are yours: nothing here creates, changes or deletes them.
+
 **Generic Linux server or VM (including cloud VMs):** the same commands, with `AGENTSEC_GATEWAY_BIND=0.0.0.0` and `AGENTSEC_GATEWAY_ALLOW_NONLOOPBACK=1` to make the one port reachable, your DNS name in `AGENTSEC_PUBLIC_HOST`, and your own certificate (below). Open only the chosen port in whatever firewall or network rule your environment uses; nothing here depends on a cloud provider's services.
 
 **Organization-provided certificate:** set `AGENTSEC_TLS_MODE=ORG_CERT`, `AGENTSEC_TLS_CERT_FILE` (server certificate), `AGENTSEC_TLS_KEY_FILE` (unencrypted PEM key, mode 0400/0600), `AGENTSEC_TLS_CHAIN_FILE` (intermediates plus root) and `AGENTSEC_AUTH_FILE` (htpasswd with users `learner` and `operator`, hashes only). Validation checks the key matches, the dates, the hostname against `AGENTSEC_PUBLIC_HOST`, and that the chain verifies. There is no option to skip certificate or hostname verification, and no certificate or key is ever written outside `./.gateway`.

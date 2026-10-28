@@ -15,11 +15,15 @@ validate() { PYTHONPATH="$ROOT/src" "$PY" -m agentsec.gateway_config validate; }
 
 case "${1:-}" in
   init)   # LOCAL_DEV: disposable CA + server certificate + two users. Refuses to overwrite an existing directory.
+    # The CA is name-constrained to the public host and localhost, and its private key exists only while the server certificate is signed: it is
+    # removed on every exit path (success or failure). Renewal = move the directory away and run init again. Operator-supplied (ORG_CERT) CA keys are never touched.
     [ ! -e "$GDIR" ] || { echo "refusing: $GDIR already exists (move it away first)"; exit 1; }
     HOST="${AGENTSEC_PUBLIC_HOST:-localhost}"; PORT="${AGENTSEC_PUBLIC_PORT:-${AGENTSEC_HTTPS_PORT:-443}}"
     umask 077; mkdir -p "$GDIR/tls"
+    trap 'rm -f "$GDIR/tls/ca.key" "$GDIR/tls/ca.srl" "$GDIR/tls/s.csr" "$GDIR/tls/ext.cnf"' EXIT
     openssl req -x509 -newkey rsa:2048 -nodes -days 90 -subj "/CN=agentsec-local-dev-ca" -keyout "$GDIR/tls/ca.key" -out "$GDIR/tls/ca.pem" \
-      -addext "basicConstraints=critical,CA:TRUE" -addext "keyUsage=critical,keyCertSign,cRLSign" 2>/dev/null
+      -addext "basicConstraints=critical,CA:TRUE" -addext "keyUsage=critical,keyCertSign,cRLSign" \
+      -addext "nameConstraints=critical,permitted;DNS:$HOST,permitted;DNS:localhost" 2>/dev/null
     openssl req -new -newkey rsa:2048 -nodes -subj "/CN=$HOST" -keyout "$GDIR/tls/server.key" -out "$GDIR/tls/s.csr" 2>/dev/null
     printf "subjectAltName=DNS:%s,DNS:localhost\nbasicConstraints=CA:FALSE\nkeyUsage=digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\n" "$HOST" > "$GDIR/tls/ext.cnf"
     openssl x509 -req -in "$GDIR/tls/s.csr" -CA "$GDIR/tls/ca.pem" -CAkey "$GDIR/tls/ca.key" -CAcreateserial -days 90 -extfile "$GDIR/tls/ext.cnf" -out "$GDIR/tls/server.pem" 2>/dev/null
@@ -30,7 +34,8 @@ case "${1:-}" in
     printf 'AGENTSEC_TLS_MODE=LOCAL_DEV\nAGENTSEC_PUBLIC_HOST=%s\nAGENTSEC_PUBLIC_PORT=%s\n' "$HOST" "$PORT" > "$GDIR/gateway.env"
     chmod 644 "$GDIR/htpasswd"   # the nginx container reads it; it holds hashes only
     echo "LOCAL_DEV gateway material written to $GDIR (test-only; credentials in credentials.txt, mode 0600)."
-    echo "Trust $GDIR/tls/ca.pem in your browser yourself if you want a green padlock; this script never changes a trust store." ;;
+    echo "Trust $GDIR/tls/ca.pem in your browser yourself if you want a green padlock; this script never changes a trust store."
+    echo "That CA can only vouch for $HOST and localhost (name constraints), and its signing key has already been deleted." ;;
   validate) load_env; validate ;;
   up)
     load_env; AGENTSEC_CHECK_PORT_FREE=1 validate
