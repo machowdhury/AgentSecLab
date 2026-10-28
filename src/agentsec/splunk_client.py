@@ -6,7 +6,8 @@ EXTERNAL_ENTERPRISE and CLOUD (REST to a management endpoint you supply). In the
 Security rules enforced here: https only; certificate AND hostname verification always on (a CA bundle may ADD trust, nothing can
 disable it); redirects are never followed (a token must not travel to another host); the token comes from a file, never from a URL,
 never from the process environment value, never in repr/str/log/error text; responses are size-capped; searches have a wall-clock
-deadline; only fixed, read-only SPL built by the application is accepted (see assert_read_only_spl). Failures are classified by
+deadline; only SPL that passes the constrained read-only policy (agentsec.spl_policy: an allowlist for the application's fixed dialect, not a general
+SPL sanitizer) is sent, and the credential should still be a least-privilege, search-only token. Failures are classified by
 stage: connectivity, authentication, authorization, search, telemetry.
 """
 from __future__ import annotations
@@ -24,6 +25,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
+from agentsec import spl_policy
 from pathlib import Path
 from typing import Callable
 
@@ -36,8 +38,7 @@ MAX_SPL_CHARS = 8192
 MAX_TOKEN_FILE_BYTES = 4096
 INDEX_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 RUN_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
-FORBIDDEN_COMMANDS = {"delete", "outputlookup", "outputcsv", "collect", "mcollect", "meventcollect", "sendemail", "script", "run", "dbxquery", "rest",
-                      "tscollect", "sendalert", "map", "loadjob", "savedsearch", "crawl", "input", "audit", "diag"}
+FORBIDDEN_COMMANDS = spl_policy.KNOWN_MUTATING     # kept for callers; the allowlist in spl_policy is what decides
 
 
 @dataclass(frozen=True)
@@ -94,16 +95,22 @@ def validate_config(env: dict | None = None) -> list[Finding]:
             warn("EXTERNAL_SETTINGS_IGNORED", "AGENTSEC_SPLUNK_REST_URL is ignored in BUNDLED mode")
         return out
     url = env.get("AGENTSEC_SPLUNK_REST_URL", "")
-    u = urllib.parse.urlsplit(url)
+    try:
+        u = urllib.parse.urlsplit(url)
+        port, malformed = u.port, False          # .port raises ValueError for a non-numeric or out-of-range port
+    except ValueError:
+        u, port, malformed = urllib.parse.urlsplit(""), None, True
     if not url:
         err("REST_URL_MISSING", "AGENTSEC_SPLUNK_REST_URL is required (https://host:8089)")
+    elif malformed:
+        err("REST_URL_INVALID", "AGENTSEC_SPLUNK_REST_URL is not a valid URL (check the host and port)")
     elif u.scheme != "https" or not u.hostname:
         err("REST_URL_INVALID", "AGENTSEC_SPLUNK_REST_URL must be an https:// URL with a host name")
     elif u.username or u.password or u.query or u.fragment or u.path not in ("", "/"):
         err("REST_URL_INVALID", "AGENTSEC_SPLUNK_REST_URL must not contain credentials, a path, a query or a fragment")
     else:
-        if u.port not in (None, 8089):
-            warn("REST_PORT_NONSTANDARD", f"Splunk management normally listens on 8089; got {u.port}")
+        if port not in (None, 8089):
+            warn("REST_PORT_NONSTANDARD", f"Splunk management normally listens on 8089; got {port}")
         if mode == "CLOUD":
             if not re.search(r"\.splunkcloud(gc)?\.com$", u.hostname):
                 warn("CLOUD_HOST_UNRECOGNIZED", "CLOUD mode expects <deployment>.splunkcloud.com (or your Splunk-provided host)")
@@ -158,14 +165,11 @@ def config_from_env(env: dict | None = None) -> SplunkConfig:
 
 
 def assert_read_only_spl(spl: str) -> str:
-    """Defence in depth: only application-built, read-only SPL may be sent. Learners never supply SPL (see loan_desk/search.py)."""
-    if not isinstance(spl, str) or not spl.strip() or len(spl) > MAX_SPL_CHARS:
-        raise SplunkError("search", "forbidden_spl", "empty or oversized search")
-    for segment in spl.split("|"):
-        words = segment.strip().split(None, 1)
-        if words and words[0].lower() in FORBIDDEN_COMMANDS:
-            raise SplunkError("search", "forbidden_spl", f"command '{words[0].lower()}' is not allowed")
-    return " ".join(spl.split())
+    """Only SPL that passes the constrained read-only policy is sent (see agentsec.spl_policy). Learners never supply SPL (see loan_desk/search.py)."""
+    try:
+        return spl_policy.checked(spl, backend="rest")
+    except spl_policy.SplPolicyViolation as exc:
+        raise SplunkError("search", "forbidden_spl", str(exc)) from None
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):

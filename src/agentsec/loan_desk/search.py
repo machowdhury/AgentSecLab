@@ -182,6 +182,11 @@ class DockerExecBackend:
         self.container, self.runner = container or SPLUNK_CONTAINER, runner or subprocess.run
 
     def run(self, spl: str, *, timeout_s: int = SEARCH_TIMEOUT_S, max_rows: int = MAX_ROWS) -> Outcome:
+        from agentsec import spl_policy
+        try:
+            spl = spl_policy.checked(spl, backend="docker-exec")      # this path runs with the container's admin credential: same read-only policy as REST
+        except spl_policy.SplPolicyViolation:
+            return Outcome(False, error="search_failed")
         t0 = time.monotonic()
         script = f'exec /opt/splunk/bin/splunk search "$AGENTSEC_SPL" -auth "admin:${{SPLUNK_PASSWORD}}" -output csv -maxout {int(max_rows) + 1} -max_time {int(timeout_s)}'
         argv = ["docker", "exec", "-u", "splunk", "-e", f"AGENTSEC_SPL={spl}", self.container, "bash", "-c", script]
