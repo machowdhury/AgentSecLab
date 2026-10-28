@@ -96,6 +96,13 @@ def test_htpasswd_must_hold_hashes_and_both_roles(tmp_path, pki):
     assert ("ERROR", "AUTH_ROLES_MISSING") in codes(base_env(tmp_path, pki, AGENTSEC_AUTH_FILE=str(one)))
 
 
+def test_unsalted_sha_htpasswd_entries_are_flagged_but_still_accepted(tmp_path, pki):
+    weak = tmp_path / "weak"; weak.write_text("learner:{SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=\noperator:{SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=\n")
+    c = codes(base_env(tmp_path, pki, AGENTSEC_AUTH_FILE=str(weak)))
+    assert ("WARN", "AUTH_WEAK_HASH") in c and not [x for x in c if x[0] == "ERROR"]
+    assert ("WARN", "AUTH_WEAK_HASH") not in codes(base_env(tmp_path, pki))               # the generated apr1 hashes are not flagged
+
+
 def test_nonloopback_bind_warns_unless_acknowledged(tmp_path, pki):
     assert ("WARN", "BIND_NONLOOPBACK") in codes(base_env(tmp_path, pki, AGENTSEC_GATEWAY_BIND="0.0.0.0"))
     assert ("WARN", "BIND_NONLOOPBACK") not in codes(base_env(tmp_path, pki, AGENTSEC_GATEWAY_BIND="0.0.0.0", AGENTSEC_GATEWAY_ALLOW_NONLOOPBACK="1"))

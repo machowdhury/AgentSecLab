@@ -112,6 +112,8 @@ def validate(env: dict[str, str] | None = None, now: datetime | None = None) -> 
                 err("AUTH_FILE_INVALID", "every htpasswd line must be user:hash (apr1, bcrypt, SHA or crypt); plaintext passwords are refused")
             elif not {"learner", "operator"} <= users:
                 err("AUTH_ROLES_MISSING", "htpasswd must define the users 'learner' and 'operator' (roles come from the user name)")
+            if any(l.split(":", 1)[1].startswith("{SHA}") for l in lines if ":" in l):
+                warn("AUTH_WEAK_HASH", "an htpasswd entry uses unsalted {SHA}: anyone who reads the file can test guesses at billions per second. Use bcrypt or apr1 (the generated credentials use apr1). The gateway has no per-account lockout, so passwords must be long and random")
 
     mode = env.get("AGENTSEC_TLS_MODE", "LOCAL_DEV")
     if mode in TLS_PLANNED:
