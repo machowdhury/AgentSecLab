@@ -81,3 +81,18 @@ def test_no_service_other_than_the_gateway_gains_privileges_or_networks():
     for name in base:
         assert gw[name].get("networks") == base[name].get("networks") and gw[name].get("privileged") == base[name].get("privileged"), name
     assert list(gw["gateway"]["networks"]) == ["agentsec_mesh"]
+
+
+@pytest.mark.parametrize("env,port", [({}, "443"), ({"AGENTSEC_PUBLIC_PORT": "8000"}, "8000"), ({"AGENTSEC_HTTPS_PORT": "18543"}, "18543")])
+def test_the_gateway_is_told_its_public_port_with_the_same_precedence_as_the_published_port(env, port):
+    """The Host the backends receive carries this port (their same-origin check compares it with the browser's Origin), so it must agree with the mapping."""
+    gw = cfg(OVL, env=env, profiles=("gateway",))["gateway"]
+    assert gw["environment"]["AGENTSEC_PUBLIC_PORT"] == port
+    assert [p for p in gw["ports"] if p["target"] == 8443][0]["published"] == port
+
+
+def test_the_gateway_builds_host_from_configuration_not_from_the_client():
+    t = (ROOT / "gateway/templates/gateway.conf.template").read_text()
+    assert "proxy_set_header Host $host$authority_port;" in t and "proxy_set_header Host $host;" not in t
+    assert 'map "${AGENTSEC_PUBLIC_PORT}" $authority_port' in t and "return 421" in t
+    assert "X-Forwarded-Host" not in t and "$http_x_forwarded" not in t       # no client forwarding header is ever consulted

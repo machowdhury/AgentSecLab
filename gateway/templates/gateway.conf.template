@@ -8,6 +8,13 @@ limit_req_zone $binary_remote_addr zone=attack:1m rate=6r/m;
 limit_req_status 429;
 map $remote_user $role { default learner; operator operator; }   # role comes only from the authenticated user
 
+# Canonical external authority = the configured public host plus the configured public port (omitted for 443). The backends' same-origin check
+# compares a browser's Origin (which carries a non-default port) with the Host they receive, so the Host must carry the port. It is built from
+# configuration, never from a client forwarding header, and a request whose Host port differs from the configured one is refused (421).
+map "${AGENTSEC_PUBLIC_PORT}" $authority_port { default ":${AGENTSEC_PUBLIC_PORT}"; 443 ""; }
+map $http_host $client_port { default ""; "~:(?<p>[0-9]{1,5})$" ":$p"; }
+map $client_port $client_port_norm { ":443" ""; default $client_port; }
+
 add_header Strict-Transport-Security "max-age=31536000" always;
 add_header X-Content-Type-Options nosniff always;
 add_header X-Frame-Options DENY always;
@@ -24,9 +31,10 @@ server {
   server_name ${AGENTSEC_PUBLIC_HOST};
   ssl_certificate     /certs/server.pem;       # leaf + chain, mounted read-only from files
   ssl_certificate_key /certs/server.key;
+  if ($client_port_norm != $authority_port) { return 421; }   # wrong or malformed Host port for this deployment
   auth_basic "AgentSecLab"; auth_basic_user_file /etc/nginx/htpasswd;
   set $attack http://attack_service:5001;
-  proxy_set_header Host $host;
+  proxy_set_header Host $host$authority_port;
   include /etc/nginx/identity-headers.conf;
 
   location = / { return 302 /learn; }          # one canonical entry point

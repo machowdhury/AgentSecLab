@@ -14,6 +14,7 @@ services:
     networks: [agentsec_mesh]
     environment:
       - AGENTSEC_PUBLIC_HOST=${AGENTSEC_PUBLIC_HOST:-localhost}
+      - AGENTSEC_PUBLIC_PORT=${AGENTSEC_PUBLIC_PORT:-${AGENTSEC_HTTPS_PORT:-443}}
       - AGENTSEC_ATTACK_TIER=${AGENTSEC_ATTACK_TIER:-enabled}
       - NGINX_ENVSUBST_FILTER=^AGENTSEC_
     volumes:
