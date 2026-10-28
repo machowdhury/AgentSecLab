@@ -103,3 +103,19 @@ def test_only_the_attack_service_is_told_it_is_behind_the_gateway():
     assert "AGENTSEC_GATEWAY_MODE" not in (base["attack_service"].get("environment") or {})
     assert gw["attack_service"]["environment"]["AGENTSEC_GATEWAY_MODE"] == "1"
     assert all("AGENTSEC_GATEWAY_MODE" not in (gw[n].get("environment") or {}) for n in gw if n not in ("attack_service",))
+
+
+def test_gateway_overlay_hardening_is_present_only_in_the_overlay():
+    base, gw = cfg(BASE), cfg(OVL, profiles=("local", "gateway"))
+    for name in ("attack_service", "acmebank"):
+        assert not base[name].get("cap_drop") and not base[name].get("security_opt") and not base[name].get("mem_limit")      # the base file is untouched
+        assert gw[name]["cap_drop"] == ["ALL"] and gw[name]["security_opt"] == ["no-new-privileges:true"] and int(gw[name]["mem_limit"]) > 0 and int(gw[name]["pids_limit"]) > 0
+    g = gw["gateway"]
+    assert g["cap_drop"] == ["ALL"] and sorted(g["cap_add"]) == ["CHOWN", "SETGID", "SETUID"] and g["security_opt"] == ["no-new-privileges:true"]
+    assert int(g["mem_limit"]) == 128 * 1024 * 1024 and int(g["pids_limit"]) == 128
+    assert not g.get("privileged") and not g.get("network_mode") and not g.get("pid") and not g.get("cap_add") == ["ALL"]
+
+
+def test_limits_can_be_raised_without_editing_the_file():
+    gw = cfg(OVL, env={"AGENTSEC_GATEWAY_MEM_LIMIT": "256m", "AGENTSEC_ATTACK_MEM_LIMIT": "1g", "AGENTSEC_ACMEBANK_MEM_LIMIT": "2g"}, profiles=("local", "gateway"))
+    assert (int(gw["gateway"]["mem_limit"]), int(gw["attack_service"]["mem_limit"]), int(gw["acmebank"]["mem_limit"])) == (256 << 20, 1 << 30, 2 << 30)

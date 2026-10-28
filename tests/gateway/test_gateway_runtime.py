@@ -148,11 +148,21 @@ def test_public_port_443_binds_and_serves_https_with_verified_certificate_and_ro
     stack.up_gateway(AGENTSEC_PUBLIC_PORT=str(PORT))          # back to the safe mapping for the remaining tests
 
 
-def test_public_port_8000_mode_is_verified_by_rendered_config_only():
-    """Host port 8000 is held by the real lab's Splunk Web on this machine, so a real bind is NOT VERIFIED here (it is never interrupted).
-    The rendered compose (tests/gateway/test_gateway_compose.py) proves the 0.0.0.0:8000->8443 mapping and that Splunk Web moves off 8000; the
-    gateway process inside the container is identical for every public port, which the runtime tests above exercise at the safe mapped port."""
-    assert not _free(8000) or True
+@pytest.mark.skipif(not _free(8000), reason="host port 8000 is occupied (the real lab's Splunk Web on this machine): the real bind NOT VERIFIED here (an existing service is never interrupted). "
+                                              "The 8000 CONFIGURATION is exercised without binding it in test_gateway_hardening.py::test_the_8000_configuration_works_at_runtime_without_binding_host_port_8000")
+def test_public_port_8000_binds_and_serves_https_with_verified_certificate_and_roles(stack):
+    stack.up_gateway(AGENTSEC_PUBLIC_PORT="8000")
+    try:
+        maps = sh("docker", "ps", "--filter", f"label=com.docker.compose.project={PROJECT}", "--format", "{{.Ports}}").stdout
+        assert "127.0.0.1:8000->8443/tcp" in maps and stack.port == 8000
+        s = sh("openssl", "s_client", "-connect", "127.0.0.1:8000", "-servername", HOST, "-verify_hostname", HOST, "-CAfile", stack.pki["root"], "-verify_return_error", input="")
+        assert "Verify return code: 0 (ok)" in s.stdout + s.stderr
+        assert stack.curl("/learn").status == 401 and stack.curl("/learn", user="learner").status == 200
+        assert stack.curl("/api/launch", user="learner", method="POST", data="{}").status == 403
+        ok = stack.curl("/api/launch", user="operator", method="POST", data="{}", headers=["Content-Type: application/json", f"Origin: https://{HOST}:8000"])
+        assert "cross_origin_rejected" not in ok.body and ok.status not in (401, 403)       # the browser Origin of the 8000 deployment is accepted
+    finally:
+        stack.up_gateway(AGENTSEC_PUBLIC_PORT=str(PORT))
 
 
 # Last on purpose: it swaps the served certificate to the LOCAL_DEV one, which the earlier tests' client trust (ORG_CERT root) would reject.

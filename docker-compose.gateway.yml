@@ -1,6 +1,8 @@
 # Opt-in unified HTTPS gateway. Not used unless you pass this file AND --profile gateway:
 #   docker compose -f docker-compose.yml -f docker-compose.gateway.yml --profile gateway up -d --no-deps gateway attack_service acmebank
 # (scripts/gateway.sh wraps this after validating the configuration). The base docker-compose.yml is unchanged.
+# Hardening (this overlay only; the base compose file is unchanged): cap_drop ALL, no-new-privileges, memory and pids limits on the gateway, Attack Service and AcmeBank.
+#   NOT applied (see docs/GATEWAY.md): read_only root filesystems and CPU limits.
 # Effect: the gateway is the ONLY externally reachable application port (AGENTSEC_PUBLIC_PORT: 443 default, or 8000); Attack Service and AcmeBank lose their host port mappings and
 # stay reachable only on the internal agentsec_mesh network. Splunk Web moves to a loopback-only port; HEC and OTel stay loopback-only.
 services:
@@ -27,12 +29,27 @@ services:
       - ${AGENTSEC_TLS_KEY_FILE:-./.gateway/tls/server.key}:/certs/server.key:ro
       - ${AGENTSEC_AUTH_FILE:-./.gateway/htpasswd}:/etc/nginx/htpasswd:ro
     restart: unless-stopped
+    # Least privilege for the one internet-facing container (nginx drops to its worker user, binds 8443 > 1024): no capabilities except those the master
+    # needs to start workers, no privilege gain, bounded memory and processes. Raise the limits with the variables if your hardware needs it.
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETGID, SETUID]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: ${AGENTSEC_GATEWAY_MEM_LIMIT:-128m}
+    pids_limit: 128
   attack_service:
     ports: !reset []
+    cap_drop: [ALL]                  # runs as the unprivileged appuser and needs no capability
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: ${AGENTSEC_ATTACK_MEM_LIMIT:-512m}        # about 30 MiB idle after days of use
+    pids_limit: 256
     environment:
       - AGENTSEC_GATEWAY_MODE=1      # the Academy then shows no link to Splunk Web, AcmeBank or the classic pages, which the gateway does not route
   acmebank:
     ports: !reset []
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: ${AGENTSEC_ACMEBANK_MEM_LIMIT:-768m}      # about 36 MiB idle after days of use
+    pids_limit: 256
   splunk:
     # Gateway mode frees host port 8000 (the optional public port) and never exposes Splunk Web beyond the host itself:
     # loopback only, on AGENTSEC_SPLUNK_LOCAL_PORT. Reach it from another machine only through your own tunnel.
