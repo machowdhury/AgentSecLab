@@ -42,14 +42,15 @@ export function Sidebar({ path, collapsed, setCollapsed, open }: { path: string;
         {group.items.map((item) => <NavItem key={item.label} item={item} path={path} collapsed={collapsed} />)}
       </div>)}
     </nav>
-    <div className="sidebar__footer">
+    {!config.gateway && <div className="sidebar__footer">
       <a className="nav-item" aria-label="System Status" href="/academy/status" title="System Status (opens the classic Academy page)"><Icon name="status" />{!collapsed && <span>System Status</span>}</a>
-    </div>
+    </div>}
   </aside>;
 }
 
 export function Topbar({ crumbs, menuOpen, toggleMenu }: { crumbs: ReactNode[]; menuOpen: boolean; toggleMenu: () => void }) {
   const env = useEnvironment();
+  const { config } = useConfig();
   return <header className="topbar">
     <button type="button" className="icon-button menu-toggle" aria-label="Open navigation menu" aria-expanded={menuOpen} aria-controls="primary-nav" onClick={toggleMenu}><Icon name="menu" /></button>
     <nav className="breadcrumb" aria-label="Breadcrumb">
@@ -61,7 +62,7 @@ export function Topbar({ crumbs, menuOpen, toggleMenu }: { crumbs: ReactNode[]; 
       {env.level === "attention" && <Badge tone="warning">CHECK ENVIRONMENT</Badge>}
       {env.level === "checking" && <Badge tone="muted">CHECKING…</Badge>}
       <span className="visually-hidden" role="status">{env.detail}</span>
-      <a className="icon-button" href="/academy/status" aria-label="Environment status and help" title={env.detail}><Icon name="help" /></a>
+      {!config.gateway && <a className="icon-button" href="/academy/status" aria-label="Environment status and help" title={env.detail}><Icon name="help" /></a>}
     </div>
   </header>;
 }

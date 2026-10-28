@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Badge, Button, Icon } from "../ui";
 import { StageGuide } from "../StageGuide";
 import { CURRICULUM_PATH, Link } from "../router";
+import { useConfig } from "../config";
 import { AVAIL, REGISTRY_NOTE, domainName, labById, type Entry, type Lab } from "../curriculum";
 import { AttackPath } from "../AttackPath";
 import { Glossary } from "../mission/parts";
@@ -118,11 +119,12 @@ function LearnBody({ l }: { l: NonNullable<Lab["sections"]["learn"]> }) { return
 function Block({ title, src, children }: { title: string; src: string; children: ReactNode }) { return <div className="m-sec"><h3>{title}</h3>{children}<Src src={src} /></div>; }
 
 function Exercise({ lab }: { lab: Lab }) {
+  const { config } = useConfig();
   const a = lab.assets;
   return <div className="m-sec"><h3>What exercise or evidence is available?</h3>
     <p><strong>{AVAIL[lab.availability].label}.</strong> {AVAIL[lab.availability].blurb}</p>
     {lab.native && <div className="m-actions"><Link className="button button--primary" to={lab.native}>Open the guided exercise <Icon name="arrow" size={15} /></Link></div>}
-    {lab.availability === "workbench" && !lab.integrated && <p className="m-muted">This lab is on the Attack Service allowlist, so a live attack and retest exist there. Nothing runs from this page.{" "}<a href={`/academy/labs/${lab.id}`}>Open the classic lab page (until it is migrated)</a>.</p>}
+    {lab.availability === "workbench" && !lab.integrated && <p className="m-muted">This lab is on the Attack Service allowlist, so a live attack and retest exist there. Nothing runs from this page.{config.gateway ? " The classic lab page is not published through this gateway." : <>{" "}<a href={`/academy/labs/${lab.id}`}>Open the classic lab page (until it is migrated)</a>.</>}</p>}
     {lab.integrated && <p className="m-muted">This lab is integrated natively: the guided sequence below launches its own catalog specimens through the Attack Service. The registry tier stays {AVAIL[lab.availability].label}.</p>}
     {lab.availability === "replay" && <p className="m-muted">Recorded evidence only: nothing is launched and no new run is created.</p>}
     {lab.availability === "content_only" && !lab.explainer?.recorded_ref && <p className="m-muted">There is nothing to launch or replay for this lab.</p>}

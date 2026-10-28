@@ -96,3 +96,10 @@ def test_the_gateway_builds_host_from_configuration_not_from_the_client():
     assert "proxy_set_header Host $host$authority_port;" in t and "proxy_set_header Host $host;" not in t
     assert 'map "${AGENTSEC_PUBLIC_PORT}" $authority_port' in t and "return 421" in t
     assert "X-Forwarded-Host" not in t and "$http_x_forwarded" not in t       # no client forwarding header is ever consulted
+
+
+def test_only_the_attack_service_is_told_it_is_behind_the_gateway():
+    base, gw = cfg(BASE), cfg(OVL, profiles=("local", "gateway"))
+    assert "AGENTSEC_GATEWAY_MODE" not in (base["attack_service"].get("environment") or {})
+    assert gw["attack_service"]["environment"]["AGENTSEC_GATEWAY_MODE"] == "1"
+    assert all("AGENTSEC_GATEWAY_MODE" not in (gw[n].get("environment") or {}) for n in gw if n not in ("attack_service",))

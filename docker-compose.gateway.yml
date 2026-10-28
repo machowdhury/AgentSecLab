@@ -29,6 +29,8 @@ services:
     restart: unless-stopped
   attack_service:
     ports: !reset []
+    environment:
+      - AGENTSEC_GATEWAY_MODE=1      # the Academy then shows no link to Splunk Web, AcmeBank or the classic pages, which the gateway does not route
   acmebank:
     ports: !reset []
   splunk:

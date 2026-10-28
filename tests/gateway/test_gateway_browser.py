@@ -131,3 +131,43 @@ def test_mismatched_origins_and_hosts_are_refused(stack):
     # a forwarding header from the client never changes the authority the backend sees or the authorization decision
     r = stack.curl("/api/launch", user="learner", method="POST", data=body, headers=j + ["X-Forwarded-Host: evil.test", "X-Forwarded-Port: 1", f"Origin: {_origin(PORT)}"])
     assert r.status == 403
+
+
+ROUTES = ["/learn", "/learn/path", "/learn/foundations", "/learn/curriculum", "/learn/mastery", "/learn/mcp", "/learn/assurance", "/learn/lab/LAB-MCP-001", "/learn/lab/LAB-PI-001",
+          "/learn/lab/LAB-HITL-APPROVAL", "/learn/loan-desk", "/learn/loan-desk/prepare", "/learn/loan-desk/attack", "/learn/loan-desk/investigate", "/learn/loan-desk/retest",
+          "/learn/evals", "/learn/evals/catalog", "/learn/evals/results", "/learn/evals/findings", "/learn/evals/export", "/learn/risk", "/learn/risk/register",
+          "/learn/risk/method", "/learn/risk/new", "/learn/governance", "/learn/governance/frameworks", "/learn/governance/threats", "/learn/governance/export"]
+
+
+def test_every_link_the_academy_offers_through_the_gateway_is_implemented_by_it(stack):
+    """RC1 L-1: no navigation or configuration link may point at a route the gateway does not implement (classic Academy pages, Splunk Web, AcmeBank)."""
+    origin = _origin(PORT)
+    cfg = stack.curl("/api/learn/config", user="learner")
+    assert cfg.status == 200 and json.loads(cfg.body)["gateway"] is True and json.loads(cfg.body)["urls"] == {"splunk_web": None, "acmebank": None}
+    seen, dead, foreign, queue = set(), [], [], list(ROUTES)
+    with sync_api.sync_playwright() as p:
+        b = _browser(p, PORT)
+        ctx = b.new_context(http_credentials={"username": "learner", "password": "l-pass"})
+        page = ctx.new_page()
+        while queue and len(seen) < 120:
+            route = queue.pop(0)
+            if route in seen: continue
+            seen.add(route)
+            page.goto(origin + route, wait_until="networkidle")
+            hrefs = page.eval_on_selector_all("a[href]", "els => els.map(e => e.href)")
+            assert not page.get_by_text("Open in Splunk").count() and not page.get_by_role("link", name="System Status").count(), route
+            for h in sorted(set(hrefs)):
+                if h.startswith(origin + "/") or h == origin:
+                    path = h[len(origin):].split("#")[0] or "/"
+                    status = page.evaluate("p => fetch(p).then(r => r.status)", path)       # in the page, so Chromium's host mapping and trust apply
+                    if status != 200: dead.append((route, path, status))
+                    if path.startswith("/learn") and path.split("?")[0] not in seen and path.split("?")[0] not in queue: queue.append(path.split("?")[0])
+                elif h.startswith(("http://", "https://")):
+                    host = h.split("/")[2]
+                    if host.split(":")[0] == HOST: foreign.append((route, h))          # same machine, another port: a service the gateway does not publish
+                elif not h.startswith(("mailto:", "javascript:")):
+                    foreign.append((route, h))
+        b.close()
+    assert len(seen) >= len(ROUTES)
+    assert not dead, f"links the gateway answers with an error: {dead[:10]}"
+    assert not foreign, f"links to unpublished services: {foreign[:10]}"

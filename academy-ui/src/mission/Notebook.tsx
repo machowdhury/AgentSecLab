@@ -144,7 +144,7 @@ export function SplCell({ cell, index }: { cell: CellConfig; index: number }) {
       <div className="m-actions">
         <Button onClick={run} disabled={!ready || !spl || busy}>{busy ? "Running…" : "Run search"} <Icon name="play" size={15} /></Button>
         <Button variant="ghost" onClick={reset} disabled={busy}>Reset cell</Button>
-        {spl && <a className="button button--secondary" href={splunkSearchUrl(config.urls.splunk_web, spl)} target="_blank" rel="noopener">Open in Splunk <Icon name="arrow" size={15} /></a>}
+        {spl && config.urls.splunk_web && <a className="button button--secondary" href={splunkSearchUrl(config.urls.splunk_web, spl)} target="_blank" rel="noopener">Open in Splunk <Icon name="arrow" size={15} /></a>}
       </div>
       <p className="m-muted m-nb-runs">{cell.compare ? <>Baseline run <code>{runId ?? "—"}</code> · Defended run <code>{compareRun ?? "—"}</code></> : <>Run <code>{runId ?? "—"}</code></>} · {status}</p>
       <div role="status" aria-live="polite" className="m-nb-status">
@@ -180,7 +180,7 @@ export function SplCell({ cell, index }: { cell: CellConfig; index: number }) {
         <p className="m-muted">Edit freely. Nothing typed here is ever run by the Academy. Copy it, or open it in Splunk and sign in there.</p>
         <label htmlFor={`${cell.id}-scratch`} className="visually-hidden">Scratchpad SPL (not executed here)</label>
         <textarea id={`${cell.id}-scratch`} rows={5} spellCheck={false} value={scratch} onChange={(e) => save({ scratch: e.target.value })} />
-        <div className="m-actions"><CopyButton text={scratch} label="Copy scratchpad" /><a className="button button--secondary" href={splunkSearchUrl(config.urls.splunk_web, scratch)} target="_blank" rel="noopener">Open scratchpad in Splunk <Icon name="arrow" size={15} /></a></div>
+        <div className="m-actions"><CopyButton text={scratch} label="Copy scratchpad" />{config.urls.splunk_web && <a className="button button--secondary" href={splunkSearchUrl(config.urls.splunk_web, scratch)} target="_blank" rel="noopener">Open scratchpad in Splunk <Icon name="arrow" size={15} /></a>}</div>
       </details>
     </div>
   </section>;

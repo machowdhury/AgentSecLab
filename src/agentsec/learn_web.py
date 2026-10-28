@@ -35,12 +35,19 @@ def _browser_origin(host_header: str, scheme: str, port: int) -> str:
     return f"{scheme if scheme in ('http', 'https') else 'http'}://{hostname}:{port}"
 
 
-def build_config(host_header: str, scheme: str, version: str) -> dict:
+def gateway_mode() -> bool:
+    """True when the opt-in HTTPS gateway fronts this service (docker-compose.gateway.yml sets AGENTSEC_GATEWAY_MODE=1)."""
+    return os.environ.get("AGENTSEC_GATEWAY_MODE") == "1"
+
+
+def build_config(host_header: str, scheme: str, version: str, *, gateway: bool = False) -> dict:
+    """Behind the gateway, Splunk Web and AcmeBank are not published and the classic pages are not routed: their URLs are null so the UI links to nothing."""
     return {
         "version": version,
+        "gateway": gateway,
         "urls": {
-            "splunk_web": _browser_origin(host_header, scheme, SPLUNK_WEB_PORT),
-            "acmebank": _browser_origin(host_header, scheme, ACMEBANK_PUBLIC_PORT),
+            "splunk_web": None if gateway else _browser_origin(host_header, scheme, SPLUNK_WEB_PORT),
+            "acmebank": None if gateway else _browser_origin(host_header, scheme, ACMEBANK_PUBLIC_PORT),
         },
         "mission": {
             "id": "loan-desk",
@@ -68,4 +75,4 @@ def register_learn(app: Flask, *, version: str) -> None:
 
     @app.get("/api/learn/config")
     def learn_config():
-        return _no_store(jsonify(build_config(request.host, request.scheme, version)))
+        return _no_store(jsonify(build_config(request.host, request.scheme, version, gateway=gateway_mode())))

@@ -38,7 +38,7 @@ export function InvestigationRecord() {
         {x.preview.length > 0 && <pre className="m-record__rows" aria-label="First rows returned by Splunk">{x.preview.join("\n")}</pre>}
         {x.changed.length > 0 && <p><strong>Rows that differed:</strong> {x.changed.length} (see the Retest stage for the full table)</p>}
         {e!.note ? <blockquote className="m-quote">Your note: {e!.note}</blockquote> : <p className="m-muted">You did not add a note for this search.</p>}
-        <details><summary>The exact SPL that ran</summary><pre>{x.spl}</pre><div className="m-actions"><CopyButton text={x.spl} label="Copy search" /><a className="button button--secondary" href={splunkSearchUrl(config.urls.splunk_web, x.spl)} target="_blank" rel="noopener">Open in Splunk <Icon name="arrow" size={15} /></a></div></details>
+        <details><summary>The exact SPL that ran</summary><pre>{x.spl}</pre><div className="m-actions"><CopyButton text={x.spl} label="Copy search" />{config.urls.splunk_web && <a className="button button--secondary" href={splunkSearchUrl(config.urls.splunk_web, x.spl)} target="_blank" rel="noopener">Open in Splunk <Icon name="arrow" size={15} /></a>}</div></details>
       </li>; })}</ol>}
   </section>;
 }
