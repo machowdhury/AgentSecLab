@@ -59,7 +59,12 @@ REFUSED = {
     # line breaks, control and non-ASCII characters
     "newline pipe": ("index=a | head 1\n| delete", "command_not_allowed"), "NUL": ("index=a\x00 | delete", "disallowed_character"),
     "unicode lookalike": ("index=a | ｄelete", "disallowed_character"), "zero width": ("index=a | de​lete", "disallowed_character"),
-    "empty": ("", "empty"), "blank": ("   ", "empty"), "search only": ("search", "empty"), "oversized": ("x" * 9000, "oversized"),
+    "nbsp before command": ("index=a |\u00a0delete", "command_not_allowed"), "trailing empty stage": ("index=a |", "command_not_allowed"),
+    "double pipe": ("|| delete", "command_not_allowed"), "semicolon chaining": ("index=a ; | delete", "command_not_allowed"),
+    "tstats after valid": ("index=a | head 1 | tstats count", "command_not_allowed"), "makeresults then outputlookup": ("| makeresults | eval a=1 | outputlookup x.csv", "command_not_allowed"),
+    "macro in eval": ("index=a | eval x=`m(1)`", "subsearch_or_macro"), "bracket inside quotes": ('index=a "[ | delete ]"', "subsearch_or_macro"),
+    "tab separated": ("index=a\t|\tdelete", "command_not_allowed"), "CR pipe": ("index=a\r| delete", "command_not_allowed"),
+    "command with digits": ("index=a | head1 | delete", "command_not_allowed"), "empty": ("", "empty"), "blank": ("   ", "empty"), "search only": ("search", "empty"), "oversized": ("x" * 9000, "oversized"),
     "too many stages": ("index=a" + " | head 1" * 17, "too_many_stages"),
 }
 
@@ -136,3 +141,18 @@ def test_a_malformed_rest_port_is_a_configuration_error_not_a_crash():
     for url in ("https://splunk.example:abc", "https://splunk.example:99999", "https://[::1"):
         f = sc.validate_config({"AGENTSEC_SPLUNK_MODE": "EXTERNAL_ENTERPRISE", "AGENTSEC_SPLUNK_REST_URL": url, "AGENTSEC_SPLUNK_SEARCH_TOKEN_FILE": "/nonexistent"})
         assert ("ERROR", "REST_URL_INVALID") in [(x.level, x.code) for x in f], url
+
+
+@pytest.mark.parametrize("label", sorted(REFUSED))
+def test_every_refused_search_is_stopped_on_every_execution_path_before_anything_runs(label):
+    """The three places that can send SPL to Splunk: the REST client, the bundled docker backend and the reconcile helper."""
+    spl, _ = REFUSED[label]
+    sent, calls = [], []
+    client = sc.SplunkRestClient(sc.SplunkConfig("EXTERNAL_ENTERPRISE", "https://splunk.example:8089", "", "t", "agentsec_telemetry", 5), opener=lambda *a, **k: sent.append(a))
+    with pytest.raises(sc.SplunkError) as e:
+        client.export_rows(spl)
+    assert e.value.code == "forbidden_spl"
+    assert not srch.DockerExecBackend("c", lambda argv, **kw: calls.append(argv)).run(spl, timeout_s=5, max_rows=5).ok
+    with pytest.raises(RuntimeError):
+        reconcile.run_spl(spl, runner=lambda argv, **kw: calls.append(argv))
+    assert sent == [] and calls == []
