@@ -4,15 +4,25 @@ Branch `feature/v1.3.0-unified-gateway` (local, **not pushed, not merged, not ta
 
 ## Decision
 
-**GO for the local v1.3.0 RC1 on the Phase 4 criteria, with these conditions stated plainly:**
+**CONDITIONAL GO.** The branch is fit to publish for independent review (a feature branch, not a release). It is **not** approved for hosted or networked use until the conditions below are closed.
 
-1. Login throttling (**M-2**) is **open** (Medium). Keep the gateway on its default loopback bind, or put an edge rate limiter in front of it. This must be in the v1.3.0 release notes (no v1.3.0 notes file exists yet; carry this line into it).
-2. The independent reviews were performed by separate AI reviewer contexts reading the real code, tests and logs, not by a human. A human sign-off is still recommended before any push or release.
-3. Not verified, and not claimed: a fresh install through `scripts/gateway.sh up` on a clean host (it would recreate the protected lab's fixed-name containers on this machine), the real host bind of port 8000 (held by the real lab's Splunk Web), real external Splunk (Enterprise or Cloud), the bundled-Splunk flow with a disposable instance, a live model run end to end, Linux, Windows and rootless runtimes, ORG_CERT chains from a production CA.
+1. **M-2 (unthrottled password guessing, Medium) is UNRESOLVED.** It is *not* an accepted risk: acceptance needs the release owner's approval, which has not been given. Until it is resolved or accepted, keep the gateway on its default loopback bind or behind an edge rate limiter, and carry this line into the v1.3.0 release notes (none exist yet).
+2. **The independent reviews were AI reviewers in separate contexts** reading the real code, tests and logs, not a human review. A human sign-off is still required before a merge or release.
+3. **Not verified, and not claimed:** a fresh install through `scripts/gateway.sh up` on a clean host; the real host bind of port 8000; real external Splunk (Enterprise or Cloud); the bundled-Splunk flow on a disposable instance; a live model run end to end; Linux, Windows and rootless runtimes; ORG_CERT chains from a production CA. See "Supported versus unverified configurations".
 
 No critical or high finding remains open. The one High (B-1) is closed and browser-tested on 443, on a non-standard port and on the 8000 deployment's real origin.
 
-## Test results (actual, on commit `8c1afd8`, clean tree, no test process left running)
+## Commit reconciliation (the exact tested commit)
+| Commit | Role |
+|---|---|
+| `de75241` | Reviewed base. It is the previously published remote head of `feature/v1.3.0-unified-gateway`; the RC1 qualification started here. |
+| `015e569` … `8c1afd8` | 13 remediation commits. **`8c1afd8` is the tested commit**: the three complete regression runs below ran on it, on a clean tree. |
+| `edcb8e5` | Changes one file, `tests/test_gateway_links_source.py`, by adding the assertion that the scan found at least 5 anchors (`+3 -1`). |
+| `1fd5960` and later | Documentation only (qualification, manifest, evidence copies, UI/UX specification, this reconciliation). |
+
+**What was run after `8c1afd8`:** only `tests/test_gateway_links_source.py` (2 passed), after `edcb8e5`. The three complete suites were **not** re-run after `edcb8e5` or after the documentation commits; their totals apply to `8c1afd8`, and the only code-level difference since is that one test assertion. The final documentation-consistency checks are described in the manifest (`post_tested_commit_checks`).
+
+## Test results (actual, on the tested commit `8c1afd8`, clean tree, no test process left running)
 
 | Suite | Result | Exit code |
 |---|---|---|
@@ -36,7 +46,7 @@ Status key: PASS = fixed and verified by the tests listed; OPEN = not fixed, doc
 |---|---|---|---|---|---|---|---|
 | **B-1** (High) | Gateway sent `Host $host` (no port); a browser's `Origin` carries a non-default port, so every browser POST on port 8000 or any non-443 port was refused `cross_origin_rejected`. Curl-based tests sent no Origin. | Host is built from the configured host and port (`AGENTSEC_PUBLIC_PORT` into the gateway); Host-port mismatch gets 421; `request_guard` requires an http(s) Origin equal to `host:port`, case-insensitive. | `015e569` | Reproduced first from the real UI button on the unfixed config (403). After: real-UI launch on a non-standard port, on 443, and in the 8000 deployment; `test_launch_guard.py` unit matrix. Negative: port dropped, other port, other host, userinfo, `null`, cross-site, Host with wrong port or `:abc` (421), forwarded headers ignored. | review 2: no bypass; review 3: APPROVE | DNS rebinding outside gateway mode (pre-existing, Info) | **PASS** |
 | **M-1** (Medium) | `limit_req` ran before authentication and authorization, so anonymous or learner requests spent the shared per-IP bucket; GET polling counted too. | Quota lives in the authorization subrequest after the rewrite-phase role check; POST only; keyed on the authenticated user; 429 + `Retry-After` mapped back. `return 204` replaced by a content handler (a `return` finished before `limit_req`). | `1b792af`, `1010040`, `8c1afd8` | 40 anonymous + 40 learner POSTs spend nothing; GET polling never limited; operator flood gets 429; recovery; cross-site-marked POSTs refused before the quota; 429 keeps security headers; **wrong-password requests as `operator` get 401 and leave the burst intact** (`test_gateway_hardening.py`). | review 3: APPROVE WITH CONDITIONS; condition (wrong-password test) met, test PASSED in the final run | One shared operator account shares one bucket | **PASS** |
-| **M-2** (Medium) | No per-client limit on failed Basic-auth attempts. Stock nginx cannot enforce a lockout without throttling a whole NAT'd classroom or moving the credential check into a stateful gate (redesign of the authentication path). | **Not implemented, by decision** (documented). Validator now warns on unsalted `{SHA}` htpasswd entries. Interim controls in `docs/GATEWAY.md`. | `ad5f3c6` | `test_unsalted_sha_htpasswd_entries_are_flagged...` only. No lockout test exists because there is no lockout. | reviews 2, 3, 4: acknowledged open | Password guessing is unthrottled on every route (also before this work, on the learner routes). Generated credentials are 96-bit random; user-supplied weak passwords are at risk | **OPEN (BLOCKED on a reviewed gate design)** |
+| **M-2** (Medium) | No per-client limit on failed Basic-auth attempts. Stock nginx cannot enforce a lockout without throttling a whole NAT'd classroom or moving the credential check into a stateful gate (redesign of the authentication path). | **Not implemented, by decision** (documented). Validator now warns on unsalted `{SHA}` htpasswd entries. Interim controls in `docs/GATEWAY.md`. | `ad5f3c6` | `test_unsalted_sha_htpasswd_entries_are_flagged...` only. No lockout test exists because there is no lockout. | reviews 2, 3, 4: acknowledged open | Password guessing is unthrottled on every route (also before this work, on the learner routes). Generated credentials are 96-bit random; user-supplied weak passwords are at risk | **UNRESOLVED** (not accepted; owner approval pending; blocked on a reviewed gate design) |
 | **M-3** (Medium) | `init` kept `ca.key` and the CA could vouch for any site while docs said to trust it. | CA is name-constrained (public host + localhost), `ca.key`/srl/csr/ext removed by an EXIT trap on success and failure. ORG_CERT keys untouched. | `5cc339c` | key absent; removal on forced failure; constraint present; strict chain and hostname verification pass/fail correctly; CA built with the script's constraint refuses another name (subtree violation); verified with LibreSSL 3.3.6 and OpenSSL 4.0.3. | review 3: APPROVE | Renewal means re-running `init` and re-trusting | **PASS** |
 | **M-4** (Medium) | `assert_read_only_spl` checked only the first word after each pipe (`[... \| delete]`, comment/macro prefixes, unlisted commands passed); the bundled docker path had no check at all. | New `agentsec.spl_policy` allowlist for the application's dialect (ASCII, no backtick or brackets, every pipe is a stage, base search then eval/fillnull/head/rename/sort/stats/table/where, `index=` only in the base search, caps), hash-only audit lines; applied to the REST client, docker-exec backend, reconcile and (review follow-up) both `evidence_readiness` probes; docker paths pass the search as an env var, never inside a shell command line. | `25f15cf`, `1010040`, `559f33b`, `8c1afd8` | Accepted dialect; every application query passes; 50+ adversarial vectors run through all three execution paths asserting nothing is sent; 3000 seeded random mutations; audit line has hash but not the text. | review 3: APPROVE WITH CONDITIONS (all-paths and test conditions met in `8c1afd8`); review 4: SATISFIED | The policy does not constrain the base search's index or time range (the Splunk role is the control); arbitrary SPL is **not** claimed safe; real Splunk parsing not exercised; server-side `max_time`/`max_count` not sent | **PASS** (residual recorded) |
 | **M-5** (Medium) | Status probe tried `host.docker.internal:8000` and bare loopback ports: an isolated stack with no Splunk reported the protected lab's Splunk as its own, green chip. | Only configured endpoints are probed; reachability worded as reachability only; external modes get a staged REST check (AVAILABLE only if connectivity, authentication, authorization and a search pass; DEGRADED / UNAVAILABLE otherwise; 30 s cache under a lock); chip follows it. | `80c8e77`, `2f348ef`, `1010040` | 7 status tests + lock test (probe set, unconfigured service not counted, stage mapping, bad config fails closed). | review 3: APPROVE | Real external Splunk and the staged client are **mock-tested only** (NOT VERIFIED against real Splunk) | **PASS** (real Splunk NOT VERIFIED) |
@@ -52,8 +62,36 @@ Status key: PASS = fixed and verified by the tests listed; OPEN = not fixed, doc
 | Review 3 F1 / F2 / F4 / F5 | Wrong-password quota test missing; two readiness paths outside the policy; handoff links; crawl without route status | tests and fixes | `8c1afd8`, `edcb8e5` | see M-1, M-4, L-1 | review 4: conditions SATISFIED | none | **PASS** |
 | Review 3 F3 / F7 / F8 | Base-search index/time not constrained; status lock held during I/O; reconcile docker path only fake-runner tested | recorded | n/a | n/a | acknowledged | Low; reconcile against a real container NOT VERIFIED | **OPEN (Low)** |
 
+## STRIDE gap disposition (from the original threat model, `rc1-evidence/review-1-original-static-review.md`)
+| STRIDE row (gap) | Disposition |
+|---|---|
+| Attack launch: role is a user-name string; backends unauthenticated; regex `$` newline | Role enforcement tested (anonymous 401, learner 403, wrong password 401, header spoofing ignored). Backends still trust their network (documented, unchanged). `$` newline observed to fail closed. **Residual, documented.** |
+| Operator availability: quota exhausted by anonymous users, shared NAT, polling counted | **Closed** (M-1, F2). |
+| Credentials: no failed-login throttling; argv exposure; weak user-supplied passwords | Throttling **UNRESOLVED** (M-2); `{SHA}` warned; argv exposure (W-6) **open, Low**. |
+| TLS key and CA: unconstrained CA, retained key, advice to trust it | **Closed** (M-3). |
+| Browser origin: port-less Host broke the Origin check; HSTS on localhost | Origin/Host **closed** (B-1, F2, F3); HSTS on localhost (W-1) **open, Low**. |
+| Host exposure: non-loopback bind only warns; Compose older than 2.24 unchecked; Splunk not recreated | **Open, Low** (W-2, W-9); unchanged. |
+| Splunk REST token: bypassable SPL denylist; slow-drip deadline; reliance on token RBAC | SPL policy **closed** (M-4) with base-search scope **residual**; slow-drip (S-2) **open, Low**; RBAC remains the real control. |
+| Telemetry and evidence: HEC path not exercised | **Unchanged, NOT VERIFIED.** |
+| Internal mesh: any container can call the attack service | **Unchanged, documented** (no service authentication). |
+
+## Supported versus unverified configurations
+| Configuration | State |
+|---|---|
+| Gateway on 443, loopback bind, ORG_CERT with a private root/intermediate/server chain, LOCAL_DEV test CA, Docker Desktop on macOS Apple Silicon | **Runtime-tested** (isolated project) |
+| Gateway in the 8000 deployment | Host/Origin/quota/browser behaviour **runtime-tested** with the 8000 configuration behind a free loopback port; the **host bind of 8000 is NOT VERIFIED** |
+| Non-standard public ports (development) | Runtime-tested (18543) |
+| `scripts/gateway.sh init` and `validate` | Tested; `up` **not run** on a host with a running lab (it would recreate the protected lab's fixed-name containers) |
+| Bundled Splunk through the lab | Unchanged from v1.2.0; the gateway tests do not start Splunk; disposable-instance run **NOT VERIFIED** |
+| External Splunk Enterprise and Splunk Cloud | **Mock-tested only**; real Splunk NOT VERIFIED |
+| Linux Docker Engine, rootless Docker, Podman, Windows | **NOT VERIFIED** (static checks only) |
+| Non-loopback publication (`AGENTSEC_GATEWAY_BIND=0.0.0.0`) | Warns; **not recommended** while M-2 is unresolved |
+| OIDC, EDGE_TERMINATED, classic Attack UI and Splunk Web behind the gateway | **Unsupported** (refused or not routed) |
+
 ## What the original RC1 qualification verified, still valid
 Path and routing probes (26 vectors) fail closed; learners cannot reach attack routes with spoofed identity headers; six credential edge cases return 401; TLS 1.0 and 1.1 are rejected; backends publish no host ports; a stopped backend gives a clean 502 and recovers; a container restart is clean; the 30-route journey for learner (1280 px) and operator (390 px) had no response of 400 or above, no console error and no horizontal scroll. See `rc1-evidence/`.
+
+UI/UX improvements are planned, not implemented: see [the specification](../design/UIUX_IMPROVEMENT_SPEC.md).
 
 ## Independent reviews
 Four reviews, each in a separate context from the implementation work, reading the actual code, tests and logs: the original static review and threat model (`review-1`), a review of the first fixes (`review-2`: no authentication or role bypass, nothing above Medium), a release-gate review (`review-3`: APPROVE WITH CONDITIONS, no bypass, no way to reach attack routes or spend the quota without being an operator), and a check of those conditions (`review-4`: conditions satisfied, with the wrong-password test then run and PASSED in the final gateway run, and M-2 recorded above for the release notes).

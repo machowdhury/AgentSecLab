@@ -60,8 +60,8 @@
  "base_reviewed": "de75241",
  "branch": "feature/v1.3.0-unified-gateway",
  "changes_after_tested_commit": "tests/test_gateway_links_source.py only (a scan-count assertion); that file was re-run alone: 2 passed",
- "commit_at_manifest_time": "edcb8e51854c876e56dc9a19fe385475384408c0",
  "commits_since_base": [
+  "1fd5960 docs(security): RC1 qualification, traceability matrix, release manifest and review evidence",
   "edcb8e5 test: the Splunk-link source test must prove it scanned anchors (review condition)",
   "8c1afd8 fix(security): close the final-review conditions (readiness probes under the SPL policy, Splunk links gated in gateway mode, wrong-password quota test)",
   "1010040 fix(security): independent-review findings F2-F6 (cross-site quota burn, port parsing, reconcile shell path, 429 headers, status lock)",
@@ -98,6 +98,9 @@
   "src/agentsec/spl_policy.py": "ed00d6c3786f58076bb109ebd636946ca8c0cec76adb86cb661eaf594c0f268f",
   "uv.lock": "e752e3a91e4681cae951e3344fc7cc14d419831c8e972ebe89c043d34bb90d66"
  },
+ "manifest_generated_after_commit": "1fd5960e4b35704795316e577d399fe56eb012f6",
+ "note": "generated while the documentation commit was being prepared, so the tree was not yet clean; the tested commit is tested_commit",
+ "post_tested_commit_checks": "docs-only commits after edcb8e5: link check, manifest-versus-log consistency, tracked-artifact scan, protected-lab snapshot compare (see RC1-QUALIFICATION.md)",
  "python_packages_test_venv": [
   "-e file://<repo>",
   "attrs==26.1.0",
@@ -164,5 +167,5 @@
   }
  },
  "tested_commit": "8c1afd844110155c92e409eba232d1aa400fada8",
- "working_tree_clean": false
+ "working_tree_clean_when_generated": false
 }

@@ -2,7 +2,7 @@
 
 Recommendation: CONDITIONAL GO. NO-GO for advertising port 8000. See "Release blockers".
 
-## Evidence files (all under scratchpad/rc1/)
+## Evidence files (kept in the qualification session's evidence folder; the final ones are copied here)
 phase1_review.md (static review + STRIDE table), adv_results.txt (adversarial probes), journey_results.txt (browser journey, status, launch),
 gw_runtime.txt (87 passed), protected_before.txt / snap_before.json (protected-lab snapshot; compared after every run: UNCHANGED),
 test_rc1_adversarial.py / test_rc1_journey.py (probe code, outside the repo), shots/ (screenshots).
