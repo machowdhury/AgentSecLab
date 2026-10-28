@@ -4,7 +4,10 @@ server_tokens off;
 absolute_redirect off;                       # redirects stay relative: no container port leaks into Location
 resolver 127.0.0.11 valid=10s ipv6=off;      # Docker DNS; variable proxy_pass so a late backend never blocks startup
 ssl_protocols TLSv1.2 TLSv1.3;
-limit_req_zone $binary_remote_addr zone=attack:1m rate=6r/m;
+# Attack-execution quota: charged only to an AUTHORIZED operator, and only for state-changing (POST) operations. The key is built inside the
+# authorization subrequest below, after the role check, so an anonymous or learner request can never spend it and GET polling is not counted.
+map $http_x_authz_method $attack_quota_key { default ""; POST $http_x_authz_user; }
+limit_req_zone $attack_quota_key zone=attack:1m rate=6r/m;
 limit_req_status 429;
 map $remote_user $role { default learner; operator operator; }   # role comes only from the authenticated user
 
@@ -24,7 +27,16 @@ add_header Referrer-Policy no-referrer always;
 server { listen 8443 ssl default_server; ssl_reject_handshake on; }
 
 # Internal authorization target for the attack tier (runs after auth: anonymous 401, learner 403).
-server { listen 127.0.0.1:8081; location = /_authz_operator { if ($http_x_authz_user = operator) { return 204; } return 403; } }
+server {
+  listen 127.0.0.1:8081;
+  location = /_authz_operator {
+    if ($http_x_authz_user != operator) { return 403; }    # role first (rewrite phase): a denied request never reaches the quota below
+    limit_req zone=attack burst=5 nodelay;
+    error_page 429 = @quota;
+    empty_gif;                                               # a content handler: `return` would finish in the rewrite phase, before limit_req runs
+  }
+  location @quota { add_header X-Authz-Reason quota always; return 403; }   # auth_request cannot pass a 429 through; the caller maps this back to 429
+}
 
 server {
   listen 8443 ssl;
