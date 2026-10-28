@@ -8,16 +8,18 @@ ANCHOR = re.compile(r'<a\b((?:(?!>).)*?)>((?:(?!</a>).)*?)</a>', re.S)
 
 
 def test_no_raw_anchor_to_splunk_web_without_a_gateway_gate():
-    bad = []
+    bad, scanned = [], 0
     for f in sorted(SRC.rglob("*.tsx")):
         text = f.read_text(encoding="utf-8")
         for m in ANCHOR.finditer(text):
             attrs, inner = m.groups()
             if 'target="_blank"' in attrs and "Splunk" in inner:
+                scanned += 1
                 line_start = text.rfind("\n", 0, m.start()) + 1
                 line = text[line_start:text.find("\n", m.start())]
                 if "config.urls.splunk_web" not in line:                       # gated by the null URL the server reports in gateway mode
                     bad.append(f"{f.relative_to(SRC)}: {inner[:60]!r}")
+    assert scanned >= 5, f"the scan found only {scanned} raw Splunk anchors; the pattern no longer matches the source"       # the gated sites in Notebook/Investigate/InvestigationRecord
     assert not bad, f"anchors that open Splunk Web without a gateway gate (use <SplunkLink> or check config.urls.splunk_web): {bad}"
 
 
