@@ -1,0 +1,23 @@
+SKIPPED [1] tests/devtools/test_cursor_workflow.py:18: local-only: .cursor/ is untracked editor tooling and is absent from this checkout
+SKIPPED [1] tests/devtools/test_cursor_workflow.py:32: local-only: .cursor/ is untracked editor tooling and is absent from this checkout
+SKIPPED [1] tests/devtools/test_cursor_workflow.py:55: local-only: .cursor/ is untracked editor tooling and is absent from this checkout
+SKIPPED [1] tests/devtools/test_cursor_workflow.py:77: local-only: .cursor/ is untracked editor tooling and is absent from this checkout
+SKIPPED [5] tests/integration/test_p1_4_academy_browser.py:90: Chromium unavailable: BrowserType.launch: Executable doesn't exist at <home>/Library/Caches/ms-playwright/chromium_headless_shel
+SKIPPED [1] tests/integration/test_p1_4_academy_browser.py:101: Chromium unavailable: BrowserType.launch: Executable doesn't exist at <home>/Library/Caches/ms-playwright/chromium_headless_she
+SKIPPED [1] tests/integration/test_p1_4_academy_browser.py:111: Chromium unavailable: BrowserType.launch: Executable doesn't exist at <home>/Library/Caches/ms-playwright/chromium_headless_she
+SKIPPED [1] tests/integration/test_p1_4_academy_browser.py:120: Chromium unavailable: BrowserType.launch: Executable doesn't exist at <home>/Library/Caches/ms-playwright/chromium_headless_she
+SKIPPED [1] tests/integration/test_p1_4_academy_browser.py:134: Chromium unavailable: BrowserType.launch: Executable doesn't exist at <home>/Library/Caches/ms-playwright/chromium_headless_she
+SKIPPED [1] tests/integration/test_p1_4_academy_browser.py:204: Chromium unavailable: BrowserType.launch: Executable doesn't exist at <home>/Library/Caches/ms-playwright/chromium_headless_she
+SKIPPED [1] tests/integration/test_p1_4_academy_browser.py:230: Chromium unavailable: BrowserType.launch: Executable doesn't exist at <home>/Library/Caches/ms-playwright/chromium_headless_she
+SKIPPED [1] tests/integration/test_p1_4_academy_browser.py:245: Chromium unavailable: BrowserType.launch: Executable doesn't exist at <home>/Library/Caches/ms-playwright/chromium_headless_she
+SKIPPED [1] tests/integration/test_p1_4_academy_browser.py:314: Chromium unavailable: BrowserType.launch: Executable doesn't exist at <home>/Library/Caches/ms-playwright/chromium_headless_she
+SKIPPED [1] tests/integration/test_p1_4_academy_browser.py:337: Chromium unavailable: BrowserType.launch: Executable doesn't exist at <home>/Library/Caches/ms-playwright/chromium_headless_she
+SKIPPED [1] tests/integration/test_p1_4_academy_browser.py:348: Chromium unavailable: BrowserType.launch: Executable doesn't exist at <home>/Library/Caches/ms-playwright/chromium_headless_she
+SKIPPED [15] tests/integration/test_p1_5_academy_chrome_zoom.py:98: Chromium with extension unavailable: BrowserType.launch_persistent_context: Executable doesn't exist at <home>/Library/Cach
+SKIPPED [1] tests/integration/test_p1_5_academy_chrome_zoom.py:120: Chromium with extension unavailable: BrowserType.launch_persistent_context: Executable doesn't exist at <home>/Library/Cach
+SKIPPED [1] tests/integration/test_splunk_real_persistence.py:140: set AGENTSEC_REAL_SPLUNK_PERSISTENCE=1 and have the Splunk image locally (nothing is pulled)
+SKIPPED [1] tests/scanners/test_live_cisco_mcp_scanner.py:29: pinned cisco mcp-scanner is not installed
+SKIPPED [1] tests/splunk/test_external_evidence_live.py:24: live Splunk ingest is opt-in; set AGENTSEC_LIVE_SPLUNK=1
+SKIPPED [1] tests/splunk/test_live_transport.py:16: live Splunk ingest is opt-in; set AGENTSEC_LIVE_SPLUNK=1
+SKIPPED [1] tests/test_loan_desk_contracts.py:353: set AGENTSEC_LIVE_OLLAMA=1 and LOANDESK_MODEL to an installed model
+2692 passed, 40 skipped in 104.20s (0:01:44)

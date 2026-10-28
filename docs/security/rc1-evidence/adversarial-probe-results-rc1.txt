@@ -1,0 +1,5 @@
+== restart (docker restart of the three isolated containers)
+restart rc 0 6.6s
+after restart learner -> 200 | anonymous -> 401
+TLS verify after restart: ['Verify return code: 0 (ok)']
+gateway log tail (secrets scan): False

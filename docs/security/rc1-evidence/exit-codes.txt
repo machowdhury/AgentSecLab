@@ -1,0 +1,3 @@
+nonui exit=0
+ui exit=0
+gateway exit=0
