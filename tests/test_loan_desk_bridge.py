@@ -168,10 +168,10 @@ def test_verifier_runs_at_most_thirty_searches_a_minute(d, key):
     assert len(answer(d, key, now=now)) == 30
 
 
-def test_searches_are_fixed_templates_bound_to_a_validated_run_id():
+def test_searches_are_fixed_templates_bound_to_a_validated_run_id(monkeypatch):
     from agentsec.loan_desk import reconcile
     seen = []
-    reconcile.run_spl = lambda spl, **k: seen.append(spl) or []  # type: ignore[assignment]
+    monkeypatch.setattr(reconcile, "run_spl", lambda spl, **k: seen.append(spl) or [])   # restored after the test: a bare assignment leaked into every later test
     with pytest.raises(ValueError):
         reconcile.indexed_view('x" | delete')
     assert seen == []
