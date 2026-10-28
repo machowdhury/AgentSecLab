@@ -42,8 +42,10 @@ def run_spl(spl: str, *, container: str = SPLUNK_CONTAINER, runner: Callable | N
         spl = spl_policy.checked(spl, backend="docker-exec")          # admin-credential path: same read-only policy as REST
     except spl_policy.SplPolicyViolation as exc:
         raise RuntimeError(f"splunk search refused by the read-only policy ({exc.code})") from None
-    inner = "/opt/splunk/bin/splunk search " + json.dumps(" ".join(spl.split())) + ' -auth "admin:${SPLUNK_PASSWORD}" -output csv -maxout 500'
-    proc = (runner or subprocess.run)(["docker", "exec", "-u", "splunk", container, "bash", "-lc", inner],
+    # The SPL travels as an environment variable through an argument list and the in-container script is a constant that expands it as ONE quoted word:
+    # text such as $(...) or ${SPLUNK_PASSWORD} in a search is never evaluated by a shell (same pattern as loan_desk/search.py).
+    inner = 'exec /opt/splunk/bin/splunk search "$AGENTSEC_SPL" -auth "admin:${SPLUNK_PASSWORD}" -output csv -maxout 500'
+    proc = (runner or subprocess.run)(["docker", "exec", "-u", "splunk", "-e", "AGENTSEC_SPL=" + " ".join(spl.split()), container, "bash", "-lc", inner],
                                        capture_output=True, text=True, check=False, timeout=90)
     if proc.returncode != 0:
         raise RuntimeError(f"splunk search failed rc={proc.returncode}")

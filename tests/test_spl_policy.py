@@ -156,3 +156,18 @@ def test_every_refused_search_is_stopped_on_every_execution_path_before_anything
     with pytest.raises(RuntimeError):
         reconcile.run_spl(spl, runner=lambda argv, **kw: calls.append(argv))
     assert sent == [] and calls == []
+
+
+def test_the_reconcile_docker_path_never_lets_a_shell_see_the_search():
+    """RC1 review F4: the policy accepts $ ( ) { }, so the search must reach the container as data, not inside a shell command line."""
+    seen = {}
+    def runner(argv, **kw):
+        seen["argv"] = argv
+        import subprocess
+        return subprocess.CompletedProcess(argv, 0, "events\n3\n", "")
+    spl = 'index=a "$(touch /tmp/pwn)" "${SPLUNK_PASSWORD}" | stats count AS events'
+    assert reconcile.run_spl(spl, runner=runner) == [{"events": "3"}]
+    argv = seen["argv"]
+    script = argv[-1]
+    assert "AGENTSEC_SPL=" + " ".join(spl.split()) in argv and script.count("$AGENTSEC_SPL") == 1
+    assert "touch" not in script and "pwn" not in script and "index=a" not in script          # the constant script never contains the search text

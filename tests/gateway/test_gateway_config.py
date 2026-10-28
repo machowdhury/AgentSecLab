@@ -164,3 +164,9 @@ def test_an_occupied_port_is_reported_before_anything_is_started(tmp_path, pki):
         assert ("ERROR", "PORT_IN_USE") not in codes(base_env(tmp_path, pki, AGENTSEC_PUBLIC_PORT=port))     # only checked when asked (gateway.sh up asks)
     finally:
         s.close()
+
+
+@pytest.mark.parametrize("port", ["0443", "00443", "08000", "٤٤٣", "+443", "443 ", "0x1bb", "65536", "0"])
+def test_public_port_must_be_plain_ascii_digits_without_leading_zeros(tmp_path, pki, port):
+    """RC1 review F3: nginx compares the port as text; '0443' would have passed validation and then been refused (421) for every request."""
+    assert ("ERROR", "PORT_INVALID") in codes(base_env(tmp_path, pki, AGENTSEC_PUBLIC_PORT=port))

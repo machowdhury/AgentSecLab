@@ -75,7 +75,7 @@ def test_the_8000_configuration_works_at_runtime_without_binding_host_port_8000(
         assert ok[0] not in (401, 403, 421) and "cross_origin_rejected" not in ok[1], ok       # what a browser on https://host:8000 sends
         time.sleep(11)
         bad = curl("/api/launch", user="operator", method="POST", data="{}", headers=["Content-Type: application/json", f"Host: {HOST}:8000", f"Origin: https://{HOST}"])
-        assert bad[0] == 403 and "cross_origin_rejected" in bad[1], bad                  # the 443-style Origin is a different origin on the 8000 deployment
+        assert bad[0] == 403 and "nginx" in bad[1], bad                                    # the 443-style Origin is a different origin on the 8000 deployment (refused by the gateway)
     finally:
         stack.up_gateway(AGENTSEC_PUBLIC_PORT=str(PORT))
 
@@ -94,3 +94,19 @@ def test_hardening_is_applied_to_the_running_containers_and_the_service_still_wo
     stats = sh("docker", "stats", "--no-stream", "--format", "{{.Name}} {{.MemPerc}} {{.PIDs}}", "agentsec-gw-dev-gateway", "agentsec-gw-dev-attack", "agentsec-gw-dev-acmebank").stdout
     for line in stats.strip().splitlines():
         name, perc, pids = line.split(); assert float(perc.rstrip("%")) < 60 and int(pids) < 100, line
+
+
+def test_cross_site_marked_posts_cannot_spend_the_operators_quota_and_the_429_keeps_the_security_headers(stack):
+    """RC1 review F2 and F5."""
+    time.sleep(65)
+    body = '{"lab_id":"LAB-PI-001","specimen_id":"ATK-002","mode":"ATTACK","execution":"live"}'
+    refused = []
+    for hdr in (["Sec-Fetch-Site: cross-site"], ["Sec-Fetch-Site: same-site"], ["Origin: https://evil.test"], [f"Origin: https://{HOST}"], [f"Origin: https://{HOST}:{PORT}@evil.test"]):
+        refused += [stack.curl("/api/launch", user="operator", method="POST", data=body, headers=J + hdr).status for _ in range(8)]
+    assert set(refused) == {403}, set(refused)                                                  # refused by the gateway, never 429
+    ok = [stack.curl("/api/launch", user="operator", method="POST", data=body, headers=J + [f"Origin: https://{HOST}:{PORT}", "Sec-Fetch-Site: same-origin"]).status for _ in range(5)]
+    assert 429 not in ok and not {401, 403} & set(ok), ok                                       # the whole burst is still there
+    for _ in range(6): last = _post(stack, "operator")
+    assert last.status == 429
+    for h in ("strict-transport-security", "x-content-type-options", "x-frame-options", "referrer-policy", "retry-after"):
+        assert h in last.headers, (h, last.headers)

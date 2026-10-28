@@ -25,8 +25,11 @@ def _spki(port):
     return base64.b64encode(hashlib.sha256(der).digest()).decode()
 
 
-def _browser(p, port):
-    return p.chromium.launch(executable_path=CHROMIUM, args=[f"--host-resolver-rules=MAP {HOST} 127.0.0.1", f"--ignore-certificate-errors-spki-list={_spki(port)}"])
+def _browser(p, port, *, via=None):
+    """via: connect to this real loopback port while the page's origin keeps `port` (Chromium maps host:port to host:via), so the 8000 deployment can be
+    exercised with its real https://host:8000 origin without binding host port 8000."""
+    rules = f"MAP {HOST} 127.0.0.1" if via is None else f"MAP {HOST}:{port} 127.0.0.1:{via}"
+    return p.chromium.launch(executable_path=CHROMIUM, args=[f"--host-resolver-rules={rules}", f"--ignore-certificate-errors-spki-list={_spki(via or port)}"])
 
 
 def _origin(port):
@@ -43,9 +46,9 @@ def _post(page, path, body):
                             return [r.status, await r.json().catch(() => null)]; }""", [path, body])
 
 
-def _browser_attack(stack, port):
+def _browser_attack(stack, port, *, via=None):
     with sync_api.sync_playwright() as p:
-        b = _browser(p, port)
+        b = _browser(p, port, via=via)
         page = _operator(b)
         page.goto(f"{_origin(port)}/learn/loan-desk/prepare", wait_until="networkidle")
         # 1. the real UI control: "Run normal application" POSTs /api/missions/loan-desk/runs
@@ -100,7 +103,8 @@ def test_a_cross_site_page_cannot_launch_even_when_the_operator_is_signed_in(sta
                              f.appendChild(i); document.body.appendChild(f); f.submit(); }""", f"{_origin(PORT)}/api/launch")
         r = info.value
         assert r.request.headers.get("origin") == "https://evil.test"
-        assert r.status == 403 and r.json()["error"] == "cross_origin_rejected", (r.status, r.text()[:150])
+        # refused by the gateway itself (nginx page, rewrite phase, before authorization and before the attack quota), not by the backend's JSON guard
+        assert r.status == 403 and "nginx" in r.text() and "cross_origin_rejected" not in r.text(), (r.status, r.text()[:150])
         b.close()
 
 
@@ -118,7 +122,8 @@ def test_mismatched_origins_and_hosts_are_refused(stack):
     for label, (hdr, want_status, want_err) in cases.items():
         time.sleep(12)
         r = stack.curl("/api/launch", user="operator", method="POST", data=body, headers=j + hdr)
-        assert r.status == want_status and want_err in r.body, (label, r.status, r.body[:120])
+        # the gateway refuses these itself (nginx page, before authorization and the quota); the backend guard behind it is covered by tests/test_launch_guard.py
+        assert r.status == want_status and "nginx" in r.body and want_err not in r.body, (label, r.status, r.body[:120])
     time.sleep(12)
     ok = stack.curl("/api/launch", user="operator", method="POST", data=body, headers=j + [f"Origin: {_origin(PORT)}"])
     assert ok.status == 200 and "cross_origin_rejected" not in ok.body, (ok.status, ok.body[:120])
@@ -171,3 +176,22 @@ def test_every_link_the_academy_offers_through_the_gateway_is_implemented_by_it(
     assert len(seen) >= len(ROUTES)
     assert not dead, f"links the gateway answers with an error: {dead[:10]}"
     assert not foreign, f"links to unpublished services: {foreign[:10]}"
+
+
+def test_browser_attack_launch_works_in_the_8000_deployment_with_its_real_origin(stack):
+    """AGENTSEC_PUBLIC_PORT=8000 in the gateway; Chromium uses the real origin https://host:8000 (so it sends Origin: https://host:8000 and Host: host:8000) but is
+    routed to a free loopback port, because host port 8000 is held by the real lab's Splunk Web on the development machine and is never touched."""
+    from test_gateway_runtime import FILES, ROOT
+    alt = 18544
+    files = FILES + ["-f", "tests/gateway/compose.port8000.test.yml"]
+    env = {**os.environ, **stack.vars, "AGENTSEC_PUBLIC_PORT": "8000", "TEST_ALT_PORT": str(alt)}
+    up = subprocess.run(["docker", "compose", "-p", "agentsec-gw-dev", *files, "--profile", "gateway", "up", "-d", "--no-deps", "--force-recreate", "gateway"], cwd=ROOT, capture_output=True, text=True, env=env)
+    assert up.returncode == 0, up.stderr
+    try:
+        for _ in range(40):
+            if subprocess.run(["curl", "-sS", "-m", "5", "-o", "/dev/null", "-w", "%{http_code}", "--cacert", str(stack.pki["root"]), "--resolve", f"{HOST}:{alt}:127.0.0.1", "-u", "learner:l-pass",
+                               "-H", f"Host: {HOST}:8000", f"https://{HOST}:{alt}/health"], capture_output=True, text=True).stdout == "200": break
+            time.sleep(1.5)
+        _browser_attack(stack, 8000, via=alt)
+    finally:
+        stack.up_gateway(AGENTSEC_PUBLIC_PORT=str(PORT))

@@ -154,13 +154,22 @@ def probe_splunk_web(timeout: float = 3.0) -> dict:
     }
 
 
+import threading
 _REST_CACHE: dict = {"at": 0.0, "result": None}
+_REST_LOCK = threading.Lock()     # one diagnose at a time: concurrent status polls must not each hold a worker on the external endpoint
 
 
 def probe_splunk_rest(*, client=None, ttl: float = 30.0, clock=None) -> dict | None:
     """External Splunk modes only (None in BUNDLED): the configured REST endpoint, judged stage by stage with the strict-TLS client.
     AVAILABLE only when connectivity, authentication, authorization and a trivial search ALL passed; reachable-but-not-authenticated is DEGRADED;
     an unreachable or misconfigured endpoint is UNAVAILABLE. Indexed evidence for a run is still NOT CHECKED here. Cached briefly: the status page polls."""
+    import time
+    from agentsec.splunk_client import SplunkError, client_for_mode
+    with _REST_LOCK:
+        return _probe_splunk_rest_locked(client, ttl, clock)
+
+
+def _probe_splunk_rest_locked(client, ttl, clock):
     import time
     from agentsec.splunk_client import SplunkError, client_for_mode
     now = (clock or time.monotonic)()

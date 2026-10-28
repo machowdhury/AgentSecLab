@@ -103,3 +103,17 @@ def test_the_status_endpoint_lists_the_rest_check_in_external_mode_and_never_cla
     assert checks["Splunk REST (configured endpoint)"]["state"] == "DEGRADED"
     assert checks["Splunk Web (reachability)"]["state"] == "NOT CHECKED"
     assert checks["Splunk indexing"]["state"] == "NOT CHECKED" and "authenticate" in checks["Splunk indexing"]["detail"]
+
+
+def test_concurrent_status_polls_run_one_diagnose(monkeypatch):
+    """RC1 review F6: the cache is filled under a lock, so a burst of learners polling /api/academy/status does not fan out to the external Splunk."""
+    import threading, time
+    calls = []
+    class Slow:
+        def diagnose(self, run_id=None):
+            calls.append(1); time.sleep(0.3); return [(k, v, "x") for k, v in PASS.items()]
+    monkeypatch.setattr(sc, "client_for_mode", lambda env=None: Slow())
+    out = []
+    ts = [threading.Thread(target=lambda: out.append(aw.probe_splunk_rest(ttl=30))) for _ in range(8)]
+    [t.start() for t in ts]; [t.join() for t in ts]
+    assert len(calls) == 1 and len(out) == 8 and all(r["state"] == "AVAILABLE" for r in out)

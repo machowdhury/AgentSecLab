@@ -74,7 +74,7 @@ def validate(env: dict[str, str] | None = None, now: datetime | None = None) -> 
     if not HOST_RE.match(host) or host.startswith("*"):
         err("HOST_INVALID", "AGENTSEC_PUBLIC_HOST must be a DNS name (no scheme, port, wildcard or spaces)")
     port = env.get("AGENTSEC_PUBLIC_PORT") or env.get("AGENTSEC_HTTPS_PORT", "443")      # AGENTSEC_HTTPS_PORT is the older alias
-    if not (port.isdigit() and 1 <= int(port) <= 65535):
+    if not (re.fullmatch(r"[1-9][0-9]{0,4}", port) and int(port) <= 65535):          # ASCII digits, no leading zero: the gateway compares the text
         err("PORT_INVALID", "AGENTSEC_PUBLIC_PORT must be an integer from 1 to 65535: 443 (default) or 8000 are the supported values")
     elif int(port) in INTERNAL_PORTS:
         err("PORT_RESERVED", f"port {port} belongs to an internal service and must never be the public port; use 443 or 8000")
