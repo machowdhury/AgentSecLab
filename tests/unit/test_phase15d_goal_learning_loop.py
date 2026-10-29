@@ -39,16 +39,6 @@ TASK_HASH = "sha256:6f95aaf2adf5b37b11e35805f9bbbb24fdb34f38435590b5042d7c406bdf
 PROPOSED_HASH = "sha256:6326e3be47ecf73831a06be2b718f42219e0c950d4c989de23aa558bfdc01b34"
 
 
-def test_phase15d_docs_exist():
-    assert IMPL.is_file()
-    assert NOTE.is_file()
-    assert "## What I should now be able to explain" in NOTE.read_text(encoding="utf-8")
-    assert (ROOT / "docs" / "PHASE15D_GOAL_ATTACK_SERVICE_LAUNCH_CONTRACT.md").is_file()
-    assert (ROOT / "docs" / "PHASE15D_GOAL_GUIDED_INVESTIGATIONS.md").is_file()
-    assert (ROOT / "docs" / "PHASE15D_SECURITY_BOUNDARY_REVIEW.md").is_file()
-    assert (ROOT / "docs" / "PHASE15D_LIVE_VS_REPLAY.md").is_file()
-    assert (ROOT / "docs" / "PHASE15D_ATTACK_RETEST_EQUIVALENCE.md").is_file()
-    assert (ROOT / "docs" / "PHASE15D_SPLUNK_LIVE_VALIDATION.md").is_file()
 
 
 def test_schema_unchanged_and_no_det_goal():

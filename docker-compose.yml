@@ -35,6 +35,7 @@ services:
     environment:
       - OLLAMA_HOST=0.0.0.0
       - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2:1b}
+      - LOANDESK_MODEL=${LOANDESK_MODEL:-}
       - OLLAMA_STARTUP_WAIT_SEC=${OLLAMA_STARTUP_WAIT_SEC:-300}
     restart: unless-stopped
     healthcheck:

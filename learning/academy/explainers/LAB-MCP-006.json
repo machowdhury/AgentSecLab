@@ -115,5 +115,22 @@
       "learning/level_1/LAB-MCP-006/searches/Q-MCP-DELEGATION.spl",
       "learning/level_1/LAB-MCP-001/searches/Q-MCP-EXECUTED.spl"
     ]
+  },
+  "workbench": {
+    "kind": "scenario",
+    "specimens": {
+      "BASELINE": "MCP-006-BASELINE",
+      "ATTACK": "MCP-006",
+      "RETEST": "MCP-006"
+    },
+    "texts": {
+      "baseline": "learning/level_1/LAB-MCP-006/lab-manifest.json#prediction.BASELINE.attack_objective",
+      "attack": "learning/level_1/LAB-MCP-006/lab-manifest.json#prediction.ATTACK.attack_objective",
+      "retest": "learning/level_1/LAB-MCP-006/lab-manifest.json#prediction.RETEST.attack_objective",
+      "defense": "learning/level_1/LAB-MCP-006/lab-manifest.json#prediction.ATTACK.defense_should",
+      "attack_expected": "learning/level_1/LAB-MCP-006/lab-manifest.json#prediction.ATTACK.expected_evidence_vulnerable",
+      "retest_expected": "learning/level_1/LAB-MCP-006/lab-manifest.json#prediction.RETEST.expected_evidence_defended",
+      "retest_falsify": "learning/level_1/LAB-MCP-006/lab-manifest.json#prediction.RETEST.falsify"
+    }
   }
 }

@@ -1,0 +1,114 @@
+{
+ "R1": {
+  "note": "38 route/method pairs: attack tier 11, read tier 10, denied 17; non-GET routes reachable on the read tier: none",
+  "status": "PASS"
+ },
+ "R2": {
+  "note": "7 POST routes: 6 reachable only via the operator-only attack tier (exactly the intended set), 1 denied by default: ['POST /api/compare-handoff']",
+  "status": "PASS"
+ },
+ "R3": {
+  "note": "16 Academy pages crawled in Chromium; API/fetch requests seen: ['/api/academy/status', '/api/labs/LAB-MCP-001', '/api/learn/config', '/api/missions/loan-desk/status']; blocked for a plain learner by the gateway: none; documents blocked: none",
+  "status": "PASS"
+ },
+ "T01": {
+  "note": "published mappings: ['127.0.0.1:18443->8443/tcp']; containers: 4",
+  "status": "PASS"
+ },
+ "T02": {
+  "note": "backend network internal=True; outsider-container connections refused: [('agentsec-gw-poc-attack', True), ('agentsec-gw-poc-acmebank', True), ('agentsec-gw-poc-splunk-stub', True)]; no host publication (T01)",
+  "status": "PASS"
+ },
+ "T03": {
+  "note": "status 200; HSTS present",
+  "status": "PASS"
+ },
+ "T04": {
+  "note": "/ -> 302 Location '/learn' (relative, no container port); deep link 200",
+  "status": "PASS"
+ },
+ "T05": {
+  "note": "chain + hostname verified against the disposable local CA only (no trust-store change)",
+  "status": "PASS"
+ },
+ "T06": {
+  "note": "server sent 2 certs (leaf + intermediate); client trusts only the root file",
+  "status": "PASS"
+ },
+ "T07": {
+  "note": "curl rc 60: curl: (60) SSL certificate problem: certificate has expired\nMore details here: https://cur",
+  "status": "PASS"
+ },
+ "T08": {
+  "note": "curl rc 60: curl: (60) SSL: no alternative certificate subject name matches target host name 'learn.po",
+  "status": "PASS"
+ },
+ "T09": {
+  "note": "curl rc 60: curl: (60) SSL certificate problem: unable to get local issuer certificate\nMore details he",
+  "status": "PASS"
+ },
+ "T10": {
+  "note": "nginx refuses to load a certificate whose private key does not match",
+  "status": "PASS"
+ },
+ "T11": {
+  "note": "anonymous 401, wrong credentials 401",
+  "status": "PASS"
+ },
+ "T12": {
+  "note": "learner 403/403; operator reached the app: 400",
+  "status": "PASS"
+ },
+ "T13": {
+  "note": "unlisted GETs [404]; POST to read tier 403; unknown SNI handshake rc 35",
+  "status": "PASS"
+ },
+ "T14": {
+  "note": "spoofed role still 403; backend saw x-remote-user='learner', forwarded-user=None, authorization present=False",
+  "status": "PASS"
+ },
+ "T15": {
+  "note": "login page, form login with disposable credentials, wrong password rejected, session page: stub mechanics PASS. STUB PROXY-BEHAVIOUR ONLY; real Splunk Web NOT run (resource gate: a second Splunk would risk the protected lab)",
+  "status": "NOT VERIFIED"
+ },
+ "T16": {
+  "note": "Secure/SameSite added without HttpOnly on the CSRF cookie; CSRF header honoured and forged/missing header rejected: stub mechanics PASS. STUB PROXY-BEHAVIOUR ONLY; real Splunk Web NOT run (resource gate: a second Splunk would risk the protected lab)",
+  "status": "NOT VERIFIED"
+ },
+ "T17": {
+  "note": "redirects rewritten to the gateway ('https://splunk.poc.test:18443/en-US/app/agentsec/home'), static asset served, logout clears the cookie and the session page then redirects: stub mechanics PASS. STUB PROXY-BEHAVIOUR ONLY; real Splunk Web NOT run (resource gate: a second Splunk would risk the protected lab)",
+  "status": "NOT VERIFIED"
+ },
+ "T18": {
+  "note": "strict REST probe over TLS with the mock's CA bundle and a token read from a file: {'splunk_attempted': True, 'splunk_ok': True, 'splunk_count': 3, 'error': None}. MOCK ONLY; not real Splunk",
+  "status": "PASS"
+ },
+ "T19": {
+  "note": "wrong CA -> tls_verification_failed; hostname mismatch -> tls_verification_failed; missing CA file -> probe_misconfigured; http:// URL -> probe_misconfigured; none reported success",
+  "status": "PASS"
+ },
+ "T20": {
+  "note": "invalid token -> probe_auth_failed; connection refused -> splunk_probe_failed",
+  "status": "PASS"
+ },
+ "T21": {
+  "note": "7 protected containers: same ids, images, start times, restart counts, mounts, networks",
+  "status": "PASS"
+ },
+ "T22": {
+  "note": "25 non-POC volumes: same set and creation times (index event count not re-queried in this run)",
+  "status": "PASS"
+ },
+ "T23": {
+  "note": "scanned 25 non-ignored files and 4 container logs for the generated passwords and key blocks; runtime dir git-ignored=True",
+  "status": "PASS"
+ },
+ "T24": {
+  "note": "cleanup rc 0; POC containers/images/networks left: 0/0/0; .runtime removed; protected lab snapshot identical (containers, mounts, networks, 25 volumes)",
+  "status": "PASS"
+ },
+ "T25": {
+  "note": "statuses [429]; first 429 after 0 requests",
+  "status": "PASS"
+ }
+}

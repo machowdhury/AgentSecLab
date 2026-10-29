@@ -18,10 +18,11 @@ from agentsec.evidence_readiness import (
     env_timeout,
     read_export_doc,
     rollup_evidence,
+    verification_label,
     wait_for_searchable_evidence,
 )
 from agentsec.academy_live_index import persist_live_run
-from agentsec.experiment_context import ExperimentContext, lookup_experiment, LAB_MCP, ROUTE_CAPSTONE, ROUTE_GOAL, ROUTE_IDENTITY, ROUTE_MCP, ROUTE_MEMORY, ROUTE_RAG
+from agentsec.experiment_context import ExperimentContext, lookup_experiment, LAB_MCP, ROUTE_CAPSTONE, ROUTE_GOAL, ROUTE_IDENTITY, ROUTE_MCP, ROUTE_MCP006, ROUTE_MEMORY, ROUTE_RAG
 from agentsec.lab_manifest import load_lab_manifest, prediction_for
 from agentsec.launch_catalog import (
     RETEST_SUPPORT,
@@ -207,7 +208,7 @@ class LaunchService:
             return self._launch_memory(parsed, row, record, definition, ctx)
         if definition.runtime_route == ROUTE_CAPSTONE:
             return self._launch_capstone(parsed, row, record, definition, ctx)
-        if definition.runtime_route == ROUTE_MCP:
+        if definition.runtime_route in (ROUTE_MCP, ROUTE_MCP006):
             payload = {
                 "tool": definition.tool,
                 "requested_scope": definition.requested_scope,
@@ -216,7 +217,7 @@ class LaunchService:
                 "experiment_id": row.experiment_id,
             }
             try:
-                status, data = self.client.mcp_invoke(payload)
+                status, data = (self.client.mcp_delegate if definition.runtime_route == ROUTE_MCP006 else self.client.mcp_invoke)(payload)
             except Exception as exc:  # pragma: no cover - defensive
                 logger.info("launch mcp runtime exception type=%s", type(exc).__name__)
                 return error_body("runtime_exception", parsed=parsed, http_status=503)
@@ -915,7 +916,9 @@ class LaunchService:
         result["lifecycle"] = list(record.lifecycle)
         if "splunk_verified" not in result:
             result["splunk_verified"] = False
+        result.setdefault("verification", verification_label(str(result.get("evidence_state"))))
         if record.body:
+            record.body["verification"] = result["verification"]
             record.body["evidence_state"] = record.evidence_state
             record.body["splunk_verified"] = result["splunk_verified"]
             record.body["probe_error"] = result.get("probe_error")

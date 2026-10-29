@@ -1,5 +1,7 @@
 # Getting started
 
+> **RC2 note.** This page describes the earlier multi-port, plain-HTTP flow (`scripts/lab-up.sh`, published as v1.2.0). The RC2 path (the installer and the HTTPS gateway) is in [Installation and deployment](INSTALLATION_AND_DEPLOYMENT.md). macOS, Windows and this older flow were **not** part of the RC2 acceptance runs. Do not mix the two flows on one machine without reading [Installer](INSTALLER.md) on existing labs.
+
 The one beginner path for release v1.2.0. You do not need to understand Docker networking or Splunk first. Run every command from the repository root.
 
 **Clone → Prerequisites → Configure → Preflight → Start → Verify readiness → Open the Academy → First recorded lab → Investigate → Continue.**
@@ -66,6 +68,8 @@ Removing containers or deleting data are separate, explicit commands: [Operation
 | **Legacy L0–L10 curriculum** | The original Splunk-based Academy Home path | [Legacy guide](LEGACY_SPLUNK_ACADEMY_GUIDE.md) |
 
 ## Ports, access and security
+*Published v1.2.0 deployment.* The v1.3.0 opt-in gateway (unreleased) replaces this multi-port layout with exactly one external HTTPS port, 443 or 8000: see [Deployment modes at a glance](GATEWAY.md#deployment-modes-at-a-glance).
+
 | Service | Port | Notes |
 |---|---|---|
 | Academy and Attack Service | 5001 | The Academy is at `/learn`; the same app launches attacks |
@@ -75,7 +79,7 @@ Removing containers or deleting data are separate, explicit commands: [Operation
 
 - By default everything binds to `127.0.0.1`. The Attack Service has **no built-in authentication or TLS** and launches attacks for anyone who can reach it. Never expose these ports to the Internet.
 - For a remote machine use a private SSM or SSH tunnel: [Remote access](REMOTE_ACCESS.md).
-- A single authenticated HTTPS entry point is **planned for v1.3.0 and is not implemented in v1.2.0** ([proposal](HTTPS_INGRESS_PROPOSAL.md)).
+- The v1.3.0 **opt-in HTTPS gateway is implemented and tested but unreleased** ([Unified HTTPS gateway](GATEWAY.md)). It is not part of the published v1.2.0 steps above. If you use it, Splunk Web is **not** reachable through the gateway (NOT VERIFIED); on the gateway host it is on `127.0.0.1:18000`.
 
 ## For contributors
 ```bash

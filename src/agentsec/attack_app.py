@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import time
 from pathlib import Path
 
 import requests
@@ -11,11 +12,13 @@ from flask import Flask, jsonify, render_template, request
 from agentsec.academy import lab_row, next_lab
 from agentsec.academy_web import register_academy
 from agentsec.mission_loan_desk import register_loan_desk_mission
-from agentsec.learn_web import register_learn
+from agentsec.learn_web import gateway_mode, register_learn
+from agentsec.gateway_prefix import install_gateway_prefix
+from agentsec.ctf.web import register_ctf
 from agentsec.agents import PIPELINE_ORDER
 from agentsec.attacks import ATK_002
 from agentsec.framework_refs import references_for, retired_labels
-from agentsec.experiment_context import LAB_CAPSTONE, LAB_GOAL, LAB_IDENTITY, LAB_MCP, LAB_MEMORY, LAB_PI, LAB_RAG, lookup_experiment
+from agentsec.experiment_context import CLASSIC_ATTACK_LABS, LAB_CAPSTONE, LAB_GOAL, LAB_IDENTITY, LAB_MCP, LAB_MEMORY, LAB_PI, LAB_RAG, lookup_experiment
 from agentsec.goal.fixtures import (
     CLOSED_EXPANSION_ACTION,
     PERMITTED_ACTION,
@@ -120,12 +123,15 @@ class AcmeBankClient:
         except requests.RequestException as exc:
             return 503, {"error": f"cannot reach AcmeBank: {exc}"}
 
-    def mcp_invoke(self, payload: dict) -> tuple[int, dict]:
+    def mcp_delegate(self, payload: dict) -> tuple[int, dict]:
+        return self.mcp_invoke(payload, path="/mcp/delegate")
+
+    def mcp_invoke(self, payload: dict, path: str = "/mcp/invoke") -> tuple[int, dict]:
         if self._post_fn is not None:
-            return self._post_fn("/mcp/invoke", payload)
+            return self._post_fn(path, payload)
         try:
             response = requests.post(
-                f"{self.base_url}/mcp/invoke",
+                f"{self.base_url}{path}",
                 json=payload,
                 timeout=180,
             )
@@ -217,16 +223,19 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
     app.config["SECRET_KEY"] = settings.flask_secret_key
     app.config["AGENTSEC_ATTACK_CLIENT"] = client
     install_request_guard(app)
+    install_gateway_prefix(app)
 
     @app.context_processor
     def _shell_context():
         return {"shell": shell_links(request.path, surface="attack")}
 
+    _probe = {"at": -1e9, "ok": False}
     launcher = LaunchService(client, settings, **(launch_kwargs or {}))
     app.config["AGENTSEC_LAUNCH_SERVICE"] = launcher
     register_academy(app, launcher=launcher, client=client, artifacts_dir=launcher.artifacts_dir, version=settings.version)
     register_loan_desk_mission(app, acmebank_url=client.base_url, version=settings.version)
     register_learn(app, version=settings.version)
+    register_ctf(app)  # local-only CTF; its state directory is created on first use, not here
 
     @app.get("/health")
     def health():
@@ -362,7 +371,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
         next_lab_ctx = None
         if successor is not None:
             next_href = None
-            if successor.get("mode") == "LIVE":
+            if successor.get("mode") == "LIVE" and successor["lab_id"] in CLASSIC_ATTACK_LABS:
                 next_href = "/" if successor["lab_id"] == LAB_PI else f"/labs/{successor['lab_id']}"
             next_lab_ctx = {
                 "title": successor.get("title") or successor["lab_id"],
@@ -593,6 +602,12 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
     @app.get("/api/target-health")
     def target_health():
         """Same-origin profile probe. Browser cannot CORS-fetch AcmeBank /health."""
+        if gateway_mode():
+            # Behind the gateway the raw AcmeBank /health (internal host:port, model, profile) is never shown; probe at most once per few seconds.
+            now = time.monotonic()
+            if now - _probe["at"] > 5:
+                _probe.update(at=now, ok=client.health()[0] == 200)
+            return (jsonify({"status": "healthy"}), 200) if _probe["ok"] else (jsonify({"status": "unreachable"}), 503)
         status, body = client.health()
         return jsonify(body), status
 
@@ -608,7 +623,7 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
         profile and model labels come from the target, over the fixed /health
         probe this service already makes.
         """
-        _, health = client.health()
+        _, health = ({}, {}) if gateway_mode() else client.health()   # gateway: no profile/model labels from the target
         return render_template(
             "acmebank.html",
             profile=health.get("security.profile", "NOT MEASURED"),

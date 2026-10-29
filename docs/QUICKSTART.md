@@ -1,5 +1,7 @@
 # AgentSec Quickstart
 
+> **RC2 note.** This page describes the earlier multi-port, plain-HTTP flow (`scripts/lab-up.sh`, published as v1.2.0). The RC2 path (the installer and the HTTPS gateway) is in [Installation and deployment](INSTALLATION_AND_DEPLOYMENT.md). macOS, Windows and this older flow were **not** part of the RC2 acceptance runs. Do not mix the two flows on one machine without reading [Installer](INSTALLER.md) on existing labs.
+
 A technically capable person should be able to follow this linearly. Run every command from the **repository root**.
 
 Use `main` (release **v1.2.0**). Earlier tags (`v1.1.0`, `v1.0.0`, and the release candidates) are older releases without the React Academy; they are described in the [legacy guide](LEGACY_SPLUNK_ACADEMY_GUIDE.md).
@@ -156,6 +158,8 @@ On the qualification host, host `curl` to `https://registry.ollama.ai/v2/library
 Do not commit `.env`. Do not paste a production password, token, or cloud key into it. The example values are lab defaults for localhost. Leave the published ports on `127.0.0.1`. Do not add an unrelated MCP server while installing. REPLAY workshops do not need a GitHub credential, a cloud credential, or a production identity provider.
 
 ## 8. URLs
+
+*Published v1.2.0 direct URLs (multi-port HTTP).* The unreleased v1.3.0 gateway uses one HTTPS port instead; its URL is printed by `scripts/gateway.sh up` and described in [Unified HTTPS gateway](GATEWAY.md). `--remote` publishes the three v1.2.0 ports and is **not** the single-port gateway.
 
 | URL | Role |
 |-----|------|

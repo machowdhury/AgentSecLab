@@ -44,8 +44,9 @@ export function Investigate() {
       <p className="m-evidence__state" role="status" aria-live="polite">{state}</p>
       <div className="m-actions">
         <Button variant="secondary" disabled={!v || ver.busy} onClick={() => verifyRun("attack")}>Verify with Splunk (host verifier)</Button>
-        <a className="button button--ghost" href={`${config.urls.splunk_web}/en-US/app/search/search`} target="_blank" rel="noopener">Open Splunk Search <Icon name="arrow" size={15} /></a>
+        {config.urls.splunk_web && <a className="button button--ghost" href={`${config.urls.splunk_web}/en-US/app/search/search`} target="_blank" rel="noopener">Open Splunk Search <Icon name="arrow" size={15} /></a>}
       </div>
+      {config.gateway && <p className="m-muted">Splunk Web is not published through this gateway. Copy a search and run it in your own Splunk session; the host verifier above checks the indexed evidence.</p>}
       <p className="m-muted">Splunk opens in a new tab and asks for the lab login. Your mission stays here.</p>
     </section>
     {v && <section className="m-card"><AgentTrace view={v} label="attack run" /></section>}
@@ -59,7 +60,7 @@ export function Investigate() {
         <div className="cell-main">
           <div className="cell-question"><span>Question {i + 1}</span><h2>{s.title}</h2></div>
           <div className="query-block"><div><span>SPL query</span><Badge>ANALYST VIEW</Badge></div><pre>{s.spl}</pre></div>
-          <div className="m-actions"><CopyButton text={s.spl} label="Copy search" /><a className="button button--secondary" href={splunkSearchUrl(config.urls.splunk_web, s.spl)} target="_blank" rel="noopener">Open in Splunk <Icon name="arrow" size={15} /></a></div>
+          <div className="m-actions"><CopyButton text={s.spl} label="Copy search" />{config.urls.splunk_web && <a className="button button--secondary" href={splunkSearchUrl(config.urls.splunk_web, s.spl)} target="_blank" rel="noopener">Open in Splunk <Icon name="arrow" size={15} /></a>}</div>
           <div className="learning-note"><Icon name="book" size={18} /><div><strong>Learning note</strong><p>{s.note}</p></div></div>
           {i === 0 && <form className="m-inline" onSubmit={(e) => { e.preventDefault(); checkCount(); }}>
             <label htmlFor="splunk-count">How many events does Search 1 show for this run.id?</label>

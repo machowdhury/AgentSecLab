@@ -49,3 +49,7 @@ Produce:
 - Absence of evidence is not evidence of absence.
 - Do not assign a numerical risk score.
 - Label facts, assumptions, evidence gaps, and recommendations.
+
+## MAESTRO track
+
+Repeat the challenge with the CSA MAESTRO method in the Academy workbench (Practice tab of this lab): decompose AcmeBank across all seven layers and its trust boundaries, build a layer-by-layer threat register, find at least two cross-layer attack paths, rank the risks (qualitative levels, no numerical score), name mitigations and residual risk, link the AgentSecLab scenarios that show each threat, check yourself against the rubric and download the report. MAESTRO's Layer 6 list concerns AI security agents, which AcmeBank does not have: say so instead of forcing a label.

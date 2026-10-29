@@ -7,6 +7,7 @@ from typing import Protocol
 
 import requests
 
+from agentsec import model_identity
 from agentsec.settings import Settings, get_settings
 
 
@@ -19,6 +20,7 @@ class LLMResult:
     latency_ms: float
     error_type: str | None = None
     error_message: str | None = None
+    identity: dict | None = None   # requested / resolved / executed model identity (model_identity.py); None for test doubles
 
     @property
     def ok(self) -> bool:
@@ -40,19 +42,16 @@ class LLMClient(Protocol):
 
 
 class OllamaClient:
-    def __init__(self, settings: Settings | None = None) -> None:
+    def __init__(self, settings: Settings | None = None, *, cache: model_identity.ResolutionCache | None = None) -> None:
         self.settings = settings or get_settings()
+        self._cache = cache or model_identity.ResolutionCache()
+
+    def resolution(self) -> model_identity.Resolution:
+        """What Ollama has installed under EXACTLY the configured name (short-lived cache). Never a family or prefix match."""
+        return self._cache.get(self.settings.ollama_base_url, self.settings.ollama_model)
 
     def health(self) -> bool:
-        try:
-            response = requests.get(f"{self.settings.ollama_base_url}/api/tags", timeout=5)
-            if response.status_code != 200:
-                return False
-            models = [item.get("name", "") for item in response.json().get("models", [])]
-            target = self.settings.ollama_model.split(":")[0]
-            return any(target in name for name in models)
-        except requests.RequestException:
-            return False
+        return self.resolution().ok
 
     def generate(
         self,
@@ -64,6 +63,12 @@ class OllamaClient:
         max_tokens: int,
     ) -> LLMResult:
         del agent_id
+        res = self.resolution()
+        if not res.ok:
+            # Fail closed: the configured model is not the one that would answer, so nothing is sent and nothing is substituted.
+            kind = {model_identity.NOT_INSTALLED: "model_not_installed", model_identity.INVALID: "model_config_invalid"}.get(res.status, "connection_error")
+            return LLMResult(text="", input_tokens=0, output_tokens=0, model=self.settings.ollama_model, latency_ms=0,
+                             error_type=kind, error_message=res.detail[:500], identity={"requested": self.settings.ollama_model, **res.as_dict()})
         prompt = f"[SYSTEM]\n{system_prompt}\n\n[USER]\n{user_message}\n\n[ASSISTANT]"
         try:
             response = requests.post(
@@ -91,6 +96,7 @@ class OllamaClient:
                 latency_ms=120000,
                 error_type="timeout",
                 error_message=str(exc)[:500],
+                identity={"requested": self.settings.ollama_model, **res.as_dict(), "call_error": "timeout"},
             )
         except requests.RequestException as exc:
             return LLMResult(
@@ -101,8 +107,17 @@ class OllamaClient:
                 latency_ms=0,
                 error_type="connection_error",
                 error_message=str(exc)[:500],
+                identity={"requested": self.settings.ollama_model, **res.as_dict(), "call_error": "connection_error"},
             )
 
+        response_model = payload.get("model")
+        executed = {"response_model": response_model if isinstance(response_model, str) and response_model.strip() else None,
+                    "name_matches_requested": model_identity.response_matches(self.settings.ollama_model, response_model)}
+        identity = {"requested": self.settings.ollama_model, **res.as_dict(), "executed": executed}
+        if executed["name_matches_requested"] is False:
+            # The model that answered is not the one requested: the text is discarded, never used as if it came from the requested model.
+            return LLMResult(text="", input_tokens=0, output_tokens=0, model=str(response_model), latency_ms=0, error_type="model_identity_mismatch",
+                             error_message=f"requested {self.settings.ollama_model!r} but Ollama reports {str(response_model)[:80]!r}", identity=identity)
         text = str(payload.get("response", "")).strip()
         input_tokens = int(payload.get("prompt_eval_count") or 0)
         output_tokens = int(payload.get("eval_count") or 0)
@@ -115,6 +130,7 @@ class OllamaClient:
             output_tokens=output_tokens,
             model=model,
             latency_ms=latency_ms,
+            identity=identity,
         )
 
 

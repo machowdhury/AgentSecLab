@@ -41,6 +41,22 @@ def test_same_origin_browser_launch_is_allowed_and_cross_origin_rejected(tmp_pat
         assert r.status_code == 403 and r.get_json()["error"] == "cross_origin_rejected", hdr
 
 
+def test_origin_must_match_host_and_port_exactly(tmp_path):
+    """Behind the gateway on a non-default port the backend sees Host 'h:8000'; the browser's Origin carries the same port."""
+    c = _app(tmp_path).test_client()
+    ok = lambda h, base: _post(c, base_url=base, headers=h).status_code not in (403, 415)
+    assert ok({"Origin": "https://agentsec.test:8000"}, "https://agentsec.test:8000")
+    assert ok({"Origin": "https://AGENTSEC.test:8000"}, "https://agentsec.test:8000")           # hostnames are case-insensitive
+    for origin, base in [("https://agentsec.test", "https://agentsec.test:8000"),                # port dropped
+                         ("https://agentsec.test:8001", "https://agentsec.test:8000"),           # other port
+                         ("https://agentsec.test:8000", "https://agentsec.test"),                # port added
+                         ("https://evil.test:8000", "https://agentsec.test:8000"),               # other host, same port
+                         ("https://agentsec.test:8000@evil.test", "https://agentsec.test:8000"), # userinfo trick
+                         ("ftp://agentsec.test:8000", "https://agentsec.test:8000"), ("null", "https://agentsec.test:8000")]:
+        r = _post(c, base_url=base, headers={"Origin": origin})
+        assert r.status_code == 403 and r.get_json()["error"] == "cross_origin_rejected", (origin, base)
+
+
 def test_cross_origin_form_post_is_rejected_before_the_content_type_check(tmp_path):
     r = _post(_app(tmp_path).test_client(), content_type="text/plain", headers={"Origin": "http://evil.example"})
     assert r.status_code == 403

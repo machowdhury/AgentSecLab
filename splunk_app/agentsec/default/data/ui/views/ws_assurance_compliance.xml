@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="2" theme="light">
+  <label>AI Security Assurance: Compliance and governance evidence</label>
+  <description>Maps observed lab evidence to guidance from NIST AI RMF and AI 600-1, OWASP LLM and Agentic, MITRE ATLAS, CSA MAESTRO and ISO/IEC 42001. It makes no certification or compliance claim.</description>
+  <definition><![CDATA[
+{
+  "title": "AI Security Assurance: Compliance and governance evidence",
+  "description": "Maps observed lab evidence to guidance from NIST AI RMF and AI 600-1, OWASP LLM and Agentic, MITRE ATLAS, CSA MAESTRO and ISO/IEC 42001. It makes no certification or compliance claim.",
+  "defaults": {
+    "dataSources": {
+      "ds.search": {
+        "options": {
+          "queryParameters": {
+            "earliest": "$tr.earliest$",
+            "latest": "$tr.latest$"
+          }
+        }
+      }
+    },
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "default"
+        }
+      }
+    }
+  },
+  "inputs": {
+    "input_tr": {
+      "type": "input.timerange",
+      "title": "Time range",
+      "options": {
+        "token": "tr",
+        "defaultValue": "0,now"
+      }
+    },
+    "input_ec": {
+      "type": "input.dropdown",
+      "title": "Evidence class",
+      "options": {
+        "token": "ec",
+        "defaultValue": "*",
+        "items": [
+          {
+            "label": "LIVE and RECORDED (default; test fixtures are excluded)",
+            "value": "*"
+          },
+          {
+            "label": "LIVE (run on this installation)",
+            "value": "LIVE"
+          },
+          {
+            "label": "RECORDED (committed replay specimens)",
+            "value": "RECORDED"
+          },
+          {
+            "label": "TEST_FIXTURE only (synthetic negative-test data)",
+            "value": "TEST_FIXTURE"
+          },
+          {
+            "label": "Everything including fixtures",
+            "value": "ALL"
+          }
+        ]
+      }
+    },
+    "input_ws": {
+      "type": "input.dropdown",
+      "title": "Workshop",
+      "options": {
+        "token": "ws",
+        "defaultValue": "*",
+        "items": [
+          {
+            "label": "All workshops",
+            "value": "*"
+          },
+          {
+            "label": "LAB-ADVANCED-CAPSTONE-MASTERY-001",
+            "value": "LAB-ADVANCED-CAPSTONE-MASTERY-001"
+          },
+          {
+            "label": "LAB-AGENT-DELEGATION-001",
+            "value": "LAB-AGENT-DELEGATION-001"
+          },
+          {
+            "label": "LAB-AGENT-GOAL-INTEGRITY-001",
+            "value": "LAB-AGENT-GOAL-INTEGRITY-001"
+          },
+          {
+            "label": "LAB-MCP-001",
+            "value": "LAB-MCP-001"
+          },
+          {
+            "label": "LAB-MCP-003",
+            "value": "LAB-MCP-003"
+          },
+          {
+            "label": "LAB-MCP-004",
+            "value": "LAB-MCP-004"
+          },
+          {
+            "label": "LAB-MCP-005",
+            "value": "LAB-MCP-005"
+          },
+          {
+            "label": "LAB-MCP-006",
+            "value": "LAB-MCP-006"
+          },
+          {
+            "label": "LAB-MCP-CATALOG",
+            "value": "LAB-MCP-CATALOG"
+          },
+          {
+            "label": "LAB-MEMORY-001",
+            "value": "LAB-MEMORY-001"
+          },
+          {
+            "label": "LAB-PI-001",
+            "value": "LAB-PI-001"
+          },
+          {
+            "label": "LAB-RAG-CONTEXT",
+            "value": "LAB-RAG-CONTEXT"
+          },
+          {
+            "label": "LAB-SCANNER-RUNTIME-EVIDENCE",
+            "value": "LAB-SCANNER-RUNTIME-EVIDENCE"
+          }
+        ]
+      }
+    }
+  },
+  "dataSources": {
+    "ds_e_matrix": {
+      "type": "ds.search",
+      "name": "e_matrix",
+      "options": {
+        "query": "| inputlookup agentsec_framework_map\n| join type=left control_id [ search `agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\")) | where control_id!=\"(none)\" AND control_id!=\"(run)\" | stats count(eval(status=\"VERIFIED_EFFECTIVE\")) as eff, count(eval(status=\"VERIFIED_INEFFECTIVE\" AND by_design=0)) as ineff, count(eval(status=\"VERIFIED_INEFFECTIVE\" AND by_design=1)) as design, count(eval(status=\"FINDING_OBSERVED\")) as obs, count(eval(status=\"INSUFFICIENT_EVIDENCE\")) as insuff, count(eval(mode=\"ATTACK\" OR mode=\"RETEST\")) as tested by control_id ]\n| fillnull value=0 eff ineff design obs insuff tested\n| stats sum(eff) as verified_effective, sum(ineff) as control_failures, sum(design) as executed_by_design, sum(obs) as finding_observed, sum(insuff) as insufficient, sum(tested) as tested_hops, values(control_id) as controls, values(kind) as relationship_kinds, values(verification) as identifier_verification, values(version_or_date) as version by framework, item_id, item_name\n| eval evidence_status=case(tested_hops=0,\"Not tested\", control_failures>0,\"Verified ineffective for at least one observed attempt outside the vulnerable profile\", verified_effective>0,\"Verified effective for the observed defended attempts only\", executed_by_design>0,\"Only the intentionally vulnerable profile was observed: no defended retest verified\", finding_observed>0,\"Finding observed\", insufficient>0,\"Insufficient evidence\", true(),\"Not tested\")\n| eval claim=\"No compliance claim: lab evidence for the mapped lab controls only\"\n| sort framework, item_id\n| table framework item_id item_name evidence_status verified_effective control_failures executed_by_design finding_observed insufficient controls relationship_kinds identifier_verification version claim",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_e_workshop": {
+      "type": "ds.search",
+      "name": "e_workshop",
+      "options": {
+        "query": "`agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\"))\n| where control_id!=\"(none)\" AND control_id!=\"(run)\"\n| eval ws=split(workshops,\"|\")\n| mvexpand ws\n| stats count as operations, count(eval(status=\"VERIFIED_EFFECTIVE\")) as verified_effective, count(eval(status=\"VERIFIED_INEFFECTIVE\")) as verified_ineffective, count(eval(status=\"FINDING_OBSERVED\")) as finding_observed, count(eval(status=\"INSUFFICIENT_EVIDENCE\")) as insufficient, values(control_id) as controls by ws\n| table ws operations verified_effective verified_ineffective finding_observed insufficient controls\n| rename ws as workshop",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_e_versions": {
+      "type": "ds.search",
+      "name": "e_versions",
+      "options": {
+        "query": "| inputlookup agentsec_framework_items\n| stats count as identifiers_used, values(verification) as verification, values(version_or_date) as version, max(retrieved_on) as retrieved_on, values(source_url) as source, values(limits) as limits by framework\n| sort framework"
+      }
+    },
+    "ds_e_findings": {
+      "type": "ds.search",
+      "name": "e_findings",
+      "options": {
+        "query": "`agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\")) \n| sort - _time\n| table finding_key, status_label, confidence, evidence_class, mode, profile, attack_id, control_id, hop, tool, decision, reason, observation, interpretation, impact, control_interpretation, recommended_action, retest_outcome, retest_run, workshops, run_id",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    }
+  },
+  "visualizations": {
+    "viz_head": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# What this is, and is not\n\nA lab test is evidence of how a control behaved in the tested environment. It is not proof of organization-wide compliance, certification or regulatory conformance. Mappings are **educational relationships** (kind and rationale are shown); none says an item is satisfied. Identifiers were verified against the sources on the retrieval date shown; ISO/IEC 42001 identifiers are `VERIFIED_WITH_LIMITS` because the standard is paywalled. **No compliance percentage is computed.** **Evidence classes.** LIVE = a run on this installation. RECORDED = a run captured earlier and committed as a replay specimen (identified by the committed list `agentsec_recorded_runs`; the telemetry itself says `execution.mode=LIVE` for both). SIMULATED = workshop packets and CTF challenges; they are not in Splunk and never appear here. TEST_FIXTURE = synthetic data for negative acceptance tests (lab id `assurance-test-fixture`), mutated from real runs and never produced by the lab. The default view shows LIVE and RECORDED and always excludes fixtures; choose *Everything including fixtures* only to see them beside real evidence. Read the Evidence class column.",
+        "fontSize": "default"
+      }
+    },
+    "viz_matrix": {
+      "type": "splunk.table",
+      "title": "Framework item to lab evidence (evidence status is the status model; it describes lab controls, not your organization)",
+      "dataSources": {
+        "primary": "ds_e_matrix"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_workshop": {
+      "type": "splunk.table",
+      "title": "Reverse path: from each workshop to the controls it exercised (frameworks for each control are in the table above)",
+      "dataSources": {
+        "primary": "ds_e_workshop"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_versions": {
+      "type": "splunk.table",
+      "title": "Framework references: version, verification and source",
+      "dataSources": {
+        "primary": "ds_e_versions"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_e_findings": {
+      "type": "splunk.table",
+      "title": "Underlying findings (select a row for the finding page)",
+      "dataSources": {
+        "primary": "ds_e_findings"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToDashboard",
+          "options": {
+            "app": "agentsec",
+            "dashboard": "ws_assurance_finding",
+            "newTab": true,
+            "tokens": [
+              {
+                "token": "run_id",
+                "value": "row.run_id.value"
+              },
+              {
+                "token": "control_id",
+                "value": "row.control_id.value"
+              },
+              {
+                "token": "hop",
+                "value": "row.hop.value"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "viz_note": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "## Version notes\n\n**MITRE ATLAS**: Release v2026.10 was published 2026-10-28. The older table in learning/academy/framework_refs.json was read from release 2026.09; AML.T0010 and some mitigations were renamed in 2026.10, so this file uses the v2026.10 names.\n\n**NIST AI RMF 1.0**: AI RMF 1.0 is current; NIST says it is being revised and has published no revision.\n\n**CSA MAESTRO**: No versioned release found; CSA describes it as officially adopted (2026-08-13).\n\n**ISO/IEC 42001:2023**: iso.org could not be opened; identifiers are VERIFIED_WITH_LIMITS.",
+        "fontSize": "default"
+      }
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "globalInputs": [
+      "input_tr",
+      "input_ec",
+      "input_ws"
+    ],
+    "options": {
+      "backgroundColor": "#F6F8FB",
+      "display": "auto-scale",
+      "gutterSize": 8,
+      "width": 1440,
+      "height": 1610
+    },
+    "structure": [
+      {
+        "item": "viz_head",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 1440,
+          "h": 190
+        }
+      },
+      {
+        "item": "viz_matrix",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 190,
+          "w": 1440,
+          "h": 520
+        }
+      },
+      {
+        "item": "viz_workshop",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 710,
+          "w": 720,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_versions",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 710,
+          "w": 720,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_e_findings",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1010,
+          "w": 1440,
+          "h": 340
+        }
+      },
+      {
+        "item": "viz_note",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1350,
+          "w": 1440,
+          "h": 220
+        }
+      }
+    ]
+  },
+  "applicationProperties": {
+    "collapsed": false
+  }
+}
+]]></definition>
+</dashboard>

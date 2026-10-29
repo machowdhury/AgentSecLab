@@ -1,0 +1,4 @@
+#!/bin/sh
+# AgentSec installer entry point: ./agentsec install --help
+ROOT="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+PYTHONPATH="$ROOT/src${PYTHONPATH:+:$PYTHONPATH}" exec "${PYTHON:-python3}" -m agentsec.installer --root "$ROOT" "$@"

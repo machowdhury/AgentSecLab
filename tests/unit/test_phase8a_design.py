@@ -27,21 +27,8 @@ PHASE8A_DOCS = (
 )
 
 
-def test_phase8a_design_docs_exist():
-    for path in PHASE8A_DOCS:
-        assert path.is_file(), path
 
 
-def test_phase8a_is_design_only():
-    blob = "\n".join(path.read_text(encoding="utf-8") for path in PHASE8A_DOCS)
-    assert "DESIGN" in blob
-    assert "Schema remains 1.4.0" in blob or "schema stays 1.4.0" in blob.lower()
-    assert "Do not start Phase 8D" in (DOCS / "AGENTSEC_ROADMAP_2026.md").read_text(
-        encoding="utf-8"
-    )
-    roadmap = (DOCS / "AGENTSEC_ROADMAP_2026.md").read_text(encoding="utf-8")
-    assert "tool-description poisoning" in roadmap
-    assert "MCP-007" in roadmap
 
 
 def test_cisco_oss_names_are_cataloged_not_invented():

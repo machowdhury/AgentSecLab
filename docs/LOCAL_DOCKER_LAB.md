@@ -1,5 +1,7 @@
 # Local Docker lab vs external Splunk
 
+> **RC2 note.** This page describes the earlier multi-port, plain-HTTP flow (`scripts/lab-up.sh`, published as v1.2.0). The RC2 path (the installer and the HTTPS gateway) is in [Installation and deployment](INSTALLATION_AND_DEPLOYMENT.md). macOS, Windows and this older flow were **not** part of the RC2 acceptance runs. Do not mix the two flows on one machine without reading [Installer](INSTALLER.md) on existing labs.
+
 **Status:** LOCAL path is Docker-managed. EXTERNAL Splunk is operator-managed.  
 **Schema / SPL / lab behavior:** unchanged.
 
@@ -34,6 +36,8 @@ Equivalent compose (`.env` already sets `COMPOSE_FILE` / `COMPOSE_PROFILES=local
 docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local up -d
 ./scripts/lab-ready.sh
 ```
+
+*These are the published v1.2.0 local URLs (multi-port HTTP on loopback).* The opt-in v1.3.0 gateway (unreleased) is described in [Unified HTTPS gateway](GATEWAY.md); Splunk outside this bundled container (external Enterprise or Cloud) is described in [Splunk integration](SPLUNK_INTEGRATION.md) and is mock-tested only.
 
 | URL | Role |
 |-----|------|

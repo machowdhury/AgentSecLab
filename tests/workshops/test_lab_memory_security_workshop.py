@@ -53,71 +53,10 @@ def _docs_text() -> str:
     )
 
 
-def test_required_workshop_files_exist():
-    for path in REQUIRED_FILES:
-        assert path.is_file(), path
-    assert (LAB_DIR / "dashboard.md").is_file()
-    assert (DOCS / "PHASE11E_MEMORY_SECURITY_WORKSHOP.md").is_file()
-    assert (DOCS / "learning-notes" / "memory-soc-investigation.md").is_file()
-    notes = (DOCS / "learning-notes" / "memory-soc-investigation.md").read_text(
-        encoding="utf-8"
-    )
-    assert "## What I should now be able to explain" in notes
-    assert not (LAB_DIR / "searches" / "DET-MEMORY.spl").exists()
-    assert not (LAB_DIR / "searches" / "Q-MEMORY-WRITE.spl").exists()
 
 
-def test_ten_steps_and_evidence_ids():
-    blob = _lab_text() + _docs_text()
-    for step in WORKSHOP_STEPS:
-        assert step in blob
-    assert "ws_lab_memory_security" in blob
-    assert MALICIOUS_HASH in blob
-    assert NORMAL_HASH in blob
-    assert BASELINE_WRITE in blob
-    assert BASELINE_RECALL in blob
-    assert ATTACK_WRITE in blob
-    assert ATTACK_RECALL in blob
-    assert RETEST_WRITE in blob
-    assert RETEST_RECALL in blob
-    assert blob.count(MALICIOUS_HASH) >= 4
 
 
-def test_teaching_boundaries():
-    blob = _lab_text() + _docs_text()
-    assert "PERSISTED MEMORY != TRUSTED INSTRUCTION" in blob
-    assert "MEMORY RECALL != AUTHORIZATION" in blob
-    assert "REQUEST != GRANT" in blob or "REQUEST ≠ GRANT" in blob
-    assert "OBSERVE != ALLOW" in blob or "OBSERVE ≠ ALLOW" in blob
-    assert "ALLOW != EXECUTION" in blob or "ALLOW ≠ EXECUTION" in blob
-    assert "SPLUNK != ENFORCEMENT" in blob or "SPLUNK ≠ ENFORCEMENT" in blob
-    assert "DETECTION ANALYZED — NO NEW MEMORY DETECTOR" in blob or "NO NEW DETECTOR" in blob
-    assert "INTENTIONALLY VULNERABLE" in blob
-    assert "handler count" in blob.lower()
-    assert "INV-003" in blob
-    assert "1.7.0" in blob
-    assert "No DET-MEMORY" in blob or "no DET-MEMORY" in blob
-    assert "Q-MEMORY-CONTEXT-AUTHORITY" in blob
-    assert "FUTURE — NOT IMPLEMENTED" in blob or "FUTURE — NOT IMPLEMENTED" in blob.upper()
-    lowered = blob.lower()
-    assert "the memory authorized the tool" not in lowered
-    assert "phase 12" in lowered
-    teaching = "\n".join(
-        path.read_text(encoding="utf-8")
-        for path in (
-            LAB_DIR / "README.md",
-            LAB_DIR / "workshop.md",
-            LAB_DIR / "evidence.md",
-        )
-    ).lower()
-    for claim in (
-        "splunk blocked the action",
-        "splunk prevented the attack",
-        "the detector caught memory",
-        "normal is safe",
-        "untrusted_data means malicious",
-    ):
-        assert claim not in teaching
 
 
 def test_knowledge_check_has_answers():

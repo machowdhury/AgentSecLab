@@ -9,6 +9,7 @@ import threading
 import time
 from collections import OrderedDict
 
+from agentsec import model_identity
 from agentsec.loan_desk.agent import MAX_STEPS, run_agent
 from agentsec.loan_desk.data import ApplicationStore, validate_application
 from agentsec.loan_desk.events import LoanDeskEmitter
@@ -89,13 +90,14 @@ class LoanDeskService:
         app_id = self.store.add(record)
         if app_id is None:
             return None, {"_form": "The demo store is full. Restart the lab to clear it."}
+        identity = self.model.identity() if hasattr(self.model, "identity") else {}   # requested and resolved identity, read once at the start of the run
         emitter = LoanDeskEmitter(sink=self.sink.emit, settings=dataclasses.replace(self.settings, ollama_model=self.model.name),
-                                  model=self.model.name, user_id="applicant-web", posture=posture)
+                                  model=self.model.name, user_id="applicant-web", posture=posture, identity=identity or None)
         run_id = str(emitter.run_id)
         view = {"run_id": run_id, "applicant_id": app_id, "posture": posture, "status": "RUNNING", "stop_reason": None, "error": None,
                 "application": {k: v for k, v in record.items()},
                 "model": {"name": self.model.name, "provider": "ollama", "proposal_source": self.model.source,
-                  "identity": self.model.identity() if hasattr(self.model, "identity") else {}},
+                  "identity": identity},
                 "bounds": {"max_steps": MAX_STEPS, "tools": sorted(TOOLS)},
                 "steps": [], "final": None, "events": 0}
         steps = view["steps"]
@@ -129,7 +131,7 @@ class LoanDeskService:
         splunk = self._splunk_status(run_id, len(events))
         out["evidence"] = {
             "run_id": run_id, "event_count": len(events), "source": "LIVE",
-            "schema": "agentsec.loan_desk_event 1.0.0",
+            "schema": "agentsec.loan_desk_event " + (events[0].get("agentsec.schema.version", "1.0.0") if events else "1.0.0"),
             "splunk_search": f'index=agentsec_telemetry sourcetype="otel:agentic:json" "agentsec.run.id"="{run_id}" | sort agentsec.sequence',
             "indexed_status": splunk["status"], "splunk": splunk,
             "note": "LOCAL evidence = events AcmeBank emitted. SPLUNK-VERIFIED needs the host verifier to confirm; "
@@ -180,6 +182,31 @@ class LoanDeskService:
             ev = self._events.get(run_id)
             return None if ev is None else "".join(json.dumps(e, separators=(",", ":")) + "\n" for e in ev)
 
+    def _with_executed_identity(self, run_id: str, emitter: LoanDeskEmitter, patch: dict) -> dict:
+        """Add the EXECUTED identity to the run view. all_match_requested is True only when EVERY model call named the answering model and it matched;
+        a call whose response did not name a model is counted as unverified, never as a match."""
+        start = (emitter.identity or {})
+        if not start:
+            return patch                                    # a test double: nothing to attest
+        calls = list(emitter.executed_calls)
+        answered = sorted({c["response_model"] for c in calls if c.get("response_model")})
+        unverified = sum(1 for c in calls if c.get("matches") is None)
+        verdict = None if (not calls or unverified) else all(c["matches"] is True for c in calls)
+        try:
+            after = self.model.identity() if hasattr(self.model, "identity") else {}
+        except Exception:
+            after = {}
+        unchanged = (start.get("digest") == after.get("digest")) if start.get("digest") and after.get("digest") else None
+        executed = {"response_models": answered, "calls": len(calls), "calls_unverified": unverified, "all_match_requested": verdict,
+                    "digest_unchanged_during_run": unchanged, "ollama_version_after": after.get("ollama_version")}
+        with self._lock:
+            run = self._runs.get(run_id)
+            if run is None:                                 # evicted from the bounded run table while it ran
+                return patch
+            model = dict(run.get("model") or {})
+        model["identity"] = {**(model.get("identity") or start), "executed": executed}
+        return {**patch, "model": model}
+
     # -- worker ---------------------------------------------------------------
     def _execute(self, run_id: str, app_id: str, record: dict, emitter: LoanDeskEmitter, steps: list, posture: str) -> None:
         t0 = time.monotonic()
@@ -207,6 +234,7 @@ class LoanDeskService:
                      "counts": {"executed": result.executed, "denied": result.denied}}
         except Exception as exc:  # never leave a run stuck in RUNNING
             patch = {"status": "FAILED", "stop_reason": "internal_error", "error": f"{type(exc).__name__}: {exc}"}
+        patch = self._with_executed_identity(run_id, emitter, patch)
         try:
             flush = getattr(self.sink, "force_flush", None)
             if callable(flush):
@@ -214,4 +242,5 @@ class LoanDeskService:
         except Exception:
             pass
         with self._lock:
-            self._runs[run_id].update(patch)
+            if run_id in self._runs:
+                self._runs[run_id].update(patch)

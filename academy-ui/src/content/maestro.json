@@ -1,0 +1,1841 @@
+{
+ "schema": "agentsec.maestro_model.v1",
+ "lab_id": "LAB-THREAT-MODELING-001",
+ "not_authorization": true,
+ "not_compliance": true,
+ "status": "TEACHING MODEL. The example judgments are the lab author's, for a lab system with synthetic data. They are not an assessment of any real system and not CSA material.",
+ "framework": {
+  "name": "MAESTRO",
+  "expansion": "Multi-Agent Environment, Security, Threat, Risk, and Outcome",
+  "author": "Ken Huang",
+  "published": "2025-02-06",
+  "version": "none stated by CSA",
+  "sources": [
+   {
+    "id": "csa-article",
+    "title": "Agentic AI Threat Modeling Framework: MAESTRO (Ken Huang, Cloud Security Alliance, 2025-02-06)",
+    "url": "https://cloudsecurityalliance.org/blog/2025/02/06/agentic-ai-threat-modeling-framework-maestro",
+    "role": "PRIMARY: layers, threat lists, cross-layer threats, six-step method"
+   },
+   {
+    "id": "csa-analyzer",
+    "title": "MAESTRO Threat Analyzer (repository README, MIT licence)",
+    "url": "https://github.com/CloudSecurityAlliance/MAESTRO",
+    "role": "PRIMARY: output structure (traditional and agentic threats per layer, with mitigations). NOT RUN here."
+   },
+   {
+    "id": "csa-labs",
+    "title": "CSA Labs: MAESTRO landing page",
+    "url": "https://labs.cloudsecurityalliance.org/maestro/",
+    "role": "Context: names the framework and its author; states no version"
+   }
+  ],
+  "retrieved": "2026-10-29",
+  "layers": [
+   {
+    "n": 1,
+    "name": "Foundation Models",
+    "description": "Core model, an LLM or other AI.",
+    "vertical": false,
+    "official_threats": [
+     "Adversarial Examples",
+     "Model Stealing",
+     "Backdoor Attacks",
+     "Membership Inference Attacks",
+     "Data Poisoning (Training Phase)",
+     "Reprogramming Attacks",
+     "Denial of Service (DoS) Attacks"
+    ]
+   },
+   {
+    "n": 2,
+    "name": "Data Operations",
+    "description": "Data processing and storage, including databases, vector stores and RAG pipelines.",
+    "vertical": false,
+    "official_threats": [
+     "Data Poisoning",
+     "Data Exfiltration",
+     "Denial of Service on Data Infrastructure",
+     "Data Tampering",
+     "Compromised RAG Pipelines"
+    ]
+   },
+   {
+    "n": 3,
+    "name": "Agent Frameworks",
+    "description": "Toolkits and orchestration used to build agents.",
+    "vertical": false,
+    "official_threats": [
+     "Compromised Framework Components",
+     "Backdoor Attacks",
+     "Input Validation Attacks",
+     "Supply Chain Attacks",
+     "Denial of Service on Framework APIs",
+     "Framework Evasion"
+    ]
+   },
+   {
+    "n": 4,
+    "name": "Deployment and Infrastructure",
+    "description": "The infrastructure agents run on, cloud or on-premise.",
+    "vertical": false,
+    "official_threats": [
+     "Compromised Container Images",
+     "Orchestration Attacks",
+     "Infrastructure-as-Code (IaC) Manipulation",
+     "Denial of Service (DoS) Attacks",
+     "Resource Hijacking",
+     "Lateral Movement"
+    ]
+   },
+   {
+    "n": 5,
+    "name": "Evaluation and Observability",
+    "description": "How agents are evaluated and monitored.",
+    "vertical": false,
+    "official_threats": [
+     "Manipulation of Evaluation Metrics",
+     "Compromised Observability Tools",
+     "Denial of Service on Evaluation Infrastructure",
+     "Evasion of Detection",
+     "Data Leakage through Observability",
+     "Poisoning Observability Data"
+    ]
+   },
+   {
+    "n": 6,
+    "name": "Security and Compliance",
+    "description": "Security and compliance controls across all operations. The article calls this a vertical layer that cuts across all other layers.",
+    "vertical": true,
+    "official_threats": [
+     "Security Agent Data Poisoning",
+     "Evasion of Security AI Agents",
+     "Compromised Security AI Agents",
+     "Regulatory Non-Compliance by AI Security Agents",
+     "Bias in Security AI Agents",
+     "Lack of Explainability in Security AI Agents",
+     "Model Extraction of AI Security Agents"
+    ]
+   },
+   {
+    "n": 7,
+    "name": "Agent Ecosystem",
+    "description": "The marketplace where agents meet real-world applications and users.",
+    "vertical": false,
+    "official_threats": [
+     "Compromised Agents",
+     "Agent Impersonation",
+     "Agent Identity Attack",
+     "Agent Tool Misuse",
+     "Agent Goal Manipulation",
+     "Marketplace Manipulation",
+     "Integration Risks",
+     "Horizontal/Vertical Solution Vulnerabilities",
+     "Repudiation",
+     "Compromised Agent Registry",
+     "Malicious Agent Discovery",
+     "Agent Pricing Model Manipulation",
+     "Inaccurate Agent Capability Description"
+    ]
+   }
+  ],
+  "cross_layer_threats": [
+   "Supply Chain Attacks",
+   "Lateral Movement",
+   "Privilege Escalation",
+   "Data Leakage",
+   "Goal Misalignment Cascades"
+  ],
+  "method": [
+   {
+    "n": 1,
+    "name": "System Decomposition",
+    "does": "Break the system into the seven layers; define agent capabilities, goals and interactions."
+   },
+   {
+    "n": 2,
+    "name": "Layer-Specific Threat Modeling",
+    "does": "Use each layer's threat landscape, tailored to the system."
+   },
+   {
+    "n": 3,
+    "name": "Cross-Layer Threat Identification",
+    "does": "Analyze inter-layer interactions."
+   },
+   {
+    "n": 4,
+    "name": "Risk Assessment",
+    "does": "Assess likelihood and impact and prioritize. The article refers to a risk matrix but does not define one."
+   },
+   {
+    "n": 5,
+    "name": "Mitigation Planning",
+    "does": "Layer-specific, cross-layer and AI-specific mitigations."
+   },
+   {
+    "n": 6,
+    "name": "Implementation and Monitoring",
+    "does": "Implement, monitor and update the model as the system evolves."
+   }
+  ],
+  "mitigation_categories": {
+   "layer_specific": "Controls for each layer's threats",
+   "cross_layer": [
+    "Defense in Depth",
+    "Secure Inter-Layer Communication",
+    "System-Wide Monitoring",
+    "Incident Response Plan"
+   ],
+   "ai_specific": [
+    "Adversarial Training",
+    "Formal Verification",
+    "Explainable AI (XAI)",
+    "Red Teaming",
+    "Safety Monitoring"
+   ]
+  },
+  "notes": [
+   "Layer names and threat labels are quoted from the CSA article. Secondary write-ups name some layers differently; this lab follows the article.",
+   "The article's threat lists are a starting point to be tailored to the system (its step 2). A threat that is not in the list is allowed here, and is marked custom.",
+   "Several Layer 6 threats are about AI security agents. AcmeBank has none, so a learner must say so rather than force a label.",
+   "CSA also lists a MAESTRO v2 artifact. Its listing describes a peer-review draft that grows the model from seven layers to ten in three operational domains; its page could not be fetched on 2026-10-29. This lab follows the original seven-layer article, and v2 is NOT implemented."
+  ]
+ },
+ "analyzer": {
+  "name": "MAESTRO Threat Analyzer",
+  "repository": "https://github.com/CloudSecurityAlliance/MAESTRO",
+  "licence": "MIT",
+  "provenance_note": "The README calls it the official CSA repository, while the page header shows a fork and the CSA labs page links a different GitHub account. Verify before relying on it.",
+  "inputs": "A free-text description of the system architecture, plus presets.",
+  "outputs": "For each of the seven layers: traditional threats and agentic threats, each with generated mitigations. No likelihood, impact, severity, register or export format is documented.",
+  "uses_llm": "Yes (Genkit with Google, OpenAI or Ollama); output varies run to run.",
+  "status_here": "NOT RUN. It needs Node.js and a model provider, and its output is generated text. This lab reuses its output structure (traditional versus agentic threats per layer, with mitigations) and gives you an architecture description to paste into it yourself.",
+  "compare": [
+   "Paste the architecture description from your report into the Analyzer, in your own environment and with your own provider.",
+   "For each layer, list the threats it proposes that your register lacks, and the ones in your register it did not propose.",
+   "Treat every Analyzer threat as a hypothesis: find the AgentSecLab component, the control and the evidence, or mark it NOT PROVEN."
+  ]
+ },
+ "risk_method": {
+  "file": "learning/academy/risk/methodology.json",
+  "why": "The article asks for likelihood and impact and a risk matrix but defines none. This lab reuses the Risk Center's qualitative 3x3 matrix. A level is looked up from two judgments you enter; the tool never proposes them."
+ },
+ "acmebank": {
+  "scenario": "AcmeBank Agentic Customer Operations Platform",
+  "architecture": "learning/level_1/LAB-THREAT-MODELING-001/architecture.json",
+  "elements": [
+   {
+    "id": "CMP-MODEL",
+    "name": "Ollama-hosted language model",
+    "layer": 1,
+    "also": [],
+    "kind": "software dependency",
+    "evidence": [
+     "src/agentsec/llm.py",
+     "src/agentsec/model_identity.py"
+    ],
+    "note": "The model proposes; its output is not policy or fact. Default llama3.2:1b."
+   },
+   {
+    "id": "CMP-RAG",
+    "name": "Exact-ID local RAG retriever",
+    "layer": 2,
+    "also": [],
+    "kind": "data store",
+    "evidence": [
+     "src/agentsec/rag/pipeline.py"
+    ],
+    "note": "Fixture documents by exact id; not a vector database."
+   },
+   {
+    "id": "CMP-MEMORY",
+    "name": "Process-local memory store",
+    "layer": 2,
+    "also": [],
+    "kind": "data store",
+    "evidence": [
+     "src/agentsec/memory"
+    ],
+    "note": "Persisted entries are recalled into later runs."
+   },
+   {
+    "id": "CMP-DOWNSTREAM",
+    "name": "Fixture-backed banking records",
+    "layer": 2,
+    "also": [],
+    "kind": "data store",
+    "evidence": [
+     "src/agentsec/mcp/tools.py"
+    ],
+    "note": "Synthetic customer and policy records reached only through tools."
+   },
+   {
+    "id": "CMP-APP",
+    "name": "AcmeBank Flask application",
+    "layer": 3,
+    "also": [],
+    "kind": "application",
+    "evidence": [
+     "src/agentsec/bank_app.py",
+     "src/agentsec/request_contract.py"
+    ],
+    "note": "HTTP boundary: closed request contracts and strict JSON."
+   },
+   {
+    "id": "CMP-ORCH",
+    "name": "Agent pipeline / orchestrator",
+    "layer": 3,
+    "also": [],
+    "kind": "agent framework",
+    "evidence": [
+     "src/agentsec/pipeline.py",
+     "src/agentsec/agents.py"
+    ],
+    "note": "Moves context between the model, retrieval, memory and tools."
+   },
+   {
+    "id": "CMP-MCP",
+    "name": "In-process MCP server",
+    "layer": 3,
+    "also": [
+     7
+    ],
+    "kind": "tool mediation",
+    "evidence": [
+     "src/agentsec/mcp/server.py"
+    ],
+    "note": "Mediates every tool request. Its decision point is CTRL-MCP-001 (see SEC-PDP)."
+   },
+   {
+    "id": "DEP-GATEWAY",
+    "name": "HTTPS gateway (nginx)",
+    "layer": 4,
+    "also": [
+     6
+    ],
+    "kind": "deployment",
+    "evidence": [
+     "gateway/templates/gateway.conf.template",
+     "docker-compose.gateway.yml"
+    ],
+    "note": "Optional edge: TLS, basic authentication, allowlisted routes, quota."
+   },
+   {
+    "id": "DEP-SERVICES",
+    "name": "AcmeBank and Attack Service containers",
+    "layer": 4,
+    "also": [],
+    "kind": "deployment",
+    "evidence": [
+     "docker-compose.yml"
+    ],
+    "note": "Two Python services on one container network; neither authenticates callers itself."
+   },
+   {
+    "id": "DEP-OLLAMA",
+    "name": "Ollama container and model volume",
+    "layer": 4,
+    "also": [
+     1
+    ],
+    "kind": "deployment",
+    "evidence": [
+     "docker-compose.yml"
+    ],
+    "note": "Image ollama/ollama:latest is a floating tag."
+   },
+   {
+    "id": "DEP-SPLUNK",
+    "name": "Splunk container and volumes",
+    "layer": 4,
+    "also": [
+     5
+    ],
+    "kind": "deployment",
+    "evidence": [
+     "docker-compose.yml",
+     "deploy/images.lock.json"
+    ],
+    "note": "Digest-pinned image; data volumes persist."
+   },
+   {
+    "id": "CMP-TELEMETRY",
+    "name": "OpenTelemetry export path",
+    "layer": 5,
+    "also": [],
+    "kind": "observability",
+    "evidence": [
+     "src/agentsec/telemetry.py"
+    ],
+    "note": "A second copy of runtime events, sent downstream."
+   },
+   {
+    "id": "CMP-SPLUNK",
+    "name": "Splunk investigation workbench",
+    "layer": 5,
+    "also": [],
+    "kind": "observability",
+    "evidence": [
+     "splunk_app/agentsec/default/data/ui/views/ws_lab_threat_modeling.xml"
+    ],
+    "note": "Downstream evidence. It enforces nothing."
+   },
+   {
+    "id": "CMP-EXTERNAL",
+    "name": "Cisco scanner and garak evidence adapters",
+    "layer": 5,
+    "also": [],
+    "kind": "evaluation",
+    "evidence": [
+     "src/agentsec/external_evidence"
+    ],
+    "note": "Adjacent evidence: a finding is not authorization, a pass is not safety."
+   },
+   {
+    "id": "SEC-PDP",
+    "name": "Tool policy decision point (CTRL-MCP-001, coded policy, allow ticket)",
+    "layer": 6,
+    "also": [
+     3
+    ],
+    "kind": "security control",
+    "evidence": [
+     "src/agentsec/mcp/policy.py",
+     "src/agentsec/mcp/authorize.py"
+    ],
+    "note": "Exact-membership policy; execution needs an opaque allow ticket minted after ALLOW."
+   },
+   {
+    "id": "SEC-OBSERVE",
+    "name": "OBSERVE-class context controls",
+    "layer": 6,
+    "also": [],
+    "kind": "security control",
+    "evidence": [
+     "src/agentsec/rag/pipeline.py",
+     "src/agentsec/memory"
+    ],
+    "note": "Input, retrieved-context, memory, goal and identity classifications. Several only observe."
+   },
+   {
+    "id": "SEC-EDGE",
+    "name": "Edge authentication, operator tier, Origin check, quota",
+    "layer": 6,
+    "also": [
+     4
+    ],
+    "kind": "security control",
+    "evidence": [
+     "gateway/templates/gateway.conf.template"
+    ],
+    "note": "A stand-in for production access control; no login throttling."
+   },
+   {
+    "id": "SEC-SPL",
+    "name": "Read-only SPL policy",
+    "layer": 6,
+    "also": [
+     5
+    ],
+    "kind": "security control",
+    "evidence": [
+     "src/agentsec/spl_policy.py"
+    ],
+    "note": "Constrains the searches the application itself builds."
+   },
+   {
+    "id": "CMP-TOOLS",
+    "name": "Tool registry",
+    "layer": 7,
+    "also": [
+     3
+    ],
+    "kind": "tool",
+    "evidence": [
+     "src/agentsec/mcp/registry.py"
+    ],
+    "note": "The tools an agent can name; a tool being listed is not a grant."
+   },
+   {
+    "id": "ECO-AGENTS",
+    "name": "Coded agents and their identity claims",
+    "layer": 7,
+    "also": [],
+    "kind": "agents",
+    "evidence": [
+     "src/agentsec/agents.py",
+     "src/agentsec/mcp/delegation.py"
+    ],
+    "note": "Caller and deputy agents are coded fixtures; authentication is NOT MODELED."
+   },
+   {
+    "id": "ECO-CATALOG",
+    "name": "Tool catalog and descriptions",
+    "layer": 7,
+    "also": [],
+    "kind": "tool metadata",
+    "evidence": [
+     "src/agentsec/mcp/catalog.py"
+    ],
+    "note": "Descriptions are data an agent may read; they are not authority."
+   },
+   {
+    "id": "ECO-USERS",
+    "name": "Applicants, operators and other callers",
+    "layer": 7,
+    "also": [],
+    "kind": "people",
+    "evidence": [
+     "src/agentsec/request_contract.py"
+    ],
+    "note": "A user id is request data; authentication is NOT MODELED."
+   },
+   {
+    "id": "ECO-QUEUE",
+    "name": "Human underwriter queue (Loan Desk)",
+    "layer": 7,
+    "also": [],
+    "kind": "integration",
+    "evidence": [
+     "src/agentsec/loan_desk"
+    ],
+    "note": "Agent-authored notes reach a human work queue."
+   }
+  ],
+  "boundaries": [
+   {
+    "id": "TB-01",
+    "name": "HTTP input boundary",
+    "layers": [
+     7,
+     3
+    ],
+    "source": "architecture.json",
+    "note": "Untrusted callers reach the application."
+   },
+   {
+    "id": "TB-02",
+    "name": "Retrieved-context boundary",
+    "layers": [
+     2,
+     3
+    ],
+    "source": "architecture.json",
+    "note": "Retrieved documents enter the agent's context as data."
+   },
+   {
+    "id": "TB-03",
+    "name": "Persistent-memory boundary",
+    "layers": [
+     2,
+     3
+    ],
+    "source": "architecture.json",
+    "note": "A write in one run is recalled into another."
+   },
+   {
+    "id": "TB-04",
+    "name": "Tool authority boundary",
+    "layers": [
+     3,
+     7
+    ],
+    "source": "architecture.json",
+    "note": "A request becomes an allowed or denied tool call. A request is not a grant."
+   },
+   {
+    "id": "TB-05",
+    "name": "Downstream system boundary",
+    "layers": [
+     7,
+     2
+    ],
+    "source": "architecture.json",
+    "note": "An authorized tool reaches records."
+   },
+   {
+    "id": "TB-06",
+    "name": "Observability boundary",
+    "layers": [
+     3,
+     5
+    ],
+    "source": "architecture.json",
+    "note": "Runtime events are copied out."
+   },
+   {
+    "id": "TB-07",
+    "name": "External-evidence boundary",
+    "layers": [
+     5,
+     5
+    ],
+    "source": "architecture.json",
+    "note": "Scanner and evaluation results join the investigation."
+   },
+   {
+    "id": "TB-M01",
+    "name": "Model service boundary",
+    "layers": [
+     3,
+     1
+    ],
+    "source": "MAESTRO addition",
+    "note": "Prompts and context cross to the model (DF-02, mixed context); the reply is a proposal."
+   },
+   {
+    "id": "TB-M02",
+    "name": "Gateway edge boundary",
+    "layers": [
+     7,
+     4
+    ],
+    "source": "MAESTRO addition",
+    "note": "A browser reaches the lab only through the gateway when it is on."
+   },
+   {
+    "id": "TB-M03",
+    "name": "Container network boundary",
+    "layers": [
+     4,
+     3
+    ],
+    "source": "MAESTRO addition",
+    "note": "Services trust the container network; they have no authentication of their own."
+   }
+  ],
+  "interactions": [
+   {
+    "id": "DF-01",
+    "from": "ECO-USERS",
+    "to": "CMP-APP",
+    "layers": [
+     7,
+     3
+    ],
+    "data": "HTTP request, task input, claimed user id",
+    "trust": "UNTRUSTED INPUT"
+   },
+   {
+    "id": "DF-02",
+    "from": "CMP-ORCH",
+    "to": "CMP-MODEL",
+    "layers": [
+     3,
+     1
+    ],
+    "data": "Prompt and context; model reply",
+    "trust": "MIXED CONTEXT"
+   },
+   {
+    "id": "DF-03",
+    "from": "CMP-RAG",
+    "to": "CMP-ORCH",
+    "layers": [
+     2,
+     3
+    ],
+    "data": "Retrieved fixture document",
+    "trust": "UNTRUSTED DATA"
+   },
+   {
+    "id": "DF-04",
+    "from": "CMP-ORCH",
+    "to": "CMP-MEMORY",
+    "layers": [
+     3,
+     2
+    ],
+    "data": "Memory write and later recall",
+    "trust": "UNTRUSTED DATA"
+   },
+   {
+    "id": "DF-05",
+    "from": "CMP-ORCH",
+    "to": "CMP-MCP",
+    "layers": [
+     3,
+     7
+    ],
+    "data": "Tool name, arguments, requested scope and resource",
+    "trust": "REQUEST, NOT A GRANT"
+   },
+   {
+    "id": "DF-06",
+    "from": "CMP-MCP",
+    "to": "CMP-TOOLS",
+    "layers": [
+     3,
+     7
+    ],
+    "data": "Opaque allow ticket",
+    "trust": "AUTHORIZED CAPABILITY"
+   },
+   {
+    "id": "DF-07",
+    "from": "CMP-TOOLS",
+    "to": "CMP-DOWNSTREAM",
+    "layers": [
+     7,
+     2
+    ],
+    "data": "Authorized resource lookup",
+    "trust": "GOVERNED ACTION"
+   },
+   {
+    "id": "DF-08",
+    "from": "CMP-APP",
+    "to": "CMP-TELEMETRY",
+    "layers": [
+     3,
+     5
+    ],
+    "data": "Runtime security events",
+    "trust": "OBSERVATION COPY"
+   },
+   {
+    "id": "DF-09",
+    "from": "CMP-TELEMETRY",
+    "to": "CMP-SPLUNK",
+    "layers": [
+     5,
+     5
+    ],
+    "data": "Exported event copies",
+    "trust": "DOWNSTREAM EVIDENCE"
+   },
+   {
+    "id": "DF-10",
+    "from": "CMP-EXTERNAL",
+    "to": "CMP-SPLUNK",
+    "layers": [
+     5,
+     5
+    ],
+    "data": "Scanner findings and adversarial evaluations",
+    "trust": "ADJACENT EXTERNAL EVIDENCE"
+   },
+   {
+    "id": "AT-01",
+    "from": "ECO-AGENTS",
+    "to": "ECO-AGENTS",
+    "layers": [
+     7,
+     7
+    ],
+    "data": "Delegation request from a caller agent to a deputy agent",
+    "trust": "CLAIM, NOT AUTHENTICATED"
+   },
+   {
+    "id": "AT-02",
+    "from": "CMP-TOOLS",
+    "to": "CMP-ORCH",
+    "layers": [
+     7,
+     3
+    ],
+    "data": "Tool result returned to the agent",
+    "trust": "UNTRUSTED DATA"
+   },
+   {
+    "id": "AT-03",
+    "from": "ECO-CATALOG",
+    "to": "CMP-ORCH",
+    "layers": [
+     7,
+     3
+    ],
+    "data": "Tool description and catalog metadata",
+    "trust": "UNTRUSTED DATA"
+   },
+   {
+    "id": "AT-04",
+    "from": "CMP-ORCH",
+    "to": "ECO-QUEUE",
+    "layers": [
+     3,
+     7
+    ],
+    "data": "Agent-authored note for a human underwriter",
+    "trust": "UNTRUSTED CONTENT"
+   }
+  ],
+  "controls": [
+   {
+    "id": "CTRL-INPUT-001",
+    "name": "Input pattern control",
+    "class": "ENFORCE",
+    "layer": 3
+   },
+   {
+    "id": "CTRL-RAG-CONTEXT-001",
+    "name": "Retrieved-context classification",
+    "class": "OBSERVE",
+    "layer": 2
+   },
+   {
+    "id": "CTRL-MEMORY-CONTEXT-001",
+    "name": "Recalled-memory classification",
+    "class": "OBSERVE",
+    "layer": 2
+   },
+   {
+    "id": "CTRL-GOAL-INTEGRITY-001",
+    "name": "Goal and instruction integrity",
+    "class": "OBSERVE on the vulnerable profile, DENY on the defended one",
+    "layer": 7
+   },
+   {
+    "id": "CTRL-IDENTITY-001",
+    "name": "Identity-claim classification",
+    "class": "OBSERVE",
+    "layer": 7
+   },
+   {
+    "id": "CTRL-DELEGATION-001",
+    "name": "Delegated-authority check",
+    "class": "ENFORCE on the defended profile",
+    "layer": 7
+   },
+   {
+    "id": "CTRL-MCP-001",
+    "name": "Tool authorization (tool, scope, resource)",
+    "class": "ENFORCE",
+    "layer": 6
+   },
+   {
+    "id": "CTRL-MCP-RESULT-001",
+    "name": "Tool-result classification",
+    "class": "OBSERVE",
+    "layer": 7
+   },
+   {
+    "id": "CTRL-MCP-METADATA-001",
+    "name": "Tool-metadata classification",
+    "class": "OBSERVE",
+    "layer": 7
+   },
+   {
+    "id": "CTRL-LOANDESK-001",
+    "name": "Loan Desk argument-level authorization",
+    "class": "ENFORCE in the hardened posture",
+    "layer": 7
+   },
+   {
+    "id": "REQUEST-CONTRACT",
+    "name": "Closed request bodies and strict JSON",
+    "class": "ENFORCE",
+    "layer": 3
+   },
+   {
+    "id": "ALLOW-TICKET",
+    "name": "Opaque allow ticket",
+    "class": "ENFORCE",
+    "layer": 6
+   },
+   {
+    "id": "GATEWAY-EDGE",
+    "name": "Gateway authentication, role tier, quota",
+    "class": "ENFORCE (stand-in)",
+    "layer": 4
+   },
+   {
+    "id": "IMAGE-PINS",
+    "name": "Image digest pins (Splunk pinned; Ollama tag floating)",
+    "class": "PREVENTIVE (partial)",
+    "layer": 4
+   },
+   {
+    "id": "SPL-POLICY",
+    "name": "Read-only SPL policy",
+    "class": "ENFORCE",
+    "layer": 5
+   },
+   {
+    "id": "NONE",
+    "name": "No control exists for this threat",
+    "class": "NONE",
+    "layer": 0
+   }
+  ],
+  "scenarios": [
+   {
+    "lab_id": "LAB-PI-001",
+    "family": "prompt injection",
+    "layers": [
+     3,
+     1,
+     7
+    ],
+    "labels": [
+     "Input Validation Attacks",
+     "Adversarial Examples"
+    ],
+    "what": "Untrusted text reaches the model through the HTTP boundary."
+   },
+   {
+    "lab_id": "LAB-LOANDESK-001",
+    "family": "prompt injection",
+    "layers": [
+     1,
+     7
+    ],
+    "labels": [
+     "Adversarial Examples",
+     "Agent Tool Misuse"
+    ],
+    "what": "Applicant-planted text rides through an allowed tool into a human queue."
+   },
+   {
+    "lab_id": "LAB-MCP-001",
+    "family": "MCP",
+    "layers": [
+     7,
+     6
+    ],
+    "labels": [
+     "Agent Tool Misuse"
+    ],
+    "what": "An ungranted tool is requested; CTRL-MCP-001 decides before the handler."
+   },
+   {
+    "lab_id": "LAB-MCP-003",
+    "family": "MCP",
+    "layers": [
+     7,
+     6
+    ],
+    "labels": [
+     "Agent Tool Misuse"
+    ],
+    "what": "A granted tool at an excessive scope."
+   },
+   {
+    "lab_id": "LAB-MCP-004",
+    "family": "MCP",
+    "layers": [
+     7,
+     6
+    ],
+    "labels": [
+     "Agent Tool Misuse",
+     "Input Validation Attacks"
+    ],
+    "what": "A granted tool and scope against an ungranted resource; malformed bodies are refused."
+   },
+   {
+    "lab_id": "LAB-MCP-005",
+    "family": "MCP",
+    "layers": [
+     7,
+     3
+    ],
+    "labels": [
+     "Integration Risks",
+     "Agent Tool Misuse"
+    ],
+    "what": "A tool result tries to create authority for the next call."
+   },
+   {
+    "lab_id": "LAB-MCP-CATALOG",
+    "family": "MCP",
+    "layers": [
+     7,
+     3
+    ],
+    "labels": [
+     "Integration Risks",
+     "Supply Chain Attacks"
+    ],
+    "what": "A tool description tries to create authority for another tool."
+   },
+   {
+    "lab_id": "LAB-MCP-006",
+    "family": "delegation",
+    "layers": [
+     7
+    ],
+    "labels": [
+     "Agent Identity Attack",
+     "Agent Tool Misuse"
+    ],
+    "what": "A deputy uses its own ambient authority for a caller's request."
+   },
+   {
+    "lab_id": "LAB-AGENT-DELEGATION-001",
+    "family": "delegation",
+    "layers": [
+     7
+    ],
+    "labels": [
+     "Agent Identity Attack"
+    ],
+    "what": "A claimed identity is treated as if it were a grant."
+   },
+   {
+    "lab_id": "LAB-AGENT-GOAL-INTEGRITY-001",
+    "family": "prompt injection",
+    "layers": [
+     7
+    ],
+    "labels": [
+     "Agent Goal Manipulation"
+    ],
+    "what": "An instruction changes what an authorized tool is used for."
+   },
+   {
+    "lab_id": "LAB-RAG-CONTEXT",
+    "family": "RAG",
+    "layers": [
+     2,
+     3,
+     7
+    ],
+    "labels": [
+     "Compromised RAG Pipelines"
+    ],
+    "what": "A retrieved document carries an instruction."
+   },
+   {
+    "lab_id": "LAB-MEMORY-001",
+    "family": "memory",
+    "layers": [
+     2,
+     7
+    ],
+    "labels": [
+     "Data Poisoning"
+    ],
+    "what": "A persisted memory entry is recalled into a later run."
+   },
+   {
+    "lab_id": "LAB-AGENTSEC-CAPSTONE-001",
+    "family": "memory",
+    "layers": [
+     2,
+     7
+    ],
+    "labels": [
+     "Compromised RAG Pipelines",
+     "Data Poisoning"
+    ],
+    "what": "Retrieve, write and recall chain into a follow-on tool request."
+   },
+   {
+    "lab_id": "LAB-PRIVACY-DATA-GOVERNANCE-001",
+    "family": "data governance",
+    "layers": [
+     2
+    ],
+    "labels": [
+     "Data Exfiltration"
+    ],
+    "what": "A full synthetic record versus a minimized one (guided analysis)."
+   },
+   {
+    "lab_id": "LAB-RAG-PURPOSE",
+    "family": "RAG",
+    "layers": [
+     2
+    ],
+    "labels": [
+     "Data Exfiltration"
+    ],
+    "what": "Retrieval without a purpose check (simulated packet)."
+   },
+   {
+    "lab_id": "LAB-RECALL-ISOLATION",
+    "family": "memory",
+    "layers": [
+     2
+    ],
+    "labels": [
+     "Data Exfiltration"
+    ],
+    "what": "Another user recalls a memory (simulated packet)."
+   },
+   {
+    "lab_id": "LAB-A2A-AUTH-DELEGATION",
+    "family": "delegation",
+    "layers": [
+     7
+    ],
+    "labels": [
+     "Agent Identity Attack"
+    ],
+    "what": "Caller identity treated as authority (simulated packet)."
+   },
+   {
+    "lab_id": "LAB-DETECTION-ENGINEERING",
+    "family": "detection",
+    "layers": [
+     5
+    ],
+    "labels": [
+     "Evasion of Detection"
+    ],
+    "what": "What a rule sees and what a zero-row result means."
+   },
+   {
+    "lab_id": "LAB-COMPONENT-PROVENANCE",
+    "family": "supply chain",
+    "layers": [
+     3,
+     4
+    ],
+    "labels": [
+     "Supply Chain Attacks",
+     "Compromised Container Images"
+    ],
+    "what": "Provenance is not a grant; the Ollama pin is unresolved (simulated packet)."
+   }
+  ]
+ },
+ "example": {
+  "scope": "AcmeBank's lending-policy assistant: a customer-operations user asks for a policy summary and the agent may perform only explicitly authorized supporting lookups. In scope: the application, the model, retrieval, memory, tools, the optional gateway, telemetry and Splunk. Out of scope: real customers, authentication (NOT MODELED), human approval (NOT MODELED), cryptographic delegation (NOT MODELED), any production system.",
+  "register": [
+   {
+    "id": "EX-T01",
+    "layer": 1,
+    "label": "Adversarial Examples",
+    "custom": false,
+    "kind": "agentic",
+    "description": "Crafted text in an application note or retrieved document steers the model's proposal (prompt injection).",
+    "elements": [
+     "CMP-MODEL",
+     "CMP-ORCH"
+    ],
+    "evidence": "DEMONSTRATED",
+    "scenarios": [
+     "LAB-PI-001",
+     "LAB-LOANDESK-001"
+    ],
+    "controls": [
+     "CTRL-INPUT-001",
+     "CTRL-LOANDESK-001"
+    ],
+    "inherent": {
+     "impact": "HIGH",
+     "likelihood": "LIKELY",
+     "rationale": "On the labelled vulnerable profile the planted text passes; a model is not a policy engine."
+    },
+    "mitigation": "Treat model output as an untrusted proposal; decide outside the model; constrain what an allowed tool may carry (argument-level allow-list).",
+    "residual": {
+     "impact": "MODERATE",
+     "likelihood": "POSSIBLE",
+     "rationale": "Controls hold for the lab's fixtures; semantic resistance outside them is NOT PROVEN."
+    }
+   },
+   {
+    "id": "EX-T02",
+    "layer": 2,
+    "label": "Compromised RAG Pipelines",
+    "custom": false,
+    "kind": "agentic",
+    "description": "A retrieved document carries an instruction the agent follows.",
+    "elements": [
+     "CMP-RAG",
+     "CMP-ORCH"
+    ],
+    "evidence": "DEMONSTRATED",
+    "scenarios": [
+     "LAB-RAG-CONTEXT",
+     "LAB-RAG-PURPOSE"
+    ],
+    "controls": [
+     "CTRL-RAG-CONTEXT-001",
+     "CTRL-MCP-001"
+    ],
+    "inherent": {
+     "impact": "HIGH",
+     "likelihood": "POSSIBLE",
+     "rationale": "Retrieved content enters the context as data but can still influence the agent."
+    },
+    "mitigation": "Keep retrieved text as data; authorize every follow-on tool request independently; add a purpose check on retrieval.",
+    "residual": {
+     "impact": "MODERATE",
+     "likelihood": "POSSIBLE",
+     "rationale": "The context control only observes: influence can remain even when authority is denied."
+    }
+   },
+   {
+    "id": "EX-T03",
+    "layer": 2,
+    "label": "Data Poisoning",
+    "custom": false,
+    "kind": "agentic",
+    "description": "A persisted memory entry poisons a later run.",
+    "elements": [
+     "CMP-MEMORY"
+    ],
+    "evidence": "DEMONSTRATED",
+    "scenarios": [
+     "LAB-MEMORY-001",
+     "LAB-RECALL-ISOLATION"
+    ],
+    "controls": [
+     "CTRL-MEMORY-CONTEXT-001",
+     "CTRL-MCP-001"
+    ],
+    "inherent": {
+     "impact": "HIGH",
+     "likelihood": "POSSIBLE",
+     "rationale": "A write in one run is recalled in another with no user present."
+    },
+    "mitigation": "Validate on write, classify on recall, bind memory to an owner, and authorize any follow-on tool request.",
+    "residual": {
+     "impact": "MODERATE",
+     "likelihood": "POSSIBLE",
+     "rationale": "Recall classification observes only; ownership and deletion are NOT MEASURED."
+    }
+   },
+   {
+    "id": "EX-T04",
+    "layer": 2,
+    "label": "Data Exfiltration",
+    "custom": false,
+    "kind": "traditional",
+    "description": "A tool result or preview exposes more customer data than the task needed.",
+    "elements": [
+     "CMP-DOWNSTREAM"
+    ],
+    "evidence": "DOCUMENTED",
+    "scenarios": [
+     "LAB-PRIVACY-DATA-GOVERNANCE-001"
+    ],
+    "controls": [
+     "CTRL-MCP-001"
+    ],
+    "inherent": {
+     "impact": "HIGH",
+     "likelihood": "POSSIBLE",
+     "rationale": "Authorizing a tool call is not authorizing the data it returns."
+    },
+    "mitigation": "Minimize what a tool returns; bound previews; authorize resources, not just tools.",
+    "residual": {
+     "impact": "MODERATE",
+     "likelihood": "UNLIKELY",
+     "rationale": "Synthetic data only; real data handling is outside the lab."
+    }
+   },
+   {
+    "id": "EX-T05",
+    "layer": 3,
+    "label": "Input Validation Attacks",
+    "custom": false,
+    "kind": "traditional",
+    "description": "Malformed, oversized or duplicate-key requests reach the HTTP boundary.",
+    "elements": [
+     "CMP-APP"
+    ],
+    "evidence": "DEMONSTRATED",
+    "scenarios": [
+     "LAB-MCP-004"
+    ],
+    "controls": [
+     "REQUEST-CONTRACT"
+    ],
+    "inherent": {
+     "impact": "MODERATE",
+     "likelihood": "LIKELY",
+     "rationale": "Any caller can send any bytes to an HTTP endpoint."
+    },
+    "mitigation": "Closed request contracts, strict JSON that refuses duplicate keys, size limits, errors before any handler.",
+    "residual": {
+     "impact": "LOW",
+     "likelihood": "UNLIKELY",
+     "rationale": "The recorded runs show refusal for the shapes tested; other shapes are not tested."
+    }
+   },
+   {
+    "id": "EX-T06",
+    "layer": 3,
+    "label": "Supply Chain Attacks",
+    "custom": false,
+    "kind": "traditional",
+    "description": "Third-party tool metadata or a dependency carries a hostile instruction or code.",
+    "elements": [
+     "ECO-CATALOG",
+     "CMP-ORCH"
+    ],
+    "evidence": "DOCUMENTED",
+    "scenarios": [
+     "LAB-MCP-CATALOG",
+     "LAB-COMPONENT-PROVENANCE"
+    ],
+    "controls": [
+     "CTRL-MCP-METADATA-001",
+     "CTRL-MCP-001"
+    ],
+    "inherent": {
+     "impact": "HIGH",
+     "likelihood": "POSSIBLE",
+     "rationale": "Descriptions are read by the agent; dependencies run in the service."
+    },
+    "mitigation": "Treat metadata as data; pin and inventory components; never let provenance stand in for a grant.",
+    "residual": {
+     "impact": "MODERATE",
+     "likelihood": "POSSIBLE",
+     "rationale": "Inventory is not trust; scanner findings are not authorization."
+    }
+   },
+   {
+    "id": "EX-T07",
+    "layer": 4,
+    "label": "Compromised Container Images",
+    "custom": false,
+    "kind": "traditional",
+    "description": "The Ollama image is pulled by a floating tag, so a re-pushed image changes the model runtime silently.",
+    "elements": [
+     "DEP-OLLAMA"
+    ],
+    "evidence": "DOCUMENTED",
+    "scenarios": [
+     "LAB-COMPONENT-PROVENANCE"
+    ],
+    "controls": [
+     "IMAGE-PINS"
+    ],
+    "inherent": {
+     "impact": "HIGH",
+     "likelihood": "POSSIBLE",
+     "rationale": "docker-compose.yml uses ollama/ollama:latest; no digest was measured."
+    },
+    "mitigation": "Pin by digest (deploy/images.lock.json with require_digests) and verify after pull.",
+    "residual": {
+     "impact": "HIGH",
+     "likelihood": "POSSIBLE",
+     "rationale": "NOT RESOLVED: the pin is not enforced for Ollama."
+    }
+   },
+   {
+    "id": "EX-T08",
+    "layer": 4,
+    "label": "Lateral Movement",
+    "custom": false,
+    "kind": "traditional",
+    "description": "Anything that reaches the container network can call AcmeBank and the Attack Service, which authenticate no callers themselves.",
+    "elements": [
+     "DEP-SERVICES",
+     "DEP-GATEWAY"
+    ],
+    "evidence": "DOCUMENTED",
+    "scenarios": [],
+    "controls": [
+     "GATEWAY-EDGE"
+    ],
+    "inherent": {
+     "impact": "HIGH",
+     "likelihood": "POSSIBLE",
+     "rationale": "The services trust their network."
+    },
+    "mitigation": "Do not publish service ports; keep the gateway as the only entry; add service-to-service authentication and network policy.",
+    "residual": {
+     "impact": "HIGH",
+     "likelihood": "UNLIKELY",
+     "rationale": "The gateway narrows exposure but inside the network trust remains; service authentication is not implemented."
+    }
+   },
+   {
+    "id": "EX-T09",
+    "layer": 5,
+    "label": "Evasion of Detection",
+    "custom": false,
+    "kind": "agentic",
+    "description": "A fail-open ALLOW raises no alert, so silence is read as safety.",
+    "elements": [
+     "CMP-SPLUNK",
+     "CMP-TELEMETRY"
+    ],
+    "evidence": "DEMONSTRATED",
+    "scenarios": [
+     "LAB-MCP-001",
+     "LAB-DETECTION-ENGINEERING"
+    ],
+    "controls": [
+     "SPL-POLICY"
+    ],
+    "inherent": {
+     "impact": "MODERATE",
+     "likelihood": "LIKELY",
+     "rationale": "The lab's detector alerts only on a DENY followed by a handler start."
+    },
+    "mitigation": "Hunt for the allowed-but-unexpected case as well; never treat a zero-row result as a DENY or as SAFE.",
+    "residual": {
+     "impact": "MODERATE",
+     "likelihood": "POSSIBLE",
+     "rationale": "Detection is downstream; it prevents nothing."
+    }
+   },
+   {
+    "id": "EX-T10",
+    "layer": 5,
+    "label": "Data Leakage through Observability",
+    "custom": false,
+    "kind": "traditional",
+    "description": "Telemetry is a second copy of runtime events; anything placed in an event is readable by whoever can search the index.",
+    "elements": [
+     "CMP-TELEMETRY",
+     "CMP-SPLUNK"
+    ],
+    "evidence": "DOCUMENTED",
+    "scenarios": [],
+    "controls": [
+     "SPL-POLICY"
+    ],
+    "inherent": {
+     "impact": "MODERATE",
+     "likelihood": "POSSIBLE",
+     "rationale": "Event content and index access are separate decisions."
+    },
+    "mitigation": "Put hashes and identifiers in events rather than raw content; restrict who can search the index.",
+    "residual": {
+     "impact": "LOW",
+     "likelihood": "POSSIBLE",
+     "rationale": "Synthetic data only; index access control is the operator's."
+    }
+   },
+   {
+    "id": "EX-T11",
+    "layer": 5,
+    "label": "Poisoning Observability Data",
+    "custom": false,
+    "kind": "traditional",
+    "description": "Forged or altered telemetry makes an investigation reach the wrong conclusion.",
+    "elements": [
+     "CMP-TELEMETRY",
+     "CMP-SPLUNK"
+    ],
+    "evidence": "ASSUMED",
+    "scenarios": [],
+    "controls": [
+     "NONE"
+    ],
+    "inherent": {
+     "impact": "HIGH",
+     "likelihood": "UNLIKELY",
+     "rationale": "Events are copies; the lab does not sign them."
+    },
+    "mitigation": "Sign or hash events at the source; compare the local pack with the indexed copy; keep the local pack as the source of truth.",
+    "residual": {
+     "impact": "HIGH",
+     "likelihood": "UNLIKELY",
+     "rationale": "No control exists today. NOT PROVEN either way."
+    }
+   },
+   {
+    "id": "EX-T12",
+    "layer": 6,
+    "label": "Policy and allow-ticket tampering",
+    "custom": true,
+    "kind": "traditional",
+    "description": "Changing the coded policy, or forging an allow ticket, changes every authorization decision. (Custom: the article's Layer 6 threats concern AI security agents, and AcmeBank has none.)",
+    "elements": [
+     "SEC-PDP"
+    ],
+    "evidence": "DOCUMENTED",
+    "scenarios": [],
+    "controls": [
+     "CTRL-MCP-001",
+     "ALLOW-TICKET"
+    ],
+    "inherent": {
+     "impact": "HIGH",
+     "likelihood": "UNLIKELY",
+     "rationale": "Policy is code; execution needs an opaque ticket minted after ALLOW."
+    },
+    "mitigation": "Protect code and image integrity; pin tests on the coded grants; keep the decision point small.",
+    "residual": {
+     "impact": "MODERATE",
+     "likelihood": "UNLIKELY",
+     "rationale": "Integrity of the code and the image is only as strong as the supply chain (EX-T06, EX-T07)."
+    }
+   },
+   {
+    "id": "EX-T13",
+    "layer": 7,
+    "label": "Agent Tool Misuse",
+    "custom": false,
+    "kind": "agentic",
+    "description": "An agent requests a tool, scope or resource it was not granted.",
+    "elements": [
+     "CMP-TOOLS",
+     "CMP-MCP",
+     "ECO-AGENTS"
+    ],
+    "evidence": "DEMONSTRATED",
+    "scenarios": [
+     "LAB-MCP-001",
+     "LAB-MCP-003",
+     "LAB-MCP-004"
+    ],
+    "controls": [
+     "CTRL-MCP-001",
+     "ALLOW-TICKET"
+    ],
+    "inherent": {
+     "impact": "HIGH",
+     "likelihood": "LIKELY",
+     "rationale": "A request is not a grant; on the labelled vulnerable profile the lab is fail-open."
+    },
+    "mitigation": "Authorize tool, scope and resource separately before the handler; deny by default; execute only on a ticket.",
+    "residual": {
+     "impact": "HIGH",
+     "likelihood": "UNLIKELY",
+     "rationale": "DENY before the handler is shown for the lab's fixtures; it is not a universal result."
+    }
+   },
+   {
+    "id": "EX-T14",
+    "layer": 7,
+    "label": "Agent Identity Attack",
+    "custom": false,
+    "kind": "agentic",
+    "description": "A claimed identity or delegation is treated as if it were authority.",
+    "elements": [
+     "ECO-AGENTS"
+    ],
+    "evidence": "DEMONSTRATED",
+    "scenarios": [
+     "LAB-AGENT-DELEGATION-001",
+     "LAB-MCP-006",
+     "LAB-A2A-AUTH-DELEGATION"
+    ],
+    "controls": [
+     "CTRL-IDENTITY-001",
+     "CTRL-DELEGATION-001",
+     "CTRL-MCP-001"
+    ],
+    "inherent": {
+     "impact": "HIGH",
+     "likelihood": "POSSIBLE",
+     "rationale": "Identity and delegation are claims in the request."
+    },
+    "mitigation": "Verify delegation at the point of use; authenticate agents; never act on a deputy's ambient authority.",
+    "residual": {
+     "impact": "HIGH",
+     "likelihood": "POSSIBLE",
+     "rationale": "Authentication is NOT MODELED; the identity control only observes."
+    }
+   },
+   {
+    "id": "EX-T15",
+    "layer": 7,
+    "label": "Agent Goal Manipulation",
+    "custom": false,
+    "kind": "agentic",
+    "description": "An instruction changes what an authorized tool is used for.",
+    "elements": [
+     "ECO-AGENTS",
+     "CMP-ORCH"
+    ],
+    "evidence": "DEMONSTRATED",
+    "scenarios": [
+     "LAB-AGENT-GOAL-INTEGRITY-001"
+    ],
+    "controls": [
+     "CTRL-GOAL-INTEGRITY-001",
+     "CTRL-MCP-001"
+    ],
+    "inherent": {
+     "impact": "HIGH",
+     "likelihood": "POSSIBLE",
+     "rationale": "An authorized tool can serve an unauthorized goal."
+    },
+    "mitigation": "Bind the task to a fingerprint; deny a proposed change of task; keep tool authorization separate from goal authorization.",
+    "residual": {
+     "impact": "MODERATE",
+     "likelihood": "POSSIBLE",
+     "rationale": "A goal DENY is not a tool DENY; other instructions are not tested."
+    }
+   },
+   {
+    "id": "EX-T16",
+    "layer": 7,
+    "label": "Integration Risks",
+    "custom": false,
+    "kind": "agentic",
+    "description": "A tool result or catalog description becomes authority for the next call.",
+    "elements": [
+     "CMP-TOOLS",
+     "ECO-CATALOG"
+    ],
+    "evidence": "DEMONSTRATED",
+    "scenarios": [
+     "LAB-MCP-005",
+     "LAB-MCP-CATALOG"
+    ],
+    "controls": [
+     "CTRL-MCP-RESULT-001",
+     "CTRL-MCP-METADATA-001",
+     "CTRL-MCP-001"
+    ],
+    "inherent": {
+     "impact": "HIGH",
+     "likelihood": "POSSIBLE",
+     "rationale": "Data returned by an authorized tool can ask for another tool."
+    },
+    "mitigation": "Classify results and metadata as data; authorize the follow-on request on its own merits.",
+    "residual": {
+     "impact": "MODERATE",
+     "likelihood": "UNLIKELY",
+     "rationale": "The follow-on DENY is shown for the lab's fixtures only."
+    }
+   }
+  ],
+  "paths": [
+   {
+    "id": "EX-P1",
+    "name": "Planted text to an unauthorized tool call and exposed records",
+    "narrative": "An untrusted request is accepted, steers the model, requests a tool it was not granted, and the result exposes records.",
+    "scenarios": [
+     "LAB-PI-001",
+     "LAB-MCP-001",
+     "LAB-LOANDESK-001"
+    ],
+    "demonstrated": "PARTLY: each step has a lab; the chain is an analysis.",
+    "steps": [
+     {
+      "layer": 3,
+      "threat": "EX-T05",
+      "note": "input accepted at the HTTP boundary"
+     },
+     {
+      "layer": 1,
+      "threat": "EX-T01",
+      "note": "the model's proposal is steered"
+     },
+     {
+      "layer": 7,
+      "threat": "EX-T13",
+      "note": "an ungranted tool is requested"
+     },
+     {
+      "layer": 2,
+      "threat": "EX-T04",
+      "note": "records are returned"
+     }
+    ]
+   },
+   {
+    "id": "EX-P2",
+    "name": "Poisoned document to a recalled follow-on tool request",
+    "narrative": "A retrieved document is stored as memory and recalled later, where it asks for a tool; no alert is raised.",
+    "scenarios": [
+     "LAB-RAG-CONTEXT",
+     "LAB-MEMORY-001",
+     "LAB-AGENTSEC-CAPSTONE-001"
+    ],
+    "demonstrated": "YES: the capstone lab runs retrieve, write and recall as one chain.",
+    "steps": [
+     {
+      "layer": 2,
+      "threat": "EX-T02",
+      "note": "the document is retrieved as data"
+     },
+     {
+      "layer": 2,
+      "threat": "EX-T03",
+      "note": "it is persisted and recalled"
+     },
+     {
+      "layer": 7,
+      "threat": "EX-T13",
+      "note": "a follow-on tool is requested"
+     },
+     {
+      "layer": 5,
+      "threat": "EX-T09",
+      "note": "nothing alerts on the allowed request"
+     }
+    ]
+   },
+   {
+    "id": "EX-P3",
+    "name": "Confused deputy",
+    "narrative": "A low-privilege caller's request is carried out under a deputy's ambient authority and nothing alerts.",
+    "scenarios": [
+     "LAB-AGENT-DELEGATION-001",
+     "LAB-MCP-006"
+    ],
+    "demonstrated": "YES, for the labelled vulnerable profile.",
+    "steps": [
+     {
+      "layer": 7,
+      "threat": "EX-T14",
+      "note": "a claimed identity or delegation is accepted"
+     },
+     {
+      "layer": 7,
+      "threat": "EX-T13",
+      "note": "the deputy's own authority is used"
+     },
+     {
+      "layer": 2,
+      "threat": "EX-T04",
+      "note": "customer-tier data is returned"
+     },
+     {
+      "layer": 5,
+      "threat": "EX-T09",
+      "note": "no alert"
+     }
+    ]
+   },
+   {
+    "id": "EX-P4",
+    "name": "Image to evidence",
+    "narrative": "A compromised image runs inside a trusting network, tampers with telemetry, and the investigation trusts it. Analysis only.",
+    "scenarios": [
+     "LAB-COMPONENT-PROVENANCE"
+    ],
+    "demonstrated": "NO: nothing in the lab demonstrates this chain.",
+    "steps": [
+     {
+      "layer": 4,
+      "threat": "EX-T07",
+      "note": "a floating image is replaced"
+     },
+     {
+      "layer": 4,
+      "threat": "EX-T08",
+      "note": "the service trusts its network"
+     },
+     {
+      "layer": 5,
+      "threat": "EX-T11",
+      "note": "telemetry is altered"
+     },
+     {
+      "layer": 6,
+      "threat": "EX-T12",
+      "note": "decisions the investigation relies on are untrustworthy"
+     }
+    ]
+   }
+  ]
+ },
+ "rubric": {
+  "criteria": [
+   {
+    "id": "R1",
+    "title": "Decomposition across all seven layers",
+    "check": "placements",
+    "text": "Place at least 80% of the AcmeBank elements on the layer the reference gives (or on its second layer), and put at least one element on every layer."
+   },
+   {
+    "id": "R2",
+    "title": "Trust boundaries",
+    "check": "boundaries",
+    "text": "Identify at least 7 of the 10 reference boundaries and name the two layers each separates correctly in at least 70% of them."
+   },
+   {
+    "id": "R3",
+    "title": "Layer-specific threats",
+    "check": "layer_threats",
+    "text": "Record at least one threat on every layer, using the article's label for that layer or marking it custom with a reason. Layer 6 may be custom."
+   },
+   {
+    "id": "R4",
+    "title": "Cross-layer attack paths",
+    "check": "paths",
+    "text": "Record at least two paths of at least three steps that span at least three layers, each step naming a threat in your register that sits on that step's layer."
+   },
+   {
+    "id": "R5",
+    "title": "Risk, mitigation and residual risk",
+    "check": "risk",
+    "text": "Give every threat an inherent and a residual judgment with written reasons, a mitigation, and at least one named control or NONE. Residual may not be higher than inherent."
+   },
+   {
+    "id": "R6",
+    "title": "Evidence honesty",
+    "check": "evidence",
+    "text": "Mark each threat DEMONSTRATED, DOCUMENTED or ASSUMED. A DEMONSTRATED threat must link at least one scenario, and a threat marked ASSUMED may not be given a residual below its inherent level without naming a control."
+   },
+   {
+    "id": "R7",
+    "title": "Connection to AgentSecLab scenarios",
+    "check": "scenarios",
+    "text": "Link scenarios from at least three of: MCP, prompt injection, memory, RAG, delegation."
+   },
+   {
+    "id": "R8",
+    "title": "Prioritization",
+    "check": "priority",
+    "text": "Your register can be ranked: at least 80% of threats have both inherent and residual levels, and at least one is HIGH inherent."
+   }
+  ],
+  "pass": "R1 to R5 and R7 are MET. R6 and R8 are shown and advise. This is a self-check against a worked example, not a certification, and it cannot judge whether your reasoning is right, only whether your model has the structure and honesty MAESTRO asks for.",
+  "thresholds": {
+   "placement_ratio": 0.8,
+   "boundary_found": 7,
+   "boundary_layer_ratio": 0.7,
+   "paths": 2,
+   "path_steps": 3,
+   "path_layers": 3,
+   "scenario_families": 3,
+   "priority_ratio": 0.8
+  }
+ },
+ "families": [
+  "MCP",
+  "prompt injection",
+  "memory",
+  "RAG",
+  "delegation"
+ ],
+ "risk": {
+  "impact": [
+   {
+    "id": "LOW",
+    "label": "Low",
+    "definition": "Limited effect, easily corrected, no customer or business data exposed beyond what the task needs."
+   },
+   {
+    "id": "MODERATE",
+    "label": "Moderate",
+    "definition": "Noticeable effect on operations or on customer or business data, correctable with effort."
+   },
+   {
+    "id": "HIGH",
+    "label": "High",
+    "definition": "Serious effect on customers, business data or operations that is hard to reverse."
+   }
+  ],
+  "likelihood": [
+   {
+    "id": "UNLIKELY",
+    "label": "Unlikely",
+    "definition": "Not expected to occur under the conditions that apply, with no known path."
+   },
+   {
+    "id": "POSSIBLE",
+    "label": "Possible",
+    "definition": "Could occur, and a path is known or has been demonstrated in a lab."
+   },
+   {
+    "id": "LIKELY",
+    "label": "Likely",
+    "definition": "Expected to occur under normal conditions without unusual effort."
+   }
+  ],
+  "matrix": {
+   "LOW": {
+    "UNLIKELY": "LOW",
+    "POSSIBLE": "LOW",
+    "LIKELY": "MEDIUM"
+   },
+   "MODERATE": {
+    "UNLIKELY": "LOW",
+    "POSSIBLE": "MEDIUM",
+    "LIKELY": "HIGH"
+   },
+   "HIGH": {
+    "UNLIKELY": "MEDIUM",
+    "POSSIBLE": "HIGH",
+    "LIKELY": "HIGH"
+   }
+  }
+ }
+}

@@ -6,6 +6,7 @@
   <title>Attack Service — {{ lab_title }}</title>
   <link rel="icon" href="{{ url_for('static', filename='agentsec-favicon.svg') }}" type="image/svg+xml">
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='attack-console.css') }}">
   {% include "_shell_head.html" %}
 </head>
 <body>
@@ -25,14 +26,11 @@
     </div>
   </header>
   <main id="main">
-    <nav class="lab-switch" aria-label="Experiment labs">
-      <a href="/academy">AgentSec Academy</a>
-      {% for row in labs %}
-      <a href="{{ row.href }}"{% if row.lab_id == lab_id %} aria-current="page"{% endif %}>{{ row.title }}</a>
-      {% endfor %}
-    </nav>
-    <section class="card" aria-labelledby="academy-where-heading">
-      <h2 id="academy-where-heading">Where you are</h2>
+    <p class="scenario-home"><a href="/academy">AgentSec Academy</a></p>
+    {% set ac_scenario = "#technique-heading" %}{% set ac_configure = "#learner-prediction" %}{% set ac_launch = "#fire-attack" %}{% set ac_progress = "#status-live" %}{% set ac_results = "#fact-list" %}{% set ac_evidence = "#evidence-drawer" %}
+    {% include "_attack_console.html" %}
+<details class="card disclosure" id="academy-where-heading-box" open>
+      <summary><h2 id="academy-where-heading">Where you are</h2></summary>
       <p class="muted">LIVE launcher · {{ academy_level }} · {{ lab_title }}. This console does not authorize.</p>
       <dl class="facts">
         <dt>START HERE IF NEW</dt>
@@ -42,7 +40,7 @@
         <dt>NEXT LAB</dt>
         <dd>{% if next_lab %}{{ next_lab.title }} ({{ next_lab.mode }}){% if next_lab.href %} · <a href="{{ next_lab.href }}">open launcher</a>{% endif %}{% else %}Capstone is the last LIVE launcher. After the Capstone packet, open <a href="/en-US/app/agentsec/ws_agentsec_mastery">Mastery Check</a> — reasoning validation, not another launch.{% endif %}</dd>
       </dl>
-    </section>
+    </details>
     <p class="lede">{{ manifest.security_question if manifest.security_question else "Run an allowlisted specimen against AcmeBank." }} Sending a request is not proof the attack succeeded, that a control allowed it, or that a model ran.</p>
 
     {% if is_capstone_lab %}
@@ -152,8 +150,8 @@
     </section>
     {% endif %}
 
-    <section class="card" aria-labelledby="scope-heading">
-      <h2 id="scope-heading">Service scope</h2>
+    <details class="card disclosure" id="scope-heading-box">
+      <summary><h2 id="scope-heading">Service scope</h2></summary>
       <ul class="fact-list">
         <li><strong>LOCAL EDUCATIONAL SERVICE</strong> — classroom launcher. Local mode binds to loopback. Remote mode stays on the host already in the address bar. This page does not authorize.</li>
         <li><strong>NOT PRODUCTION AUTHENTICATION</strong> — no login is implemented. Do not treat this as an authn guarantee.</li>
@@ -161,10 +159,10 @@
         <li>Closed allowlist only. You pick {{ lab_id }} BASELINE, ATTACK, or RETEST. You do not send profile, grants, tools, scope, resource, identity_verified, authenticated, delegated_grant, A2A body, document trust, document body, memory body, instruction body, task contract, goal decision, trust labels, SPL, Python, or environment variables.</li>
         <li>Splunk is investigation, not enforcement. Studio tokens are not auto-bound to a fresh run.id.</li>
       </ul>
-    </section>
+    </details>
 
-    <section class="card" aria-labelledby="predict-heading">
-      <h2 id="predict-heading">Predict before ATTACK</h2>
+    <details class="card disclosure" id="predict-heading-box">
+      <summary><h2 id="predict-heading">Predict before ATTACK</h2></summary>
       <p class="muted">Write your prediction before you click. Launching is not the investigation.</p>
       <dl class="facts">
         <dt>ATTACK OBJECTIVE</dt>
@@ -186,10 +184,10 @@
         <dt>WHAT SHOULD THE DEFENSE DO?</dt>
         <dd>Write your own answer before you launch. The measured decision appears in the response and in Search, not in this paragraph.</dd>
       </dl>
-    </section>
+    </details>
 
-    <section class="card" aria-labelledby="retest-predict-heading">
-      <h2 id="retest-predict-heading">Predict before RETEST</h2>
+    <details class="card disclosure" id="retest-predict-heading-box">
+      <summary><h2 id="retest-predict-heading">Predict before RETEST</h2></summary>
       <p class="muted">RETEST uses the <span class="badge-same">attack input</span> and a <span class="badge-different">server-owned defense</span>. Predict before you launch. What evidence would falsify your prediction?</p>
       <dl class="facts">
         <dt>WILL THE SAME INPUT REACH THE PROTECTED OPERATION?</dt>
@@ -203,10 +201,12 @@
         <dt>WHAT WOULD FALSIFY THIS?</dt>
         <dd>Write the observation that would prove your prediction wrong. Find that observation in the response and in Search. This page will not name it for you.</dd>
       </dl>
-    </section>
+    </details>
 
     <section class="card" aria-labelledby="technique-heading">
       <h2 id="technique-heading">Allowlisted specimens</h2>
+      <p class="muted"><code>{{ lab_id }}</code> &middot; {{ technique_name }} (<code>{{ technique_id }}</code>)</p>
+      <details class="disclosure disclosure--inline"><summary>Specimen, target and framework details</summary>
       <dl class="facts">
         <dt>Lab</dt>
         <dd><code>{{ lab_id }}</code> — {{ lab_title }}</dd>
@@ -237,6 +237,7 @@
         <dt>Expected when defended</dt>
         <dd>Not printed before launch. Compare your prediction with the response, then with Search.</dd>
       </dl>
+      </details>
       <h3>{{ payload_label }}</h3>
       <pre class="payload" id="payload-preview">{{ payload_preview }}</pre>
       <form id="learner-prediction" class="prediction">
@@ -259,7 +260,7 @@
           <p class="prediction-recorded" id="prediction-recorded" aria-live="polite">Select a control guess and an execution guess. You can change them before launch.</p>
         </fieldset>
       </form>
-      <div class="actions">
+      <div class="actions launch-bar" role="group" aria-label="Launch">
         <button class="btn btn-primary" id="fire-baseline" type="button" data-mode="BASELINE" data-specimen="{{ specimen_baseline }}">Launch BASELINE (LIVE)</button>
         <button class="btn btn-danger" id="fire-attack" type="button" data-mode="ATTACK" data-specimen="{{ specimen_attack }}">Launch ATTACK (LIVE)</button>
         <button class="btn btn-secondary" id="fire-retest" type="button" data-mode="RETEST" data-specimen="{{ specimen_retest }}">Launch RETEST (LIVE)</button>
@@ -275,6 +276,15 @@
       </div>
       <p class="muted" id="launch-meta">mode, state, elapsed time, and run.id appear here after a launch. run.id is an investigation handle, not a verdict.</p>
       <p class="muted" id="prediction-compare">After a launch, your browser-only prediction is compared with fields in that response. Missing Search evidence is not a verdict.</p>
+      <ul class="fact-list" id="fact-list">
+        <li>No request has been sent yet. Empty is not DENY. HEC success is not searchable evidence.</li>
+      </ul>
+      <h3>ATTACK vs RETEST (this browser session)</h3>
+      <p class="muted">SAME and DIFFERENT are labeled in words, not only by color. Measured from the two launch responses, not from fixture names.</p>
+      <ul class="fact-list" id="compare-list">
+        <li>Launch ATTACK and RETEST to fill this comparison. Missing a run is not SAFE.</li>
+      </ul>
+      <details class="disclosure disclosure--inline" id="evidence-drawer"><summary>Evidence: run ids and Splunk handoff</summary>
       <div id="run-pair-block">
         <h3>LIVE RUN PAIR</h3>
         <p class="muted">Keep both ids. ATTACK and RETEST must be different UUIDs. Unexplained UUIDs are not proof.</p>
@@ -342,9 +352,6 @@
           <button class="btn btn-secondary" id="copy-run-id" type="button">Copy last run.id</button>
         </div>
       </div>
-      <ul class="fact-list" id="fact-list">
-        <li>No request has been sent yet. Empty is not DENY. HEC success is not searchable evidence.</li>
-      </ul>
       <h3>Splunk Search handoff</h3>
       <p class="muted">The learner must run Search. This page does not write Dashboard Studio tokens. Wait until <strong>EVIDENCE READY</strong> before treating an empty table as a security outcome. Empty is not DENY.</p>
       <ol class="handoff-steps">
@@ -366,11 +373,7 @@
         <a class="btn btn-secondary" id="open-compare-search" href="/en-US/app/search/search" target="_blank" rel="noopener noreferrer">Open ATTACK vs RETEST in Search</a>
         <button class="btn btn-secondary" id="probe-evidence" type="button" hidden>Check evidence readiness</button>
       </div>
-      <h3>ATTACK vs RETEST (this browser session)</h3>
-      <p class="muted">SAME and DIFFERENT are labeled in words, not only by color. Measured from the two launch responses, not from fixture names.</p>
-      <ul class="fact-list" id="compare-list">
-        <li>Launch ATTACK and RETEST to fill this comparison. Missing a run is not SAFE.</li>
-      </ul>
+      </details>
       <h3>This browser tab</h3>
       <p class="muted">Session history survives reload in this tab. The painted status is the last client state, not a live Splunk result. A launcher terminal, when this tab still has it, is the runtime record. Search remains the evidence authority. WAITING_FOR_EVIDENCE is not a control decision.</p>
       <ul class="fact-list" id="session-history" data-lab-id="{{ lab_id }}"></ul>
@@ -1054,6 +1057,24 @@
       }
       paintStoredComparison(pair);
     });
+  </script>
+  <script>
+    // Progress rail: aria-current follows the launch state; open the evidence drawer once a run exists. Presentation only.
+    (function () {
+      const st = document.getElementById("ui-status"), drawer = document.getElementById("evidence-drawer"), rail = document.querySelector(".step-rail");
+      if (!st || !rail) return;
+      const steps = rail.querySelectorAll("li a");
+      function paint() {
+        const s = st.getAttribute("data-state") || "READY";
+        // real states: READY, RUN STARTING, RUN IN PROGRESS, REQUEST ACCEPTED, RUN FAILED, RUN DENIED, BACKEND UNAVAILABLE, EVIDENCE CHECK UNAVAILABLE, CHECK TIMED OUT, RUN COMPLETED, WAITING FOR INDEXING, EVIDENCE CONFIRMED
+        const idx = s === "READY" ? 2 : /STARTING|IN PROGRESS|ACCEPTED|FAILED|DENIED|UNAVAILABLE|TIMED OUT/.test(s) ? 3 : 4;      // only a completed run (or later) is on Results
+        steps.forEach(function (a, i) { if (i === idx) a.setAttribute("aria-current", "step"); else a.removeAttribute("aria-current"); });
+        rail.setAttribute("data-run-state", s);
+        if (s !== "READY" && drawer) drawer.open = true;
+      }
+      paint();
+      if (window.MutationObserver) new MutationObserver(paint).observe(st, { attributes: true, attributeFilter: ["data-state"] });
+    })();
   </script>
 </body>
 </html>

@@ -9,6 +9,7 @@ import { Foundations } from "./pages/Foundations";
 import { Mastery } from "./pages/Mastery";
 import { Mcp } from "./pages/Mcp";
 import { Curriculum } from "./pages/Curriculum";
+import { Challenges } from "./pages/Challenges";
 import { LabPage } from "./pages/Lab";
 import { labById } from "./curriculum";
 import { Path } from "./pages/Path";
@@ -37,6 +38,7 @@ export default function App() {
     {route.name === "mastery" && <Mastery />}
     {route.name === "mcp" && <Mcp />}
     {route.name === "curriculum" && <Curriculum />}
+    {route.name === "challenges" && <Challenges />}
     {route.name === "lab" && <LabPage id={route.id} />}
     {route.name === "mission" && <Mission stage={route.stage} />}
     {route.name === "governance" && <Suspense fallback={<div className="page"><div className="m-sec" role="status"><p className="m-muted">Loading the Governance Center…</p></div></div>}><Governance view={route.view} /></Suspense>}

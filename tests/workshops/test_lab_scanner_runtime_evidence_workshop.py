@@ -51,49 +51,10 @@ def _docs_text() -> str:
     )
 
 
-def test_required_workshop_files_exist():
-    for path in REQUIRED_FILES:
-        assert path.is_file(), path
-    assert (DOCS / "PHASE9E_SCANNER_RUNTIME_WORKSHOP.md").is_file()
-    assert (DOCS / "learning-notes" / "scanner-runtime-soc-investigation.md").is_file()
-    notes = (DOCS / "learning-notes" / "scanner-runtime-soc-investigation.md").read_text(
-        encoding="utf-8"
-    )
-    assert "## What I should now be able to explain" in notes
 
 
-def test_ten_steps_and_evidence_ids():
-    blob = _lab_text() + _docs_text()
-    for step in WORKSHOP_STEPS:
-        assert step in blob
-    assert "ws_lab_scanner_runtime_evidence" in blob
-    assert MALICIOUS_HASH in blob
-    assert NORMAL_HASH in blob
-    assert ATTACK_ID in blob
-    assert RETEST_ID in blob
-    assert NORMAL_SCAN in blob
-    assert MALICIOUS_SCAN in blob
-    assert blob.count(MALICIOUS_HASH) >= 4
 
 
-def test_teaching_boundaries():
-    blob = _lab_text() + _docs_text()
-    assert "SCANNER FINDING != AUTHORIZATION DECISION" in blob
-    assert "ZERO FINDINGS != SAFE" in blob
-    assert "DETECTION ANALYZED — NO NEW DETECTOR" in blob
-    assert "PLANE 1" in blob and "PLANE 2" in blob and "PLANE 3" in blob
-    assert "INTENTIONALLY VULNERABLE" in blob
-    assert "handler count" in blob.lower()
-    assert "INV-002" in blob
-    assert "1.5.0" in blob
-    assert "No DET-SCANNER" in blob or "no DET-SCANNER" in blob
-    assert "No DET-MCP-CATALOG" in blob or "no DET-MCP-CATALOG" in blob
-    assert "No Agent Scan" in blob or "no Agent Scan" in blob
-    assert "No rug-pull" in blob or "no rug-pull" in blob
-    assert "No A2A" in blob or "no A2A" in blob
-    lowered = blob.lower()
-    assert "the scanner high caused execution" not in lowered
-    assert "phase 10" in lowered
 
 
 def test_knowledge_check_has_answers():

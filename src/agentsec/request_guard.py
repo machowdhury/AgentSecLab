@@ -34,7 +34,10 @@ def cross_origin(headers, host: str) -> bool:
     if site is not None and site not in {"same-origin", "none"}:
         return True
     origin = headers.get("Origin")
-    return origin is not None and urlsplit(origin).netloc != host  # "null" has no netloc, so it is rejected
+    if origin is None:
+        return False
+    parts = urlsplit(origin)  # "null" has no scheme or netloc, so it is rejected; host:port must match exactly (hostnames are case-insensitive)
+    return parts.scheme not in {"http", "https"} or parts.netloc.lower() != host.lower()
 
 
 def install_request_guard(app: Flask, *, launch_boundary: bool = True) -> None:

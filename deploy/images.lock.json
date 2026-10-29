@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "note": "Image pins for the installer. `digest` is the amd64 image digest. A null digest means NOT PINNED YET: the installer warns, and refuses it when require_digests is set. `status` says how far a pin is verified. Read digests again with `docker buildx imagetools inspect` before relying on them; Splunk and Ollama tags are re-pushed.",
+  "splunk": {
+    "repository": "splunk/splunk",
+    "platform": "linux/amd64",
+    "default": "10.2",
+    "versions": {
+      "10.2": {"tag": "10.2", "digest": "sha256:da47bf2f183fc815f9e36dff3202dd1232bf475c44b2f71b958c54a9a004d6d7", "status": "tested", "evidence": "the local image RC1 verified (read with docker image inspect, 2026-10-28); the current 10.2 / 10.2.8 tag has a different digest", "approx_gb": 7.06, "support_ends": "2028-01-15"},
+      "10.4": {"tag": "10.4.4", "digest": "sha256:000b0368e668359aee1fd32292baefba9404c2e900a14c170f3859cd88a686c9", "status": "candidate", "evidence": "digest from research, NOT verified by a pull; compatibility tests not run", "approx_gb": null, "support_ends": "2028-05-18"},
+      "10.6": {"tag": "10.6.1", "digest": "sha256:6d5227ed82bceaa277d79b1b3e97d8bd460ac6cf0f5df6c1cec95559284a796e", "status": "candidate", "evidence": "digest from research, NOT verified; KV store migration is irreversible; fresh installs only", "approx_gb": null, "fresh_install_only": true, "support_ends": "2028-09-30"}
+    },
+    "not_released": ["10.1", "10.3", "10.5", "10.7"]
+  },
+  "ollama": {
+    "repository": "ollama/ollama",
+    "versions": {"latest": {"tag": "latest", "digest": null, "status": "unpinned", "evidence": "floating tag in the base compose file; pin before a release", "approx_gb": 7.0}},
+    "default": "latest",
+    "minimum_server_version": "0.35.0"
+  },
+  "others": {
+    "otel_collector": {"ref": "otel/opentelemetry-collector-contrib:0.96.0", "digest": null, "approx_gb": 0.294},
+    "nginx": {"ref": "nginx:1.27-alpine", "digest": "sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10", "approx_gb": 0.077},
+    "app_images": {"approx_gb_each": 0.287, "note": "built locally from this repository"}
+  }
+}

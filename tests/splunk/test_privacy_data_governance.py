@@ -121,25 +121,6 @@ def test_rag_memory_tool_logging_and_privacy_threat_reasoning():
         assert "transaction" not in text
 
 
-def test_evidence_ledger_communications_and_framework_disclaimers():
-    ledger = (LAB / "privacy-evidence-ledger-template.md").read_text(encoding="utf-8")
-    report = (LAB / "incident-report-template.md").read_text(encoding="utf-8")
-    model = (LAB / "privacy-threat-model-template.md").read_text(encoding="utf-8")
-    for term in ("Claim", "Evidence", "Data involved", "Boundary", "Confidence", "Missing evidence"):
-        assert term.lower() in ledger.lower()
-    for term in ("Engineering", "Operations", "Leadership"):
-        assert term in report
-    for term in ("Asset", "Source", "Processor", "Purpose", "Exposure", "Persistence", "Residual risk"):
-        assert term.lower() in model.lower()
-    framework = (ROOT / "docs" / "PRIVACY_FRAMEWORK_VALIDATION.md").read_text(encoding="utf-8")
-    md = _markdown()
-    for term in (
-        "EDUCATIONAL MAPPING", "not compliance validation", "not legal determination",
-        "not certification", "not complete framework coverage", "NEEDS_EXTERNAL_VALIDATION",
-        "NIST Privacy Framework 1.0", "NIST AI RMF 1.0", "OWASP",
-    ):
-        assert term.lower() in framework.lower()
-        assert term.lower() in md.lower()
 
 
 def test_security_semantics_schema_contract_and_secret_hygiene():

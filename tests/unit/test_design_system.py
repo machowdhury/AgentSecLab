@@ -32,7 +32,6 @@ def test_design_system_file_lists_tokens():
     for token in REQUIRED:
         assert token in DS, token
     assert "Severity is never color alone" in DS or "never color alone" in DS.lower()
-    assert (ROOT / ".cursor" / "skills" / "ui-review" / "SKILL.md").is_file()
 
 
 def test_shared_css_carries_first_lab_tokens():

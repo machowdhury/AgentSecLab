@@ -14,10 +14,10 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-KNOWN_SERIOUS = {
-    ("/labs/LAB-RAG-CONTEXT", "color-contrast"), ("/labs/LAB-MEMORY-001", "color-contrast"),
-    ("/labs/LAB-AGENT-GOAL-INTEGRITY-001", "color-contrast"), ("/labs/LAB-AGENT-DELEGATION-001", "color-contrast"),
-}
+# Empty on purpose. The four earlier colour-contrast exceptions (/labs/LAB-RAG-CONTEXT, LAB-MEMORY-001, LAB-AGENT-GOAL-INTEGRITY-001,
+# LAB-AGENT-DELEGATION-001) no longer reproduce at either width, before or after the Splunk palette change; see test_the_four_former_exceptions_stay_clean.
+KNOWN_SERIOUS: set[tuple[str, str]] = set()
+FORMER_EXCEPTIONS = ["/labs/LAB-RAG-CONTEXT", "/labs/LAB-MEMORY-001", "/labs/LAB-AGENT-GOAL-INTEGRITY-001", "/labs/LAB-AGENT-DELEGATION-001"]
 
 
 @pytest.fixture(scope="module")
@@ -46,4 +46,11 @@ def test_no_horizontal_overflow_at_desktop_or_phone_width(report):
 def test_shared_bar_has_no_contrast_violation_anywhere(report):
     for r in report:
         for v in r["violations"]:
-            assert not (v["id"] == "color-contrast" and r["page"] in ("/", "/academy", "/acmebank", "/labs/LAB-MCP-001")), r["page"]
+            assert not (v["id"] == "color-contrast" and r["page"] in ("/", "/academy/home", "/learn", "/acmebank", "/labs/LAB-MCP-001")), r["page"]
+
+
+def test_the_four_former_exceptions_stay_clean(report):
+    seen = {r["page"] for r in report}
+    assert set(FORMER_EXCEPTIONS) <= seen
+    assert not [(r["page"], r["viewport"]) for r in report
+                if r["page"] in FORMER_EXCEPTIONS for v in r["violations"] if v["id"] == "color-contrast"]

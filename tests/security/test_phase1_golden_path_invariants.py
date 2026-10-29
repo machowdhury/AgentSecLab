@@ -235,7 +235,7 @@ def test_evidence_notebook_states_what_each_answer_does_not_prove():
 )
 def test_no_environment_specific_host_is_hard_coded(path):
     text = path.read_text(encoding="utf-8")
-    for host in ("localhost", "127.0.0.1", "3.17.29.24"):
+    for host in ("localhost", "127.0.0.1", "203.0.113.77"):
         assert host not in text, f"{path.name} hard-codes {host}"
 
 

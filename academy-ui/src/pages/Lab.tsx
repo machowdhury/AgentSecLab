@@ -1,7 +1,8 @@
-import { useState, type ReactNode } from "react";
+import { Suspense, lazy, useState, type ReactNode } from "react";
 import { Badge, Button, Icon } from "../ui";
 import { StageGuide } from "../StageGuide";
-import { CURRICULUM_PATH, Link } from "../router";
+import { CHALLENGES_PATH, CURRICULUM_PATH, Link } from "../router";
+import { useConfig } from "../config";
 import { AVAIL, REGISTRY_NOTE, domainName, labById, type Entry, type Lab } from "../curriculum";
 import { AttackPath } from "../AttackPath";
 import { Glossary } from "../mission/parts";
@@ -13,16 +14,21 @@ import { ScenarioLiveEvidence, ScenarioPractice } from "../workbench/ScenarioWor
 import { SCENARIOS } from "../workbench/scenarios";
 import { RecordedPractice, RecordedProve } from "../workbench/RecordedWorkbench";
 import { LazyRecorded } from "../workbench/RecordedLoader";
+// The MAESTRO workbench carries its own content, so it is its own chunk: only the threat-modeling lab downloads it.
+const MaestroWorkbench = lazy(() => import("../workbench/MaestroWorkbench"));
 
 type Tab = "learn" | "practice" | "prove" | "all";
 type EntryKey = Exclude<keyof Lab["sections"], "learn">;
 const SECTION_TITLES: [EntryKey, string][] = [["idea", "The idea of this lab"], ["problem", "The attack or security problem"], ["why", "Why it matters"], ["controls", "What the attacker controls"], ["boundary", "Where the trust boundary is"], ["how", "How the attack or failure happens"]];
+// The three CTF challenges are built on these workshops: the link goes to the challenge when the CTF can answer this browser, otherwise to the Challenges page.
+const CTF_FOR: Record<string, { id: string; title: string }> = { "LAB-LOANDESK-001": { id: "note-smuggler", title: "Loan Desk Note Smuggler" }, "LAB-MCP-CATALOG": { id: "poisoned-catalog", title: "Poisoned Catalog" }, "LAB-MCP-006": { id: "confused-deputy-relay", title: "Confused Deputy Relay" } };
 const base = (p: string) => p.split("/").pop()!.split("#")[0];
 
 /** One reusable lab page. Explanations are written for learners and grounded in named sources; quoted text and recorded evidence are labelled as such; nothing undocumented is shown. */
 export function LabPage({ id }: { id: string }) {
   const lab = labById(id);
   const [tab, setTab] = useState<Tab>("learn");
+  const { config } = useConfig();
   if (!lab) return <div className="page"><header className="page-header"><div><div className="eyebrow">Not found</div><h1>No such lab</h1><p><Link to={CURRICULUM_PATH}>Back to the Curriculum Explorer</Link></p></div></header></div>;
   const s = lab.sections, ex = lab.explainer;
   const have = (e: unknown) => Boolean(e);
@@ -40,7 +46,7 @@ export function LabPage({ id }: { id: string }) {
     <header className="page-header"><div>
       <div className="eyebrow">{domainName(lab.primary_domain)}{lab.secondary_domain ? ` · also ${domainName(lab.secondary_domain)}` : ""}</div>
       <h1>{lab.title}</h1>
-      <p><code>{lab.id}</code> · <Badge tone={availTone(lab.availability)}>{AVAIL[lab.availability].label.toUpperCase()}</Badge>{lab.launchable && <> <Badge tone="observed">ON THE ATTACK SERVICE ALLOWLIST</Badge></>}{lab.integrated && <> <Badge tone="live">NATIVE IN THIS ACADEMY</Badge></>}{lab.level && <> <Badge tone="neutral">{lab.level}</Badge></>}</p>
+      <p><code>{lab.id}</code> · <Badge tone={availTone(lab.availability)}>{AVAIL[lab.availability].label.toUpperCase()}</Badge>{lab.launchable && <> <Badge tone="observed">ON THE ATTACK SERVICE ALLOWLIST</Badge></>}{lab.integrated && <> <Badge tone="info">NATIVE IN THIS ACADEMY</Badge></>}{lab.level && <> <Badge tone="neutral">{lab.level}</Badge></>}</p>
       <p>{AVAIL[lab.availability].blurb} {REGISTRY_NOTE}</p>
     </div></header>
     {!full && <div className="m-notice" role="note"><Icon name="book" size={18} /><div><strong>Full guided lesson not yet available</strong><p>Only what this lab's own files support is shown below. Anything they do not document is left out rather than filled in.</p></div></div>}
@@ -53,7 +59,7 @@ export function LabPage({ id }: { id: string }) {
 
     {show("learn") && <section aria-label="Learn" className="m-card">
       <div className="panel-label">Learn</div><h2>Understand it in plain English</h2>
-      {ex?.summary && <div className="m-explain"><Badge tone="live">EXPLANATION</Badge><p className="m-lead">{ex.summary.text}</p><Based on={ex.summary.grounds} /></div>}
+      {ex?.summary && <div className="m-explain"><Badge tone="info">EXPLANATION</Badge><p className="m-lead">{ex.summary.text}</p><Based on={ex.summary.grounds} /></div>}
       {ex?.glance && <div className="m-glance"><h3>The attack at a glance</h3>
         <dl>{ex.glance.map((g) => <div key={g.id}><dt>{g.label}</dt><dd>{g.text}<Based on={g.grounds} /></dd></div>)}</dl></div>}
       {ex?.path && <AttackPath nodes={ex.path} title="How the attack could travel, from the lab's files" />}
@@ -76,11 +82,23 @@ export function LabPage({ id }: { id: string }) {
         {ex?.practice?.predict ? <ul className="m-rules">{ex.practice.predict.map((p) => <li key={p.label}><strong>{p.label}:</strong> {p.text}<small className="m-src">Source: <code>{p.source}</code></small></li>)}</ul>
           : s.predict && <><p>{s.predict.text}</p><Src src={s.predict.source} /></>}</div>}
       {lab.integrated && ex?.workbench ? <><Exercise lab={lab} />{lab.id === "LAB-PI-001" && <PiPractice lab={lab} />}{lab.id === "LAB-RAG-CONTEXT" && <RagPractice lab={lab} />}{SCENARIOS[lab.id] && <ScenarioPractice lab={lab} sc={SCENARIOS[lab.id]} />}</> : <Exercise lab={lab} />}
+      {lab.id === "LAB-THREAT-MODELING-001" && <Suspense fallback={<p className="m-muted" role="status">Loading the MAESTRO workbench…</p>}><MaestroWorkbench /></Suspense>}
       {ex?.recorded && <RecordedPractice rec={ex.recorded} />}
       {ex?.recorded_ref && <LazyRecorded file={ex.recorded_ref.file} part="practice" />}
       {(ex?.practice?.defender || s.defend) && <div className="m-sec"><h3>How would a defender address the issue?</h3>
-        {ex?.practice?.defender ? <div className="m-explain"><Badge tone="live">EXPLANATION</Badge><p>{ex.practice.defender.text}</p><Based on={ex.practice.defender.grounds} /></div>
+        {ex?.practice?.defender ? <div className="m-explain"><Badge tone="info">EXPLANATION</Badge><p>{ex.practice.defender.text}</p><Based on={ex.practice.defender.grounds} /></div>
           : s.defend && <div className="m-quoted"><Badge tone="muted">QUOTED FROM THE LAB'S DOCUMENTS</Badge><p>{s.defend.text}</p><Src src={s.defend.source} /></div>}</div>}
+    </section>}
+
+    {show("learn") && lab.guide && <section aria-label="Finish this workshop" className="m-card m-finish">
+      <div className="panel-label">Finish</div><h2>What you should see, what it teaches, and how you know you are done</h2>
+      <p className="m-muted">This is a {lab.guide.kind} workshop. Learning guidance only: it authorizes nothing and detects nothing.</p>
+      <h3>What you should see</h3><ul>{lab.guide.expected.map((t, i) => <li key={i}>{t}</li>)}</ul>
+      <h3>What the defense teaches</h3><ul>{lab.guide.defensive.map((t, i) => <li key={i}>{t}</li>)}</ul>
+      <h3>You are done when</h3><ol>{lab.guide.completion.map((t, i) => <li key={i}>{t}</li>)}</ol>
+      <h3>If something does not look right</h3>
+      <dl>{lab.guide.troubleshooting.map((t, i) => <div key={i}><dt>{t.symptom}</dt><dd>{t.fix}</dd></div>)}</dl>
+      {CTF_FOR[lab.id] && <p><strong>Play it as a challenge.</strong> {config.urls.ctf ? <a href={`${config.urls.ctf}/${CTF_FOR[lab.id].id}`}>{CTF_FOR[lab.id].title}</a> : <Link to={CHALLENGES_PATH}>{CTF_FOR[lab.id].title} (CTF Challenges)</Link>} is a scored, server-verified, simulated version of this workshop.</p>}
     </section>}
 
     {show("prove") && <section aria-label="Prove" className="m-card">
@@ -118,11 +136,12 @@ function LearnBody({ l }: { l: NonNullable<Lab["sections"]["learn"]> }) { return
 function Block({ title, src, children }: { title: string; src: string; children: ReactNode }) { return <div className="m-sec"><h3>{title}</h3>{children}<Src src={src} /></div>; }
 
 function Exercise({ lab }: { lab: Lab }) {
+  const { config } = useConfig();
   const a = lab.assets;
   return <div className="m-sec"><h3>What exercise or evidence is available?</h3>
     <p><strong>{AVAIL[lab.availability].label}.</strong> {AVAIL[lab.availability].blurb}</p>
     {lab.native && <div className="m-actions"><Link className="button button--primary" to={lab.native}>Open the guided exercise <Icon name="arrow" size={15} /></Link></div>}
-    {lab.availability === "workbench" && !lab.integrated && <p className="m-muted">This lab is on the Attack Service allowlist, so a live attack and retest exist there. Nothing runs from this page.{" "}<a href={`/academy/labs/${lab.id}`}>Open the classic lab page (until it is migrated)</a>.</p>}
+    {lab.availability === "workbench" && !lab.integrated && <p className="m-muted">This lab is on the Attack Service allowlist, so a live attack and retest exist there. Nothing runs from this page.{config.gateway ? " The classic lab page is not published through this gateway." : <>{" "}<a href={`/academy/labs/${lab.id}`}>Open the classic lab page (until it is migrated)</a>.</>}</p>}
     {lab.integrated && <p className="m-muted">This lab is integrated natively: the guided sequence below launches its own catalog specimens through the Attack Service. The registry tier stays {AVAIL[lab.availability].label}.</p>}
     {lab.availability === "replay" && <p className="m-muted">Recorded evidence only: nothing is launched and no new run is created.</p>}
     {lab.availability === "content_only" && !lab.explainer?.recorded_ref && <p className="m-muted">There is nothing to launch or replay for this lab.</p>}

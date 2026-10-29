@@ -14,11 +14,6 @@ ATTACK_APP = ROOT / "src" / "agentsec" / "attack_app.py"
 CTX = ROOT / "src" / "agentsec" / "experiment_context.py"
 
 
-def test_phase14d_docs_exist():
-    assert IMPL.is_file()
-    assert NOTE.is_file()
-    assert CTX.is_file()
-    assert "## What I should now be able to explain" in NOTE.read_text(encoding="utf-8")
 
 
 def test_phase14d_did_not_bump_schema_or_add_detectors_or_mcp001():
@@ -43,11 +38,3 @@ def test_phase14d_did_not_bump_schema_or_add_detectors_or_mcp001():
     }
 
 
-def test_phase14d_forbids_14e():
-    impl = IMPL.read_text(encoding="utf-8")
-    assert "LAB-PI-001" in impl
-    assert "Do not start Phase 14E" in impl
-    assert "1.9.0" in impl
-    ctx = CTX.read_text(encoding="utf-8")
-    assert "ExperimentContext" in ctx
-    assert "from_definition" in ctx

@@ -71,7 +71,9 @@ export interface Lab {
   rules: string[]; explainer: Explainer | null; limitations: { items: string[]; source: string } | null;
   assets: { specimens: string[]; hunts: string[]; dashboard: string | null; evidence_docs: string[] };
   checks: { q: string; a: string | null }[]; checks_source: string | null;
+  guide: Guide | null;
 }
+export interface Guide { kind: string; expected: string[]; defensive: string[]; completion: string[]; troubleshooting: { symptom: string; fix: string }[] }
 export interface Domain { id: string; name: string; taxonomy_title: string; source: string }
 export const CURRICULUM = raw as unknown as { inventory_date: string; domains: Domain[]; labs: Lab[]; sources: string[] };
 

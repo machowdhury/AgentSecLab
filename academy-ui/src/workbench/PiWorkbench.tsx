@@ -1,3 +1,4 @@
+import { SplunkLink } from "../config";
 import { useEffect, useRef, useState } from "react";
 import { Badge, Button, Icon } from "../ui";
 import { updateMission, useMission } from "../store";
@@ -87,8 +88,8 @@ export function PiPractice({ lab }: { lab: Lab }) {
     <section className="m-wbstep" aria-labelledby="wb6"><h3 id="wb6"><span>6</span> Investigate</h3>
       {a || r || b ? <>
         <p>Open the evidence for each live run in Splunk and run the lab's searches there. The Academy does not run them for you here. The five searches are written out under the Prove tab.</p>
-        <div className="m-actions">{cmp && <a className="button button--secondary" href={cmp.search_url} target="_blank" rel="noopener">Open ATTACK and RETEST in Splunk <Icon name="arrow" size={15} /></a>}
-          {([b, a, r].filter(Boolean) as LaunchRecord[]).map((x) => <a key={x.run_id} className="button button--ghost" href={x.search_handoff.search_url} target="_blank" rel="noopener">Open {x.mode} in Splunk <Icon name="arrow" size={15} /></a>)}</div>
+        <div className="m-actions">{cmp && <SplunkLink className="button button--secondary" href={cmp.search_url} target="_blank" rel="noopener">Open ATTACK and RETEST in Splunk <Icon name="arrow" size={15} /></SplunkLink>}
+          {([b, a, r].filter(Boolean) as LaunchRecord[]).map((x) => <SplunkLink key={x.run_id} className="button button--ghost" href={x.search_handoff.search_url} target="_blank" rel="noopener">Open {x.mode} in Splunk <Icon name="arrow" size={15} /></SplunkLink>)}</div>
         {cmp && <details className="m-details"><summary>Starter SPL for both runs</summary><pre>{cmp.starter_spl}</pre><CopyButton text={cmp.starter_spl} label="Copy search" /></details>}</>
         : <p className="m-muted">Run something first; the evidence links appear here.</p>}</section>
   </div>;

@@ -84,7 +84,7 @@ def test_public_host_is_not_invented_and_docs_reject_world_open():
     assert access.valid_public_host("") == ""
     assert access.valid_public_host("127.0.0.1") == ""
     assert access.valid_public_host("localhost") == ""
-    assert access.valid_public_host("3.17.29.24") == "3.17.29.24"
+    assert access.valid_public_host("203.0.113.77") == "203.0.113.77"
     assert access.valid_public_host("bad host") == ""
     assert access.learner_urls("")[0].startswith("http://<your-server-public-ip>:8000/")
     assert "0.0.0.0/0" in REMOTE_DOC

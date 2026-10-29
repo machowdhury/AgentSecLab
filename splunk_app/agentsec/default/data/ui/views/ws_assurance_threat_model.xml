@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="2" theme="light">
+  <label>AI Security Assurance: Threat modeling and defense coverage (CSA MAESTRO)</label>
+  <description>Connects the lab's MAESTRO threat model to observed lab activity. Modeled threats and observed incidents are separate columns: a modeled threat is not an incident, and an untested threat is not mitigated.</description>
+  <definition><![CDATA[
+{
+  "title": "AI Security Assurance: Threat modeling and defense coverage (CSA MAESTRO)",
+  "description": "Connects the lab's MAESTRO threat model to observed lab activity. Modeled threats and observed incidents are separate columns: a modeled threat is not an incident, and an untested threat is not mitigated.",
+  "defaults": {
+    "dataSources": {
+      "ds.search": {
+        "options": {
+          "queryParameters": {
+            "earliest": "$tr.earliest$",
+            "latest": "$tr.latest$"
+          }
+        }
+      }
+    },
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "default"
+        }
+      }
+    }
+  },
+  "inputs": {
+    "input_tr": {
+      "type": "input.timerange",
+      "title": "Time range",
+      "options": {
+        "token": "tr",
+        "defaultValue": "0,now"
+      }
+    },
+    "input_ec": {
+      "type": "input.dropdown",
+      "title": "Evidence class",
+      "options": {
+        "token": "ec",
+        "defaultValue": "*",
+        "items": [
+          {
+            "label": "LIVE and RECORDED (default; test fixtures are excluded)",
+            "value": "*"
+          },
+          {
+            "label": "LIVE (run on this installation)",
+            "value": "LIVE"
+          },
+          {
+            "label": "RECORDED (committed replay specimens)",
+            "value": "RECORDED"
+          },
+          {
+            "label": "TEST_FIXTURE only (synthetic negative-test data)",
+            "value": "TEST_FIXTURE"
+          },
+          {
+            "label": "Everything including fixtures",
+            "value": "ALL"
+          }
+        ]
+      }
+    },
+    "input_ws": {
+      "type": "input.dropdown",
+      "title": "Workshop",
+      "options": {
+        "token": "ws",
+        "defaultValue": "*",
+        "items": [
+          {
+            "label": "All workshops",
+            "value": "*"
+          },
+          {
+            "label": "LAB-ADVANCED-CAPSTONE-MASTERY-001",
+            "value": "LAB-ADVANCED-CAPSTONE-MASTERY-001"
+          },
+          {
+            "label": "LAB-AGENT-DELEGATION-001",
+            "value": "LAB-AGENT-DELEGATION-001"
+          },
+          {
+            "label": "LAB-AGENT-GOAL-INTEGRITY-001",
+            "value": "LAB-AGENT-GOAL-INTEGRITY-001"
+          },
+          {
+            "label": "LAB-MCP-001",
+            "value": "LAB-MCP-001"
+          },
+          {
+            "label": "LAB-MCP-003",
+            "value": "LAB-MCP-003"
+          },
+          {
+            "label": "LAB-MCP-004",
+            "value": "LAB-MCP-004"
+          },
+          {
+            "label": "LAB-MCP-005",
+            "value": "LAB-MCP-005"
+          },
+          {
+            "label": "LAB-MCP-006",
+            "value": "LAB-MCP-006"
+          },
+          {
+            "label": "LAB-MCP-CATALOG",
+            "value": "LAB-MCP-CATALOG"
+          },
+          {
+            "label": "LAB-MEMORY-001",
+            "value": "LAB-MEMORY-001"
+          },
+          {
+            "label": "LAB-PI-001",
+            "value": "LAB-PI-001"
+          },
+          {
+            "label": "LAB-RAG-CONTEXT",
+            "value": "LAB-RAG-CONTEXT"
+          },
+          {
+            "label": "LAB-SCANNER-RUNTIME-EVIDENCE",
+            "value": "LAB-SCANNER-RUNTIME-EVIDENCE"
+          }
+        ]
+      }
+    }
+  },
+  "dataSources": {
+    "ds_d_layers": {
+      "type": "ds.search",
+      "name": "d_layers",
+      "options": {
+        "query": "| inputlookup agentsec_maestro_threats\n| stats count as modeled_threats, count(eval(modeled_evidence_status=\"DEMONSTRATED\")) as modeled_demonstrated, count(eval(modeled_evidence_status=\"DOCUMENTED\")) as modeled_documented, count(eval(modeled_evidence_status=\"ASSUMED\")) as modeled_assumed by layer, layer_name\n| join type=left layer [ search `agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\")) | where control_id!=\"(none)\" AND control_id!=\"(run)\" | eval layer=split(maestro_layers,\"|\") | mvexpand layer | stats count(eval(status=\"VERIFIED_EFFECTIVE\")) as observed_verified_effective, count(eval(status=\"VERIFIED_INEFFECTIVE\" AND by_design=0)) as observed_control_failures, count(eval(status=\"VERIFIED_INEFFECTIVE\" AND by_design=1)) as observed_executed_by_design, count(eval(status=\"FINDING_OBSERVED\")) as observed_finding, count(eval(status=\"INSUFFICIENT_EVIDENCE\")) as observed_insufficient by layer ]\n| fillnull value=0\n| eval observed_status=if(observed_verified_effective+observed_control_failures+observed_executed_by_design+observed_finding+observed_insufficient=0,\"Not tested\",\"observed\")\n| sort layer\n| table layer layer_name modeled_threats modeled_demonstrated modeled_documented modeled_assumed observed_status observed_verified_effective observed_control_failures observed_executed_by_design observed_finding observed_insufficient",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_d_register": {
+      "type": "ds.search",
+      "name": "d_register",
+      "options": {
+        "query": "| inputlookup agentsec_maestro_threats\n| eval control_id=split(controls,\"|\")\n| mvexpand control_id\n| join type=left control_id [ search `agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\")) | where control_id!=\"(none)\" AND control_id!=\"(run)\" | stats count(eval(status=\"VERIFIED_EFFECTIVE\")) as eff, count(eval(status=\"VERIFIED_INEFFECTIVE\" AND by_design=0)) as ineff, count(eval(status=\"VERIFIED_INEFFECTIVE\" AND by_design=1)) as design, count(eval(status=\"FINDING_OBSERVED\")) as obs, count(eval(status=\"INSUFFICIENT_EVIDENCE\")) as insuff by control_id ]\n| lookup agentsec_controls control_id OUTPUT class AS ctrl_class\n| eval has_telemetry=if(isnotnull(ctrl_class),1,0)\n| eval control_view=case(has_telemetry=0,control_id.\" (no telemetry-producing control: not testable here)\", isnull(eff) AND isnull(ineff) AND isnull(design) AND isnull(obs) AND isnull(insuff), control_id.\" (Not tested)\", true(), control_id.\" (effective \".coalesce(eff,0).\", control failures \".coalesce(ineff,0).\", executed by design under the vulnerable profile \".coalesce(design,0).\", observed \".coalesce(obs,0).\", insufficient \".coalesce(insuff,0).\")\")\n| stats values(control_view) as observed_by_control, sum(eff) as eff, sum(ineff) as ineff, sum(design) as design, sum(obs) as obs, sum(insuff) as insuff, sum(has_telemetry) as telemetry_controls by threat_id, layer, threat, modeled_evidence_status, workshops, residual_impact_likelihood\n| eval observed_status=case(telemetry_controls=0,\"Not tested\", coalesce(ineff,0)>0,\"Verified ineffective: a control failure outside the vulnerable profile\", coalesce(eff,0)>0,\"Verified effective in the defended retests observed (the vulnerable profile executed by design in \".coalesce(design,0).\" attack hops)\", coalesce(design,0)>0,\"Only the intentionally vulnerable profile was observed: no defended retest verified\", coalesce(obs,0)>0,\"Finding observed\", coalesce(insuff,0)>0,\"Insufficient evidence\", true(),\"Not tested\")\n| sort layer, threat_id\n| table threat_id layer threat modeled_evidence_status residual_impact_likelihood observed_status observed_by_control workshops",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_d_techniques": {
+      "type": "ds.search",
+      "name": "d_techniques",
+      "options": {
+        "query": "`agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\"))\n| where control_id!=\"(none)\" AND control_id!=\"(run)\"\n| stats dc(run_id) as runs, values(attack_id) as attack_ids, values(status_label) as statuses, values(maestro_layers) as layers by technique, boundary, control_id\n| sort technique\n| table technique boundary control_id layers attack_ids runs statuses",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_d_links": {
+      "type": "ds.search",
+      "name": "d_links",
+      "options": {
+        "query": "`agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\"))\n| where control_id!=\"(none)\" AND control_id!=\"(run)\"\n| stats dc(run_id) as runs, latest(run_id) as example_run, values(workshops) as workshops by control_id\n| eval investigation=\"Open the workshop dashboard for the run in Splunk (ws_lab_*), or the finding page for the SPL\"\n| table control_id workshops runs example_run investigation",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_d_findings": {
+      "type": "ds.search",
+      "name": "d_findings",
+      "options": {
+        "query": "`agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\")) \n| sort - _time\n| table finding_key, status_label, confidence, evidence_class, mode, profile, attack_id, control_id, hop, tool, decision, reason, observation, interpretation, impact, control_interpretation, recommended_action, retest_outcome, retest_run, workshops, run_id",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    }
+  },
+  "visualizations": {
+    "viz_head": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Modeled versus observed\n\n**Modeled** = a threat in the lab's worked MAESTRO example (`learning/level_1/LAB-THREAT-MODELING-001/maestro.json`, the lab author's analysis, not CSA material). **Observed** = findings from telemetry on the controls that threat names. A threat whose controls have no ATTACK or RETEST finding is **Not tested**; it is never shown as mitigated. MAESTRO layers: 1 Foundation Models, 2 Data Operations, 3 Agent Frameworks, 4 Deployment and Infrastructure, 5 Evaluation and Observability, 6 Security and Compliance (vertical), 7 Agent Ecosystem. The lab implements MAESTRO v1 as a workbench; it does not run CSA's Threat Analyzer. **Evidence classes.** LIVE = a run on this installation. RECORDED = a run captured earlier and committed as a replay specimen (identified by the committed list `agentsec_recorded_runs`; the telemetry itself says `execution.mode=LIVE` for both). SIMULATED = workshop packets and CTF challenges; they are not in Splunk and never appear here. TEST_FIXTURE = synthetic data for negative acceptance tests (lab id `assurance-test-fixture`), mutated from real runs and never produced by the lab. The default view shows LIVE and RECORDED and always excludes fixtures; choose *Everything including fixtures* only to see them beside real evidence. Read the Evidence class column.",
+        "fontSize": "default"
+      }
+    },
+    "viz_layers": {
+      "type": "splunk.table",
+      "title": "MAESTRO layers: modeled threats (left) versus observed evidence (right)",
+      "dataSources": {
+        "primary": "ds_d_layers"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_register": {
+      "type": "splunk.table",
+      "title": "Modeled threats and their observed evidence (modeled evidence status is the analysis; observed status is from telemetry)",
+      "dataSources": {
+        "primary": "ds_d_register"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_techniques": {
+      "type": "splunk.table",
+      "title": "Observed attack techniques, the trust boundary each reached and the control exercised",
+      "dataSources": {
+        "primary": "ds_d_techniques"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_links": {
+      "type": "splunk.table",
+      "title": "Links to supporting investigations (workshop dashboards and the finding page SPL)",
+      "dataSources": {
+        "primary": "ds_d_links"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_d_findings": {
+      "type": "splunk.table",
+      "title": "Findings behind this view (select a row for the finding page)",
+      "dataSources": {
+        "primary": "ds_d_findings"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToDashboard",
+          "options": {
+            "app": "agentsec",
+            "dashboard": "ws_assurance_finding",
+            "newTab": true,
+            "tokens": [
+              {
+                "token": "run_id",
+                "value": "row.run_id.value"
+              },
+              {
+                "token": "control_id",
+                "value": "row.control_id.value"
+              },
+              {
+                "token": "hop",
+                "value": "row.hop.value"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "globalInputs": [
+      "input_tr",
+      "input_ec",
+      "input_ws"
+    ],
+    "options": {
+      "backgroundColor": "#F6F8FB",
+      "display": "auto-scale",
+      "gutterSize": 8,
+      "width": 1440,
+      "height": 1660
+    },
+    "structure": [
+      {
+        "item": "viz_head",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 1440,
+          "h": 200
+        }
+      },
+      {
+        "item": "viz_layers",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 200,
+          "w": 1440,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_register",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 500,
+          "w": 1440,
+          "h": 480
+        }
+      },
+      {
+        "item": "viz_techniques",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 980,
+          "w": 864,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_links",
+        "type": "block",
+        "position": {
+          "x": 864,
+          "y": 980,
+          "w": 576,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_d_findings",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1280,
+          "w": 1440,
+          "h": 340
+        }
+      }
+    ]
+  },
+  "applicationProperties": {
+    "collapsed": false
+  }
+}
+]]></definition>
+</dashboard>

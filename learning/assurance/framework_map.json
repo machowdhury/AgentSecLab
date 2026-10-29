@@ -1,0 +1,1147 @@
+{
+ "schema": "agentsec.assurance_framework_map.v1",
+ "retrieved_on": "2026-10-29",
+ "rule": "An identifier appears here only if it was found, with its exact title, in a primary source (or, for ISO/IEC 42001, a listed secondary source) on the retrieval date. A relationship is an educational link from a lab control to an item, never a statement that the item is satisfied. Lab evidence shows how a control behaved in the tested environment; it is not organization-wide compliance, certification or regulatory conformance.",
+ "version_notes": {
+  "MITRE ATLAS": "Release v2026.10 was published 2026-10-28. The older table in learning/academy/framework_refs.json was read from release 2026.09; AML.T0010 and some mitigations were renamed in 2026.10, so this file uses the v2026.10 names.",
+  "NIST AI RMF 1.0": "AI RMF 1.0 is current; NIST says it is being revised and has published no revision.",
+  "CSA MAESTRO": "No versioned release found; CSA describes it as officially adopted (2026-08-13).",
+  "ISO/IEC 42001:2023": "iso.org could not be opened; identifiers are VERIFIED_WITH_LIMITS."
+ },
+ "items": [
+  {
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.10.3",
+   "name": "Suppliers",
+   "status": "VERIFIED_WITH_LIMITS",
+   "source_url": "https://www.iso.org/standard/42001",
+   "version_or_date": "Edition 1, 2023-12-18",
+   "retrieved_on": "2026-10-29",
+   "limits": "The standard's text is paywalled; identifiers and titles come from a secondary list and were not checked against the ISO text."
+  },
+  {
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.4",
+   "name": "AI system verification and validation",
+   "status": "VERIFIED_WITH_LIMITS",
+   "source_url": "https://riskprofs.com/iso-42001-annex-a-controls-list/",
+   "version_or_date": "Edition 1, 2023-12-18",
+   "retrieved_on": "2026-10-29",
+   "limits": "The standard's text is paywalled; identifiers and titles come from a secondary list and were not checked against the ISO text."
+  },
+  {
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.6",
+   "name": "AI system operation and monitoring",
+   "status": "VERIFIED_WITH_LIMITS",
+   "source_url": "https://www.iso.org/standard/42001",
+   "version_or_date": "Edition 1, 2023-12-18",
+   "retrieved_on": "2026-10-29",
+   "limits": "The standard's text is paywalled; identifiers and titles come from a secondary list and were not checked against the ISO text."
+  },
+  {
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.8",
+   "name": "AI system recording of event logs",
+   "status": "VERIFIED_WITH_LIMITS",
+   "source_url": "https://www.iso.org/standard/42001",
+   "version_or_date": "Edition 1, 2023-12-18",
+   "retrieved_on": "2026-10-29",
+   "limits": "The standard's text is paywalled; identifiers and titles come from a secondary list and were not checked against the ISO text."
+  },
+  {
+   "framework": "MITRE ATLAS",
+   "id": "AML.M0023",
+   "name": "Maintain an AI Bill of Materials",
+   "status": "VERIFIED",
+   "source_url": "https://github.com/mitre-atlas/atlas-data",
+   "version_or_date": "ATLAS data release v2026.10 (published 2026-10-28)",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "MITRE ATLAS",
+   "id": "AML.M0028",
+   "name": "Enforce Access Controls for AI Agent Tools",
+   "status": "VERIFIED",
+   "source_url": "https://github.com/mitre-atlas/atlas-data",
+   "version_or_date": "ATLAS data release v2026.10 (published 2026-10-28)",
+   "retrieved_on": "2026-10-29",
+   "limits": "tool allowlisting analog; was 'AI Agent Tools Permissions Configuration'"
+  },
+  {
+   "framework": "MITRE ATLAS",
+   "id": "AML.M0030",
+   "name": "Restrict AI Agent Tool Invocation on Untrusted Data",
+   "status": "VERIFIED",
+   "source_url": "https://github.com/mitre-atlas/atlas-data",
+   "version_or_date": "ATLAS data release v2026.10 (published 2026-10-28)",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "MITRE ATLAS",
+   "id": "AML.M0031",
+   "name": "Memory Hardening",
+   "status": "VERIFIED",
+   "source_url": "https://github.com/mitre-atlas/atlas-data",
+   "version_or_date": "ATLAS data release v2026.10 (published 2026-10-28)",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "MITRE ATLAS",
+   "id": "AML.M0033",
+   "name": "Input and Output Validation for AI Agent Components",
+   "status": "VERIFIED",
+   "source_url": "https://github.com/mitre-atlas/atlas-data",
+   "version_or_date": "ATLAS data release v2026.10 (published 2026-10-28)",
+   "retrieved_on": "2026-10-29",
+   "limits": "input/output filtering"
+  },
+  {
+   "framework": "MITRE ATLAS",
+   "id": "AML.M0035",
+   "name": "AI Red Team",
+   "status": "VERIFIED",
+   "source_url": "https://github.com/mitre-atlas/atlas-data",
+   "version_or_date": "ATLAS data release v2026.10 (published 2026-10-28)",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0010",
+   "name": "Supply Chain Compromise",
+   "status": "VERIFIED",
+   "source_url": "https://github.com/mitre-atlas/atlas-data",
+   "version_or_date": "ATLAS data release v2026.10 (published 2026-10-28)",
+   "retrieved_on": "2026-10-29",
+   "limits": "RENAMED in 2026.10; was 'AI Supply Chain Compromise' in 5.6.0"
+  },
+  {
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0010.001",
+   "name": "Software",
+   "status": "VERIFIED",
+   "source_url": "https://github.com/mitre-atlas/atlas-data",
+   "version_or_date": "ATLAS data release v2026.10 (published 2026-10-28)",
+   "retrieved_on": "2026-10-29",
+   "limits": "was 'AI Software'"
+  },
+  {
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0051",
+   "name": "LLM Prompt Injection",
+   "status": "VERIFIED",
+   "source_url": "https://github.com/mitre-atlas/atlas-data",
+   "version_or_date": "ATLAS data release v2026.10 (published 2026-10-28)",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0051.000",
+   "name": "Direct",
+   "status": "VERIFIED",
+   "source_url": "https://github.com/mitre-atlas/atlas-data",
+   "version_or_date": "ATLAS data release v2026.10 (published 2026-10-28)",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0051.001",
+   "name": "Indirect",
+   "status": "VERIFIED",
+   "source_url": "https://github.com/mitre-atlas/atlas-data",
+   "version_or_date": "ATLAS data release v2026.10 (published 2026-10-28)",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0053",
+   "name": "AI Agent Tool Invocation",
+   "status": "VERIFIED",
+   "source_url": "https://github.com/mitre-atlas/atlas-data",
+   "version_or_date": "ATLAS data release v2026.10 (published 2026-10-28)",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0070",
+   "name": "RAG Poisoning",
+   "status": "VERIFIED",
+   "source_url": "https://github.com/mitre-atlas/atlas-data",
+   "version_or_date": "ATLAS data release v2026.10 (published 2026-10-28)",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0073",
+   "name": "Impersonation",
+   "status": "VERIFIED",
+   "source_url": "https://github.com/mitre-atlas/atlas-data",
+   "version_or_date": "ATLAS data release v2026.10 (published 2026-10-28)",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0080",
+   "name": "AI Agent Context Poisoning",
+   "status": "VERIFIED",
+   "source_url": "https://github.com/mitre-atlas/atlas-data",
+   "version_or_date": "ATLAS data release v2026.10 (published 2026-10-28)",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "NIST AI 600-1",
+   "id": "GV-6.1-007",
+   "name": "Inventory all third-party entities with access to organizational content; establish approved GAI technology and service provider lists.",
+   "status": "VERIFIED",
+   "source_url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf",
+   "version_or_date": "NIST AI 600-1, July 2024",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "NIST AI 600-1",
+   "id": "MG-3.1-002",
+   "name": "Test GAI system value chain risks (data poisoning, malware, other software and hardware vulnerabilities...).",
+   "status": "VERIFIED",
+   "source_url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf",
+   "version_or_date": "NIST AI 600-1, July 2024",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "NIST AI 600-1",
+   "id": "MG-4.1-002",
+   "name": "Establish, maintain, and evaluate effectiveness of processes for post-deployment monitoring of GAI systems, particularly confabulation, CBRN, or cyber risks.",
+   "status": "VERIFIED",
+   "source_url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf",
+   "version_or_date": "NIST AI 600-1, July 2024",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "NIST AI 600-1",
+   "id": "MS-2.6-006",
+   "name": "Verify systems properly handle queries that may give rise to inappropriate, malicious, or illegal usage (manipulation, impersonation, cyber-attacks).",
+   "status": "VERIFIED",
+   "source_url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf",
+   "version_or_date": "NIST AI 600-1, July 2024",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "NIST AI 600-1",
+   "id": "MS-2.7-001",
+   "name": "Apply established security measures to assess likelihood and magnitude of vulnerabilities and threats such as backdoors, compromised dependencies, data breaches, ... autonomous agents, model theft...",
+   "status": "VERIFIED",
+   "source_url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf",
+   "version_or_date": "NIST AI 600-1, July 2024",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "NIST AI 600-1",
+   "id": "MS-2.7-007",
+   "name": "Perform AI red-teaming to assess resilience against: abuse to facilitate attacks on other systems; GAI attacks (e.g., prompt injection); ML attacks (adversarial examples/prompts, data poisoning, membership inference, model extraction, sponge examples).",
+   "status": "VERIFIED",
+   "source_url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf",
+   "version_or_date": "NIST AI 600-1, July 2024",
+   "retrieved_on": "2026-10-29",
+   "limits": "best prompt-injection / red-team action"
+  },
+  {
+   "framework": "NIST AI RMF 1.0",
+   "id": "GOVERN 6.1",
+   "name": "Policies and procedures are in place that address AI risks associated with third-party entities, including risks of infringement of a third-party's intellectual property or other rights.",
+   "status": "VERIFIED",
+   "source_url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+   "version_or_date": "NIST AI 100-1, January 2023 (revision announced, none published as of 2026-10-29)",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "NIST AI RMF 1.0",
+   "id": "MAP 4.1",
+   "name": "Approaches for mapping AI technology and legal risks of its components - including the use of third-party data or software - are in place, followed, and documented, as are risks of infringement of a third party's intellectual property or other rights.",
+   "status": "VERIFIED",
+   "source_url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+   "version_or_date": "NIST AI 100-1, January 2023 (revision announced, none published as of 2026-10-29)",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.1",
+   "name": "Test sets, metrics, and details about the tools used during TEVV are documented.",
+   "status": "VERIFIED",
+   "source_url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+   "version_or_date": "NIST AI 100-1, January 2023 (revision announced, none published as of 2026-10-29)",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.4",
+   "name": "The functionality and behavior of the AI system and its components - as identified in the MAP function - are monitored when in production.",
+   "status": "VERIFIED",
+   "source_url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+   "version_or_date": "NIST AI 100-1, January 2023 (revision announced, none published as of 2026-10-29)",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.7",
+   "name": "AI system security and resilience - as identified in the MAP function - are evaluated and documented.",
+   "status": "VERIFIED",
+   "source_url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+   "version_or_date": "NIST AI 100-1, January 2023 (revision announced, none published as of 2026-10-29)",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "OWASP LLM Top 10 2025",
+   "id": "LLM01:2025",
+   "name": "Prompt Injection",
+   "status": "VERIFIED",
+   "source_url": "https://genai.owasp.org/llm-top-10/",
+   "version_or_date": "2025 edition",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "OWASP LLM Top 10 2025",
+   "id": "LLM03:2025",
+   "name": "Supply Chain",
+   "status": "VERIFIED",
+   "source_url": "https://genai.owasp.org/llm-top-10/",
+   "version_or_date": "2025 edition",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "OWASP LLM Top 10 2025",
+   "id": "LLM06:2025",
+   "name": "Excessive Agency",
+   "status": "VERIFIED",
+   "source_url": "https://genai.owasp.org/llm-top-10/",
+   "version_or_date": "2025 edition",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "OWASP Top 10 for Agentic Applications 2026",
+   "id": "ASI01",
+   "name": "Agent Goal Hijack",
+   "status": "VERIFIED",
+   "source_url": "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/",
+   "version_or_date": "Version 2026, December 2025",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "OWASP Top 10 for Agentic Applications 2026",
+   "id": "ASI02",
+   "name": "Tool Misuse and Exploitation",
+   "status": "VERIFIED",
+   "source_url": "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/",
+   "version_or_date": "Version 2026, December 2025",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "OWASP Top 10 for Agentic Applications 2026",
+   "id": "ASI03",
+   "name": "Identity and Privilege Abuse",
+   "status": "VERIFIED",
+   "source_url": "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/",
+   "version_or_date": "Version 2026, December 2025",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "OWASP Top 10 for Agentic Applications 2026",
+   "id": "ASI04",
+   "name": "Agentic Supply Chain Vulnerabilities",
+   "status": "VERIFIED",
+   "source_url": "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/",
+   "version_or_date": "Version 2026, December 2025",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  },
+  {
+   "framework": "OWASP Top 10 for Agentic Applications 2026",
+   "id": "ASI06",
+   "name": "Memory & Context Poisoning",
+   "status": "VERIFIED",
+   "source_url": "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/",
+   "version_or_date": "Version 2026, December 2025",
+   "retrieved_on": "2026-10-29",
+   "limits": ""
+  }
+ ],
+ "relationships": [
+  {
+   "control_id": "CTRL-INPUT-001",
+   "framework": "OWASP LLM Top 10 2025",
+   "id": "LLM01:2025",
+   "kind": "risk addressed",
+   "relationship": "RELATED",
+   "rationale": "The lab's attack is a direct instruction-override in user input."
+  },
+  {
+   "control_id": "CTRL-INPUT-001",
+   "framework": "OWASP Top 10 for Agentic Applications 2026",
+   "id": "ASI01",
+   "kind": "risk addressed",
+   "relationship": "RELATED",
+   "rationale": "An injected instruction tries to redirect what the agent does."
+  },
+  {
+   "control_id": "CTRL-INPUT-001",
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0051.000",
+   "kind": "technique exercised",
+   "relationship": "RELATED",
+   "rationale": "The ATTACK specimen is a direct prompt injection."
+  },
+  {
+   "control_id": "CTRL-INPUT-001",
+   "framework": "MITRE ATLAS",
+   "id": "AML.M0033",
+   "kind": "mitigation concept",
+   "relationship": "RELATED",
+   "rationale": "Input validation placed before the model call."
+  },
+  {
+   "control_id": "CTRL-INPUT-001",
+   "framework": "NIST AI 600-1",
+   "id": "MS-2.7-007",
+   "kind": "test practice",
+   "relationship": "RELATED",
+   "rationale": "ATTACK and RETEST runs are a small adversarial test against a prompt-injection attack."
+  },
+  {
+   "control_id": "CTRL-INPUT-001",
+   "framework": "NIST AI 600-1",
+   "id": "MS-2.6-006",
+   "kind": "test practice",
+   "relationship": "RELATED",
+   "rationale": "The retest verifies how a malicious query is handled."
+  },
+  {
+   "control_id": "CTRL-INPUT-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.7",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Security and resilience evaluation: an ATTACK and RETEST pair is one documented evaluation of one technique."
+  },
+  {
+   "control_id": "CTRL-INPUT-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.1",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The run id, the events and the SPL are the documented record of the test."
+  },
+  {
+   "control_id": "CTRL-INPUT-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The telemetry is monitoring of the system's behaviour (in a lab)."
+  },
+  {
+   "control_id": "CTRL-INPUT-001",
+   "framework": "NIST AI 600-1",
+   "id": "MG-4.1-002",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Monitoring processes for cyber risks: the telemetry and these dashboards show the idea, not a monitoring programme."
+  },
+  {
+   "control_id": "CTRL-INPUT-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system verification and validation: a retest is one verification of one control."
+  },
+  {
+   "control_id": "CTRL-INPUT-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.6",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system operation and monitoring."
+  },
+  {
+   "control_id": "CTRL-INPUT-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.8",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Recording of event logs: the telemetry is such a record for the lab."
+  },
+  {
+   "control_id": "CTRL-MCP-001",
+   "framework": "OWASP Top 10 for Agentic Applications 2026",
+   "id": "ASI02",
+   "kind": "risk addressed",
+   "relationship": "RELATED",
+   "rationale": "Tool calls checked for tool, scope and resource."
+  },
+  {
+   "control_id": "CTRL-MCP-001",
+   "framework": "OWASP LLM Top 10 2025",
+   "id": "LLM06:2025",
+   "kind": "risk addressed",
+   "relationship": "RELATED",
+   "rationale": "Excessive agency: a tool the agent should not be able to use."
+  },
+  {
+   "control_id": "CTRL-MCP-001",
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0053",
+   "kind": "technique exercised",
+   "relationship": "RELATED",
+   "rationale": "The agent invokes a tool outside its grant."
+  },
+  {
+   "control_id": "CTRL-MCP-001",
+   "framework": "MITRE ATLAS",
+   "id": "AML.M0028",
+   "kind": "mitigation concept",
+   "relationship": "RELATED",
+   "rationale": "An allowlist enforced by code outside the model is access control for agent tools."
+  },
+  {
+   "control_id": "CTRL-MCP-001",
+   "framework": "NIST AI 600-1",
+   "id": "MS-2.7-001",
+   "kind": "test practice",
+   "relationship": "RELATED",
+   "rationale": "A security measure assessed against threats including autonomous agents."
+  },
+  {
+   "control_id": "CTRL-MCP-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.7",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Security and resilience evaluation: an ATTACK and RETEST pair is one documented evaluation of one technique."
+  },
+  {
+   "control_id": "CTRL-MCP-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.1",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The run id, the events and the SPL are the documented record of the test."
+  },
+  {
+   "control_id": "CTRL-MCP-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The telemetry is monitoring of the system's behaviour (in a lab)."
+  },
+  {
+   "control_id": "CTRL-MCP-001",
+   "framework": "NIST AI 600-1",
+   "id": "MG-4.1-002",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Monitoring processes for cyber risks: the telemetry and these dashboards show the idea, not a monitoring programme."
+  },
+  {
+   "control_id": "CTRL-MCP-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system verification and validation: a retest is one verification of one control."
+  },
+  {
+   "control_id": "CTRL-MCP-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.6",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system operation and monitoring."
+  },
+  {
+   "control_id": "CTRL-MCP-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.8",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Recording of event logs: the telemetry is such a record for the lab."
+  },
+  {
+   "control_id": "CTRL-MCP-RESULT-001",
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0051.001",
+   "kind": "technique exercised",
+   "relationship": "RELATED",
+   "rationale": "Instructions arrive inside a tool result (indirect injection)."
+  },
+  {
+   "control_id": "CTRL-MCP-RESULT-001",
+   "framework": "MITRE ATLAS",
+   "id": "AML.M0030",
+   "kind": "mitigation concept",
+   "relationship": "RELATED",
+   "rationale": "Restricting tool invocation on untrusted data is what the enforcing control must do; this control only observes."
+  },
+  {
+   "control_id": "CTRL-MCP-RESULT-001",
+   "framework": "OWASP LLM Top 10 2025",
+   "id": "LLM01:2025",
+   "kind": "risk addressed",
+   "relationship": "RELATED",
+   "rationale": "Indirect prompt injection."
+  },
+  {
+   "control_id": "CTRL-MCP-RESULT-001",
+   "framework": "OWASP Top 10 for Agentic Applications 2026",
+   "id": "ASI02",
+   "kind": "risk addressed",
+   "relationship": "RELATED",
+   "rationale": "The result is used to misuse a tool."
+  },
+  {
+   "control_id": "CTRL-MCP-RESULT-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.7",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Security and resilience evaluation: an ATTACK and RETEST pair is one documented evaluation of one technique."
+  },
+  {
+   "control_id": "CTRL-MCP-RESULT-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.1",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The run id, the events and the SPL are the documented record of the test."
+  },
+  {
+   "control_id": "CTRL-MCP-RESULT-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The telemetry is monitoring of the system's behaviour (in a lab)."
+  },
+  {
+   "control_id": "CTRL-MCP-RESULT-001",
+   "framework": "NIST AI 600-1",
+   "id": "MG-4.1-002",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Monitoring processes for cyber risks: the telemetry and these dashboards show the idea, not a monitoring programme."
+  },
+  {
+   "control_id": "CTRL-MCP-RESULT-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system verification and validation: a retest is one verification of one control."
+  },
+  {
+   "control_id": "CTRL-MCP-RESULT-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.6",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system operation and monitoring."
+  },
+  {
+   "control_id": "CTRL-MCP-RESULT-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.8",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Recording of event logs: the telemetry is such a record for the lab."
+  },
+  {
+   "control_id": "CTRL-MCP-METADATA-001",
+   "framework": "OWASP Top 10 for Agentic Applications 2026",
+   "id": "ASI04",
+   "kind": "risk addressed",
+   "relationship": "RELATED",
+   "rationale": "A tool description is supplied by a third party."
+  },
+  {
+   "control_id": "CTRL-MCP-METADATA-001",
+   "framework": "OWASP LLM Top 10 2025",
+   "id": "LLM03:2025",
+   "kind": "risk addressed",
+   "relationship": "RELATED",
+   "rationale": "Supply chain: untrusted components."
+  },
+  {
+   "control_id": "CTRL-MCP-METADATA-001",
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0051.001",
+   "kind": "technique exercised",
+   "relationship": "RELATED",
+   "rationale": "Hidden instructions in tool metadata."
+  },
+  {
+   "control_id": "CTRL-MCP-METADATA-001",
+   "framework": "MITRE ATLAS",
+   "id": "AML.M0030",
+   "kind": "mitigation concept",
+   "relationship": "RELATED",
+   "rationale": "Restricting tool invocation on untrusted data."
+  },
+  {
+   "control_id": "CTRL-MCP-METADATA-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.7",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Security and resilience evaluation: an ATTACK and RETEST pair is one documented evaluation of one technique."
+  },
+  {
+   "control_id": "CTRL-MCP-METADATA-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.1",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The run id, the events and the SPL are the documented record of the test."
+  },
+  {
+   "control_id": "CTRL-MCP-METADATA-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The telemetry is monitoring of the system's behaviour (in a lab)."
+  },
+  {
+   "control_id": "CTRL-MCP-METADATA-001",
+   "framework": "NIST AI 600-1",
+   "id": "MG-4.1-002",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Monitoring processes for cyber risks: the telemetry and these dashboards show the idea, not a monitoring programme."
+  },
+  {
+   "control_id": "CTRL-MCP-METADATA-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system verification and validation: a retest is one verification of one control."
+  },
+  {
+   "control_id": "CTRL-MCP-METADATA-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.6",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system operation and monitoring."
+  },
+  {
+   "control_id": "CTRL-MCP-METADATA-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.8",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Recording of event logs: the telemetry is such a record for the lab."
+  },
+  {
+   "control_id": "CTRL-RAG-CONTEXT-001",
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0070",
+   "kind": "technique exercised",
+   "relationship": "RELATED",
+   "rationale": "Poisoned retrieved context."
+  },
+  {
+   "control_id": "CTRL-RAG-CONTEXT-001",
+   "framework": "OWASP Top 10 for Agentic Applications 2026",
+   "id": "ASI06",
+   "kind": "risk addressed",
+   "relationship": "RELATED",
+   "rationale": "Context poisoning."
+  },
+  {
+   "control_id": "CTRL-RAG-CONTEXT-001",
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0051.001",
+   "kind": "technique exercised",
+   "relationship": "RELATED",
+   "rationale": "Indirect injection through retrieved text."
+  },
+  {
+   "control_id": "CTRL-RAG-CONTEXT-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.7",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Security and resilience evaluation: an ATTACK and RETEST pair is one documented evaluation of one technique."
+  },
+  {
+   "control_id": "CTRL-RAG-CONTEXT-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.1",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The run id, the events and the SPL are the documented record of the test."
+  },
+  {
+   "control_id": "CTRL-RAG-CONTEXT-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The telemetry is monitoring of the system's behaviour (in a lab)."
+  },
+  {
+   "control_id": "CTRL-RAG-CONTEXT-001",
+   "framework": "NIST AI 600-1",
+   "id": "MG-4.1-002",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Monitoring processes for cyber risks: the telemetry and these dashboards show the idea, not a monitoring programme."
+  },
+  {
+   "control_id": "CTRL-RAG-CONTEXT-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system verification and validation: a retest is one verification of one control."
+  },
+  {
+   "control_id": "CTRL-RAG-CONTEXT-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.6",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system operation and monitoring."
+  },
+  {
+   "control_id": "CTRL-RAG-CONTEXT-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.8",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Recording of event logs: the telemetry is such a record for the lab."
+  },
+  {
+   "control_id": "CTRL-MEMORY-CONTEXT-001",
+   "framework": "OWASP Top 10 for Agentic Applications 2026",
+   "id": "ASI06",
+   "kind": "risk addressed",
+   "relationship": "RELATED",
+   "rationale": "Memory poisoning."
+  },
+  {
+   "control_id": "CTRL-MEMORY-CONTEXT-001",
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0080",
+   "kind": "technique exercised",
+   "relationship": "RELATED",
+   "rationale": "Context written to memory in one run influences another."
+  },
+  {
+   "control_id": "CTRL-MEMORY-CONTEXT-001",
+   "framework": "MITRE ATLAS",
+   "id": "AML.M0031",
+   "kind": "mitigation concept",
+   "relationship": "RELATED",
+   "rationale": "Memory hardening."
+  },
+  {
+   "control_id": "CTRL-MEMORY-CONTEXT-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.7",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Security and resilience evaluation: an ATTACK and RETEST pair is one documented evaluation of one technique."
+  },
+  {
+   "control_id": "CTRL-MEMORY-CONTEXT-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.1",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The run id, the events and the SPL are the documented record of the test."
+  },
+  {
+   "control_id": "CTRL-MEMORY-CONTEXT-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The telemetry is monitoring of the system's behaviour (in a lab)."
+  },
+  {
+   "control_id": "CTRL-MEMORY-CONTEXT-001",
+   "framework": "NIST AI 600-1",
+   "id": "MG-4.1-002",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Monitoring processes for cyber risks: the telemetry and these dashboards show the idea, not a monitoring programme."
+  },
+  {
+   "control_id": "CTRL-MEMORY-CONTEXT-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system verification and validation: a retest is one verification of one control."
+  },
+  {
+   "control_id": "CTRL-MEMORY-CONTEXT-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.6",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system operation and monitoring."
+  },
+  {
+   "control_id": "CTRL-MEMORY-CONTEXT-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.8",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Recording of event logs: the telemetry is such a record for the lab."
+  },
+  {
+   "control_id": "CTRL-GOAL-INTEGRITY-001",
+   "framework": "OWASP Top 10 for Agentic Applications 2026",
+   "id": "ASI01",
+   "kind": "risk addressed",
+   "relationship": "RELATED",
+   "rationale": "An instruction tries to redefine the task."
+  },
+  {
+   "control_id": "CTRL-GOAL-INTEGRITY-001",
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0051",
+   "kind": "technique exercised",
+   "relationship": "RELATED",
+   "rationale": "Prompt injection used to change the goal."
+  },
+  {
+   "control_id": "CTRL-GOAL-INTEGRITY-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.7",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Security and resilience evaluation: an ATTACK and RETEST pair is one documented evaluation of one technique."
+  },
+  {
+   "control_id": "CTRL-GOAL-INTEGRITY-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.1",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The run id, the events and the SPL are the documented record of the test."
+  },
+  {
+   "control_id": "CTRL-GOAL-INTEGRITY-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The telemetry is monitoring of the system's behaviour (in a lab)."
+  },
+  {
+   "control_id": "CTRL-GOAL-INTEGRITY-001",
+   "framework": "NIST AI 600-1",
+   "id": "MG-4.1-002",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Monitoring processes for cyber risks: the telemetry and these dashboards show the idea, not a monitoring programme."
+  },
+  {
+   "control_id": "CTRL-GOAL-INTEGRITY-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system verification and validation: a retest is one verification of one control."
+  },
+  {
+   "control_id": "CTRL-GOAL-INTEGRITY-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.6",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system operation and monitoring."
+  },
+  {
+   "control_id": "CTRL-GOAL-INTEGRITY-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.8",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Recording of event logs: the telemetry is such a record for the lab."
+  },
+  {
+   "control_id": "CTRL-IDENTITY-001",
+   "framework": "OWASP Top 10 for Agentic Applications 2026",
+   "id": "ASI03",
+   "kind": "risk addressed",
+   "relationship": "RELATED",
+   "rationale": "A claimed identity or authority."
+  },
+  {
+   "control_id": "CTRL-IDENTITY-001",
+   "framework": "MITRE ATLAS",
+   "id": "AML.T0073",
+   "kind": "technique exercised",
+   "relationship": "RELATED",
+   "rationale": "Impersonation by claim."
+  },
+  {
+   "control_id": "CTRL-IDENTITY-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.7",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Security and resilience evaluation: an ATTACK and RETEST pair is one documented evaluation of one technique."
+  },
+  {
+   "control_id": "CTRL-IDENTITY-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.1",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The run id, the events and the SPL are the documented record of the test."
+  },
+  {
+   "control_id": "CTRL-IDENTITY-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The telemetry is monitoring of the system's behaviour (in a lab)."
+  },
+  {
+   "control_id": "CTRL-IDENTITY-001",
+   "framework": "NIST AI 600-1",
+   "id": "MG-4.1-002",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Monitoring processes for cyber risks: the telemetry and these dashboards show the idea, not a monitoring programme."
+  },
+  {
+   "control_id": "CTRL-IDENTITY-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system verification and validation: a retest is one verification of one control."
+  },
+  {
+   "control_id": "CTRL-IDENTITY-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.6",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system operation and monitoring."
+  },
+  {
+   "control_id": "CTRL-IDENTITY-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.8",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Recording of event logs: the telemetry is such a record for the lab."
+  },
+  {
+   "control_id": "CTRL-DELEGATION-001",
+   "framework": "OWASP Top 10 for Agentic Applications 2026",
+   "id": "ASI03",
+   "kind": "risk addressed",
+   "relationship": "RELATED",
+   "rationale": "Delegated authority used beyond the caller's grant."
+  },
+  {
+   "control_id": "CTRL-DELEGATION-001",
+   "framework": "OWASP LLM Top 10 2025",
+   "id": "LLM06:2025",
+   "kind": "risk addressed",
+   "relationship": "RELATED",
+   "rationale": "Excessive agency through delegation."
+  },
+  {
+   "control_id": "CTRL-DELEGATION-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.7",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Security and resilience evaluation: an ATTACK and RETEST pair is one documented evaluation of one technique."
+  },
+  {
+   "control_id": "CTRL-DELEGATION-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.1",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The run id, the events and the SPL are the documented record of the test."
+  },
+  {
+   "control_id": "CTRL-DELEGATION-001",
+   "framework": "NIST AI RMF 1.0",
+   "id": "MEASURE 2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "The telemetry is monitoring of the system's behaviour (in a lab)."
+  },
+  {
+   "control_id": "CTRL-DELEGATION-001",
+   "framework": "NIST AI 600-1",
+   "id": "MG-4.1-002",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Monitoring processes for cyber risks: the telemetry and these dashboards show the idea, not a monitoring programme."
+  },
+  {
+   "control_id": "CTRL-DELEGATION-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.4",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system verification and validation: a retest is one verification of one control."
+  },
+  {
+   "control_id": "CTRL-DELEGATION-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.6",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "AI system operation and monitoring."
+  },
+  {
+   "control_id": "CTRL-DELEGATION-001",
+   "framework": "ISO/IEC 42001:2023",
+   "id": "A.6.2.8",
+   "kind": "evidence practice",
+   "relationship": "RELATED",
+   "rationale": "Recording of event logs: the telemetry is such a record for the lab."
+  }
+ ]
+}

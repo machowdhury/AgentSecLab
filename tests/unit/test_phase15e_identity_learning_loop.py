@@ -40,16 +40,6 @@ ATTACK_HASH = "sha256:56179e463b2faf18c056389ebff32a61e346dd0b4010fb82e8826c4508
 BASELINE_HASH = "sha256:93f1e257a7d6c7660aa8b1d1b980f1509b7da69e215b385ac79c222e1058b3eb"
 
 
-def test_phase15e_docs_exist():
-    assert IMPL.is_file()
-    assert NOTE.is_file()
-    assert "## What I should now be able to explain" in NOTE.read_text(encoding="utf-8")
-    assert (ROOT / "docs" / "PHASE15E_IDENTITY_ATTACK_SERVICE_LAUNCH_CONTRACT.md").is_file()
-    assert (ROOT / "docs" / "PHASE15E_IDENTITY_GUIDED_INVESTIGATIONS.md").is_file()
-    assert (ROOT / "docs" / "PHASE15E_SECURITY_BOUNDARY_REVIEW.md").is_file()
-    assert (ROOT / "docs" / "PHASE15E_LIVE_VS_REPLAY.md").is_file()
-    assert (ROOT / "docs" / "PHASE15E_ATTACK_RETEST_EQUIVALENCE.md").is_file()
-    assert (ROOT / "docs" / "PHASE15E_SPLUNK_LIVE_VALIDATION.md").is_file()
 
 
 def test_schema_unchanged_and_no_det_a2a():

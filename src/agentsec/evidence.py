@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 from typing import Any, Iterable
 
+from agentsec import model_identity
 from agentsec.events import content_hash, content_preview
 from agentsec.experiment import EXECUTION_MODE, SCHEMA_NAME, SCHEMA_VERSION, TELEMETRY_FIDELITY
 from agentsec.settings import Settings
@@ -86,6 +87,8 @@ def write_evidence_bundle(
         "lab.id": settings.lab_id,
         "agentsec.version": settings.version,
         "model": settings.ollama_model,
+        # Additive. requested / resolved / executed model identity as this process observed it; a stub or a replay has none and says NOT_RESOLVED.
+        "model.identity": model_identity.summarize_calls(settings.ollama_model, []),   # overridden by the pipeline that made the calls (extra_manifest)
         "security.profile": settings.security_profile,
         "testbed.mode": testbed_mode,
         "execution.mode": EXECUTION_MODE,

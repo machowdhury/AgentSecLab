@@ -198,5 +198,58 @@ function memScenario(cap: boolean): Scenario {
   return sc;
 }
 export const MEMORY = memScenario(false), CAPSTONE = memScenario(true);
-export const SCENARIOS: Record<string, Scenario> = { [GOAL.lab]: GOAL, [DELEGATION.lab]: DELEGATION, [MEMORY.lab]: MEMORY, [CAPSTONE.lab]: CAPSTONE };
+
+// ---- MCP family (LAB-MCP-003, -004, -005, -CATALOG): the same /mcp/invoke path as LAB-MCP-001, launched from the allowlist. No language model.
+// Every value is read from the hops of the launch record; the browser never chooses the tool, scope, resource or profile.
+interface McpCfg { control?: string; lab: string; aria: string; intro: string; what: string; follow: boolean; reasonWord: string; sameWhat: string }
+const hopsOf = (r: SRecord) => r.runtime?.hops ?? [];
+const FAIL_OPEN = (h: Hop) => String(h["control.reason"]).startsWith("vulnerable_profile_fail_open");
+// The hop that decided the outcome: a DENY, else the labelled fail-open ALLOW (it can be the delegation hop of LAB-MCP-006), else the last hop.
+const decisive = (r: SRecord) => { const h = hopsOf(r); return h.find((x) => x["control.decision"] === "DENY") ?? h.find(FAIL_OPEN) ?? h[h.length - 1]; };
+// Did a handler run for the deciding step? A DENY: that hop's own flag (an earlier, legitimate call may have run). A fail-open ALLOW: that hop or any later one.
+const anyRan = (r: SRecord) => { const d = decisive(r); return d ? hopsOf(r).some((x) => x["hop.index"] >= d["hop.index"] && x["operation.executed"]) : false; };
+const mcpFamily = (c: McpCfg): Scenario => {
+  const sc: Scenario = {
+    lab: c.lab, aria: c.aria, intro: c.intro,
+    baselineLabel: "Run BASELINE (granted request)", baselineHint: "A granted request gives you the normal shape to compare the attack with.",
+    questions: [
+      { key: "decision", legend: `On the intentionally vulnerable ATTACK setting, CTRL-MCP-001 will decide ${c.what} as…`, opts: [["ALLOW", "ALLOW"], ["DENY", "DENY"]] },
+      { key: "handler", legend: "…and the handler for that request…", opts: [["yes", "will run"], ["no", "will not run"]] }],
+    guess: (a, p) => { const h = decisive(a); return `You predicted ${p.decision} and that the handler ${p.handler === "yes" ? "would" : "would not"} run. Recorded: ${h ? `${h["control.decision"]} (${h["control.reason"]}), handler ${anyRan(a) ? "ran" : "did not run"}` : "no decision"}.`; },
+    sameInput: (a, r) => top(a).input_fingerprint === top(r).input_fingerprint,
+    compareCaption: (same) => (same ? `Same request (${c.sameWhat}), different server-owned setting.` : "Different requests."),
+    compareNote: (same) => `${same ? "The same request produced a different outcome because the server-owned setting changed, not because the request changed. " : ""}A DENY is not automatically SAFE, an ALLOW is not an execution, one retest is not universal resistance, Splunk enforced nothing, and no model was involved.`,
+    interpret: (r) => {
+      const f = failed(r); if (f) return f;
+      const h = decisive(r); if (!h) return { kind: "NOT_EXERCISED", label: "NOT EXERCISED", tone: "warn", head: "No tool decision was recorded for this run." };
+      const dec = h["control.decision"], ran = anyRan(r), why = h["control.reason"];
+      if (dec === "DENY") return ran ? { kind: "DENIED_BUT_RAN", label: "DENIED BUT THE HANDLER RAN", tone: "bad", head: "The decision was DENY but the handler ran. That contradicts the control." }
+        : { kind: "DENIED_NOT_RUN", label: "DENIED, HANDLER DID NOT RUN", tone: "good", head: `CTRL-MCP-001 denied ${s(h["tool.name"])} (${why}) and the handler did not run. A DENY is not automatically SAFE.` };
+      if (dec === "ALLOW" && String(why).startsWith("vulnerable_profile_fail_open")) return { kind: "FAIL_OPEN_RAN", label: "ALLOWED BY THE LABELLED FAIL-OPEN SETTING", tone: "bad", head: `On the deliberately vulnerable setting CTRL-MCP-001 allowed ${s(h["tool.name"])} (${why})${ran ? " and the handler ran" : ""}. The lab is fail-open on purpose; that is not a universal bypass.` };
+      if (dec === "ALLOW") return { kind: "NORMAL", label: c.follow ? "GRANTED REQUEST RAN, NO FOLLOW-ON" : "GRANTED REQUEST RAN", tone: "plain", head: `The granted request was allowed (${why}) and ${ran ? "the handler ran" : "no handler ran"}. That is an observation, not proof of safety.` };
+      return { kind: "NOT_EXERCISED", label: "NOT EXERCISED", tone: "warn", head: "No allow or deny decision was recorded." };
+    },
+    steps: (r, ev) => { const h = decisive(r), v = sc.interpret(r); return [launch(r),
+      { id: "authz", label: "Tool authorization", icon: "shield", state: h ? "done" : "warn", detail: h ? `${c.control ?? "CTRL-MCP-001"} on ${s(h["tool.name"])}: ${h["control.decision"]} (${h["control.reason"]}).` : "No decision was recorded." },
+      { id: "exec", label: "Execution", icon: "play", state: "done", detail: `${hopsOf(r).map((x) => `${s(x["tool.name"])}: handler ${x["operation.executed"] ? "ran" : "did not run"}`).join("; ") || "No hop recorded"}. The handler record is the authoritative execution record.` },
+      ...finish(r, v, ev)]; },
+    hopStep: (h) => (h["hop.index"] === 0 ? "Tool authorization (CTRL-MCP-001)" : `Follow-on tool authorization (${c.reasonWord})`),
+    compareRows: (a, r) => { const x = decisive(a), y = decisive(r);
+      return [["Setting (profile)", a.profile, r.profile], ["Decisive tool", s(x?.["tool.name"]), s(y?.["tool.name"])], [`Decision (${c.control ?? "CTRL-MCP-001"})`, s(x?.["control.decision"]), s(y?.["control.decision"])], ["Reason", s(x?.["control.reason"]), s(y?.["control.reason"])],
+        ["Handler ran", String(anyRan(a)), String(anyRan(r))], ["Outcome", sc.interpret(a).label, sc.interpret(r).label]]; },
+    columns: [
+      ["1. Request as recorded", (r) => `${hopsOf(r).map((x) => s(x["tool.name"])).join(" then ") || "—"}; input fingerprint ${short(top(r).input_fingerprint)}.`],
+      ["2. Tool authorization", (r) => { const h = decisive(r); return h ? `${h["control.decision"]} (${h["control.reason"]}) for ${s(h["tool.name"])}. A decision only.` : "No tool decision was recorded."; }],
+      ["3. Actual execution", (r) => { const h = hopsOf(r).find((x) => x["hop.index"] >= (decisive(r)?.["hop.index"] ?? 0) && x["operation.executed"]) ?? decisive(r); return h ? `started ${String(h["mcp.started"])}, attempted ${String(h["operation.attempted"])}, executed ${String(h["operation.executed"])}${anyRan(r) ? "" : " for the deciding step"}.` : "No hop recorded."; }],
+      ["4. Telemetry received", (r) => `${r.local_event_count ?? "?"} local events; otlp.ok ${String(r["otlp.ok"])}, hec.ok ${String(r["hec.ok"])}. Not the same as indexed in Splunk.`],
+      ["5. Independently verified", () => NOT_VERIFIED]],
+  };
+  return sc;
+};
+export const MCP_003 = mcpFamily({ lab: "LAB-MCP-003", aria: "Guided sequence for Scope Escalation", intro: "This lab calls no language model. The tool lookup_policy is granted at policy:read; the attack asks for the excessive scope policy:restricted:read. It tests whether a tool grant is also a scope grant.", what: "the lookup_policy request at the excessive scope", follow: false, reasonWord: "n/a", sameWhat: "tool, scope and arguments" });
+export const MCP_004 = mcpFamily({ lab: "LAB-MCP-004", aria: "Guided sequence for Parameter and Resource Authorization", intro: "This lab calls no language model. The tool and scope are granted; the attack names the ungranted resource executive-restricted. It tests whether a scope grant is also a resource grant.", what: "the lookup_policy request for the ungranted resource", follow: false, reasonWord: "n/a", sameWhat: "tool, scope and arguments" });
+export const MCP_005 = mcpFamily({ lab: "LAB-MCP-005", aria: "Guided sequence for Tool Result Trust", intro: "This lab calls no language model. The first call is authorized; its result carries a closed fixture asking for a second tool. It tests whether a tool result can create authority.", what: "the follow-on lookup_customer_tier request created by the result", follow: true, reasonWord: "request created by the tool result", sameWhat: "request and result hash" });
+export const MCP_CATALOG = mcpFamily({ lab: "LAB-MCP-CATALOG", aria: "Guided sequence for Tool Catalog", intro: "This lab calls no language model. The first call is authorized; the tool's catalog description carries a closed marker asking for a second tool. It tests whether metadata can create authority.", what: "the follow-on lookup_customer_tier request created by the catalog description", follow: true, reasonWord: "request created by catalog metadata", sameWhat: "request and description hash" });
+export const MCP_006 = mcpFamily({ control: "CTRL-DELEGATION-001", lab: "LAB-MCP-006", aria: "Guided sequence for Confused Deputy", intro: "This lab calls no language model and authenticates no agent: the caller (Credit Agent) and the deputy (Compliance Agent) are coded fixtures. It tests whether a deputy may use its own authority for a request the caller never delegated.", what: "the deputy's request for lookup_customer_tier", follow: false, reasonWord: "deputy request", sameWhat: "tool, scope and arguments" });
+export const SCENARIOS: Record<string, Scenario> = { [GOAL.lab]: GOAL, [DELEGATION.lab]: DELEGATION, [MEMORY.lab]: MEMORY, [CAPSTONE.lab]: CAPSTONE, [MCP_003.lab]: MCP_003, [MCP_004.lab]: MCP_004, [MCP_005.lab]: MCP_005, [MCP_CATALOG.lab]: MCP_CATALOG, [MCP_006.lab]: MCP_006 };
 export { hopTool };

@@ -35,7 +35,7 @@ SEARCH = (
 
 def build() -> dict:
     mission = markdown(
-        "mission",
+        "viz_mission",
         """# Human approval and action binding
 
 This is a REPLAY workshop. Path A is the ledger you fill before Path B. The packet is not policy.
@@ -59,7 +59,7 @@ An approval exists for `lookup_policy` / `lending-basics`. The submitted action 
 """,
     )
     approve = markdown(
-        "approve",
+        "viz_approve",
         """# Simulated approval decision
 
 - Record label: SIMULATED APPROVAL DECISION
@@ -81,7 +81,7 @@ Replay of the same approval id on a second request is **DEFERRED** in this packe
 """,
     )
     request = markdown(
-        "request",
+        "viz_request",
         """# Submitted action
 
 The approval covers `lookup_policy` on `lending-basics`. Two packets arrived inside the approval window. Names are labels, not modes.
@@ -104,7 +104,7 @@ Packet South
 """,
     )
     authorize = markdown(
-        "authorize",
+        "viz_authorize",
         """# CTRL-MCP-001
 
 CTRL-MCP-001 remains the tool decision. This workshop does not add an approval decision to the runtime.
@@ -115,14 +115,14 @@ Any ALLOW that accepts a mismatched action must carry an explicitly labeled vuln
 """,
     )
     contrast = markdown(
-        "contrast",
+        "viz_contrast",
         """# Historical resource decisions are not approvals
 
 The search below counts historical CTRL-MCP-001 resource reasons. Those rows are **HISTORICAL RESOURCE DECISION — NOT AN APPROVAL**. Do not relabel them as HITL.
 """,
     )
     ledger = markdown(
-        "ledger",
+        "viz_ledger",
         """# Evidence ledger
 
 Copy one line per mode. Fill binding, CTRL-MCP-001, and execution yourself.
@@ -137,7 +137,7 @@ Copy one line per mode. Fill binding, CTRL-MCP-001, and execution yourself.
 """,
     )
     path_b = markdown(
-        "pathb",
+        "viz_pathb",
         """# Path B — review
 
 - ATTACK: binding MISMATCH, CTRL-MCP-001 ALLOW, reason vulnerable_profile_fail_open:stale_approval_accepted, separate simulated start.

@@ -43,7 +43,7 @@ PANELS = [  # (key, search file, title, description, empty text)
 
 
 def build() -> dict:
-    mission = markdown("mission", """# Loan Desk: agent-authored content
+    mission = markdown("viz_mission", """# Loan Desk: agent-authored content
 
 A real local model proposes actions. **CTRL-LOANDESK-001** decides. A handler runs only after ALLOW. Splunk observes; it never authorizes.
 
@@ -60,9 +60,9 @@ A real local model proposes actions. **CTRL-LOANDESK-001** decides. A handler ru
 
 An empty panel means no events were found for that run.id. It does not mean the run was safe.
 """)
-    howto = markdown("reference", """# Reference
+    howto = markdown("viz_reference", """# Reference
 
-- Event family: `agentsec.loan_desk_event` 1.0.0 (separate from `security_event` 1.9.0).
+- Event family: `agentsec.loan_desk_event` 1.0.0, or 1.1.0 when the run's model identity was recorded (separate from `security_event` 1.9.0).
 - Posture: `agentsec.defense.posture` is `baseline` (free-text review note) or `hardened` (reason codes only).
 - Every field is stored more than once in this index (index-time JSON plus search-time JSON), so the searches use `mvindex(mvdedup(...),0)`.
 - The searches are in `learning/level_1/LAB-LOANDESK-001/searches/` and are the same ones this view runs.

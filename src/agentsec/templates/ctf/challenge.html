@@ -1,0 +1,83 @@
+{% extends "ctf/_base.html" %}
+{% block title %}{{ ch.title }}{% endblock %}
+{% block body %}
+<div data-ctf-challenge="{{ ch.id }}" data-max-steps="{{ ch.max_steps }}">
+<section class="card" aria-labelledby="obj-h">
+  <h2 id="obj-h">{{ ch.title }}</h2>
+  <p class="status-row"><span class="chip">{{ ch.difficulty }}</span><span class="chip">{{ ch.points }} points</span><span class="chip chip--sim">&#9671; {{ ch.simulation }}</span>{% if ch.scored %}<span class="chip chip--good">&#10003; scored</span>{% endif %}</p>
+  <p class="callout"><strong>{{ ch.simulation }}.</strong> {{ ch.simulation_note }}</p>
+  <dl class="facts">
+    <dt>Objective</dt><dd>{{ ch.objective }}</dd>
+    <dt>Technique</dt><dd>{{ ch.technique }}</dd>
+    <dt>Expected control boundary</dt><dd>{{ ch.control_boundary }}</dd>
+    <dt>Engine</dt><dd>{{ ch.engine }} (existing in-repo engine, driven in-process)</dd>
+  </dl>
+  <details class="disclosure disclosure--inline"><summary><h3>Defensive learning outcome</h3></summary><p>{{ ch.learning_outcome }}</p></details>
+  <p><button class="btn btn-secondary" type="button" data-act="hint">Show a hint (free)</button></p>
+  <p id="hint-text" class="muted" hidden></p>
+</section>
+
+{% if ch.materials.kind == 'catalog' %}
+<section class="card" aria-labelledby="cat-h">
+  <h2 id="cat-h">Simulated tool catalog</h2>
+  <p class="muted">A tools/list-shaped snapshot built in this process. It is data an agent reads. It is NOT an external MCP server.</p>
+  <div class="table-wrap"><table class="data-table ctf-table"><caption class="sr-only">Tool names and descriptions</caption>
+    <thead><tr><th scope="col">Tool</th><th scope="col">Description (untrusted data)</th></tr></thead>
+    <tbody>{% for t in ch.materials.simulated_catalog %}<tr><th scope="row"><code>{{ t.name }}</code></th><td>{{ t.description }}</td></tr>{% endfor %}</tbody></table></div>
+</section>
+{% endif %}
+
+<section class="card" aria-labelledby="run-h">
+  <h2 id="run-h">Attempt</h2>
+  <p><button class="btn btn-primary" type="button" data-act="start">Start a new attempt</button></p>
+  <p>Attempt id: <code id="attempt-id">none yet</code> &middot; State: <strong id="attempt-state">NONE (no attempt yet)</strong> &middot; Steps: <span id="attempt-steps">0 of {{ ch.max_steps }}</span></p>
+  <form id="run-form" data-kind="{{ ch.materials.kind }}" novalidate>
+    <fieldset class="ctf-fieldset"><legend>Posture</legend>
+      <label class="inline"><input type="radio" name="posture" value="baseline" checked> Baseline (intentionally weak lab posture)</label>
+      <label class="inline"><input type="radio" name="posture" value="hardened"> Hardened (the control that should hold)</label>
+    </fieldset>
+    {% if ch.materials.kind == 'loan_desk' %}
+    <label for="note">Applicant free-text note</label>
+    <textarea id="note" name="note" maxlength="{{ ch.materials.note_max_chars }}" required aria-describedby="note-help"></textarea>
+    <p id="note-help" class="muted">Up to {{ ch.materials.note_max_chars }} characters. Synthetic data only: emails, phone numbers and long digit strings are refused. The agent is a scripted stand-in, not an LLM.</p>
+    <button class="btn btn-primary" type="submit" data-act="run" disabled>Run the scenario</button>
+    {% elif ch.materials.kind == 'catalog' %}
+    <label for="tool">Tool the simulated agent calls</label>
+    <select id="tool" name="tool">{% for t in ch.materials.tools %}<option value="{{ t }}">{{ t }}</option>{% endfor %}</select>
+    <p><button class="btn btn-primary" type="submit" data-act="run" disabled>Run the scenario</button></p>
+    {% elif ch.materials.kind == 'delegation' %}
+    <p class="muted">Two server-sequenced steps, in order, in the same posture. {{ ch.materials.model }}.</p>
+    <p><button class="btn btn-primary" type="submit" data-act="run" data-step="claim" disabled>Step 1: present the delegation claim</button>
+       <button class="btn btn-primary" type="submit" data-act="run" data-step="relay" disabled>Step 2: relay through the deputy</button></p>
+    {% endif %}
+  </form>
+  <p><button class="btn btn-secondary" type="button" data-act="verify" disabled>Ask the server to verify</button>
+     <button class="btn btn-danger" type="button" data-act="reset" disabled>Reset this attempt</button></p>
+  <p id="ctf-status" class="status" role="status" aria-live="polite"></p>
+  <ol id="run-list" class="run-list" aria-label="Runs recorded for this attempt"></ol>
+</section>
+
+<section class="card" id="verdict-card" aria-labelledby="verdict-h" hidden>
+  <h2 id="verdict-h">Verification result</h2>
+  <p id="verdict-summary" class="verdict"></p>
+  <ul id="verdict-checks" class="checks"></ul>
+  <p class="muted"><strong>Proves:</strong> this server's verifier read these decisions and handler events in the run it owns. <strong>Does not prove:</strong> that the events are true, or that anything reached Splunk.</p>
+</section>
+
+<section class="card" id="receipt-card" aria-labelledby="receipt-h" hidden>
+  <h2 id="receipt-h">Scoring receipt</h2>
+  <p class="muted">Signed by this server. Redeem it once to score. Editing it makes the signature fail; that is expected.</p>
+  <label for="receipt-json">Receipt (editable, to demonstrate tamper rejection)</label>
+  <textarea id="receipt-json" rows="12" spellcheck="false"></textarea>
+  <p><button class="btn btn-primary" type="button" data-act="redeem" disabled>Redeem receipt</button> <a href="/ctf/scoreboard">Scoreboard</a></p>
+</section>
+
+<section class="card" id="splunk-card" aria-labelledby="splunk-h" hidden>
+  <h2 id="splunk-h">Splunk correlation</h2>
+  <p class="chip chip--warn">&#9651; NOT VERIFIED in Splunk</p>
+  <p id="splunk-detail" class="muted"></p>
+  <ul id="splunk-runs" class="splunk-runs"></ul>
+</section>
+</div>
+<script src="{{ url_for('static', filename='ctf.js') }}" defer></script>
+{% endblock %}

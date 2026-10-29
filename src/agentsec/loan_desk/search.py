@@ -182,6 +182,11 @@ class DockerExecBackend:
         self.container, self.runner = container or SPLUNK_CONTAINER, runner or subprocess.run
 
     def run(self, spl: str, *, timeout_s: int = SEARCH_TIMEOUT_S, max_rows: int = MAX_ROWS) -> Outcome:
+        from agentsec import spl_policy
+        try:
+            spl = spl_policy.checked(spl, backend="docker-exec")      # this path runs with the container's admin credential: same read-only policy as REST
+        except spl_policy.SplPolicyViolation:
+            return Outcome(False, error="search_failed")
         t0 = time.monotonic()
         script = f'exec /opt/splunk/bin/splunk search "$AGENTSEC_SPL" -auth "admin:${{SPLUNK_PASSWORD}}" -output csv -maxout {int(max_rows) + 1} -max_time {int(timeout_s)}'
         argv = ["docker", "exec", "-u", "splunk", "-e", f"AGENTSEC_SPL={spl}", self.container, "bash", "-c", script]
@@ -196,3 +201,44 @@ class DockerExecBackend:
             return Outcome(False, error="search_failed", duration_ms=ms)
         cols, rows, trunc = shape_csv(proc.stdout or "", max_rows)
         return Outcome(True, cols, rows, trunc, None, ms)
+
+
+class RestBackend:
+    """External Splunk (EXTERNAL_ENTERPRISE or CLOUD): the shared strict-TLS REST client. No docker, no admin password; a least-privilege token.
+    Errors map onto the fixed Outcome codes; the stage/code detail (never a secret) goes to the log only."""
+    name = "rest"
+
+    def __init__(self, client):
+        self.client = client
+
+    def run(self, spl: str, *, timeout_s: int = SEARCH_TIMEOUT_S, max_rows: int = MAX_ROWS) -> Outcome:
+        from agentsec.splunk_client import SplunkError
+        t0 = time.monotonic()
+        try:
+            text = self.client.export_csv(spl, timeout_s=timeout_s)
+        except SplunkError as exc:
+            import logging
+            logging.getLogger(__name__).info("splunk rest search failed: %s/%s", exc.stage, exc.code)
+            ms = int((time.monotonic() - t0) * 1000)
+            error = "timeout" if exc.code == "timeout" else ("backend_unavailable" if exc.stage == "connectivity" else "search_failed")
+            return Outcome(False, error=error, duration_ms=ms)
+        cols, rows, trunc = shape_csv(text, max_rows)
+        return Outcome(True, cols, rows, trunc, None, int((time.monotonic() - t0) * 1000))
+
+
+class UnavailableBackend:
+    """Used when an external Splunk mode is selected but misconfigured: fail closed, never fall back to docker."""
+    name = "unavailable"
+
+    def run(self, spl: str, *, timeout_s: int = SEARCH_TIMEOUT_S, max_rows: int = MAX_ROWS) -> Outcome:
+        return Outcome(False, error="backend_unavailable")
+
+
+def default_backend(env=None) -> Backend:
+    """BUNDLED (default): the existing docker backend, unchanged. External modes: the REST backend, or UnavailableBackend if misconfigured."""
+    from agentsec.splunk_client import SplunkError, client_for_mode
+    try:
+        client = client_for_mode(env)
+    except SplunkError:
+        return UnavailableBackend()
+    return DockerExecBackend() if client is None else RestBackend(client)

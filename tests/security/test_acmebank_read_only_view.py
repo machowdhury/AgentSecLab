@@ -26,7 +26,7 @@ from agentsec.attack_app import AcmeBankClient, create_app
 from agentsec.bank_app import create_app as create_bank_app
 
 ROUTE = "/acmebank"
-FORBIDDEN_HOSTS = ("localhost", "127.0.0.1", "3.17.29.24")
+FORBIDDEN_HOSTS = ("localhost", "127.0.0.1", "203.0.113.77")
 
 
 def _unreachable_app():

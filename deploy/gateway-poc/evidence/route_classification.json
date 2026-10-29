@@ -1,0 +1,46 @@
+{
+ "read": [
+  "GET /api/academy/status",
+  "GET /api/labs/<lab_id>",
+  "GET /api/learn/config",
+  "GET /api/missions/loan-desk/status",
+  "GET /favicon.ico",
+  "GET /health",
+  "GET /learn",
+  "GET /learn/",
+  "GET /learn/<path:rest>",
+  "GET /static/<path:filename>"
+ ],
+ "denied": [
+  "GET /",
+  "GET /academy",
+  "GET /academy/foundations",
+  "GET /academy/home",
+  "GET /academy/labs/<lab_id>",
+  "GET /academy/missions/loan-desk",
+  "GET /academy/path",
+  "GET /academy/status",
+  "GET /acmebank",
+  "GET /api/academy/compare",
+  "GET /api/academy/evidence/<run_id>",
+  "GET /api/academy/live-runs",
+  "GET /api/allowlist",
+  "GET /api/attacks",
+  "GET /api/target-health",
+  "GET /labs/<lab_id>",
+  "POST /api/compare-handoff"
+ ],
+ "attack": [
+  "GET /api/launches/<run_id>",
+  "GET /api/launches/<run_id>/evidence",
+  "GET /api/missions/loan-desk/runs/<run_id>",
+  "GET /api/missions/loan-desk/runs/<run_id>/search/<search_id>",
+  "GET /api/missions/loan-desk/search/templates",
+  "POST /api/attacks/ATK-002",
+  "POST /api/launch",
+  "POST /api/missions/loan-desk/runs",
+  "POST /api/missions/loan-desk/runs/<run_id>/search",
+  "POST /api/missions/loan-desk/runs/<run_id>/search/preview",
+  "POST /api/missions/loan-desk/runs/<run_id>/verify"
+ ]
+}

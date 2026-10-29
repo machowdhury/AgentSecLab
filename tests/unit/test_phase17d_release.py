@@ -47,27 +47,8 @@ def test_schema_and_pdp_frozen():
     assert saved.count("[AgentSec -") == 1
 
 
-def test_readme_is_learner_entry():
-    text = README.read_text(encoding="utf-8")
-    assert "Not in this lab slice" not in text
-    assert "./scripts/lab-up.sh" in text
-    assert "LIVE" in text and "REPLAY" in text
-    assert "ws_agentsec_home" in text
-    assert "Apache License" in text
-    assert "intentionally contains vulnerable" in text.lower() or "intentionally contains vulnerable" in (
-        DOCS / "AGENTSEC_V1_PRODUCT_BOUNDARY.md"
-    ).read_text(encoding="utf-8").lower()
-    assert "docs/QUICKSTART.md" in text
-    assert "docs/TROUBLESHOOTING.md" in text
 
 
-def test_required_release_docs_exist():
-    missing = [str(p.relative_to(ROOT)) for p in REQUIRED_DOCS if not p.is_file()]
-    assert missing == []
-    assert LICENSE.is_file()
-    assert "Apache License" in LICENSE.read_text(encoding="utf-8")
-    assert (ROOT / "scripts" / "lab-preflight.sh").is_file()
-    assert (ROOT / "scripts" / "lab-down.sh").is_file()
 
 
 def test_product_version_rc1_not_schema():

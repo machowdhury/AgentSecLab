@@ -268,7 +268,7 @@ Apache License 2.0. See [LICENSE](../LICENSE).
 | [CHANGELOG.md](../CHANGELOG.md) | Product changelog |
 | [docs/releases/V1_0_0_RC2_RELEASE_NOTES.md](releases/V1_0_0_RC2_RELEASE_NOTES.md) | Current candidate notes |
 | [docs/releases/V1_0_0_RC1_RELEASE_NOTES.md](releases/V1_0_0_RC1_RELEASE_NOTES.md) | Historical RC1 notes for the tagged baseline |
-| [docs/IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) | Historical phase provenance |
+| docs/IMPLEMENTATION_STATUS.md | Historical phase provenance |
 
 Developer tests are optional and are not required to learn:
 

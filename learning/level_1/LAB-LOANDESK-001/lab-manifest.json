@@ -11,7 +11,7 @@
   "domain": "agent_authored_content",
   "launcher": "academy_mission",
   "mission_path": "/academy/missions/loan-desk",
-  "event_schema": "agentsec.loan_desk_event 1.0.0",
+  "event_schema": "agentsec.loan_desk_event 1.0.0 (1.1.0 when the run's model identity was recorded)",
   "execution_modes": {"LIVE": ["BASELINE", "ATTACK", "RETEST"], "REPLAY": [], "GUIDED": true},
   "retest_support": "LIVE",
   "retest_support_detail": "ATTACK runs the planted note under posture baseline; RETEST runs the same note under posture hardened. The posture is a closed per-run setting owned by AcmeBank, recorded on every event, and never taken from the model or the applicant notes.",

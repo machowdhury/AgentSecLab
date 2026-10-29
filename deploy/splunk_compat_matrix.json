@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "note": "Splunk 10.x compatibility test matrix. PREPARED, NOT RUN: every status is NOT_RUN until a disposable host runs it and the result file is attached. A version is promoted to `tested` in images.lock only when every applicable row for it is PASS. Source of the rows: docs/design/rc2/08-splunk-10x-compatibility.md section 8.5.",
+  "versions": ["10.2", "10.4", "10.6"],
+  "rows": [
+    {"id": "boot", "area": "Boot", "test": "start the pinned image on each claimed platform (including Apple Silicon emulation) and wait for ready", "pass": "Splunk Web and management answer; /services/server/info version equals the pin (four-segment safe); KV store status ready", "versions": ["10.2", "10.4", "10.6"], "status": "NOT_RUN"},
+    {"id": "licence", "area": "Licence and start", "test": "start with SPLUNK_START_ARGS and SPLUNK_GENERAL_TERMS as the lab does", "pass": "no licence prompt; clean start", "versions": ["10.2", "10.4", "10.6"], "status": "NOT_RUN"},
+    {"id": "rest", "area": "REST", "test": "Bearer-token search through the strict client; search/v2/jobs/export with the application's queries; server/info", "pass": "the staged diagnose passes all four stages; a search-only token still works", "versions": ["10.2", "10.4", "10.6"], "status": "NOT_RUN"},
+    {"id": "spl", "area": "SPL", "test": "every application template and the diagnose queries through spl_policy and a real search", "pass": "identical result rows to the 10.2 baseline on the same data", "versions": ["10.2", "10.4", "10.6"], "status": "NOT_RUN"},
+    {"id": "hec", "area": "HEC", "test": "HTTPS HEC on 8088: health, one event, one batch; TLS 1.2/1.3 client succeeds; TLS 1.0/1.1 client fails", "pass": "event found by search exactly once within 60 s", "versions": ["10.2", "10.4", "10.6"], "status": "NOT_RUN"},
+    {"id": "app", "area": "App", "test": "install splunk_app/agentsec; indexes created; dashboards load; agentsec_telemetry writable and searchable", "pass": "no errors in splunkd.log for the app", "versions": ["10.2", "10.4", "10.6"], "status": "NOT_RUN"},
+    {"id": "volumes", "area": "Volumes", "test": "stop, start, up --force-recreate, down then up", "pass": "indexed events and configuration survive (named volumes)", "versions": ["10.2", "10.4", "10.6"], "status": "NOT_RUN"},
+    {"id": "upgrade_copy", "area": "Upgrade", "test": "clone the volumes of a populated 10.2 instance and upgrade the COPY to 10.4.4, then to 10.6.1", "pass": "events and KV data intact; KV migration completes; all rows above re-run; original volume untouched", "versions": ["10.4", "10.6"], "status": "NOT_RUN"},
+    {"id": "failure", "area": "Failure", "test": "10.6 with insufficient free disk; with no AVX; with postgresMigrateOnStartup=false", "pass": "the installer's preflight fails first with a number; the documented option works", "versions": ["10.6"], "status": "NOT_RUN"},
+    {"id": "security", "area": "Security", "test": "management port 8089 and HEC bound to loopback only; default admin password not accepted", "pass": "port scan and password test", "versions": ["10.2", "10.4", "10.6"], "status": "NOT_RUN"}
+  ]
+}

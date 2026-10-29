@@ -91,7 +91,9 @@ def test_app_build_is_not_the_product_version():
     # 4 -> 5. The product version above is unchanged.
     # CONTRACT CHANGE (Batch 4): the learner-path script (new LAB-LOANDESK-001 entry) and a new packaged flow
     # SVG changed, so the app build moves 5 -> 6. The product version above is unchanged.
-    assert "build = 6" in text
+    # CONTRACT CHANGE (UI sprint C): learner-path script accessibility fix (ink-token contrast, state glyphs,
+    # role=status, :focus-visible) changed a packaged static asset, so the app build moves 6 -> 7; the learner-path mode change for four MCP workshops moves it 7 -> 8, and a fifth (confused deputy) 8 -> 9.
+    assert "build = 9" in text
 
 
 def test_every_browser_served_asset_is_covered_by_the_digest():

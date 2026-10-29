@@ -287,6 +287,8 @@ The dangerous operation in this slice is **LLM inference** (Ollama generate).
 | Control blocked before HTTP to Ollama | `operation.executed=true` (must be attempted=false, executed=false, outcome=prevented) |
 | LLM invocation started, then failed | `operation.executed=false` or `outcome=prevented` (must be attempted=true, executed=true, outcome=error) |
 
+**Exception (RC2 phase 1, model identity):** when the configured model is not installed under exactly that name (or its name is invalid), the pipeline's model client refuses the call **before sending anything**. Because `security_event` 1.9.0 is frozen and requires `executed=true` on `llm.started` / `llm.failed`, those two events still say `executed=true`; the refusal is recognised by `error.type` = `model_not_installed` or `model_config_invalid` on `llm.failed`, and no `llm.completed` follows. Queries and reports that treat `executed=true` as "Ollama was invoked" must exclude those two error types. (The Loan Desk family, `loan_desk_event` 1.1.0, can say `executed=false` for the same refusal.)
+
 There are no tools, no money movement, no memory writes, and no RAG retrievals in this slice.
 
 ---

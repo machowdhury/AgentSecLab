@@ -1,0 +1,611 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="2" theme="light">
+  <label>AI Security Assurance: Agent, MCP and A2A security</label>
+  <description>Tool authorization outcomes, prompt-injection and tool-misuse attempts, delegation behaviour and scanner findings, from real agent and tool telemetry. An attempted attack is not a confirmed compromise.</description>
+  <definition><![CDATA[
+{
+  "title": "AI Security Assurance: Agent, MCP and A2A security",
+  "description": "Tool authorization outcomes, prompt-injection and tool-misuse attempts, delegation behaviour and scanner findings, from real agent and tool telemetry. An attempted attack is not a confirmed compromise.",
+  "defaults": {
+    "dataSources": {
+      "ds.search": {
+        "options": {
+          "queryParameters": {
+            "earliest": "$tr.earliest$",
+            "latest": "$tr.latest$"
+          }
+        }
+      }
+    },
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "default"
+        }
+      }
+    }
+  },
+  "inputs": {
+    "input_tr": {
+      "type": "input.timerange",
+      "title": "Time range",
+      "options": {
+        "token": "tr",
+        "defaultValue": "0,now"
+      }
+    },
+    "input_ec": {
+      "type": "input.dropdown",
+      "title": "Evidence class",
+      "options": {
+        "token": "ec",
+        "defaultValue": "*",
+        "items": [
+          {
+            "label": "LIVE and RECORDED (default; test fixtures are excluded)",
+            "value": "*"
+          },
+          {
+            "label": "LIVE (run on this installation)",
+            "value": "LIVE"
+          },
+          {
+            "label": "RECORDED (committed replay specimens)",
+            "value": "RECORDED"
+          },
+          {
+            "label": "TEST_FIXTURE only (synthetic negative-test data)",
+            "value": "TEST_FIXTURE"
+          },
+          {
+            "label": "Everything including fixtures",
+            "value": "ALL"
+          }
+        ]
+      }
+    },
+    "input_ws": {
+      "type": "input.dropdown",
+      "title": "Workshop",
+      "options": {
+        "token": "ws",
+        "defaultValue": "*",
+        "items": [
+          {
+            "label": "All workshops",
+            "value": "*"
+          },
+          {
+            "label": "LAB-ADVANCED-CAPSTONE-MASTERY-001",
+            "value": "LAB-ADVANCED-CAPSTONE-MASTERY-001"
+          },
+          {
+            "label": "LAB-AGENT-DELEGATION-001",
+            "value": "LAB-AGENT-DELEGATION-001"
+          },
+          {
+            "label": "LAB-AGENT-GOAL-INTEGRITY-001",
+            "value": "LAB-AGENT-GOAL-INTEGRITY-001"
+          },
+          {
+            "label": "LAB-MCP-001",
+            "value": "LAB-MCP-001"
+          },
+          {
+            "label": "LAB-MCP-003",
+            "value": "LAB-MCP-003"
+          },
+          {
+            "label": "LAB-MCP-004",
+            "value": "LAB-MCP-004"
+          },
+          {
+            "label": "LAB-MCP-005",
+            "value": "LAB-MCP-005"
+          },
+          {
+            "label": "LAB-MCP-006",
+            "value": "LAB-MCP-006"
+          },
+          {
+            "label": "LAB-MCP-CATALOG",
+            "value": "LAB-MCP-CATALOG"
+          },
+          {
+            "label": "LAB-MEMORY-001",
+            "value": "LAB-MEMORY-001"
+          },
+          {
+            "label": "LAB-PI-001",
+            "value": "LAB-PI-001"
+          },
+          {
+            "label": "LAB-RAG-CONTEXT",
+            "value": "LAB-RAG-CONTEXT"
+          },
+          {
+            "label": "LAB-SCANNER-RUNTIME-EVIDENCE",
+            "value": "LAB-SCANNER-RUNTIME-EVIDENCE"
+          }
+        ]
+      }
+    }
+  },
+  "dataSources": {
+    "ds_b_outcomes": {
+      "type": "ds.search",
+      "name": "b_outcomes",
+      "options": {
+        "query": "`agentsec_assurance_units` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\"))\n| where is_decision=1\n| eval control_id=mvindex(mvdedup('agentsec.control.id'),0), decision=mvindex(mvdedup('agentsec.control.decision'),0), tool=mvindex(mvdedup('gen_ai.tool.name'),0), reason=mvindex(mvdedup('agentsec.control.reason'),0)\n| fillnull value=\"(none)\" tool\n| eval outcome=case(match(reason,\"^vulnerable_profile_fail_open\"),\"permitted by the intentionally vulnerable profile\", decision=\"ALLOW\",\"permitted (authorized grant)\", decision=\"DENY\",\"denied\", decision=\"OBSERVE\",\"observed only (classified)\", decision=\"ERROR\",\"rejected as invalid\", true(),decision)\n| stats count as decisions, dc(run_id) as runs by control_id, tool, outcome\n| sort control_id, tool\n| table control_id tool outcome decisions runs",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_b_blocked": {
+      "type": "ds.search",
+      "name": "b_blocked",
+      "options": {
+        "query": "`agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\"))\n| eval category=case(decision=\"DENY\" AND status=\"VERIFIED_EFFECTIVE\",\"Blocked: verified (denied, nothing executed in the hop)\", decision=\"DENY\" AND status=\"INSUFFICIENT_EVIDENCE\",\"Blocked decision, UNVERIFIED (telemetry incomplete)\", decision=\"DENY\",\"DENY but the operation executed (control failure)\", status=\"VERIFIED_INEFFECTIVE\" AND by_design=1,\"Permitted and executed: intentionally vulnerable profile (by design)\", status=\"VERIFIED_INEFFECTIVE\",\"Permitted and executed: control failure\", decision=\"OBSERVE\",\"Observed only: effectiveness not established\", decision=\"ERROR\",\"Rejected as invalid\", status=\"INSUFFICIENT_EVIDENCE\",\"Unverified: incomplete telemetry\", true(),\"Other\")\n| stats count as operations, dc(run_id) as runs by category\n| sort - operations",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_b_attempts": {
+      "type": "ds.search",
+      "name": "b_attempts",
+      "options": {
+        "query": "`agentsec_assurance_units` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\"))\n| where mode=\"ATTACK\"\n| fillnull value=\"(no attack id)\" attack_id\n| stats dc(run_id) as attack_runs, dc(eval(if(complete=0,run_id,null()))) as runs_with_incomplete_telemetry by attack_id\n| join type=left attack_id [ search `agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\")) | where mode=\"ATTACK\" | stats count(eval(status=\"VERIFIED_INEFFECTIVE\" AND by_design=0)) as confirmed_control_failures, count(eval(status=\"VERIFIED_INEFFECTIVE\" AND by_design=1)) as executed_by_design, count(eval(status=\"VERIFIED_EFFECTIVE\")) as blocked_in_attack_run, count(eval(status=\"INSUFFICIENT_EVIDENCE\")) as unverified by attack_id ]\n| join type=left attack_id [ search `agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\")) | where mode=\"RETEST\" | stats count(eval(status=\"VERIFIED_EFFECTIVE\")) as retest_blocked, count(eval(status=\"VERIFIED_INEFFECTIVE\")) as retest_failed by attack_id ]\n| fillnull value=0\n| lookup agentsec_attack_workshops attack_id OUTPUT workshops\n| sort attack_id\n| table attack_id workshops attack_runs runs_with_incomplete_telemetry confirmed_control_failures executed_by_design blocked_in_attack_run unverified retest_blocked retest_failed",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_b_technique": {
+      "type": "ds.search",
+      "name": "b_technique",
+      "options": {
+        "query": "`agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\"))\n| where control_id!=\"(none)\" AND control_id!=\"(run)\"\n| fillnull value=\"(control not in the catalogue)\" technique boundary\n| stats dc(run_id) as runs, count as operations, count(eval(status=\"VERIFIED_EFFECTIVE\")) as verified_effective, count(eval(status=\"VERIFIED_INEFFECTIVE\")) as verified_ineffective, count(eval(status=\"FINDING_OBSERVED\")) as finding_observed, count(eval(status=\"INSUFFICIENT_EVIDENCE\")) as insufficient by technique, boundary\n| sort - operations",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_b_a2a": {
+      "type": "ds.search",
+      "name": "b_a2a",
+      "options": {
+        "query": "`agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\"))\n| where control_id IN (\"CTRL-DELEGATION-001\",\"CTRL-IDENTITY-001\")\n| sort - _time\n| table finding_key, status_label, confidence, evidence_class, mode, profile, attack_id, control_id, hop, tool, decision, reason, observation, interpretation, impact, control_interpretation, recommended_action, retest_outcome, retest_run, workshops, run_id",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_b_findings": {
+      "type": "ds.search",
+      "name": "b_findings",
+      "options": {
+        "query": "`agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\")) \n| sort - _time\n| table finding_key, status_label, confidence, evidence_class, mode, profile, attack_id, control_id, hop, tool, decision, reason, observation, interpretation, impact, control_interpretation, recommended_action, retest_outcome, retest_run, workshops, run_id",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_b_scan": {
+      "type": "ds.search",
+      "name": "b_scan",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=agentsec:scanner:finding \"event.name\"=agentsec.scanner.finding\n| eval scan_id=mvindex(mvdedup(scan_id),0), rule=mvindex(mvdedup('finding.native_rule_id'),0), category=mvindex(mvdedup('finding.native_category'),0), severity=mvindex(mvdedup('finding.native_severity'),0), tool_name=mvindex(mvdedup('finding.tool_name'),0), scanner=mvindex(mvdedup('scanner.name'),0), scanner_version=mvindex(mvdedup('scanner.version'),0), evidence_class_scanner=mvindex(mvdedup('evidence_class'),0)\n| stats dc(scan_id) as scans, count as findings by scanner, scanner_version, category, severity, tool_name, rule\n| sort - findings\n| eval note=\"Scanner severity is the scanner's own rating. It is not proof of exploitation and not a control-effectiveness result.\"\n| table scanner scanner_version category severity tool_name rule scans findings note",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_b_catalog": {
+      "type": "ds.search",
+      "name": "b_catalog",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=agentsec:scanner:finding \"event.name\"=agentsec.scanner.scan\n| eval scan_id=mvindex(mvdedup(scan_id),0), fixture=mvindex(mvdedup('artifact.fixture'),0), description_sha256=mvindex(mvdedup('artifact.description_sha256'),0), tool_count=mvindex(mvdedup('artifact.tool_count'),0), classification=mvindex(mvdedup('scan.classification'),0), finding_count=mvindex(mvdedup('scan.finding_count'),0)\n| stats earliest(_time) as first_seen, latest(_time) as last_seen, dc(description_sha256) as distinct_descriptions, values(scan_id) as scans, values(classification) as classification, max(finding_count) as finding_count by fixture\n| eval catalog_change=if(distinct_descriptions>1,\"description changed between scans\",\"no change observed between the scans in range\")\n| convert ctime(first_seen) ctime(last_seen)\n| table fixture tool_count scans classification finding_count distinct_descriptions catalog_change first_seen last_seen",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_b_corr": {
+      "type": "ds.search",
+      "name": "b_corr",
+      "options": {
+        "query": "index=agentsec_telemetry ((sourcetype=agentsec:scanner:finding \"event.name\"=agentsec.scanner.scan) OR (sourcetype=otel:agentic:json \"event.name\"=agentsec.control.decision \"agentsec.control.id\"=CTRL-MCP-METADATA-001))\n| eval hash=coalesce(mvindex(mvdedup('artifact.description_sha256'),0), mvindex(mvdedup('agentsec.content.hash'),0))\n| where isnotnull(hash)\n| eval kind=if(sourcetype=\"agentsec:scanner:finding\",\"scanner\",\"runtime\"), scan_id=mvindex(mvdedup(scan_id),0), run_id=mvindex(mvdedup('agentsec.run.id'),0), mode=mvindex(mvdedup('agentsec.testbed.mode'),0)\n| stats values(kind) as evidence_kinds, values(scan_id) as scan_id, values(run_id) as runtime_runs, values(mode) as runtime_modes by hash\n| eval linked=if(mvcount(evidence_kinds)=2,\"scanner and runtime share this description hash\",\"only one side present: no link is claimed\")\n| table hash evidence_kinds scan_id runtime_runs runtime_modes linked",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    }
+  },
+  "visualizations": {
+    "viz_head": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Attempts are not compromises\n\nEach row below separates **attempted** (a run exercised the technique), **blocked** (an enforcing control refused it and nothing executed in the same hop), **permitted** and **executed**. The ATTACK profile is *intentionally vulnerable*: executions there are shown but labelled by design. Tool and A2A behaviour here is the lab's in-process model; no real MCP or A2A transport is involved. **Evidence classes.** LIVE = a run on this installation. RECORDED = a run captured earlier and committed as a replay specimen (identified by the committed list `agentsec_recorded_runs`; the telemetry itself says `execution.mode=LIVE` for both). SIMULATED = workshop packets and CTF challenges; they are not in Splunk and never appear here. TEST_FIXTURE = synthetic data for negative acceptance tests (lab id `assurance-test-fixture`), mutated from real runs and never produced by the lab. The default view shows LIVE and RECORDED and always excludes fixtures; choose *Everything including fixtures* only to see them beside real evidence. Read the Evidence class column.",
+        "fontSize": "default"
+      }
+    },
+    "viz_outcomes": {
+      "type": "splunk.table",
+      "title": "Tool invocation and authorization outcomes (all decisions, including permitted ones)",
+      "dataSources": {
+        "primary": "ds_b_outcomes"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_blocked": {
+      "type": "splunk.table",
+      "title": "Blocked, permitted and unverified operations",
+      "dataSources": {
+        "primary": "ds_b_blocked"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_attempts": {
+      "type": "splunk.table",
+      "title": "Attempted attacks versus confirmed outcomes, by attack id. A zero here means none was observed among runs with complete telemetry: check runs_with_incomplete_telemetry first. The attack id names a lab specimen such as MCP-003, not a MITRE technique.",
+      "dataSources": {
+        "primary": "ds_b_attempts"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_technique": {
+      "type": "splunk.table",
+      "title": "Prompt injection and tool misuse by technique and trust boundary",
+      "dataSources": {
+        "primary": "ds_b_technique"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_a2a": {
+      "type": "splunk.table",
+      "title": "Delegation and identity-claim behaviour (the lab's coded agents; not an A2A transport)",
+      "dataSources": {
+        "primary": "ds_b_a2a"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToDashboard",
+          "options": {
+            "app": "agentsec",
+            "dashboard": "ws_assurance_finding",
+            "newTab": true,
+            "tokens": [
+              {
+                "token": "run_id",
+                "value": "row.run_id.value"
+              },
+              {
+                "token": "control_id",
+                "value": "row.control_id.value"
+              },
+              {
+                "token": "hop",
+                "value": "row.hop.value"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "viz_b_findings": {
+      "type": "splunk.table",
+      "title": "All findings for this view (select a row to open the finding page)",
+      "dataSources": {
+        "primary": "ds_b_findings"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToDashboard",
+          "options": {
+            "app": "agentsec",
+            "dashboard": "ws_assurance_finding",
+            "newTab": true,
+            "tokens": [
+              {
+                "token": "run_id",
+                "value": "row.run_id.value"
+              },
+              {
+                "token": "control_id",
+                "value": "row.control_id.value"
+              },
+              {
+                "token": "hop",
+                "value": "row.hop.value"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "viz_scan": {
+      "type": "splunk.table",
+      "title": "MCP scanner findings (static analysis of tool descriptions; Finding observed, never confirmed exploitation). Scanner evidence is separate from runtime evidence: the evidence-class and workshop filters above do not apply to this panel.",
+      "dataSources": {
+        "primary": "ds_b_scan"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_catalog": {
+      "type": "splunk.table",
+      "title": "Tool discovery and catalog changes (the same artifact scanned at different times: did its description hash change?). Not filtered by evidence class or workshop.",
+      "dataSources": {
+        "primary": "ds_b_catalog"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_corr": {
+      "type": "splunk.table",
+      "title": "Scanner finding to runtime evidence: linked only by the explicit description hash, never by timestamp. Runtime sides can be LIVE or RECORDED; check the run before treating a match as current.",
+      "dataSources": {
+        "primary": "ds_b_corr"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "globalInputs": [
+      "input_tr",
+      "input_ec",
+      "input_ws"
+    ],
+    "options": {
+      "backgroundColor": "#F6F8FB",
+      "display": "auto-scale",
+      "gutterSize": 8,
+      "width": 1440,
+      "height": 2050
+    },
+    "structure": [
+      {
+        "item": "viz_head",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 1440,
+          "h": 170
+        }
+      },
+      {
+        "item": "viz_outcomes",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 170,
+          "w": 864,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_blocked",
+        "type": "block",
+        "position": {
+          "x": 864,
+          "y": 170,
+          "w": 576,
+          "h": 320
+        }
+      },
+      {
+        "item": "viz_attempts",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 490,
+          "w": 864,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_technique",
+        "type": "block",
+        "position": {
+          "x": 864,
+          "y": 490,
+          "w": 576,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_a2a",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 790,
+          "w": 1440,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_b_findings",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1090,
+          "w": 1440,
+          "h": 360
+        }
+      },
+      {
+        "item": "viz_scan",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1450,
+          "w": 864,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_catalog",
+        "type": "block",
+        "position": {
+          "x": 864,
+          "y": 1450,
+          "w": 576,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_corr",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1750,
+          "w": 1440,
+          "h": 260
+        }
+      }
+    ]
+  },
+  "applicationProperties": {
+    "collapsed": false
+  }
+}
+]]></definition>
+</dashboard>

@@ -26,6 +26,11 @@ HUNTS_BY_LAB = {
         "Q-MCP-EXECUTED",
         "Q-MCP-AFTER-DENY",
     ),
+    "LAB-MCP-003": ("Q-MCP-WHO", "Q-MCP-AUTHZ", "Q-MCP-SCOPE", "Q-MCP-EXECUTED", "Q-MCP-AFTER-DENY"),
+    "LAB-MCP-004": ("Q-MCP-WHO", "Q-MCP-AUTHZ", "Q-MCP-RESOURCE-AUTHZ", "Q-MCP-EXECUTED", "Q-MCP-AFTER-DENY"),
+    "LAB-MCP-005": ("Q-MCP-WHO", "Q-MCP-AUTHZ", "Q-MCP-RESULT-AUTHORITY", "Q-MCP-EXECUTED", "Q-MCP-AFTER-DENY"),
+    "LAB-MCP-CATALOG": ("Q-MCP-WHO", "Q-MCP-AUTHZ", "Q-MCP-CATALOG-AUTHORITY", "Q-MCP-EXECUTED", "Q-MCP-AFTER-DENY"),
+    "LAB-MCP-006": ("Q-MCP-WHO", "Q-MCP-AUTHZ", "Q-MCP-DELEGATION", "Q-MCP-EXECUTED", "Q-MCP-AFTER-DENY"),
     "LAB-RAG-CONTEXT": (
         "Q-RAG-CONTEXT-AUTHORITY",
         "Q-MCP-AUTHZ",
@@ -261,8 +266,8 @@ def handoff_doc(
 ) -> dict:
     spl = starter_spl(run_id)
     hunts = hunts_for(lab_id)
-    if lab_id == "LAB-MCP-001":
-        inspect = "Execute. Inspect event.name, control.decision, and mcp.* yourself."
+    if lab_id in ("LAB-MCP-001", "LAB-MCP-003", "LAB-MCP-004", "LAB-MCP-005", "LAB-MCP-CATALOG", "LAB-MCP-006"):
+        inspect = "Execute. Inspect event.name, control.decision, control.reason, and mcp.* yourself; compare handler counts across the three run.ids."
     elif lab_id == "LAB-RAG-CONTEXT":
         inspect = (
             "Execute. Inspect document.id, content.hash, CTRL-RAG-CONTEXT-001, "

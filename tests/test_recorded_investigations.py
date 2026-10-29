@@ -52,7 +52,7 @@ def test_evidence_is_loaded_on_demand_not_embedded_in_the_main_bundle_data(lab):
     ex = LABS[lab]["explainer"]
     assert "recorded" not in ex and ex["recorded_ref"]["file"] == f"{lab}.json" and (FILES / f"{lab}.json").is_file()
     assert "agentsec.run.id" not in json.dumps(ex), "no event is embedded in curriculum.json for this lab"
-    assert LABS[lab]["availability"] == "replay" and LABS[lab]["integrated"] is False and LABS[lab]["launchable"] is False and LABS[lab]["native"] is None
+    assert LABS[lab]["availability"] in ("replay", "workbench") and LABS[lab]["native"] is None and (LABS[lab]["integrated"] is False or lab in ("LAB-MCP-006", "LAB-MCP-CATALOG"))
 
 
 @pytest.mark.parametrize("lab", DECISION + INVESTIGATION)
@@ -214,7 +214,7 @@ def test_blocked_labs_have_no_recorded_experience_and_other_labs_are_unchanged()
     for lab in BLOCKED:
         ex = LABS[lab]["explainer"]
         assert ex is None or not ({"recorded", "recorded_ref"} & set(ex)), lab
-        assert LABS[lab]["availability"] == "replay"
+        assert LABS[lab]["availability"] in ("replay", "workbench")
     with_rec = sorted(l["id"] for l in DATA["labs"] if l["explainer"] and ({"recorded", "recorded_ref"} & set(l["explainer"])))
     assert with_rec == sorted(("LAB-MCP-003", "LAB-MCP-004", "LAB-MCP-005") + DECISION + INVESTIGATION + CHECKPOINT + STUDY + SPLUNK)
 

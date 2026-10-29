@@ -4,6 +4,7 @@ import { STEP_IDS, type StepId } from "./assurance/types";
 
 // Real URLs (History API) under /learn: Back, Forward, Refresh and deep links all work, and the Flask route serves the same page for each.
 export const BASE = "/learn";
+export const CHALLENGES_PATH = "/learn/challenges";
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
 window.addEventListener("popstate", emit);
@@ -36,7 +37,7 @@ export type RiskView = { view: "overview" } | { view: "register"; filter: string
 export const RISK_FILTERS = ["all", "unassessed", "with-findings", "gaps", "treatment", "awaiting-review"];
 export type GovView = "overview" | "frameworks" | "threats" | "export";
 export const GOV_VIEWS: GovView[] = ["overview", "frameworks", "threats", "export"];
-export type Route = { name: "governance"; view: GovView } | { name: "risk" } & RiskView | { name: "evals"; view: EvalView; id: string | null } | { name: "assurance"; step: StepId | null | "hub" } | { name: "home" } | { name: "acmebank" } | { name: "path" } | { name: "foundations" } | { name: "mastery" } | { name: "mcp" } | { name: "curriculum" } | { name: "lab"; id: string } | { name: "mission"; stage: StageId | null } | { name: "missing" };
+export type Route = { name: "challenges" } | { name: "governance"; view: GovView } | { name: "risk" } & RiskView | { name: "evals"; view: EvalView; id: string | null } | { name: "assurance"; step: StepId | null | "hub" } | { name: "home" } | { name: "acmebank" } | { name: "path" } | { name: "foundations" } | { name: "mastery" } | { name: "mcp" } | { name: "curriculum" } | { name: "lab"; id: string } | { name: "mission"; stage: StageId | null } | { name: "missing" };
 
 export function matchRoute(path: string): Route {
   const parts = path.replace(/\/+$/, "").split("/").filter(Boolean); // ["learn", ...]
@@ -44,6 +45,7 @@ export function matchRoute(path: string): Route {
   if (parts.length === 1) return { name: "home" };
   if (parts.length === 2 && parts[1] === "acmebank") return { name: "acmebank" };  // retired: redirected to the Prepare stage
   if (parts.length === 2 && parts[1] === "curriculum") return { name: "curriculum" };
+  if (parts.length === 2 && parts[1] === "challenges") return { name: "challenges" };
   if (parts[1] === "governance" && parts.length <= 3 && (parts.length === 2 || (GOV_VIEWS as string[]).includes(parts[2]) && parts[2] !== "overview")) return { name: "governance", view: (parts[2] ?? "overview") as GovView };
   if (parts[1] === "risk") {
     if (parts.length === 2) return { name: "risk", view: "overview" };

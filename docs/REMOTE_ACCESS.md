@@ -1,5 +1,7 @@
 # Local, remote and EC2 access
 
+> **RC2 note.** This page describes the earlier multi-port, plain-HTTP flow (`scripts/lab-up.sh`, published as v1.2.0). The RC2 path (the installer and the HTTPS gateway) is in [Installation and deployment](INSTALLATION_AND_DEPLOYMENT.md). macOS, Windows and this older flow were **not** part of the RC2 acceptance runs. Do not mix the two flows on one machine without reading [Installer](INSTALLER.md) on existing labs.
+
 AgentSec has two deployment modes. **Local** (the default) is reachable only from the machine that runs it. **Remote** is an explicit command that publishes the three learner ports so a browser on another machine can reach them.
 
 > **`0.0.0.0` does not make a deployment safe for the public internet.** It only tells Docker to accept connections on every network interface. It opens no cloud firewall and adds **no authentication, no TLS and no learner isolation**. Remote mode is for one trusted learner on a restricted network path. Never expose these ports to `0.0.0.0/0`.
@@ -102,7 +104,7 @@ This was verified with a test client and a spoofed `Host`, and with a disposable
 - **Cloud firewall:** restrict 8000, 5001 and 5000 to the learner's address (section B). This repository never changes a cloud firewall for you.
   Do not open 8000, 5001 or 5000 to `0.0.0.0/0`, and never open 8088, 4317, 4318, 8089 or 11434 to anyone.
 - **Host firewall:** `ufw` or `firewalld` can still block a port the cloud firewall allowed. `lab-preflight.sh --remote` reports their status without changing anything, or prints `NOT MEASURED`. Add an allow rule for the learner address only. Do not disable the firewall.
-- **TLS:** none of the learner ports use TLS. The Splunk login, predictions, run ids and every request travel as plaintext HTTP, readable and alterable by anyone on the network path. That is unacceptable over the open internet. For anything beyond a trusted private path, either use an SSH tunnel and keep the server in **local** mode, or put an authenticated HTTPS reverse proxy in front. The tunnel needs no inbound port beyond SSH:
+- **TLS:** (published v1.2.0) none of the learner ports use TLS. The unreleased v1.3.0 gateway adds TLS and a single external port ([Unified HTTPS gateway](GATEWAY.md)); this section's firewall rules describe v1.2.0 only. The Splunk login, predictions, run ids and every request travel as plaintext HTTP, readable and alterable by anyone on the network path. That is unacceptable over the open internet. For anything beyond a trusted private path, either use an SSH tunnel and keep the server in **local** mode, or put an authenticated HTTPS reverse proxy in front. The tunnel needs no inbound port beyond SSH:
   `ssh -L 8000:127.0.0.1:8000 -L 5001:127.0.0.1:5001 -L 5000:127.0.0.1:5000 user@server`, then open the `127.0.0.1` URLs on the learner's own machine. This repository does not configure a proxy.
 - **Authentication:** Splunk Web (8000) requires a Splunk login. The Attack Service and AcmeBank have **no application authentication**: anyone who can reach 5001 or 5000 can launch runs and call their state-changing routes.
 - **Credentials:** rotate the lab defaults in `.env` before any non-localhost bind, and never give learners the Splunk admin password.
@@ -139,4 +141,4 @@ aws ssm start-session --region <region> --target <instance-id> \
 ```
 The forward is bound to your loopback, authenticated by your AWS identity, and ends when you close the session. The application itself still has no authentication or TLS. Splunk's own links point at `127.0.0.1:8000`, so forward 8000 as well if you need them.
 
-A single authenticated HTTPS entry point is **planned for v1.3.0 and is not implemented in v1.2.0** (see the [proposal](HTTPS_INGRESS_PROPOSAL.md)). Until then, use a private tunnel and never expose these ports to the public Internet.
+The v1.3.0 **opt-in HTTPS gateway** (one external port, 443 or 8000) is implemented and tested on the development branch but **unreleased** ([Unified HTTPS gateway](GATEWAY.md)). With the published v1.2.0, use a private tunnel and never expose these ports to the public Internet.

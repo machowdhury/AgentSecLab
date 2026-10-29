@@ -1,0 +1,22 @@
+# OPT-IN second overlay: CTF through the gateway. Used ONLY by `scripts/gateway.sh up` after `scripts/gateway.sh ctf-enable`; never started by default.
+#   docker compose -f docker-compose.yml -f docker-compose.gateway.yml -f docker-compose.gateway-ctf.yml --profile gateway up -d --no-deps gateway attack_service acmebank
+# One gateway-owned secret reaches exactly two places: the gateway (an nginx include that sets $gw_secret, sent as X-AgentSec-Gateway-Secret on the CTF locations only) and the
+# Attack Service (read-only secret FILE, never an environment value). Without this overlay the Attack Service gets no secret and no opt-in, so the CTF stays loopback-only.
+# Permissions: both host files are 0600 and owned by the installing (unprivileged) user. The nginx master reads its copy as root (DAC_OVERRIDE is kept, like the TLS key).
+# The Attack Service runs as that same user (AGENTSEC_CTF_UID:GID, set by the installer or gateway.sh, never root, never a guessed uid) so it can read its copy; the CTF
+# still refuses a group/world-readable secret file. The CTF ledger and key live in a 0700 directory of that user (AGENTSEC_CTF_STATE_HOST), kept by `down`.
+services:
+  gateway:
+    environment:
+      - AGENTSEC_CTF_GATEWAY=enabled
+    volumes:
+      - ${AGENTSEC_CTF_SECRET_CONF:?run scripts/gateway.sh ctf-enable}:/etc/nginx/ctf-secret.conf:ro
+  attack_service:
+    user: "${AGENTSEC_CTF_UID:?run scripts/gateway.sh ctf-enable}:${AGENTSEC_CTF_GID:?run scripts/gateway.sh ctf-enable}"
+    environment:
+      - AGENTSEC_CTF_ALLOW_GATEWAY=1
+      - AGENTSEC_CTF_GATEWAY_SECRET_FILE=/run/secrets/agentsec_ctf_gateway_secret
+      - AGENTSEC_CTF_STATE_DIR=/var/lib/agentsec-ctf     # ledger + key survive container recreation (down/up); `down` never removes the directory
+    volumes:
+      - ${AGENTSEC_CTF_STATE_HOST:?run scripts/gateway.sh ctf-enable}:/var/lib/agentsec-ctf
+      - ${AGENTSEC_CTF_SECRET_FILE:?run scripts/gateway.sh ctf-enable}:/run/secrets/agentsec_ctf_gateway_secret:ro

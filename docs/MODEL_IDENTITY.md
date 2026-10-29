@@ -1,0 +1,30 @@
+# Which model runs: requested, resolved, executed
+
+The lab never substitutes a model. For every live model call it keeps three things apart:
+
+| | Meaning | Where you see it |
+|---|---|---|
+| **Requested** | the model this deployment is configured to use for that role | `OLLAMA_MODEL` (AcmeBank pipeline labs, default `llama3.2:1b`) and `LOANDESK_MODEL` (Loan Desk, default `llama3.2:latest`). Both are read by one resolver (`src/agentsec/model_identity.py`); nothing configured before this change is read differently |
+| **Resolved** | what Ollama says it has installed under **exactly** that name: digest, size, quantization, plus Ollama's version | `GET /health` on AcmeBank (`models`, `ollama_version`), the Academy status page, the Loan Desk run (`model.identity`) |
+| **Executed** | the model name Ollama says answered, checked against the request after the call; for a Loan Desk run, also whether the installed digest changed during the run | Loan Desk run `model.identity.executed`; events (below) |
+
+## Rules
+- **Exact match only.** `llama3.2` means `llama3.2:latest`. A different tag of the same family (`llama3.2:latest` for `llama3.2:1b`), a longer tag, another case or another model never satisfies a request. (Before this change the AcmeBank health check accepted any installed model of the same family.)
+- **Fail closed.** If the requested model is not installed, the call is refused (`model_not_installed`; Loan Desk: `model_not_found`) and no prompt is sent anywhere. If Ollama answers with a different model name, the text is discarded (`model_identity_mismatch`). Nothing is pulled or replaced by the lab.
+- **Two roles, two defaults, on purpose.** The pipeline labs and the Loan Desk have always used different models; the status page now shows both, so the name you read is the model that runs. Changing a default is a decision for the model benchmark phase.
+- A malformed model name in `.env` does **not** stop the application (the Academy and REPLAY need no model): every live call with it is refused (`model_config_invalid`) and the status says why. Names may carry a registry host (`host:5000/team/model:tag`); `..`, empty segments, spaces and padding in a response are rejected.
+- **Ambiguity fails closed**: if Ollama lists the same name twice with different digests, the request is refused rather than guessed.
+
+## Evidence
+- **Loan Desk events** use `agentsec.loan_desk_event` **1.1.0** when the run's model identity was resolved (a real Ollama model), with additive fields on `run.started`, `llm.started`, `llm.completed` and `llm.failed`: `agentsec.model.requested`, `agentsec.model.identity_status` (`DIGEST_RECORDED`, `NAME_VERIFIED`, `NOT_INSTALLED`, `UNREACHABLE`, `ERROR`, `INVALID_NAME`, `MISMATCH`; the status is the verdict **at the start of the run**, and an `llm.failed` event for a mismatching answer carries `MISMATCH`), `agentsec.model.digest`, `agentsec.model.quantization`, `agentsec.model.parameter_size`, `agentsec.ollama.version`, and on `llm.completed` `agentsec.model.executed_name_matches`. Runs by test doubles stay `1.0.0` with none of these fields. Version 1.0.0 events still validate.
+- **Pipeline evidence manifests** (`manifest.json`) keep `model` (the configured label) and gain `model.identity`, built only from the identity records of **this run's own model calls** (nothing is remembered between runs): requested, resolved (digest, size, quantization, Ollama version, `digest_observed_before_call`), the response model names, the number of calls, and a verdict: `MISMATCH` (a different model answered) outranks a refusal (`NOT_INSTALLED`, `INVALID_NAME`, `UNREACHABLE`, `ERROR`), then `CALL_FAILED` (every call timed out or lost its connection after the model was resolved), `UNVERIFIED_RESPONSE` (an answer that did not name its model), `DIGEST_CHANGED` (the digest differed between calls), `DIGEST_RECORDED` / `NAME_VERIFIED`. A run with no model call (a stub, a replay, a tool-path launch) says `NOT_RESOLVED`.
+- `schemas/security_event.schema.json` **1.9.0 is unchanged**; the pipeline events keep `gen_ai.request.model` (the configured label) and `gen_ai.response.model` (the name Ollama returned). Recorded evidence packs are untouched and keep their original model labels.
+- The digest in the evidence is the one Ollama **observed before** the call (it is not a proof of which weights produced each token). The resolution is cached for 5 s for successes and for "not installed" only (a transient error is never remembered), so a model replaced inside that window is not seen by the pipeline path; the Loan Desk reads the digest again after the run and reports `digest_unchanged_during_run` (a swap that is undone before the end is not detected). A model response that does not name the answering model is counted as **unverified** (`calls_unverified`, `all_match_requested: null`), never as a match.
+
+## Known limits (stated, not hidden)
+- **Frozen pipeline events.** `security_event` 1.9.0 requires `operation.executed=true` on the pipeline's `llm.started` and `llm.failed`, so a model call refused before sending still carries `executed=true` there. It is recognised by `error.type` `model_not_installed` / `model_config_invalid`, by the absence of `llm.completed`, and by `model.identity.identity_status` in the manifest. Hunt queries must exclude those error types when they mean "Ollama was invoked". The Loan Desk family says `executed=false` for the same refusal.
+- **Unnamed Loan Desk answers.** When Ollama's answer does not name a model, the event's `gen_ai.response.model` is the requested name (the field is required); the absence of `agentsec.model.executed_name_matches`, and `calls_unverified` in the run view, are what show it was not verified.
+- The schema cannot tie `executed=false` to a specific `error.type`; it ties it to a refusal identity status on a 1.1.0 event.
+
+## What this does not do
+It does not pin a digest (a later phase adds `models.lock`), does not download or change models, and does not prove which weights produced a particular token; it proves the name and the digest Ollama reported around the call.

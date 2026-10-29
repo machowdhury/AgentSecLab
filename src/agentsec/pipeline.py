@@ -10,6 +10,7 @@ from agentsec.agents import PIPELINE_ORDER
 from agentsec.controls import ControlResult, evaluate_input_control, inspect_input
 from agentsec.events import EventEmitter, RunContext, new_span_id
 from agentsec.experiment import EXECUTION_MODE, SCHEMA_NAME, SCHEMA_VERSION, TELEMETRY_FIDELITY
+from agentsec import model_identity
 from agentsec.evidence import write_evidence_bundle
 from agentsec.llm import LLMClient
 from agentsec.settings import Settings, get_settings
@@ -104,6 +105,7 @@ def run_loan_pipeline(
     emitter = EventEmitter(ctx, sink.emit, settings)
     hops: list[AgentHop] = []
     llm_calls = 0
+    call_identities: list[dict] = []   # model identity record of each model call in THIS run (model_identity.summarize_calls)
     blocked = False
     block_reason = None
     error_stage = None
@@ -198,6 +200,8 @@ def run_loan_pipeline(
                 max_tokens=agent.max_tokens,
             )
             llm_calls += 1
+            if getattr(result, "identity", None):
+                call_identities.append(result.identity)
             if not result.ok:
                 blocked = True
                 block_reason = result.error_type or "llm_error"
@@ -319,6 +323,7 @@ def run_loan_pipeline(
             blocked=blocked,
             terminal=terminal,
             export_report=export_report,
+            extra_manifest={"model.identity": model_identity.summarize_calls(settings.ollama_model, call_identities)},
         )
         evidence_dir = str(bundle)
 

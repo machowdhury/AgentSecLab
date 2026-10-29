@@ -9,6 +9,11 @@ The mission has seven stages (Learn, Prepare, Attack, Investigate, Defend, Retes
 
 Pause with `./scripts/lab-down.sh` (also stops the verifier; it stops containers and removes nothing).
 
+## Which model the Loan Desk uses, and why it is not the 1b model
+The Loan Desk has its own model setting (`LOANDESK_MODEL`, default `llama3.2:latest`, the 3B build) separate from the AcmeBank labs (`OLLAMA_MODEL`, default `llama3.2:1b`). It does **not** reuse the 1b model because that model cannot reliably finish the Loan Desk's tool loop. Measured 2026-10-29 against a host Ollama with the repository's own whole-loop harness (`scripts/bench_agent_loop.py`, real inference, nothing downloaded): `llama3.2:1b` completed **0 of 5** benign runs (stops: step budget exhausted, invalid proposal limit; its tool arguments were rejected), while `llama3.2:latest` completed **4 of 4**. The earlier Batch 2 measurement had the 1b model at 9 of 10; small samples and a newer Ollama differ, and the 1b figure is not stable. You can still point the Loan Desk at another installed model with `LOANDESK_MODEL` (or `models.loan_desk` in the installer configuration); nothing is substituted silently, and a missing model is reported with its pull command.
+
+What the installer does about it: with the **bundled** Ollama, `agentsec install --apply` now pulls both models (`scripts/ollama_init.sh` pulls `LOANDESK_MODEL` when it is set and different), so the plan's "Download on --apply" line is true. With a **host** Ollama the installer pulls nothing and lists no download: run `ollama pull llama3.2:latest` yourself (the Academy status shows the command). The legacy `lab-up.sh` flow never sets `LOANDESK_MODEL`, so it is unchanged. This adds about 2 GB to a clean bundled install. Not yet run on a clean host since the change.
+
 ## What each evidence state means
 | State | Meaning |
 |---|---|

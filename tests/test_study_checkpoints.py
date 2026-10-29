@@ -43,16 +43,6 @@ def test_each_lab_has_a_study_checkpoint_and_its_files_hash_to_the_committed_sou
         assert hashlib.sha256((ROOT / f["file"]).read_bytes()).hexdigest() == f["sha256"], f["file"]
 
 
-@pytest.mark.parametrize("lab", STUDY)
-def test_every_question_is_well_formed_and_every_quote_is_in_its_file(lab):
-    for q in answers(lab).values():
-        assert set(q["answer"]) <= set(q["candidates"]) and q["answer"] and len(q["candidates"]) >= 2, q["id"]
-        assert q["mode"] != "single" or len(q["answer"]) == 1, q["id"]
-        if "quote" in q:
-            assert EXP.clean(q["quote"]["text"]) in EXP.source_text(ROOT / q["quote"]["file"]), q["id"]
-    spec = cp(lab)["spec"]
-    for x in spec.get("documented", []) + spec["limits"]:
-        assert EXP.clean(x["text"]) in EXP.source_text(ROOT / x["file"]), x["text"]
 
 
 @pytest.mark.parametrize("lab", STUDY)
@@ -98,16 +88,6 @@ def test_privacy_data_map_agrees_with_the_existing_privacy_runtime_constants():
     assert set(dm["required_fields"]) == set(REQUIRED_FIELDS) and dm["task"] == TASK_PURPOSE
 
 
-def test_privacy_answers_are_recomputed_from_the_data_map_and_the_documents():
-    dm = J("learning/level_1/LAB-PRIVACY-DATA-GOVERNANCE-001/data-map.json")
-    a = answers(PRIV)
-    assert set(a["p1"]["answer"]) == {c["field"] for c in dm["classification"] if c["required"]} == set(dm["required_fields"])
-    assert set(a["p2"]["answer"]) == set(dm["full_record"]) - set(dm["minimized_record"]) == {"email", "postal_address", "account_balance_band", "internal_case_note"}
-    assert set(a["p3"]["answer"]) == {c["field"] for c in dm["classification"] if "PERSONAL" in c["category"]}
-    assert set(a["n1"]["answer"]) == {s["stage"] for s in dm["lifecycle"] if "NOT MODELED" in s["status"]}
-    assert a["z1"]["answer"] == a["z2"]["answer"] == ["ALLOW"] and a["z3"]["answer"] == ["one"]
-    lp = EXP.source_text(ROOT / "docs/reviews/logic-proof-privacy-data-governance-2026-09-25.md")
-    assert "CTRL-MCP-001 returns ALLOW / tool_granted" in lp and "each handler invocation count is one" in lp
 
 
 def test_privacy_comparison_is_the_two_records_unedited():

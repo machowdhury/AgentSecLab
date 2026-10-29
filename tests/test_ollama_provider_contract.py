@@ -31,7 +31,7 @@ def test_env_example_documents_host_option_without_enabling_it():
 def test_lab_ready_identifies_provider_and_checks_from_acmebank():
     ready = _read("scripts/lab-ready.sh")
     assert "OLLAMA PROVIDER:" in ready
-    assert 'docker exec agentsec_acmebank curl' in ready  # same vantage point as the app
+    assert 'docker exec "$(svc_id acmebank)" curl' in ready  # same vantage point as the app, found by Compose service rather than a fixed name
     assert "ollama list" not in ready  # the container-only check caused a false DEGRADED in host mode
 
 

@@ -16,7 +16,7 @@ Understand, Explore, Predict, Attack, Observe, Investigate, Defend, Retest, Comp
 
 ## Evidence
 
-- Events use the separate `agentsec.loan_desk_event` 1.0.0 schema (`schemas/loan_desk_event.schema.json`). `security_event` 1.9.0 is unchanged.
+- Events use the separate `agentsec.loan_desk_event` schema (1.0.0, or 1.1.0 when the run's model identity was recorded: see docs/MODEL_IDENTITY.md) (`schemas/loan_desk_event.schema.json`). `security_event` 1.9.0 is unchanged.
 - The Splunk view `ws_lab_loandesk_001` separates model-proposed actions, policy decisions, executed actions, denied actions, evidence availability and business task completion.
 - AcmeBank cannot reach Splunk. The page shows SPLUNK-VERIFIED only after the host verifier has checked the run through the signed bridge; otherwise it says NOT VERIFIED and why.
 

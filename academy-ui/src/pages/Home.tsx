@@ -1,5 +1,5 @@
 import { Badge, Icon, LinkButton, ProgressBar } from "../ui";
-import { FOUNDATIONS_PATH, Link, missionPath } from "../router";
+import { FOUNDATIONS_PATH, Link, PATH_PATH, missionPath } from "../router";
 import { useConfig } from "../config";
 import { useMission, stageComplete, firstOpenIncomplete } from "../store";
 import { STAGES, type StageId } from "../stages";
@@ -50,7 +50,7 @@ export function Home() {
     </section>
 
     <section className="section">
-      <div className="section-heading"><div><div className="eyebrow">Learning progress</div><h2>{started ? "Continue where you left off" : "Your first mission"}</h2></div><a className="text-link" href="/academy/path">View your learning path <Icon name="arrow" size={16} /></a></div>
+      <div className="section-heading"><div><div className="eyebrow">Learning progress</div><h2>{started ? "Continue where you left off" : "Your first mission"}</h2></div>{config.gateway ? <Link className="text-link" to={PATH_PATH}>View your learning path <Icon name="arrow" size={16} /></Link> : <a className="text-link" href="/academy/path">View your learning path <Icon name="arrow" size={16} /></a>}</div>
       <div className="progress-card">
         <div className="progress-card__stat"><strong>{done}<span> / {STAGES.length}</span></strong><p>Loan Desk stages done</p></div>
         <div className="progress-card__main"><div className="progress-card__row"><span>Loan Desk mission</span><strong>{Math.round(done / STAGES.length * 100)}%</strong></div><ProgressBar value={done / STAGES.length * 100} /><div className="level-row"><Badge>LEVEL 1</Badge><span>About {config.mission?.duration_minutes ?? "25 to 40"} minutes · live agent</span></div></div>

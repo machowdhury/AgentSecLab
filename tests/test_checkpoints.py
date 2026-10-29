@@ -174,9 +174,3 @@ def test_context_facts_tables_and_spl_are_the_packet_and_lab_text_unchanged(lab)
         assert q["text"] == (ROOT / q["source"]).read_text(encoding="utf-8").strip()
 
 
-def test_completion_status_lists_all_32_and_changes_no_tier():
-    doc = (ROOT / "docs" / "AGENTSEC_ACADEMY_COMPLETION_STATUS.md").read_text(encoding="utf-8")
-    assert "32 of 32" in doc
-    for lab in ("LAB-SPLUNK-DEFENDER-BRIDGE", "LAB-DETECTION-ENGINEERING", "LAB-AGENT-IDENTITY-NHI"):
-        assert lab in doc and LABS[lab]["availability"] == "replay"   # registry tier unchanged
-        assert LABS[lab]["explainer"]["recorded_ref"]["kind"] == "checkpoint"

@@ -39,11 +39,12 @@ if [ ! -f "$ROOT/.env" ]; then
   exit 1
 fi
 
-COMPOSE="docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local --env-file $ROOT/.env"
+. "$ROOT/scripts/lab-compose.sh"
+COMPOSE="$LAB_COMPOSE"
 
 # none | named | anonymous : how the Splunk container keeps /opt/splunk/var
 splunk_var_state() {
-  name="$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/opt/splunk/var"}}{{.Name}}{{end}}{{end}}' agentsec_splunk 2>/dev/null || true)"
+  name="$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/opt/splunk/var"}}{{.Name}}{{end}}{{end}}' "$(svc_id splunk)" 2>/dev/null || true)"
   case "$name" in
     '') echo none ;;
     *splunk_var) echo named ;;

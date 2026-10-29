@@ -3,6 +3,11 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+def _readme():
+    """The README plus the legacy multi-port section that moved out of it."""
+    return (ROOT / "README.md").read_text(encoding="utf-8") + "\n" + (ROOT / "docs/LEGACY_MULTI_PORT_FLOW.md").read_text(encoding="utf-8")
+
+
 DOCS = [ROOT / "README.md", ROOT / "CONTRIBUTING.md", *sorted((ROOT / "docs").glob("*.md"))]
 NEW = ["README.md", "CONTRIBUTING.md", "docs/README.md", "docs/GETTING_STARTED.md", "docs/LEARNER_GUIDE.md",
        "docs/INSTRUCTOR_GUIDE.md", "docs/ARCHITECTURE_GUIDE.md", "docs/EVALUATION_AND_RISK_GUIDE.md",
@@ -39,7 +44,7 @@ def test_documented_routes_exist():
 
 def test_first_lab_has_the_documented_predict_reveal_prove_experience():
     import json
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    readme = _readme()
     lab = "LAB-HITL-APPROVAL"
     assert lab in readme and lab in (ROOT / "docs/LEARNER_GUIDE.md").read_text(encoding="utf-8")
     rec = json.loads((ROOT / f"academy-ui/src/content/recorded/{lab}.json").read_text(encoding="utf-8"))
@@ -49,14 +54,14 @@ def test_first_lab_has_the_documented_predict_reveal_prove_experience():
 
 def test_journey_docs_name_both_the_six_steps_and_the_seven_mission_stages():
     notes = (ROOT / "docs/RELEASE_NOTES_v1.2.0.md").read_text(encoding="utf-8")
-    for text in ((ROOT / "README.md").read_text(encoding="utf-8"), notes):
+    for text in (_readme(), notes):
         assert re.search(r"Learn.*Attack.*Investigate.*EVAL.*Risk.*Governance", text, re.S)
         assert re.search(r"Learn, (Prepare, )?Attack, Investigate, Defend, Retest, Explain", text)
     assert "not verified" in notes.lower() and "(DRAFT" not in notes and "No tag exists" not in notes   # written for the published release
 
 
 def test_learner_entry_point_is_the_react_academy_not_the_legacy_splunk_dashboard():
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    readme = _readme()
     start = "http://127.0.0.1:5001/learn"
     assert start in readme
     # the first place the README names a URL for learners is the Academy, and Splunk Academy Home is labelled legacy
@@ -83,7 +88,7 @@ def test_documented_ports_and_routes_match_the_code():
 
 
 def test_docs_keep_the_no_auth_no_tls_warning_and_explain_both_access_modes():
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    readme = _readme()
     assert re.search(r"No authentication, no TLS", readme)
     assert "launches attacks" in readme and "Never expose" in readme
     assert "127.0.0.1" in readme and "SSM" in readme and "REMOTE_ACCESS.md" in readme
@@ -93,7 +98,7 @@ def test_docs_keep_the_no_auth_no_tls_warning_and_explain_both_access_modes():
 
 
 def test_platform_release_version_is_distinct_from_the_embedded_splunk_app_version():
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    readme = _readme()
     assert re.search(r"platform release is \*\*v1\.2\.0\*\*", readme) and "1.1.0" in readme
     notes = (ROOT / "docs/RELEASE_NOTES_v1.2.0.md").read_text(encoding="utf-8")
     assert "1.1.0" in notes and "Splunk app" in notes
@@ -110,7 +115,7 @@ def test_every_learner_start_instruction_names_the_react_academy_first():
 
 
 def test_readme_describes_the_released_state_not_a_pending_branch():
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    readme = _readme()
     assert "release **v1.2.0**" in readme and "only on the `feature/academy-react-shell`" not in readme
     assert "git checkout feature/academy-react-shell" not in readme and "git checkout feature/academy-react-shell" not in (ROOT / "docs/GETTING_STARTED.md").read_text(encoding="utf-8")
 
@@ -118,11 +123,11 @@ def test_readme_describes_the_released_state_not_a_pending_branch():
 # ---- v1.2.1 documentation maintenance ----
 LEARNER_DOCS = ["README.md", "docs/README.md", "docs/GETTING_STARTED.md", "docs/QUICKSTART.md", "docs/LEARNER_GUIDE.md", "docs/INSTRUCTOR_GUIDE.md",
                 "docs/OPERATIONS.md", "docs/REMOTE_ACCESS.md", "docs/LOCAL_DOCKER_LAB.md", "docs/LOAN_DESK_MISSION.md", "docs/TROUBLESHOOTING.md",
-                "docs/RELEASE_NOTES_v1.2.0.md"]
+                "docs/RELEASE_NOTES_v1.2.0.md", "docs/GATEWAY.md", "docs/SPLUNK_INTEGRATION.md"]
 
 
 def _text(rel):
-    return (ROOT / rel).read_text(encoding="utf-8")
+    return _readme() if rel == "README.md" else (ROOT / rel).read_text(encoding="utf-8")
 
 
 def _slugs(md):
@@ -186,7 +191,8 @@ def test_three_numbering_schemes_are_distinguished_and_https_is_marked_unimpleme
     g = _text("docs/GETTING_STARTED.md")
     assert all(k in g for k in ("Six-step journey", "Loan Desk mission stages", "Legacy L0–L10 curriculum"))
     for rel in ("README.md", "docs/GETTING_STARTED.md", "docs/REMOTE_ACCESS.md"):
-        assert re.search(r"planned for v1\.3\.0 and is not implemented in v1\.2\.0", _text(rel)), rel
+        t = _text(rel)
+        assert re.search(r"opt-in HTTPS gateway", t) and "unreleased" in t.lower() and "GATEWAY.md" in t, rel       # v1.3.0 gateway: implemented, but labelled unreleased
     assert "no built-in authentication or tls" in _text("docs/GETTING_STARTED.md").lower().replace("**", "")
 
 
@@ -208,3 +214,89 @@ def test_upgrade_note_for_an_older_running_lab_is_documented():
     assert "lab-up.sh --build" in g and "No such Attack Service route" in g and "No such Attack Service route" in t
     assert "--build" in _text("scripts/lab-up.sh")                      # the flag exists
     assert "No such Attack Service route" in _text("src/agentsec/attack_app.py")   # the message is the app's real response
+
+
+def test_gateway_doc_separates_implemented_tested_and_planned_and_matches_the_scripts():
+    g = _text("docs/GATEWAY.md")
+    for planned in ("EDGE_TERMINATED", "OIDC"):
+        assert re.search(rf"{planned}.*\*\*Planned\*\*", g)
+    assert "NOT VERIFIED" in g and "mock-tested" in g and "Splunk Cloud" in g and "Not runtime-tested" in g
+    sh = _text("scripts/gateway.sh")
+    for sub in ("init", "validate", "up", "down"):
+        assert f"gateway.sh {sub}" in g and f"{sub})" in sh
+    assert (ROOT / "docker-compose.gateway.yml").exists() and "--profile gateway" in _text("docker-compose.gateway.yml")
+    assert (ROOT / "scripts/gateway-ready.sh").exists() and "gateway-ready.sh" in g
+    assert "/Users/" not in g and "@splunk.com" not in g
+    assert "docs/GATEWAY.md" in _text(".env.example") and "GATEWAY.md" in _text("docs/README.md")
+
+
+def test_gateway_doc_states_the_single_port_contract_and_does_not_overclaim_platforms():
+    g = _text("docs/GATEWAY.md")
+    assert "443 (default) or 8000" in g and "AGENTSEC_PUBLIC_PORT" in g and "AGENTSEC_SPLUNK_LOCAL_PORT" in g
+    assert "real bind of 8000 NOT VERIFIED" in g
+    for platform in ("Linux with Docker Engine", "Generic VM, AWS, Azure, GCP VMs running Docker"):
+        row = [l for l in g.splitlines() if platform in l][0]
+        assert "**Runtime-tested**" not in row and re.search(r"not (runtime-)?tested", row.lower()), row
+    assert "TELEMETRY NOT VERIFIED" in g and "LIVE WORKFLOW NOT VERIFIED" in g
+    env = _text(".env.example")
+    assert "AGENTSEC_PUBLIC_PORT=443" in env and "AGENTSEC_HTTPS_PORT" not in env
+
+
+def test_splunk_integration_doc_separates_real_from_mock_and_matches_the_code():
+    d = _text("docs/SPLUNK_INTEGRATION.md")
+    assert "Mock only" in d and "NOT VERIFIED" in d and "Real Splunk" in d
+    for name in ("AGENTSEC_SPLUNK_MODE", "AGENTSEC_SPLUNK_REST_URL", "AGENTSEC_SPLUNK_CA_BUNDLE_FILE", "AGENTSEC_SPLUNK_SEARCH_TOKEN_FILE", "AGENTSEC_SPLUNK_INDEX", "AGENTSEC_SPLUNK_TIMEOUT_SEC"):
+        assert name in d and name in _text("src/agentsec/splunk_client.py")
+    for stage in ("CONNECTIVITY", "AUTHENTICATION", "AUTHORIZATION", "SEARCH", "TELEMETRY"):
+        assert stage in d
+    assert "docs/SPLUNK_INTEGRATION.md" in _text(".env.example") and "SPLUNK_INTEGRATION.md" in _text("docs/README.md") and "SPLUNK_INTEGRATION.md" in _text("docs/GATEWAY.md")
+    assert not re.search(r"Splunk Cloud (is|are) (fully )?(supported|compatible)", d, re.I) and "/Users/" not in d
+
+
+def test_splunk_real_verification_record_is_honest_about_what_was_blocked():
+    d = _text("docs/SPLUNK_INTEGRATION.md")
+    assert "partially verified" in d and "BLOCKED" in d and "SplunkServerDefaultCert" in d and "no subject alternative name" in d
+    assert "Do not trust `SplunkCommonCA`" in d and "3545" in d and "3986" in d
+    assert not re.search(r"authenticated stages[^.]*(PASS|verified against real)", d)
+
+
+DOCS_6 = ["README.md", "docs/GETTING_STARTED.md", "docs/QUICKSTART.md", "docs/LOCAL_DOCKER_LAB.md", "docs/GATEWAY.md", "docs/SPLUNK_INTEGRATION.md"]
+
+
+def test_every_aligned_doc_labels_v1_2_0_published_and_v1_3_0_unreleased_and_links_the_canonical_table():
+    for rel in DOCS_6:
+        t = _text(rel)
+        assert "unreleased" in t.lower() and ("GATEWAY.md" in t or rel == "docs/GATEWAY.md"), rel
+    for rel in ("README.md", "docs/GETTING_STARTED.md", "docs/SPLUNK_INTEGRATION.md"):
+        assert "GATEWAY.md#deployment-modes-at-a-glance" in _text(rel), rel
+    for rel in ("README.md", "docs/GETTING_STARTED.md", "docs/QUICKSTART.md", "docs/LOCAL_DOCKER_LAB.md"):
+        assert re.search(r"published v1\.2\.0", _text(rel), re.I), rel
+
+
+def test_gateway_doc_has_the_deployment_mode_table_and_the_single_port_contract():
+    g = _text("docs/GATEWAY.md")
+    assert "## Deployment modes at a glance" in g
+    for cell in ("Published v1.2.0", "v1.3.0 opt-in HTTPS gateway", "**Exactly one: 443 (default) or 8000**", "mock-tested only", "BLOCKED", "NOT VERIFIED"):
+        assert cell in g, cell
+    assert re.search(r"Not reachable through the gateway \(NOT VERIFIED, not routed\)", g, re.I)
+    assert re.search(r"Classic Attack Service page .*\*\*Not routed\*\* \(known v1.3.0 limitation\)", g) and "302 to `/learn`" in g
+    assert "`lab-up.sh --remote` is not the gateway" in g
+
+
+def test_no_doc_claims_splunk_web_is_reachable_through_the_gateway():
+    bad = re.compile(r"splunk web[^.\n]{0,60}(is|are)?\s*(available|reachable|accessible|proxied|served)[^.\n]{0,40}(through|via|behind|on) the gateway", re.I)
+    for rel in DOCS_6 + ["docs/REMOTE_ACCESS.md"]:
+        for line in _text(rel).splitlines():
+            if bad.search(line):
+                assert re.search(r"\bnot\b|NOT VERIFIED|never", line, re.I), (rel, line)
+    for rel in ("docs/GATEWAY.md", "docs/SPLUNK_INTEGRATION.md"):
+        assert "NOT VERIFIED" in _text(rel) and "Splunk Web" in _text(rel)
+
+
+def test_real_splunk_stays_not_verified_or_blocked_in_every_doc_that_mentions_external_splunk():
+    for rel in ("README.md", "docs/GETTING_STARTED.md", "docs/LOCAL_DOCKER_LAB.md", "docs/GATEWAY.md", "docs/SPLUNK_INTEGRATION.md"):
+        t = _text(rel)
+        if re.search(r"external Splunk|Splunk Cloud|EXTERNAL_ENTERPRISE", t):
+            assert "mock-tested" in t or "mock only" in t.lower(), rel
+            assert not re.search(r"(external Splunk|Splunk Cloud)[^.\n]{0,40}(is|are) (fully )?(supported|compatible|verified)", t, re.I), rel
+    assert "BLOCKED" in _text("docs/SPLUNK_INTEGRATION.md") and "BLOCKED" in _text("docs/GATEWAY.md")

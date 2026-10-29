@@ -1,0 +1,61 @@
+# Opt-in unified HTTPS gateway. Not used unless you pass this file AND --profile gateway:
+#   docker compose -f docker-compose.yml -f docker-compose.gateway.yml --profile gateway up -d --no-deps gateway attack_service acmebank
+# (scripts/gateway.sh wraps this after validating the configuration). The base docker-compose.yml is unchanged.
+# Hardening (this overlay only; the base compose file is unchanged): dropped capabilities, no-new-privileges, memory and pids limits on the gateway, Attack Service and AcmeBank.
+#   NOT applied (see docs/GATEWAY.md): read_only root filesystems and CPU limits.
+# Effect: the gateway is the ONLY externally reachable application port (AGENTSEC_PUBLIC_PORT: 443 default, or 8000); Attack Service and AcmeBank lose their host port mappings and
+# stay reachable only on the internal agentsec_mesh network. Splunk Web moves to a loopback-only port; HEC and OTel stay loopback-only.
+services:
+  gateway:
+    profiles: ["gateway"]
+    image: nginx:1.27-alpine
+    container_name: agentsec_gateway
+    labels: {agentsec.component: gateway}
+    ports:
+      - "${AGENTSEC_GATEWAY_BIND:-127.0.0.1}:${AGENTSEC_PUBLIC_PORT:-${AGENTSEC_HTTPS_PORT:-443}}:8443"
+    networks: [agentsec_mesh]
+    environment:
+      - AGENTSEC_PUBLIC_HOST=${AGENTSEC_PUBLIC_HOST:-localhost}
+      - AGENTSEC_PUBLIC_PORT=${AGENTSEC_PUBLIC_PORT:-${AGENTSEC_HTTPS_PORT:-443}}
+      - AGENTSEC_ATTACK_TIER=${AGENTSEC_ATTACK_TIER:-enabled}
+      - AGENTSEC_CTF_GATEWAY=disabled   # docker-compose.gateway-ctf.yml is the only thing that sets this to enabled
+      - NGINX_ENVSUBST_FILTER=^AGENTSEC_
+    volumes:
+      - ./gateway/templates:/etc/nginx/templates:ro
+      - ./gateway/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./gateway/attack-enabled.conf:/etc/nginx/attack-enabled.conf:ro
+      - ./gateway/attack-disabled.conf:/etc/nginx/attack-disabled.conf:ro
+      - ./gateway/identity-headers.conf:/etc/nginx/identity-headers.conf:ro
+      - ./gateway/ctf-enabled.conf:/etc/nginx/ctf-enabled.conf:ro
+      - ./gateway/ctf-disabled.conf:/etc/nginx/ctf-disabled.conf:ro
+      - ${AGENTSEC_GATEWAY_DIR:-./.gateway}/tls/fullchain.pem:/certs/server.pem:ro
+      - ${AGENTSEC_TLS_KEY_FILE:-./.gateway/tls/server.key}:/certs/server.key:ro
+      - ${AGENTSEC_AUTH_FILE:-./.gateway/htpasswd}:/etc/nginx/htpasswd:ro
+    restart: unless-stopped
+    # Least privilege for the one internet-facing container: drop the default capabilities nginx never uses (it binds 8443 > 1024), no privilege gain, bounded
+    # memory and processes. The master still needs CHOWN, DAC_OVERRIDE (to read a 0600 key owned by another host user), FOWNER, KILL, SETGID and SETUID, so
+    # dropping ALL and adding some back is deliberately NOT used (it is also not portable across rootless runtimes). Raise the limits with the variables if needed.
+    cap_drop: [NET_RAW, MKNOD, SETFCAP, SETPCAP, FSETID, AUDIT_WRITE, SYS_CHROOT, NET_BIND_SERVICE]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: ${AGENTSEC_GATEWAY_MEM_LIMIT:-128m}
+    pids_limit: 128
+  attack_service:
+    ports: !reset []
+    cap_drop: [ALL]                  # runs as the unprivileged appuser and needs no capability
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: ${AGENTSEC_ATTACK_MEM_LIMIT:-512m}        # about 30 MiB idle after days of use
+    pids_limit: 256
+    environment:
+      - AGENTSEC_GATEWAY_MODE=1      # the Academy then shows no link to Splunk Web, AcmeBank or the classic pages, which the gateway does not route
+  acmebank:
+    ports: !reset []
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: ${AGENTSEC_ACMEBANK_MEM_LIMIT:-768m}      # about 36 MiB idle after days of use
+    pids_limit: 256
+  splunk:
+    # Gateway mode frees host port 8000 (the optional public port) and never exposes Splunk Web beyond the host itself:
+    # loopback only, on AGENTSEC_SPLUNK_LOCAL_PORT. Reach it from another machine only through your own tunnel.
+    ports: !override
+      - "127.0.0.1:${AGENTSEC_SPLUNK_LOCAL_PORT:-18000}:8000"
+      - "127.0.0.1:8088:8088"

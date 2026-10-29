@@ -1,0 +1,28 @@
+/* CTF pages. Tokens only (agentsec.css, tokens.css). Chips carry a symbol plus text so state never relies on colour. */
+.ctf-nav { display: flex; gap: .75rem; margin: .75rem 0; }
+.ctf-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 .9rem; border: 1px solid var(--border); border-radius: 999px; background: var(--bg-panel); color: var(--text-primary); font-weight: 600; text-decoration: none; }
+.ctf-nav a[aria-current="page"] { border: 2px solid var(--accent-teal); }
+.chip { display: inline-block; padding: .2rem .65rem; border: 1px solid var(--border); border-radius: 999px; background: var(--sp-tint-neutral); color: var(--sp-ink-neutral); font-size: .8rem; font-weight: 700; margin-right: .4rem; }
+.chip--sim { background: var(--sp-tint-info); color: var(--sp-ink-info); }
+.chip--good { background: var(--sp-tint-good); color: var(--sp-ink-good); }
+.chip--warn { background: var(--sp-tint-warning); color: var(--sp-ink-warning); }
+.callout { margin: .75rem 0; padding: .6rem .9rem; border-left: 4px solid var(--state-info); background: var(--bg-page); border-radius: var(--radius); }
+.callout--warn { border-left-color: var(--state-warning); }
+.table-wrap { overflow-x: auto; }
+.ctf-table { width: 100%; border-collapse: collapse; }
+.ctf-table th, .ctf-table td { text-align: left; padding: .55rem .6rem; border-bottom: 1px solid var(--border); vertical-align: top; overflow-wrap: anywhere; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ctf-fieldset { border: 1px solid var(--border); border-radius: var(--radius); margin: 0 0 .75rem; padding: .5rem .9rem; }
+.ctf-fieldset legend { font-weight: 700; padding: 0 .3rem; }
+label.inline { display: flex; align-items: center; gap: .5rem; min-height: 44px; margin: 0; font-weight: 500; }
+label.inline input { width: 1.25rem; height: 1.25rem; }
+select { font: inherit; min-height: 44px; padding: .4rem .6rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-panel); color: var(--text-primary); max-width: 100%; }
+.checks { list-style: none; margin: .5rem 0; padding: 0; }
+.checks li { padding: .4rem 0; border-bottom: 1px dashed var(--border); }
+.verdict { font-weight: 700; }
+.run-list code, .splunk-runs code, #attempt-id { overflow-wrap: anywhere; word-break: break-all; }
+#receipt-json { font: .8rem/1.4 var(--mono); }
+.status[data-kind="error"] { color: var(--sp-ink-critical); font-weight: 600; }
+.status[data-kind="ok"] { color: var(--sp-ink-good); font-weight: 600; }
+.btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+@media (max-width: 900px) { .facts { grid-template-columns: 1fr; } .ctf-nav { flex-wrap: wrap; } }

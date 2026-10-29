@@ -99,10 +99,10 @@ def test_spl_is_the_labs_own_text_unchanged_and_the_prediction_options_cover_eve
     assert seen <= set(r["options"])
 
 
-def test_these_labs_stay_replay_and_are_not_described_as_native_live_or_verified():
+def test_these_labs_keep_the_recorded_pack_beside_the_live_launch_and_are_not_described_as_verified():
     for lab in RECORDED:
         l = LABS[lab]
-        assert l["availability"] == "replay" and l["integrated"] is False and l["launchable"] is False and l["native"] is None
+        assert l["availability"] == "workbench" and l["integrated"] is True and l["launchable"] is True and l["native"] is None   # also launched live; the recorded pack is still shown
     ui = (ROOT / "academy-ui" / "src" / "workbench")
     code = (ui / "RecordedWorkbench.tsx").read_text(encoding="utf-8") + (ui / "recorded.ts").read_text(encoding="utf-8")
     assert "RECORDED — NOT RE-RUN" in code and "makes no claim that they are Splunk-verified" in code

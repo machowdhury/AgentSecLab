@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from agentsec import model_identity
+
 import os
 import secrets
 from dataclasses import dataclass
@@ -81,7 +83,7 @@ def get_settings() -> Settings:
         security_profile=profile,
         testbed_mode_override=override,
         ollama_base_url=_env("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/"),
-        ollama_model=_env("OLLAMA_MODEL", "llama3.2:1b"),
+        ollama_model=model_identity.requested_or_raw("pipeline")[0],   # one canonical resolver; same variable and default as before. A malformed name does not stop the app: live calls refuse it
         otel_collector_http=_env("OTEL_COLLECTOR_HTTP", "http://127.0.0.1:4318").rstrip("/"),
         otel_enabled=_env_bool("AGENTSEC_OTEL_ENABLED", False),
         artifacts_dir=artifacts,

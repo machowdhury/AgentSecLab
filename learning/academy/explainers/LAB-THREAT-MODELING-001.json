@@ -83,6 +83,17 @@
         "A scanner finding is not exploitation.",
         "An evaluation pass is not safety."
       ]
+    },
+    {
+      "text": "The lab's MAESTRO workbench follows the CSA article's seven layers, from Foundation Models up to Agent Ecosystem, and its list of cross-layer threats.",
+      "grounds": [
+        "learning/level_1/LAB-THREAT-MODELING-001/maestro.json"
+      ],
+      "facts": [
+        "Foundation Models",
+        "Agent Ecosystem",
+        "Goal Misalignment Cascades"
+      ]
     }
   ],
   "cannot_claim_lines": {

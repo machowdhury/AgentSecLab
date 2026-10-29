@@ -214,7 +214,7 @@ a.btn[hidden],
 }
 
 .btn-danger {
-  background: var(--state-critical);
+  background: var(--sp-ink-critical);
 }
 
 .btn-secondary {
@@ -242,17 +242,17 @@ summary:focus-visible,
   background: var(--bg-page);
 }
 
-.status[data-state="READY"] { color: var(--state-info); }
-.status[data-state="RUNNING"] { color: var(--state-warning); }
-.status[data-state="LAUNCHING"] { color: var(--state-warning); }
-.status[data-state="TELEMETRY SENT"] { color: var(--state-info); }
-.status[data-state="WAITING FOR SPLUNK"] { color: var(--state-warning); }
-.status[data-state="EVIDENCE READY"] { color: var(--state-success); }
-.status[data-state="COMPLETED"] { color: var(--state-success); }
-.status[data-state="DENIED"] { color: var(--state-critical); }
-.status[data-state="ERROR"] { color: var(--state-critical); }
-.status[data-state="WAITING_FOR_EVIDENCE"] { color: var(--state-warning); }
-.status[data-state="EVIDENCE_READY"] { color: var(--state-success); }
+.status[data-state="READY"] { color: var(--sp-ink-link); }
+.status[data-state="RUNNING"] { color: var(--sp-ink-warning); }
+.status[data-state="LAUNCHING"] { color: var(--sp-ink-warning); }
+.status[data-state="TELEMETRY SENT"] { color: var(--sp-ink-link); }
+.status[data-state="WAITING FOR SPLUNK"] { color: var(--sp-ink-warning); }
+.status[data-state="EVIDENCE READY"] { color: var(--sp-ink-good); }
+.status[data-state="COMPLETED"] { color: var(--sp-ink-good); }
+.status[data-state="DENIED"] { color: var(--sp-ink-critical); }
+.status[data-state="ERROR"] { color: var(--sp-ink-critical); }
+.status[data-state="WAITING_FOR_EVIDENCE"] { color: var(--sp-ink-warning); }
+.status[data-state="EVIDENCE_READY"] { color: var(--sp-ink-good); }
 
 .handoff-steps {
   margin: 0.5rem 0 1rem;

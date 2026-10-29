@@ -41,7 +41,7 @@ def test_search_handoff_follows_localhost_remote_ip_and_hostname():
     assert rewrite_learner_navigation("/labs/LAB-MCP-001", "http://203.0.113.10:5001") == "/labs/LAB-MCP-001"
     assert rewrite_learner_navigation("/", "http://agentsec.example.test:5001") == "/"
     assert rewrite_learner_navigation("/labs/LAB-PI-001", "http://127.0.0.1:5001") == "/labs/LAB-PI-001"
-    assert "3.17.29.24" not in academy
+    assert "203.0.113.77" not in academy
     assert "localhost" not in academy
 
 
@@ -68,7 +68,7 @@ if (href("/en-US/app/search/search", local) !== "http://127.0.0.1:8000/en-US/app
 if (href("/en-US/app/agentsec/ws_agentsec_arena", academy) !== "/en-US/app/agentsec/ws_agentsec_arena") throw new Error("already splunk");
 if (href("http://127.0.0.1:8000/en-US/app/search/search?q=1", named) !== "http://agentsec.example.test:8000/en-US/app/search/search?q=1") throw new Error("absolute search");
 const moved = href("/en-US/app/agentsec/learner_path", remote);
-if (moved.includes("3.17.29.24") || moved.includes("localhost")) throw new Error(moved);
+if (moved.includes("203.0.113.77") || moved.includes("localhost")) throw new Error(moved);
 """
     script = ROOT / "src/agentsec/static/agentsec-ui.js"
     completed = subprocess.run([node, "-e", program, str(script)], check=False, capture_output=True, text=True)

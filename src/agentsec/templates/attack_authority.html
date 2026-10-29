@@ -6,6 +6,7 @@
   <title>AgentSec — {{ authority_workbench.title }} Workbench</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec-workbench.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='attack-console.css') }}">
   {% include "_shell_head.html" %}
 </head>
 <body class="workbench-page authority-workbench authority-workbench--{{ authority_workbench.kind }}">
@@ -33,10 +34,12 @@
       <a href="/">All LIVE labs</a>
       <a href="#advanced">Evidence / Advanced</a>
     </nav>
+    {% include "_attack_console.html" %}
 
     <section class="mission" aria-labelledby="security-question">
       <p class="eyebrow">Security question</p>
       <h2 id="security-question">{{ authority_workbench.security_question }}</h2>
+      <details class="disclosure disclosure--inline"><summary>Scenario facts and controls</summary>
       <div class="context-facts authority-facts">
         <div><span>Attacker influence</span><strong>{{ authority_workbench.attacker_influence }}</strong></div>
         <div><span>{{ authority_workbench.server_fact_label }}</span><strong>{{ authority_workbench.server_fact }}</strong></div>
@@ -52,6 +55,7 @@
         <div data-assurance="not-modeled"><span>NOT MODELED</span><strong>cryptographic authentication · signed delegation · OAuth/OIDC</strong></div>
       </div>
       {% endif %}
+            </details>
       <p class="semantic-line">
         {% for line in authority_workbench.semantic_lines %}<strong>{{ line }}</strong>{% endfor %}
       </p>
@@ -131,7 +135,7 @@
     </section>
     {% endif %}
 
-    <section class="run-results" aria-labelledby="result-heading">
+    <section id="run-results" class="run-results" aria-labelledby="result-heading">
       <div class="section-heading">
         <div><p class="eyebrow">Measured runtime result</p><h2 id="result-heading">Control and operation-specific execution</h2></div>
         <p>Control decisions and execution are reported separately. Splunk corroboration is a later investigation.</p>
@@ -175,8 +179,8 @@
       <div class="advanced-grid">
         <section><h2>Closed launch contract</h2><pre>{"lab_id":"{{ lab_id }}","specimen_id":"{{ specimen_attack }}","mode":"ATTACK|RETEST","execution":"live"}</pre><p>Unknown and authority-like browser fields are rejected as ERROR.</p></section>
         <section><h2>Evidence limits</h2><p>Schema 1.9.0. Runtime counts establish handler execution. Searchable Splunk events corroborate a complete copy; they do not enforce.</p></section>
-        <section><h2>ATTACK response</h2><pre id="attack-response">Not run</pre></section>
-        <section><h2>RETEST response</h2><pre id="retest-response">Not run</pre></section>
+        <section><h2>ATTACK response</h2><pre id="attack-response" tabindex="0" role="region" aria-label="ATTACK response">Not run</pre></section>
+        <section><h2>RETEST response</h2><pre id="retest-response" tabindex="0" role="region" aria-label="RETEST response">Not run</pre></section>
       </div>
     </details>
     <section>

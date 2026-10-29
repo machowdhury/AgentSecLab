@@ -13,7 +13,7 @@ COPY schemas/ ./schemas/
 COPY learning/academy/curriculum.json ./learning/academy/curriculum.json
 # Without this file every Attack UI lab page and "/" fail with HTTP 500 inside the image (framework_refs.references_for).
 COPY learning/academy/framework_refs.json ./learning/academy/framework_refs.json
-RUN mkdir -p /app/learning/level_1/LAB-PI-001 /app/learning/level_1/LAB-MCP-001 /app/learning/level_1/LAB-RAG-CONTEXT /app/learning/level_1/LAB-MEMORY-001 /app/learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001 /app/learning/level_1/LAB-AGENT-DELEGATION-001 /app/learning/level_1/LAB-AGENTSEC-CAPSTONE-001 /app/learning/level_1/LAB-LOANDESK-001
+RUN mkdir -p /app/learning/level_1/LAB-PI-001 /app/learning/level_1/LAB-MCP-001 /app/learning/level_1/LAB-RAG-CONTEXT /app/learning/level_1/LAB-MEMORY-001 /app/learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001 /app/learning/level_1/LAB-AGENT-DELEGATION-001 /app/learning/level_1/LAB-AGENTSEC-CAPSTONE-001 /app/learning/level_1/LAB-LOANDESK-001 /app/learning/level_1/LAB-MCP-003 /app/learning/level_1/LAB-MCP-004 /app/learning/level_1/LAB-MCP-005 /app/learning/level_1/LAB-MCP-CATALOG /app/learning/level_1/LAB-MCP-006
 COPY learning/level_1/LAB-PI-001/lab-manifest.json ./learning/level_1/LAB-PI-001/lab-manifest.json
 COPY learning/level_1/LAB-MCP-001/lab-manifest.json ./learning/level_1/LAB-MCP-001/lab-manifest.json
 COPY learning/level_1/LAB-MCP-001/specimens/ ./learning/level_1/LAB-MCP-001/specimens/
@@ -23,13 +23,18 @@ COPY learning/level_1/LAB-AGENT-GOAL-INTEGRITY-001/lab-manifest.json ./learning/
 COPY learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json ./learning/level_1/LAB-AGENT-DELEGATION-001/lab-manifest.json
 COPY learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json ./learning/level_1/LAB-AGENTSEC-CAPSTONE-001/lab-manifest.json
 COPY learning/level_1/LAB-LOANDESK-001/lab-manifest.json ./learning/level_1/LAB-LOANDESK-001/lab-manifest.json
+COPY learning/level_1/LAB-MCP-003/lab-manifest.json ./learning/level_1/LAB-MCP-003/lab-manifest.json
+COPY learning/level_1/LAB-MCP-004/lab-manifest.json ./learning/level_1/LAB-MCP-004/lab-manifest.json
+COPY learning/level_1/LAB-MCP-005/lab-manifest.json ./learning/level_1/LAB-MCP-005/lab-manifest.json
+COPY learning/level_1/LAB-MCP-CATALOG/lab-manifest.json ./learning/level_1/LAB-MCP-CATALOG/lab-manifest.json
+COPY learning/level_1/LAB-MCP-006/lab-manifest.json ./learning/level_1/LAB-MCP-006/lab-manifest.json
 
 ENV PYTHONPATH=/app/src
 ENV AGENTSEC_SCHEMA_PATH=/app/schemas/security_event.schema.json
 
 RUN useradd -m -u 1000 appuser \
-    && mkdir -p /app/artifacts \
-    && chown -R appuser:appuser /app
+    && mkdir -p /app/artifacts /var/lib/agentsec-ctf \
+    && chown -R appuser:appuser /app /var/lib/agentsec-ctf   # CTF state (ledger, key): a named volume mounts here in the gateway-ctf overlay
 
 USER appuser
 

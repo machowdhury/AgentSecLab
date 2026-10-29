@@ -1,0 +1,25 @@
+{% extends "ctf/_base.html" %}
+{% block title %}Scoreboard{% endblock %}
+{% block body %}
+<section class="card" aria-labelledby="sb-h">
+  <h2 id="sb-h">Scoreboard</h2>
+  <p>Participant: <strong>{{ board.participant }}</strong> (one local participant). Total: <strong data-total>{{ board.total }}</strong> points.</p>
+  <p class="muted">{{ board.policy }} Rows come from redeemed receipts whose signature is checked again every time this page is built; there is no stored counter.</p>
+  {% if not board.ledger_intact %}<p class="callout callout--warn" role="alert">&#9651; Ledger integrity problem: {{ board.invalid_entries }} entry(ies) failed verification and are not counted.</p>{% endif %}
+  {% if board.rows %}
+  <div class="table-wrap">
+  <table class="data-table ctf-table">
+    <caption class="sr-only">Scored challenges</caption>
+    <thead><tr><th scope="col">Challenge</th><th scope="col">Difficulty</th><th scope="col">Points</th><th scope="col">run.id(s)</th></tr></thead>
+    <tbody>
+    {% for r in board.rows %}
+      <tr><th scope="row"><a href="/ctf/{{ r.challenge_id }}">{{ r.title }}</a></th><td>{{ r.difficulty }}</td><td>{{ r.points }}</td>
+          <td>{% for rid in r.run_ids %}<code>{{ rid }}</code>{% if not loop.last %}<br>{% endif %}{% endfor %}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}<p data-empty>No challenge scored yet.</p>{% endif %}
+  <p class="muted">&#9651; NOT VERIFIED in Splunk. A receipt proves this server reached a verdict from events it recorded; it does not prove the events are true.</p>
+</section>
+{% endblock %}

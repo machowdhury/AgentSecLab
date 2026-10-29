@@ -1,0 +1,233 @@
+{
+ "schema": "agentsec.assurance_controls.v1",
+ "note": "The lab's own telemetry-producing controls, with where each sits, what it guards, the workshops that exercise it and the remediation text shown with a finding. Framework relationships are in framework_map.json. A control here is a control of this teaching lab, not of any organization.",
+ "controls": [
+  {
+   "id": "CTRL-INPUT-001",
+   "name": "Input pattern control",
+   "class": "ENFORCE",
+   "guards": "the model call",
+   "boundary": "TB-01 HTTP input",
+   "maestro_layers": [
+    7,
+    3
+   ],
+   "attack_ids": [
+    "ATK-001",
+    "ATK-002"
+   ],
+   "workshops": [
+    "LAB-PI-001"
+   ],
+   "technique": "direct prompt injection",
+   "remediation": "Review the input patterns the control matches and the cases it does not (encodings, paraphrase, other languages). Keep the control in front of the model call, and add a second, independent control on what the model's output may cause.",
+   "retest": "Run the same attack in RETEST: the expected result is a DENY with no model call in the same hop.",
+   "boundary_event_values": [
+    "acmebank.agent_handoff",
+    "acmebank.http_api"
+   ]
+  },
+  {
+   "id": "CTRL-MCP-001",
+   "name": "Tool authorization (tool, scope, resource)",
+   "class": "ENFORCE",
+   "guards": "the tool handler",
+   "boundary": "TB-04 Tool authority",
+   "maestro_layers": [
+    3,
+    7
+   ],
+   "attack_ids": [
+    "MCP-001",
+    "MCP-002",
+    "MCP-003",
+    "MCP-004",
+    "MCP-005",
+    "MCP-CATALOG-001",
+    "RAG-001",
+    "MEMORY-001",
+    "A2A-001",
+    "GOAL-001"
+   ],
+   "workshops": [
+    "LAB-MCP-001",
+    "LAB-MCP-003",
+    "LAB-MCP-004",
+    "LAB-MCP-005",
+    "LAB-MCP-CATALOG",
+    "LAB-RAG-CONTEXT",
+    "LAB-MEMORY-001"
+   ],
+   "technique": "tool misuse, scope or resource escalation",
+   "remediation": "Review which tools, scopes and resources each agent is granted, and make the allowlist deny by default. Treat tool descriptions and tool results as untrusted content. Confirm the decision is made by code outside the model.",
+   "retest": "Run the same request in RETEST: the expected result is a DENY and no tool handler start in the same hop.",
+   "boundary_event_values": [
+    "acmebank.mcp.authorize"
+   ]
+  },
+  {
+   "id": "CTRL-MCP-RESULT-001",
+   "name": "Tool-result classification",
+   "class": "OBSERVE",
+   "guards": "nothing (it classifies)",
+   "boundary": "TB-04 Tool authority",
+   "maestro_layers": [
+    3,
+    7
+   ],
+   "attack_ids": [
+    "MCP-005"
+   ],
+   "workshops": [
+    "LAB-MCP-005"
+   ],
+   "technique": "poisoned tool result",
+   "remediation": "Do not rely on classification alone. Enforce what a tool result is allowed to cause (the allowlist), and consider blocking instruction-like content in results.",
+   "retest": "Check that the enforcing control denied the follow-on call that the poisoned result suggested.",
+   "boundary_event_values": [
+    "mcp.tool.result"
+   ]
+  },
+  {
+   "id": "CTRL-MCP-METADATA-001",
+   "name": "Tool-metadata classification",
+   "class": "OBSERVE",
+   "guards": "nothing (it classifies)",
+   "boundary": "TB-04 Tool authority",
+   "maestro_layers": [
+    7,
+    3
+   ],
+   "attack_ids": [
+    "MCP-CATALOG-001"
+   ],
+   "workshops": [
+    "LAB-MCP-CATALOG",
+    "LAB-SCANNER-RUNTIME-EVIDENCE"
+   ],
+   "technique": "poisoned tool description",
+   "remediation": "Pin and review tool descriptions, scan them before they reach an agent, and enforce the allowlist: classifying a description as data does not stop a model from following it.",
+   "retest": "Check that the enforcing control denied the follow-on call the description suggested.",
+   "boundary_event_values": [
+    "mcp.catalog.metadata"
+   ]
+  },
+  {
+   "id": "CTRL-RAG-CONTEXT-001",
+   "name": "Retrieved-context classification",
+   "class": "OBSERVE",
+   "guards": "nothing (it classifies)",
+   "boundary": "TB-02 Retrieved context",
+   "maestro_layers": [
+    2,
+    3
+   ],
+   "attack_ids": [
+    "RAG-001"
+   ],
+   "workshops": [
+    "LAB-RAG-CONTEXT"
+   ],
+   "technique": "poisoned retrieved context",
+   "remediation": "Treat retrieved text as untrusted, restrict what a retrieval may cause by enforcing the tool allowlist, and review the sources the retriever may index.",
+   "retest": "Check that an enforcing control denied the follow-on call the retrieved text suggested.",
+   "boundary_event_values": [
+    "rag.retrieved.context"
+   ]
+  },
+  {
+   "id": "CTRL-MEMORY-CONTEXT-001",
+   "name": "Recalled-memory classification",
+   "class": "OBSERVE",
+   "guards": "nothing (it classifies)",
+   "boundary": "TB-03 Persistent memory",
+   "maestro_layers": [
+    2,
+    3
+   ],
+   "attack_ids": [
+    "MEMORY-001"
+   ],
+   "workshops": [
+    "LAB-MEMORY-001"
+   ],
+   "technique": "poisoned persistent memory",
+   "remediation": "Treat recalled text as untrusted, record its origin run, restrict what a recall may cause, and expire or isolate memory per principal.",
+   "retest": "Check that an enforcing control denied the follow-on call the recalled text suggested.",
+   "boundary_event_values": [
+    "agent.memory.store"
+   ]
+  },
+  {
+   "id": "CTRL-GOAL-INTEGRITY-001",
+   "name": "Goal and instruction integrity",
+   "class": "ENFORCE",
+   "guards": "the task contract",
+   "boundary": "TB-01 HTTP input",
+   "maestro_layers": [
+    3,
+    7
+   ],
+   "attack_ids": [
+    "GOAL-001"
+   ],
+   "workshops": [
+    "LAB-AGENT-GOAL-INTEGRITY-001",
+    "LAB-ADVANCED-CAPSTONE-MASTERY-001"
+   ],
+   "technique": "goal hijacking",
+   "remediation": "Hold the task contract on the server, compare any proposed change with it, and deny unauthorized expansion rather than only recording it.",
+   "retest": "Run the same instruction in RETEST: the expected result is a DENY for unauthorized task expansion.",
+   "boundary_event_values": [
+    "agent.task.contract"
+   ]
+  },
+  {
+   "id": "CTRL-IDENTITY-001",
+   "name": "Identity-claim classification",
+   "class": "OBSERVE",
+   "guards": "nothing (it classifies)",
+   "boundary": "TB-04 Tool authority",
+   "maestro_layers": [
+    7,
+    3
+   ],
+   "attack_ids": [
+    "A2A-001"
+   ],
+   "workshops": [
+    "LAB-AGENT-DELEGATION-001"
+   ],
+   "technique": "claimed authority",
+   "remediation": "A claim of identity or authority is data. Bind authority to a verified credential and enforce it in the tool allowlist.",
+   "retest": "Check that the enforcing control denied the call that relied on the claim.",
+   "boundary_event_values": [
+    "agent.identity.claim"
+   ]
+  },
+  {
+   "id": "CTRL-DELEGATION-001",
+   "name": "Delegated-authority check",
+   "class": "ENFORCE",
+   "guards": "the delegated call",
+   "boundary": "TB-04 Tool authority",
+   "maestro_layers": [
+    7,
+    3
+   ],
+   "attack_ids": [
+    "MCP-006"
+   ],
+   "workshops": [
+    "LAB-MCP-006"
+   ],
+   "technique": "confused deputy",
+   "remediation": "Make delegated authority explicit and bounded; never let a callee act under its own broader authority for a less privileged caller.",
+   "retest": "Run the same relay in RETEST: the expected result is a DENY for delegated authority not granted.",
+   "boundary_event_values": [
+    "acmebank.mcp.authorize"
+   ]
+  }
+ ],
+ "telemetry_note": "Only these controls emit agentsec.control.decision events in agentsec.security_event telemetry. The Loan Desk (agentsec.loan_desk_event, control CTRL-LOANDESK-001) uses a different schema without hop indexes or an ATTACK/RETEST mode, so it is shown as activity and is not scored by these rules."
+}

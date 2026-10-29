@@ -28,6 +28,26 @@ class LoanDeskEmitter:
     run_span: str = field(default_factory=new_span_id)
     seq: int = 0
     events: list[dict] = field(default_factory=list)
+    identity: dict | None = None   # model identity resolved at run start (OllamaChat.identity()); None for test doubles, which keeps schema 1.0.0 events
+    executed_calls: list = field(default_factory=list)   # per model call: did Ollama name the answering model, and did it match (None = Ollama did not say)
+
+    _REFUSAL_STATUS = {"model_not_found": "NOT_INSTALLED", "model_config_invalid": "INVALID_NAME", "model_identity_mismatch": "MISMATCH"}
+
+    def _model_fields(self, call_error: str | None = None) -> dict[str, Any]:
+        """Model identity fields for an event. `call_error` is the error type of THIS call: when the call itself was refused or answered by another model, the
+        start-of-run verdict (and digest) no longer describes it, so the event says what happened to the call instead."""
+        i = self.identity
+        if not i:
+            return {}
+        status = self._REFUSAL_STATUS.get(call_error or "")
+        out: dict[str, Any] = {"agentsec.model.requested": str(i.get("requested") or self.model), "agentsec.model.identity_status": status or i.get("identity_status") or "ERROR"}
+        if status in ("NOT_INSTALLED", "INVALID_NAME"):
+            return out                      # nothing was resolved for this call: no digest, no quantization
+        for key, field_name in (("digest", "agentsec.model.digest"), ("quantization", "agentsec.model.quantization"), ("parameter_size", "agentsec.model.parameter_size"),
+                                ("ollama_version", "agentsec.ollama.version")):
+            if i.get(key):
+                out[field_name] = str(i[key])
+        return out
 
     def _base(self, name: str, op: str, span: str, step: int | None = None) -> dict[str, Any]:
         self.seq += 1
@@ -35,7 +55,7 @@ class LoanDeskEmitter:
             "event.name": name, "timestamp": utc_now(), "service.name": self.settings.service_name,
             "service.version": self.settings.version, "deployment.environment": self.settings.deployment_environment,
             "user.id": self.user_id, "trace_id": self.trace_id, "span_id": span,
-            "agentsec.schema.name": "agentsec.loan_desk_event", "agentsec.schema.version": "1.0.0",
+            "agentsec.schema.name": "agentsec.loan_desk_event", "agentsec.schema.version": "1.1.0" if self.identity else "1.0.0",
             "agentsec.run.id": str(self.run_id), "agentsec.incident.id": str(self.run_id),
             "agentsec.lab.id": self.settings.lab_id, "agentsec.security.profile": self.settings.security_profile,
             "agentsec.testbed.mode": "BASELINE", "agentsec.execution.mode": "LIVE",
@@ -60,6 +80,7 @@ class LoanDeskEmitter:
     def run_started(self):
         e = self._base("agentsec.run.started", "pipeline", self.run_span)
         e["agentsec.trust_boundary"] = "acmebank.http_api"
+        e.update(self._model_fields())
         return self._emit(e)
 
     def run_completed(self, *, outcome, duration_ms, stop_reason, executed, denied):
@@ -75,31 +96,39 @@ class LoanDeskEmitter:
                   "agentsec.error.message": message[:500], "agentsec.agent.stop_reason": stop_reason})
         return self._emit(e)
 
-    def llm_started(self, step: int) -> str:
+    def llm_started(self, step: int, *, executed: bool = True, refusal: str | None = None) -> str:
         span = new_span_id()
         e = self._base("agentsec.llm.started", "llm_inference", span, step)
         e.update({"gen_ai.operation.name": "chat", "gen_ai.provider.name": "ollama", "gen_ai.request.model": self.model,
-                  "agentsec.operation.attempted": True, "agentsec.operation.executed": True,
-                  "agentsec.trust_boundary": "acmebank.llm_call"})
+                  "agentsec.operation.attempted": True, "agentsec.operation.executed": executed,
+                  "agentsec.trust_boundary": "acmebank.llm_call", **self._model_fields(refusal)})
         self._emit(e)
         return span
 
-    def llm_completed(self, step, span, *, duration_ms, tokens_in, tokens_out, response_model):
+    def llm_completed(self, step, span, *, duration_ms, tokens_in, tokens_out, response_model, executed=None):
         e = self._base("agentsec.llm.completed", "llm_inference", span, step)
         e.update({"gen_ai.operation.name": "chat", "gen_ai.provider.name": "ollama", "gen_ai.request.model": self.model,
                   "gen_ai.response.model": response_model or self.model, "gen_ai.usage.input_tokens": tokens_in,
                   "gen_ai.usage.output_tokens": tokens_out, "agentsec.operation.attempted": True,
                   "agentsec.operation.executed": True, "agentsec.operation.outcome": "success",
-                  "agentsec.duration_ms": duration_ms, "agentsec.trust_boundary": "acmebank.llm_call"})
+                  "agentsec.duration_ms": duration_ms, "agentsec.trust_boundary": "acmebank.llm_call", **self._model_fields()})
+        matches = executed.get("name_matches_requested") if isinstance(executed, dict) else None
+        self.executed_calls.append({"response_model": response_model if isinstance(executed, dict) and executed.get("response_model") else None, "matches": matches})
+        if isinstance(matches, bool) and self.identity:
+            e["agentsec.model.executed_name_matches"] = matches
         return self._emit(e)
 
-    def llm_failed(self, step, span, *, error_type, message):
+    def llm_failed(self, step, span, *, error_type, message, executed=True):
         e = self._base("agentsec.llm.failed", "llm_inference", span, step)
+        mismatch = error_type == "model_identity_mismatch"
         e.update({"gen_ai.operation.name": "chat", "gen_ai.provider.name": "ollama", "gen_ai.request.model": self.model,
-                  "agentsec.operation.attempted": True, "agentsec.operation.executed": True,
+                  "agentsec.operation.attempted": True, "agentsec.operation.executed": executed,
                   "agentsec.operation.outcome": "error", "error.type": error_type,
                   "agentsec.error.stage": "llm_invocation", "agentsec.error.message": message[:500],
-                  "agentsec.trust_boundary": "acmebank.llm_call"})
+                  "agentsec.trust_boundary": "acmebank.llm_call", **self._model_fields(error_type)})
+        if mismatch and self.identity:     # a different model answered
+            e["agentsec.model.executed_name_matches"] = False
+            self.executed_calls.append({"response_model": None, "matches": False})
         return self._emit(e)
 
     def proposed(self, step, *, tool, content, source):

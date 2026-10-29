@@ -88,7 +88,12 @@ for k in AGENTSEC_HEC_TLS_MODE AGENTSEC_HEC_CERT_FILE AGENTSEC_HEC_KEY_FILE AGEN
 done
 "$ROOT/scripts/hec-certs.sh" || exit 1
 
-COMPOSE="docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local --env-file $ROOT/.env"
+. "$ROOT/scripts/lab-compose.sh"
+COMPOSE="$LAB_COMPOSE"
+if [ -f "$ROOT/.agentsec/install.json" ] && [ "$REFRESH_APP" -ne 1 ]; then
+  printf '[lab-up] ERROR: this lab was set up by ./agentsec install. Start it with ./agentsec up (it validates the configuration first); lab-up.sh is only used here with --refresh-app.\n' >&2
+  exit 1
+fi
 
 log() { printf '[lab-up] %s\n' "$*"; }
 STARTED="$(date +%s)"
@@ -116,7 +121,7 @@ log "Compose files: docker-compose.yml + docker-compose.local.yml (profile local
 # Refuse to silently hide Splunk data. If the existing Splunk container keeps /opt/splunk/var in an ANONYMOUS volume (the
 # legacy layout), recreating it with this compose file would attach new EMPTY named volumes and orphan the old data.
 guard_splunk_volumes() {
-  v="$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/opt/splunk/var"}}{{.Name}}{{end}}{{end}}' agentsec_splunk 2>/dev/null || true)"
+  v="$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/opt/splunk/var"}}{{.Name}}{{end}}{{end}}' "$(svc_id splunk)" 2>/dev/null || true)"
   case "$v" in ''|*splunk_var) return 0 ;; esac
   if [ "$FRESH_SPLUNK" -eq 1 ]; then
     log "WARN  --fresh-splunk-data: Splunk will start on new EMPTY named volumes. The old data stays in volume ${v} (orphaned, not deleted)."
@@ -142,7 +147,7 @@ if [ "$REFRESH_APP" -eq 1 ]; then
   $COMPOSE up -d --force-recreate --no-deps splunk_app_init
   i=1
   while [ "$i" -le 30 ]; do
-    state="$(docker inspect -f '{{.State.Status}} {{.State.ExitCode}}' agentsec_splunk_app_init 2>/dev/null || true)"
+    state="$(docker inspect -f '{{.State.Status}} {{.State.ExitCode}}' "$(svc_id splunk_app_init)" 2>/dev/null || true)"
     if [ "$state" = "exited 0" ]; then
       break
     fi
@@ -160,7 +165,7 @@ if [ "$REFRESH_APP" -eq 1 ]; then
   log "Waiting for Splunk health after restart..."
   i=1
   while [ "$i" -le 40 ]; do
-    health="$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' agentsec_splunk 2>/dev/null || true)"
+    health="$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$(svc_id splunk)" 2>/dev/null || true)"
     if [ "$health" = "healthy" ]; then
       break
     fi
@@ -175,7 +180,7 @@ if [ "$REFRESH_APP" -eq 1 ]; then
   $COMPOSE up -d --force-recreate --no-deps splunk_hec_init
   i=1
   while [ "$i" -le 90 ]; do
-    state="$(docker inspect -f '{{.State.Status}} {{.State.ExitCode}}' agentsec_splunk_hec_init 2>/dev/null || true)"
+    state="$(docker inspect -f '{{.State.Status}} {{.State.ExitCode}}' "$(svc_id splunk_hec_init)" 2>/dev/null || true)"
     if [ "$state" = "exited 0" ]; then
       break
     fi
@@ -187,10 +192,10 @@ if [ "$REFRESH_APP" -eq 1 ]; then
     sleep 5
   done
 else
-  splunk_health="$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' agentsec_splunk 2>/dev/null || true)"
+  splunk_health="$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$(svc_id splunk)" 2>/dev/null || true)"
   if [ "$splunk_health" = "healthy" ]; then
     log "Splunk is already healthy. Starting AgentSec app services without recreating Splunk or its volumes."
-    $COMPOSE up -d --no-recreate ollama otel_collector acmebank attack_service
+    $COMPOSE up -d --no-recreate $LAB_APP_SERVICES
   else
     log "Starting stack (splunk_app_init copies the app before Splunk becomes ready)..."
     guard_splunk_volumes

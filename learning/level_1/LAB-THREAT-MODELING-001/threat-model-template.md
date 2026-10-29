@@ -76,3 +76,18 @@ What is the material risk, control strategy, and residual uncertainty?
 ## Educational-use notice
 
 This artifact is not a compliance assessment or certification.
+
+## MAESTRO view (CSA)
+
+| Layer | Elements placed here | Layer-specific threats (the article's label or custom) | Cross-layer paths they appear in |
+| --- | --- | --- | --- |
+| 1 Foundation Models | | | |
+| 2 Data Operations | | | |
+| 3 Agent Frameworks | | | |
+| 4 Deployment and Infrastructure | | | |
+| 5 Evaluation and Observability | | | |
+| 6 Security and Compliance (vertical) | | | |
+| 7 Agent Ecosystem | | | |
+
+| Threat | Layer | Evidence (DEMONSTRATED, DOCUMENTED, ASSUMED) | Inherent | Controls | Mitigation | Residual | AgentSecLab scenario |
+| --- | --- | --- | --- | --- | --- | --- | --- |

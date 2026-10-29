@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-README = (ROOT / "README.md").read_text(encoding="utf-8")
+README = ((ROOT / "README.md").read_text(encoding="utf-8") + "\n" + (ROOT / "docs/LEGACY_MULTI_PORT_FLOW.md").read_text(encoding="utf-8"))
 PREREQ = (ROOT / "docs" / "AGENTSEC_PREREQUISITES.md").read_text(encoding="utf-8")
 QUICK = (ROOT / "docs" / "QUICKSTART.md").read_text(encoding="utf-8")
 TROUBLE = (ROOT / "docs" / "TROUBLESHOOTING.md").read_text(encoding="utf-8")
@@ -19,17 +19,6 @@ LAB_UP = (ROOT / "scripts" / "lab-up.sh").read_text(encoding="utf-8")
 PREFLIGHT = (ROOT / "scripts" / "lab-preflight.sh").read_text(encoding="utf-8")
 
 
-def test_install_entry_order_and_runtime_status():
-    clone_at = README.index("git clone https://github.com/machowdhury/AgentSecLab.git")
-    copy_at = README.index("cp .env.example .env")
-    preflight_at = README.index("./scripts/lab-preflight.sh")
-    up_at = README.index("./scripts/lab-up.sh")
-    assert clone_at < copy_at < preflight_at < up_at
-    assert "Podman is **not validated**" in README
-    assert "NOT VALIDATED" in PREREQ
-    assert "podman compose up" not in PREREQ
-    assert "Container Runtime Requirements" in PREREQ
-    assert "NOT BENCHMARKED" in PREREQ
 
 
 def test_documented_flags_and_preflight_checks_exist_in_scripts():

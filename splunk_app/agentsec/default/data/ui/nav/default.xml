@@ -52,6 +52,13 @@
     <view name="ws_lab_advanced_capstone">MASTER-2026-001</view>
     <view name="ws_agentsec_mastery">Mastery Check</view>
   </collection>
+  <collection label="AI Security Assurance">
+    <view name="ws_assurance_executive">Executive overview</view>
+    <view name="ws_assurance_agent_mcp">Agent, MCP and A2A</view>
+    <view name="ws_assurance_supply_chain">Supply chain and model</view>
+    <view name="ws_assurance_threat_model">Threat model coverage</view>
+    <view name="ws_assurance_compliance">Compliance and governance</view>
+  </collection>
   <view name="ws_agentsec_arena">Arena</view>
   <view name="search">Search</view>
 </nav>

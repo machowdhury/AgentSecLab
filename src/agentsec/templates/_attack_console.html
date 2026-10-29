@@ -1,0 +1,33 @@
+{# Shared Attack console chrome: scenario cards, workflow rail, scope strip. Presentation only; routes and ids are unchanged. #}
+{% set ac_cards = [
+  ("LAB-PI-001", "/labs/LAB-PI-001", "Direct Prompt Injection", "Untrusted input vs the input control"),
+  ("LAB-MCP-001", "/labs/LAB-MCP-001", "Tool Authorization", "A tool the agent was never granted"),
+  ("LAB-RAG-CONTEXT", "/labs/LAB-RAG-CONTEXT", "RAG / Retrieved Context", "Retrieved content is data, not authority"),
+  ("LAB-MEMORY-001", "/labs/LAB-MEMORY-001", "Persistent Memory", "Influence that crosses a run boundary"),
+  ("LAB-AGENT-GOAL-INTEGRITY-001", "/labs/LAB-AGENT-GOAL-INTEGRITY-001", "Goal / Instruction Integrity", "An instruction that redefines the task"),
+  ("LAB-AGENT-DELEGATION-001", "/labs/LAB-AGENT-DELEGATION-001", "Agent Identity / Delegation", "A claimed delegation of authority"),
+  ("LAB-AGENTSEC-CAPSTONE-001", "/labs/LAB-AGENTSEC-CAPSTONE-001", "Lending Assistant Investigation", "Investigate the full chain"),
+] %}
+<nav class="scenario-nav" aria-labelledby="scenario-nav-heading">
+  <p class="scenario-nav__label" id="scenario-nav-heading">Scenario</p>
+  <ul class="scenario-cards">
+    {% for cid, chref, ctitle, cdesc in ac_cards %}
+    <li><a class="scenario-card" href="{{ chref }}"{% if cid == lab_id %} aria-current="page"{% endif %}>
+      <span class="scenario-card__title">{{ ctitle }}</span>
+      <span class="scenario-card__desc">{{ cdesc }}</span>
+      {% if cid == lab_id %}<span class="scenario-card__state">SELECTED</span>{% endif %}
+    </a></li>
+    {% endfor %}
+  </ul>
+</nav>
+{% if not ac_cards_only %}
+<ol class="step-rail" aria-label="Workflow">
+  <li><a href="{{ ac_scenario|default('#security-question') }}">1 Scenario</a></li>
+  <li><a href="{{ ac_configure|default('#experiment-heading') }}">2 Configure</a></li>
+  <li><a href="{{ ac_launch|default('#attack-button') }}">3 Launch</a></li>
+  <li><a href="{{ ac_progress|default('#launch-status') }}">4 Progress</a></li>
+  <li><a href="{{ ac_results|default('#run-results') }}">5 Results</a></li>
+  <li><a href="{{ ac_evidence|default('#advanced') }}">6 Evidence</a></li>
+</ol>
+<p class="scope-strip"><strong>Local educational lab</strong> &middot; not production authentication &middot; closed allowlist only &middot; this page does not authorize. Browser selects a specimen and mode only; authority, profile and IDs stay server-owned.</p>
+{% endif %}

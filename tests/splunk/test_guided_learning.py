@@ -52,10 +52,11 @@ def test_navigation_is_about_twelve_curriculum_groups():
         "Data and Memory Governance",
         "Operational Scenarios",
         "Mastery",
+        "AI Security Assurance",
         "Arena",
         "Search",
     ]
-    assert len(children) == 13
+    assert len(children) == 14                      # twelve curriculum groups plus the generated AI Security Assurance collection
     assert len(children) < 20
     for child in children:
         if child.tag != "collection":

@@ -1,0 +1,38 @@
+/* sp-tokens:begin
+ * Splunk visual alignment (--sp-*). Colours below are FILLS, BORDERS and CHART colours only: most fail 4.5:1 as text on white.
+ * Text always uses the matching --sp-ink-* token, each checked >= 4.5:1 on its --sp-tint-* background and on white (tests/test_splunk_tokens.py).
+ * Source: values supplied in the v1.3.0 design brief; the Splunk Atlassian colour pages could not be opened (login required), so they are NOT verified against them.
+ * This block is duplicated verbatim in academy-ui/src/splunk-tokens.css (the Academy is built in isolation); a test keeps the two identical.
+ */
+:root {
+  /* categorical series, in order */
+  --sp-cat-1: #1e93c6; --sp-cat-2: #f2b827; --sp-cat-3: #d6563c; --sp-cat-4: #6a5c9e; --sp-cat-5: #31a35f;
+  --sp-cat-6: #ed8440; --sp-cat-7: #3863a0; --sp-cat-8: #a2cc3e; --sp-cat-9: #cc5068; --sp-cat-10: #73427f;
+  /* semantic fills */
+  --sp-critical: #d93f3c; --sp-high: #f58f39; --sp-warning: #f7bc38; --sp-good: #65a637; --sp-info: #6db7c6; --sp-neutral: #555555;
+  /* brand and UI grays */
+  --sp-green: #65a637; --sp-black: #000000; --sp-gray: #97999b; --sp-white: #ffffff;
+  --sp-gray-darkest: #2d2d2d; --sp-gray-darker: #474444; --sp-gray-dark: #72777a; --sp-gray-light: #dadce0; --sp-gray-lightest: #f7f7f7;
+  /* links and actions (defined; links and buttons are not restyled in this change) */
+  --sp-link-light: #00a9e0; --sp-link: #0f7bb8; --sp-cta: #2eb50b; --sp-cta-hover: #43d220; --sp-cta-dark: #197301;
+  /* chart furniture */
+  --sp-grid: #ebedef; --sp-axis: #d9dce0;
+  /* divergent pairs (defined for future charts; none is drawn today) */
+  --sp-div-1a: #ed8440; --sp-div-1b: #6a5c9e; --sp-div-2a: #d6563c; --sp-div-2b: #1e93c6; --sp-div-3a: #49443b; --sp-div-3b: #31a35f;
+  --sp-div-4a: #3863a0; --sp-div-4b: #31a35f; --sp-div-5a: #3863a0; --sp-div-5b: #a2cc3e; --sp-div-6a: #cc5068; --sp-div-6b: #f7bc38;
+  /* sequential base colours (defined for future charts; no ramp is generated) */
+  --sp-seq-1: #1d92c5; --sp-seq-2: #d6563c; --sp-seq-3: #6a5c9e; --sp-seq-4: #31a35f; --sp-seq-5: #ed8440; --sp-seq-6: #3863a0;
+  /* accessible text (ink) on tinted backgrounds (tint) */
+  --sp-tint-critical: #fdeceb; --sp-ink-critical: #9e1f1c;
+  --sp-tint-high: #fef0e1;     --sp-ink-high: #7a3f06;
+  --sp-tint-warning: #fef6dc;  --sp-ink-warning: #6b4a00;
+  --sp-tint-good: #eef6e8;     --sp-ink-good: #2c6210;
+  --sp-tint-info: #e8f4f7;     --sp-ink-info: #1d5c6d;
+  --sp-tint-neutral: #f1f1f1;  --sp-ink-neutral: #474444;
+  --sp-tint-recorded: #f1eef8; --sp-ink-recorded: #574a86;
+  --sp-tint-replayed: #e9eff7; --sp-ink-replayed: #2b4d80;
+  --sp-ink-link: #0b5e8c;
+  /* HIGH is a solid orange fill with dark text (5.8:1) */
+  --sp-on-high: #2d2d2d;
+}
+/* sp-tokens:end */

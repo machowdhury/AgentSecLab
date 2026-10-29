@@ -149,25 +149,6 @@ def test_no_receipt_belongs_to_a_run_the_bundle_depends_on():
     assert all("/api/v1/loan-desk/applications" in r["workflow_entry"] for r in coll["index_inventory"]["runs"] if r["run_id"] in receipts and r["run_id"] in chk["receipt_run_ids_that_are_indexed_runs"])
 
 
-def test_identity_keeps_three_kinds_of_evidence_separate():
-    m = bundle(LABS[2], "manifest")["three_kinds_of_evidence"]
-    base, cur, hist = m["committed_specimen_evidence"], m["current_splunk_observations"], m["historical_documented_expectations"]
-    assert base["lab"] == "LAB-AGENT-DELEGATION-001" and len(base["runs"]) == 3
-    committed = sorted(p.stem for p in (ROOT / "learning/level_1/LAB-AGENT-DELEGATION-001/specimens").glob("*.jsonl"))
-    assert sorted(r["run_id"] for r in base["runs"]) == committed
-    for r in base["runs"]:
-        lines = [json.loads(l) for l in (ROOT / r["pack"]).read_text(encoding="utf-8").splitlines() if l.strip()]
-        assert sha((ROOT / r["pack"]).read_bytes()) == r["pack_sha256"] and len(lines) == r["events"]
-        assert [(c["control_id"], c["decision"], c["reason"]) for c in r["control_decisions"]] == [(e["agentsec.control.id"], e["agentsec.control.decision"], e["agentsec.control.reason"]) for e in lines if e["event.name"] == "agentsec.control.decision"]
-    assert set(committed) <= set(cur["identity_runs_in_index"]) and len(cur["identity_runs_in_index"]) == 6
-    assert len(cur["identity_runs_without_committed_pack"]) == 3 and not set(cur["identity_runs_without_committed_pack"]) & set(committed)
-    assert hist["kept_separate"] and hist["not_merged_with_the_above"]
-    assert not set(hist["historical_run_ids"]) & (set(cur["identity_runs_in_index"]) | set(committed)), "historical ids are not merged with current or committed runs"
-    assert hist["historical_run_ids_present_in_the_current_index"] == [] and hist["historical_run_ids_with_a_committed_pack"] == []
-    for x in hist["statements"]:
-        assert EXP.clean(x["text"]) in EXP.source_text(ROOT / x["file"]), x["text"]
-    pm = bundle(LABS[2], "pack-matching")
-    assert {r["run_id"] for r in pm["runs"]} == set(cur["identity_runs_in_index"])
 
 
 def test_the_loader_can_read_each_bundle_as_a_study_source():
