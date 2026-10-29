@@ -1,7 +1,7 @@
 # Splunk engineering governance 101
 
 **Status:** Process implemented after LAB-MCP-006 workshop validation. Not a new attack lab.  
-**Parents:** `docs/SPLUNK_ENGINEERING_GOVERNANCE.md`, `.cursor/rules/33-splunk-agent-skills.mdc`.
+**Parents:** `docs/SPLUNK_ENGINEERING_GOVERNANCE.md`, an unpublished internal record.
 
 ---
 
@@ -19,7 +19,7 @@ Question → evidence → indexed fields → field contract → KO design → SP
 
 ## WHERE DOES IT SIT IN AGENTSEC?
 
-Process layer beside `.cursor/rules/31-spl-validation.mdc` and `.cursor/rules/32-ui-design-system.mdc`. It does not authorize MCP calls and does not change schema 1.4.0.
+Process layer beside an unpublished internal record and an unpublished internal record. It does not authorize MCP calls and does not change schema 1.4.0.
 
 ## WHAT IS THE TRUST BOUNDARY?
 

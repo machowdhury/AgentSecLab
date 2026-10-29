@@ -26,7 +26,13 @@ The left menu is the map:
 | **EVAL Center**, **Risk Center**, **Governance Center**, **Security Assurance** | Read recorded evaluations, assess a risk yourself, see framework relationships and controls |
 | **System Status** (bottom of the menu **when the lab is not behind the gateway**) | What is running: Attack Service, AcmeBank, the model, replay packs, Splunk reachability. Behind the HTTPS gateway the menu does not show it: open `/attack-service/academy/status` instead, or ask the host owner for `./agentsec status` |
 
-Every page says whether its evidence is **LIVE** (a run on this machine), **RECORDED** (captured earlier and replayed), **SIMULATED** or **DOCUMENTED**. Read that label first. A recorded run is one run, not a rate.
+Every page says what its evidence is. Read that label first. A recorded run is one run, not a rate.
+
+| Word | Kind | Meaning |
+|---|---|---|
+| **LIVE**, **RECORDED**, **SIMULATED** | Evidence label (and the catalog's Mode column) | A run on this machine; a run captured earlier and replayed from a committed pack; a labelled simulated packet that enforces nothing |
+| **DOCUMENTED** | Evidence status on threat-model and risk items | A file states it; nothing was run or observed. It is weaker than RECORDED |
+| **WORKBENCH**, **GUIDED MISSION**, **REPLAY**, **CONTENT-ONLY** | Page badge | How the workshop page works (an interactive workbench, the Loan Desk mission, a replay of recorded evidence, or reading and analysis only). The badge says nothing about how real the evidence is; the evidence label does |
 
 A good first workshop is **LAB-HITL-APPROVAL**: it is a SIMULATED packet analysis, so nothing is launched and nothing can fail. On the Practice tab choose a prediction, reveal the recorded packet, then read the Prove tab. For a gentler start choose **Start the beginner route** on the home page (Understand, Connect, Recognize, Practice).
 
@@ -200,6 +206,39 @@ An optional last section compares your work with CSA's MAESTRO Threat Analyzer. 
 - **Governance Center** (`/learn/governance`): see which framework items relate to which controls, and where the gaps are. These are educational links, not compliance claims.
 
 ![Risk Center](images/risk-center.png)
+
+## 12. A practitioner learning path
+
+For a practitioner working alone, in this order. It uses only workshops that exist; each row says what kind of evidence the workshops give you. **Complete a workshop before you read its implementation.** Predict first, act, then compare. Stage 10 needs everything before it.
+
+| Stage | Goal | Workshops (`LAB-...`) | Needs first |
+|---|---|---|---|
+| 1. Agentic security fundamentals | What an agent is, what LIVE means, what Splunk does not do | Orientation (reading) | Basic security knowledge |
+| 2. Prompt injection | Untrusted text acting as instruction, direct and through context | `PI-001` (LIVE), `RAG-CONTEXT` (LIVE), `MEMORY-001` (LIVE), `AGENT-GOAL-INTEGRITY-001` (LIVE) | 1 |
+| 3. MCP and tool security | Tool, scope, resource and argument authorization; trusting tool results and catalogs | `MCP-001`, `MCP-003`, `MCP-004`, `MCP-005`, `MCP-CATALOG` (all LIVE) | 2 |
+| 4. Authorization and runtime controls | Controls outside the model; approval, credential lifetime, bounds | `LOANDESK-001` (LIVE), `HITL-APPROVAL`, `CREDENTIAL-LIFETIME`, `CODE-AGENT-BOUNDS`, `CHANGE-BOUNDS` (SIMULATED) | 3 |
+| 5. AI supply chain | Scanner findings versus runtime evidence; model evaluation; provenance and inventory | `SCANNER-RUNTIME-EVIDENCE`, `EXTERNAL-EVALUATION-GARAK` (RECORDED), `COMPONENT-PROVENANCE`, `ASSET-INVENTORY` (SIMULATED) | 3 |
+| 6. Multi-agent and delegation | Claimed versus granted authority; the confused deputy; identity | `AGENT-DELEGATION-001`, `MCP-006` (LIVE), `A2A-AUTH-DELEGATION` (SIMULATED), `AGENT-IDENTITY-NHI` (RECORDED) | 3, 4 |
+| 7. Splunk investigation | Rebuild a run from events; detection coverage | `SPLUNK-DEFENDER-BRIDGE`, `BLUE-TEAM-INCIDENT-001`, `DETECTION-ENGINEERING` (RECORDED) | 3, a few LIVE runs |
+| 8. Threat modeling | Seven layers, trust boundaries, risk register | `THREAT-MODELING-001` (SIMULATED, with the MAESTRO workbench) | 4 to 6 |
+| 9. Assurance and compliance evidence | Read findings, statuses and framework relationships without claiming compliance | The AI Security Assurance dashboards ([guide](AI_SECURITY_ASSURANCE.md)), `PRIVACY-DATA-GOVERNANCE-001`, `RAG-PURPOSE`, `RECALL-ISOLATION` (SIMULATED), the Governance Center | 7 |
+| 10. Capstone | Attack, investigate, defend and retest end to end | `AGENTSEC-CAPSTONE-001` (LIVE), `MULTI-STAGE-INCIDENT-001`, `ADVANCED-CAPSTONE-MASTERY-001` (RECORDED) | 1 to 9 |
+
+### Practitioner evidence template
+
+Copy this for each workshop or investigation you want to keep.
+
+| Heading | Write |
+|---|---|
+| Objective | What question you are answering and which workshop |
+| Attack | What you did, in which mode and profile, and the run id |
+| Observed behavior | What the agent and the control did; decision versus execution |
+| Evidence | The Splunk search or finding, the evidence class (LIVE, RECORDED, SIMULATED) and what it cannot show |
+| Control evaluation | Which control, its status, and whether the protection was observed or only attempted |
+| Security interpretation | What it means and why it matters; what you would not conclude |
+| Remediation | The control or change you would make |
+| Retest | The RETEST run id and whether the outcome changed |
+| Lessons learned | What surprised you; what to try next |
 
 ## Known cosmetic issue
 On the CTF Challenges page the breadcrumb reads "Not found" although the page itself is correct (visible in the screenshot in section 8).

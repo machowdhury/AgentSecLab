@@ -3,7 +3,7 @@
 1. Open pull requests against the default branch from your own branch.
 2. Run the tests ([Getting started](docs/GETTING_STARTED.md#for-contributors)). If you change `academy-ui/`, rebuild with `sh scripts/build_academy_ui.sh` and commit the built assets.
 3. If you change evidence data, run the relevant `scripts/export_*.py --check`.
-4. Never commit `.env`, secrets, or local tool folders (`.cursor/`, `.claude/`, `.tmp-*/`).
+4. Never commit `.env`, secrets, or local tool folders (an unpublished internal record, `.claude/`, `.tmp-*/`).
 5. Do not add scores, compliance claims, owners or approvals that the evidence does not state.
 
 More: [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md). Use GitHub issues for questions and bugs.

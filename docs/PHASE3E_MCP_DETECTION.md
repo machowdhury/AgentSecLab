@@ -114,7 +114,7 @@ Index + sourcetype + two `event.name` values. `eventstats` by `run_id, tool` ove
 
 DETECT tab now teaches hunt vs detection. Left table remains indexed `Q-MCP-AFTER-DENY`. Right table is **SIMULATED** `DET-MCP-001-POSITIVE-CONTROL`. Copy states DET-MCP-001 is disabled and did **not** fire on validated LIVE runs.
 
-DETECT-only UI review: `docs/reviews/ui-review-ws-lab-mcp-001-detect-2026-09-11.md`. Screenshot: `docs/screenshots/lab-mcp-001/detect_3e_detect.png`. No BLOCKER/HIGH. Residual MEDIUM: Studio orange empty chrome; SIMULATED column clip.
+DETECT-only UI review: an unpublished internal record. Screenshot: an unpublished internal record. No BLOCKER/HIGH. Residual MEDIUM: Studio orange empty chrome; SIMULATED column clip.
 
 ## Limitations
 

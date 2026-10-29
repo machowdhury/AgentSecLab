@@ -4,7 +4,7 @@
 **Scope:** AgentSec repository Splunk content after Pre-Phase-14 UI/UX remediation. Schema 1.9.0 unchanged. No DET-GOAL. Identity Studio remains unstarted. Home is `ws_agentsec_home`. Memory Studio remains `ws_lab_memory_security`. Goal Studio is `ws_lab_agent_goal_integrity`.  
 **This file is inventory, not live Splunk proof.** Validation status is copied from existing phase documents.
 
-Governance: `docs/SPLUNK_ENGINEERING_GOVERNANCE.md`. Rule: `.cursor/rules/33-splunk-agent-skills.mdc`. Review skill: `.cursor/skills/splunk-ko-review/SKILL.md`.
+Governance: `docs/SPLUNK_ENGINEERING_GOVERNANCE.md`. Rule: an unpublished internal record. Review skill: an unpublished internal record.
 
 Index: `agentsec_telemetry`. Sourcetypes: `otel:agentic:json` (runtime schema 1.9.0; prior 1.8.0 / 1.7.0 events remain valid historical copies), `agentsec:scanner:finding` (static scanner evidence), and `agentsec:external:evaluation` (adversarial evaluation evidence). External sourcetypes are not `security_event` and do not authorize. App: `agentsec`.
 
@@ -225,10 +225,10 @@ Canonical JSON beside each lab: `learning/level_1/LAB-*/dashboard.definition.jso
 | DET-MCP-003 / 004 / 005 / 006 | DETECTION | DETECTION ANALYZED — NO NEW DETECTOR |
 | Q-MCP-CATALOG-METADATA / TRUST / FINGERPRINT / FOLLOWON / AUTHZ | HUNT | Duplicate or reused; not published as separate files |
 | DET-MCP-CATALOG | DETECTION | DETECTION ANALYZED — DETECTION CANDIDATE JUSTIFIED FOR LATER DESIGN; not implemented |
-| DET-RAG / Q-RAG-CONTEXT / TRUST / FINGERPRINT / FOLLOWON / AUTHZ | DETECTION / HUNT | 10C extra hunts redundant; 10D DET-RAG REJECT; DETECTION ANALYZED — NO NEW DETECTOR (`docs/reviews/splunk-ko-review-rag-detection-2026-09-16.md`) |
-| DET-MEMORY / Q-MEMORY-WRITE / TRUST / FINGERPRINT / FOLLOWON / AUTHZ | DETECTION / HUNT | 11C extra hunts redundant; 11D DET-MEMORY REJECT; overlay reason and AGENT MEMORY NOTE regex REJECT; DETECTION ANALYZED — NO NEW DETECTOR (`docs/reviews/splunk-ko-review-memory-2026-09-17.md`, `docs/reviews/splunk-ko-review-memory-detection-2026-09-18.md`) |
-| DET-A2A / DET-DELEGATION / Q-A2A-WHO / CLAIM / Q-AGENT-IDENTITY-OBSERVE / Q-AGENT-DELEGATION-EXECUTED | DETECTION / HUNT | 12C extra hunts redundant; overlay reason REJECT as production IOC; DETECTION ANALYZED — NO NEW DETECTOR (`docs/reviews/splunk-ko-review-agent-delegation-2026-09-18.md`) |
-| DET-GOAL / Q-GOAL-TASK / INSTRUCTION / EXECUTED | DETECTION / HUNT | 13C extra hunts redundant; overlay reason and AGENT NOTE REJECT as production IOC; DETECTION ANALYZED — NO NEW DETECTOR (`docs/reviews/splunk-ko-review-goal-integrity-2026-09-18.md`) |
+| DET-RAG / Q-RAG-CONTEXT / TRUST / FINGERPRINT / FOLLOWON / AUTHZ | DETECTION / HUNT | 10C extra hunts redundant; 10D DET-RAG REJECT; DETECTION ANALYZED — NO NEW DETECTOR (an unpublished internal record) |
+| DET-MEMORY / Q-MEMORY-WRITE / TRUST / FINGERPRINT / FOLLOWON / AUTHZ | DETECTION / HUNT | 11C extra hunts redundant; 11D DET-MEMORY REJECT; overlay reason and AGENT MEMORY NOTE regex REJECT; DETECTION ANALYZED — NO NEW DETECTOR (an unpublished internal record, an unpublished internal record) |
+| DET-A2A / DET-DELEGATION / Q-A2A-WHO / CLAIM / Q-AGENT-IDENTITY-OBSERVE / Q-AGENT-DELEGATION-EXECUTED | DETECTION / HUNT | 12C extra hunts redundant; overlay reason REJECT as production IOC; DETECTION ANALYZED — NO NEW DETECTOR (an unpublished internal record) |
+| DET-GOAL / Q-GOAL-TASK / INSTRUCTION / EXECUTED | DETECTION / HUNT | 13C extra hunts redundant; overlay reason and AGENT NOTE REJECT as production IOC; DETECTION ANALYZED — NO NEW DETECTOR (an unpublished internal record) |
 | Q-SCANNER-PASS-FAIL | HUNT | Would collapse zero findings / missing scan / error |
 | DET-SCANNER-* | DETECTION | Phase 9C investigation only; scanner HIGH ≠ DENY |
 | Q-SCANNER-FILEHASH-TO-CONTENT-HASH | HUNT | Wrong hash semantics; live 0 rows |

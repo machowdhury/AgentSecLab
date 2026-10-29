@@ -26,7 +26,7 @@ affiliation, sponsorship, certification, or endorsement by an external project.
 | PROJECT | garak — Generative AI Red-teaming & Assessment Kit / “the LLM vulnerability scanner” |
 | OFFICIAL REPOSITORY | https://github.com/NVIDIA/garak |
 | VERSION TESTED | 0.17.0 |
-| LICENSE | Repository metadata records Apache-2.0; current upstream license remains `NEEDS_EXTERNAL_VALIDATION` |
+| LICENSE | Repository metadata records Apache-2.0; the upstream `LICENSE` file was read on 2026-10-29 and is Apache-2.0. Native JSON format stability remains `NEEDS_EXTERNAL_VALIDATION` |
 | PURPOSE | Probe generative-AI systems and evaluate model responses with garak’s native probes and detectors |
 | HOW AGENTSEC USES IT | Runs one bounded probe against a local Ollama model, preserves the native JSONL report, normalizes one `evaluation` record, and sends that record to Splunk for investigation |
 | INTEGRATION CLASS | External adversarial evaluation |

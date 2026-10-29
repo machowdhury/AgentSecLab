@@ -233,7 +233,7 @@ For preflight and startup details see [docs/QUICKSTART.md](docs/QUICKSTART.md); 
 | Read this | When |
 |---|---|
 | [Installation and deployment](docs/INSTALLATION_AND_DEPLOYMENT.md) | Installing, configuring, operating and recovering the lab |
-| [Learner guide](docs/LEARNER_GUIDE.md) | Using the Academy, workshops, Attack UI, Splunk, CTF and MAESTRO |
+| [Learner guide](docs/LEARNER_GUIDE.md) | Using the Academy, workshops, Attack UI, Splunk, CTF and MAESTRO, plus a ten-stage practitioner learning path and an evidence template |
 | [Workshop catalog](docs/WORKSHOP_CATALOG.md) | All 33 workshops |
 | [Benefits, architecture and security](docs/BENEFITS_AND_SECURITY_ARCHITECTURE.md) | Why it matters, trust boundaries, what is and is not claimed |
 | [Visual guide](docs/VISUAL_GUIDE.md) | Diagrams and screenshots |

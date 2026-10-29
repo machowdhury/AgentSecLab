@@ -84,8 +84,11 @@ def select(files: list[str], cfg: dict, read) -> tuple[list[str], list[tuple[str
     fs = set(files)
     reach = closure(fs, cfg, read)
     keep, drop = [], []
+    allowed = set(cfg.get("allowed_top_level", []))
     for f in files:
-        if f in cfg.get("included_files", []):
+        if allowed and f.split("/", 1)[0] not in allowed:
+            drop.append((f, "not on the export allowlist"))
+        elif f in cfg.get("included_files", []):
             keep.append(f)
         elif under(f, cfg["excluded_dirs"]) and not under(f, cfg.get("included_dirs", [])):
             drop.append((f, "internal record (excluded directory)"))
@@ -112,15 +115,22 @@ def drop_test_functions(text: str, names: list[str]) -> str:
     return "".join(lines)
 
 
+UNPUBLISHED = re.compile(r"`?(?:docs/(?:reviews|design|screenshots|security|ops)/[A-Za-z0-9_./*-]*|\.cursor/[A-Za-z0-9_./*-]*)`?")
+
+
+def mention(m: re.Match, kept: set[str]) -> str:
+    return m.group(0) if m.group(0).strip("`") in kept else "an unpublished internal record"
+
+
 def rewrite(src: str, text: str, kept: set[str], note: str) -> str:
-    """Links to files that are not exported become plain text (images become their alt text)."""
+    """Links to files that are not exported become plain text (images become their alt text); so do bare path mentions of unpublished records."""
     def sub(m: re.Match) -> str:
         bang, label, target = m.group(1), m.group(2), m.group(3)
         p = resolve(src, target)
         if p is None or p in kept or p.rstrip("/") in kept or any(k.startswith(p.rstrip("/") + "/") for k in kept):
             return m.group(0)
         return label if bang else f"{label} {note}" if note else label
-    return LINK.sub(sub, text)
+    return UNPUBLISHED.sub(lambda m: mention(m, kept), LINK.sub(sub, text))
 
 
 def main(argv: list[str]) -> int:

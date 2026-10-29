@@ -1,6 +1,6 @@
 # Third-party notices
 
-AgentSecLab is licensed under the Apache License 2.0 ([LICENSE](LICENSE)). It uses the components below, each under its own licence. Licences were read from package metadata or the project's pin files; confirm them upstream before you redistribute.
+AgentSecLab is licensed under the Apache License 2.0 ([LICENSE](LICENSE)). It uses the components below, each under its own licence. Licences were read from package metadata, the project's pin files and, for the tools below, each upstream `LICENSE` file on GitHub (2026-10-29).
 
 ## Python dependencies (`requirements.txt`, pinned)
 
@@ -26,7 +26,7 @@ AgentSecLab is licensed under the Apache License 2.0 ([LICENSE](LICENSE)). It us
 | Component | Licence |
 |---|---|
 | Cisco MCP Scanner 4.8.4 | Apache-2.0 |
-| garak 0.17.0 (a recorded result is included, the tool is not) | Apache-2.0 per the repository pin; upstream to be re-validated |
+| garak 0.17.0 (a recorded result is included, the tool is not) | Apache-2.0 |
 | Ollama | MIT |
 | Llama 3.2 models | Llama 3.2 Community License |
 | Splunk Enterprise | Splunk's own terms |
@@ -37,3 +37,5 @@ AgentSecLab is licensed under the Apache License 2.0 ([LICENSE](LICENSE)). It us
 The Cloud Security Alliance MAESTRO framework, NIST AI RMF, OWASP, MITRE ATLAS and ISO/IEC 42001 are referenced as publications; none of their text is reproduced beyond identifiers and short titles. Full tool detail: [docs/SECURITY_TOOLS.md](docs/SECURITY_TOOLS.md).
 
 **Splunk terms.** The compose file starts Splunk with its licence-acceptance arguments, so running the bundled Splunk means you accept Splunk's own terms; read them first.
+
+**Trademarks.** Splunk is a trademark of Splunk LLC, Cisco is a trademark of Cisco Systems, Inc., NVIDIA is a trademark of NVIDIA Corporation, and Llama, Ollama, nginx and the other names above belong to their owners. AgentSecLab is an independent project: it is not endorsed by, affiliated with or supported by any of them, and it names them only to say what it integrates with.

@@ -10,7 +10,7 @@ Workshops fail as teaching tools when the page looks like a game, when ALLOW/DEN
 
 ## HOW DOES IT WORK?
 
-Tokens are hex in the parent doc. Flask pages use CSS variables. Studio sets markdown `fontColor`, table header navy/white, and page `#F6F8FB`. `/ui-review` (`.cursor/skills/ui-review/SKILL.md`) writes a review before fixing BLOCKER/HIGH.
+Tokens are hex in the parent doc. Flask pages use CSS variables. Studio sets markdown `fontColor`, table header navy/white, and page `#F6F8FB`. `/ui-review` (an unpublished internal record) writes a review before fixing BLOCKER/HIGH.
 
 Secondary text is `#3D4654`, not `#5B6573` (that pair fails WCAG AA on the page background).
 
@@ -36,7 +36,7 @@ None from the design system itself. Dashboards still emit nothing; AcmeBank stil
 
 ## HOW WILL SPLUNK SHOW IT?
 
-Navy table headers, white panels, labeled SIMULATED, GRID tabs. Screenshot evidence lives under `docs/screenshots/lab-pi-001/`.
+Navy table headers, white panels, labeled SIMULATED, GRID tabs. Screenshot evidence lives under an unpublished internal record.
 
 ## WHAT CONTROL COULD CHANGE THE RESULT?
 

@@ -5,6 +5,39 @@
     "THIRD_PARTY_NOTICES.md",
     "docs/README.md"
   ],
+  "allowed_top_level": [
+    ".env.example",
+    ".gitignore",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "LICENSE",
+    "README.md",
+    "SECURITY.md",
+    "THIRD_PARTY_NOTICES.md",
+    "academy-ui",
+    "agentsec",
+    "artifacts",
+    "config",
+    "deploy",
+    "docker",
+    "docker-compose.gateway-ctf.yml",
+    "docker-compose.gateway.yml",
+    "docker-compose.local.yml",
+    "docker-compose.yml",
+    "docs",
+    "gateway",
+    "learning",
+    "pyproject.toml",
+    "requirements.txt",
+    "schemas",
+    "scripts",
+    "splunk_app",
+    "src",
+    "telemetry",
+    "tests",
+    "tools",
+    "uv.lock"
+  ],
   "included_dirs": [
     "docs/images",
     "docs/p1a-evidence",
@@ -15,7 +48,9 @@
     "docs/learning-notes"
   ],
   "included_files": [
-    "docs/design/figma_v2_tokens.json"
+    "docs/design/figma_v2_tokens.json",
+    "docs/reviews/live-validation-goal-identity-2026-09-24.md",
+    "docs/reviews/logic-proof-privacy-data-governance-2026-09-25.md"
   ],
   "excluded_dirs": [
     "docs/reviews",
@@ -25,6 +60,7 @@
     "docs/security"
   ],
   "excluded_tests": [
+    "tests/devtools/test_cursor_workflow.py",
     "tests/test_batch7_preservation.py",
     "tests/test_batch8_specimens.py",
     "tests/test_batch9_specimens.py",
