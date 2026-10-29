@@ -125,17 +125,17 @@ For Splunk knowledge-object work:
 
 read:
 
-an unpublished internal record
+an internal record (not published)
 
 then use:
 
-an unpublished internal record
+an internal record (not published)
 
 and consult the applicable official Splunk Agent Skills.
 
 For learner-facing UI also read:
 
-an unpublished internal record
+an internal record (not published)
 
 and run:
 

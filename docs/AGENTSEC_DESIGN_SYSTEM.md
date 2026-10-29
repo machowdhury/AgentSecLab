@@ -2,7 +2,7 @@
 
 **Status:** IMPLEMENTED for first-lab surfaces (AcmeBank, Attack Service, LAB-PI-001 Dashboard Studio)  
 **Applies to:** Learner-facing UI. Not Splunk’s own chrome (app bar, login), which we do not restyle.  
-**Companions:** `docs/SPLUNK_DESIGN_SYSTEM.md` (Studio application), `docs/SPLUNK_UX_DESIGN.md` (interaction), an unpublished internal record
+**Companions:** `docs/SPLUNK_DESIGN_SYSTEM.md` (Studio application), `docs/SPLUNK_UX_DESIGN.md` (interaction), an internal record (not published)
 
 This is the **parent** visual contract. Splunk-specific layout rules stay in the Splunk docs. Do not invent a second palette.
 
@@ -101,4 +101,4 @@ MLTK purple dashboards, MCP/A2A/RAG chrome, Cisco branding, dark “hacker” th
 
 ## Review
 
-Run `/ui-review` (an unpublished internal record) before calling a learner UI complete. Studio completion also requires a screenshot pass (`docs/PHASE2C3_DASHBOARD.md`).
+Run `/ui-review` (an internal record (not published)) before calling a learner UI complete. Studio completion also requires a screenshot pass (`docs/PHASE2C3_DASHBOARD.md`).

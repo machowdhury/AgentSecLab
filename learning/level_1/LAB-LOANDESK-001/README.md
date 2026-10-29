@@ -30,4 +30,4 @@ Understand, Explore, Predict, Attack, Observe, Investigate, Defend, Retest, Comp
 
 ## Limits
 
-Synthetic data only. The model's prose is advisory and unverified. Model output varies run to run, so one run is an illustration; see an unpublished internal record for repeated runs. This is not a production control.
+Synthetic data only. The model's prose is advisory and unverified. Model output varies run to run, so one run is an illustration; see an internal record (not published) for repeated runs. This is not a production control.

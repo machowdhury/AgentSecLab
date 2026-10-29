@@ -1,6 +1,6 @@
 # Workshop catalog
 
-All **33** workshops: the **Orientation** (a reading page, not a lab) and the **32 registered labs** in the Academy registry (`learning/academy/lab_registry_data.json`). This file is generated from the registry, the curriculum (`learning/academy/curriculum.json`) and the workshop guides (`learning/academy/workshop_guides.json`), so the ids, levels, execution modes and expected results below are the Academy's own. Open any workshop in the Academy at `https://<your host>/learn/lab/<ID>` (for example `https://localhost/learn/lab/LAB-MCP-003` through the gateway).
+All **33** workshops: the **Orientation** (a reading page, not a lab) and the **32 registered labs** in the Academy registry (`learning/academy/lab_registry_data.json`). This file was assembled from the registry, the curriculum (`learning/academy/curriculum.json`) and the workshop guides (`learning/academy/workshop_guides.json`), so the ids, levels, execution modes and expected results below are the Academy's own. Open any workshop in the Academy at `https://<your host>/learn/lab/<ID>` (for example `https://localhost/learn/lab/LAB-MCP-003` through the gateway).
 
 ## Read this first: what each execution mode means
 

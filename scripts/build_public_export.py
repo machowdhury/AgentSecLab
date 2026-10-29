@@ -119,7 +119,7 @@ UNPUBLISHED = re.compile(r"`?(?:docs/(?:reviews|design|screenshots|security|ops)
 
 
 def mention(m: re.Match, kept: set[str]) -> str:
-    return m.group(0) if m.group(0).strip("`") in kept else "an unpublished internal record"
+    return m.group(0) if m.group(0).strip("`") in kept else "an internal record (not published)"
 
 
 def rewrite(src: str, text: str, kept: set[str], note: str) -> str:

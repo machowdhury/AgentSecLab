@@ -7,7 +7,7 @@
 **Layout:** Dashboard Studio GRID (tabs = workshop steps)  
 **SPL:** existing LAB-PI-001 searches only. No new investigation queries. No detections. No attacks.
 
-Evidence class: dashboard JSON/XML is **DOCUMENTED**. Binding equality vs `.spl` files is **MEASURED** by pytest. Splunk Web load, ten tabs, and four token values are **OBSERVED / MEASURED** in an unpublished internal record. Indexed Q-* rows on this volume were empty in pass-2 screenshots; that is not a new MEASURED experiment.
+Evidence class: dashboard JSON/XML is **DOCUMENTED**. Binding equality vs `.spl` files is **MEASURED** by pytest. Splunk Web load, ten tabs, and four token values are **OBSERVED / MEASURED** in an internal record (not published). Indexed Q-* rows on this volume were empty in pass-2 screenshots; that is not a new MEASURED experiment.
 
 ## What was built
 
@@ -46,7 +46,7 @@ Pytest does not prove the dashboard loaded in Splunk Web.
 
 Install is **LOCAL compose**, not a manual copy. `./scripts/lab-up.sh` stages `ws_lab_pi_001.xml` into named volume `splunk_app_agentsec` before Splunk is healthy. After XML edits: `./scripts/lab-up.sh --refresh-app`. See `docs/LOCAL_DOCKER_LAB.md`.
 
-**Screenshot review (2026-09-11):** Playwright opened `http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_pi_001`. Pass 1 review: an unpublished internal record. Pass 2 after BLOCKER/HIGH fixes:
+**Screenshot review (2026-09-11):** Playwright opened `http://127.0.0.1:8000/en-US/app/agentsec/ws_lab_pi_001`. Pass 1 review: an internal record (not published). Pass 2 after BLOCKER/HIGH fixes:
 
 - 10/10 tabs OBSERVED
 - Four tokens MEASURED at specimen UUIDs (`pass2_validation.json`)

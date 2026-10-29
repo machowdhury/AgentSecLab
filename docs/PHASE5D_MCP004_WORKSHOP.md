@@ -209,7 +209,7 @@ Studio `large` markdown. Severity in text (ALLOW / DENY / ERROR / SIMULATED), no
 
 ## PASS-1 UI REVIEW
 
-an unpublished internal record. No BLOCKER. One HIGH: LEARN three-state cards below first canvas.
+an internal record (not published). No BLOCKER. One HIGH: LEARN three-state cards below first canvas.
 
 ---
 
@@ -238,7 +238,7 @@ UI does not claim: valid argument = authorized resource; tool/scope granted = re
 
 XML/JSON parse and match. Ten tabs. Tokens resolve. Search references exist. `Q-MCP-RESOURCE-AUTHZ` bound. Existing Q-MCP SPL files unchanged. DET-MCP-001 unchanged. No DET-MCP-004. Schema remains 1.2.0.
 
-Playwright: 10/10 tabs, five token values MEASURED (an unpublished internal record).
+Playwright: 10/10 tabs, five token values MEASURED (an internal record (not published)).
 
 ---
 
@@ -261,8 +261,8 @@ Playwright: 10/10 tabs, five token values MEASURED (an unpublished internal reco
 - `tests/unit/test_splunk_app_init.py`
 - `docs/PHASE5D_MCP004_WORKSHOP.md`
 - `docs/learning-notes/mcp-resource-workshop.md`
-- an unpublished internal record
-- an unpublished internal record
+- an internal record (not published)
+- an internal record (not published)
 - `docs/IMPLEMENTATION_STATUS.md`
 
 Not changed: runtime authorize, schema 1.2.0, DET-MCP-001.spl, Q-MCP-*.spl logic.

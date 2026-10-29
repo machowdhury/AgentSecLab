@@ -48,7 +48,7 @@ These are single measurements on one machine. They are **not** minimum requireme
 
 ## 2. Install on Ubuntu 24.04
 
-### 2.1 Prepare the host (the acceptance hosts used these commands; see the command notes)
+### 2.1 Prepare the host (the acceptance hosts used these commands; the acceptance logs are not published)
 ```bash
 sudo apt-get update
 sudo apt-get install -y ca-certificates curl git python3 openssl
@@ -65,13 +65,13 @@ cd AgentSecLab
 git log --oneline -1
 ```
 
-### 2.3 Check the machine (TESTED; output transcribed in the command notes)
+### 2.3 Check the machine (TESTED)
 ```bash
 ./agentsec preflight
 ```
 Expected lines (values vary): `OK DOCKER: Docker 29.9.2 with 8 CPUs and 30.8 GiB visible to containers`, `OK COMPOSE`, `OK DISK: ... free; about 20.3 GB needed`, `OK PORT_FREE: gateway: port 443 is free` (and the same for 8088, 4317 and 4318). Two `WARN` lines (the `llama3.2:1b` digest is not pinned yet, and the Ollama image tag floats) are normal in RC2. `ERROR` lines must be fixed first: see [section 11](#11-common-failures-and-exact-recovery).
 
-### 2.4 Review the plan (TESTED; output transcribed in the command notes)
+### 2.4 Review the plan (TESTED; the acceptance logs are not published)
 ```bash
 ./agentsec --non-interactive --set gateway.ctf=true --accept-warnings all --dry-run plan
 ```
@@ -128,7 +128,7 @@ echo 'GRUB_DEFAULT="gnulinux-advanced-'"$(findmnt -no UUID /)"'>gnulinux-6.8.0-1
 sudo update-grub && sudo reboot
 uname -r       # 6.8.0-1050-aws; the stack restarts by itself (restart: unless-stopped)
 ```
-The commands are those used on the acceptance host (command notes). A reboot cancels any scheduled `shutdown`; schedule it again. Package versions change: check `apt-cache search '^linux-image-6.8.0-.*-aws$'` for the current 6.8 build.
+The commands are those used on the acceptance host (acceptance logs, not published). A reboot cancels any scheduled `shutdown`; schedule it again. Package versions change: check `apt-cache search '^linux-image-6.8.0-.*-aws$'` for the current 6.8 build.
 
 ## 4. Docker Compose and Ollama
 

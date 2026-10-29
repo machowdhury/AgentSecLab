@@ -4,7 +4,7 @@ App id: `agentsec`
 Index: `agentsec_telemetry`  
 Sourcetype: `otel:agentic:json`
 
-Knowledge-object engineering: an unpublished internal record then an unpublished internal record. Inventory: `docs/SPLUNK_KNOWLEDGE_OBJECT_INVENTORY.md`. Do not rewrite validated SPL for style.
+Knowledge-object engineering: an internal record (not published) then an internal record (not published). Inventory: `docs/SPLUNK_KNOWLEDGE_OBJECT_INVENTORY.md`. Do not rewrite validated SPL for style.
 
 ## What is packaged
 

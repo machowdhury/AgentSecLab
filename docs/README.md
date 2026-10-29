@@ -9,7 +9,7 @@
 | [Visual guide](VISUAL_GUIDE.md) | Eight diagrams (architecture, data flow, trust boundaries and more) and the product screenshots |
 | [AI Security Assurance dashboards](AI_SECURITY_ASSURANCE.md) | Evidence-driven Splunk dashboards: findings, statuses, rules, metrics, framework mapping, limits |
 | [Security tools](SECURITY_TOOLS.md) | Integrated tools: version, licence, install method, use, status and limits (licences: [third-party notices](../THIRD_PARTY_NOTICES.md)) |
-| Acceptance records | What was tested on a real host: clean host, final, final two checks |
+| Acceptance records (not published; summarized in the README) | What was tested on a real host: clean host, final run and final two checks |
 | [Getting started](GETTING_STARTED.md) | The older multi-port beginner path (clone to first lab); see its RC2 note |
 | [Quickstart](QUICKSTART.md) | Detailed reference: preflight, startup, readiness words, shutdown |
 | [Legacy Splunk Academy guide](LEGACY_SPLUNK_ACADEMY_GUIDE.md) | Historical v1.0/v1.1 path (L0–L10, Splunk Academy Home) |

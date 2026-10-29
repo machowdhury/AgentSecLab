@@ -9,7 +9,7 @@ Evidence class: **OBSERVED** (runtime + Splunk CLI). Completeness vs local `even
 
 Runtime remains authoritative for handler invocation. Splunk is corroboration.
 
-Companion: `docs/AGENT_DELEGATION_SPLUNK_FIELD_CONTRACT.md`, `docs/AGENT_DELEGATION_SEARCH_CONTRACT.md`, an unpublished internal record.
+Companion: `docs/AGENT_DELEGATION_SPLUNK_FIELD_CONTRACT.md`, `docs/AGENT_DELEGATION_SEARCH_CONTRACT.md`, an internal record (not published).
 
 **Phase 12D not started.**
 
@@ -37,7 +37,7 @@ Inspected all `learning/level_1/LAB-MCP-001/searches/Q-MCP-*.spl` and `DET-MCP-0
 
 Specimens ran with OTEL on (`scripts/run_lab_agent_delegation_live_specimens.py`) against the published collector `http://127.0.0.1:4318/v1/logs`. `OTEL_SERVICE_NAME=acmebank`. The running AcmeBank image was still schema **1.7.0**; host Python used the 1.8.0 identity runtime so the telemetry path remained **runtime → OTLP → collector → HEC → Splunk**. Profile switched in-process (`AGENTSEC_SECURITY_PROFILE`). `export.json` has `otlp.ok=true` and `splunk.verified=false` (honest). Splunk proof is this document’s independent CLI. Do **not** rewrite `splunk.verified` because CLI succeeded.
 
-Official Splunk Agent Skills consulted (read-only, after an unpublished internal record and an unpublished internal record): Splunk Search (CLI execution path), Search Performance Optimizer (notes only; no rewrite), Field Extraction and CIM Mapping, Knowledge Object Governance. `/spl-validate` headings are in the hunt `.md`. AgentSec evidence semantics remain authoritative.
+Official Splunk Agent Skills consulted (read-only, after an internal record (not published) and an internal record (not published)): Splunk Search (CLI execution path), Search Performance Optimizer (notes only; no rewrite), Field Extraction and CIM Mapping, Knowledge Object Governance. `/spl-validate` headings are in the hunt `.md`. AgentSec evidence semantics remain authoritative.
 
 ---
 

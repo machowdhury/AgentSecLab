@@ -61,7 +61,7 @@ Splunk app XML in the named volume is **not** deleted. Images are **not** delete
 
 FULL RESET is destructive. It is never the default. It does **not** delete git history or `docs/` official run.ids.
 
-Host `artifacts/` and an unpublished internal record are **not** removed by `lab-down.sh`.
+Host `artifacts/` and an internal record (not published) are **not** removed by `lab-down.sh`.
 
 ## Diagnostics
 

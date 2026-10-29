@@ -66,7 +66,8 @@
     "tests/test_batch9_specimens.py",
     "tests/unit/test_phase13a_design.py",
     "tests/unit/test_phase9b_design.py",
-    "tests/unit/test_phase9c_design.py"
+    "tests/unit/test_phase9c_design.py",
+    "tests/unit/test_splunk_governance.py"
   ],
   "excluded_test_functions": {
     "tests/splunk/test_blue_team_investigation.py": [
@@ -291,6 +292,7 @@
   },
   "excluded_files": [
     "docs/IMPLEMENTATION_STATUS.md",
+    "docs/learning-notes/splunk-engineering-governance.md",
     "docs/ops/EC2_ACCEPTANCE_CHECKLIST.md",
     "docs/ops/EC2_STORAGE_RUNBOOK.md",
     "docs/ops/VERIFIER_SUPERVISION.md"

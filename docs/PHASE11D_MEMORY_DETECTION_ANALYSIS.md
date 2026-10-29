@@ -244,7 +244,7 @@ Do **not** create savedsearches, notables, risk events, findings, investigations
 
 ## Splunk knowledge-object review
 
-an unpublished internal record
+an internal record (not published)
 
 | Class | Item |
 |-------|------|
@@ -293,7 +293,7 @@ STOP. Phase 11E not started. No Dashboard Studio. No DET-MEMORY even as a candid
 - `docs/MEMORY_DETECTION_ENGINEERING_MODEL.md`
 - `docs/MEMORY_RUNTIME_EVIDENCE_PLANES.md`
 - `docs/learning-notes/memory-detection-vs-hunting.md`
-- an unpublished internal record
+- an internal record (not published)
 - `tests/unit/test_phase11d_design.py`
 
 ### Files modified

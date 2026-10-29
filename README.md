@@ -240,7 +240,7 @@ For preflight and startup details see [docs/QUICKSTART.md](docs/QUICKSTART.md); 
 | [AI Security Assurance](docs/AI_SECURITY_ASSURANCE.md) | The dashboards, statuses, rules and how to read a finding |
 | [Security tools](docs/SECURITY_TOOLS.md) | Integrated tools: version, licence, install method, use, status, limits |
 | [Third-party notices](THIRD_PARTY_NOTICES.md) | Licences of what this project uses |
-| [Documentation index](docs/README.md) | Everything else: instructor guide, Splunk integration, gateway, CTF, installer reference, acceptance records |
+| [Documentation index](docs/README.md) | Everything else: instructor guide, Splunk integration, gateway, CTF, installer reference |
 
 ## Contributing and license
 

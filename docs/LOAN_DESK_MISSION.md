@@ -28,4 +28,4 @@ What the installer does about it: with the **bundled** Ollama, `agentsec install
 - "Model unavailable": `ollama list` on the host must show `llama3.2:latest`.
 - Verifier offline: `./scripts/loan_desk_verifier.sh status|start`; log at `~/.local/state/agentsec/loan_desk/verifier.log` (host-only; override with `AGENTSEC_VERIFIER_STATE_DIR`).
 - Splunk view: `ws_lab_loandesk_001` (Foundations). Paste the run.id into *LIVE: your run.id*.
-- Design and limits: an unpublished internal record. Duplicate fields in Splunk: an unpublished internal record.
+- Design and limits: an internal record (not published). Duplicate fields in Splunk: an internal record (not published).
