@@ -56,7 +56,7 @@ flowchart LR
   C -->|"HEC over TLS"| S[("Splunk index<br/>agentsec_telemetry")]
   P["Committed packs<br/>(Cisco scanner, garak, recorded runs)"] -.->|"ingest script"| S
   S --> I["Investigate (Academy notebook)<br/>approved search, rows, chart,<br/>plain-language reading"]
-  S --> D["Assurance dashboards<br/>rules compute status,<br/>evidence class and retest outcome"]
+  S --> D["Security Assurance (Academy)<br/>rules compute status,<br/>evidence class and retest outcome<br/>(Splunk dashboards: optional view)"]
   I --> E["Interpret<br/>what happened, meaning,<br/>why it matters, control, action"]
   D --> E
   E --> R["Defend and retest<br/>defended profile, RETEST run"]
@@ -254,9 +254,13 @@ These are captures of the real Academy and Attack Service interface. **How they 
 | Risk Center | ![Risk Center](images/risk-center.png) |
 | Attack Service home (the Attack UI) | ![Attack Service](images/attack-service-home.png) |
 | MAESTRO workbench with the worked example loaded, through the HTTPS gateway on the acceptance host | ![MAESTRO example through the gateway](images/maestro-example-through-gateway.png) |
-| AI Security Assurance: executive overview (Splunk Web, acceptance host) | ![Executive overview](images/assurance-executive.png) |
-| AI Security Assurance: Agent, MCP and A2A | ![Agent, MCP and A2A](images/assurance-agent-mcp.png) |
-| AI Security Assurance: supply chain and model | ![Supply chain and model](images/assurance-supply-chain.png) |
-| AI Security Assurance: threat model coverage | ![Threat model coverage](images/assurance-threat-model.png) |
-| AI Security Assurance: compliance and governance | ![Compliance and governance](images/assurance-compliance.png) |
-| AI Security Assurance: one finding | ![Finding page](images/assurance-finding.png) |
+| Security Assurance in the Academy: overview (Live tab) | ![Academy Security Assurance overview](images/academy-assurance-overview.png) |
+| Security Assurance in the Academy: one finding | ![Academy finding](images/academy-assurance-finding.png) |
+| Security Assurance in the Academy: investigation notebook | ![Academy investigation notebook](images/academy-assurance-notebook.png) |
+| Security Assurance in the Academy: retest comparison | ![Academy retest comparison](images/academy-assurance-compare.png) |
+| Optional advanced view (Splunk Web), executive overview (acceptance host) | ![Executive overview](images/assurance-executive.png) |
+| Optional advanced view (Splunk Web), Agent, MCP and A2A | ![Agent, MCP and A2A](images/assurance-agent-mcp.png) |
+| Optional advanced view (Splunk Web), supply chain and model | ![Supply chain and model](images/assurance-supply-chain.png) |
+| Optional advanced view (Splunk Web), threat model coverage | ![Threat model coverage](images/assurance-threat-model.png) |
+| Optional advanced view (Splunk Web), compliance and governance | ![Compliance and governance](images/assurance-compliance.png) |
+| Optional advanced view (Splunk Web), one finding | ![Finding page](images/assurance-finding.png) |

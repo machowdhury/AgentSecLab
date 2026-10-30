@@ -1,23 +1,29 @@
-# AI Security Assurance dashboards
+# AI Security Assurance
 
-Five Splunk dashboards and one finding page that turn **what actually happened in a lab run** into a finding you can read, verify and retest. They are built from the same telemetry the workshops produce (`index=agentsec_telemetry`) with two static inputs that are labelled as such (the MAESTRO worked example and the framework map). There are no fabricated metrics and no language model deciding anything. The Nemotron panel reads "Not tested".
+AI Security Assurance turns **what actually happened in a lab run** into a finding you can read, verify and retest. It is built from the telemetry the workshops produce (`index=agentsec_telemetry`) with two static inputs that are labelled as such (the MAESTRO worked example and the framework map). There are no fabricated metrics and no language model deciding anything. The Nemotron panel reads "Not tested".
 
-> **Status.** Run on a real Splunk in the 2026-10-29 acceptance (record): all 34 data sources run, the five dashboards and the finding page render, and the SPL equals the Python reference evaluator on 118 findings. **CONDITIONAL**: the dashboards live in Splunk Web, outside the gateway's authorization; the row-click drilldown was not exercised; and a run whose telemetry never reaches Splunk is invisible to them (only the Academy's evidence state shows it).
+**In RC2 you use it inside the Academy: open Academy > Security Assurance (`/learn/assurance`).** The five Splunk dashboards and the finding page are an **optional advanced view** of the same findings (see [Optional advanced view: Splunk dashboards](#optional-advanced-view-splunk-dashboards)); no learner step needs them.
 
-Open them in Splunk Web under **AI Security Assurance** (`/en-US/app/agentsec/ws_assurance_executive`). Splunk Web is on the lab host's loopback (`127.0.0.1:18000`); see the [installation guide](INSTALLATION_AND_DEPLOYMENT.md#5-https-gateway-certificates-authentication-and-tunnelling). They are not behind the HTTPS gateway and use Splunk's own login.
+## In the Academy (supported workflow)
 
-## The dashboards
+The path for every finding is **Overview, Finding, Raw evidence, Investigation notebook, Workshop (defend), Retest comparison.**
 
-| Dashboard (view id) | Answers | Main evidence |
-|---|---|---|
-| **Executive overview** (`ws_assurance_executive`) | What was attacked, what held, what did not, what is missing, and what needs attention, in a narrative that changes with the data | Findings, metrics with definitions, status trend, untested controls |
-| **Agent, MCP and A2A** (`ws_assurance_agent_mcp`) | Tool authorization outcomes, prompt-injection and tool-misuse attempts, delegation behaviour; attempts versus confirmed outcomes; scanner findings; catalog changes | Control decisions and execution events; scanner events; explicit scanner-to-runtime hash link |
-| **Supply chain and model** (`ws_assurance_supply_chain`) | Scanner findings, declared components, observed model identity, model evaluations, a Nemotron-versus-baseline panel | `agentsec:scanner:finding`, `agentsec:external:evaluation`, `deploy/*.lock.json` |
-| **Threat model coverage** (`ws_assurance_threat_model`) | CSA MAESTRO layers and trust boundaries: modeled threats beside observed evidence | The lab's MAESTRO worked example (modeled) and the findings (observed) |
-| **Compliance and governance** (`ws_assurance_compliance`) | Which lab evidence relates to which NIST AI RMF, AI 600-1, OWASP, MITRE ATLAS and ISO/IEC 42001 items, with no compliance claim | `learning/assurance/framework_map.json` and the findings |
-| **Finding** (`ws_assurance_finding`, opened from a row) | One finding: observation, interpretation, impact, evidence, control interpretation, action, retest, raw events, guidance | The run's own events |
+| Screen | What it gives you |
+|---|---|
+| **Overview** (`/learn/assurance`) | One headline ("N findings need your attention"), then Held, Did not hold and Retests validated as *n of N* with their definitions; the source, time window and grain are stated. Control effectiveness, evidence gaps, untested controls and how the numbers are computed are one click away. Three tabs keep the evidence classes apart: **Live · this lab**, **Recorded examples** (committed runs to study, worded as "findings to explore", never as your current posture) and **Test fixtures** (synthetic negative-test data, operator only). |
+| **Finding** | Status and evidence class, the event timeline (a missing event is shown as a gap), the seven answers ([below](#reading-a-finding-seven-questions)), the linked retest, and **Go to the workshop with this run** for a live run. |
+| **Raw evidence** | The run's events as indexed, shown as text and never run, with copy buttons and the search that finds them. |
+| **Investigation notebook** | Press **Run** on an approved, fixed-template search for this run. The Attack Service runs it against Splunk and the Academy shows the rows, a chart and a plain-language reading computed only from those rows. The exact SPL is shown and copyable; no browser-supplied SPL is accepted. For recorded examples the same cells read the committed events and say that no search ran. |
+| **Retest comparison** | The attack run and its linked retest, per hop, with the rules' outcome (VALIDATED, NOT_VALIDATED, NO_RETEST). It is built only from the rules' linked runs and computes no score; a retest with incomplete evidence is flagged, not compared. |
 
-The path for every finding is **Dashboard, Finding, Raw evidence, Investigation, Workshop, Remediation, Retest.** Rows in any findings table open the finding page with the run id, control id and hop.
+Splunk being unreachable, search access not being set up and an empty window are three different states, and none of them shows numbers as if it were a pass. If search access is missing the Academy says so and fails closed (`./agentsec splunk-access`, check with `--check`). Validated on one real Splunk Enterprise 10.2.7 host with the bundled Splunk (2026-10-30 acceptance run); not validated against an external Splunk, Splunk Cloud or an organization-issued certificate.
+
+| Screenshot (captured from the running Academy on a real host) | |
+|---|---|
+| Overview (Live tab) | ![Academy Security Assurance overview](images/academy-assurance-overview.png) |
+| One finding | ![Academy finding](images/academy-assurance-finding.png) |
+| Investigation notebook | ![Academy investigation notebook](images/academy-assurance-notebook.png) |
+| Retest comparison | ![Academy retest comparison](images/academy-assurance-compare.png) |
 
 ## The evidence-to-meaning model
 
@@ -89,19 +95,6 @@ Every finding page answers the same seven questions, so you can read any of them
 
 **Scope of the claim.** A finding says how a control behaved in the tested lab run. It is not an organization-wide compliance, certification or conformance statement.
 
-## What the dashboards look like
-
-Captured from the real dashboards on the acceptance host (Splunk 10.2.7, headless Chromium through an SSH tunnel), not mock-ups. The data is the lab's own runs and committed packs.
-
-| Dashboard | Screenshot |
-|---|---|
-| Executive overview | ![Executive overview](images/assurance-executive.png) |
-| Agent, MCP and A2A | ![Agent, MCP and A2A](images/assurance-agent-mcp.png) |
-| Supply chain and model | ![Supply chain and model](images/assurance-supply-chain.png) |
-| Threat model coverage | ![Threat model coverage](images/assurance-threat-model.png) |
-| Compliance and governance | ![Compliance and governance](images/assurance-compliance.png) |
-| One finding (opened by URL; the row-click handler was not exercised) | ![Finding page](images/assurance-finding.png) |
-
 ## Metrics
 
 Each metric states its numerator, denominator, time range (the panel's range) and source on the dashboard itself (table on the executive page, from `learning/assurance/rules.json`).
@@ -140,17 +133,51 @@ LIVE (not a committed specimen and not a fixture: the telemetry cannot prove whi
 
 ## Reproduce and retest (a learner's path)
 
-1. In the Academy, open a workshop (for example `LAB-MCP-003`) and run **ATTACK**. As `operator`: the launch card.
-2. In Splunk Web open **Executive overview**. Telemetry arrives seconds to minutes after the run; a run still arriving reads *Insufficient evidence* until its last event is indexed.
-3. Select the new finding row. Read the observation, interpretation and impact; open the raw events and compare the `control.decision` row with any `mcp.started` or `llm.started` row in the same hop.
-4. Run **RETEST** (the defended profile) in the same workshop. The ATTACK finding's retest outcome changes from NO_RETEST to VALIDATED only if the RETEST shows the control effective.
-5. Break something on purpose to see the dashboard refuse to pass it: the acceptance fixtures (`scripts/assurance_acceptance.py fixtures`) are a lost event, a run still arriving, a control that stopped working and a DENY that still executed.
+1. In the Academy, open a LIVE workshop (for example `LAB-MCP-003`) and run **ATTACK**. As `operator`: the launch card.
+2. Open **Academy > Security Assurance** (Live tab). Telemetry arrives seconds to minutes after the run; a run still arriving reads *Insufficient evidence* until its last event is indexed.
+3. Open the new finding. Read the observation, interpretation and impact; open **Raw evidence** and compare the `control.decision` row with any `mcp.started` or `llm.started` row in the same hop, or press **Run** in the **investigation notebook**.
+4. Run **RETEST** (the defended profile) in the same workshop. The ATTACK finding's retest outcome changes from NO_RETEST to VALIDATED only if the RETEST shows the control effective; **Compare with the retest** shows the two runs side by side.
+5. Break something on purpose to see Security Assurance refuse to pass it: the acceptance fixtures (`scripts/assurance_acceptance.py fixtures`, shown on the operator-only **Test fixtures** tab once ingested) are a lost event, a run still arriving, a control that stopped working and a DENY that still executed.
 
-## Maintaining it
+## Optional advanced view: Splunk dashboards
+
+Five Splunk dashboards and one finding page show the same findings inside Splunk Web. They are optional: nothing in the Academy requires them, they are **not routed through the HTTPS gateway** and they use Splunk's own login. The screenshots below are of this optional view, not of the Academy.
+
+> **Status.** Run on a real Splunk in the 2026-10-29 acceptance (record): all 34 data sources run, the five dashboards and the finding page render, and the SPL equals the Python reference evaluator on 118 findings. **CONDITIONAL**: the dashboards live in Splunk Web, outside the gateway's authorization; the row-click drilldown was not exercised; and a run whose telemetry never reaches Splunk is invisible to them (only the Academy's evidence state shows it).
+
+Open them in Splunk Web under **AI Security Assurance** (`/en-US/app/agentsec/ws_assurance_executive`). Splunk Web is on the lab host's loopback (`127.0.0.1:18000`); see the [installation guide](INSTALLATION_AND_DEPLOYMENT.md#5-https-gateway-certificates-authentication-and-tunnelling). They are not behind the HTTPS gateway and use Splunk's own login.
+
+### The dashboards
+
+| Dashboard (view id) | Answers | Main evidence |
+|---|---|---|
+| **Executive overview** (`ws_assurance_executive`) | What was attacked, what held, what did not, what is missing, and what needs attention, in a narrative that changes with the data | Findings, metrics with definitions, status trend, untested controls |
+| **Agent, MCP and A2A** (`ws_assurance_agent_mcp`) | Tool authorization outcomes, prompt-injection and tool-misuse attempts, delegation behaviour; attempts versus confirmed outcomes; scanner findings; catalog changes | Control decisions and execution events; scanner events; explicit scanner-to-runtime hash link |
+| **Supply chain and model** (`ws_assurance_supply_chain`) | Scanner findings, declared components, observed model identity, model evaluations, a Nemotron-versus-baseline panel | `agentsec:scanner:finding`, `agentsec:external:evaluation`, `deploy/*.lock.json` |
+| **Threat model coverage** (`ws_assurance_threat_model`) | CSA MAESTRO layers and trust boundaries: modeled threats beside observed evidence | The lab's MAESTRO worked example (modeled) and the findings (observed) |
+| **Compliance and governance** (`ws_assurance_compliance`) | Which lab evidence relates to which NIST AI RMF, AI 600-1, OWASP, MITRE ATLAS and ISO/IEC 42001 items, with no compliance claim | `learning/assurance/framework_map.json` and the findings |
+| **Finding** (`ws_assurance_finding`, opened from a row) | One finding: observation, interpretation, impact, evidence, control interpretation, action, retest, raw events, guidance | The run's own events |
+
+In Splunk the path is Dashboard, Finding page, Raw events; rows in any findings table open the finding page with the run id, control id and hop. The Academy's own Overview, Finding, Raw evidence, notebook and retest comparison (above) are the supported equivalent.
+
+### What the optional dashboards look like
+
+Captured from the real Splunk dashboards on the acceptance host (Splunk 10.2.7, headless Chromium through an SSH tunnel), not mock-ups. The data is the lab's own runs and committed packs.
+
+| Dashboard | Screenshot |
+|---|---|
+| Executive overview | ![Executive overview](images/assurance-executive.png) |
+| Agent, MCP and A2A | ![Agent, MCP and A2A](images/assurance-agent-mcp.png) |
+| Supply chain and model | ![Supply chain and model](images/assurance-supply-chain.png) |
+| Threat model coverage | ![Threat model coverage](images/assurance-threat-model.png) |
+| Compliance and governance | ![Compliance and governance](images/assurance-compliance.png) |
+| One finding (opened by URL; the row-click handler was not exercised) | ![Finding page](images/assurance-finding.png) |
+
+### Maintaining the dashboards
 
 Edit `learning/assurance/rules.json`, `controls.json` or `framework_map.json`, then run `python scripts/build_assurance_app.py` (and `python scripts/apply_guided_learning.py` owns the navigation). `tests/test_assurance_app.py` fails when a generated file is stale. After a change, the Splunk app on a running lab is refreshed by `agentsec up` and Splunk must reload it (restart the Splunk container or use `Settings > Server controls`).
 
-## Acceptance: what is and is not demonstrated
+### Acceptance of the dashboards: what is and is not demonstrated
 
 Demonstrated on a real Splunk (record: ASSURANCE_ACCEPTANCE.md): live ATTACK and RETEST runs through the gateway; ingestion with complete telemetry; every data source; rendering of all dashboards; a LIVE attack reading NO_RETEST and then VALIDATED after the live retest, with RECORDED retests not validating it; equality with the reference evaluator (`scripts/assurance_acceptance.py compare`); and negative tests (a run whose telemetry was cut, a lost event, a run still arriving, an ineffective control, a DENY that still executed), none of which reads as success.
 

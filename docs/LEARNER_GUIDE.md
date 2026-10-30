@@ -136,7 +136,7 @@ You investigate inside the Academy. In a LIVE workshop the **Investigate** stage
 
 **VERIFIED on a launch card is optional and off by default.** It needs a separate certificate, trusted CA and token: see the [installation guide](INSTALLATION_AND_DEPLOYMENT.md#63-turning-on-rest-verification-verified-for-the-bundled-splunk-tested-once-on-a-disposable-host). The investigation notebook above uses the installer's search-only identity instead and does not depend on it. The notebook and Security Assurance behaviour against a real Splunk host was validated on one real Splunk 10.2.7 host (bundled Splunk, 2026-10-30); it was not validated against an external Splunk, Splunk Cloud or an organization certificate.
 
-### Reading the assurance dashboards
+### Reading Security Assurance in the Academy
 
 After a launch, open **Academy > Security Assurance** (`/learn/assurance`). It shows findings with their raw evidence, an investigation notebook and a retest comparison. Telemetry arrives seconds to minutes after a run. Find your finding, read what happened, what it means, the evidence and the control, then run **RETEST** and watch the retest outcome change from NO_RETEST to VALIDATED. A run that never reached Splunk has no finding at all; the Academy's own evidence state shows it. The five Splunk dashboards are an optional Advanced view in Splunk Web (own login, not behind the gateway). Full guide: [AI Security Assurance](AI_SECURITY_ASSURANCE.md).
 
@@ -224,7 +224,7 @@ For a practitioner working alone, in this order. It uses only workshops that exi
 | 6. Multi-agent and delegation | Claimed versus granted authority; the confused deputy; identity | `AGENT-DELEGATION-001`, `MCP-006` (LIVE), `A2A-AUTH-DELEGATION` (SIMULATED), `AGENT-IDENTITY-NHI` (RECORDED) | 3, 4 |
 | 7. Splunk investigation | Rebuild a run from events; detection coverage | `SPLUNK-DEFENDER-BRIDGE`, `BLUE-TEAM-INCIDENT-001`, `DETECTION-ENGINEERING` (RECORDED) | 3, a few LIVE runs |
 | 8. Threat modeling | Seven layers, trust boundaries, risk register | `THREAT-MODELING-001` (SIMULATED, with the MAESTRO workbench) | 4 to 6 |
-| 9. Assurance and compliance evidence | Read findings, statuses and framework relationships without claiming compliance | The AI Security Assurance dashboards ([guide](AI_SECURITY_ASSURANCE.md)), `PRIVACY-DATA-GOVERNANCE-001`, `RAG-PURPOSE`, `RECALL-ISOLATION` (SIMULATED), the Governance Center | 7 |
+| 9. Assurance and compliance evidence | Read findings, statuses and framework relationships without claiming compliance | Academy > Security Assurance ([guide](AI_SECURITY_ASSURANCE.md); the Splunk dashboards are an optional advanced view), `PRIVACY-DATA-GOVERNANCE-001`, `RAG-PURPOSE`, `RECALL-ISOLATION` (SIMULATED), the Governance Center | 7 |
 | 10. Capstone | Attack, investigate, defend and retest end to end | `AGENTSEC-CAPSTONE-001` (LIVE), `MULTI-STAGE-INCIDENT-001`, `ADVANCED-CAPSTONE-MASTERY-001` (RECORDED) | 1 to 9 |
 
 ### Practitioner evidence template

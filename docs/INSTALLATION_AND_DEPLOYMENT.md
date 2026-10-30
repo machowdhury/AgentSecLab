@@ -203,9 +203,9 @@ Expected: `connectivity PASS`, `authentication PASS`, `authorization PASS`, `sea
 
 An organization's own Splunk Enterprise or Splunk Cloud uses the same client with `splunk.mode` set to `external_enterprise` or `cloud`; that is **NOT TESTED** against a real service.
 
-### 6.4 AI Security Assurance dashboards (TESTED on a disposable host)
+### 6.4 Optional Splunk dashboards for AI Security Assurance (TESTED on a disposable host)
 
-The installer deploys the `agentsec` Splunk app, which holds five dashboards and a finding page ([guide](AI_SECURITY_ASSURANCE.md)). They are an optional Advanced view (the Academy's own Security Assurance page, `/learn/assurance`, shows findings, raw evidence, a notebook and a retest comparison). In Splunk Web they are at `http://127.0.0.1:18000/en-US/app/agentsec/ws_assurance_executive` on the host, use Splunk's own login, and are **not routed through the gateway**: on a remote host reach them through an SSH tunnel (`ssh -L 18000:127.0.0.1:18000 <host>`). They need the same Linux kernel older than 6.19 as Splunk's database (section 7.1). Scanner and garak panels stay empty until their evidence packs are ingested.
+Security Assurance in the Academy (`/learn/assurance`: findings, raw evidence, an investigation notebook and a retest comparison) needs nothing from this section. The installer also deploys the `agentsec` Splunk app, which holds five dashboards and a finding page ([guide](AI_SECURITY_ASSURANCE.md)): an **optional advanced view** of the same findings, never a required step. In Splunk Web they are at `http://127.0.0.1:18000/en-US/app/agentsec/ws_assurance_executive` on the host, use Splunk's own login, and are **not routed through the gateway**: on a remote host reach them through an SSH tunnel (`ssh -L 18000:127.0.0.1:18000 <host>`). They need the same Linux kernel older than 6.19 as Splunk's database (section 7.1). Scanner and garak panels stay empty until their evidence packs are ingested.
 
 ## 7. Known issues, with the evidence to check
 

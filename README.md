@@ -163,11 +163,13 @@ flowchart LR
 
 The language model **proposes**; deterministic code **authorizes and executes**; Splunk **observes** and enforces nothing. The browser cannot send a payload, a tool name, a search or a security profile: the Attack Service chooses them. Only the gateway is meant to be reachable from outside the host. In gateway mode AcmeBank and Ollama publish no host port, and Splunk Web, HEC and the collector bind to loopback only. The [Visual guide](docs/VISUAL_GUIDE.md) adds the data-flow and trust-boundary diagrams and five more (workflow, attack sequence, Splunk investigation, MAESTRO layers, learner journey); each says what is optional.
 
-## Evidence-driven assurance dashboards
+## Security Assurance (in the Academy)
 
-The Academy's Security Assurance page (`/learn/assurance`) shows findings with raw evidence, an investigation notebook and a retest comparison; the same five Splunk dashboards and finding page are an optional Advanced view. Together they turn what happened in a run into a finding you can read and retest, with one of six statuses: Verified effective, Verified ineffective, Finding observed, Not tested, Insufficient evidence, Verification unavailable. Missing telemetry never reads as a pass, and an intentionally vulnerable profile is labelled *by design*, not as a failed control. On the acceptance host all 34 searches ran and 118 findings matched a Python reference implementation of the same rules (the screenshot below shows a different time range and run count). They make no organizational compliance claim. Guide, with the rules: [AI Security Assurance](docs/AI_SECURITY_ASSURANCE.md).
+The Academy's Security Assurance page (`/learn/assurance`) is the supported way to read the evidence: findings with raw evidence, an investigation notebook and a retest comparison. The same findings are also available as five Splunk dashboards and a finding page, which are an optional advanced view (Splunk Web, its own login, outside the gateway) and are never a required step. Security Assurance turns what happened in a run into a finding you can read and retest, with one of six statuses: Verified effective, Verified ineffective, Finding observed, Not tested, Insufficient evidence, Verification unavailable. Missing telemetry never reads as a pass, and an intentionally vulnerable profile is labelled *by design*, not as a failed control. On the acceptance host all 34 searches ran and 118 findings matched a Python reference implementation of the same rules (the screenshot below shows a different time range and run count). They make no organizational compliance claim. Guide, with the rules: [AI Security Assurance](docs/AI_SECURITY_ASSURANCE.md).
 
-![The executive overview dashboard, captured on the acceptance host](docs/images/assurance-executive.png)
+![Academy > Security Assurance, Live tab, captured from the running Academy on a real host: findings that need attention, Held, Did not hold and Retests validated as n of N, with the evidence class and source stated](docs/images/academy-assurance-overview.png)
+
+Open a finding for the seven answers and the event timeline, then **Investigate in the notebook** (press Run on an approved search and read the rows, a chart and a plain-language reading) or **Compare with the retest**. More screenshots and the optional Splunk dashboards are in the [AI Security Assurance guide](docs/AI_SECURITY_ASSURANCE.md).
 
 ## Quick start (Ubuntu 24.04, Docker)
 
@@ -238,7 +240,7 @@ For preflight and startup details see [docs/QUICKSTART.md](docs/QUICKSTART.md); 
 | [Workshop catalog](docs/WORKSHOP_CATALOG.md) | All 33 workshops |
 | [Benefits, architecture and security](docs/BENEFITS_AND_SECURITY_ARCHITECTURE.md) | Why it matters, trust boundaries, what is and is not claimed |
 | [Visual guide](docs/VISUAL_GUIDE.md) | Diagrams and screenshots |
-| [AI Security Assurance](docs/AI_SECURITY_ASSURANCE.md) | The dashboards, statuses, rules and how to read a finding |
+| [AI Security Assurance](docs/AI_SECURITY_ASSURANCE.md) | The Academy's Security Assurance workflow, statuses, rules and how to read a finding; the optional Splunk dashboards |
 | [Security tools](docs/SECURITY_TOOLS.md) | Integrated tools: version, licence, install method, use, status, limits |
 | [Third-party notices](THIRD_PARTY_NOTICES.md) | Licences of what this project uses |
 | [Documentation index](docs/README.md) | Everything else: instructor guide, Splunk integration, gateway, CTF, installer reference |
