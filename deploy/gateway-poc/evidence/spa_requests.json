@@ -1,0 +1,10 @@
+{
+ "api_requests": [
+  "GET /api/academy/status",
+  "GET /api/labs/LAB-MCP-001",
+  "GET /api/learn/config",
+  "GET /api/missions/loan-desk/status"
+ ],
+ "learner_blocked_by_gateway": [],
+ "documents_blocked": []
+}

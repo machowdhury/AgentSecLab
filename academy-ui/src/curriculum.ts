@@ -3,6 +3,7 @@ import raw from "./content/curriculum.json";
 // The 12-domain curriculum and the 32 registered labs, exported from the repository's own sources by scripts/export_curriculum.py.
 // Availability is the registry's tier. Registry membership is NOT verified execution; see the availability descriptions below.
 export type Availability = "guided" | "workbench" | "replay" | "content_only";
+export type Mode = "LIVE" | "RECORDED" | "SIMULATED";
 export interface Entry { text: string; source: string }
 export interface PathNode { id: string; kind: "attacker" | "entry" | "boundary" | "control" | "operation" | "evidence"; label: string; detail: string; source: string; fact: string; outcomes?: { label: string; detail: string; source: string; fact: string }[] }
 export type RecEvent = Record<string, string | number | boolean | string[] | null | undefined>;
@@ -65,19 +66,28 @@ export interface Explainer {
 }
 export interface Lab {
   id: string; title: string; level: string | null; primary_domain: string; secondary_domain: string | null; domain_confidence: string;
-  tier: string; availability: Availability; launchable: boolean; native: string | null; integrated: boolean;
+  tier: string; availability: Availability; mode: Mode; launchable: boolean; native: string | null; integrated: boolean;
   registry_quote: { file: string; quote: string } | null;
   sections: { learn: ({ items: string[]; source: string } | Entry) | null; idea: Entry | null; problem: Entry | null; why: Entry | null; controls: Entry | null; boundary: Entry | null; how: Entry | null; predict: Entry | null; defend: Entry | null; conclude: Entry | null };
   rules: string[]; explainer: Explainer | null; limitations: { items: string[]; source: string } | null;
   assets: { specimens: string[]; hunts: string[]; dashboard: string | null; evidence_docs: string[] };
   checks: { q: string; a: string | null }[]; checks_source: string | null;
+  guide: Guide | null;
 }
+export interface Guide { kind: string; expected: string[]; defensive: string[]; completion: string[]; troubleshooting: { symptom: string; fix: string }[] }
 export interface Domain { id: string; name: string; taxonomy_title: string; source: string }
 export const CURRICULUM = raw as unknown as { inventory_date: string; domains: Domain[]; labs: Lab[]; sources: string[] };
 
+// The three evidence modes of the workshop catalog. A workshop offers only what its mode supports: runs you launch (LIVE), committed real runs to study (RECORDED), or a committed simulated packet to study (SIMULATED).
+export const MODE_INFO: Record<Mode, { label: string; blurb: string }> = {
+  LIVE: { label: "Live", blurb: "You launch BASELINE, ATTACK and RETEST runs from this Academy. The Attack Service drives the lab on this machine and real events are indexed in Splunk." },
+  RECORDED: { label: "Recorded", blurb: "Recorded evidence from committed runs. Nothing is launched and no new run is created." },
+  SIMULATED: { label: "Simulated", blurb: "A committed, simulated evidence packet to study. It runs no attack, enforces nothing and sends nothing to Splunk." },
+};
+export const MODE_ORDER: Mode[] = ["LIVE", "RECORDED", "SIMULATED"];
 export const AVAIL: Record<Availability, { label: string; blurb: string }> = {
   guided: { label: "Guided", blurb: "A complete guided exercise in this Academy: a live attack and retest with recorded evidence." },
-  workbench: { label: "Workbench", blurb: "Registered as a live attack and retest lab on the Attack Service. It is not integrated in this Academy yet." },
+  workbench: { label: "Workbench", blurb: "A live attack and retest lab on the Attack Service, launched from its page in this Academy." },
   replay: { label: "Replay", blurb: "Recorded evidence only. There is no live run for this lab." },
   content_only: { label: "Content only", blurb: "Reading material and any knowledge checks the lab defines. No execution exists for this lab." },
 };

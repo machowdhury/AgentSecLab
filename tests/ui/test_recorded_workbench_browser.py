@@ -54,7 +54,7 @@ def run_button(pg, role):
 
 def predict(pg, role, answer):
     run_button(pg, role).click()
-    pg.get_by_label(answer, exact=True).check()
+    pg.get_by_test_id("recorded-workbench").get_by_label(answer, exact=True).check()
     pg.get_by_role("button", name="Reveal the recorded decision").click()
 
 
@@ -69,7 +69,7 @@ def test_learn_explains_the_operation_attacker_boundary_and_rule_and_labels_the_
             assert h in text, (lab, h)
         for n in needles:
             assert n.lower() in text, (lab, n)
-        assert "replay" in text and page.get_by_text("Full guided lesson not yet available").count() == 0
+        assert "live" in text and "recorded" in text and page.get_by_text("Full guided lesson not yet available").count() == 0   # these labs now also launch live; the recorded specimens stay
         assert seen == [], "Learn calls no backend"
 
 
@@ -127,7 +127,7 @@ def test_mcp_005_shows_the_overlay_authority_the_truncated_preview_and_the_follo
     run_button(page, "ATTACK").click()
     assert "SECURITY_OVERRIDE" in wb.inner_text(), "the first tool call's recorded result is shown as setup"
     assert "result-derived overlay" not in wb.inner_text(), "the authority label is part of the answer and stays hidden until the reveal"
-    page.get_by_label("ALLOW", exact=True).check(); page.get_by_role("button", name="Reveal the recorded decision").click()
+    page.get_by_test_id("recorded-workbench").get_by_label("ALLOW", exact=True).check(); page.get_by_role("button", name="Reveal the recorded decision").click()
     rows = page.locator(".rec-event")
     assert rows.count() == 13
     rows.nth(8).locator("summary").click()
@@ -157,9 +157,9 @@ def test_prove_names_the_decisive_event_provenance_spl_and_makes_no_verification
 
 
 def test_other_replay_labs_keep_the_generic_lab_page(page, root):
-    page.goto(root + "LAB-MCP-006"); tab(page, "Practice")
+    page.goto(root + "LAB-AGENT-IDENTITY-NHI"); tab(page, "Practice")
     assert page.get_by_test_id("recorded-workbench").count() == 0
-    assert "Recorded evidence only" in page.locator("main, .page").first.inner_text()
+    assert "Nothing is launched" in page.locator("main, .page").first.inner_text()
 
 
 def test_keyboard_only_journey_and_390px_layout(browser, root):
@@ -181,8 +181,8 @@ def test_keyboard_only_journey_and_390px_layout(browser, root):
     pg.goto(root + "LAB-MCP-004"); tab(pg, "Practice")
     pg.locator(".rec-run").nth(2).focus(); pg.keyboard.press("Enter")
     assert pg.locator(".rec-run.is-current").inner_text().startswith("RETEST")
-    pg.get_by_label("ALLOW", exact=True).focus(); pg.keyboard.press("ArrowDown"); pg.keyboard.press("Space")
-    assert pg.get_by_label("DENY", exact=True).is_checked()
+    pg.get_by_test_id("recorded-workbench").get_by_label("ALLOW", exact=True).focus(); pg.keyboard.press("ArrowDown"); pg.keyboard.press("Space")
+    assert pg.get_by_test_id("recorded-workbench").get_by_label("DENY", exact=True).is_checked()
     pg.get_by_role("button", name="Reveal the recorded decision").focus(); pg.keyboard.press("Enter")
     assert "resource_not_granted" in pg.locator(".rec-reveal").inner_text()
     pg.locator(".rec-event summary").first.focus(); pg.keyboard.press("Enter")

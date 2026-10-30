@@ -1,0 +1,25 @@
+{% extends "ctf/_base.html" %}
+{% block title %}Challenges{% endblock %}
+{% block body %}
+<section class="card" aria-labelledby="list-h">
+  <h2 id="list-h">Challenges</h2>
+  <p class="muted">Each challenge drives an engine that already exists in this lab. Total score so far: <strong>{{ data.total }}</strong> points.</p>
+  <div class="table-wrap">
+  <table class="data-table ctf-table">
+    <caption class="sr-only">Challenges with difficulty, status and points</caption>
+    <thead><tr><th scope="col">Challenge</th><th scope="col">Difficulty</th><th scope="col">Points</th><th scope="col">Status</th><th scope="col">Model</th></tr></thead>
+    <tbody>
+    {% for c in data.challenges %}
+      <tr>
+        <th scope="row"><a href="/ctf/{{ c.id }}">{{ c.title }}</a></th>
+        <td>{{ c.difficulty }}</td>
+        <td>{{ c.points }}</td>
+        <td data-status="{{ c.id }}">{{ c.status }}</td>
+        <td><span class="chip chip--sim">&#9671; {{ c.simulation }}</span></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% endblock %}

@@ -6,6 +6,7 @@
   <title>AgentSec — {{ context_workbench.title }} Workbench</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec-workbench.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='attack-console.css') }}">
   {% include "_shell_head.html" %}
 </head>
 <body class="workbench-page context-workbench context-workbench--{{ context_workbench.kind }}">
@@ -33,10 +34,12 @@
       <a href="/">All LIVE labs</a>
       <a href="#advanced">Evidence / Advanced</a>
     </nav>
+    {% include "_attack_console.html" %}
 
     <section class="mission" aria-labelledby="security-question">
       <p class="eyebrow">Security question</p>
       <h2 id="security-question">{{ context_workbench.security_question }}</h2>
+      <details class="disclosure disclosure--inline"><summary>Scenario facts and controls</summary>
       <div class="context-facts">
         <div><span>Attacker influence</span><strong>{{ context_workbench.attacker_influence }}</strong></div>
         <div><span>{{ context_workbench.artifact_label }}</span><strong><code>{{ context_workbench.artifact_id }}</code></strong></div>
@@ -45,6 +48,7 @@
         <div><span>Security-relevant action</span><strong><code>{{ context_workbench.follow_on_tool }}</code> · <code>{{ context_workbench.follow_on_scope }}</code></strong></div>
         <div><span>Runtime authority</span><strong>{{ context_workbench.enforcement_control }}</strong></div>
       </div>
+            </details>
       <p class="semantic-line">
         {% for line in context_workbench.semantic_lines %}<strong>{{ line }}</strong>{% endfor %}
       </p>
@@ -136,7 +140,7 @@
     </section>
     {% endif %}
 
-    <section class="run-results" aria-label="Runtime result">
+    <section id="run-results" class="run-results" aria-label="Runtime result">
       <div class="section-heading">
         <div><p class="eyebrow">Measured runtime result</p><h2>Control, execution, and local evidence</h2></div>
         <p>Execution is claimed only from the runtime handler count. Splunk corroboration is a separate investigation.</p>
@@ -182,8 +186,8 @@
       <summary>Evidence / Advanced</summary>
       <p>Full Attack Service responses. These details support inspection; the runtime handler count remains the execution authority.</p>
       <div class="advanced-grid">
-        <div><h3>ATTACK response</h3><pre id="attack-response">Not run</pre></div>
-        <div><h3>RETEST response</h3><pre id="retest-response">Not run</pre></div>
+        <div><h3>ATTACK response</h3><pre id="attack-response" tabindex="0" role="region" aria-label="ATTACK response">Not run</pre></div>
+        <div><h3>RETEST response</h3><pre id="retest-response" tabindex="0" role="region" aria-label="RETEST response">Not run</pre></div>
       </div>
     </details>
 

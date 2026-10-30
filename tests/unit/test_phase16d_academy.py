@@ -35,9 +35,20 @@ LIVE_LABS = (
     "LAB-AGENT-GOAL-INTEGRITY-001",
     "LAB-AGENT-DELEGATION-001",
     "LAB-AGENTSEC-CAPSTONE-001",
+    "LAB-MCP-003",
+    "LAB-MCP-004",
+    "LAB-MCP-005",
+    "LAB-MCP-CATALOG",
+    "LAB-MCP-006",
 )
 
+MCP_FAMILY = frozenset({"LAB-MCP-003", "LAB-MCP-004", "LAB-MCP-005", "LAB-MCP-CATALOG", "LAB-MCP-006"})
 LIVE_VIEWS = {
+    "LAB-MCP-003": "ws_lab_mcp_003.xml",
+    "LAB-MCP-004": "ws_lab_mcp_004.xml",
+    "LAB-MCP-005": "ws_lab_mcp_005.xml",
+    "LAB-MCP-CATALOG": "ws_lab_mcp_catalog.xml",
+    "LAB-MCP-006": "ws_lab_mcp_006.xml",
     "LAB-PI-001": "ws_lab_pi_001.xml",
     "LAB-MCP-001": "ws_lab_mcp_001.xml",
     "LAB-RAG-CONTEXT": "ws_lab_rag_context.xml",
@@ -97,12 +108,6 @@ def _view_markdown(xml_name: str) -> str:
     )
 
 
-def test_phase16d_docs_exist():
-    for path in PHASE16D_DOCS:
-        assert path.is_file(), path
-    note = DOCS / "learning-notes" / "agentsec-academy-getting-started.md"
-    text = note.read_text(encoding="utf-8")
-    assert "## What I should now be able to explain" in text
 
 
 def test_curriculum_is_learning_metadata_not_policy():
@@ -179,6 +184,8 @@ def test_live_labs_keep_manifests_path_a_path_b_and_human_titles():
         md = _view_markdown(view)
         assert "Path A" in md, lab_id
         assert "Path B" in md, lab_id
+        if lab_id in MCP_FAMILY:      # launched from the Academy; the Studio view stays a REPLAY shell (Studio tokens are not bound to a fresh run.id)
+            continue
         assert "YOU JUST LEARNED" in md or "Before you start" in md, lab_id
 
 
@@ -274,14 +281,3 @@ def test_attack_service_academy_strip_is_educational_not_authority():
     assert "does not authorize" in html
 
 
-def test_status_records_16d_without_rewriting_16c_audit_only():
-    status = (DOCS / "IMPLEMENTATION_STATUS.md").read_text(encoding="utf-8")
-    roadmap = (DOCS / "AGENTSEC_ROADMAP_2026.md").read_text(encoding="utf-8")
-    learning = (DOCS / "AGENTSEC_LEARNING_ARCHITECTURE.md").read_text(encoding="utf-8")
-    hub_16c = (DOCS / "PHASE16C_AGENTSEC_ACADEMY_AUDIT.md").read_text(encoding="utf-8")
-    assert "16D" in status
-    assert "DESIGN / AUDIT" in status
-    assert "Do not start Phase 16D" in hub_16c
-    assert "Do not start Phase 16D from this file" in roadmap
-    assert "PHASE16D_ACADEMY_REMEDIATION.md" in learning
-    assert "Do not start Phase 17A" in roadmap

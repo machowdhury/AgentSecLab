@@ -1,0 +1,1066 @@
+{
+ "schema": "agentsec.workshop_guides.v1",
+ "note": "Learning metadata. These guides do not authorize, deny or detect. LIVE entries are read from each lab's own prediction block.",
+ "guides": {
+  "LAB-PI-001": {
+   "expected": [
+    "BASELINE: testbed.mode=BASELINE, profile=defended, terminal completed_allowed, llm_call_count>0 when Ollama works.",
+    "ATTACK (intentionally vulnerable): INTENTIONALLY VULNERABLE LAB PROFILE: hop 0 ALLOW, real llm.started, testbed.mode=ATTACK. ALLOW is not proof the model approved the loan.",
+    "RETEST (defended): hop 0 DENY, reason input_pattern_matched, attempted=false, executed=false, outcome=prevented, zero llm.* on a complete copy, testbed.mode=RETEST."
+   ],
+   "defensive": [
+    "On this ATTACK specimen the lab is fail-open. The defense you will enable is the RETEST ExperimentContext (profile=defended), not Splunk.",
+    "CTRL-INPUT-001 at acmebank.http_api, before acmebank.llm_call. AcmeBank owns enforcement. Splunk does not.",
+    "Same adversarial input + different server-owned configuration = different security outcome. Not universal PI resistance."
+   ],
+   "completion": [
+    "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
+    "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
+    "Answer the 14 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "The launch card says the runtime is unreachable, or the launch fails.",
+     "fix": "The Attack Service or AcmeBank is not ready. Open System Status (or run ./agentsec status); wait for a first Splunk start, which takes minutes. Nothing was launched, so just try again."
+    },
+    {
+     "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
+    },
+    {
+     "symptom": "Verification says VERIFICATION UNAVAILABLE.",
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
+    },
+    {
+     "symptom": "Splunk shows no events for the run.id.",
+     "fix": "Use index=agentsec_telemetry sourcetype=otel:agentic:json, a time range that covers the run (earliest=-1h), and the quoted field agentsec.run.id with the exact UUID from the card. Do not search index=*. HEC or OTLP success is not an indexed event."
+    },
+    {
+     "symptom": "RETEST looks the same as ATTACK.",
+     "fix": "Check the profile column: ATTACK is vulnerable and RETEST is defended, set by the server. The request must be identical. If both say vulnerable, restart the Attack Service and run RETEST again; do not change anything in the browser."
+    }
+   ],
+   "kind": "live"
+  },
+  "LAB-MCP-001": {
+   "expected": [
+    "BASELINE: testbed.mode=BASELINE, profile=defended, ALLOW tool_granted, handler_invoke_count=1, mcp.completed.",
+    "ATTACK (intentionally vulnerable): INTENTIONALLY VULNERABLE LAB PROFILE: ALLOW with a fail-open reason, mcp.started, handler_invoke_count=1, testbed.mode=ATTACK. ALLOW is not execution by itself — mcp.started is.",
+    "RETEST (defended): DENY tool_not_granted, attempted=false, executed=false, outcome=prevented, handler_invoke_count=0, no mcp.started on a complete copy, testbed.mode=RETEST."
+   ],
+   "defensive": [
+    "On this ATTACK specimen the lab is fail-open. The defense you will enable is the RETEST ExperimentContext (profile=defended), not Splunk.",
+    "CTRL-MCP-001 at acmebank.mcp.authorize, before the tool handler. AcmeBank owns enforcement. Splunk does not.",
+    "Same adversarial request + different server-owned configuration = different security outcome. Not universal tool-authorization resistance."
+   ],
+   "completion": [
+    "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
+    "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
+    "Answer the 13 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "The launch card says the runtime is unreachable, or the launch fails.",
+     "fix": "The Attack Service or AcmeBank is not ready. Open System Status (or run ./agentsec status); wait for a first Splunk start, which takes minutes. Nothing was launched, so just try again."
+    },
+    {
+     "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
+    },
+    {
+     "symptom": "Verification says VERIFICATION UNAVAILABLE.",
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
+    },
+    {
+     "symptom": "Splunk shows no events for the run.id.",
+     "fix": "Use index=agentsec_telemetry sourcetype=otel:agentic:json, a time range that covers the run (earliest=-1h), and the quoted field agentsec.run.id with the exact UUID from the card. Do not search index=*. HEC or OTLP success is not an indexed event."
+    },
+    {
+     "symptom": "RETEST looks the same as ATTACK.",
+     "fix": "Check the profile column: ATTACK is vulnerable and RETEST is defended, set by the server. The request must be identical. If both say vulnerable, restart the Attack Service and run RETEST again; do not change anything in the browser."
+    }
+   ],
+   "kind": "live"
+  },
+  "LAB-MCP-003": {
+   "expected": [
+    "BASELINE: testbed.mode=BASELINE, profile=defended, ALLOW tool_granted, handler_invoke_count=1.",
+    "ATTACK (intentionally vulnerable): INTENTIONALLY VULNERABLE LAB PROFILE: ALLOW with a vulnerable_profile_fail_open reason, mcp.started, handler_invoke_count=1; the allowed scope stays policy:read. ALLOW is not execution by itself; mcp.started is.",
+    "RETEST (defended): DENY scope_not_granted, attempted=false, executed=false, handler_invoke_count=0; testbed.mode=RETEST."
+   ],
+   "defensive": [
+    "On this ATTACK specimen the lab is fail-open. The defense you will enable is the RETEST ExperimentContext (profile=defended), not Splunk.",
+    "CTRL-MCP-001, before the tool handler. AcmeBank owns enforcement; Splunk does not.",
+    "Same request plus different server-owned configuration gives a different outcome. Not universal resistance."
+   ],
+   "completion": [
+    "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
+    "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
+    "Answer the 12 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "The launch card says the runtime is unreachable, or the launch fails.",
+     "fix": "The Attack Service or AcmeBank is not ready. Open System Status (or run ./agentsec status); wait for a first Splunk start, which takes minutes. Nothing was launched, so just try again."
+    },
+    {
+     "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
+    },
+    {
+     "symptom": "Verification says VERIFICATION UNAVAILABLE.",
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
+    },
+    {
+     "symptom": "Splunk shows no events for the run.id.",
+     "fix": "Use index=agentsec_telemetry sourcetype=otel:agentic:json, a time range that covers the run (earliest=-1h), and the quoted field agentsec.run.id with the exact UUID from the card. Do not search index=*. HEC or OTLP success is not an indexed event."
+    },
+    {
+     "symptom": "RETEST looks the same as ATTACK.",
+     "fix": "Check the profile column: ATTACK is vulnerable and RETEST is defended, set by the server. The request must be identical. If both say vulnerable, restart the Attack Service and run RETEST again; do not change anything in the browser."
+    }
+   ],
+   "kind": "live"
+  },
+  "LAB-MCP-004": {
+   "expected": [
+    "BASELINE: testbed.mode=BASELINE, profile=defended, ALLOW tool_granted, handler_invoke_count=1.",
+    "ATTACK (intentionally vulnerable): INTENTIONALLY VULNERABLE LAB PROFILE: ALLOW with a vulnerable_profile_fail_open reason, mcp.started, handler_invoke_count=1. ALLOW is not execution by itself; mcp.started is.",
+    "RETEST (defended): DENY resource_not_granted, attempted=false, executed=false, handler_invoke_count=0; testbed.mode=RETEST."
+   ],
+   "defensive": [
+    "On this ATTACK specimen the lab is fail-open. The defense you will enable is the RETEST ExperimentContext (profile=defended), not Splunk.",
+    "CTRL-MCP-001, before the tool handler. AcmeBank owns enforcement; Splunk does not.",
+    "Same request plus different server-owned configuration gives a different outcome. Not universal resistance."
+   ],
+   "completion": [
+    "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
+    "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
+    "Answer the 15 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "The launch card says the runtime is unreachable, or the launch fails.",
+     "fix": "The Attack Service or AcmeBank is not ready. Open System Status (or run ./agentsec status); wait for a first Splunk start, which takes minutes. Nothing was launched, so just try again."
+    },
+    {
+     "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
+    },
+    {
+     "symptom": "Verification says VERIFICATION UNAVAILABLE.",
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
+    },
+    {
+     "symptom": "Splunk shows no events for the run.id.",
+     "fix": "Use index=agentsec_telemetry sourcetype=otel:agentic:json, a time range that covers the run (earliest=-1h), and the quoted field agentsec.run.id with the exact UUID from the card. Do not search index=*. HEC or OTLP success is not an indexed event."
+    },
+    {
+     "symptom": "RETEST looks the same as ATTACK.",
+     "fix": "Check the profile column: ATTACK is vulnerable and RETEST is defended, set by the server. The request must be identical. If both say vulnerable, restart the Attack Service and run RETEST again; do not change anything in the browser."
+    }
+   ],
+   "kind": "live"
+  },
+  "LAB-LOANDESK-001": {
+   "expected": [
+    "BASELINE posture: the model files whatever note it is given; an applicant-planted instruction can reach the human underwriter queue (ALLOW: tool, scope and applicant are valid, the note content is not checked).",
+    "HARDENED retest of the same attack: DENY argument_not_allowed:note and the handler does not run; whether the business task completed is recorded separately."
+   ],
+   "defensive": [
+    "ALLOW is not safe: scope and applicant were valid while the content was never checked. Authorization must also constrain what an allowed tool may carry.",
+    "Separate the model's proposal, the policy decision and the executed handler: they are three facts."
+   ],
+   "completion": [
+    "Complete the ten steps: Understand through Explain.",
+    "Show from recorded events that the attack text reached the queue in BASELINE and did not in HARDENED, and say whether the business task completed.",
+    "Say whether your evidence is local or Splunk-verified."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "The launch card says the runtime is unreachable, or the launch fails.",
+     "fix": "The Attack Service or AcmeBank is not ready. Open System Status (or run ./agentsec status); wait for a first Splunk start, which takes minutes. Nothing was launched, so just try again."
+    },
+    {
+     "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
+    },
+    {
+     "symptom": "Verification says VERIFICATION UNAVAILABLE.",
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
+    },
+    {
+     "symptom": "Splunk shows no events for the run.id.",
+     "fix": "Use index=agentsec_telemetry sourcetype=otel:agentic:json, a time range that covers the run (earliest=-1h), and the quoted field agentsec.run.id with the exact UUID from the card. Do not search index=*. HEC or OTLP success is not an indexed event."
+    },
+    {
+     "symptom": "RETEST looks the same as ATTACK.",
+     "fix": "Check the profile column: ATTACK is vulnerable and RETEST is defended, set by the server. The request must be identical. If both say vulnerable, restart the Attack Service and run RETEST again; do not change anything in the browser."
+    }
+   ],
+   "kind": "live"
+  },
+  "LAB-RAG-CONTEXT": {
+   "expected": [
+    "BASELINE: testbed.mode=BASELINE, profile=defended, CONTEXT-001 OBSERVE, no follow-on, handler 0.",
+    "ATTACK (intentionally vulnerable): INTENTIONALLY VULNERABLE LAB PROFILE: CTRL-RAG-CONTEXT-001 OBSERVE retrieved_context_is_data; follow-on ALLOW vulnerable_profile_fail_open:retrieved_context_derived_authority; mcp.started; handler 1; testbed.mode=ATTACK. OBSERVE is not ALLOW. ALLOW is not execution.",
+    "RETEST (defended): CONTEXT-001 OBSERVE retrieved_context_is_data; follow-on DENY tool_not_granted; handler_invoke_count=0; no mcp.started on a complete copy; testbed.mode=RETEST."
+   ],
+   "defensive": [
+    "On this ATTACK specimen the lab is fail-open at CTRL-MCP-001. The defense you will enable is the RETEST ExperimentContext (profile=defended), not Splunk and not a document sanitizer.",
+    "CTRL-RAG-CONTEXT-001 classifies data (OBSERVE). CTRL-MCP-001 at acmebank.mcp.authorize is the tool PDP, before the handler. AcmeBank owns enforcement. Splunk does not.",
+    "SAME RETRIEVED CONTENT. SAME REQUEST. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION. Not universal RAG resistance."
+   ],
+   "completion": [
+    "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
+    "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
+    "Answer the 20 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "The launch card says the runtime is unreachable, or the launch fails.",
+     "fix": "The Attack Service or AcmeBank is not ready. Open System Status (or run ./agentsec status); wait for a first Splunk start, which takes minutes. Nothing was launched, so just try again."
+    },
+    {
+     "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
+    },
+    {
+     "symptom": "Verification says VERIFICATION UNAVAILABLE.",
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
+    },
+    {
+     "symptom": "Splunk shows no events for the run.id.",
+     "fix": "Use index=agentsec_telemetry sourcetype=otel:agentic:json, a time range that covers the run (earliest=-1h), and the quoted field agentsec.run.id with the exact UUID from the card. Do not search index=*. HEC or OTLP success is not an indexed event."
+    },
+    {
+     "symptom": "RETEST looks the same as ATTACK.",
+     "fix": "Check the profile column: ATTACK is vulnerable and RETEST is defended, set by the server. The request must be identical. If both say vulnerable, restart the Attack Service and run RETEST again; do not change anything in the browser."
+    }
+   ],
+   "kind": "live"
+  },
+  "LAB-MEMORY-001": {
+   "expected": [
+    "BASELINE: testbed.mode=BASELINE, profile=defended, CONTEXT-001 OBSERVE, no follow-on, handler 0.",
+    "ATTACK (intentionally vulnerable): INTENTIONALLY VULNERABLE LAB PROFILE: WRITE persists untrusted_data; RECALL CTRL-MEMORY-CONTEXT-001 OBSERVE memory_context_is_data; follow-on ALLOW vulnerable_profile_fail_open:memory_derived_authority; mcp.started; handler 1; testbed.mode=ATTACK. OBSERVE is not ALLOW. ALLOW is not execution.",
+    "RETEST (defended): CONTEXT-001 OBSERVE memory_context_is_data; follow-on DENY tool_not_granted; handler_invoke_count=0; no mcp.started on a complete copy; testbed.mode=RETEST."
+   ],
+   "defensive": [
+    "On this ATTACK specimen the lab is fail-open at CTRL-MCP-001. The defense you will enable is the RETEST ExperimentContext (profile=defended), not Splunk and not a memory sanitizer.",
+    "CTRL-MEMORY-CONTEXT-001 classifies data (OBSERVE). CTRL-MCP-001 at acmebank.mcp.authorize is the tool PDP, before the handler. AcmeBank owns enforcement. Splunk does not.",
+    "SAME MEMORY. SAME REQUEST. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION. Not universal memory-poisoning resistance."
+   ],
+   "completion": [
+    "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
+    "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
+    "Answer the 30 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "The launch card says the runtime is unreachable, or the launch fails.",
+     "fix": "The Attack Service or AcmeBank is not ready. Open System Status (or run ./agentsec status); wait for a first Splunk start, which takes minutes. Nothing was launched, so just try again."
+    },
+    {
+     "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
+    },
+    {
+     "symptom": "Verification says VERIFICATION UNAVAILABLE.",
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
+    },
+    {
+     "symptom": "Splunk shows no events for the run.id.",
+     "fix": "Use index=agentsec_telemetry sourcetype=otel:agentic:json, a time range that covers the run (earliest=-1h), and the quoted field agentsec.run.id with the exact UUID from the card. Do not search index=*. HEC or OTLP success is not an indexed event."
+    },
+    {
+     "symptom": "RETEST looks the same as ATTACK.",
+     "fix": "Check the profile column: ATTACK is vulnerable and RETEST is defended, set by the server. The request must be identical. If both say vulnerable, restart the Attack Service and run RETEST again; do not change anything in the browser."
+    }
+   ],
+   "kind": "live"
+  },
+  "LAB-MCP-005": {
+   "expected": [
+    "BASELINE: testbed.mode=BASELINE, profile=defended, ALLOW tool_granted, handler_invoke_count=1.",
+    "ATTACK (intentionally vulnerable): INTENTIONALLY VULNERABLE LAB PROFILE: the first call ALLOW; the result is classified MALICIOUS; the follow-on lookup_customer_tier is ALLOW with vulnerable_profile_fail_open:result_derived_grant and its handler runs. ALLOW is not execution by itself; mcp.started is.",
+    "RETEST (defended): the first call ALLOW; the follow-on lookup_customer_tier DENY tool_not_granted with handler_invoke_count=0; testbed.mode=RETEST."
+   ],
+   "defensive": [
+    "On this ATTACK specimen the lab is fail-open. The defense you will enable is the RETEST ExperimentContext (profile=defended), not Splunk.",
+    "CTRL-MCP-001 and CTRL-MCP-RESULT-001 (the second classifies only and never grants), before the tool handler. AcmeBank owns enforcement; Splunk does not.",
+    "Same request plus different server-owned configuration gives a different outcome. Not universal resistance."
+   ],
+   "completion": [
+    "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
+    "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
+    "Answer the 10 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "The launch card says the runtime is unreachable, or the launch fails.",
+     "fix": "The Attack Service or AcmeBank is not ready. Open System Status (or run ./agentsec status); wait for a first Splunk start, which takes minutes. Nothing was launched, so just try again."
+    },
+    {
+     "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
+    },
+    {
+     "symptom": "Verification says VERIFICATION UNAVAILABLE.",
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
+    },
+    {
+     "symptom": "Splunk shows no events for the run.id.",
+     "fix": "Use index=agentsec_telemetry sourcetype=otel:agentic:json, a time range that covers the run (earliest=-1h), and the quoted field agentsec.run.id with the exact UUID from the card. Do not search index=*. HEC or OTLP success is not an indexed event."
+    },
+    {
+     "symptom": "RETEST looks the same as ATTACK.",
+     "fix": "Check the profile column: ATTACK is vulnerable and RETEST is defended, set by the server. The request must be identical. If both say vulnerable, restart the Attack Service and run RETEST again; do not change anything in the browser."
+    }
+   ],
+   "kind": "live"
+  },
+  "LAB-MCP-CATALOG": {
+   "expected": [
+    "BASELINE: testbed.mode=BASELINE, profile=defended, ALLOW tool_granted, handler_invoke_count=1.",
+    "ATTACK (intentionally vulnerable): INTENTIONALLY VULNERABLE LAB PROFILE: the first call ALLOW; METADATA-001 only OBSERVEs; the follow-on lookup_customer_tier is ALLOW with vulnerable_profile_fail_open:metadata_derived_authority and its handler runs. ALLOW is not execution by itself; mcp.started is.",
+    "RETEST (defended): the first call ALLOW; the follow-on lookup_customer_tier DENY tool_not_granted with handler_invoke_count=0; testbed.mode=RETEST."
+   ],
+   "defensive": [
+    "On this ATTACK specimen the lab is fail-open. The defense you will enable is the RETEST ExperimentContext (profile=defended), not Splunk.",
+    "CTRL-MCP-001 and CTRL-MCP-METADATA-001 (the second observes only and never grants), before the tool handler. AcmeBank owns enforcement; Splunk does not.",
+    "Same request plus different server-owned configuration gives a different outcome. Not universal resistance."
+   ],
+   "completion": [
+    "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
+    "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
+    "Answer the 13 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "The launch card says the runtime is unreachable, or the launch fails.",
+     "fix": "The Attack Service or AcmeBank is not ready. Open System Status (or run ./agentsec status); wait for a first Splunk start, which takes minutes. Nothing was launched, so just try again."
+    },
+    {
+     "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
+    },
+    {
+     "symptom": "Verification says VERIFICATION UNAVAILABLE.",
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
+    },
+    {
+     "symptom": "Splunk shows no events for the run.id.",
+     "fix": "Use index=agentsec_telemetry sourcetype=otel:agentic:json, a time range that covers the run (earliest=-1h), and the quoted field agentsec.run.id with the exact UUID from the card. Do not search index=*. HEC or OTLP success is not an indexed event."
+    },
+    {
+     "symptom": "RETEST looks the same as ATTACK.",
+     "fix": "Check the profile column: ATTACK is vulnerable and RETEST is defended, set by the server. The request must be identical. If both say vulnerable, restart the Attack Service and run RETEST again; do not change anything in the browser."
+    }
+   ],
+   "kind": "live"
+  },
+  "LAB-SCANNER-RUNTIME-EVIDENCE": {
+   "expected": [
+    "Scanner findings and runtime decisions are laid side by side, joined by the tool description's SHA-256.",
+    "A scanner flag and a runtime ALLOW/DENY are separate facts about the same description."
+   ],
+   "defensive": [
+    "A scanner finding is static evidence about a description; it is not authorization and not proof of exploitation.",
+    "Join evidence on a stable key (the description hash) before drawing a conclusion."
+   ],
+   "completion": [
+    "Pick two descriptions and state what the scanner says and what the runtime recorded for each.",
+    "Say what each kind of evidence can and cannot prove.",
+    "Answer the 15 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "A search returns no rows for a recorded run.",
+     "fix": "The recorded runs are historical: set the time range to All time (earliest=0). They are loaded by the splunk_hec_init job at start; check its log for 'VERIFIED searchable'. If the lab was started without Splunk, the Academy still shows the committed packets."
+    },
+    {
+     "symptom": "An optional advanced dashboard panel is empty.",
+     "fix": "The dashboard's tokens are not bound to a run you launched. Use the run.id from the recorded table in this workshop; the evidence view needs no dashboard."
+    },
+    {
+     "symptom": "A count differs from the committed pack.",
+     "fix": "The pack is the source of truth. Count physical events with stats dc(_raw), not by run id alone, and remember that an indexed copy can be partial while ingestion is running."
+    }
+   ],
+   "kind": "recorded"
+  },
+  "LAB-EXTERNAL-EVALUATION-GARAK": {
+   "expected": [
+    "One adversarial probe, run once against one local model, recorded one native PASS.",
+    "The page shows exactly what was recorded and where it came from."
+   ],
+   "defensive": [
+    "An evaluation pass is not safety: one probe on one model is not a comprehensive evaluation.",
+    "Keep external evaluation evidence separate from runtime control evidence."
+   ],
+   "completion": [
+    "State what was run, how many times and against what.",
+    "Say why a PASS here is not evidence of robustness in general.",
+    "Answer the 15 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "A search returns no rows for a recorded run.",
+     "fix": "The recorded runs are historical: set the time range to All time (earliest=0). They are loaded by the splunk_hec_init job at start; check its log for 'VERIFIED searchable'. If the lab was started without Splunk, the Academy still shows the committed packets."
+    },
+    {
+     "symptom": "An optional advanced dashboard panel is empty.",
+     "fix": "The dashboard's tokens are not bound to a run you launched. Use the run.id from the recorded table in this workshop; the evidence view needs no dashboard."
+    },
+    {
+     "symptom": "A count differs from the committed pack.",
+     "fix": "The pack is the source of truth. Count physical events with stats dc(_raw), not by run id alone, and remember that an indexed copy can be partial while ingestion is running."
+    }
+   ],
+   "kind": "recorded"
+  },
+  "LAB-AGENT-GOAL-INTEGRITY-001": {
+   "expected": [
+    "BASELINE: testbed.mode=BASELINE, profile=defended, GOAL OBSERVE, MCP ALLOW tool_granted, in-task 1, wrong-goal 0.",
+    "ATTACK (intentionally vulnerable): INTENTIONALLY VULNERABLE LAB PROFILE: CTRL-GOAL-INTEGRITY-001 OBSERVE vulnerable_profile_fail_open:untrusted_instruction_derived_task_authority; proposed extract_full_policy; effective extract_full_policy; CTRL-MCP-001 ALLOW tool_granted; wrong-goal handler 1; testbed.mode=ATTACK. ALLOW is not execution. MCP ALLOW is not goal authorization.",
+    "RETEST (defended): GOAL DENY unauthorized_task_expansion; MCP ALLOW tool_granted; wrong-goal handler 0; in-task handler 1; testbed.mode=RETEST."
+   ],
+   "defensive": [
+    "On this ATTACK specimen the lab is fail-open at CTRL-GOAL-INTEGRITY-001. The defense you will enable is the RETEST ExperimentContext (profile=defended), not Splunk, not MCP DENY, and not a prompt sanitizer.",
+    "CTRL-GOAL-INTEGRITY-001 protects the task boundary. CTRL-MCP-001 at acmebank.mcp.authorize is the tool PDP. These solve different problems. AcmeBank owns enforcement. Splunk does not.",
+    "SAME TASK. SAME MALICIOUS INSTRUCTION. SAME PROPOSED GOAL. SAME AUTHORIZED TOOL. DIFFERENT GOAL-INTEGRITY DECISION. DIFFERENT EFFECTIVE ACTION. Not universal prompt-injection resistance."
+   ],
+   "completion": [
+    "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
+    "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
+    "Answer the 20 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "The launch card says the runtime is unreachable, or the launch fails.",
+     "fix": "The Attack Service or AcmeBank is not ready. Open System Status (or run ./agentsec status); wait for a first Splunk start, which takes minutes. Nothing was launched, so just try again."
+    },
+    {
+     "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
+    },
+    {
+     "symptom": "Verification says VERIFICATION UNAVAILABLE.",
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
+    },
+    {
+     "symptom": "Splunk shows no events for the run.id.",
+     "fix": "Use index=agentsec_telemetry sourcetype=otel:agentic:json, a time range that covers the run (earliest=-1h), and the quoted field agentsec.run.id with the exact UUID from the card. Do not search index=*. HEC or OTLP success is not an indexed event."
+    },
+    {
+     "symptom": "RETEST looks the same as ATTACK.",
+     "fix": "Check the profile column: ATTACK is vulnerable and RETEST is defended, set by the server. The request must be identical. If both say vulnerable, restart the Attack Service and run RETEST again; do not change anything in the browser."
+    }
+   ],
+   "kind": "live"
+  },
+  "LAB-AGENT-DELEGATION-001": {
+   "expected": [
+    "BASELINE: testbed.mode=BASELINE, profile=defended, IDENTITY OBSERVE, MCP ALLOW tool_granted, lookup_policy 1, lookup_customer_tier 0.",
+    "ATTACK (intentionally vulnerable): INTENTIONALLY VULNERABLE LAB PROFILE: CTRL-IDENTITY-001 OBSERVE identity_claim_is_not_grant / untrusted_claim; overlay vulnerable_profile_fail_open:caller_identity_derived_authority; CTRL-MCP-001 ALLOW; lookup_customer_tier handler 1; testbed.mode=ATTACK. OBSERVE is not ALLOW. ALLOW is not execution. WHO AUTHENTICATED = NOT PROVEN / NOT MODELED.",
+    "RETEST (defended): IDENTITY OBSERVE identity_claim_is_not_grant; MCP DENY tool_not_granted; lookup_customer_tier handler 0; testbed.mode=RETEST."
+   ],
+   "defensive": [
+    "On this ATTACK specimen the lab is fail-open at CTRL-MCP-001 via a per-request overlay. The defense you will enable is the RETEST ExperimentContext (profile=defended). Do not trust agent names, Splunk, or an identity string.",
+    "CTRL-IDENTITY-001 records the trust boundary. CTRL-MCP-001 at acmebank.mcp.authorize is the tool PDP. These solve different problems. AcmeBank owns enforcement. Splunk does not.",
+    "SAME PRINCIPAL. SAME CALLER. SAME CALLEE. SAME DELEGATION CLAIM. SAME PRIVILEGED REQUEST. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION."
+   ],
+   "completion": [
+    "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
+    "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
+    "Answer the 10 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "The launch card says the runtime is unreachable, or the launch fails.",
+     "fix": "The Attack Service or AcmeBank is not ready. Open System Status (or run ./agentsec status); wait for a first Splunk start, which takes minutes. Nothing was launched, so just try again."
+    },
+    {
+     "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
+    },
+    {
+     "symptom": "Verification says VERIFICATION UNAVAILABLE.",
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
+    },
+    {
+     "symptom": "Splunk shows no events for the run.id.",
+     "fix": "Use index=agentsec_telemetry sourcetype=otel:agentic:json, a time range that covers the run (earliest=-1h), and the quoted field agentsec.run.id with the exact UUID from the card. Do not search index=*. HEC or OTLP success is not an indexed event."
+    },
+    {
+     "symptom": "RETEST looks the same as ATTACK.",
+     "fix": "Check the profile column: ATTACK is vulnerable and RETEST is defended, set by the server. The request must be identical. If both say vulnerable, restart the Attack Service and run RETEST again; do not change anything in the browser."
+    }
+   ],
+   "kind": "live"
+  },
+  "LAB-MCP-006": {
+   "expected": [
+    "BASELINE: testbed.mode=BASELINE, profile=defended, authority source delegated, ALLOW delegation_granted, policy handler 1, customer-tier handler 0.",
+    "ATTACK (intentionally vulnerable): INTENTIONALLY VULNERABLE LAB PROFILE: ALLOW vulnerable_profile_fail_open:ambient_deputy_authority with authority source ambient_deputy and customer-tier handler 1. ALLOW is not execution by itself; the handler count is.",
+    "RETEST (defended): DENY delegated_authority_not_granted, handler 0; testbed.mode=RETEST."
+   ],
+   "defensive": [
+    "On this ATTACK specimen the lab is fail-open. The defense you will enable is the RETEST ExperimentContext (profile=defended), not Splunk.",
+    "CTRL-DELEGATION-001, before the tool handler. AcmeBank owns enforcement; Splunk does not.",
+    "Same request plus different server-owned configuration gives a different outcome. Not universal resistance."
+   ],
+   "completion": [
+    "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
+    "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
+    "Answer the 12 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "The launch card says the runtime is unreachable, or the launch fails.",
+     "fix": "The Attack Service or AcmeBank is not ready. Open System Status (or run ./agentsec status); wait for a first Splunk start, which takes minutes. Nothing was launched, so just try again."
+    },
+    {
+     "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
+    },
+    {
+     "symptom": "Verification says VERIFICATION UNAVAILABLE.",
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
+    },
+    {
+     "symptom": "Splunk shows no events for the run.id.",
+     "fix": "Use index=agentsec_telemetry sourcetype=otel:agentic:json, a time range that covers the run (earliest=-1h), and the quoted field agentsec.run.id with the exact UUID from the card. Do not search index=*. HEC or OTLP success is not an indexed event."
+    },
+    {
+     "symptom": "RETEST looks the same as ATTACK.",
+     "fix": "Check the profile column: ATTACK is vulnerable and RETEST is defended, set by the server. The request must be identical. If both say vulnerable, restart the Attack Service and run RETEST again; do not change anything in the browser."
+    }
+   ],
+   "kind": "live"
+  },
+  "LAB-AGENTSEC-CAPSTONE-001": {
+   "expected": [
+    "BASELINE: testbed.mode=BASELINE, profile=defended, RAG OBSERVE, MEMORY OBSERVE, no privileged follow-on, handler 0.",
+    "ATTACK (intentionally vulnerable): INTENTIONALLY VULNERABLE LAB PROFILE: retrieve CTRL-RAG-CONTEXT-001 OBSERVE; WRITE persists untrusted_data; RECALL CTRL-MEMORY-CONTEXT-001 OBSERVE; follow-on ALLOW vulnerable_profile_fail_open:memory_derived_authority; mcp.started; handler 1; testbed.mode=ATTACK. OBSERVE is not ALLOW. ALLOW is not execution.",
+    "RETEST (defended): RAG OBSERVE; MEMORY OBSERVE memory_context_is_data; follow-on DENY tool_not_granted; handler_invoke_count=0; no mcp.started on a complete copy; testbed.mode=RETEST."
+   ],
+   "defensive": [
+    "On this ATTACK specimen the lab is fail-open at CTRL-MCP-001. The defense you will enable is the RETEST ExperimentContext (profile=defended), not Splunk, not a RAG sanitizer, and not deleting memory.",
+    "CTRL-RAG-CONTEXT-001 and CTRL-MEMORY-CONTEXT-001 classify data (OBSERVE). CTRL-MCP-001 at acmebank.mcp.authorize is the tool PDP, before the handler. AcmeBank owns enforcement. Splunk does not.",
+    "SAME ADVERSARIAL INFLUENCE. DIFFERENT AUTHORIZATION. DIFFERENT EXECUTION. Not universal RAG/memory resistance."
+   ],
+   "completion": [
+    "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
+    "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
+    "Answer the 10 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "The launch card says the runtime is unreachable, or the launch fails.",
+     "fix": "The Attack Service or AcmeBank is not ready. Open System Status (or run ./agentsec status); wait for a first Splunk start, which takes minutes. Nothing was launched, so just try again."
+    },
+    {
+     "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
+    },
+    {
+     "symptom": "Verification says VERIFICATION UNAVAILABLE.",
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
+    },
+    {
+     "symptom": "Splunk shows no events for the run.id.",
+     "fix": "Use index=agentsec_telemetry sourcetype=otel:agentic:json, a time range that covers the run (earliest=-1h), and the quoted field agentsec.run.id with the exact UUID from the card. Do not search index=*. HEC or OTLP success is not an indexed event."
+    },
+    {
+     "symptom": "RETEST looks the same as ATTACK.",
+     "fix": "Check the profile column: ATTACK is vulnerable and RETEST is defended, set by the server. The request must be identical. If both say vulnerable, restart the Attack Service and run RETEST again; do not change anything in the browser."
+    }
+   ],
+   "kind": "live"
+  },
+  "LAB-BLUE-TEAM-INCIDENT-001": {
+   "expected": [
+    "The recorded attack run is a three-step chain (retrieve, write, recall) and a defended retest is recorded beside it.",
+    "Your timeline separates what the evidence supports, what it refutes and what it leaves open."
+   ],
+   "defensive": [
+    "Reconstruct from run ids and content hashes, not from narrative.",
+    "Write NOT PROVEN where the evidence stops; a missing event is not proof of absence."
+   ],
+   "completion": [
+    "Produce a timeline of the chain with the run ids and the decision at each step.",
+    "Fill the incident report template: supported, refuted, open.",
+    "Answer the 12 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "A search returns no rows for a recorded run.",
+     "fix": "The recorded runs are historical: set the time range to All time (earliest=0). They are loaded by the splunk_hec_init job at start; check its log for 'VERIFIED searchable'. If the lab was started without Splunk, the Academy still shows the committed packets."
+    },
+    {
+     "symptom": "An optional advanced dashboard panel is empty.",
+     "fix": "The dashboard's tokens are not bound to a run you launched. Use the run.id from the recorded table in this workshop; the evidence view needs no dashboard."
+    },
+    {
+     "symptom": "A count differs from the committed pack.",
+     "fix": "The pack is the source of truth. Count physical events with stats dc(_raw), not by run id alone, and remember that an indexed copy can be partial while ingestion is running."
+    }
+   ],
+   "kind": "recorded"
+  },
+  "LAB-THREAT-MODELING-001": {
+   "expected": [
+    "Every AcmeBank element sits on one of the seven MAESTRO layers, and the trust boundaries between layers are named.",
+    "Each layer has at least one threat, taken from the CSA article's list for that layer or marked custom with a reason (Layer 6's list is about AI security agents, which AcmeBank does not have).",
+    "At least two cross-layer attack paths chain threats across three or more layers, and your register ranks risks by inherent then residual level."
+   ],
+   "defensive": [
+    "A threat model starts with what you protect and where trust changes, then follows threats across layers: the dangerous paths cross layers.",
+    "Say how you know: DEMONSTRATED means a lab shows it for its own fixtures, DOCUMENTED means a file says it, ASSUMED means no evidence. A residual rating is a judgment, not a measurement."
+   ],
+   "completion": [
+    "Complete the MAESTRO workbench in Practice: decompose, mark boundaries, record threats on every layer, chain two cross-layer paths, judge inherent and residual risk with mitigations, and link scenarios from at least three families (MCP, prompt injection, memory, RAG, delegation).",
+    "Press Check my model: the structure criteria R1 to R5 and R7 are MET. The check cannot judge your reasoning and is not a certification.",
+    "Download your report and compare your register with the worked example, then with the official MAESTRO Threat Analyzer if you run it yourself (this lab does not run it).",
+    "Answer the 22 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "Nothing runs when I open the exercise.",
+     "fix": "By design. This workshop is a guided analysis of a committed, simulated evidence packet. It runs no attack, enforces nothing and sends nothing to Splunk. The packet is labelled SIMULATED / REPLAYED or DOCUMENTED."
+    },
+    {
+     "symptom": "I cannot find the Splunk rows the packet describes.",
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+    }
+   ],
+   "kind": "simulated packet"
+  },
+  "LAB-PRIVACY-DATA-GOVERNANCE-001": {
+   "expected": [
+    "The full synthetic record and the minimized record are compared field by field.",
+    "You can say what the task needed, what the control decided and what stays unproven."
+   ],
+   "defensive": [
+    "Authorizing a tool call is not authorizing the data it receives: minimize what a tool is given.",
+    "All data here is synthetic; the exercise says nothing about a real privacy program."
+   ],
+   "completion": [
+    "List the fields the task needed and the fields it did not.",
+    "State what remains unproven about the minimized record.",
+    "Answer the 15 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "Nothing runs when I open the exercise.",
+     "fix": "By design. This workshop is a guided analysis of a committed, simulated evidence packet. It runs no attack, enforces nothing and sends nothing to Splunk. The packet is labelled SIMULATED / REPLAYED or DOCUMENTED."
+    },
+    {
+     "symptom": "I cannot find the Splunk rows the packet describes.",
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+    }
+   ],
+   "kind": "simulated packet"
+  },
+  "LAB-MULTI-STAGE-INCIDENT-001": {
+   "expected": [
+    "An attack chain, a defended retest, a baseline chain and a benign comparison are all available as recorded evidence.",
+    "You can name which control held and which did not at each stage."
+   ],
+   "defensive": [
+    "Separate evidence planes (events, decisions, executions) before you correlate them.",
+    "A held control is shown by a DENY before the handler plus handler count 0, not by silence in Splunk."
+   ],
+   "completion": [
+    "Name the controls that held and the ones that did not, with the run id for each.",
+    "State what is still unproven and what evidence would settle it.",
+    "Answer the 14 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "A search returns no rows for a recorded run.",
+     "fix": "The recorded runs are historical: set the time range to All time (earliest=0). They are loaded by the splunk_hec_init job at start; check its log for 'VERIFIED searchable'. If the lab was started without Splunk, the Academy still shows the committed packets."
+    },
+    {
+     "symptom": "An optional advanced dashboard panel is empty.",
+     "fix": "The dashboard's tokens are not bound to a run you launched. Use the run.id from the recorded table in this workshop; the evidence view needs no dashboard."
+    },
+    {
+     "symptom": "A count differs from the committed pack.",
+     "fix": "The pack is the source of truth. Count physical events with stats dc(_raw), not by run id alone, and remember that an indexed copy can be partial while ingestion is running."
+    }
+   ],
+   "kind": "recorded"
+  },
+  "LAB-ADVANCED-CAPSTONE-MASTERY-001": {
+   "expected": [
+    "You receive a business workflow, a time window and recorded evidence, not a run id.",
+    "Your answer states what you can prove and writes NOT PROVEN where the evidence stops."
+   ],
+   "defensive": [
+    "Combine the controls you learned: tool, scope, resource, result, delegation, memory and retrieval are different questions.",
+    "Do not generalise from one lab profile to production."
+   ],
+   "completion": [
+    "Complete the self-check against the lab's own list of steps.",
+    "Record, for each claim, the evidence it rests on. This is self-assessed and is not a certification.",
+    "Answer the 7 knowledge-check questions for this workshop."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "A search returns no rows for a recorded run.",
+     "fix": "The recorded runs are historical: set the time range to All time (earliest=0). They are loaded by the splunk_hec_init job at start; check its log for 'VERIFIED searchable'. If the lab was started without Splunk, the Academy still shows the committed packets."
+    },
+    {
+     "symptom": "An optional advanced dashboard panel is empty.",
+     "fix": "The dashboard's tokens are not bound to a run you launched. Use the run.id from the recorded table in this workshop; the evidence view needs no dashboard."
+    },
+    {
+     "symptom": "A count differs from the committed pack.",
+     "fix": "The pack is the source of truth. Count physical events with stats dc(_raw), not by run id alone, and remember that an indexed copy can be partial while ingestion is running."
+    }
+   ],
+   "kind": "recorded"
+  },
+  "LAB-SPLUNK-DEFENDER-BRIDGE": {
+   "expected": [
+    "The ten shipped searches replay as recorded: discover, narrow, sequence, compare, check duplicates.",
+    "Some results trace to committed runs; the page marks which."
+   ],
+   "defensive": [
+    "Start an investigation from a question, not from a run id.",
+    "A search result is evidence about the indexed copy; it enforces nothing and a missing row is not a DENY."
+   ],
+   "completion": [
+    "Work through discover, narrow, sequence, compare and duplicates in order.",
+    "For two results, say whether they can be traced to a committed run and how you know."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "A search returns no rows for a recorded run.",
+     "fix": "The recorded runs are historical: set the time range to All time (earliest=0). They are loaded by the splunk_hec_init job at start; check its log for 'VERIFIED searchable'. If the lab was started without Splunk, the Academy still shows the committed packets."
+    },
+    {
+     "symptom": "An optional advanced dashboard panel is empty.",
+     "fix": "The dashboard's tokens are not bound to a run you launched. Use the run.id from the recorded table in this workshop; the evidence view needs no dashboard."
+    },
+    {
+     "symptom": "A count differs from the committed pack.",
+     "fix": "The pack is the source of truth. Count physical events with stats dc(_raw), not by run id alone, and remember that an indexed copy can be partial while ingestion is running."
+    }
+   ],
+   "kind": "recorded"
+  },
+  "LAB-DETECTION-ENGINEERING": {
+   "expected": [
+    "Three recorded searches, their event counts, a broad rule and a tuned rule are replayed.",
+    "A zero-row result is shown as a result, not as an answer."
+   ],
+   "defensive": [
+    "Not every suspicious behavior should become an alert: tune a rule against recorded evidence before relying on it.",
+    "Zero rows is not safety: it can mean no event, no ingestion or a rule that cannot see the field."
+   ],
+   "completion": [
+    "Say what each of the three searches shows and what a zero-row result does and does not mean.",
+    "Explain why the tuned rule is preferable to the broad one, using the recorded counts."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "A search returns no rows for a recorded run.",
+     "fix": "The recorded runs are historical: set the time range to All time (earliest=0). They are loaded by the splunk_hec_init job at start; check its log for 'VERIFIED searchable'. If the lab was started without Splunk, the Academy still shows the committed packets."
+    },
+    {
+     "symptom": "An optional advanced dashboard panel is empty.",
+     "fix": "The dashboard's tokens are not bound to a run you launched. Use the run.id from the recorded table in this workshop; the evidence view needs no dashboard."
+    },
+    {
+     "symptom": "A count differs from the committed pack.",
+     "fix": "The pack is the source of truth. Count physical events with stats dc(_raw), not by run id alone, and remember that an indexed copy can be partial while ingestion is running."
+    }
+   ],
+   "kind": "recorded"
+  },
+  "LAB-AGENT-IDENTITY-NHI": {
+   "expected": [
+    "The three shipped searches return what was recorded about claims, control decisions and handler starts.",
+    "An identity claim appears as a label; the control observes it and the tool decision is separate."
+   ],
+   "defensive": [
+    "A non-human identity claim is a label, not a grant; treat it as data.",
+    "Keep three kinds of evidence apart: committed packs, the current Splunk observation and the September documentation."
+   ],
+   "completion": [
+    "For each of the three searches, say what it shows and what it cannot show.",
+    "Say which of the three evidence kinds each claim in your notes rests on."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "A search returns no rows for a recorded run.",
+     "fix": "The recorded runs are historical: set the time range to All time (earliest=0). They are loaded by the splunk_hec_init job at start; check its log for 'VERIFIED searchable'. If the lab was started without Splunk, the Academy still shows the committed packets."
+    },
+    {
+     "symptom": "An optional advanced dashboard panel is empty.",
+     "fix": "The dashboard's tokens are not bound to a run you launched. Use the run.id from the recorded table in this workshop; the evidence view needs no dashboard."
+    },
+    {
+     "symptom": "A count differs from the committed pack.",
+     "fix": "The pack is the source of truth. Count physical events with stats dc(_raw), not by run id alone, and remember that an indexed copy can be partial while ingestion is running."
+    }
+   ],
+   "kind": "recorded"
+  },
+  "LAB-A2A-AUTH-DELEGATION": {
+   "expected": [
+    "BASELINE: ALLOW tool_granted, and a separate simulated mcp.started.",
+    "ATTACK: ALLOW with vulnerable_profile_fail_open:caller_identity_derived_authority, a teaching fault, with execution.",
+    "RETEST: DENY tool_not_granted, and no execution to infer."
+   ],
+   "defensive": [
+    "A caller's identity is not a grant to the tool: authorization is decided per tool, scope and resource.",
+    "Authenticating an agent (here simulated) answers who is calling; it never answers what it may do."
+   ],
+   "completion": [
+    "Read the packet's BASELINE, ATTACK and RETEST cases and say, for each, what the control decided and why.",
+    "State what the evidence cannot prove (the packet's own 'not proven' fields) before you state what it shows."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "Nothing runs when I open the exercise.",
+     "fix": "By design. This workshop is a guided analysis of a committed, simulated evidence packet. It runs no attack, enforces nothing and sends nothing to Splunk. The packet is labelled SIMULATED / REPLAYED or DOCUMENTED."
+    },
+    {
+     "symptom": "I cannot find the Splunk rows the packet describes.",
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+    }
+   ],
+   "kind": "simulated packet"
+  },
+  "LAB-HITL-APPROVAL": {
+   "expected": [
+    "BASELINE: the submitted tool, resource and action reference match the approval (binding MATCH): ALLOW tool_granted.",
+    "ATTACK: the approval is inside its time window but the action is a different resource (executive-restricted); binding MISMATCH, yet ALLOW vulnerable_profile_fail_open:stale_approval_accepted.",
+    "RETEST: the same mismatched action is DENY approval_binding_mismatch and nothing executes."
+   ],
+   "defensive": [
+    "An approval is bound to one tool, resource and action reference; a valid time window alone does not authorize a different action.",
+    "The approval authority here is NOT PROVEN: the packet never shows who approved, only a simulated record."
+   ],
+   "completion": [
+    "Read the packet's BASELINE, ATTACK and RETEST cases and say, for each, what the control decided and why.",
+    "State what the evidence cannot prove (the packet's own 'not proven' fields) before you state what it shows.",
+    "Explain why an approval inside its window can still be the wrong approval."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "Nothing runs when I open the exercise.",
+     "fix": "By design. This workshop is a guided analysis of a committed, simulated evidence packet. It runs no attack, enforces nothing and sends nothing to Splunk. The packet is labelled SIMULATED / REPLAYED or DOCUMENTED."
+    },
+    {
+     "symptom": "I cannot find the Splunk rows the packet describes.",
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+    }
+   ],
+   "kind": "simulated packet"
+  },
+  "LAB-CREDENTIAL-LIFETIME": {
+   "expected": [
+    "BASELINE: a current credential: ALLOW tool_granted.",
+    "ATTACK: an expired credential is accepted by a teaching fault: ALLOW vulnerable_profile_fail_open:expired_credential_accepted.",
+    "RETEST: DENY expired_credential and no execution to infer."
+   ],
+   "defensive": [
+    "Credential expiry and approval expiry are different clocks; check each at the moment of use.",
+    "A credential that was valid when issued is not valid forever: lifetime is part of authorization."
+   ],
+   "completion": [
+    "Read the packet's BASELINE, ATTACK and RETEST cases and say, for each, what the control decided and why.",
+    "State what the evidence cannot prove (the packet's own 'not proven' fields) before you state what it shows.",
+    "Say which clock the packet's approval uses and why it is not the credential clock."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "Nothing runs when I open the exercise.",
+     "fix": "By design. This workshop is a guided analysis of a committed, simulated evidence packet. It runs no attack, enforces nothing and sends nothing to Splunk. The packet is labelled SIMULATED / REPLAYED or DOCUMENTED."
+    },
+    {
+     "symptom": "I cannot find the Splunk rows the packet describes.",
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+    }
+   ],
+   "kind": "simulated packet"
+  },
+  "LAB-RAG-PURPOSE": {
+   "expected": [
+    "BASELINE: purpose allowed (applicant-education): ALLOW purpose_allowed.",
+    "ATTACK: the purpose is not checked and the retrieval goes through: FAIL_OPEN vulnerable_profile_fail_open:purpose_not_checked.",
+    "RETEST: DENY purpose_not_allowed."
+   ],
+   "defensive": [
+    "Retrieval authorization needs the purpose, not only the principal and the document: similarity is not authorization.",
+    "A retrieval decision is not a tool decision: CTRL-MCP-001 is not invoked by retrieval."
+   ],
+   "completion": [
+    "Read the packet's BASELINE, ATTACK and RETEST cases and say, for each, what the control decided and why.",
+    "State what the evidence cannot prove (the packet's own 'not proven' fields) before you state what it shows.",
+    "Explain why vector similarity cannot stand in for a purpose check."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "Nothing runs when I open the exercise.",
+     "fix": "By design. This workshop is a guided analysis of a committed, simulated evidence packet. It runs no attack, enforces nothing and sends nothing to Splunk. The packet is labelled SIMULATED / REPLAYED or DOCUMENTED."
+    },
+    {
+     "symptom": "I cannot find the Splunk rows the packet describes.",
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+    }
+   ],
+   "kind": "simulated packet"
+  },
+  "LAB-RECALL-ISOLATION": {
+   "expected": [
+    "BASELINE: the owner recalls their own memory: owner_recall.",
+    "ATTACK: another user recalls it: vulnerable_profile_fail_open:cross_user_recall.",
+    "RETEST: the cross-user recall is refused: cross_user_recall_denied."
+   ],
+   "defensive": [
+    "Memory has an owner: recall must check the reading user, not only the writing agent (the writer is the same in every case).",
+    "Deletion and retention are NOT MEASURED in this packet; do not infer either from the recall result."
+   ],
+   "completion": [
+    "Read the packet's BASELINE, ATTACK and RETEST cases and say, for each, what the control decided and why.",
+    "State what the evidence cannot prove (the packet's own 'not proven' fields) before you state what it shows.",
+    "Say what the packet does not measure about deletion and retention."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "Nothing runs when I open the exercise.",
+     "fix": "By design. This workshop is a guided analysis of a committed, simulated evidence packet. It runs no attack, enforces nothing and sends nothing to Splunk. The packet is labelled SIMULATED / REPLAYED or DOCUMENTED."
+    },
+    {
+     "symptom": "I cannot find the Splunk rows the packet describes.",
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+    }
+   ],
+   "kind": "simulated packet"
+  },
+  "LAB-ASSET-INVENTORY": {
+   "expected": [
+    "The packet lists the repository's components with the files that name them, bounded to repository files.",
+    "Cisco AI BOM compatibility is NOT CLAIMED: the packet does not run that CLI."
+   ],
+   "defensive": [
+    "You cannot govern what you cannot inventory. Inventory is not trust, not authorization and not safety.",
+    "Presence of a component in the list says nothing about whether it is safe to grant."
+   ],
+   "completion": [
+    "Pick three components and say where each is named and what the inventory does not say about it.",
+    "Explain the difference between inventory and authorization."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "Nothing runs when I open the exercise.",
+     "fix": "By design. This workshop is a guided analysis of a committed, simulated evidence packet. It runs no attack, enforces nothing and sends nothing to Splunk. The packet is labelled SIMULATED / REPLAYED or DOCUMENTED."
+    },
+    {
+     "symptom": "I cannot find the Splunk rows the packet describes.",
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+    }
+   ],
+   "kind": "simulated packet"
+  },
+  "LAB-COMPONENT-PROVENANCE": {
+   "expected": [
+    "BASELINE: ALLOW tool_granted. ATTACK: ALLOW vulnerable_profile_fail_open:known_component_treated_as_grant. RETEST: DENY provenance_is_not_a_grant.",
+    "The Ollama image pin is NOT RESOLVED: docker-compose.yml still says ollama/ollama:latest and no digest was measured."
+   ],
+   "defensive": [
+    "Knowing where a component came from is not a grant: provenance supports a decision, it does not make one.",
+    "A scanner finding is not authorization and an evaluation pass is not safety; pin what you can measure and say what you could not."
+   ],
+   "completion": [
+    "Read the packet's BASELINE, ATTACK and RETEST cases and say, for each, what the control decided and why.",
+    "State what the evidence cannot prove (the packet's own 'not proven' fields) before you state what it shows.",
+    "Name one component in the packet that is pinned and one that is not, and why the difference matters."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "Nothing runs when I open the exercise.",
+     "fix": "By design. This workshop is a guided analysis of a committed, simulated evidence packet. It runs no attack, enforces nothing and sends nothing to Splunk. The packet is labelled SIMULATED / REPLAYED or DOCUMENTED."
+    },
+    {
+     "symptom": "I cannot find the Splunk rows the packet describes.",
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+    }
+   ],
+   "kind": "simulated packet"
+  },
+  "LAB-CODE-AGENT-BOUNDS": {
+   "expected": [
+    "BASELINE: read_repository matches the grant: ALLOW tool_granted.",
+    "ATTACK: install_dependency is not granted but is let through by a teaching fault: ALLOW vulnerable_profile_fail_open:code_agent_scope_not_checked.",
+    "RETEST: DENY operation_not_granted; nothing executes."
+   ],
+   "defensive": [
+    "A code agent's operations are bounded by grant: reading a repository does not authorize installing a dependency.",
+    "A current credential and a valid delegation still do not authorize an operation outside the grant."
+   ],
+   "completion": [
+    "Read the packet's BASELINE, ATTACK and RETEST cases and say, for each, what the control decided and why.",
+    "State what the evidence cannot prove (the packet's own 'not proven' fields) before you state what it shows.",
+    "Explain why a CURRENT credential does not make install_dependency allowed."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "Nothing runs when I open the exercise.",
+     "fix": "By design. This workshop is a guided analysis of a committed, simulated evidence packet. It runs no attack, enforces nothing and sends nothing to Splunk. The packet is labelled SIMULATED / REPLAYED or DOCUMENTED."
+    },
+    {
+     "symptom": "I cannot find the Splunk rows the packet describes.",
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+    }
+   ],
+   "kind": "simulated packet"
+  },
+  "LAB-CHANGE-BOUNDS": {
+   "expected": [
+    "BASELINE: inspect_resource matches the delegated operation: ALLOW tool_granted.",
+    "ATTACK: delete_resource is submitted against an inspect-only credential and let through by a teaching fault: ALLOW vulnerable_profile_fail_open:change_scope_not_checked.",
+    "RETEST: DENY change_not_granted; nothing executes."
+   ],
+   "defensive": [
+    "A credential scoped to inspect is not a credential to change: bind the operation, not just the resource.",
+    "This is not a cloud account: the packet simulates the check and measures no real resource change."
+   ],
+   "completion": [
+    "Read the packet's BASELINE, ATTACK and RETEST cases and say, for each, what the control decided and why.",
+    "State what the evidence cannot prove (the packet's own 'not proven' fields) before you state what it shows.",
+    "State the scope of the credential and the operation that was submitted, and why they differ."
+   ],
+   "troubleshooting": [
+    {
+     "symptom": "Nothing runs when I open the exercise.",
+     "fix": "By design. This workshop is a guided analysis of a committed, simulated evidence packet. It runs no attack, enforces nothing and sends nothing to Splunk. The packet is labelled SIMULATED / REPLAYED or DOCUMENTED."
+    },
+    {
+     "symptom": "I cannot find the Splunk rows the packet describes.",
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+    }
+   ],
+   "kind": "simulated packet"
+  }
+ }
+}

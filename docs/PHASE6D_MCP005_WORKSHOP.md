@@ -85,7 +85,7 @@ After `--refresh-app`, Splunk Web served the view; **HEC health did not return H
 
 ## UI REVIEW
 
-Pass-1: 0 BLOCKER / 4 HIGH / 5 MEDIUM / 3 LOW (`docs/reviews/ui-review-ws-lab-mcp-005-2026-09-14.md`).  
+Pass-1: 0 BLOCKER / 4 HIGH / 5 MEDIUM / 3 LOW (an internal record (not published)).  
 Pass-2: **0 BLOCKER / 0 HIGH**. Residual MEDIUM/LOW accepted.
 
 ---

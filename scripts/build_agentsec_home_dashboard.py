@@ -204,6 +204,18 @@ Workshop tabs still use LEARN · BASELINE · ATTACK · OBSERVE · HUNT · DETECT
     )
 
     add_md(
+        "viz_evidence_states",
+        """
+# Evidence states: read these before you trust a row
+
+**LIVE ●** measured now, from a run you launched. **RECORDED ▣** captured earlier and not re-measured. **REPLAYED ↻** a canonical specimen re-read from the index. **SIMULATED ◇** a teaching construct, not a measurement. **NOT VERIFIED △** nothing was measured, so no claim is made.
+
+Each state names where the evidence came from. None of them is a verdict. A state is never carried by colour alone.
+""",
+        title="EVIDENCE STATES",
+    )
+
+    add_md(
         "viz_orient_agent",
         """
 # Agents, tools, and MCP
@@ -576,8 +588,9 @@ Schema remains **1.9.0**. One packaged detector exists: DET-MCP-001 (disabled, D
                         block("viz_hero", 0, MARK_SIZE + 8, FULL, 400),
                         block("viz_roles", 0, MARK_SIZE + 408, HALF, 420),
                         block("viz_modes", HALF, MARK_SIZE + 408, HALF, 420),
+                        block("viz_evidence_states", 0, MARK_SIZE + 828, FULL, 240),
                     ],
-                    MARK_SIZE + 828,
+                    MARK_SIZE + 1068,
                 ),
                 "layout_orient": layout(
                     [

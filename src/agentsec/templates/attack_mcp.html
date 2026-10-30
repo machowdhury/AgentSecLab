@@ -6,6 +6,7 @@
   <title>AgentSec — Tool Authorization</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec-workbench.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='attack-console.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec-academy.css') }}">
   {% include "_shell_head.html" %}
 </head>
@@ -59,6 +60,7 @@
         <button class="cta" type="button" id="start-lab" data-go="baseline">Start: see normal behavior →</button>
         <span class="cta-note">Takes you to Step 1. You can leave and come back; your place is kept in this browser tab.</span>
       </div>
+      {% set ac_cards_only = true %}{% include "_attack_console.html" %}
       <div class="grid3" style="margin-top:24px">
         <div class="panel"><h3>The story</h3><p>To answer lending questions, the assistant may use one tool, <code>{{ mcp_policy.allowed_tools }}</code>. A second tool, <code>{{ mcp_request.tool }}</code>, exists in the system. This agent was <strong>never granted</strong> it.</p></div>
         <div class="panel"><h3>The question</h3><p>If the assistant asks for a tool it was not granted, does the control stop the request? And does the tool still run? Those are two different facts.</p></div>

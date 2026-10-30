@@ -35,8 +35,9 @@ from agentsec.attack_app import AcmeBankClient, create_app  # noqa: E402
 
 LIVE_LABS = ["LAB-PI-001", "LAB-MCP-001", "LAB-RAG-CONTEXT", "LAB-MEMORY-001",
              "LAB-AGENT-GOAL-INTEGRITY-001", "LAB-AGENT-DELEGATION-001", "LAB-AGENTSEC-CAPSTONE-001"]
-PAGES = ["/", "/acmebank", "/academy", "/academy/foundations", "/academy/path", "/academy/status",
-         "/academy/labs/LAB-MCP-001", *[f"/labs/{lab}" for lab in LIVE_LABS]]
+REACT_PAGES = ["/learn"]  # the React Academy: no Jinja shell bar, its own sidebar (/academy itself now redirects here)
+PAGES = ["/", "/acmebank", "/academy/home", "/academy/foundations", "/academy/path", "/academy/status",
+         "/academy/labs/LAB-MCP-001", *[f"/labs/{lab}" for lab in LIVE_LABS], *REACT_PAGES]
 
 TRACK = """
 (() => {

@@ -176,7 +176,7 @@ Full UUID tokens in inputs. Status is text + color, not color-only. Nested backt
 
 ## PASS-1 UI REVIEW
 
-`docs/reviews/ui-review-ws-lab-mcp-003-2026-09-12.md`
+an internal record (not published)
 
 BLOCKER: none. HIGH: two (smashed grant sentence; clipped HUNT EXECUTED).
 
@@ -191,7 +191,7 @@ BLOCKER: none. HIGH: two (smashed grant sentence; clipped HUNT EXECUTED).
 
 ## PASS-2 UI REVIEW
 
-Same file, pass-2 section. Screenshots: `docs/screenshots/lab-mcp-003/pass2_*.png`.
+Same file, pass-2 section. Screenshots: an internal record (not published).
 
 HIGH grant sentence **FIXED** (readable `policy:read`). HIGH HUNT EXECUTED **FIXED** (`execution_state=mcp.completed` on canvas). No remaining HIGH. Residual MEDIUM/LOW accepted.
 
@@ -228,8 +228,8 @@ Primary this phase:
 - `tests/splunk/test_lab_mcp_003_dashboard.py`, `tests/workshops/test_lab_mcp_003_workshop.py`
 - `scripts/lab-ready.sh`, `scripts/lab-up.sh`, `scripts/splunk_app_init.sh`
 - `docs/PHASE4D_MCP003_WORKSHOP.md`, `docs/learning-notes/mcp-scope-workshop.md`
-- `docs/reviews/ui-review-ws-lab-mcp-003-2026-09-12.md`
-- `docs/screenshots/lab-mcp-003/pass1_*.png`, `pass2_*.png`
+- an internal record (not published)
+- an internal record (not published), `pass2_*.png`
 
 Not changed: `src/agentsec/mcp/authorize.py`, schema 1.1.0, `DET-MCP-001.spl`, Q-MCP SPL logic (bind-only).
 

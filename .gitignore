@@ -231,3 +231,9 @@ artifacts/*
 graphify-out/
 .env.bak*
 *.bak
+.gateway/
+
+# AgentSec installer: generated state and backups of a foreign .env
+.agentsec/
+.env.pre-agentsec*
+.splunk-access/

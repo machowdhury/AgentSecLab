@@ -9,7 +9,7 @@ Evidence class: **OBSERVED** (runtime + Splunk CLI). Completeness vs local `even
 
 Runtime remains authoritative for handler invocation. Splunk is corroboration.
 
-Companion: `docs/MEMORY_SPLUNK_FIELD_CONTRACT.md`, `docs/MEMORY_SEARCH_CONTRACT.md`, `docs/reviews/splunk-ko-review-memory-2026-09-17.md`.
+Companion: `docs/MEMORY_SPLUNK_FIELD_CONTRACT.md`, `docs/MEMORY_SEARCH_CONTRACT.md`, an internal record (not published).
 
 **Phase 11D not started.**
 
@@ -37,7 +37,7 @@ Inspected all `learning/level_1/LAB-MCP-001/searches/Q-MCP-*.spl` and `DET-MCP-0
 
 Specimens ran in-container Python with OTEL on (`scripts/run_lab_memory_live_specimens.py` copied to `/tmp`; image does not copy `scripts/`). Profile switched in-process (`AGENTSEC_SECURITY_PROFILE`) so the HTTP container stayed defended. Write runs used `defended` even for ATTACK (store-only). Overlay applies on the recall run only. `export.json` has `otlp.ok=true` and `splunk.verified=false` (honest). Splunk proof is this document’s independent CLI. Do **not** rewrite `splunk.verified` because CLI succeeded.
 
-Official Splunk Agent Skills consulted (read-only, after `.cursor/rules/33-splunk-agent-skills.mdc` and `.cursor/skills/splunk-ko-review/SKILL.md`): Splunk Search (CLI execution path), Search Performance Optimizer (notes only; no rewrite), Field Extraction and CIM Mapping, Knowledge Object Governance. `/spl-validate` headings are in the hunt `.md`. AgentSec evidence semantics remain authoritative.
+Official Splunk Agent Skills consulted (read-only, after an internal record (not published) and an internal record (not published)): Splunk Search (CLI execution path), Search Performance Optimizer (notes only; no rewrite), Field Extraction and CIM Mapping, Knowledge Object Governance. `/spl-validate` headings are in the hunt `.md`. AgentSec evidence semantics remain authoritative.
 
 ---
 
@@ -286,7 +286,7 @@ Correct for *its* invariant. **Insufficient** for INV-003. DET-MCP-001 **not mod
 
 ## Splunk knowledge-object review
 
-See `docs/reviews/splunk-ko-review-memory-2026-09-17.md`.
+See an internal record (not published).
 
 | Recommendation | Class |
 |----------------|-------|
@@ -340,7 +340,7 @@ Splunk indexes hash + bounded preview (≤200 characters). No `full_memory`, con
 - `docs/MEMORY_SPLUNK_FIELD_CONTRACT.md`
 - `docs/MEMORY_SEARCH_CONTRACT.md`
 - `docs/learning-notes/memory-splunk-investigation.md`
-- `docs/reviews/splunk-ko-review-memory-2026-09-17.md`
+- an internal record (not published)
 - `tests/splunk/test_lab_memory_splunk.py`
 
 ## Files modified

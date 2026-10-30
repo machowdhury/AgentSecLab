@@ -12,8 +12,8 @@ def test_acmebank_index_has_banking_hierarchy(acme_client):
     html = response.get_data(as_text=True)
     assert 'lang="en"' in html
     assert 'href="#main"' in html
-    assert "<h1>AcmeBank</h1>" in html
-    assert "Home loan application" in html
+    assert '<h1 id="page-title">Home purchase loan application</h1>' in html      # RC2 redesign: the brand moved to the logo bar
+    assert "Home purchase loan application" in html
     assert 'for="input"' in html
     assert "Submit loan" in html
     assert 'data-state="READY"' in html

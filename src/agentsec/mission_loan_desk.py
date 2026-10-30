@@ -7,6 +7,7 @@ client, and only forwards a closed contract: {application, posture}.
 
 from __future__ import annotations
 
+import os
 import re
 from collections import deque
 
@@ -49,7 +50,7 @@ BOUNDARIES = (
 )
 
 
-def register_loan_desk_mission(app: Flask, *, acmebank_url: str, version: str) -> None:
+def register_loan_desk_mission(app: Flask, *, acmebank_url: str, version: str, search=None) -> None:
     base = acmebank_url.rstrip("/")
     launched: deque[str] = deque(maxlen=500)  # only runs this service created can be read back through it
 
@@ -93,12 +94,12 @@ def register_loan_desk_mission(app: Flask, *, acmebank_url: str, version: str) -
 
     @app.post("/api/missions/loan-desk/runs/<run_id>/verify")
     def mission_verify(run_id: str):
-        if not RUN_ID.match(run_id) or run_id not in launched:
+        if not RUN_ID.fullmatch(run_id) or run_id not in launched:
             return _no_store(jsonify({"error": "unknown_run", "detail": "This service did not launch that run."})), 404
         return upstream("POST", f"/api/v1/loan-desk/runs/{run_id}/verify")
 
     def _owned(run_id: str):
-        if not RUN_ID.match(run_id) or run_id not in launched:
+        if not RUN_ID.fullmatch(run_id) or run_id not in launched:
             return _no_store(jsonify({"error": "unknown_run", "detail": "This service did not launch that run."})), 404
         return None
 
@@ -115,26 +116,70 @@ def register_loan_desk_mission(app: Flask, *, acmebank_url: str, version: str) -
             return _no_store(jsonify({"error": "bad_request"})), 400
         return _owned(other)
 
+    def _native() -> bool:
+        """Notebook searches run HERE, through the Attack Service's own REST client (no host verifier, no container exec). The older host-verifier bridge is a LEGACY
+        mode, off unless AGENTSEC_LEGACY_HOST_VERIFIER=1 is set explicitly (the multi-port flow's lab-up.sh sets it), and it can never be enabled behind the gateway.
+        Everywhere else, no provisioned search access means `unavailable`: nothing falls back."""
+        legacy = os.environ.get("AGENTSEC_LEGACY_HOST_VERIFIER") == "1" and os.environ.get("AGENTSEC_GATEWAY_MODE") != "1"
+        return search is not None and not legacy
+
+    def _search_body():
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict) or set(data) - {"template", "params", "compare_run"}:
+            return None
+        return data
+
     @app.get("/api/missions/loan-desk/search/templates")
     def mission_search_templates():
+        if _native():
+            return _no_store(jsonify({"templates": search.templates()})), 200
         return upstream("GET", "/api/v1/loan-desk/search/templates")
 
     @app.post("/api/missions/loan-desk/runs/<run_id>/search/preview")
     def mission_search_preview(run_id: str):
-        return _owned_pair(run_id) or upstream("POST", f"/api/v1/loan-desk/runs/{run_id}/search/preview", data=request.get_data(), headers={"Content-Type": "application/json"})
+        bad = _owned_pair(run_id)
+        if bad:
+            return bad
+        if not _native():
+            return upstream("POST", f"/api/v1/loan-desk/runs/{run_id}/search/preview", data=request.get_data(), headers={"Content-Type": "application/json"})
+        body = _search_body()
+        if body is None:
+            return _no_store(jsonify({"error": "bad_request"})), 400
+        code, info = search.preview(run_id, body.get("template"), body.get("params"), body.get("compare_run"))
+        return (_no_store(jsonify(info)), 200) if code == "OK" else (_no_store(jsonify({"error": "bad_request", **info})), 400)
 
     @app.post("/api/missions/loan-desk/runs/<run_id>/search")
     def mission_search(run_id: str):
-        return _owned_pair(run_id) or upstream("POST", f"/api/v1/loan-desk/runs/{run_id}/search", data=request.get_data(), headers={"Content-Type": "application/json"})
+        bad = _owned_pair(run_id)
+        if bad:
+            return bad
+        if not _native():
+            return upstream("POST", f"/api/v1/loan-desk/runs/{run_id}/search", data=request.get_data(), headers={"Content-Type": "application/json"})
+        body = _search_body()
+        if body is None:
+            return _no_store(jsonify({"error": "bad_request"})), 400
+        code, info = search.request(run_id, body.get("template"), body.get("params"), body.get("compare_run"))
+        if code == "REQUESTED":
+            return _no_store(jsonify(info)), 202
+        status = {"BAD_REQUEST": 400, "UNAVAILABLE": 503, "RATE_LIMITED": 429}[code]
+        err = {"BAD_REQUEST": "bad_request", "UNAVAILABLE": "search_unavailable", "RATE_LIMITED": "rate_limited"}[code]
+        detail = {"UNAVAILABLE": "Splunk search access is not set up on this lab, so nothing was searched. Nothing here is a result."}.get(code)
+        return _no_store(jsonify({"error": err, **({"detail": detail} if detail else {}), **info})), status
 
     @app.get("/api/missions/loan-desk/runs/<run_id>/search/<search_id>")
     def mission_search_result(run_id: str, search_id: str):
-        if not SEARCH_ID.match(search_id):
+        if not SEARCH_ID.fullmatch(search_id):
             return _no_store(jsonify({"error": "unknown_search"})), 404
-        return _owned(run_id) or upstream("GET", f"/api/v1/loan-desk/runs/{run_id}/search/{search_id}")
+        bad = _owned(run_id)
+        if bad:
+            return bad
+        if not _native():
+            return upstream("GET", f"/api/v1/loan-desk/runs/{run_id}/search/{search_id}")
+        res = search.result(run_id, search_id)
+        return (_no_store(jsonify(res)), 200) if res else (_no_store(jsonify({"error": "unknown_search"})), 404)
 
     @app.get("/api/missions/loan-desk/runs/<run_id>")
     def mission_run(run_id: str):
-        if not RUN_ID.match(run_id) or run_id not in launched:
+        if not RUN_ID.fullmatch(run_id) or run_id not in launched:
             return _no_store(jsonify({"error": "unknown_run", "detail": "This service did not launch that run (it may have restarted)."})), 404
         return upstream("GET", f"/api/v1/loan-desk/runs/{run_id}")

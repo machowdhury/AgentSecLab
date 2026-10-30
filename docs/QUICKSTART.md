@@ -1,14 +1,16 @@
 # AgentSec Quickstart
 
+> **Legacy: not the supported path.** This page describes the earlier multi-port, plain-HTTP flow (`scripts/lab-up.sh`, published as v1.2.0), in which ports 5000, 5001 and 8000 are published. In RC2 (a release candidate, unreleased) those ports are internal. The supported path is the installer and the single HTTPS gateway: install with `./agentsec` ([Installation and deployment](INSTALLATION_AND_DEPLOYMENT.md)) and open `https://localhost/learn`. Learners investigate inside the Academy; Splunk Web is an optional Advanced view. macOS, Windows and this older flow were **not** part of the RC2 acceptance runs. Do not mix the two flows on one machine without reading [Installer](INSTALLER.md) on existing labs.
+
 A technically capable person should be able to follow this linearly. Run every command from the **repository root**.
 
-Use `main` (release **v1.2.0**). Earlier tags (`v1.1.0`, `v1.0.0`, and the release candidates) are older releases without the React Academy; they are described in the [legacy guide](LEGACY_SPLUNK_ACADEMY_GUIDE.md).
+Use the tag `v1.2.0` (`git checkout v1.2.0`) for this legacy flow; `main` is RC2, which is installed with `./agentsec`. Earlier tags (`v1.1.0`, `v1.0.0`, and the release candidates) are older releases without the React Academy; they are described in the [legacy guide](LEGACY_SPLUNK_ACADEMY_GUIDE.md).
 
 After the first lab, continue with the [Learner guide](LEARNER_GUIDE.md) and [AGENTSEC_RELEASE_LAB_MATRIX.md](AGENTSEC_RELEASE_LAB_MATRIX.md).
 
-> **Legacy flow.** The paragraph above and sections 9 to 14 describe the original Splunk-based Academy Home path (L0–L10). The current beginner path, starting at <http://127.0.0.1:5001/learn>, is in [GETTING_STARTED.md](GETTING_STARTED.md); this Quickstart remains the detailed reference for prerequisites, preflight, startup, readiness words and shutdown.
+> **Legacy flow.** The paragraph above and sections 9 to 14 describe the original Splunk-based Academy Home path (L0–L10). In this legacy flow the Academy is at <http://127.0.0.1:5001/learn>; in RC2 it is only `https://localhost/learn`. [GETTING_STARTED.md](GETTING_STARTED.md) is the legacy beginner path; this Quickstart remains the detailed reference for the legacy prerequisites, preflight, startup, readiness words and shutdown.
 
-On a LIVE workshop, launch from Attack Service, copy the run.id, and paste it into **LIVE run.id**. The table on that page is a Splunk search. Rows are indexed evidence only when Splunk returns them. Search remains available when you want to edit the SPL. Check evidence readiness can say the probe is unavailable, still waiting, timed out, or confirmed. Those words are not a control decision. Splunk Search is the record. REPLAY workshops do not need Ollama. A documented REPLAY run.id with zero Search rows means this volume does not contain that historical copy. The lab does not invent it. Ollama is the local LLM runtime AgentSec uses for LIVE labs. It is not part of Splunk.
+In RC2 a LIVE workshop's Investigate stage is an Academy notebook (press **Run**; the Attack Service runs an approved, fixed-template search and shows rows, a chart and a plain-language reading), and Splunk Web is an optional Advanced view. The next sentences describe the legacy flow: launch from Attack Service, copy the run.id, and paste it into **LIVE run.id**. The table on that page is a Splunk search. Rows are indexed evidence only when Splunk returns them. Search remains available when you want to edit the SPL. Check evidence readiness can say the probe is unavailable, still waiting, timed out, or confirmed. Those words are not a control decision. Splunk Search is the record. REPLAY workshops do not need Ollama. A documented REPLAY run.id with zero Search rows means this volume does not contain that historical copy. The lab does not invent it. Ollama is the local LLM runtime AgentSec uses for LIVE labs. It is not part of Splunk.
 
 ## 1. Prerequisites
 
@@ -157,13 +159,15 @@ Do not commit `.env`. Do not paste a production password, token, or cloud key in
 
 ## 8. URLs
 
+*Published v1.2.0 direct URLs (legacy multi-port HTTP; internal in RC2).* The gateway (the RC2 installer default, unreleased) uses one HTTPS port instead, `https://localhost/learn`; see [Unified HTTPS gateway](GATEWAY.md). `--remote` publishes the three v1.2.0 ports and is **not** the single-port gateway.
+
 | URL | Role |
 |-----|------|
-| **http://127.0.0.1:5001/learn** | **React Academy: start here** |
+| **http://127.0.0.1:5001/learn** | **React Academy: start here** (legacy flow; RC2: `https://localhost/learn`) |
 | http://127.0.0.1:8000/en-US/app/agentsec/ws_agentsec_home | Legacy Splunk dashboards (original Academy Home) |
-| http://127.0.0.1:8000 | Splunk login (user `admin`; password from `.env` `SPLUNK_PASSWORD`) |
-| http://127.0.0.1:5001 | Attack Service |
-| http://127.0.0.1:5000/health | AcmeBank |
+| http://127.0.0.1:8000 | Splunk login (user `admin`; password from `.env` `SPLUNK_PASSWORD`; optional Advanced view) |
+| http://127.0.0.1:5001 | Attack Service (a backend, not a learner app) |
+| http://127.0.0.1:5000/health | AcmeBank (internal) |
 
 ## 9. First Academy lab
 
@@ -208,4 +212,4 @@ Specimen ids printed on a dashboard are reference evidence. Investigate the `run
 
 
 ## Loan Desk mission
-After the lab is READY, open http://127.0.0.1:5001/learn/loan-desk (the React Academy's Loan Desk mission; the original page is http://127.0.0.1:5001/academy) and start the mission. The start procedure, evidence states and troubleshooting are in [LOAN_DESK_MISSION.md](LOAN_DESK_MISSION.md). It needs `llama3.2:latest` in your host Ollama.
+After the lab is READY, open `https://localhost/learn/loan-desk` (legacy flow: http://127.0.0.1:5001/learn/loan-desk) and start the mission. The start procedure, evidence states and troubleshooting are in [LOAN_DESK_MISSION.md](LOAN_DESK_MISSION.md). It needs `llama3.2:latest` in your host Ollama.

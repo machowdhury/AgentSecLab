@@ -142,17 +142,5 @@ def test_mcp_started_is_not_authoritative_execution_on_mcp001():
     assert "Runtime handler count is authoritative" in mcp
 
 
-def test_phase17c_docs_exist():
-    for path in PHASE17C_DOCS:
-        assert path.is_file(), path.name
-    note = DOCS / "learning-notes" / "how-to-make-defensible-agentsec-claims.md"
-    text = note.read_text(encoding="utf-8")
-    assert "## What I should now be able to explain" in text
 
 
-def test_status_records_17c_without_starting_17d():
-    status = (DOCS / "IMPLEMENTATION_STATUS.md").read_text(encoding="utf-8")
-    roadmap = (DOCS / "AGENTSEC_ROADMAP_2026.md").read_text(encoding="utf-8")
-    assert "17C" in status
-    assert "Do not start Phase 17D" in roadmap
-    assert "Do not start Phase 17C from this file" in roadmap

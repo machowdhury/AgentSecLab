@@ -1,6 +1,6 @@
 {
   "visualizations": {
-    "mission": {
+    "viz_mission": {
       "type": "splunk.markdown",
       "options": {
         "markdown": "# Human approval and action binding\n\nThis is a REPLAY workshop. Path A is the ledger you fill before Path B. The packet is not policy.\n\nYou are reviewing whether an approval still covers the action that was submitted.\n\nThe packet is **SIMULATED / REPLAYED**. It is not a runtime approval service and not historical MCP-004 evidence.\n\n## Security question\n\nAn approval exists for `lookup_policy` / `lending-basics`. The submitted action is `lookup_policy` / `executive-restricted`. What does the approval cover, and what does CTRL-MCP-001 decide?\n\n## What this does not prove\n\n- Approval is not authentication.\n- Authentication is not approval authority.\n- Approval is not authorization.\n- A binding match is not an ALLOW.\n- A binding mismatch is not automatically a DENY.\n- Execution is not resource impact.\n",
@@ -9,7 +9,7 @@
         "fontSize": "large"
       }
     },
-    "approve": {
+    "viz_approve": {
       "type": "splunk.markdown",
       "options": {
         "markdown": "# Simulated approval decision\n\n- Record label: SIMULATED APPROVAL DECISION\n- Approval id: sim-approval-001\n- Claimed approver: approver-sam\n- Approver authentication: SIMULATED APPROVER AUTHENTICATION RESULT\n- Approver type: packet label only; not schema principal.type; not proof of a person\n- Credential reference: sim-auth-ref-approver-001\n- Approval authority: NOT PROVEN\n- Decision: APPROVE\n- Approved tool: lookup_policy\n- Approved resource: lending-basics\n- Action reference: sim-action-lending-basics\n- Window: 2026-10-01T15:05:00Z to 2026-10-01T16:05:00Z\n\nThe action reference is a correlation id. It is not a hash, a signature, or a tamper-proof binding.\n\nReplay of the same approval id on a second request is **DEFERRED** in this packet.\n",
@@ -18,7 +18,7 @@
         "fontSize": "large"
       }
     },
-    "request": {
+    "viz_request": {
       "type": "splunk.markdown",
       "options": {
         "markdown": "# Submitted action\n\nThe approval covers `lookup_policy` on `lending-basics`. Two packets arrived inside the approval window. Names are labels, not modes.\n\nPacket North\n\n- tool `lookup_policy`\n- resource `executive-restricted`\n- action reference `sim-action-executive-restricted`\n- time `2026-10-01T15:20:00Z`\n\nPacket South\n\n- tool `lookup_policy`\n- resource `lending-basics`\n- action reference `sim-action-lending-basics`\n- time `2026-10-01T15:20:00Z`\n\n**Task.** Which packet is outside the approved resource? A binding mismatch is not automatically a DENY, and a match is not an ALLOW. What evidence would prove the approver authenticated? What evidence would prove tool authorization? What evidence would prove execution? Which of those claims is NOT PROVEN from the approval record alone? Write that before Path B. Expiry is not the difference.\n",
@@ -27,7 +27,7 @@
         "fontSize": "large"
       }
     },
-    "authorize": {
+    "viz_authorize": {
       "type": "splunk.markdown",
       "options": {
         "markdown": "# CTRL-MCP-001\n\nCTRL-MCP-001 remains the tool decision. This workshop does not add an approval decision to the runtime.\n\nA MATCH is not an ALLOW. A MISMATCH is not a DENY. Write the binding on the ledger before you open Path B.\n\nAny ALLOW that accepts a mismatched action must carry an explicitly labeled vulnerable teaching reason. That reason is packet evidence. It is not implemented in `authorize.py`, and it is not the MCP-004 resource reason `vulnerable_profile_fail_open:resource_not_granted`.\n",
@@ -36,7 +36,7 @@
         "fontSize": "large"
       }
     },
-    "contrast": {
+    "viz_contrast": {
       "type": "splunk.markdown",
       "options": {
         "markdown": "# Historical resource decisions are not approvals\n\nThe search below counts historical CTRL-MCP-001 resource reasons. Those rows are **HISTORICAL RESOURCE DECISION — NOT AN APPROVAL**. Do not relabel them as HITL.\n",
@@ -45,7 +45,7 @@
         "fontSize": "large"
       }
     },
-    "ledger": {
+    "viz_ledger": {
       "type": "splunk.markdown",
       "options": {
         "markdown": "# Evidence ledger\n\nCopy one line per mode. Fill binding, CTRL-MCP-001, and execution yourself.\n\n- Approval id for all modes: sim-approval-001\n- Approved tool for all modes: lookup_policy\n- Approved resource for all modes: lending-basics\n- ATTACK submitted resource: executive-restricted. Binding: ______. Decision: ______. Execution: ______.\n- RETEST submitted resource: executive-restricted. Binding: ______. Decision: ______. Execution: ______.\n- BASELINE submitted resource: lending-basics. Binding: ______. Decision: ______. Execution: ______.\n- Resource impact for all modes: NOT PROVEN\n",
@@ -54,7 +54,7 @@
         "fontSize": "large"
       }
     },
-    "pathb": {
+    "viz_pathb": {
       "type": "splunk.markdown",
       "options": {
         "markdown": "# Path B — review\n\n- ATTACK: binding MISMATCH, CTRL-MCP-001 ALLOW, reason vulnerable_profile_fail_open:stale_approval_accepted, separate simulated start.\n- RETEST: binding MISMATCH, CTRL-MCP-001 DENY, reason approval_binding_mismatch, execution not observed; do not infer a start.\n- BASELINE: binding MATCH, CTRL-MCP-001 ALLOW, reason tool_granted, separate simulated start.\n\nApproval authority remains NOT PROVEN. Resource impact remains NOT PROVEN. Replay remains DEFERRED.\n",
@@ -79,16 +79,91 @@
         "backgroundColor": "#FFFFFF",
         "headerBackgroundColor": "#0B1F33",
         "headerTextColor": "#FFFFFF",
-        "noDataMessage": "No historical resource-decision rows in this volume."
-      }
-    },
-    "viz_guide_shell": {
-      "type": "splunk.markdown",
-      "title": "Guided path",
-      "options": {
-        "markdown": "# Where you are\n\n**checkpoint · L7 → Identity/NHI → A2A → HITL Approval Workshop → L8** · Human Approval and Action Binding · step 21 of 32 · REPLAY\n\n# What you are learning\n\nHuman Approval and Action Binding\n\n# What you do now\n\n1. Follow this workshop's own specimen or question. It does not mint a run.id.\n2. Use the searches already on the later tabs.\n3. Keep simulated, historical, and measured claims in the words this workshop already uses.\n\n# What to investigate\n\nWhat question is this workshop asking, and which claim does the evidence still leave open?\n\n# What a row means\n\nA `decision` value is a control result. `executed=true` on a start or complete event is execution evidence. Those are different events. A decision row does not prove a handler ran. An execution row does not prove a downstream resource changed.\n\n# What this does not prove\n\nA control decision is not execution. Execution is not a measured downstream resource change. An empty table is not DENY. HEC HTTP 200 is not this table. One RETEST is not universal protection. Progress on Your path is not a security verdict.\n\n# States you may see\n\n**NO RUN.ID** — the box is empty. Launch or select a run, then enter its run.id.\n\n**NO INDEXED RESULTS YET** — zero rows after a real id. Indexing can lag. This is not DENY.\n\n**RUN DENIED** — a control event whose decision is DENY. That is a security result. An empty table is not this state.\n\n**RUN FAILED**, **BACKEND UNAVAILABLE**, and **RUN TIMED OUT** are launcher states. They are not DENY and they are not an empty table.\n\n**NO MATCHING EVIDENCE** — Splunk returned no row for this id. Do not invent the reason.\n\n# SPL used\n\nThis workshop does not add a new run.id search on this tab.\n\nNo new run.id search is added on this tab.\n\n# Conclude\n\nWrite one sentence: what the control decided, and whether a separate event shows execution. Then say one thing the evidence does not prove.\n\n# Next\n\n[Short-Lived Credential Lifetime](/app/agentsec/ws_lab_credential_lifetime)\n\nRecord navigation on [Your path](/app/agentsec/learner_path). Opening this page does not mark the workshop investigated.\n",
-        "fontSize": "large",
-        "fontColor": "#17202A"
+        "noDataMessage": "No historical resource-decision rows in this volume.",
+        "columnFormat": {
+          "decision": {
+            "rowBackgroundColors": "> table | seriesByName(\"decision\") | matchValue(decisionBackgrounds)",
+            "rowColors": "> table | seriesByName(\"decision\") | matchValue(decisionText)"
+          },
+          "executed": {
+            "rowBackgroundColors": "> table | seriesByName(\"executed\") | matchValue(executedBackgrounds)",
+            "rowColors": "> table | seriesByName(\"executed\") | matchValue(executedText)"
+          }
+        }
+      },
+      "context": {
+        "decisionBackgrounds": [
+          {
+            "match": "ALLOW",
+            "value": "#E8EEF5"
+          },
+          {
+            "match": "DENY",
+            "value": "#F6EBD8"
+          },
+          {
+            "match": "ERROR",
+            "value": "#F8E6E6"
+          },
+          {
+            "match": "OBSERVE",
+            "value": "#F0F3F6"
+          }
+        ],
+        "decisionText": [
+          {
+            "match": "ALLOW",
+            "value": "#3568A8"
+          },
+          {
+            "match": "DENY",
+            "value": "#7A4F0B"
+          },
+          {
+            "match": "ERROR",
+            "value": "#C62828"
+          },
+          {
+            "match": "OBSERVE",
+            "value": "#3D4654"
+          }
+        ],
+        "executedBackgrounds": [
+          {
+            "match": "true",
+            "value": "#0B1F33"
+          },
+          {
+            "match": "false",
+            "value": "#EEF1F4"
+          },
+          {
+            "match": "1",
+            "value": "#0B1F33"
+          },
+          {
+            "match": "0",
+            "value": "#EEF1F4"
+          }
+        ],
+        "executedText": [
+          {
+            "match": "true",
+            "value": "#FFFFFF"
+          },
+          {
+            "match": "false",
+            "value": "#3D4654"
+          },
+          {
+            "match": "1",
+            "value": "#FFFFFF"
+          },
+          {
+            "match": "0",
+            "value": "#3D4654"
+          }
+        ]
       }
     },
     "viz_flow_diagram": {
@@ -98,6 +173,15 @@
       "options": {
         "src": "/en-US/static/app/agentsec/flows/flow-lab-hitl-approval.svg",
         "preserveAspectRatio": true
+      }
+    },
+    "viz_guide_shell": {
+      "type": "splunk.markdown",
+      "title": "Guided path",
+      "options": {
+        "markdown": "# Where you are\n\n**checkpoint · L7 → Identity/NHI → A2A → HITL Approval Workshop → L8** · Human Approval and Action Binding · step 22 of 33 · REPLAY\n\n# What you are learning\n\nHuman Approval and Action Binding\n\n# What you do now\n\n1. Follow this workshop's own specimen or question. It does not mint a run.id.\n2. Use the searches already on the later tabs.\n3. Keep simulated, historical, and measured claims in the words this workshop already uses.\n\n# What to investigate\n\nWhat question is this workshop asking, and which claim does the evidence still leave open?\n\n# What a row means\n\nA `decision` value is a control result. `executed=true` on a start or complete event is execution evidence. Those are different events. A decision row does not prove a handler ran. An execution row does not prove a downstream resource changed.\n\n# What this does not prove\n\nA control decision is not execution. Execution is not a measured downstream resource change. An empty table is not DENY. HEC HTTP 200 is not this table. One RETEST is not universal protection. Progress on Your path is not a security verdict.\n\n# States you may see\n\n**NO RUN.ID** — the box is empty. Launch or select a run, then enter its run.id.\n\n**NO INDEXED RESULTS YET** — zero rows after a real id. Indexing can lag. This is not DENY.\n\n**RUN DENIED** — a control event whose decision is DENY. That is a security result. An empty table is not this state.\n\n**RUN FAILED**, **BACKEND UNAVAILABLE**, and **RUN TIMED OUT** are launcher states. They are not DENY and they are not an empty table.\n\n**NO MATCHING EVIDENCE** — Splunk returned no row for this id. Do not invent the reason.\n\n# SPL used\n\nThis workshop does not add a new run.id search on this tab.\n\nNo new run.id search is added on this tab.\n\n# Conclude\n\nWrite one sentence: what the control decided, and whether a separate event shows execution. Then say one thing the evidence does not prove.\n\n# Next\n\n[Short-Lived Credential Lifetime](/app/agentsec/ws_lab_credential_lifetime)\n\nRecord navigation on [Your path](/app/agentsec/learner_path). Opening this page does not mark the workshop investigated.\n",
+        "fontSize": "large",
+        "fontColor": "#17202A"
       }
     }
   },

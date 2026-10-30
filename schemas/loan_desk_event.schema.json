@@ -87,7 +87,11 @@
     },
     "agentsec.schema.version": {
       "type": "string",
-      "const": "1.0.0"
+      "enum": [
+        "1.0.0",
+        "1.1.0"
+      ],
+      "description": "1.1.0 is additive over 1.0.0: it may carry the agentsec.model.* identity fields. A run without them stays 1.0.0."
     },
     "agentsec.run.id": {
       "type": "string",
@@ -379,6 +383,51 @@
         "hardened"
       ],
       "description": "Loan Desk defense posture for this run. baseline = free-text review notes (deliberate lab weakness); hardened = review notes restricted to reason codes."
+    },
+    "agentsec.model.requested": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "The model the deployment was configured to use (LOANDESK_MODEL or the role default), as configured."
+    },
+    "agentsec.model.identity_status": {
+      "type": "string",
+      "enum": [
+        "DIGEST_RECORDED",
+        "NAME_VERIFIED",
+        "NOT_INSTALLED",
+        "UNREACHABLE",
+        "ERROR",
+        "INVALID_NAME",
+        "MISMATCH"
+      ],
+      "description": "DIGEST_RECORDED: Ollama has exactly the requested name and reported a digest (observed before the call). NAME_VERIFIED: exact name, no digest reported. MISMATCH: a different model answered this call. The others mean the run did not use the requested model or could not prove it."
+    },
+    "agentsec.model.digest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "The digest Ollama reported for the requested name before the call (observed, not a proof of which weights produced each token)."
+    },
+    "agentsec.model.quantization": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "agentsec.model.parameter_size": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "agentsec.ollama.version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "Ollama's reported version when the model identity was resolved."
+    },
+    "agentsec.model.executed_name_matches": {
+      "type": "boolean",
+      "description": "On agentsec.llm.completed: the model name Ollama said answered equals the requested one. Absent when Ollama did not say."
     }
   },
   "allOf": [
@@ -474,7 +523,8 @@
             "const": true
           },
           "agentsec.operation.executed": {
-            "const": true
+            "type": "boolean",
+            "description": "true when the request was sent to the model. false only for a fail-closed refusal (the requested model is not installed or its name is invalid): attempted, not executed."
           }
         }
       }
@@ -747,6 +797,61 @@
           },
           "agentsec.error.stage": {
             "const": "mcp_invocation"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {
+            "enum": [
+              "agentsec.llm.started",
+              "agentsec.llm.failed"
+            ]
+          },
+          "agentsec.operation.executed": {
+            "const": false
+          }
+        },
+        "required": [
+          "event.name",
+          "agentsec.operation.executed"
+        ]
+      },
+      "then": {
+        "required": [
+          "agentsec.model.identity_status",
+          "agentsec.schema.version"
+        ],
+        "properties": {
+          "agentsec.model.identity_status": {
+            "enum": [
+              "NOT_INSTALLED",
+              "INVALID_NAME"
+            ]
+          },
+          "agentsec.schema.version": {
+            "const": "1.1.0"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event.name": {
+            "const": "agentsec.llm.completed"
+          }
+        },
+        "required": [
+          "event.name"
+        ]
+      },
+      "then": {
+        "properties": {
+          "agentsec.operation.executed": {
+            "const": true
           }
         }
       }

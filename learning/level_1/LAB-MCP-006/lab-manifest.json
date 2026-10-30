@@ -1,0 +1,121 @@
+{
+ "lab_id": "LAB-MCP-006",
+ "title": "Confused Deputy",
+ "not_authorization": true,
+ "security_question": "May a deputy agent use its own ambient authority for a caller's request, or does CTRL-DELEGATION-001 require that the caller delegated that authority for this operation?",
+ "invariant_ids": [
+  "INV-001"
+ ],
+ "control_id": "CTRL-DELEGATION-001",
+ "workshop_view": "ws_lab_mcp_006",
+ "level": "3",
+ "domain": "delegated_authority",
+ "execution_modes": {
+  "LIVE": [
+   "BASELINE",
+   "ATTACK",
+   "RETEST"
+  ],
+  "REPLAY": [
+   "BASELINE",
+   "ATTACK",
+   "RETEST"
+  ],
+  "GUIDED": true
+ },
+ "retest_support": "LIVE",
+ "retest_support_detail": "ATTACK and RETEST send the same request (lookup_customer_tier, customer:read, cust-001). The caller (Credit Agent) and the deputy (Compliance Agent) are coded server-side; the profile is server-owned ExperimentContext.",
+ "specimens": [
+  {
+   "specimen_id": "MCP-006-BASELINE",
+   "mode": "BASELINE",
+   "profile": "defended",
+   "live": true,
+   "experiment_id": "LAB-MCP-006:BASELINE",
+   "same_as_attack_payload": false
+  },
+  {
+   "specimen_id": "MCP-006",
+   "mode": "ATTACK",
+   "profile": "vulnerable",
+   "live": true,
+   "experiment_id": "LAB-MCP-006:ATTACK",
+   "intentionally_vulnerable": true,
+   "same_as_retest_payload": true
+  },
+  {
+   "specimen_id": "MCP-006",
+   "mode": "RETEST",
+   "profile": "defended",
+   "live": true,
+   "experiment_id": "LAB-MCP-006:RETEST",
+   "same_as_attack_payload": true
+  }
+ ],
+ "prediction": {
+  "BASELINE": {
+   "attack_objective": "Run the delegated request (lookup_policy at policy:read for lending-basics) so the later ATTACK has a normal comparison.",
+   "why_this_matters": "You need the shape of a legitimate delegation before judging the deputy's extra request.",
+   "what_will_change": "A new run.id. CTRL-DELEGATION-001 ALLOW delegation_granted; the policy handler runs once, the customer-tier handler does not.",
+   "what_will_not_change": "The delegated tool set. The browser does not choose the caller, the deputy, the tool or the profile.",
+   "security_property": "A delegated request, for comparison only.",
+   "expected_evidence_defended": "testbed.mode=BASELINE, profile=defended, authority source delegated, ALLOW delegation_granted, policy handler 1, customer-tier handler 0.",
+   "predict_before_launch": "Before you click Launch, write: should this request be allowed, and which handler should run?"
+  },
+  "ATTACK": {
+   "attack_objective": "Send the deputy a request for lookup_customer_tier, which the caller never delegated, on the intentionally vulnerable ATTACK experiment and observe whose authority it runs under.",
+   "why_this_matters": "A deputy may possess authority the caller was never allowed to use. AUTHORITY POSSESSED != AUTHORITY DELEGATED.",
+   "what_will_change": "A new run.id is minted. CTRL-DELEGATION-001 records a labelled fail-open ALLOW and the customer-tier handler runs under the deputy's ambient authority.",
+   "what_will_not_change": "The delegated tool set and the coded identities. Splunk does not ALLOW or DENY.",
+   "security_property": "AUTHORITY POSSESSED != AUTHORITY DELEGATED. On this labelled vulnerable profile the lab is fail-open; that is not a universal bypass.",
+   "expected_evidence_vulnerable": "INTENTIONALLY VULNERABLE LAB PROFILE: ALLOW vulnerable_profile_fail_open:ambient_deputy_authority with authority source ambient_deputy and customer-tier handler 1. ALLOW is not execution by itself; the handler count is.",
+   "expected_evidence_defended": "Not this ATTACK specimen. The defended outcome is the RETEST experiment.",
+   "predict_before_launch": "Before you click Launch ATTACK, write: whose authority will the request run under, and will the customer-tier handler start?",
+   "attacker_influence": "The request the caller makes of the deputy; the attacker wants the deputy's own authority used for it.",
+   "defense_should": "On this ATTACK specimen the lab is fail-open. The defense you will enable is the RETEST ExperimentContext (profile=defended), not Splunk."
+  },
+  "RETEST": {
+   "attack_objective": "Replay the SAME request on the defended RETEST experiment and prove the outcome changed because defense changed, not because the request changed.",
+   "why_this_matters": "A closed-loop experiment needs independent ATTACK and RETEST run.ids.",
+   "what_will_change": "A new run.id, testbed.mode=RETEST, profile=defended; DENY delegated_authority_not_granted, customer-tier handler 0.",
+   "what_will_not_change": "The tool, scope, arguments and request fingerprint. Splunk still does not enforce.",
+   "security_property": "Same request plus different server-owned configuration gives a different outcome. Not universal resistance.",
+   "expected_evidence_defended": "DENY delegated_authority_not_granted, handler 0; testbed.mode=RETEST.",
+   "which_control": "CTRL-DELEGATION-001, before the tool handler. AcmeBank owns enforcement; Splunk does not.",
+   "expected_decision": "DENY, reason delegated_authority_not_granted.",
+   "falsify": "A customer-tier handler start after the DENY, or ALLOW on this RETEST experiment, would falsify the defended prediction. Missing Splunk rows alone would not.",
+   "predict_before_launch": "Will the same request reach the handler? If denied, what evidence should exist?"
+  }
+ },
+ "investigation": {
+  "entry_hunt": "Q-MCP-WHO",
+  "reuse_hunts": [
+   "Q-MCP-WHO",
+   "Q-MCP-AUTHZ",
+   "Q-MCP-DELEGATION",
+   "Q-MCP-EXECUTED",
+   "Q-MCP-AFTER-DENY"
+  ],
+  "starter_index": "agentsec_telemetry",
+  "starter_sourcetype": "otel:agentic:json",
+  "do_not_create": [
+   "DET-MCP-NEW",
+   "DET-LAUNCH",
+   "DET-ATTACK-SIMULATOR"
+  ]
+ },
+ "limitations": [
+  "LOCAL EDUCATIONAL SERVICE when installed locally. On a remote deployment the learner uses the host in the browser address bar. The service is unauthenticated.",
+  "NOT PRODUCTION AUTHENTICATION. NOT MULTI-TENANT. NOT INTERNET-FACING.",
+  "CTRL-MCP-001 is a lab allow-list, not production MCP IAM.",
+  "JSON-RPC is in-process, not stdio/HTTP MCP transport.",
+  "RETEST DENY is not automatically SAFE.",
+  "HEC HTTP 200 is not searchable evidence.",
+  "Missing mcp.started is not independent proof of prevention.",
+  "ALLOW is not execution. DENY is not an incident.",
+  "DET-MCP-001 alerts only on DENY-then-start. ATTACK fail-open ALLOW is silent. Silence is not SAFE.",
+  "Studio tokens are not auto-bound to a fresh run.id.",
+  "Learning metadata is not security policy.",
+  "The caller and deputy are coded fixtures, not authenticated agents; there is no A2A transport."
+ ]
+}

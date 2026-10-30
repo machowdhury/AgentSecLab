@@ -7,22 +7,44 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
   {% include "_shell_head.html" %}
   <link rel="stylesheet" href="{{ url_for('static', filename='acmebank-theme.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='acmebank.css') }}">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   {% set shell_script = not read_only %}
   {% include "_shell_bar.html" %}
-  <header class="site-header">
-    <div class="site-header-inner">
-      <div>
-        <p class="brand-kicker">AgentSec lab</p>
-        <h1>AcmeBank</h1>
-        <p class="brand-sub">Home loan application</p>
-      </div>
-      <p class="header-meta">Lab profile <strong>{{ profile }}</strong> · model {{ model }} · {{ version }}</p>
+  <header class="ab-top">
+    <div class="ab-wrap ab-top__inner">
+      <a class="ab-logo" href="#main" aria-label="AcmeBank home loans">
+        <svg class="ab-logo__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="7" fill="#1d3a8a"/><path d="M16 6 6.5 12h19L16 6Zm-8 8v8h3v-8H8Zm6.5 0v8h3v-8h-3Zm6.5 0v8h3v-8h-3ZM6.5 24v2.5h19V24h-19Z" fill="#f5b83d"/></svg>
+        <span class="ab-logo__word">AcmeBank</span>
+      </a>
+      <nav class="ab-nav" aria-label="AcmeBank sections">
+        <ul>
+{% if not read_only %}          <li><a href="#apply">Apply</a></li>
+          <li><a href="#status">Application status</a></li>
+{% else %}          <li><a href="#readonly-notice">Read-only view</a></li>
+{% endif %}          <li><a href="#behind-the-ai">How the AI works</a></li>
+        </ul>
+      </nav>
+      <p class="ab-sim"><span aria-hidden="true">◇</span> Simulated bank for the AgentSec lab</p>
     </div>
   </header>
-  <main id="main">
+  <section class="ab-hero" aria-labelledby="page-title">
+    <div class="ab-wrap ab-hero__inner">
+      <div>
+        <p class="ab-eyebrow">Home loans</p>
+        <h1 id="page-title">Home purchase loan application</h1>
+        <p class="ab-hero__sub">Tell us about the purchase. Four in-process AI roles review the request and return an outcome.</p>
+      </div>
+      <dl class="ab-meta" aria-label="Lab target">
+        <div><dt>Profile</dt><dd>{{ profile }}</dd></div>
+        <div><dt>Model</dt><dd>{{ model }}</dd></div>
+        <div><dt>Version</dt><dd>{{ version }}</dd></div>
+      </dl>
+    </div>
+  </section>
+  <main id="main" class="ab-wrap">
 {% if read_only %}
     <p class="lede">This is WORLD 1, the business story: the ordinary application an AcmeBank customer sees. It is shown here read-only so you can read the business context before you investigate the AI behind it.</p>
 
@@ -35,24 +57,33 @@
       <blockquote class="readonly-sample">Hi, I'm Priya Chen. I'd like to apply for a home purchase loan of $420000. I'm employed full-time as a pharmacist, annual income about $118000, credit score around 740. Property is in Ottawa, Ontario.</blockquote>
     </section>
 {% else %}
-    <p class="lede">Submit a home purchase loan request. AcmeBank processes the application with four in-process roles. This page does not fire attacks.</p>
-
-    <section class="card" aria-labelledby="apply-heading">
+    <div class="ab-grid">
+    <div class="ab-col">
+    <section class="card" id="apply" aria-labelledby="apply-heading">
       <h2 id="apply-heading">Loan request</h2>
+      <p class="muted" id="input-hint">Describe the applicant, loan amount, income, credit score and property. This page does not fire attacks.</p>
       <form id="loan-form">
         <label for="input">Customer request</label>
-        <textarea id="input" name="input" required>Hi, I'm Priya Chen. I'd like to apply for a home purchase loan of $420000. I'm employed full-time as a pharmacist, annual income about $118000, credit score around 740. Property is in Ottawa, Ontario.</textarea>
+        <textarea id="input" name="input" required rows="6" aria-describedby="input-hint">Hi, I'm Priya Chen. I'd like to apply for a home purchase loan of $420000. I'm employed full-time as a pharmacist, annual income about $118000, credit score around 740. Property is in Ottawa, Ontario.</textarea>
         <div class="actions">
           <button class="btn btn-primary" id="submit-loan" type="submit">Submit loan</button>
+          <span class="ab-spinner" id="ab-spinner" hidden aria-hidden="true"></span>
         </div>
       </form>
     </section>
 
-    <section class="card" aria-labelledby="result-heading">
+    </div>
+    <aside class="ab-col" aria-labelledby="result-heading">
+    <section class="card" id="status">
       <h2 id="result-heading">Application status</h2>
+      <ol class="ab-steps" id="ab-steps" data-step="0" aria-label="Application progress">
+        <li data-n="1"><span>Submitted</span></li>
+        <li data-n="2"><span>In review</span></li>
+        <li data-n="3"><span>Outcome</span></li>
+      </ol>
       <div class="status-row">
         <span class="status" id="ui-status" data-state="READY">READY</span>
-        <p class="muted" id="status-live" aria-live="polite">Ready to submit.</p>
+        <p class="muted" id="status-live" role="status">Ready to submit.</p>
       </div>
       <div id="run-id-block" hidden>
         <label for="run-id">run.id</label>
@@ -65,12 +96,14 @@
       <details class="secondary" id="tech-details" hidden>
         <summary>Pipeline details</summary>
         <p class="muted">Facts from this response only. ALLOW is a control decision, not proof the model ran.</p>
-        <pre class="result-pre" id="result-json"></pre>
+        <pre class="result-pre" id="result-json" tabindex="0"></pre>
       </details>
     </section>
+    </aside>
+    </div>
 {% endif %}
 
-    <details class="card secondary" id="behind-the-ai">
+    <details class="card secondary ab-behind" id="behind-the-ai">
       <summary>See how the AI did this</summary>
       <p class="evidence-label">DOCUMENTED architecture. This section describes how AcmeBank is built.
       It is not measured evidence from your run. Measured facts for your run live in the
@@ -111,8 +144,8 @@
       <p><a class="btn btn-primary" id="go-workbench" href="/labs/LAB-MCP-001">Investigate tool authorization in the AgentSec workshop</a></p>
     </details>
 {% if not read_only %}
-    <section class="card">
-      <h2>This browser tab</h2>
+    <section class="card" aria-labelledby="tab-heading">
+      <h2 id="tab-heading">This browser tab</h2>
       <p class="muted">LAST KNOWN CLIENT STATE. Not indexed evidence. A reload keeps this list in this tab.</p>
       <ul class="fact-list" id="session-history" data-agentsec-managed="1" data-lab-id="ACMEBANK"></ul>
       <p id="session-pair"></p>
@@ -136,6 +169,8 @@
     const detailsEl = document.getElementById("tech-details");
     const runBlock = document.getElementById("run-id-block");
     const runInput = document.getElementById("run-id");
+    const stepsEl = document.getElementById("ab-steps");
+    const spinner = document.getElementById("ab-spinner");
 
     document.getElementById("copy-run-id").addEventListener("click", function () {
       ui.copyFromInput(runInput);
@@ -178,8 +213,12 @@
       ui.setBusy(form, button, true);
       button.textContent = "Submitting…";
       ui.applyState(statusEl, liveEl, "RUNNING", "Submitting your application.");
+      delete stepsEl.dataset.outcome;
+      stepsEl.dataset.step = "1";
+      spinner.hidden = false;
       summaryEl.textContent = "Submitting your application.";
       await ui.afterPaint();
+      stepsEl.dataset.step = "2";
       try {
         const response = await fetch("/process", {
           method: "POST",
@@ -196,6 +235,8 @@
         const message = bankMessage(state, data);
         ui.applyState(statusEl, liveEl, state, message);
         summaryEl.textContent = message;
+        stepsEl.dataset.step = "3";
+        stepsEl.dataset.outcome = state;
         if (data.run_id) {
           runBlock.hidden = false;
           ui.fillRunId(runInput, data.run_id);
@@ -207,7 +248,10 @@
         const message = "The application could not be completed. The browser did not receive a usable response. This is not a control DENY.";
         ui.applyState(statusEl, liveEl, "ERROR", message);
         summaryEl.textContent = message;
+        stepsEl.dataset.step = "3";
+        stepsEl.dataset.outcome = "ERROR";
       } finally {
+        spinner.hidden = true;
         button.textContent = idleLabel;
         ui.setBusy(form, button, false);
       }

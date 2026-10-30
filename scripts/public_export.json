@@ -1,0 +1,301 @@
+{
+  "roots": [
+    "README.md",
+    "CONTRIBUTING.md",
+    "THIRD_PARTY_NOTICES.md",
+    "docs/README.md"
+  ],
+  "allowed_top_level": [
+    ".env.example",
+    ".gitignore",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "LICENSE",
+    "README.md",
+    "SECURITY.md",
+    "THIRD_PARTY_NOTICES.md",
+    "academy-ui",
+    "agentsec",
+    "artifacts",
+    "config",
+    "deploy",
+    "docker",
+    "docker-compose.gateway-ctf.yml",
+    "docker-compose.gateway.yml",
+    "docker-compose.local.yml",
+    "docker-compose.yml",
+    "docs",
+    "gateway",
+    "learning",
+    "pyproject.toml",
+    "requirements.txt",
+    "schemas",
+    "scripts",
+    "splunk_app",
+    "src",
+    "telemetry",
+    "tests",
+    "tools",
+    "uv.lock"
+  ],
+  "included_dirs": [
+    "docs/images",
+    "docs/p1a-evidence",
+    "docs/phase9b-evidence",
+    "docs/splunk-evidence-11f",
+    "docs/brand",
+    "docs/curriculum",
+    "docs/learning-notes"
+  ],
+  "included_files": [
+    "docs/design/figma_v2_tokens.json",
+    "docs/reviews/live-validation-goal-identity-2026-09-24.md",
+    "docs/reviews/logic-proof-privacy-data-governance-2026-09-25.md"
+  ],
+  "excluded_dirs": [
+    "docs/reviews",
+    "docs/screenshots",
+    "docs/pilot",
+    "docs/design",
+    "docs/security"
+  ],
+  "excluded_tests": [
+    "tests/devtools/test_cursor_workflow.py",
+    "tests/test_batch7_preservation.py",
+    "tests/test_batch8_specimens.py",
+    "tests/test_batch9_specimens.py",
+    "tests/unit/test_phase13a_design.py",
+    "tests/unit/test_phase9b_design.py",
+    "tests/unit/test_phase9c_design.py",
+    "tests/unit/test_splunk_governance.py"
+  ],
+  "excluded_test_functions": {
+    "tests/splunk/test_blue_team_investigation.py": [
+      "test_route_builder_and_curriculum_registration"
+    ],
+    "tests/splunk/test_lab_agent_delegation_splunk.py": [
+      "test_phase12c_documentation_exists"
+    ],
+    "tests/splunk/test_lab_agent_goal_integrity_splunk.py": [
+      "test_phase13c_documentation_exists"
+    ],
+    "tests/splunk/test_lab_mcp_003_splunk_reuse.py": [
+      "test_phase4c_documentation_exists"
+    ],
+    "tests/splunk/test_lab_mcp_004_splunk.py": [
+      "test_phase5c_documentation_exists"
+    ],
+    "tests/splunk/test_lab_mcp_005_splunk.py": [
+      "test_phase6c_documentation_exists"
+    ],
+    "tests/splunk/test_lab_mcp_006_splunk.py": [
+      "test_phase7c_documentation_exists"
+    ],
+    "tests/splunk/test_lab_mcp_catalog_splunk.py": [
+      "test_phase8d_documentation_exists"
+    ],
+    "tests/splunk/test_lab_memory_splunk.py": [
+      "test_phase11c_documentation_exists"
+    ],
+    "tests/splunk/test_lab_rag_splunk.py": [
+      "test_phase10c_documentation_exists"
+    ],
+    "tests/splunk/test_privacy_data_governance.py": [
+      "test_evidence_ledger_communications_and_framework_disclaimers"
+    ],
+    "tests/splunk/test_scanner_splunk.py": [
+      "test_phase9c_documentation_and_inventory"
+    ],
+    "tests/splunk/test_threat_modeling.py": [
+      "test_framework_lenses_are_validated_and_clearly_labeled"
+    ],
+    "tests/test_checkpoints.py": [
+      "test_completion_status_lists_all_32_and_changes_no_tier"
+    ],
+    "tests/test_curriculum_explorer.py": [
+      "test_export_matches_its_sources"
+    ],
+    "tests/test_docs_rc2.py": [
+      "test_every_relative_link_and_anchor_resolves"
+    ],
+    "tests/test_splunk_evidence.py": [
+      "test_identity_keeps_three_kinds_of_evidence_separate"
+    ],
+    "tests/test_splunk_workbench.py": [
+      "test_every_quote_and_documented_line_is_in_its_file_and_nothing_claims_verification"
+    ],
+    "tests/test_study_checkpoints.py": [
+      "test_every_question_is_well_formed_and_every_quote_is_in_its_file",
+      "test_privacy_answers_are_recomputed_from_the_data_map_and_the_documents"
+    ],
+    "tests/unit/test_phase10a_design.py": [
+      "test_phase10a_design_docs_exist",
+      "test_phase10a_is_design_only",
+      "test_phase10a_separates_rag_from_mcp005_and_catalog",
+      "test_phase10a_status_marks_planned_not_implemented"
+    ],
+    "tests/unit/test_phase10d_design.py": [
+      "test_phase10d_docs_choose_no_new_detector"
+    ],
+    "tests/unit/test_phase11a_design.py": [
+      "test_phase11a_design_docs_exist",
+      "test_phase11a_is_design_only",
+      "test_phase11a_separates_memory_from_rag_and_telemetrysink",
+      "test_phase11a_status_marks_design_history"
+    ],
+    "tests/unit/test_phase11d_design.py": [
+      "test_phase11d_docs_choose_no_new_detector"
+    ],
+    "tests/unit/test_phase12a_design.py": [
+      "test_phase12a_closed_chapters_remain",
+      "test_phase12a_design_docs_exist",
+      "test_phase12a_is_design_only",
+      "test_phase12a_separates_mcp006_and_refuses_new_invariant"
+    ],
+    "tests/unit/test_phase13d_design.py": [
+      "test_phase13d_docs_choose_no_new_detector_and_design_workshop"
+    ],
+    "tests/unit/test_phase14a_design.py": [
+      "test_phase14a_design_docs_exist",
+      "test_phase14a_is_design_only_and_forbids_14b",
+      "test_phase14a_status_and_roadmap_do_not_start_14b"
+    ],
+    "tests/unit/test_phase14b_design.py": [
+      "test_phase14b_docs_exist",
+      "test_phase14b_status_forbids_14c_and_keeps_pi_reference"
+    ],
+    "tests/unit/test_phase14c_design.py": [
+      "test_phase14c_docs_exist",
+      "test_phase14c_forbids_14d_and_keeps_pi_reference"
+    ],
+    "tests/unit/test_phase14d_design.py": [
+      "test_phase14d_docs_exist",
+      "test_phase14d_forbids_14e"
+    ],
+    "tests/unit/test_phase14e_learning_loop.py": [
+      "test_phase14e_docs_exist"
+    ],
+    "tests/unit/test_phase15a_design.py": [
+      "test_curriculum_q_star_references_exist_as_spl",
+      "test_invariants_and_controls_in_inventory_are_existing_ids",
+      "test_inventoried_labs_match_repository_directories",
+      "test_no_invented_detectors_or_operational_det_besides_mcp001",
+      "test_phase15a_design_docs_exist",
+      "test_phase15a_is_design_only_and_forbids_15b",
+      "test_schema_and_controls_unchanged_by_15a",
+      "test_studio_views_match_inventory_no_invented_identity_or_capstone_view"
+    ],
+    "tests/unit/test_phase15b_rag_learning_loop.py": [
+      "test_phase15b_docs_exist"
+    ],
+    "tests/unit/test_phase15c_memory_learning_loop.py": [
+      "test_phase15c_docs_exist"
+    ],
+    "tests/unit/test_phase15d_goal_learning_loop.py": [
+      "test_phase15d_docs_exist"
+    ],
+    "tests/unit/test_phase15e_identity_learning_loop.py": [
+      "test_phase15e_docs_exist"
+    ],
+    "tests/unit/test_phase16a_design.py": [
+      "test_capstone_design_reuses_existing_controls_and_hunts",
+      "test_every_live_lab_identifies_trust_boundary_in_coverage_matrix",
+      "test_phase16a_design_docs_exist",
+      "test_phase16a_is_design_only_and_forbids_16b",
+      "test_six_live_domains_represented",
+      "test_status_and_roadmap_record_16a_design_only"
+    ],
+    "tests/unit/test_phase16b_capstone_learning_loop.py": [
+      "test_phase16b_docs_exist"
+    ],
+    "tests/unit/test_phase16c_academy_audit.py": [
+      "test_phase16c_design_docs_exist",
+      "test_phase16c_is_audit_only_and_forbids_16d_implementation",
+      "test_security_semantics_gate_in_16c_docs",
+      "test_status_records_16c_audit_only"
+    ],
+    "tests/unit/test_phase16d_academy.py": [
+      "test_phase16d_docs_exist",
+      "test_status_records_16d_without_rewriting_16c_audit_only"
+    ],
+    "tests/unit/test_phase17a_mastery.py": [
+      "test_phase17a_docs_exist",
+      "test_status_records_17a_without_rewriting_16d_stop"
+    ],
+    "tests/unit/test_phase17b_learner.py": [
+      "test_phase17b_docs_exist",
+      "test_status_records_17b_without_starting_17c"
+    ],
+    "tests/unit/test_phase17c_correctness.py": [
+      "test_phase17c_docs_exist",
+      "test_status_records_17c_without_starting_17d"
+    ],
+    "tests/unit/test_phase17d_release.py": [
+      "test_readme_is_learner_entry",
+      "test_required_release_docs_exist"
+    ],
+    "tests/unit/test_phase8a_design.py": [
+      "test_phase8a_design_docs_exist",
+      "test_phase8a_is_design_only"
+    ],
+    "tests/unit/test_phase8b_design.py": [
+      "test_phase8b_design_docs_exist",
+      "test_phase8b_is_design_only"
+    ],
+    "tests/unit/test_phase9a_design.py": [
+      "test_phase9a_design_docs_exist",
+      "test_phase9a_did_not_add_spl_studio_or_detector",
+      "test_phase9a_first_target_is_mcp_scanner_static_not_merely_cisco",
+      "test_phase9a_is_design_only"
+    ],
+    "tests/unit/test_phase9d_design.py": [
+      "test_phase9d_docs_choose_no_new_detector"
+    ],
+    "tests/unit/test_splunk_governance.py": [
+      "test_baseline_reviews_cover_required_sample",
+      "test_discoverability_docs_point_at_rule_and_skill",
+      "test_governance_files_exist"
+    ],
+    "tests/unit/test_splunk_persistence_contract.py": [
+      "test_docs_that_describe_lab_down_say_it_pauses_or_name_the_danger",
+      "test_no_doc_repeats_the_claims_that_were_wrong"
+    ],
+    "tests/workshops/test_lab_agent_goal_integrity_workshop.py": [
+      "test_required_workshop_files_exist",
+      "test_teaching_boundaries",
+      "test_ten_steps_and_evidence_ids"
+    ],
+    "tests/workshops/test_lab_memory_security_workshop.py": [
+      "test_required_workshop_files_exist",
+      "test_teaching_boundaries",
+      "test_ten_steps_and_evidence_ids"
+    ],
+    "tests/workshops/test_lab_rag_context_workshop.py": [
+      "test_required_workshop_files_exist",
+      "test_teaching_boundaries",
+      "test_ten_steps_and_evidence_ids"
+    ],
+    "tests/workshops/test_lab_scanner_runtime_evidence_workshop.py": [
+      "test_required_workshop_files_exist",
+      "test_teaching_boundaries",
+      "test_ten_steps_and_evidence_ids"
+    ],
+    "tests/splunk/test_local_compose_provisioning.py": [
+      "test_helpers_and_docs_describe_local_vs_external"
+    ],
+    "tests/unit/test_install_onboarding_docs.py": [
+      "test_install_entry_order_and_runtime_status"
+    ],
+    "tests/unit/test_learner_console.py": [
+      "test_brand_assets_are_packaged_without_a_deployment_address"
+    ]
+  },
+  "excluded_files": [
+    "docs/IMPLEMENTATION_STATUS.md",
+    "docs/learning-notes/splunk-engineering-governance.md",
+    "docs/ops/EC2_ACCEPTANCE_CHECKLIST.md",
+    "docs/ops/EC2_STORAGE_RUNBOOK.md",
+    "docs/ops/VERIFIER_SUPERVISION.md"
+  ],
+  "private_note": ""
+}

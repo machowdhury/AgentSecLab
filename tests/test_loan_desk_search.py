@@ -61,13 +61,19 @@ def test_docker_backend_passes_spl_as_env_not_shell_text():
     def runner(argv, **kw):
         seen["argv"], seen["kw"] = argv, kw
         return subprocess.CompletedProcess(argv, 0, "event.name,events\nx,1\n", "")
-    spl = 'index=a "$(touch /tmp/pwn)" `id`'
+    spl = 'index=a "$(touch /tmp/pwn)" ";id" "$IFS"'
     out = srch.DockerExecBackend("c1", runner).run(spl, timeout_s=9, max_rows=5)
     argv = seen["argv"]
     assert out.ok and out.rows == [["x", "1"]] and argv[0] == "docker" and "AGENTSEC_SPL=" + spl in argv
     script = argv[-1]
     assert "touch" not in script and "$AGENTSEC_SPL" in script and "-max_time 9" in script and "-maxout 6" in script
     assert seen["kw"].get("shell") is not True and seen["kw"]["timeout"] == 14
+
+
+def test_docker_backend_applies_the_read_only_policy_before_running_anything():
+    calls = []
+    out = srch.DockerExecBackend("c1", lambda argv, **kw: calls.append(argv)).run("index=a | outputlookup x.csv", timeout_s=9, max_rows=5)
+    assert not out.ok and out.error == "search_failed" and calls == []
 
 
 def test_backend_failure_codes_are_fixed_strings():

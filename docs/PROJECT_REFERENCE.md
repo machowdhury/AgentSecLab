@@ -55,7 +55,7 @@ Package metadata is `1.1.0` in `pyproject.toml`. The Splunk app version is `1.1.
 
 Telemetry schema remains **1.9.0**. The external-evidence contract remains **1.0.0**. Product version, schema, and the external-evidence contract are independent.
 
-A default `git clone` follows `origin/HEAD`, which is `main`. That branch is this v1.1.0 release.
+A default `git clone` follows `origin/HEAD`, which is `main`. Since the RC2 merge `main` is the RC2 restricted beta; this v1.1.0 release is the tag `v1.1.0`.
 
 Clean-room service start was proven on 2026-10-02 with fresh volumes. AcmeBank on that run was `degraded` because `llama3.2:1b` was not listed. That degraded state is not a PASS for LIVE generation. See [docs/releases/V1_0_0_RELEASE_NOTES.md](releases/V1_0_0_RELEASE_NOTES.md).
 
@@ -268,7 +268,7 @@ Apache License 2.0. See [LICENSE](../LICENSE).
 | [CHANGELOG.md](../CHANGELOG.md) | Product changelog |
 | [docs/releases/V1_0_0_RC2_RELEASE_NOTES.md](releases/V1_0_0_RC2_RELEASE_NOTES.md) | Current candidate notes |
 | [docs/releases/V1_0_0_RC1_RELEASE_NOTES.md](releases/V1_0_0_RC1_RELEASE_NOTES.md) | Historical RC1 notes for the tagged baseline |
-| [docs/IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) | Historical phase provenance |
+| docs/IMPLEMENTATION_STATUS.md | Historical phase provenance |
 
 Developer tests are optional and are not required to learn:
 

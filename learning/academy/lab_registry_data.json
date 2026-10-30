@@ -384,7 +384,7 @@
     },
     {
       "lab_id": "LAB-MCP-003",
-      "tier": "REPLAY",
+      "tier": "WORKBENCH",
       "primary_domain": "D03",
       "secondary_domain": null,
       "domain_confidence": "content-verified",
@@ -408,7 +408,7 @@
     },
     {
       "lab_id": "LAB-MCP-004",
-      "tier": "REPLAY",
+      "tier": "WORKBENCH",
       "primary_domain": "D03",
       "secondary_domain": null,
       "domain_confidence": "content-verified",
@@ -432,7 +432,7 @@
     },
     {
       "lab_id": "LAB-MCP-005",
-      "tier": "REPLAY",
+      "tier": "WORKBENCH",
       "primary_domain": "D03",
       "secondary_domain": "D02",
       "domain_confidence": "content-verified",
@@ -452,7 +452,7 @@
     },
     {
       "lab_id": "LAB-MCP-006",
-      "tier": "REPLAY",
+      "tier": "WORKBENCH",
       "primary_domain": "D07",
       "secondary_domain": "D03",
       "domain_confidence": "review",
@@ -476,7 +476,7 @@
     },
     {
       "lab_id": "LAB-MCP-CATALOG",
-      "tier": "REPLAY",
+      "tier": "WORKBENCH",
       "primary_domain": "D03",
       "secondary_domain": "D02",
       "domain_confidence": "content-verified",

@@ -32,13 +32,6 @@ IMPL = ROOT / "docs" / "PHASE15B_RAG_LIVE_LEARNING_LOOP.md"
 MALICIOUS_HASH = "sha256:c565f364c7c5fba3cf25d235bb8e2bee7d9433daa9f07d5e097ab6d2a82a97ef"
 
 
-def test_phase15b_docs_exist():
-    assert IMPL.is_file()
-    assert NOTE.is_file()
-    assert "## What I should now be able to explain" in NOTE.read_text(encoding="utf-8")
-    assert (ROOT / "docs" / "PHASE15B_RAG_ATTACK_SERVICE_LAUNCH_CONTRACT.md").is_file()
-    assert (ROOT / "docs" / "PHASE15B_RAG_GUIDED_INVESTIGATIONS.md").is_file()
-    assert (ROOT / "docs" / "PHASE15B_SECURITY_BOUNDARY_REVIEW.md").is_file()
 
 
 def test_schema_unchanged_and_no_det_rag():

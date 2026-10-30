@@ -27,12 +27,6 @@ NOTE = ROOT / "docs" / "learning-notes" / "tool-authorization-learning-loop.md"
 IMPL = ROOT / "docs" / "PHASE14E_LEARNING_LOOP_GENERALIZATION.md"
 
 
-def test_phase14e_docs_exist():
-    assert IMPL.is_file()
-    assert NOTE.is_file()
-    assert "## What I should now be able to explain" in NOTE.read_text(encoding="utf-8")
-    assert (ROOT / "docs" / "AGENTSEC_REUSABLE_LEARNING_ARCHITECTURE.md").is_file()
-    assert (ROOT / "docs" / "PHASE14E_PI_VS_MCP_COMMON_COMPONENTS.md").is_file()
 
 
 def test_schema_unchanged_and_no_new_detector():

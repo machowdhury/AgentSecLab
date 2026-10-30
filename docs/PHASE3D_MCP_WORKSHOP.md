@@ -7,7 +7,7 @@
 **Layout:** Dashboard Studio GRID (tabs = workshop steps)  
 **SPL:** Phase 3C validated Q-MCP searches. Token bind only (`__RUN_ID__` → `"$token$"`). Dashboard-only display searches reuse the same index, `event.name` filters, and `mvindex(mvdedup(...),0)` collapse. Q-MCP logic was not rewritten.
 
-Evidence class: dashboard JSON/XML is **DOCUMENTED**. Binding equality vs `.spl` files is **MEASURED** by pytest. Splunk Web load, ten tabs, and four token values are **OBSERVED / MEASURED** in `docs/screenshots/lab-mcp-001/pass2_validation.json`. Indexed BASELINE / ATTACK / RETEST rows on this volume are **OBSERVED** in pass-2 screenshots. Runtime handler counts remain Phase 3B/3C **MEASURED** facts. DETECT positive control is **SIMULATED**.
+Evidence class: dashboard JSON/XML is **DOCUMENTED**. Binding equality vs `.spl` files is **MEASURED** by pytest. Splunk Web load, ten tabs, and four token values are **OBSERVED / MEASURED** in an internal record (not published). Indexed BASELINE / ATTACK / RETEST rows on this volume are **OBSERVED** in pass-2 screenshots. Runtime handler counts remain Phase 3B/3C **MEASURED** facts. DETECT positive control is **SIMULATED**.
 
 Runtime remains authoritative. Splunk is corroboration.
 
@@ -118,7 +118,7 @@ Tables use `hideWhenNoData=false`. Populated captions no longer claim “No inde
 
 ## Pass-1 UI review
 
-`docs/reviews/ui-review-ws-lab-mcp-001-2026-09-11.md`
+an internal record (not published)
 
 - **BLOCKER:** empty-state copy used as always-visible table caption on populated tables.
 - **HIGH:** What Happened columns clipped `execution_state` / result trust; Q-MCP-EXECUTED visible `executed=false` read as non-execution; specimen UUIDs below LEARN fold.
@@ -167,8 +167,8 @@ CTRL-MCP-001, known-ungranted=DENY, unknown=ERROR, ALLOW≠execution, `mcp.faile
 - `splunk_app/agentsec/default/data/ui/views/ws_lab_mcp_001.xml` + nav entry
 - `tests/splunk/test_lab_mcp_001_dashboard.py`
 - `tests/workshops/test_lab_mcp_001_workshop.py`
-- `docs/reviews/ui-review-ws-lab-mcp-001-2026-09-11.md`
-- `docs/screenshots/lab-mcp-001/`
+- an internal record (not published)
+- an internal record (not published)
 - `docs/learning-notes/mcp-workshop.md`
 - this file; `docs/IMPLEMENTATION_STATUS.md`
 

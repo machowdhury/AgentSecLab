@@ -125,17 +125,17 @@ For Splunk knowledge-object work:
 
 read:
 
-`.cursor/rules/33-splunk-agent-skills.mdc`
+an internal record (not published)
 
 then use:
 
-`.cursor/skills/splunk-ko-review/SKILL.md`
+an internal record (not published)
 
 and consult the applicable official Splunk Agent Skills.
 
 For learner-facing UI also read:
 
-`.cursor/rules/32-ui-design-system.mdc`
+an internal record (not published)
 
 and run:
 

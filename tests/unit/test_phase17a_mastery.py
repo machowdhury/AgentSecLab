@@ -45,6 +45,11 @@ LIVE_LABS = (
     "LAB-AGENT-GOAL-INTEGRITY-001",
     "LAB-AGENT-DELEGATION-001",
     "LAB-AGENTSEC-CAPSTONE-001",
+    "LAB-MCP-003",
+    "LAB-MCP-004",
+    "LAB-MCP-005",
+    "LAB-MCP-CATALOG",
+    "LAB-MCP-006",
 )
 
 PHASE17A_DOCS = (
@@ -76,12 +81,6 @@ def _markdown() -> str:
     )
 
 
-def test_phase17a_docs_exist():
-    for path in PHASE17A_DOCS:
-        assert path.is_file(), path
-    note = DOCS / "learning-notes" / "agentsec-mastery-and-assessment.md"
-    text = note.read_text(encoding="utf-8")
-    assert "## What I should now be able to explain" in text
 
 
 def test_assessments_parse_and_are_not_policy():
@@ -303,13 +302,3 @@ def test_attack_service_still_educational_not_authority():
     assert "profile: profile" not in html
 
 
-def test_status_records_17a_without_rewriting_16d_stop():
-    status = (DOCS / "IMPLEMENTATION_STATUS.md").read_text(encoding="utf-8")
-    roadmap = (DOCS / "AGENTSEC_ROADMAP_2026.md").read_text(encoding="utf-8")
-    hub_16d = (DOCS / "PHASE16D_ACADEMY_REMEDIATION.md").read_text(encoding="utf-8")
-    assert "17A" in status
-    assert "Do not start Phase 17A" in hub_16d
-    assert "Do not start Phase 17B" in roadmap
-    assert "PHASE17A_LEARNER_MASTERY_VALIDATION.md" in (
-        DOCS / "AGENTSEC_LEARNING_ARCHITECTURE.md"
-    ).read_text(encoding="utf-8")

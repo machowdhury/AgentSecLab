@@ -14,7 +14,9 @@ from agentsec.events import content_hash
 from agentsec.mcp.fixtures import (
     MCP_CUSTOMER_SCOPE,
     MCP_LOOKUP_POLICY_ARGS,
+    MCP_LOOKUP_POLICY_RESTRICTED_ARGS,
     MCP_LOOKUP_TIER_ARGS,
+    MCP_POLICY_RESTRICTED_SCOPE,
     MCP_POLICY_SCOPE,
 )
 from agentsec.rag.fixtures import (
@@ -51,13 +53,21 @@ from agentsec.identity.fixtures import (
 
 LAB_PI = "LAB-PI-001"
 LAB_MCP = "LAB-MCP-001"
+LAB_MCP_003 = "LAB-MCP-003"
+LAB_MCP_004 = "LAB-MCP-004"
+LAB_MCP_005 = "LAB-MCP-005"
+LAB_MCP_CATALOG = "LAB-MCP-CATALOG"
+LAB_MCP_006 = "LAB-MCP-006"
 LAB_RAG = "LAB-RAG-CONTEXT"
 LAB_MEMORY = "LAB-MEMORY-001"
 LAB_GOAL = "LAB-AGENT-GOAL-INTEGRITY-001"
 LAB_IDENTITY = "LAB-AGENT-DELEGATION-001"
 LAB_CAPSTONE = "LAB-AGENTSEC-CAPSTONE-001"
+# The labs that have their own page on the classic Attack Service (/labs/<id>). The four MCP workshops and the confused deputy launch from the Academy only.
+CLASSIC_ATTACK_LABS = frozenset({LAB_PI, LAB_MCP, LAB_RAG, LAB_MEMORY, LAB_GOAL, LAB_IDENTITY, LAB_CAPSTONE})
 ROUTE_PROCESS = "process"
 ROUTE_MCP = "mcp_invoke"
+ROUTE_MCP006 = "mcp_delegate"
 ROUTE_RAG = "rag_retrieve"
 ROUTE_MEMORY = "memory_lifecycle"
 ROUTE_GOAL = "goal_evaluate"
@@ -178,6 +188,7 @@ def _pi(
 
 def _mcp(
     *,
+    lab_id: str = LAB_MCP,
     mode: str,
     specimen_id: str,
     attack_id: str,
@@ -187,11 +198,12 @@ def _mcp(
     arguments: dict,
     user_id: str,
     intentionally_vulnerable: bool = False,
+    route: str = ROUTE_MCP,
 ) -> ExperimentDefinition:
     payload = mcp_canonical_payload(tool, arguments, requested_scope)
     return ExperimentDefinition(
-        experiment_id=f"{LAB_MCP}:{mode}",
-        lab_id=LAB_MCP,
+        experiment_id=f"{lab_id}:{mode}",
+        lab_id=lab_id,
         specimen_id=specimen_id,
         mode=mode,
         profile=profile,
@@ -199,7 +211,7 @@ def _mcp(
         user_id=user_id,
         attack_id=attack_id,
         intentionally_vulnerable=intentionally_vulnerable,
-        runtime_route=ROUTE_MCP,
+        runtime_route=route,
         tool=tool,
         requested_scope=requested_scope,
         arguments_json=json.dumps(arguments, sort_keys=True),
@@ -338,6 +350,31 @@ def _identity(
     )
 
 
+def _mcp_family(lab_id: str, attack_id: str, *, scope_attack: str, args_attack: dict) -> tuple[ExperimentDefinition, ...]:
+    """BASELINE / ATTACK / RETEST for one MCP workshop that runs through the same /mcp/invoke path as LAB-MCP-001.
+    BASELINE is the granted request; ATTACK and RETEST send the identical request, only the server-owned profile differs."""
+    common = dict(lab_id=lab_id, tool="lookup_policy", user_id="applicant-web")
+    return (
+        _mcp(mode="BASELINE", specimen_id=f"{attack_id}-BASELINE", attack_id=attack_id, profile="defended",
+             requested_scope=MCP_POLICY_SCOPE, arguments=dict(MCP_LOOKUP_POLICY_ARGS), **common),
+        _mcp(mode="ATTACK", specimen_id=attack_id, attack_id=attack_id, profile="vulnerable", intentionally_vulnerable=True,
+             requested_scope=scope_attack, arguments=dict(args_attack), **common),
+        _mcp(mode="RETEST", specimen_id=attack_id, attack_id=attack_id, profile="defended",
+             requested_scope=scope_attack, arguments=dict(args_attack), **common),
+    )
+
+
+def _mcp006_family() -> tuple[ExperimentDefinition, ...]:
+    """LAB-MCP-006 (confused deputy): the caller and the deputy are coded server-side; the browser sends only the closed experiment id.
+    BASELINE is a delegated request; ATTACK and RETEST send the identical ungranted request, only the server-owned profile differs."""
+    common = dict(lab_id=LAB_MCP_006, user_id="applicant-web", attack_id="MCP-006", route=ROUTE_MCP006)
+    return (
+        _mcp(mode="BASELINE", specimen_id="MCP-006-BASELINE", profile="defended", tool="lookup_policy", requested_scope=MCP_POLICY_SCOPE, arguments=dict(MCP_LOOKUP_POLICY_ARGS), **common),
+        _mcp(mode="ATTACK", specimen_id="MCP-006", profile="vulnerable", intentionally_vulnerable=True, tool="lookup_customer_tier", requested_scope=MCP_CUSTOMER_SCOPE, arguments=dict(MCP_LOOKUP_TIER_ARGS), **common),
+        _mcp(mode="RETEST", specimen_id="MCP-006", profile="defended", tool="lookup_customer_tier", requested_scope=MCP_CUSTOMER_SCOPE, arguments=dict(MCP_LOOKUP_TIER_ARGS), **common),
+    )
+
+
 EXPERIMENT_DEFINITIONS: tuple[ExperimentDefinition, ...] = (
     _pi(mode="BASELINE", specimen=ATK_001, profile="defended", user_id="applicant-web"),
     _pi(
@@ -379,6 +416,11 @@ EXPERIMENT_DEFINITIONS: tuple[ExperimentDefinition, ...] = (
         arguments=dict(MCP_LOOKUP_TIER_ARGS),
         user_id="applicant-web",
     ),
+    *_mcp_family(LAB_MCP_003, "MCP-003", scope_attack=MCP_POLICY_RESTRICTED_SCOPE, args_attack=MCP_LOOKUP_POLICY_ARGS),
+    *_mcp_family(LAB_MCP_004, "MCP-004", scope_attack=MCP_POLICY_SCOPE, args_attack=MCP_LOOKUP_POLICY_RESTRICTED_ARGS),
+    *_mcp_family(LAB_MCP_005, "MCP-005", scope_attack=MCP_POLICY_SCOPE, args_attack=MCP_LOOKUP_POLICY_ARGS),
+    *_mcp006_family(),
+    *_mcp_family(LAB_MCP_CATALOG, "MCP-CATALOG-001", scope_attack=MCP_POLICY_SCOPE, args_attack=MCP_LOOKUP_POLICY_ARGS),
     _rag(
         mode="BASELINE",
         specimen_id="RAG-BASELINE",
@@ -577,8 +619,9 @@ def bind_experiment_for_mcp(
     requested_scope: str,
     arguments: dict,
     user_id: str,
+    route: str = ROUTE_MCP,
 ) -> tuple[ExperimentContext | None, str]:
-    """Map a closed experiment_id onto the MCP invoke path.
+    """Map a closed experiment_id onto the MCP invoke path (or, with route=ROUTE_MCP006, the confused-deputy path).
 
     Missing experiment_id keeps the existing /mcp/invoke auto-mode path.
     Tool/scope/arguments must match the predefined specimen. The browser
@@ -587,7 +630,7 @@ def bind_experiment_for_mcp(
     if experiment_id is None:
         return None, ""
     definition = lookup_experiment(experiment_id)
-    if definition is None or definition.runtime_route != ROUTE_MCP:
+    if definition is None or definition.runtime_route != route:
         return None, "unknown_experiment"
     if tool != definition.tool:
         return None, "experiment_tool_mismatch"

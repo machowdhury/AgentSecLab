@@ -72,17 +72,19 @@ def probe_splunk_count(
 ) -> dict:
     """Count indexed events for run.id. Password stays in the Splunk container env."""
 
+    from agentsec import spl_policy
     spl = completeness_spl(run_id)
     collapsed = " ".join(line.strip() for line in spl.splitlines() if line.strip())
-    inner = (
-        "/opt/splunk/bin/splunk search "
-        + json.dumps(collapsed)
-        + ' -auth "admin:${SPLUNK_PASSWORD}" -output csv'
-    )
+    try:
+        collapsed = spl_policy.checked(collapsed, backend="docker-exec")      # admin-credential path: same read-only policy as REST
+    except spl_policy.SplPolicyViolation:
+        return {"splunk_attempted": False, "splunk_ok": False, "splunk_count": None, "error": "forbidden_spl"}
+    # The search travels as an environment variable through an argument list; the in-container script is a constant (no shell ever sees the search text).
+    inner = 'exec /opt/splunk/bin/splunk search "$AGENTSEC_SPL" -auth "admin:${SPLUNK_PASSWORD}" -output csv'
     run = runner or subprocess.run
     try:
         proc = run(
-            ["docker", "exec", "-u", "splunk", container, "bash", "-lc", inner],
+            ["docker", "exec", "-u", "splunk", "-e", "AGENTSEC_SPL=" + collapsed, container, "bash", "-lc", inner],
             capture_output=True,
             text=True,
             check=False,
@@ -155,7 +157,11 @@ def probe_splunk_count_rest(
         "AGENTSEC_SPLUNK_PROBE_URL", "AGENTSEC_SPLUNK_PROBE_TOKEN", "AGENTSEC_SPLUNK_PROBE_CA_FILE"))
     if not (url.startswith("https://") and token and ca_file and Path(ca_file).is_file()):
         return _probe_failure("probe_misconfigured", attempted=False)
-    spl = " ".join(line.strip() for line in completeness_spl(run_id).splitlines() if line.strip())
+    from agentsec import spl_policy
+    try:
+        spl = spl_policy.checked(" ".join(line.strip() for line in completeness_spl(run_id).splitlines() if line.strip()), backend="rest-legacy")
+    except spl_policy.SplPolicyViolation:
+        return _probe_failure("forbidden_spl", attempted=False)
     body = urllib.parse.urlencode({"search": "search " + spl if not spl.lstrip().startswith(("search", "|")) else spl,
                                    "output_mode": "csv", "earliest_time": "0"}).encode()
     req = urllib.request.Request(url.rstrip("/") + "/services/search/v2/jobs/export", data=body,
@@ -174,9 +180,27 @@ def probe_splunk_count_rest(
         return _probe_failure("splunk_probe_timeout")
 
 
+def probe_splunk_count_client(run_id: str, *, env: dict | None = None, client=None) -> dict:
+    """External Splunk modes: the shared strict-TLS client. Same result shape and error words as the legacy REST probe."""
+    from agentsec.splunk_client import SplunkError, client_for_mode
+    try:
+        client = client or client_for_mode(env)
+        if client is None:
+            return _probe_failure("probe_disabled", attempted=False)
+        text = client.export_csv(" ".join(line.strip() for line in completeness_spl(run_id).splitlines() if line.strip()))
+    except SplunkError as exc:
+        words = {"config_invalid": "probe_misconfigured", "tls_verification_failed": "tls_verification_failed", "auth_failed": "probe_auth_failed",
+                 "forbidden": "probe_auth_failed", "timeout": "splunk_probe_timeout"}
+        return _probe_failure(words.get(exc.code, "splunk_probe_failed"), attempted=exc.code != "config_invalid")
+    return _count_from_csv(text)
+
+
 def select_probe(env: dict | None = None) -> Callable[[str], dict]:
-    """REST probe only when explicitly enabled; otherwise the existing docker-exec probe."""
+    """Order: shared REST client (external mode, or REST URL + token file set), legacy flag-gated REST probe, then the docker-exec probe."""
     env = os.environ if env is None else env
+    from agentsec.splunk_client import rest_configured
+    if str(env.get("AGENTSEC_SPLUNK_MODE", "BUNDLED")).strip().upper() in ("EXTERNAL_ENTERPRISE", "CLOUD") or rest_configured(env):
+        return lambda run_id: probe_splunk_count_client(run_id, env=env)     # authenticated, strict-TLS REST; no Docker needed
     if str(env.get(REST_PROBE_FLAG, "")).lower() == "true":
         return lambda run_id: probe_splunk_count_rest(run_id, env=env)
     return probe_splunk_count
@@ -241,6 +265,7 @@ def wait_for_searchable_evidence(
     return {
         "run_id": run_id,
         "evidence_state": evidence_state,
+        "verification": verification_label(evidence_state),
         "splunk_verified": searchable,
         "splunk_attempted": bool(last.get("splunk_attempted")),
         "splunk_ok": bool(last.get("splunk_ok")),
@@ -259,6 +284,11 @@ def wait_for_searchable_evidence(
     }
 
 
+def verification_label(evidence_state: str) -> str:
+    """The three words a learner sees. Unavailable is never 'not verified' and never zero rows."""
+    return {"EVIDENCE_READY": "VERIFIED", STATE_UNAVAILABLE: "VERIFICATION UNAVAILABLE"}.get(evidence_state, "NOT VERIFIED")
+
+
 def rollup_evidence(probes: list[dict]) -> dict:
     """Combine independent run probes without treating a dead probe as zero rows."""
 
@@ -275,6 +305,7 @@ def rollup_evidence(probes: list[dict]) -> dict:
         "evidence_state": state,
         "evidence_timeout": timed_out and state == "WAITING_FOR_EVIDENCE",
         "probe_error": errors[0] if state == STATE_UNAVAILABLE and errors else None,
+        "verification": verification_label(state),
         "splunk_verified": state == "EVIDENCE_READY",
     }
 

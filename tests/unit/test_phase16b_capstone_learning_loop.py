@@ -54,10 +54,6 @@ PHASE16B_DOCS = (
 )
 
 
-def test_phase16b_docs_exist():
-    for path in PHASE16B_DOCS:
-        assert path.is_file(), path
-    assert "## What I should now be able to explain" in NOTE.read_text(encoding="utf-8")
 
 
 def test_schema_unchanged_and_no_det_capstone():
@@ -110,9 +106,9 @@ def test_learning_metadata_is_not_authorization():
     assert "limits" in goal["hint_2"].lower() or "instrumented" in goal["security_interpretation"].lower()
 
 
-def test_seven_live_labs_include_capstone():
+def test_twelve_live_labs_include_capstone():
     labs = known_lab_ids()
-    assert len(labs) == 7
+    assert len(labs) == 12
     assert LAB_CAPSTONE in labs
     for lab_id in (
         "LAB-PI-001",

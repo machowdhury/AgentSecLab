@@ -19,7 +19,7 @@ from flask import Flask, abort, jsonify, redirect, render_template, request
 from agentsec import academy_evidence as evidence
 from agentsec.academy import load_curriculum
 from agentsec.academy_live_index import get_ref, is_authorized, launch_body_from_ref, notebook_slots
-from agentsec.experiment_context import LAB_MCP, LAB_PI, lookup_experiment
+from agentsec.experiment_context import CLASSIC_ATTACK_LABS, LAB_MCP, LAB_PI, lookup_experiment
 from agentsec.mcp.policy import coded_policy
 from agentsec.search_handoff import browser_splunk_web, workshop_url
 
@@ -104,27 +104,31 @@ def _no_store(response):
     return response
 
 
+def _splunk_web_candidates() -> list[str]:
+    """Only endpoints this deployment CONFIGURES: an explicit AGENTSEC_SPLUNK_INTERNAL_URL, then (bundled mode) the lab's own Splunk container on the
+    compose network, then the configured AGENTSEC_SPLUNK_WEB_URL (a host-run Attack Service). Never a guess such as host.docker.internal or a bare loopback
+    port: those can answer for a different service (RC1 M-5 found the isolated stack reporting the protected lab's Splunk as its own)."""
+    from agentsec.splunk_client import _mode
+    out = [os.environ.get("AGENTSEC_SPLUNK_INTERNAL_URL", "")]
+    if _mode(os.environ) == "BUNDLED":
+        out += ["http://agentsec_splunk:8000", os.environ.get("AGENTSEC_SPLUNK_WEB_URL", "")]
+    return [u.rstrip("/") for i, u in enumerate(out) if u and u not in out[:i]]
+
+
+def _digest_note(row) -> str:
+    d = (row or {}).get("digest")
+    return f" (digest {str(d)[:12]})" if d else ""
+
+
 def probe_splunk_web(timeout: float = 3.0) -> dict:
-    """Reachability only. Never reports indexing, and never returns internal URLs."""
-    candidates = []
-    internal = os.environ.get("AGENTSEC_SPLUNK_INTERNAL_URL")
-    if internal:
-        candidates.append(internal)
-    candidates.extend(
-        (
-            "http://agentsec_splunk:8000",
-            "http://splunk:8000",
-            "http://host.docker.internal:8000",
-            "http://127.0.0.1:8000",
-        )
-    )
-    seen: set[str] = set()
+    """Reachability only. Never reports authentication or indexing, and never returns internal URLs."""
+    name = "Splunk Web (reachability)"
+    candidates = _splunk_web_candidates()
+    if not candidates:
+        return {"name": name, "state": "NOT CHECKED", "evidence": "UNTESTED",
+                "detail": "External Splunk mode: Splunk Web is not probed unless AGENTSEC_SPLUNK_INTERNAL_URL names it. The REST endpoint is checked separately."}
     last_error = "no candidate responded"
     for base in candidates:
-        base = base.rstrip("/")
-        if base in seen:
-            continue
-        seen.add(base)
         url = base + "/en-US/account/login"
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "AgentSecAcademy-status"})
@@ -132,11 +136,11 @@ def probe_splunk_web(timeout: float = 3.0) -> dict:
                 code = resp.getcode()
             if 200 <= code < 400:
                 return {
-                    "name": "Splunk Web (reachability)",
+                    "name": name,
                     "state": "AVAILABLE",
                     "detail": (
-                        f"Splunk Web answered HTTP {code}. That is reachability only. "
-                        "It does not prove a run is indexed."
+                        f"The configured Splunk Web answered HTTP {code}. That is reachability only: it does not show that a login or a search works, "
+                        "or that a run is indexed."
                     ),
                     "evidence": "MEASURED",
                 }
@@ -145,14 +149,58 @@ def probe_splunk_web(timeout: float = 3.0) -> dict:
             last_error = "unreachable"
             continue
     return {
-        "name": "Splunk Web (reachability)",
+        "name": name,
         "state": "UNAVAILABLE",
         "detail": (
-            "Splunk Web did not answer. Search links may fail until it is available. "
+            "The configured Splunk Web did not answer. Search links may fail until it is available. "
             f"Last probe: {last_error}. Indexing remains NOT CHECKED."
         ),
         "evidence": "MEASURED",
     }
+
+
+import threading
+_REST_CACHE: dict = {"at": 0.0, "result": None}
+_REST_LOCK = threading.Lock()     # one diagnose at a time: concurrent status polls must not each hold a worker on the external endpoint
+
+
+def probe_splunk_rest(*, client=None, ttl: float = 30.0, clock=None) -> dict | None:
+    """External Splunk modes only (None in BUNDLED): the configured REST endpoint, judged stage by stage with the strict-TLS client.
+    AVAILABLE only when connectivity, authentication, authorization and a trivial search ALL passed; reachable-but-not-authenticated is DEGRADED;
+    an unreachable or misconfigured endpoint is UNAVAILABLE. Indexed evidence for a run is still NOT CHECKED here. Cached briefly: the status page polls."""
+    import time
+    from agentsec.splunk_client import SplunkError, client_for_mode
+    with _REST_LOCK:
+        return _probe_splunk_rest_locked(client, ttl, clock)
+
+
+def _probe_splunk_rest_locked(client, ttl, clock):
+    import time
+    from agentsec.splunk_client import SplunkError, client_for_mode
+    now = (clock or time.monotonic)()
+    if client is None and _REST_CACHE["result"] is not None and now - _REST_CACHE["at"] < ttl:
+        return _REST_CACHE["result"]
+    name = "Splunk REST (configured endpoint)"
+    try:
+        client = client or client_for_mode()
+    except SplunkError as exc:
+        result = {"name": name, "state": "UNAVAILABLE", "evidence": "MEASURED", "detail": f"The external Splunk configuration is invalid ({exc.code}). Nothing falls back to the bundled container."}
+    else:
+        if client is None:
+            return None
+        stages = {stage: state for stage, state, _ in client.diagnose()}
+        order = ("connectivity", "authentication", "authorization", "search")
+        summary = " · ".join(f"{k} {stages.get(k, 'NOT VERIFIED')}" for k in order)
+        if stages.get("connectivity") != "PASS":
+            state = "UNAVAILABLE"
+        elif all(stages.get(k) == "PASS" for k in order):
+            state = "AVAILABLE"
+        else:
+            state = "DEGRADED"
+        result = {"name": name, "state": state, "evidence": "MEASURED",
+                  "detail": f"{summary}. Indexed evidence for a run is NOT VERIFIED here; reachability alone is never reported as a working integration."}
+    _REST_CACHE.update(at=now, result=result)
+    return result
 
 
 def _curriculum_levels() -> list[dict]:
@@ -240,7 +288,7 @@ def register_academy(app: Flask, *, launcher, client, artifacts_dir: Path, versi
             {**lab, "level_title": level["title"]}
             for level in levels
             for lab in level["labs"]
-            if lab["mode"] == "LIVE" and lab["lab_id"] not in (LAB_MCP, LAB_LOANDESK)
+            if lab["mode"] == "LIVE" and lab["lab_id"] in CLASSIC_ATTACK_LABS and lab["lab_id"] != LAB_MCP
         ][:2]
         return render("academy/home.html", "home", levels=levels, other_live=other_live)
 
@@ -340,16 +388,16 @@ def register_academy(app: Flask, *, launcher, client, artifacts_dir: Path, versi
             ollama_state, ollama_detail = (
                 "AVAILABLE",
                 (
-                    f"The configured model label {body.get('ollama_model', 'NOT MEASURED')} is present in the "
-                    "model catalog. Reachability is not model quality. MCP tool-path launches do not require it."
+                    f"The configured model {body.get('ollama_model', 'NOT MEASURED')}{_digest_note((body.get('models') or {}).get('pipeline'))} is installed under exactly that name. "
+                    "Presence is not model quality. MCP tool-path launches do not require it."
                 ),
             )
         else:
             ollama_state, ollama_detail = (
                 "DEGRADED",
                 (
-                    "Optional AI enrichment is not serving the configured model (catalog empty or label absent). "
-                    "MCP tool-path launches do not require the model. This is DEGRADED, not FAILED."
+                    f"Optional AI enrichment is not serving the configured model {body.get('ollama_model', 'NOT MEASURED')}: Ollama has no model with exactly that name, "
+                    "and no other model is used in its place. MCP tool-path launches do not require the model. This is DEGRADED, not FAILED."
                 ),
             )
         checks.append(
@@ -361,6 +409,20 @@ def register_academy(app: Flask, *, launcher, client, artifacts_dir: Path, versi
                 "optional": True,
             }
         )
+        desk_row = ((body.get("models") or {}).get("loan_desk")) if status == 200 and isinstance(body, dict) else None
+        if desk_row:
+            desk_ok = bool(desk_row.get("installed_exact"))
+            checks.append(
+                {
+                    "name": "Loan Desk model",
+                    "state": "AVAILABLE" if desk_ok else "DEGRADED",
+                    "detail": (f"The Loan Desk asks for {desk_row.get('requested')}{_digest_note(desk_row)}; "
+                               + ("it is installed under exactly that name." if desk_ok else "Ollama has no model with exactly that name, so Loan Desk live runs are refused rather than run on another model.")
+                               + " The AcmeBank pipeline labs use their own model setting."),
+                    "evidence": "MEASURED",
+                    "optional": True,
+                }
+            )
         packs = evidence.replay_pack_inventory()
         present = sum(1 for row in packs if row["present"])
         checks.append(
@@ -386,16 +448,20 @@ def register_academy(app: Flask, *, launcher, client, artifacts_dir: Path, versi
             }
         )
         checks.append(probe_splunk_web())
+        rest = probe_splunk_rest()
+        if rest:
+            checks.append(rest)
         checks.append(
             {
                 "name": "Splunk indexing",
                 "state": "NOT CHECKED",
                 "detail": (
-                    "This page does not query Splunk indexes. Indexed evidence is confirmed in Splunk with the run's "
+                    "This page does not authenticate to Splunk or query its indexes. Indexed evidence is confirmed in Splunk with the run's "
                     "search link. Reachability would not prove indexing anyway."
                 ),
                 "evidence": "UNTESTED",
-                "href": splunk_web().rstrip("/") + "/en-US/app/search/search",
+                # behind the gateway Splunk Web is not published: no link rather than a dead one
+                **({} if os.environ.get("AGENTSEC_GATEWAY_MODE") == "1" else {"href": splunk_web().rstrip("/") + "/en-US/app/search/search"}),
             }
         )
         return _no_store(jsonify({"checks": checks, "not_authorization": True}))

@@ -10,7 +10,7 @@ export const LAB_ID = "LAB-LOANDESK-001";
 
 /** What the learner did in one notebook cell. Only facts returned by a real search are recorded here; nothing is composed for the learner. */
 export interface NotebookRan { at: string; runs: string[]; spl: string; rows: number; preview: string[]; changed: string[]; truncated: boolean }
-export interface NotebookEntry { params?: Record<string, string | number>; scratch?: string; note?: string; ran?: NotebookRan }
+export interface NotebookEntry { params?: Record<string, string | number>; scratch?: string; note?: string; hypothesis?: string; conclusion?: string; ran?: NotebookRan }
 
 export interface MissionState {
   v: 1;
@@ -23,9 +23,11 @@ export interface MissionState {
   defenseApplied: boolean;
   attackNotes?: string;
   notebook?: Record<string, NotebookEntry>;
+  /** Notes and parameters of the assurance investigation notebook, per finding id then cell id. Only a real result is ever recorded in `ran`. */
+  investigations?: Record<string, Record<string, NotebookEntry>>;
   foundationsRead?: string[];
-  workbench?: Record<string, { prediction?: { decision?: string; llm?: string; classify?: string; handler?: string; locked?: boolean }; runs?: Partial<Record<"baseline" | "attack" | "retest", string>> }>;
-  mcp?: { prediction?: string; locked?: boolean; attack?: string; retest?: string };
+  workbench?: Record<string, { prediction?: { decision?: string; llm?: string; classify?: string; handler?: string; locked?: boolean }; runs?: Partial<Record<"baseline" | "attack" | "retest", string>>; investigated?: boolean; explain?: string }>;
+  mcp?: { prediction?: string; locked?: boolean; baseline?: string; attack?: string; retest?: string };
   mastery?: { mcq?: Record<string, string>; written?: Record<string, { text: string; revealed?: boolean; verdict?: "covered" | "partly" | "not_yet" }> };
   application?: Record<string, string>;
   completed: boolean;
@@ -99,3 +101,21 @@ export function gateReason(stage: StageId, s: MissionState): string {
 
 export const firstOpenIncomplete = (s: MissionState): StageId =>
   (STAGES.map((x) => x.id).find((id) => !stageComplete(id, s) && !gateReason(id, s)) ?? "explain") as StageId;
+
+/** A run chosen from an assurance finding becomes the workshop's current run for its slot, so the learner lands in the workshop with that run's context. Live runs only. */
+export function adoptRunForWorkshop(lab: string, mode: string, runId: string): void {
+  const slot = ({ BASELINE: "baseline", ATTACK: "attack", RETEST: "retest" } as const)[mode as "BASELINE" | "ATTACK" | "RETEST"];
+  if (!slot || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(runId)) return;
+  updateMission((s) => lab === "LAB-MCP-001"
+    ? { ...s, mcp: { ...s.mcp, ...(slot === "attack" ? { attack: runId } : slot === "retest" ? { retest: runId } : {}) } }
+    : { ...s, workbench: { ...s.workbench, [lab]: { ...s.workbench?.[lab], runs: { ...s.workbench?.[lab]?.runs, [slot]: runId } } } });
+}
+
+export function updateInvestigationCell(findingId: string, cellId: string, patch: Partial<NotebookEntry> | null): void {
+  updateMission((s) => {
+    const inv = { ...s.investigations }, cells = { ...inv[findingId] };
+    if (patch === null) delete cells[cellId]; else cells[cellId] = { ...cells[cellId], ...patch };
+    inv[findingId] = cells;
+    return { ...s, investigations: inv };
+  });
+}

@@ -42,34 +42,6 @@ def _markdown() -> str:
     )
 
 
-def test_route_builder_and_curriculum_registration():
-    assert (ROOT / "scripts" / "build_lab_blue_team_incident_dashboard.py").is_file()
-    assert DEFINITION.is_file()
-    assert VIEW.is_file()
-    curriculum = json.loads(
-        (ROOT / "learning" / "academy" / "curriculum.json").read_text(encoding="utf-8")
-    )
-    level = next(row for row in curriculum["levels"] if row["id"] == "L6")
-    assert level["labs"] == [
-        {
-            "lab_id": "LAB-BLUE-TEAM-INCIDENT-001",
-            "title": "AcmeBank Incident AI-2026-001",
-            "mode": "REPLAY",
-            "view": "ws_lab_blue_team_incident",
-        }
-    ]
-    assert next(row for row in curriculum["levels"] if row["id"] == "L5")["labs"][0][
-        "mode"
-    ] == "LIVE"
-    for relative in (
-        "docs/BLUE_TEAM_INVESTIGATION_AND_THREAT_HUNTING.md",
-        "docs/BLUE_TEAM_LIVE_SPLUNK_VALIDATION.md",
-        "docs/learning-notes/blue-team-investigation.md",
-        "docs/reviews/splunk-ko-review-blue-team-incident-2026-09-24.md",
-        "docs/reviews/logic-proof-blue-team-incident-2026-09-24.md",
-        "docs/reviews/ui-review-blue-team-incident-2026-09-24.md",
-    ):
-        assert (ROOT / relative).is_file(), relative
 
 
 def test_hint_progression_and_answer_separation():

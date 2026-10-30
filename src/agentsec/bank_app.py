@@ -32,8 +32,10 @@ from agentsec.experiment_context import (
     bind_experiment_for_rag,
     settings_for_experiment,
     ROUTE_CAPSTONE,
+    ROUTE_MCP006,
 )
 from agentsec.json_strict import DuplicateJsonKeyError, loads_json_no_duplicate_keys
+from agentsec.mcp.delegation_pipeline import run_mcp_006_invoke
 from agentsec.mcp.pipeline import mcp_result_to_dict, run_mcp_invoke, run_mcp_schema_failure
 from agentsec.mcp.registry import ToolRegistry, default_registry
 from agentsec.mcp.request_contract import parse_mcp_invoke_body
@@ -114,6 +116,28 @@ def build_runtime(
     )
 
 
+def _role_row(requested: str, res) -> dict:
+    """One role's model line for /health: what is requested, and what Ollama says it has under exactly that name (no family or prefix matching)."""
+    row = {"requested": requested, "installed_exact": bool(res and res.ok)}
+    if res is not None:
+        row.update(identity_status=res.identity_status, digest=res.digest, quantization=res.quantization, parameter_size=res.parameter_size)
+    return row
+
+
+def _model_identity_health(runtime, app) -> dict:
+    """Additive /health fields: the model each role asks for and what Ollama resolves it to. Test doubles that cannot resolve report requested only."""
+    pipeline = runtime.llm.resolution() if hasattr(runtime.llm, "resolution") else None
+    desk = getattr(app.config.get("AGENTSEC_LOAN_DESK"), "model", None)
+    desk_res = desk.resolution() if desk is not None and hasattr(desk, "resolution") else None
+    out = {"models": {"pipeline": _role_row(runtime.settings.ollama_model, pipeline)}}
+    if desk is not None:
+        out["models"]["loan_desk"] = _role_row(getattr(desk, "name", ""), desk_res)
+    seen = pipeline or desk_res
+    if seen is not None and seen.ollama_version:
+        out["ollama_version"] = seen.ollama_version
+    return out
+
+
 def create_app(runtime: LabRuntime | None = None) -> Flask:
     runtime = runtime or build_runtime()
     app = Flask(
@@ -143,6 +167,7 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
             "ollama_reachable": ollama_ok,
             "ollama_model": runtime.settings.ollama_model,
         }
+        status.update(_model_identity_health(runtime, app))
         return jsonify(status)
 
     @app.get("/")
@@ -397,6 +422,28 @@ def create_app(runtime: LabRuntime | None = None) -> Flask:
         if result.error_stage == "control_evaluation":
             return jsonify(body), 500
         return jsonify(body), 400
+
+    @app.post("/mcp/delegate")
+    def mcp_delegate():
+        """LAB-MCP-006 (confused deputy) launch: the experiment id is required and closed; the caller, the deputy and the profile are coded server-side."""
+        try:
+            data = loads_json_no_duplicate_keys(request.get_data(as_text=True) or "")
+        except (DuplicateJsonKeyError, json.JSONDecodeError):
+            return jsonify({"error": "malformed_request"}), 400
+        parsed = parse_mcp_invoke_body(data)
+        if not parsed.ok or not parsed.experiment_id:
+            return jsonify({"error": "experiment_required"}), 400
+        ctx, bind_error = bind_experiment_for_mcp(
+            experiment_id=parsed.experiment_id, tool=parsed.tool or "", requested_scope=parsed.requested_scope,
+            arguments=parsed.arguments, user_id=parsed.user_id, route=ROUTE_MCP006)
+        if bind_error or ctx is None:
+            return jsonify({"error": bind_error or "unknown_experiment"}), 400
+        result = run_mcp_006_invoke(
+            tool=parsed.tool or "", arguments=parsed.arguments, requested_scope=parsed.requested_scope, sink=runtime.sink, memory=runtime.memory,
+            settings=settings_for_experiment(runtime.settings, ctx), user_id=parsed.user_id, testbed_mode=ctx.mode, registry=runtime.mcp_registry)
+        body = mcp_result_to_dict(result)
+        body["experiment_id"], body["input_fingerprint"] = ctx.experiment_id, ctx.input_fingerprint
+        return jsonify(body), (500 if result.error_stage == "mcp_invocation" else 200)
 
     @app.post("/rag/retrieve")
     def rag_retrieve():

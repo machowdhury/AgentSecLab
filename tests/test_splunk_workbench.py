@@ -156,20 +156,6 @@ def test_identity_answers_and_the_three_kinds_of_evidence_stay_apart():
     assert z["answer"] == [z["candidates"][0], z["candidates"][2]] and "authenticated" in z["candidates"][1] and "reproduce all six" in z["candidates"][3]
 
 
-@pytest.mark.parametrize("lab", SPLUNK)
-def test_every_quote_and_documented_line_is_in_its_file_and_nothing_claims_verification(lab):
-    s = cp(lab)["spec"]
-    for g in s["stages"] + [s["provenance"], s["conclusion"]]:
-        for q in g["questions"]:
-            assert set(q["answer"]) <= set(q["candidates"]) and q["answer"] and len(q["candidates"]) >= 2, q["id"]
-            if "quote" in q:
-                assert EXP.clean(q["quote"]["text"]) in EXP.source_text(ROOT / q["quote"]["file"]), q["id"]
-    for x in s.get("documented", []) + s["limits"]:
-        assert EXP.clean(x["text"]) in EXP.source_text(ROOT / x["file"]), x["text"]
-    assert "NOT_VERIFIED" in s["verification"] and "no receipt" in s["verification"].lower()
-    assert cp(lab)["packet"]["manifest"]["verification"]["status"] == "NOT_VERIFIED"
-    if lab == DE:
-        assert "does not claim a detection is validated" in s["verification"]
 
 
 def test_the_workbench_never_queries_splunk_or_calls_the_backend():

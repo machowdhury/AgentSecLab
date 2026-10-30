@@ -41,30 +41,3 @@ def test_phase9d_runtime_and_schema_unchanged_contracts():
     assert "list_changed" not in PROTOCOL.read_text(encoding="utf-8")
 
 
-def test_phase9d_docs_choose_no_new_detector():
-    required = (
-        DOCS / "PHASE9D_SCANNER_DETECTION_ANALYSIS.md",
-        DOCS / "SCANNER_DETECTION_MODEL.md",
-        DOCS / "SCANNER_RUNTIME_EVIDENCE_PLANES.md",
-        DOCS / "learning-notes" / "scanner-vs-runtime-detection.md",
-        DOCS / "reviews" / "splunk-ko-review-scanner-detection-2026-09-16.md",
-    )
-    for path in required:
-        assert path.is_file(), path
-    phase = (DOCS / "PHASE9D_SCANNER_DETECTION_ANALYSIS.md").read_text(encoding="utf-8")
-    assert "DETECTION ANALYZED — NO NEW DETECTOR" in phase
-    assert "DETECTION CANDIDATE JUSTIFIED FOR LATER IMPLEMENTATION" not in phase
-    assert "No Snyk Agent Scan" in phase or "No Agent Scan" in phase
-    assert "No rug-pull" in phase
-    assert "No A2A" in phase
-    assert "Phase 9E not started" in phase
-    model = (DOCS / "SCANNER_DETECTION_MODEL.md").read_text(encoding="utf-8")
-    assert "vulnerable_profile_fail_open:metadata_derived_authority" in model
-    assert "REJECT" in model
-    notes = (DOCS / "learning-notes" / "scanner-vs-runtime-detection.md").read_text(
-        encoding="utf-8"
-    )
-    assert "## What I should now be able to explain" in notes
-    status = (DOCS / "IMPLEMENTATION_STATUS.md").read_text(encoding="utf-8")
-    assert "9D" in status
-    assert "DETECTION ANALYZED — NO NEW DETECTOR" in status

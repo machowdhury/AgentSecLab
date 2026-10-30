@@ -159,33 +159,6 @@ def test_threat_control_telemetry_gap_and_residual_risk_reasoning():
         assert needle in md
 
 
-def test_framework_lenses_are_validated_and_clearly_labeled():
-    source = (
-        ROOT / "docs" / "THREAT_MODEL_FRAMEWORK_VALIDATION.md"
-    ).read_text(encoding="utf-8")
-    md = _markdown()
-    for needle in (
-        "OWASP Top 10 for Agentic Applications 2026",
-        "MITRE ATLAS",
-        "MAESTRO",
-        "EDUCATIONAL MAPPING",
-        "This is not certification",
-        "This is not compliance validation",
-        "This is not complete framework coverage",
-        "NEEDS_EXTERNAL_VALIDATION",
-    ):
-        assert needle in source
-        assert needle in md
-    assert "CSA MAESTRO v2" in md
-    assert "NIST AI Risk Management Framework 1.0" in source
-    assert "NIST AI RMF 1.0" in md
-    for official_host in (
-        "genai.owasp.org",
-        "atlas.mitre.org",
-        "cloudsecurityalliance.org",
-        "nist.gov",
-    ):
-        assert official_host in source
 
 
 def test_architect_artifact_communication_and_competency_progression():

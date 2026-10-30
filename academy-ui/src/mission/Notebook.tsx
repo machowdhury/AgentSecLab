@@ -12,7 +12,7 @@ import type { CellConfig } from "./notebooks";
 
 type ParamSpec = { name: string; kind: "int" | "enum"; default: string | number; label: string; lo?: number; hi?: number; choices?: string[] };
 type TemplateSpec = { id: string; title: string; params: ParamSpec[]; chart: string | null };
-type Result = { status: string; columns?: string[]; rows?: string[][]; truncated?: boolean; row_cap?: number; duration_ms?: number; error?: string; detail?: string; spl?: string; backend?: string; params?: Record<string, string | number> };
+type Result = { status: string; columns?: string[]; rows?: string[][]; truncated?: boolean; row_cap?: number; duration_ms?: number; error?: string; detail?: string; spl?: string; backend?: string; evidence_class?: string; window?: string; row_count?: number; params?: Record<string, string | number> };
 type Phase = "idle" | "submitting" | "pending" | "done";
 
 const BASE = "/api/missions/loan-desk";
@@ -23,15 +23,17 @@ const loadCatalog = () => (catalog ??= api(`${BASE}/search/templates`).then((r) 
 }));
 
 const FAIL: Record<string, string> = {
-  timeout: "The search took too long and was stopped. Try fewer rows, or open it in Splunk.",
+  timeout: "The search took too long and was stopped. Try fewer rows, then run it again.",
   search_failed: "Splunk could not run this search. Check that Splunk is up, then retry.",
-  backend_unavailable: "The host cannot reach Splunk right now.",
-  refused: "The host verifier refused this search because the template or a parameter was not allowed.",
+  access_denied: "Splunk refused the lab's search identity, so nothing was searched. There is no result here, and that is not an empty result or a pass. Ask the lab owner to run ./agentsec splunk-access --check.",
+  backend_unavailable: "The Attack Service cannot reach Splunk right now, so there is no result. Nothing was searched.",
+  refused: "The search was refused because the template or a parameter was not allowed.",
 };
 
 function problem(res: { status: number; data: any }): string {
   const e = res.data?.error;
-  if (res.status === 503 && e === "not_installed") return "Live searches need the host verifier, and it is not installed on this lab. The SPL below still works in Splunk.";
+  if (res.status === 503 && e === "search_unavailable") return "Search access to Splunk is not set up on this lab, so nothing was searched. There is no result here. Ask the lab owner to run ./agentsec splunk-access.";
+  if (res.status === 503 && e === "not_installed") return "This lab uses the older host verifier for searches and it is not installed, so nothing was searched.";
   if (res.status === 429) return "Too many searches in a short time. Wait a few seconds and run it again.";
   if (res.status === 404) return "This service no longer knows that run (it may have restarted). Launch the attack again.";
   if (res.status === 0) return "The Attack Service could not be reached.";
@@ -43,6 +45,16 @@ const diffCols = (cols: string[]) => { const b = cols.indexOf("baseline"), d = c
 export function changedRows(cols: string[], rows: string[][]): string[][] {
   const dc = diffCols(cols);
   return dc ? rows.filter((r) => r[dc[0]] !== r[dc[1]]) : [];
+}
+
+/** One state word for the cell, derived only from what really happened: ready, running, completed, empty, failed or unavailable. */
+export type CellState = "not ready" | "ready" | "running" | "completed" | "empty" | "failed" | "unavailable";
+export function cellState(ready: boolean, phase: Phase, result: { status: string; rows?: string[][] } | null, message: string): CellState {
+  if (phase === "submitting" || phase === "pending") return "running";
+  if (result?.status === "READY") return (result.rows ?? []).length ? "completed" : "empty";
+  if (result?.status === "UNAVAILABLE" || (phase === "done" && !result && /not set up|cannot reach|could not be reached|not installed/i.test(message))) return "unavailable";
+  if (result || (phase === "done" && message)) return "failed";
+  return ready ? "ready" : "not ready";
 }
 
 export function SplCell({ cell, index }: { cell: CellConfig; index: number }) {
@@ -65,15 +77,24 @@ export function SplCell({ cell, index }: { cell: CellConfig; index: number }) {
   const keyOf = JSON.stringify(params);
 
   useEffect(() => { loadCatalog().then((c) => setSpec(c[cell.template] ?? null)); }, [cell.template]);
+  const [previewTry, setPreviewTry] = useState(0);
   useEffect(() => {  // the exact SPL for the current parameters, built by the server (never composed in the browser)
     if (!ready || !spec) { setSpl(""); return; }
-    let stale = false;
-    post(`${BASE}/runs/${runId}/search/preview`, body()).then((r) => { if (!stale) setSpl(r.ok ? r.data.spl : ""); if (!stale && !r.ok) setMessage(problem(r)); });
-    return () => { stale = true; };
-  }, [runId, compareRun, spec, cell.template, keyOf]);
+    let stale = false, timer = 0;
+    post(`${BASE}/runs/${runId}/search/preview`, body()).then((r) => {
+      if (stale) return;
+      if (r.ok) { setSpl(r.data.spl); setMessage((m) => (m.startsWith("Waiting") ? "" : m)); return; }
+      setSpl("");
+      if (r.status === 429 && previewTry < 6) {      // the gateway counts every POST against the operator's per-minute limit, a preview included: wait for it to refill and ask again
+        setMessage("Waiting a few seconds for the search limit, then building the search…");
+        timer = window.setTimeout(() => setPreviewTry((t) => t + 1), 11000);
+      } else setMessage(problem(r));
+    });
+    return () => { stale = true; window.clearTimeout(timer); };
+  }, [runId, compareRun, spec, cell.template, keyOf, previewTry]);
   useEffect(() => () => { live.current++; }, []);
 
-  const save = (patch: Partial<{ params: Record<string, string | number>; scratch: string; note: string }>) =>
+  const save = (patch: Partial<{ params: Record<string, string | number>; scratch: string; note: string; hypothesis: string; conclusion: string }>) =>
     updateMission((s) => ({ ...s, notebook: { ...s.notebook, [cell.id]: { ...s.notebook?.[cell.id], ...patch } } }));
   const setParam = (name: string, value: string | number) => { setResult(null); setPhase("idle"); setMessage(""); save({ params: { ...params, [name]: value } }); };
   const reset = () => { live.current++; setResult(null); setPhase("idle"); setMessage(""); updateMission((s) => { const nb = { ...s.notebook }; delete nb[cell.id]; return { ...s, notebook: nb }; }); };
@@ -104,8 +125,8 @@ export function SplCell({ cell, index }: { cell: CellConfig; index: number }) {
       setResult(r.data); setPhase("done");
       if (r.data.status === "READY") record(r.data);
       if (r.data.status === "VERIFIER_OFFLINE") setMessage("The host verifier is not running, so nothing can search Splunk for you. Run the SPL in Splunk yourself.");
-      else if (r.data.status === "TIMED_OUT") setMessage("The host verifier did not answer in time. Try again.");
-      else if (r.data.status === "UNAVAILABLE") setMessage(r.data.detail || "Search results are unavailable.");
+      else if (r.data.status === "TIMED_OUT") setMessage("Splunk did not answer in time. Try again.");
+      else if (r.data.status === "UNAVAILABLE") setMessage(r.data.detail || FAIL.backend_unavailable);
       else if (r.data.status === "FAILED") setMessage(FAIL[r.data.error ?? ""] ?? "The search failed.");
       return;
     }
@@ -126,12 +147,16 @@ export function SplCell({ cell, index }: { cell: CellConfig; index: number }) {
     ? `Verification: baseline ${verA.text || (view ? evidenceText(view) : "no run")} | defended ${verR.text || (retestView ? evidenceText(retestView) : "no run")}`
     : `Verification: ${verA.text || (view ? evidenceText(view) : "no run")}`;
   const busy = phase === "submitting" || phase === "pending";
+  const state = cellState(ready, phase, result, message);
+  const shownSpl = result?.spl ?? spl;
 
   return <section className="notebook-cell notebook-cell--open" aria-labelledby={`${cell.id}-h`}>
     <div className="cell-rail"><span>In [{index}]:</span><i /></div>
     <div className="cell-main">
       <div className="cell-question"><span>Live search · {index}</span><h2 id={`${cell.id}-h`}>{cell.title}</h2></div>
       <p>{cell.question}</p>
+      <div className="m-field m-nb-hypo"><label htmlFor={`${cell.id}-hypo`}>Before you run it: what do you expect to see? (saved in this browser)</label>
+        <textarea id={`${cell.id}-hypo`} rows={2} maxLength={300} value={saved.hypothesis ?? ""} onChange={(e) => save({ hypothesis: e.target.value })} /></div>
       <div className="m-nb-params">
         {(spec?.params ?? []).map((p) => <div className="m-field" key={p.name}>
           <label htmlFor={`${cell.id}-${p.name}`}>{p.label}</label>
@@ -140,22 +165,24 @@ export function SplCell({ cell, index }: { cell: CellConfig; index: number }) {
             : <input id={`${cell.id}-${p.name}`} type="number" min={p.lo} max={p.hi} step={1} value={Number(params[p.name])} onChange={(e) => { const n = Math.trunc(Number(e.target.value)); if (Number.isFinite(n)) setParam(p.name, Math.min(p.hi!, Math.max(p.lo!, n))); }} />}
         </div>)}
       </div>
-      <div className="query-block"><div><span>SPL that will run (built on the server from a fixed template)</span><Badge tone="observed">EXECUTES</Badge></div><pre>{spl || (ready ? "Building the search…" : cell.compare ? "Finish the Attack and the Retest first. This search compares your two real runs." : "Launch the attack first. The search is bound to your real run id.")}</pre></div>
+      <div className="query-block"><div><span>SPL that will run (built on the server from a fixed template; you cannot edit it)</span><Badge tone="observed">EXECUTES</Badge></div><pre>{spl || (ready ? "Building the search…" : cell.compare ? "Finish the Attack and the Retest first. This search compares your two real runs." : "Launch the attack first. The search is bound to your real run id.")}</pre></div>
       <div className="m-actions">
         <Button onClick={run} disabled={!ready || !spl || busy}>{busy ? "Running…" : "Run search"} <Icon name="play" size={15} /></Button>
         <Button variant="ghost" onClick={reset} disabled={busy}>Reset cell</Button>
-        {spl && <a className="button button--secondary" href={splunkSearchUrl(config.urls.splunk_web, spl)} target="_blank" rel="noopener">Open in Splunk <Icon name="arrow" size={15} /></a>}
+        {shownSpl && <CopyButton text={shownSpl} label="Copy the SPL" />}
+        <span className={`m-nb-state m-nb-state--${state.replace(" ", "-")}`} role="status" aria-label={`Cell state: ${state}`}><Badge tone={state === "completed" ? "live" : state === "failed" || state === "unavailable" ? "deny" : "observed"}>{state.toUpperCase()}</Badge></span>
+        {spl && config.urls.splunk_web && <a className="button button--secondary" href={splunkSearchUrl(config.urls.splunk_web, spl)} target="_blank" rel="noopener">Open in Splunk <Icon name="arrow" size={15} /></a>}
       </div>
       <p className="m-muted m-nb-runs">{cell.compare ? <>Baseline run <code>{runId ?? "—"}</code> · Defended run <code>{compareRun ?? "—"}</code></> : <>Run <code>{runId ?? "—"}</code></>} · {status}</p>
       <div role="status" aria-live="polite" className="m-nb-status">
-        {phase === "submitting" && "Sending the search to the host verifier…"}
-        {phase === "pending" && "Waiting for the host verifier to search Splunk (usually a few seconds)…"}
+        {phase === "submitting" && "Sending the search to the Attack Service…"}
+        {phase === "pending" && "Waiting for Splunk to answer (usually a few seconds)…"}
         {message && <span className="m-error-text">{message}</span>}
         {result?.status === "READY" && rows!.length === 0 && "The search ran and returned no rows. Either nothing matched this run, or Splunk has not indexed it yet."}
       </div>
       {rows && rows.length > 0 && <div className="m-nb-result">
         <div className="table-wrap"><table>
-          <caption className="m-caption">Results from Splunk for run <code>{runId}</code> · {rows.length} row{rows.length === 1 ? "" : "s"}{result?.truncated ? ` (capped at ${result.row_cap})` : ""} · {result?.duration_ms ?? 0} ms</caption>
+          <caption className="m-caption">Results from Splunk for run <code>{runId}</code> · {rows.length} row{rows.length === 1 ? "" : "s"}{result?.truncated ? ` (capped at ${result.row_cap})` : ""} · {result?.duration_ms ?? 0} ms · {result?.evidence_class ? `evidence: ${result.evidence_class}` : "evidence class not reported"} · {result?.window ?? "fixed time window"}</caption>
           <thead><tr>{cols.map((c) => <th scope="col" key={c}>{c}</th>)}{dc && <th scope="col">Changed?</th>}</tr></thead>
           <tbody>{rows.map((r, i) => { const diff = dc ? r[dc[0]] !== r[dc[1]] : false; return <tr key={i} className={diff ? "is-different" : ""}>{r.map((v, j) => <td key={j}>{v}</td>)}{dc && <td>{diff ? "changed" : "same"}</td>}</tr>; })}</tbody>
         </table></div>
@@ -168,19 +195,21 @@ export function SplCell({ cell, index }: { cell: CellConfig; index: number }) {
         {cell.showQueue && view && <div className="m-queue-correlate"><strong>The ticket AcmeBank reports in the underwriter queue for this run</strong><QueueBlock view={view} /></div>}
         <p className="m-muted">
           {total !== null && local !== undefined ? <>These rows add up to <strong>{total}</strong> indexed events{result?.truncated ? " (more rows exist beyond the cap)" : ""}; AcmeBank emitted <strong>{local}</strong> locally. </> : null}
-          This count is your own observation. Only the host verifier's receipt makes a run SPLUNK-VERIFIED.
+          This count is your own observation. A search result is evidence to explain, not a verification of the run.
         </p>
       </div>}
       <div className="learning-note"><Icon name="book" size={18} /><div><strong>What this proves, and what it does not</strong>
         <p><strong>Proves:</strong> {cell.proves}</p><p><strong>Does not prove:</strong> {cell.notProves}</p><p><strong>Hint:</strong> {cell.hint}</p></div></div>
       <div className="m-field m-nb-note"><label htmlFor={`${cell.id}-note`}>What did you notice? (saved in this browser; shown in your investigation record)</label>
         <textarea id={`${cell.id}-note`} rows={2} maxLength={500} value={saved.note ?? ""} onChange={(e) => save({ note: e.target.value })} /></div>
+      <div className="m-field m-nb-note"><label htmlFor={`${cell.id}-concl`}>Your conclusion: what does this result let you say, and what does it not? (saved in this browser only)</label>
+        <textarea id={`${cell.id}-concl`} rows={2} maxLength={500} value={saved.conclusion ?? ""} onChange={(e) => save({ conclusion: e.target.value })} /></div>
       <details className="m-scratch">
         <summary>Advanced SPL scratchpad <Badge>NOT EXECUTED HERE</Badge></summary>
         <p className="m-muted">Edit freely. Nothing typed here is ever run by the Academy. Copy it, or open it in Splunk and sign in there.</p>
         <label htmlFor={`${cell.id}-scratch`} className="visually-hidden">Scratchpad SPL (not executed here)</label>
         <textarea id={`${cell.id}-scratch`} rows={5} spellCheck={false} value={scratch} onChange={(e) => save({ scratch: e.target.value })} />
-        <div className="m-actions"><CopyButton text={scratch} label="Copy scratchpad" /><a className="button button--secondary" href={splunkSearchUrl(config.urls.splunk_web, scratch)} target="_blank" rel="noopener">Open scratchpad in Splunk <Icon name="arrow" size={15} /></a></div>
+        <div className="m-actions"><CopyButton text={scratch} label="Copy scratchpad" />{config.urls.splunk_web && <a className="button button--secondary" href={splunkSearchUrl(config.urls.splunk_web, scratch)} target="_blank" rel="noopener">Open scratchpad in Splunk <Icon name="arrow" size={15} /></a>}</div>
       </details>
     </div>
   </section>;

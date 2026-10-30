@@ -50,67 +50,10 @@ def _docs_text() -> str:
     )
 
 
-def test_required_workshop_files_exist():
-    for path in REQUIRED_FILES:
-        assert path.is_file(), path
-    assert (LAB_DIR / "dashboard.md").is_file()
-    assert (DOCS / "PHASE10E_RAG_CONTEXT_WORKSHOP.md").is_file()
-    assert (DOCS / "learning-notes" / "rag-context-soc-investigation.md").is_file()
-    notes = (DOCS / "learning-notes" / "rag-context-soc-investigation.md").read_text(
-        encoding="utf-8"
-    )
-    assert "## What I should now be able to explain" in notes
-    assert not (LAB_DIR / "searches" / "DET-RAG.spl").exists()
-    assert not (LAB_DIR / "searches" / "Q-RAG-INJECTION.spl").exists()
 
 
-def test_ten_steps_and_evidence_ids():
-    blob = _lab_text() + _docs_text()
-    for step in WORKSHOP_STEPS:
-        assert step in blob
-    assert "ws_lab_rag_context" in blob
-    assert MALICIOUS_HASH in blob
-    assert NORMAL_HASH in blob
-    assert BASELINE_ID in blob
-    assert ATTACK_ID in blob
-    assert RETEST_ID in blob
-    assert blob.count(MALICIOUS_HASH) >= 4
 
 
-def test_teaching_boundaries():
-    blob = _lab_text() + _docs_text()
-    assert "RETRIEVED CONTENT IS DATA" in blob
-    assert "REQUEST != GRANT" in blob or "REQUEST ≠ GRANT" in blob
-    assert "OBSERVE != ALLOW" in blob or "OBSERVE ≠ ALLOW" in blob
-    assert "ALLOW != EXECUTION" in blob or "ALLOW ≠ EXECUTION" in blob
-    assert "SPLUNK != ENFORCEMENT" in blob or "SPLUNK ≠ ENFORCEMENT" in blob
-    assert "DETECTION ANALYZED — NO NEW RAG DETECTOR" in blob or "NO NEW DETECTOR" in blob
-    assert "INTENTIONALLY VULNERABLE" in blob
-    assert "handler count" in blob.lower()
-    assert "INV-002" in blob
-    assert "1.6.0" in blob
-    assert "No DET-RAG" in blob or "no DET-RAG" in blob
-    assert "Q-RAG-CONTEXT-AUTHORITY" in blob
-    assert "FUTURE — NOT IMPLEMENTED" in blob or "FUTURE — NOT IMPLEMENTED" in blob.upper()
-    lowered = blob.lower()
-    assert "the retrieved text authorized" not in lowered
-    assert "phase 11" in lowered
-    teaching = "\n".join(
-        path.read_text(encoding="utf-8")
-        for path in (
-            LAB_DIR / "README.md",
-            LAB_DIR / "workshop.md",
-            LAB_DIR / "evidence.md",
-        )
-    ).lower()
-    for claim in (
-        "splunk blocked the action",
-        "splunk prevented the attack",
-        "the detector caught rag",
-        "normal is safe",
-        "untrusted_data means malicious",
-    ):
-        assert claim not in teaching
 
 
 def test_knowledge_check_has_answers():

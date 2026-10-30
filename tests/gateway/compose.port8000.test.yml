@@ -1,0 +1,6 @@
+# TEST-ONLY overlay: keeps the gateway's public port setting (AGENTSEC_PUBLIC_PORT=8000) but publishes it on a free loopback port, so the 8000
+# configuration can be exercised at runtime without binding host port 8000 (which the real lab's Splunk Web holds on the development machine).
+services:
+  gateway:
+    ports: !override
+      - "127.0.0.1:${TEST_ALT_PORT:-18544}:8443"

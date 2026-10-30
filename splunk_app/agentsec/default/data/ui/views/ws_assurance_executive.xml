@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="2" theme="light">
+  <label>AI Security Assurance: Executive overview</label>
+  <description>Evidence-driven overview of AgentSecLab activity: attacks, outcomes, control effectiveness and evidence gaps. Every number is computed from telemetry in this index; no composite score is shown.</description>
+  <definition><![CDATA[
+{
+  "title": "AI Security Assurance: Executive overview",
+  "description": "Evidence-driven overview of AgentSecLab activity: attacks, outcomes, control effectiveness and evidence gaps. Every number is computed from telemetry in this index; no composite score is shown.",
+  "defaults": {
+    "dataSources": {
+      "ds.search": {
+        "options": {
+          "queryParameters": {
+            "earliest": "$tr.earliest$",
+            "latest": "$tr.latest$"
+          }
+        }
+      }
+    },
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "default"
+        }
+      }
+    }
+  },
+  "inputs": {
+    "input_tr": {
+      "type": "input.timerange",
+      "title": "Time range",
+      "options": {
+        "token": "tr",
+        "defaultValue": "0,now"
+      }
+    },
+    "input_ec": {
+      "type": "input.dropdown",
+      "title": "Evidence class",
+      "options": {
+        "token": "ec",
+        "defaultValue": "*",
+        "items": [
+          {
+            "label": "LIVE and RECORDED (default; test fixtures are excluded)",
+            "value": "*"
+          },
+          {
+            "label": "LIVE (run on this installation)",
+            "value": "LIVE"
+          },
+          {
+            "label": "RECORDED (committed replay specimens)",
+            "value": "RECORDED"
+          },
+          {
+            "label": "TEST_FIXTURE only (synthetic negative-test data)",
+            "value": "TEST_FIXTURE"
+          },
+          {
+            "label": "Everything including fixtures",
+            "value": "ALL"
+          }
+        ]
+      }
+    },
+    "input_ws": {
+      "type": "input.dropdown",
+      "title": "Workshop",
+      "options": {
+        "token": "ws",
+        "defaultValue": "*",
+        "items": [
+          {
+            "label": "All workshops",
+            "value": "*"
+          },
+          {
+            "label": "LAB-ADVANCED-CAPSTONE-MASTERY-001",
+            "value": "LAB-ADVANCED-CAPSTONE-MASTERY-001"
+          },
+          {
+            "label": "LAB-AGENT-DELEGATION-001",
+            "value": "LAB-AGENT-DELEGATION-001"
+          },
+          {
+            "label": "LAB-AGENT-GOAL-INTEGRITY-001",
+            "value": "LAB-AGENT-GOAL-INTEGRITY-001"
+          },
+          {
+            "label": "LAB-MCP-001",
+            "value": "LAB-MCP-001"
+          },
+          {
+            "label": "LAB-MCP-003",
+            "value": "LAB-MCP-003"
+          },
+          {
+            "label": "LAB-MCP-004",
+            "value": "LAB-MCP-004"
+          },
+          {
+            "label": "LAB-MCP-005",
+            "value": "LAB-MCP-005"
+          },
+          {
+            "label": "LAB-MCP-006",
+            "value": "LAB-MCP-006"
+          },
+          {
+            "label": "LAB-MCP-CATALOG",
+            "value": "LAB-MCP-CATALOG"
+          },
+          {
+            "label": "LAB-MEMORY-001",
+            "value": "LAB-MEMORY-001"
+          },
+          {
+            "label": "LAB-PI-001",
+            "value": "LAB-PI-001"
+          },
+          {
+            "label": "LAB-RAG-CONTEXT",
+            "value": "LAB-RAG-CONTEXT"
+          },
+          {
+            "label": "LAB-SCANNER-RUNTIME-EVIDENCE",
+            "value": "LAB-SCANNER-RUNTIME-EVIDENCE"
+          }
+        ]
+      }
+    }
+  },
+  "dataSources": {
+    "ds_exec_narrative": {
+      "type": "ds.search",
+      "name": "exec_narrative",
+      "options": {
+        "query": "`agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\"))\n| stats dc(run_id) as runs, count as findings, count(eval(status=\"VERIFIED_EFFECTIVE\")) as eff, count(eval(status=\"VERIFIED_INEFFECTIVE\")) as ineff, count(eval(status=\"VERIFIED_INEFFECTIVE\" AND by_design=1)) as design, count(eval(status=\"INSUFFICIENT_EVIDENCE\")) as insuff, count(eval(status=\"FINDING_OBSERVED\")) as obs, count(eval(mode=\"ATTACK\" AND status=\"VERIFIED_INEFFECTIVE\")) as atk_ineff, count(eval(mode=\"ATTACK\" AND status=\"VERIFIED_INEFFECTIVE\" AND retest_outcome=\"VALIDATED\")) as validated\n| eval real=ineff-design\n| eval executive=if(findings=0, \"No security findings were found for the selected range and filters. That is NOT a pass: with no telemetry nothing can be said about any control. Check the telemetry-health panel and the time range.\", \"In the selected range the evidence covers \".runs.\" runs and \".findings.\" findings. \".if(eff>0, eff.\" guarded operations were refused by an enforcing control with no execution in the same hop: verified effective for those observed attempts only. \", \"\").if(real>0, \"ATTENTION: \".real.\" operations executed that an enforcing control should have stopped, outside the intentionally vulnerable profile. \", if(eff+design>0, \"No execution outside the intentionally vulnerable profile was observed among these findings. \", \"\")).if(eff=0, \"No operation is verified as blocked in this range, so no control is shown as effective. \", \"\").if(design>0, design.\" executions happened under the intentionally vulnerable profile, which is the lab's teaching condition. \", \"\").if(atk_ineff>0, validated.\" of \".atk_ineff.\" ineffective ATTACK findings are linked to a verified-effective retest. \", \"\").if(insuff>0, \"Telemetry is incomplete or missing for \".insuff.\" findings, so no claim is made about them. \", \"\").if(obs>0, obs.\" findings come from controls that classify content instead of blocking it, so their effectiveness is not established. \", \"\").\"This is evidence from the lab, not a statement about any organization's controls or compliance.\")\n| rename executive as \"What this means (executive)\"\n| fields \"What this means (executive)\" ",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_exec_tech": {
+      "type": "ds.search",
+      "name": "exec_tech",
+      "options": {
+        "query": "`agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\"))\n| eval sev=case(status=\"VERIFIED_INEFFECTIVE\" AND by_design=0,1, status=\"INSUFFICIENT_EVIDENCE\",2, status=\"VERIFIED_INEFFECTIVE\",3, status=\"VERIFIED_EFFECTIVE\",4, true(),5)\n| sort sev, - _time\n| head 5\n| eval technical=observation.\" \".interpretation.\" \".control_interpretation.\" Verify with: index=agentsec_telemetry sourcetype=otel:agentic:json \\\"agentsec.run.id\\\"=\\\"\".run_id.\"\\\" | sort agentsec.sequence. Retest: \".coalesce(retest_outcome,\"NOT_APPLICABLE\").\".\"\n| table status_label technical",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_exec_metrics": {
+      "type": "ds.search",
+      "name": "exec_metrics",
+      "options": {
+        "query": "`agentsec_assurance_units` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\"))\n| stats dc(eval(if(mode=\"ATTACK\",run_id,null()))) as atk, dc(run_id) as runs, dc(eval(if(complete=1,run_id,null()))) as comp\n| eval rows=mvappend(\"M-ATTACK-RUNS|\".atk.\" attack runs\", \"M-EVIDENCE-COMPLETENESS|\".comp.\" of \".runs.\" runs\")\n| mvexpand rows\n| append [ search `agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\"))\n    | stats count(eval(status=\"VERIFIED_INEFFECTIVE\" AND control_id!=\"(run)\")) as ineff, count(eval(status=\"VERIFIED_INEFFECTIVE\" AND control_id=\"(run)\")) as run_level, count(eval(status=\"VERIFIED_INEFFECTIVE\" AND by_design=1)) as design, count(eval(in(decision,\"ALLOW\",\"DENY\",\"ERROR\") AND control_id!=\"(run)\")) as enforcing, count(eval(status=\"VERIFIED_EFFECTIVE\")) as eff, count(eval(decision=\"DENY\")) as denies, count(eval(mode=\"ATTACK\" AND status=\"VERIFIED_INEFFECTIVE\")) as atk_ineff, count(eval(mode=\"ATTACK\" AND status=\"VERIFIED_INEFFECTIVE\" AND retest_outcome=\"VALIDATED\")) as v, count(eval(mode=\"ATTACK\" AND status=\"VERIFIED_INEFFECTIVE\" AND retest_outcome=\"NOT_VALIDATED\")) as nv, count(eval(mode=\"ATTACK\" AND status=\"VERIFIED_INEFFECTIVE\" AND retest_outcome=\"NO_RETEST\")) as nr\n    | eval rows=mvappend(\"M-UNAUTH-EXECUTED|\".ineff.\" of \".enforcing.\" hop-level decisions (\".design.\" by design); plus \".run_level.\" run-level retest failures\", \"M-BLOCKED|\".eff.\" verified, of \".denies.\" DENY decisions\", \"M-RETEST-EFFECTIVENESS|\".v.\" validated, \".nv.\" not validated, \".nr.\" no retest, of \".atk_ineff.\" ineffective ATTACK findings\")\n    | mvexpand rows ]\n| append [ | inputlookup agentsec_controls | fields control_id\n    | join type=left control_id [ search `agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") | where mode=\"ATTACK\" OR mode=\"RETEST\" | stats count as tested by control_id ]\n    | stats count as total, count(eval(isnull(tested))) as untested\n    | eval rows=\"M-UNTESTED-CONTROLS|\".untested.\" of \".total.\" catalogue controls have no ATTACK or RETEST finding\"\n    | fields rows ]\n| append [ search `agentsec_assurance_units` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\")) | stats max(first_decision_time) as fd, max(run_start) as st by run_id | eval lat=fd-st | where isnotnull(lat) | stats median(lat) as med, max(lat) as mx, count as n\n    | eval rows=\"M-DECISION-LATENCY|median \".med.\" s, maximum \".mx.\" s over \".n.\" runs (control-decision latency, not detection time; time to detection: Unavailable)\"\n    | fields rows ]\n| rex field=rows \"^(?<metric_id>[^|]+)\\|(?<value>.*)$\"\n| lookup agentsec_metric_defs metric_id OUTPUT metric_order, name, numerator, denominator, source, caveat\n| sort metric_order\n| table name value numerator denominator source caveat",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_exec_trend": {
+      "type": "ds.search",
+      "name": "exec_trend",
+      "options": {
+        "query": "`agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\"))\n| timechart span=1d count by status_label",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_exec_untested": {
+      "type": "ds.search",
+      "name": "exec_untested",
+      "options": {
+        "query": "| inputlookup agentsec_controls\n| join type=left control_id [ search `agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") | where mode=\"ATTACK\" OR mode=\"RETEST\" | stats count as tested_hops by control_id ]\n| where isnull(tested_hops)\n| eval status=\"Not tested\"\n| table status control_id control_name class technique",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_findings": {
+      "type": "ds.search",
+      "name": "findings",
+      "options": {
+        "query": "`agentsec_assurance_findings_linked` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\")) \n| sort - _time\n| table finding_key, status_label, confidence, evidence_class, mode, profile, attack_id, control_id, hop, tool, decision, reason, observation, interpretation, impact, control_interpretation, recommended_action, retest_outcome, retest_run, workshops, run_id",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    }
+  },
+  "visualizations": {
+    "viz_head": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# What this shows\n\nThe outcome of real security tests run in AgentSecLab, read from Splunk telemetry by deterministic rules (`learning/assurance/rules.json`). **No evidence means no verified claim; no test means no claim about a control.** A lab test is evidence of how a control behaved in the tested environment. It is not proof of organization-wide compliance, certification or regulatory conformance.\n\n**Evidence classes.** LIVE = a run on this installation. RECORDED = a run captured earlier and committed as a replay specimen (identified by the committed list `agentsec_recorded_runs`; the telemetry itself says `execution.mode=LIVE` for both). SIMULATED = workshop packets and CTF challenges; they are not in Splunk and never appear here. TEST_FIXTURE = synthetic data for negative acceptance tests (lab id `assurance-test-fixture`), mutated from real runs and never produced by the lab. The default view shows LIVE and RECORDED and always excludes fixtures; choose *Everything including fixtures* only to see them beside real evidence. Read the Evidence class column.",
+        "fontSize": "default"
+      }
+    },
+    "viz_nar": {
+      "type": "splunk.table",
+      "title": "What this means: executive interpretation (changes with the data, range and filters)",
+      "dataSources": {
+        "primary": "ds_exec_narrative"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_tech": {
+      "type": "splunk.table",
+      "title": "Technical interpretation: the five most significant findings (which run, hop, control, what happened, how to verify)",
+      "dataSources": {
+        "primary": "ds_exec_tech"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_metrics": {
+      "type": "splunk.table",
+      "title": "Metrics: every value with its numerator, denominator and source (no composite score or compliance percentage is computed)",
+      "dataSources": {
+        "primary": "ds_exec_metrics"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_trend": {
+      "type": "splunk.column",
+      "title": "Findings by status over time",
+      "dataSources": {
+        "primary": "ds_exec_trend"
+      },
+      "options": {
+        "legendDisplay": "bottom",
+        "stackMode": "stacked"
+      }
+    },
+    "viz_untested": {
+      "type": "splunk.table",
+      "title": "Controls with no qualifying test in this range (Not tested: no claim is made)",
+      "dataSources": {
+        "primary": "ds_exec_untested"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_findings": {
+      "type": "splunk.table",
+      "title": "Findings: select a row for the finding page (raw events, SPL, framework links, remediation, retest)",
+      "dataSources": {
+        "primary": "ds_findings"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      },
+      "eventHandlers": [
+        {
+          "type": "drilldown.linkToDashboard",
+          "options": {
+            "app": "agentsec",
+            "dashboard": "ws_assurance_finding",
+            "newTab": true,
+            "tokens": [
+              {
+                "token": "run_id",
+                "value": "row.run_id.value"
+              },
+              {
+                "token": "control_id",
+                "value": "row.control_id.value"
+              },
+              {
+                "token": "hop",
+                "value": "row.hop.value"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "viz_empty_help": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "## Reading the statuses\n\n**Verified effective**: A control was exercised and the expected protective outcome was observed from two separate kinds of event: the control's decision and the absence of the protected execution in the same hop, in a run whose telemetry is complete.\n\n**Verified ineffective**: A control was exercised and the expected protection did not hold: the protected execution happened. In the intentionally vulnerable profile this is by design and is labelled so.\n\n**Finding observed**: Security-relevant behaviour or a scanner finding exists, but control effectiveness is not established (an OBSERVE-class control, an error, or a scanner severity).\n\n**Not tested**: No qualifying test (an ATTACK or RETEST run exercising this control) exists in the selected time range.\n\n**Insufficient evidence**: Relevant telemetry is missing or incomplete, so no claim about the control is made. Missing telemetry is never read as a pass.\n\n**Verification unavailable**: Required data or verification infrastructure cannot be reached (for example the telemetry index is empty or the search failed).",
+        "fontSize": "default"
+      }
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "globalInputs": [
+      "input_tr",
+      "input_ec",
+      "input_ws"
+    ],
+    "options": {
+      "backgroundColor": "#F6F8FB",
+      "display": "auto-scale",
+      "gutterSize": 8,
+      "width": 1440,
+      "height": 2250
+    },
+    "structure": [
+      {
+        "item": "viz_head",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 1440,
+          "h": 170
+        }
+      },
+      {
+        "item": "viz_nar",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 170,
+          "w": 1440,
+          "h": 230
+        }
+      },
+      {
+        "item": "viz_tech",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 400,
+          "w": 1440,
+          "h": 420
+        }
+      },
+      {
+        "item": "viz_metrics",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 820,
+          "w": 1440,
+          "h": 380
+        }
+      },
+      {
+        "item": "viz_trend",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1200,
+          "w": 720,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_untested",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 1200,
+          "w": 720,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_findings",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1500,
+          "w": 1440,
+          "h": 380
+        }
+      },
+      {
+        "item": "viz_empty_help",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1880,
+          "w": 1440,
+          "h": 330
+        }
+      }
+    ]
+  },
+  "applicationProperties": {
+    "collapsed": false
+  }
+}
+]]></definition>
+</dashboard>

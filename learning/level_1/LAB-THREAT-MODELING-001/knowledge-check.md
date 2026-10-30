@@ -17,3 +17,10 @@ Answer before reading the review path.
 13. Why should framework mappings be labeled `EDUCATIONAL MAPPING`?
 14. Give one example of `NOT CORRELATED` and its consequence.
 15. Explain the architecture's material risk once for engineering, once for SOC, and once for leadership.
+16. Name the seven MAESTRO layers and say which one the article calls vertical.
+17. Which MAESTRO step comes before cross-layer threat identification, and what does it produce?
+18. Why does a Layer 6 threat list about AI security agents not fit AcmeBank directly, and what should you write instead?
+19. Describe one cross-layer path from this lab and say which steps are demonstrated by a lab and which are analysis only.
+20. The article asks for a risk matrix but defines none. Where does this lab's matrix come from, and why are its levels judgments rather than measurements?
+21. What does the DEMONSTRATED evidence status claim, and what does it not claim?
+22. What did the MAESTRO Threat Analyzer contribute to this lab, and why was it not run?

@@ -257,13 +257,13 @@
         {
           "lab_id": "LAB-MCP-003",
           "title": "Scope Escalation",
-          "mode": "REPLAY",
+          "mode": "LIVE",
           "view": "ws_lab_mcp_003"
         },
         {
           "lab_id": "LAB-MCP-004",
           "title": "Parameter / Resource Authorization",
-          "mode": "REPLAY",
+          "mode": "LIVE",
           "view": "ws_lab_mcp_004"
         },
         {
@@ -298,13 +298,13 @@
         {
           "lab_id": "LAB-MCP-005",
           "title": "Tool Result Trust",
-          "mode": "REPLAY",
+          "mode": "LIVE",
           "view": "ws_lab_mcp_005"
         },
         {
           "lab_id": "LAB-MCP-CATALOG",
           "title": "Tool Catalog",
-          "mode": "REPLAY",
+          "mode": "LIVE",
           "view": "ws_lab_mcp_catalog"
         },
         {
@@ -345,7 +345,7 @@
         {
           "lab_id": "LAB-MCP-006",
           "title": "Confused Deputy",
-          "mode": "REPLAY",
+          "mode": "LIVE",
           "view": "ws_lab_mcp_006"
         }
       ]

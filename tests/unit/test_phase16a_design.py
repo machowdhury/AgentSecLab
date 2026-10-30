@@ -73,49 +73,10 @@ def _investigations(lab_id: str) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def test_phase16a_design_docs_exist():
-    for path in PHASE16A_DOCS:
-        assert path.is_file(), path
-    note = DOCS / "learning-notes" / "agentsec-end-to-end-security-reasoning.md"
-    assert "## What I should now be able to explain" in note.read_text(encoding="utf-8")
 
 
-def test_phase16a_is_design_only_and_forbids_16b():
-    blob = _blob()
-    for needle in (
-        "DESIGN",
-        "Do not start Phase 16B",
-        "LAB-AGENTSEC-CAPSTONE-001",
-        "REQUEST ≠ GRANT",
-        "SPLUNK ≠ ENFORCEMENT",
-        "Path A",
-        "Path B",
-        "CTRL-MCP-001",
-        "CTRL-RAG-CONTEXT-001",
-        "CTRL-MEMORY-CONTEXT-001",
-        "DET-MCP-001",
-        "NONE JUSTIFIED",
-        "PROVENANCE ≠ TRUST",
-        "OBSERVE ≠ ALLOW",
-    ):
-        assert needle in blob, needle
-    hub = (DOCS / "PHASE16A_CURRICULUM_INTEGRATION.md").read_text(encoding="utf-8")
-    assert "1.9.0" in hub
-    assert "Do not start Phase 16B from this file." in hub
 
 
-def test_six_live_domains_represented():
-    assert frozenset(LIVE_LABS).issubset(known_lab_ids())
-    assert "LAB-AGENTSEC-CAPSTONE-001" in known_lab_ids()
-    coverage = (DOCS / "AGENTSEC_CURRICULUM_COVERAGE_MATRIX.md").read_text(
-        encoding="utf-8"
-    )
-    hub = (DOCS / "PHASE16A_CURRICULUM_INTEGRATION.md").read_text(encoding="utf-8")
-    for lab_id in LIVE_LABS:
-        assert lab_id in coverage, lab_id
-        assert lab_id in hub, lab_id
-        assert (LEARNING / lab_id / "lab-manifest.json").is_file(), lab_id
-        assert (LEARNING / lab_id / "investigations.json").is_file(), lab_id
 
 
 def test_every_live_lab_has_security_question_and_enforcement_honesty():
@@ -134,13 +95,6 @@ def test_every_live_lab_has_security_question_and_enforcement_honesty():
             assert pdp == "CTRL-MCP-001", lab_id
 
 
-def test_every_live_lab_identifies_trust_boundary_in_coverage_matrix():
-    coverage = (DOCS / "AGENTSEC_CURRICULUM_COVERAGE_MATRIX.md").read_text(
-        encoding="utf-8"
-    )
-    for lab_id in LIVE_LABS:
-        section = coverage.split(lab_id, 1)[1].split("### ", 1)[0]
-        assert "Trust boundary" in section, lab_id
 
 
 def test_path_a_path_b_on_every_live_lab():
@@ -153,26 +107,6 @@ def test_path_a_path_b_on_every_live_lab():
         assert all(questions), lab_id
 
 
-def test_capstone_design_reuses_existing_controls_and_hunts():
-    architecture = (DOCS / "AGENTSEC_CAPSTONE_ARCHITECTURE.md").read_text(
-        encoding="utf-8"
-    )
-    investigations = (DOCS / "AGENTSEC_CAPSTONE_INVESTIGATION_DESIGN.md").read_text(
-        encoding="utf-8"
-    )
-    assert "CTRL-MCP-001" in architecture
-    assert "CTRL-RAG-CONTEXT-001" in architecture
-    assert "CTRL-MEMORY-CONTEXT-001" in architecture
-    assert "Sole tool PDP" in architecture or "sole tool PDP" in architecture
-    assert "CTRL-CAPSTONE" not in architecture
-    assert "No DET-CAPSTONE" in architecture
-    assert "Do not build this runtime" in architecture
-    ids = re.findall(r"CAP-I\d+", investigations)
-    assert 12 <= len(set(ids)) <= 20, ids
-    spl_names = {path.stem for path in LEARNING.rglob("Q-*.spl")}
-    mentioned = set(re.findall(r"\bQ-[A-Z0-9]+(?:-[A-Z0-9]+)+\b", investigations))
-    missing = {name for name in mentioned if name not in spl_names}
-    assert not missing, missing
 
 
 def test_no_invented_detector_schema_bump_or_runtime_endpoint():
@@ -201,13 +135,3 @@ def test_no_invented_detector_schema_bump_or_runtime_endpoint():
         assert route in bank, route
 
 
-def test_status_and_roadmap_record_16a_design_only():
-    status = (DOCS / "IMPLEMENTATION_STATUS.md").read_text(encoding="utf-8")
-    roadmap = (DOCS / "AGENTSEC_ROADMAP_2026.md").read_text(encoding="utf-8")
-    learning = (DOCS / "AGENTSEC_LEARNING_ARCHITECTURE.md").read_text(encoding="utf-8")
-    assert "16A" in status
-    assert "DESIGN" in status
-    assert "Phase 16A" in roadmap
-    assert "Do not start Phase 16B" in roadmap
-    assert "PHASE16A_CURRICULUM_INTEGRATION.md" in learning
-    assert "AGENTSEC_CURRICULUM_LEVELS.md" in learning

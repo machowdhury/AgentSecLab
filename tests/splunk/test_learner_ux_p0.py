@@ -361,6 +361,6 @@ def test_your_path_asset_is_unchanged_by_this_work():
 
 
 def test_no_hardcoded_hosts_in_shipped_workbench_surface(workbench):
-    for host in ("localhost", "127.0.0.1", "3.17.29.24"):
+    for host in ("localhost", "127.0.0.1", "203.0.113.77"):
         assert host not in workbench
         assert host not in WORKBENCH_CSS.read_text(encoding="utf-8")

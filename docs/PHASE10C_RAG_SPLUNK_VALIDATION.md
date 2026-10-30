@@ -9,7 +9,7 @@ Evidence class: **OBSERVED** (runtime + Splunk CLI). Completeness vs local `even
 
 Runtime remains authoritative for handler invocation. Splunk is corroboration.
 
-Companion: `docs/RAG_SPLUNK_FIELD_CONTRACT.md`, `docs/RAG_SEARCH_CONTRACT.md`, `docs/reviews/splunk-ko-review-rag-2026-09-16.md`.
+Companion: `docs/RAG_SPLUNK_FIELD_CONTRACT.md`, `docs/RAG_SEARCH_CONTRACT.md`, an internal record (not published).
 
 **Phase 10D not started.**
 
@@ -37,7 +37,7 @@ Inspected all `learning/level_1/LAB-MCP-001/searches/Q-MCP-*.spl` and `DET-MCP-0
 
 Specimens ran in-container Python with OTEL on (`scripts/run_lab_rag_live_specimens.py` copied to `/tmp`; image does not copy `scripts/`). Profile switched in-process (`AGENTSEC_SECURITY_PROFILE`) so the HTTP container stayed defended. `export.json` has `otlp.ok=true` and `splunk.verified=false` (honest). Splunk proof is this document’s independent CLI. Do **not** rewrite `splunk.verified` because CLI succeeded.
 
-Official Splunk Agent Skills consulted (read-only, after `.cursor/rules/33-splunk-agent-skills.mdc` and `.cursor/skills/splunk-ko-review/SKILL.md`): Splunk Search (CLI execution path), Search Performance Optimizer (notes only; no rewrite), Field Extraction and CIM Mapping, Knowledge Object Governance. `/spl-validate` headings are in the hunt `.md`. AgentSec evidence semantics remain authoritative.
+Official Splunk Agent Skills consulted (read-only, after an internal record (not published) and an internal record (not published)): Splunk Search (CLI execution path), Search Performance Optimizer (notes only; no rewrite), Field Extraction and CIM Mapping, Knowledge Object Governance. `/spl-validate` headings are in the hunt `.md`. AgentSec evidence semantics remain authoritative.
 
 ---
 

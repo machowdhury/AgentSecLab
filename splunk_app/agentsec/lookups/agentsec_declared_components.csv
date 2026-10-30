@@ -1,0 +1,12 @@
+component_type,component,reference,digest,pinned_by_digest,lock_status,used_by,declared_in
+container image,splunk/splunk 10.2,splunk/splunk:10.2,sha256:da47bf2f183fc815f9e36dff3202dd1232bf475c44b2f71b958c54a9a004d6d7,yes,tested,default install,deploy/images.lock.json
+container image,splunk/splunk 10.4,splunk/splunk:10.4.4,sha256:000b0368e668359aee1fd32292baefba9404c2e900a14c170f3859cd88a686c9,yes,candidate,"candidate, not installed by default",deploy/images.lock.json
+container image,splunk/splunk 10.6,splunk/splunk:10.6.1,sha256:6d5227ed82bceaa277d79b1b3e97d8bd460ac6cf0f5df6c1cec95559284a796e,yes,candidate,"candidate, not installed by default",deploy/images.lock.json
+container image,ollama,ollama/ollama:latest,,no (floating tag),unpinned,default install,deploy/images.lock.json
+container image,nginx,nginx:1.27-alpine,sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10,yes,pinned,default install,deploy/images.lock.json
+container image,otel_collector,otel/opentelemetry-collector-contrib:0.96.0,,no (floating tag),unpinned,default install,deploy/images.lock.json
+language model,granite4.1:3b-q4_K_M,granite4.1:3b-q4_K_M,,no (digest recorded at runtime),candidate-unbenchmarked,"candidate, not used by default",deploy/models.lock.json
+language model,granite4.1:8b,granite4.1:8b,,no (digest recorded at runtime),candidate-unbenchmarked,"candidate, not used by default",deploy/models.lock.json
+language model,llama3.2:1b,llama3.2:1b,,no (digest recorded at runtime),current-default,role: pipeline,deploy/models.lock.json
+language model,llama3.2:latest,llama3.2:latest,sha256:a80c4f17acd55265feec403c7aef86be0c25983ab279d83f3bcd3abbcb5b8b72,yes,current-default,role: loan_desk,deploy/models.lock.json
+language model,qwen3:4b-instruct-2507-q4_K_M,qwen3:4b-instruct-2507-q4_K_M,,no (digest recorded at runtime),candidate-unbenchmarked,"candidate, not used by default",deploy/models.lock.json

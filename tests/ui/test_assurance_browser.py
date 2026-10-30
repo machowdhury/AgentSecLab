@@ -25,7 +25,7 @@ CHECK = "Check against the sources"
 
 @pytest.fixture
 def base(lab_root):
-    return lab_root.replace("/lab/", "/assurance")
+    return lab_root.replace("/lab/", "/assurance")      # the study journey (recorded evidence) lives under /assurance; its hub is /assurance/study, /assurance itself is the live overview
 
 
 def go(pg, base, step=None):
@@ -51,10 +51,10 @@ def kind_label(o):
 
 
 def test_hub_explains_the_evidence_labels_and_marks_unbuilt_tracks_as_not_implemented(page, base):
-    seen = watch(page); go(page, base)
+    seen = watch(page); go(page, base + "/study")
     assert page.get_by_role("heading", level=1).inner_text().startswith("From a security result")
     nav = page.get_by_role("navigation", name="Primary navigation").get_by_role("link", name="Security Assurance")
-    assert nav.get_attribute("aria-current") == "page"
+    assert nav.get_attribute("aria-current") == "page"                      # the study journey lives under /assurance, so the sidebar entry stays active
     text = page.locator("main").inner_text()
     for w in ("LIVE", "RECORDED", "SIMULATED", "DOCUMENTED", "NOT_VERIFIED", "Nothing is run, searched or scored"):
         assert w in text, w
@@ -66,7 +66,7 @@ def test_hub_explains_the_evidence_labels_and_marks_unbuilt_tracks_as_not_implem
 
 
 def test_start_opens_step_one_and_the_workshop_runs_through_all_six_steps(page, base):
-    seen = watch(page); go(page, base)
+    seen = watch(page); go(page, base + "/study")
     page.get_by_role("link", name="Start the workshop").click()
     page.wait_for_url(re.compile(r"/mcp-unauthorized-scope/learn$"))
     for i, sid in enumerate(STEPS):
@@ -78,7 +78,7 @@ def test_start_opens_step_one_and_the_workshop_runs_through_all_six_steps(page, 
         nxt = page.locator(".wk-actions a").last
         assert nxt.inner_text().strip() == J["steps"][i]["next_action"]
         nxt.click()
-    page.wait_for_url(re.compile(r"/learn/assurance$"))      # the last action returns to the workshop home: no dead end
+    page.wait_for_url(re.compile(r"/learn/assurance/study$"))      # the last action returns to the workshop home: no dead end
     assert seen == []
 
 
@@ -208,7 +208,7 @@ def test_loading_error_and_retry_states(page, base):
     page.goto(base + "/mcp-unauthorized-scope/learn")
     alert = page.get_by_role("alert"); alert.wait_for()
     assert "could not be loaded" in alert.inner_text() and "Nothing was changed" in alert.inner_text()
-    assert alert.get_by_role("link", name="Back to the workshop home").get_attribute("href").endswith("/learn/assurance")
+    assert alert.get_by_role("link", name="Back to the workshop home").get_attribute("href").endswith("/learn/assurance/study")
     gate["fail"] = False
     alert.get_by_role("button", name="Reload the page").click()
     page.wait_for_selector(".wk-steps")

@@ -5,6 +5,7 @@ set -eu
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 cd "$ROOT"
+. "$ROOT/scripts/lab-compose.sh"
 
 FAILS=0
 WARNS=0
@@ -124,12 +125,12 @@ check_port() {
   port="$1"
   name="$2"
   if [ "${DOCKER_OK:-0}" = "1" ]; then
-    owner="$(docker ps --format '{{.Names}} {{.Ports}}' 2>/dev/null | grep 'agentsec_' | grep -E "(^|[^0-9])${port}([^0-9]|$)" || true)"
+    owner="$(docker ps --filter "label=com.docker.compose.project=$LAB_PROJECT" --format '{{.Names}} {{.Ports}}' 2>/dev/null | grep -E "(^|[^0-9])${port}([^0-9]|$)" || true)"
     if [ -n "$owner" ]; then
       warn "port ${port} (${name}) is already published by an AgentSec container — lab may already be running"
       return 0
     fi
-    if docker inspect "agentsec_splunk" >/dev/null 2>&1 && [ "$port" = "8000" ]; then
+    if [ -n "$(svc_id splunk)" ] && [ "$port" = "8000" ]; then
       warn "port ${port} (${name}): Splunk container exists; treating as already running"
       return 0
     fi
@@ -224,22 +225,22 @@ if [ -r "$ROOT/.certs/hec-ca.crt" ] || [ -n "${AGENTSEC_HEC_CA_FILE:-}" ]; then
     *) fail "$hec_msg" ;;
   esac
 fi
-if [ "${DOCKER_OK:-0}" = "1" ] && docker inspect agentsec_ollama >/dev/null 2>&1; then
-  ollama_state="$(docker inspect -f '{{.State.Status}}' agentsec_ollama 2>/dev/null || true)"
+if [ "${DOCKER_OK:-0}" = "1" ] && [ -n "$(svc_id ollama)" ]; then
+  ollama_state="$(docker inspect -f '{{.State.Status}}' "$(svc_id ollama)" 2>/dev/null || true)"
   if [ "$ollama_state" = "running" ]; then
-    if docker exec agentsec_ollama ollama list 2>/dev/null | grep -q "$MODEL"; then
+    if docker exec "$(svc_id ollama)" ollama list 2>/dev/null | sh "$ROOT/scripts/model_present.sh" "$MODEL"; then
       pass "Ollama lists ${MODEL}. A listed name is not a measured digest."
     else
       warn "model ${MODEL} is required for LIVE generation and is currently absent"
-      warn "command normally used: docker exec agentsec_ollama ollama pull ${MODEL}"
+      warn "command normally used: docker compose exec ollama ollama pull ${MODEL}"
       warn "certificate or TLS errors must be resolved at the host trust layer. Do not disable certificate verification."
       warn "until that model is listed, AcmeBank /health stays degraded. LIVE generation is not READY."
     fi
   else
-    warn "agentsec_ollama is not running, so model presence was not checked"
+    warn "the ollama service is not running, so model presence was not checked"
   fi
 else
-  log "INFO  model presence is checked when the agentsec_ollama container is running"
+  log "INFO  model presence is checked when the ollama service container is running"
 fi
 
 if [ "$REMOTE" -eq 1 ]; then

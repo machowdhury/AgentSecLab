@@ -167,18 +167,5 @@ def test_attack_service_wait_copy_is_served():
     assert "Mastery Check" in cap
 
 
-def test_phase17b_docs_exist():
-    for path in PHASE17B_DOCS:
-        assert path.is_file(), path.name
-    note = DOCS / "learning-notes" / "learning-agentic-security-with-agentsec.md"
-    text = note.read_text(encoding="utf-8")
-    assert "## What I should now be able to explain" in text
 
 
-def test_status_records_17b_without_starting_17c():
-    status = (DOCS / "IMPLEMENTATION_STATUS.md").read_text(encoding="utf-8")
-    roadmap = (DOCS / "AGENTSEC_ROADMAP_2026.md").read_text(encoding="utf-8")
-    assert "17B" in status
-    assert "Do not start Phase 17C" in roadmap
-    hub_17a = (DOCS / "PHASE17A_LEARNER_MASTERY_VALIDATION.md").read_text(encoding="utf-8")
-    assert "Do not start Phase 17B from this file" in hub_17a

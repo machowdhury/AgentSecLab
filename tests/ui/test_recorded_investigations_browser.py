@@ -48,12 +48,14 @@ def chunks(pg):
     return seen
 
 
+LIVE_TOO = {"LAB-MCP-006", "LAB-MCP-CATALOG", "LAB-MCP-003", "LAB-MCP-004", "LAB-MCP-005"}   # launched live from the Academy as well; the recorded specimens stay
+
 @pytest.mark.parametrize("lab", DECISION + INVESTIGATION)
 def test_learn_has_the_scenario_and_objective_loads_no_evidence_and_calls_no_backend(page, root, lab):
     seen, loaded = watch(page), chunks(page)
     page.goto(root + lab)
     text = page.locator("main, .page").first.inner_text().lower()
-    for h in ("the legitimate operation" if lab in DECISION else "the report" if lab != "LAB-ADVANCED-CAPSTONE-MASTERY-001" and lab != "LAB-SCANNER-RUNTIME-EVIDENCE" else "the scenario", "replay"):
+    for h in ("the legitimate operation" if lab in DECISION else "the report" if lab != "LAB-ADVANCED-CAPSTONE-MASTERY-001" and lab != "LAB-SCANNER-RUNTIME-EVIDENCE" else "the scenario", "live" if lab in LIVE_TOO else "recorded"):   # the catalog mode, in the Academy's LIVE / RECORDED / SIMULATED vocabulary
         assert h in text, (lab, h)
     assert page.get_by_text("Full guided lesson not yet available").count() == 0
     assert loaded == [] and seen == [], "Learn loads no recorded evidence and calls no lab API"
@@ -73,7 +75,7 @@ def test_decision_labs_predict_reveal_explore_compare_and_prove(page, root, lab)
         run_button(page, run["role"]).click()
         dec = run["events"][run["decisive"] - 1]["agentsec.control.decision"]
         assert dec not in wb.locator(".rec-setup").inner_text().split() and run["events"][run["decisive"] - 1]["agentsec.control.reason"] not in wb.inner_text()
-        page.get_by_label("ALLOW" if dec != "ALLOW" else "DENY", exact=True).check()
+        page.get_by_test_id("recorded-workbench").get_by_label("ALLOW" if dec != "ALLOW" else "DENY", exact=True).check()
         page.get_by_role("button", name="Reveal the recorded decision").click()
         assert f"The recorded decision is {dec}" in wb.locator(".rec-reveal").inner_text().replace("\n", " ") or dec in wb.locator(".rec-reveal").inner_text()
         assert page.locator(".rec-event").count() == len(run["events"])

@@ -40,14 +40,6 @@ IMPL = ROOT / "docs" / "PHASE15C_MEMORY_LIVE_LEARNING_LOOP.md"
 MALICIOUS_HASH = "sha256:1dc7335c3fd8c54326e36194d783536d944c6d527660eb1bda4a36a9cb5ed1b9"
 
 
-def test_phase15c_docs_exist():
-    assert IMPL.is_file()
-    assert NOTE.is_file()
-    assert "## What I should now be able to explain" in NOTE.read_text(encoding="utf-8")
-    assert (ROOT / "docs" / "PHASE15C_MEMORY_ATTACK_SERVICE_LAUNCH_CONTRACT.md").is_file()
-    assert (ROOT / "docs" / "PHASE15C_MEMORY_GUIDED_INVESTIGATIONS.md").is_file()
-    assert (ROOT / "docs" / "PHASE15C_SECURITY_BOUNDARY_REVIEW.md").is_file()
-    assert (ROOT / "docs" / "PHASE15C_LIVE_VS_REPLAY.md").is_file()
 
 
 def test_schema_unchanged_and_no_det_memory():

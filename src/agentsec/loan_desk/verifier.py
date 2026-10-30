@@ -142,7 +142,7 @@ def acquire_single_instance(state: Path):
 def process_searches(d: Path, key: bytes, *, backend=None, now: float | None = None, budget: dict | None = None, tick: Callable[[], None] | None = None) -> list[str]:
     """Answer pending notebook searches. The request is untrusted: template and params are re-validated and the SPL is built here."""
     now = now or time.time()
-    backend = backend or srch.DockerExecBackend()
+    backend = backend or srch.default_backend()   # BUNDLED: docker (unchanged); external Splunk: strict REST
     budget = budget if budget is not None else {"window_start": now, "count": 0}
     if now - budget["window_start"] > 60:
         budget.update(window_start=now, count=0)

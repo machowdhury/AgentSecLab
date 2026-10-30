@@ -10,7 +10,7 @@ The authoritative scope is the original 12-domain curriculum and the 32 labs reg
 | **Launchable** | On the Attack Service allowlist, so a live BASELINE / ATTACK / RETEST can be started through `/api/launch`. Seven labs. | `src/agentsec/launch_catalog.py` (`known_lab_ids()`), `docs/AGENTSEC_RELEASE_LAB_MATRIX.md` |
 | **Replay** | Recorded evidence only. No live run. | registry tier `REPLAY` |
 | **Content only** | Reading and knowledge checks. No execution. | registry tier `CONTENT-ONLY` |
-| **Independently validated** | Documented as measured by a review. See section 4: this is narrower than "registered" or "launchable". | `docs/reviews/`, `docs/releases/` |
+| **Independently validated** | Documented as measured by a review. See section 4: this is narrower than "registered" or "launchable". | an internal record (not published), `docs/releases/` |
 
 The registry tiers map to the Academy labels as: `GUIDED MISSION` = Guided, `WORKBENCH` = Workbench, `REPLAY` = Replay, `CONTENT-ONLY` = Content only. **Registry membership is not verified execution.**
 
@@ -88,7 +88,7 @@ Sources per lab: `learning/level_1/<LAB>/{README,workshop,evidence,dashboard,kno
 
 ## 4. Validation evidence that exists (as documented, not re-run here)
 
-- **Seven launchable labs.** `docs/releases/V1_0_0_RC1_REPRODUCIBILITY.md` records the seven-lab ATTACK and RETEST pairs as MEASURED at RC1. `docs/reviews/AGENTSEC_INDEPENDENT_RC2_VALIDATION.md` (the "Allowlist check") records that the allowlist has 7 labs, each with ATTACK, BASELINE and RETEST, class MEASURED; the same review states it did not re-execute live Splunk. Treat these as historical to their phases.
+- **Seven launchable labs.** `docs/releases/V1_0_0_RC1_REPRODUCIBILITY.md` records the seven-lab ATTACK and RETEST pairs as MEASURED at RC1. an internal record (not published) (the "Allowlist check") records that the allowlist has 7 labs, each with ATTACK, BASELINE and RETEST, class MEASURED; the same review states it did not re-execute live Splunk. Treat these as historical to their phases.
 - **Loan Desk and MCP-001 in the React Academy.** Accepted on the EC2 deployment on 2026-10-23 (attack and defended retest, host-verifier receipts for Loan Desk, MCP launch records). There is no repository report for that acceptance yet.
 - **All other labs.** No validation record was found by this inventory. Absence of a record is not a finding that a lab fails.
 

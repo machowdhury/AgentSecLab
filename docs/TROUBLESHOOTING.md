@@ -2,6 +2,8 @@
 
 Learner-oriented symptoms also live in [AGENTSEC_TROUBLESHOOTING_FOR_LEARNERS.md](AGENTSEC_TROUBLESHOOTING_FOR_LEARNERS.md). This runbook is the operator + learner canonical list for v1.0.
 
+> **Which flow this page covers.** The supported path is the installer and the single HTTPS gateway (`https://localhost/learn`); for it start with `./agentsec status` and the [installation guide](INSTALLATION_AND_DEPLOYMENT.md#11-common-failures-and-exact-recovery). Most sections below were written for the legacy `lab-up.sh` flow ([legacy multi-port flow](LEGACY_MULTI_PORT_FLOW.md)), where ports 5000, 5001 and 8000 are published. In the supported flow those ports are internal: learners do not open them, and the port numbers here are operator diagnostics only.
+
 Rule: an infrastructure failure is not a security conclusion. A Docker or host error is not evidence that an AgentSec control allowed or denied an action.
 
 ## Where to start
@@ -19,7 +21,8 @@ Rule: an infrastructure failure is not a security conclusion. A Docker or host e
 | `x509: certificate signed by unknown authority` | TLS inspection |
 | `open /proc/self/mountinfo: permission denied` | Container runtime cannot start |
 | Remote browser cannot open the server URL | Remote URL not reachable |
-| Workshop table is empty after a launch | Empty investigation table |
+| Investigate notebook says search access is not provisioned | Investigate notebook: search access not provisioned |
+| Workshop table is empty after a launch (legacy flow) | Empty investigation table |
 | Your path forgot a workshop | Browser progress |
 
 Before changing an AgentSec file, run:
@@ -30,20 +33,36 @@ docker run --rm hello-world
 
 If that fails with the same `runc` or `mountinfo` error, the host runtime cannot start containers. The AgentSec Dockerfiles are not the first place to edit.
 
+## Investigate notebook: search access not provisioned
+
+**Symptom:** the Academy's Investigate notebook (or Security Assurance) says Splunk search access is not provisioned, or shows no rows for a run you just launched.
+**Cause:** the installer's least-privilege, search-only Splunk identity is missing, or the Attack Service cannot reach Splunk's management API (`https://splunk:8089`) with strict TLS from its read-only mount. The notebook fails closed: it does not fall back to another method and does not show invented rows.
+**Check:** `./agentsec splunk-access --check`. An empty result right after a launch can also mean the events are not indexed yet.
+**Remediation:** `./agentsec splunk-access` (as the host owner), then press **Run** again. Wait a minute if the check passes but the rows are empty.
+**Do not conclude:** zero rows is not a control DENY and not a failed attack. This path was validated on one real Splunk 10.2.7 host (bundled Splunk, 2026-10-30); it was not validated against an external Splunk, Splunk Cloud or an organization certificate.
+
+## Notebook says "Too many searches" or waits before building a search
+**Symptom:** after running several notebook cells, a Run, a retest launch or a Loan Desk search says to wait a few seconds, or a cell shows "Waiting a few seconds for the search limit".
+**Cause:** the gateway allows an operator 6 state-changing requests a minute (a search start counts, and so does the Loan Desk notebook's preview of its search).
+**Remediation:** wait about 10 seconds and press the button again. The notebook asks again by itself for a throttled preview. Nothing was lost and no result was invented.
+
+## Rotating the search credential, and the old token
+`./agentsec splunk-access --force` creates a new search-only token and the Attack Service uses it at once, without a restart. **It does not revoke the previous token: that token keeps working until its expiry date (180 days).** To revoke it, as the Splunk administrator (tested on Splunk 10.2.7): list the tokens with `GET /services/authorization/tokens?output_mode=json` (the entry name is the token id; the newest `iat` is the one in use), then `DELETE /services/authorization/tokens/agentsec_search?id=<token id>` for each older one, or use Settings, Tokens in Splunk Web. Afterwards `./agentsec splunk-access --check` must still pass.
+
 ## If a lab does not start
 
 | What you see | What it means |
 |--------------|----------------|
 | precheck `FAIL` on disk, Docker, or a port | The host is not ready. This is not a control DENY. |
 | Splunk stays unhealthy | Splunk is still starting, or it failed. Read `docker compose logs splunk`. |
-| `MODEL ABSENT` or AcmeBank `"status": "degraded"` | LIVE generation is degraded. REPLAY pages can still open. This is not a control DENY. |
+| `MODEL ABSENT` or AcmeBank `"status": "degraded"` | LIVE generation is degraded. RECORDED pages can still open. This is not a control DENY. |
 | Attack Service `RUN DENIED` | The lab control denied that run. Read the control fields. |
 | Attack Service `RUN TIMED OUT` or `BACKEND UNAVAILABLE` | The evidence check or the service failed. This is not a control DENY. |
 | `RUN COMPLETED` | The runtime finished. It is not proof the attack succeeded. |
 
 ## Remote URL not reachable
 
-**Symptom:** `lab-up.sh --remote` printed a server URL, and the browser on your laptop cannot open it.
+**Symptom (legacy flow):** `lab-up.sh --remote` printed a server URL, and the browser on your laptop cannot open it.
 **Cause:** the cloud security group or the host firewall is blocking the port, or the printed host is a placeholder. `SERVICE READY` does not measure that path.
 **Check:** on the server, `ss -lnt` shows `0.0.0.0:8000`, `0.0.0.0:5001` and `0.0.0.0:5000`, and `127.0.0.1:8088`. Confirm the security group allows TCP 8000, 5001 and 5000 from your IP only.
 **Remediation:** fix the firewall rule. Do not open 8000, 5001 or 5000 to `0.0.0.0/0`, and never open 8088, 4317, 4318, 8089 or 11434. Do not disable the host firewall. See [REMOTE_ACCESS.md](REMOTE_ACCESS.md).
@@ -102,7 +121,7 @@ If that fails with the same `runc` or `mountinfo` error, the host runtime cannot
 **Symptom:** `lab-ready` prints `MODEL ABSENT`, and `lab-up` prints `DEGRADED`.
 **Cause:** `ollama list` does not show `OLLAMA_MODEL` (default `llama3.2:1b`).
 **Check:** `docker exec agentsec_ollama ollama list` and `curl -sS http://127.0.0.1:5000/health`.
-**Remediation:** after trust is fixed, `docker exec agentsec_ollama ollama pull llama3.2:1b`. Until the name is listed, LIVE generation stays degraded. Open Academy Home for REPLAY work.
+**Remediation:** after trust is fixed, `docker exec agentsec_ollama ollama pull llama3.2:1b`. Until the name is listed, LIVE generation stays degraded. Recorded and simulated workshops still open without the model.
 **Do not conclude:** `DEGRADED` is a pass, or that the Academy is down.
 
 ## AcmeBank degraded
@@ -144,7 +163,9 @@ On macOS, **AirPlay Receiver** can hold port 5000; turn it off in System Setting
 
 ## Splunk Web unavailable
 
-**Symptom:** :8000 not HTTP 200.  
+Splunk Web is an optional Advanced view; the Academy does not need it.
+
+**Symptom:** :8000 (:18000 behind the gateway) not HTTP 200.  
 **Cause:** still booting (10–20 min first time), crashed container, port conflict.  
 **Check:** `docker inspect -f '{{.State.Health.Status}}' agentsec_splunk`.  
 **Remediation:** wait; `./scripts/lab-up.sh`; logs for `splunk`.  
@@ -168,7 +189,7 @@ On macOS, **AirPlay Receiver** can hold port 5000; turn it off in System Setting
 
 ## Attack Service unavailable
 
-**Symptom:** :5001 down.  
+**Symptom:** the internal Attack Service port :5001 is down (behind the gateway, use `./agentsec status`).  
 **Cause:** container stopped; image stale; AcmeBank unhealthy (depends_on).  
 **Check:** `curl http://127.0.0.1:5001/health`.  
 **Remediation:** `./scripts/lab-up.sh --build` if UI/source mismatch; else `lab-up`.  
@@ -176,7 +197,7 @@ On macOS, **AirPlay Receiver** can hold port 5000; turn it off in System Setting
 
 ## AcmeBank unavailable
 
-**Symptom:** :5000 health fail; launches error.  
+**Symptom:** the internal AcmeBank port :5000 health fails; launches error.  
 **Cause:** Ollama still starting; crash.  
 **Check:** `curl http://127.0.0.1:5000/health`; `docker logs agentsec_acmebank`.  
 **Remediation:** wait for ollama healthy; restart acmebank.  
@@ -209,8 +230,8 @@ On macOS, **AirPlay Receiver** can hold port 5000; turn it off in System Setting
 ## Empty Studio table
 
 **Symptom:** Path B / data-driven panel empty.  
-**Cause:** REPLAY id not on this volume; token not your LIVE id; hunt zero-rows.  
-**Check:** LIVE vs REPLAY; Search independently.  
+**Cause:** RECORDED id not on this volume; token not your LIVE id; hunt zero-rows.  
+**Check:** LIVE vs RECORDED; Search independently.  
 **Remediation:** Path A with LIVE id; or another specimen.  
 **Do not conclude:** DENY.
 
@@ -222,7 +243,7 @@ On macOS, **AirPlay Receiver** can hold port 5000; turn it off in System Setting
 **Remediation:** recopy; wait; confirm index.  
 **Do not conclude:** blocked.
 
-## REPLAY run.id absent
+## RECORDED run.id absent
 
 **Symptom:** canonical UUID empty.  
 **Cause:** this volume never ingested that specimen.  
@@ -304,9 +325,9 @@ Authority-like keys are rejected as **ERROR**, not DENY.
 **Cause:** progress is `localStorage` on this Splunk origin. It is not an account.  
 **Remediation:** mark the workshop again. Reset learning progress clears only that list. It does not delete indexed evidence.
 
-## Canonical REPLAY run.id returns zero rows
+## Canonical RECORDED run.id returns zero rows
 
-**Symptom:** a REPLAY workshop shows its lesson, and Splunk Search for the documented run.id returns no events.  
+**Symptom:** a RECORDED workshop shows its lesson, and Splunk Search for the documented run.id returns no events.  
 **Cause:** that run.id is a historical copy. `lab-up`, `--refresh-app`, and a new volume do not create it. The repository does not ship those event bodies, so there is no supported reseed command. Scanner packs under `docs/phase9b-evidence` are a different sourcetype. They are not these run.ids.  
 **Check:** `index=agentsec_telemetry earliest=0 "agentsec.run.id"="<the documented id>"`.  
 **Do not conclude:** DENY, a broken workshop, or that deleting the Splunk volume will restore the copy.  

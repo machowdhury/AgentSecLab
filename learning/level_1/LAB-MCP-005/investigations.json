@@ -1,0 +1,122 @@
+{
+ "schema": "agentsec.guided_investigation.v1",
+ "lab_id": "LAB-MCP-005",
+ "not_authorization": true,
+ "note": "Learning metadata only. These objects do not authorize, deny, or detect. Splunk does not enforce CTRL-MCP-001.",
+ "default_difficulty": "BEGINNER",
+ "path_a": "TRY IT YOURSELF — construct the search in Splunk Search. Studio tokens are not the fresh LIVE run.id.",
+ "path_b": "SHOW SOLUTION — copyable SPL from an existing Q-MCP hunt, bound table on canonical REPLAY, explanation, limitations.",
+ "studio_token_binding": "NOT SUPPORTED / DO NOT BUILD",
+ "investigations": [
+  {
+   "investigation_id": "MCP-005-I1",
+   "title": "Find the run",
+   "security_question": "Can you reconstruct the events that belong to this experiment?",
+   "learning_objective": "Use run.id as the forensic correlation key. One UUID, one experiment copy.",
+   "difficulty": "BEGINNER",
+   "prerequisites": [
+    "a run.id from the Academy launch card"
+   ],
+   "starter_guidance": "Index agentsec_telemetry, sourcetype otel:agentic:json, the quoted field agentsec.run.id. Do not search index=*.",
+   "hint_1": "Start from the starter search the launch card gives you, then name the principal, agent and tool.",
+   "hint_2": "Q-MCP-WHO is the governed hunt for principal, agent and tool. Count physical events with stats dc(_raw) as n.",
+   "solution_spl_id": "Q-MCP-WHO",
+   "expected_result_shape": "One identity row per run.",
+   "result_explanation": "You are looking at the indexed copy of one MCP invoke. run.id is the experiment key.",
+   "security_interpretation": "Correlation starts with run.id.",
+   "does_not_prove": "A matching row does not say the request was authorized.",
+   "related_control": "CTRL-MCP-001",
+   "related_invariant": "INV-001",
+   "related_hunt": "Q-MCP-WHO",
+   "next_investigation": "MCP-005-I2"
+  },
+  {
+   "investigation_id": "MCP-005-I2",
+   "title": "What was decided",
+   "security_question": "Did data returned by the first tool create authority for the second call?",
+   "learning_objective": "Read the authorization decision for the result question and the reason it recorded.",
+   "difficulty": "BEGINNER",
+   "prerequisites": [
+    "MCP-005-I1"
+   ],
+   "starter_guidance": "Find the result classification event and the follow-on authorization decision on the same run.id.",
+   "hint_1": "Q-MCP-AUTHZ shows control.decision and control.reason per run.",
+   "hint_2": "BASELINE should be ALLOW tool_granted. RETEST should be DENY tool_not_granted. ATTACK is the labelled fail-open ALLOW.",
+   "solution_spl_id": "Q-MCP-AUTHZ",
+   "expected_result_shape": "BASELINE ALLOW tool_granted; ATTACK ALLOW with a vulnerable_profile_fail_open reason; RETEST DENY tool_not_granted.",
+   "result_explanation": "A decision is recorded before any handler starts.",
+   "security_interpretation": "The decision is the control's output; the handler count says whether anything ran.",
+   "does_not_prove": "An ALLOW is not an execution and a DENY is not automatically SAFE.",
+   "related_control": "CTRL-MCP-001",
+   "related_invariant": "INV-001",
+   "related_hunt": "Q-MCP-AUTHZ",
+   "next_investigation": "MCP-005-I3"
+  },
+  {
+   "investigation_id": "MCP-005-I3",
+   "title": "The result hunt",
+   "security_question": "Did data returned by the first tool create authority for the second call?",
+   "learning_objective": "Run the lab's own hunt Q-MCP-RESULT-AUTHORITY and read what it adds to the generic decision.",
+   "difficulty": "INTERMEDIATE",
+   "prerequisites": [
+    "MCP-005-I2"
+   ],
+   "starter_guidance": "Open Q-MCP-RESULT-AUTHORITY from the hunt list on the launch card and compare the three run ids.",
+   "hint_1": "The hunt is bound to a run.id; paste the run id from the card.",
+   "hint_2": "Compare ATTACK and RETEST: the request is the same, the server-owned profile differs.",
+   "solution_spl_id": "Q-MCP-RESULT-AUTHORITY",
+   "expected_result_shape": "One row per run with the field the lab is about.",
+   "result_explanation": "The hunt isolates the lab's question from the generic tool decision.",
+   "security_interpretation": "Same request plus a different server-owned setting gives a different decision.",
+   "does_not_prove": "One retest is not universal resistance.",
+   "related_control": "CTRL-MCP-001",
+   "related_invariant": "INV-001",
+   "related_hunt": "Q-MCP-RESULT-AUTHORITY",
+   "next_investigation": "MCP-005-I4"
+  },
+  {
+   "investigation_id": "MCP-005-I4",
+   "title": "Did the handler start?",
+   "security_question": "Is there execution evidence after the authorization decision?",
+   "learning_objective": "ALLOW != EXECUTION. mcp.started with executed=true means the handler began.",
+   "difficulty": "BEGINNER",
+   "prerequisites": [
+    "MCP-005-I2"
+   ],
+   "starter_guidance": "Search mcp.started and mcp.completed on the run.id.",
+   "hint_1": "Q-MCP-EXECUTED joins the decision and the mcp events into an execution state.",
+   "hint_2": "Defended RETEST: no mcp.started for the denied call. Zero Splunk rows corroborate the local handler count; they do not prove prevention alone.",
+   "solution_spl_id": "Q-MCP-EXECUTED",
+   "expected_result_shape": "ATTACK shows the handler started; RETEST shows no mcp.started for the denied call.",
+   "result_explanation": "mcp.started is the start of the handler; the runtime handler count is authoritative.",
+   "security_interpretation": "Prevention is DENY before invoke plus handler count 0.",
+   "does_not_prove": "Missing mcp.started is not proof of prevention if the export was incomplete.",
+   "related_control": "CTRL-MCP-001",
+   "related_invariant": "INV-001",
+   "related_hunt": "Q-MCP-EXECUTED",
+   "next_investigation": "MCP-005-I5"
+  },
+  {
+   "investigation_id": "MCP-005-I5",
+   "title": "What can you prove?",
+   "security_question": "Which statements does the evidence support and which does it not?",
+   "learning_objective": "State what the three runs show and what they cannot show.",
+   "difficulty": "INTERMEDIATE",
+   "prerequisites": [
+    "MCP-005-I4"
+   ],
+   "starter_guidance": "Write one sentence for each of: what ran, what was decided, what Splunk can and cannot say.",
+   "hint_1": "Use the three hunts above. Do not generalise beyond this lab's profiles.",
+   "hint_2": "The labelled vulnerable profile is fail-open on purpose.",
+   "solution_spl_id": "Q-MCP-AFTER-DENY",
+   "expected_result_shape": "No mcp.started after a DENY on the RETEST run.",
+   "result_explanation": "A DENY followed by a start would be a control failure; none is expected here.",
+   "security_interpretation": "The result is about this lab profile only.",
+   "does_not_prove": "Not proof that production MCP authorization is safe.",
+   "related_control": "CTRL-MCP-001",
+   "related_invariant": "INV-001",
+   "related_hunt": "Q-MCP-AFTER-DENY",
+   "next_investigation": ""
+  }
+ ]
+}

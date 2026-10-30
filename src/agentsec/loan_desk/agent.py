@@ -115,14 +115,16 @@ def run_agent(*, app_id: str, record: dict, model: ChatModel, store: Application
         if time.monotonic() - started > DEADLINE_S:
             out.stop_reason = "timeout"
             return out
-        span = emitter.llm_started(step)
-        reply = model.chat(messages)
+        preflight = getattr(model, "preflight", None)
+        refusal = preflight() if callable(preflight) else None     # a model that is not the requested one is refused before anything is sent: attempted, not executed
+        span = emitter.llm_started(step, executed=refusal is None, refusal=getattr(refusal, "error_type", None))
+        reply = refusal if refusal is not None else model.chat(messages)
         if not reply.ok:
-            emitter.llm_failed(step, span, error_type=reply.error_type, message=reply.error_message or "")
+            emitter.llm_failed(step, span, error_type=reply.error_type, message=reply.error_message or "", executed=refusal is None)
             out.stop_reason, out.error = "model_unavailable", f"{reply.error_type}: {reply.error_message}"
             return out
         emitter.llm_completed(step, span, duration_ms=reply.latency_ms, tokens_in=reply.tokens_in,
-                              tokens_out=reply.tokens_out, response_model=reply.model)
+                              tokens_out=reply.tokens_out, response_model=reply.model, executed=getattr(reply, "executed", None))
         kind, data = parse_reply(reply.text)
         if kind == "final" and REQUIRED_BEFORE_FINAL - read_ok:
             kind, data = None, "final_before_evidence:" + ",".join(sorted(REQUIRED_BEFORE_FINAL - read_ok))

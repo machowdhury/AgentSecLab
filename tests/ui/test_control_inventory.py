@@ -28,6 +28,9 @@ def _chromium() -> str | None:
         return None
 
 
+_REACT = ["/learn"]
+
+
 @pytest.fixture(scope="module")
 def rows():
     chromium = _chromium()
@@ -57,8 +60,17 @@ def test_every_visible_control_has_an_accessible_name(rows):
     assert not [(r["page"], r["tag"], r["id"], r["href"]) for r in data if r["visible"] and r["unnamed"]]
 
 
-def test_the_shared_shell_is_on_every_page(rows):
+def test_the_shared_shell_is_on_every_classic_page(rows):
     data, pages = rows
-    for page in pages:
+    for page in [p for p in pages if p not in _REACT]:
         names = {r["name"] for r in data if r["page"] == page}
         assert {"Academy", "Attack Service"} <= names, page
+
+
+def test_the_react_academy_is_crawled_and_has_named_links_and_no_dead_ones(rows):
+    data, pages = rows
+    for page in _REACT:
+        assert page in pages
+        links = [r for r in data if r["page"] == page and r["tag"] == "a"]
+        assert any(r["name"] == "System Status" and r["href"] == "/academy/status" for r in links), page
+        assert not [r["name"] for r in links if r["class"] == "BROKEN_LINK" or not r["name"]], page

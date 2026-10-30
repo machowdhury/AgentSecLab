@@ -1,8 +1,8 @@
 # Operations: start, stop, reset, diagnostics
 
-Learners start in the React Academy at http://127.0.0.1:5001/learn once the lab is READY (Splunk Web on port 8000 is for investigation; the Splunk Academy Home is the legacy path).
+Learners start in the React Academy at `https://localhost/learn` once the lab is READY. Ports 5000, 5001 and 8000 are internal; learners never open them, and Splunk Web is an optional Advanced view on the host's loopback. The supported lifecycle is `./agentsec status`, `./agentsec down` (keeps data) and `./agentsec up`, plus `./agentsec splunk-access --check` for the notebook's search-only Splunk identity: see the [installation guide](INSTALLATION_AND_DEPLOYMENT.md). The commands below are the legacy `lab-up.sh` flow ([legacy multi-port flow](LEGACY_MULTI_PORT_FLOW.md)), not the supported path.
 
-Canonical start: `./scripts/lab-up.sh` from the repository root (`.env` required). There is no separate clean-room script. A fresh volume start is the destructive Compose command below, used only when you mean to delete lab data.
+Legacy start (the Academy is then at the direct address http://127.0.0.1:5001/learn): `./scripts/lab-up.sh` from the repository root (`.env` required). There is no separate clean-room script. A fresh volume start is the destructive Compose command below, used only when you mean to delete lab data.
 
 ## Learner commands
 
@@ -61,9 +61,11 @@ Splunk app XML in the named volume is **not** deleted. Images are **not** delete
 
 FULL RESET is destructive. It is never the default. It does **not** delete git history or `docs/` official run.ids.
 
-Host `artifacts/` and `docs/screenshots/` are **not** removed by `lab-down.sh`.
+Host `artifacts/` and an internal record (not published) are **not** removed by `lab-down.sh`.
 
 ## Diagnostics
+
+Legacy flow, internal endpoints for operators only (not learner URLs):
 
 ```bash
 ./scripts/lab-preflight.sh

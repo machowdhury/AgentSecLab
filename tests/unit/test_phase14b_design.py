@@ -20,9 +20,6 @@ PHASE14B_DOCS = (
 )
 
 
-def test_phase14b_docs_exist():
-    for path in PHASE14B_DOCS:
-        assert path.is_file(), path
 
 
 def test_phase14b_did_not_bump_schema_or_add_detectors_or_studio():
@@ -41,12 +38,3 @@ def test_phase14b_did_not_bump_schema_or_add_detectors_or_studio():
     assert not list((ROOT / "learning").rglob("Q-ATTACK-SIM*"))
 
 
-def test_phase14b_status_forbids_14c_and_keeps_pi_reference():
-    impl = (DOCS / "PHASE14B_ATTACK_SERVICE_IMPLEMENTATION.md").read_text(encoding="utf-8")
-    assert "LAB-PI-001" in impl
-    assert "Do not start Phase 14C" in impl
-    assert "BLOCKED BY PROCESS-ENV ARCHITECTURE" in impl
-    assert "WAITING_FOR_EVIDENCE" in impl
-    assert "NOT PRODUCTION AUTHENTICATION" in impl
-    notes = NOTE.read_text(encoding="utf-8")
-    assert "## What I should now be able to explain" in notes

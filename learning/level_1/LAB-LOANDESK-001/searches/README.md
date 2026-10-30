@@ -1,6 +1,6 @@
 # LAB-LOANDESK-001 searches
 
-Each search takes one run.id (`__RUN_ID__`). Fields are wrapped in `mvindex(mvdedup(...),0)` because `otel:agentic:json` stores every body field more than once (see `docs/reviews/batch4/SEQUENCE_DUPLICATION.md`). The searches work unchanged if that duplication is later removed.
+Each search takes one run.id (`__RUN_ID__`). Fields are wrapped in `mvindex(mvdedup(...),0)` because `otel:agentic:json` stores every body field more than once (see an internal record (not published)). The searches work unchanged if that duplication is later removed.
 
 - Q-LOANDESK-PROPOSED: what the model proposed (real inference, or a labelled test double).
 - Q-LOANDESK-DECISIONS: what CTRL-LOANDESK-001 decided and why.

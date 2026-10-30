@@ -35,12 +35,33 @@ def _browser_origin(host_header: str, scheme: str, port: int) -> str:
     return f"{scheme if scheme in ('http', 'https') else 'http'}://{hostname}:{port}"
 
 
-def build_config(host_header: str, scheme: str, version: str) -> dict:
+def gateway_mode() -> bool:
+    """True when the opt-in HTTPS gateway fronts this service (docker-compose.gateway.yml sets AGENTSEC_GATEWAY_MODE=1)."""
+    return os.environ.get("AGENTSEC_GATEWAY_MODE") == "1"
+
+
+def ctf_url(host_header: str, gateway: bool) -> str | None:
+    """Where the Advanced CTF page is, or None when it is not reachable from this browser. Behind the gateway only when the CTF overlay is on;
+    direct only on a loopback host name (the CTF refuses everything else)."""
+    if gateway:
+        return "/attack-service/ctf" if os.environ.get("AGENTSEC_CTF_ALLOW_GATEWAY") == "1" else None
+    raw = (host_header or "").split(",")[0].strip().lower()
+    name = raw[1: raw.index("]")] if raw.startswith("[") and "]" in raw else raw.rsplit(":", 1)[0] if raw.count(":") == 1 else raw
+    return "/ctf" if name in {"localhost", "127.0.0.1", "::1"} else None
+
+
+def build_config(host_header: str, scheme: str, version: str, *, gateway: bool = False) -> dict:
+    """Behind the gateway, Splunk Web is not published (null: the UI links to nothing); the classic pages are reached under /attack-service/."""
     return {
         "version": version,
+        "gateway": gateway,
         "urls": {
-            "splunk_web": _browser_origin(host_header, scheme, SPLUNK_WEB_PORT),
-            "acmebank": _browser_origin(host_header, scheme, ACMEBANK_PUBLIC_PORT),
+            "splunk_web": None if gateway else _browser_origin(host_header, scheme, SPLUNK_WEB_PORT),
+            # Gateway: same-origin paths of the approved classic-UI prefix (gateway_prefix.PREFIX). acmebank is the READ-ONLY view the Attack
+            # Service renders; the real AcmeBank app is never routed. Direct mode: attack_service is not needed (the classic pages are at the root).
+            "acmebank": "/attack-service/acmebank" if gateway else _browser_origin(host_header, scheme, ACMEBANK_PUBLIC_PORT),
+            **({"attack_service": "/attack-service/"} if gateway else {}),
+            **({"ctf": u} if (u := ctf_url(host_header, gateway)) else {}),      # additive: absent when the CTF cannot answer this browser
         },
         "mission": {
             "id": "loan-desk",
@@ -68,4 +89,4 @@ def register_learn(app: Flask, *, version: str) -> None:
 
     @app.get("/api/learn/config")
     def learn_config():
-        return _no_store(jsonify(build_config(request.host, request.scheme, version)))
+        return _no_store(jsonify(build_config(request.host, request.scheme, version, gateway=gateway_mode())))

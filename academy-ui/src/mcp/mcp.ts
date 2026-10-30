@@ -3,7 +3,7 @@ import type { Step } from "../mission/RunProgress";
 
 // Types and derivations for the MCP Tool Authorization exercise, from the EXISTING launch and evidence endpoints. Nothing is invented:
 // a step that the record does not support is shown as "pending" or "warn" with the reason, never filled in.
-export const LAB = "LAB-MCP-001", SPECIMEN = "MCP-002";
+export const LAB = "LAB-MCP-001", SPECIMEN = "MCP-002", BASELINE_SPECIMEN = "MCP-001"; // the allowlist pairs BASELINE with MCP-001 (a granted request) and ATTACK/RETEST with MCP-002
 
 export interface McpHop {
   agent_name: string; "tool.name": string; "control.decision": string; "control.reason": string;
@@ -21,8 +21,8 @@ export interface McpManifest { title: string; security_question: string; control
 
 export async function loadManifest(): Promise<McpManifest | null> { const r = await api<McpManifest>(`/api/labs/${LAB}`); return r.ok ? r.data : null; }
 export async function loadRecord(id: string): Promise<McpRecord | null> { const r = await api<McpRecord>(`/api/launches/${encodeURIComponent(id)}`); return r.ok ? r.data : null; }
-export async function launchMcp(mode: "ATTACK" | "RETEST"): Promise<{ record?: McpRecord; error?: string }> {
-  const r = await post<McpRecord>("/api/launch", { lab_id: LAB, specimen_id: SPECIMEN, mode, execution: "live" });
+export async function launchMcp(mode: "BASELINE" | "ATTACK" | "RETEST"): Promise<{ record?: McpRecord; error?: string }> {
+  const r = await post<McpRecord>("/api/launch", { lab_id: LAB, specimen_id: mode === "BASELINE" ? BASELINE_SPECIMEN : SPECIMEN, mode, execution: "live" });
   return r.ok && r.data.run_id ? { record: r.data } : { error: problemText(r) };
 }
 export async function checkEvidence(id: string): Promise<McpEvidence | null> {

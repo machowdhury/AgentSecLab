@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dashboard version="2" theme="light">
+  <label>AI Security Assurance: AI supply chain and model security</label>
+  <description>Scanner findings, the declared component inventory, model identity and model evaluation evidence. A scanner severity is not proof of exploitation, and a missing component record is shown as missing.</description>
+  <definition><![CDATA[
+{
+  "title": "AI Security Assurance: AI supply chain and model security",
+  "description": "Scanner findings, the declared component inventory, model identity and model evaluation evidence. A scanner severity is not proof of exploitation, and a missing component record is shown as missing.",
+  "defaults": {
+    "dataSources": {
+      "ds.search": {
+        "options": {
+          "queryParameters": {
+            "earliest": "$tr.earliest$",
+            "latest": "$tr.latest$"
+          }
+        }
+      }
+    },
+    "visualizations": {
+      "splunk.table": {
+        "options": {
+          "backgroundColor": "#FFFFFF",
+          "headerBackgroundColor": "#0B1F33",
+          "headerTextColor": "#FFFFFF"
+        }
+      },
+      "splunk.markdown": {
+        "options": {
+          "fontColor": "#17202A",
+          "fontSize": "default"
+        }
+      }
+    }
+  },
+  "inputs": {
+    "input_tr": {
+      "type": "input.timerange",
+      "title": "Time range",
+      "options": {
+        "token": "tr",
+        "defaultValue": "0,now"
+      }
+    },
+    "input_ec": {
+      "type": "input.dropdown",
+      "title": "Evidence class",
+      "options": {
+        "token": "ec",
+        "defaultValue": "*",
+        "items": [
+          {
+            "label": "LIVE and RECORDED (default; test fixtures are excluded)",
+            "value": "*"
+          },
+          {
+            "label": "LIVE (run on this installation)",
+            "value": "LIVE"
+          },
+          {
+            "label": "RECORDED (committed replay specimens)",
+            "value": "RECORDED"
+          },
+          {
+            "label": "TEST_FIXTURE only (synthetic negative-test data)",
+            "value": "TEST_FIXTURE"
+          },
+          {
+            "label": "Everything including fixtures",
+            "value": "ALL"
+          }
+        ]
+      }
+    },
+    "input_ws": {
+      "type": "input.dropdown",
+      "title": "Workshop",
+      "options": {
+        "token": "ws",
+        "defaultValue": "*",
+        "items": [
+          {
+            "label": "All workshops",
+            "value": "*"
+          },
+          {
+            "label": "LAB-ADVANCED-CAPSTONE-MASTERY-001",
+            "value": "LAB-ADVANCED-CAPSTONE-MASTERY-001"
+          },
+          {
+            "label": "LAB-AGENT-DELEGATION-001",
+            "value": "LAB-AGENT-DELEGATION-001"
+          },
+          {
+            "label": "LAB-AGENT-GOAL-INTEGRITY-001",
+            "value": "LAB-AGENT-GOAL-INTEGRITY-001"
+          },
+          {
+            "label": "LAB-MCP-001",
+            "value": "LAB-MCP-001"
+          },
+          {
+            "label": "LAB-MCP-003",
+            "value": "LAB-MCP-003"
+          },
+          {
+            "label": "LAB-MCP-004",
+            "value": "LAB-MCP-004"
+          },
+          {
+            "label": "LAB-MCP-005",
+            "value": "LAB-MCP-005"
+          },
+          {
+            "label": "LAB-MCP-006",
+            "value": "LAB-MCP-006"
+          },
+          {
+            "label": "LAB-MCP-CATALOG",
+            "value": "LAB-MCP-CATALOG"
+          },
+          {
+            "label": "LAB-MEMORY-001",
+            "value": "LAB-MEMORY-001"
+          },
+          {
+            "label": "LAB-PI-001",
+            "value": "LAB-PI-001"
+          },
+          {
+            "label": "LAB-RAG-CONTEXT",
+            "value": "LAB-RAG-CONTEXT"
+          },
+          {
+            "label": "LAB-SCANNER-RUNTIME-EVIDENCE",
+            "value": "LAB-SCANNER-RUNTIME-EVIDENCE"
+          }
+        ]
+      }
+    }
+  },
+  "dataSources": {
+    "ds_c_scan": {
+      "type": "ds.search",
+      "name": "c_scan",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=agentsec:scanner:finding \"event.name\"=agentsec.scanner.finding\n| eval scan_id=mvindex(mvdedup(scan_id),0), artifact_type=mvindex(mvdedup('artifact.type'),0), tool=mvindex(mvdedup('finding.tool_name'),0), category=mvindex(mvdedup('finding.native_category'),0), severity=mvindex(mvdedup('finding.native_severity'),0), rule=mvindex(mvdedup('finding.native_rule_id'),0), title=mvindex(mvdedup('finding.title'),0), summary=mvindex(mvdedup('finding.summary'),0), scanner=mvindex(mvdedup('scanner.name'),0), scanner_version=mvindex(mvdedup('scanner.version'),0), raw_sha=mvindex(mvdedup('provenance.raw_output_sha256'),0)\n| eval status=\"Finding observed\", confidence=\"Inferred\", note=\"Scanner rating only: not confirmed exploitation, not control effectiveness.\"\n| table _time status confidence scanner scanner_version artifact_type tool category severity rule title summary raw_sha scan_id note",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_c_artifacts": {
+      "type": "ds.search",
+      "name": "c_artifacts",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=agentsec:scanner:finding \"event.name\"=agentsec.scanner.scan\n| eval scan_id=mvindex(mvdedup(scan_id),0), artifact_type=mvindex(mvdedup('artifact.type'),0), fixture=mvindex(mvdedup('artifact.fixture'),0), tool_count=mvindex(mvdedup('artifact.tool_count'),0), classification=mvindex(mvdedup('scan.classification'),0), finding_count=mvindex(mvdedup('scan.finding_count'),0), scanner=mvindex(mvdedup('scanner.name'),0), static_scan=mvindex(mvdedup('execution.static_scan'),0), target_executed=mvindex(mvdedup('execution.target_executed'),0), llm_used=mvindex(mvdedup('execution.llm_used'),0)\n| table _time scan_id scanner artifact_type fixture tool_count classification finding_count static_scan target_executed llm_used",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_c_declared": {
+      "type": "ds.search",
+      "name": "c_declared",
+      "options": {
+        "query": "| inputlookup agentsec_declared_components\n| eval basis=\"DECLARED (lock file), not observed on a host\", evidence=if(pinned_by_digest=\"yes\",\"digest pinned\",\"MISSING OR INCOMPLETE: \"+pinned_by_digest)\n| table component_type component reference digest pinned_by_digest lock_status used_by evidence declared_in basis"
+      }
+    },
+    "ds_c_models": {
+      "type": "ds.search",
+      "name": "c_models",
+      "options": {
+        "query": "`agentsec_assurance_units` | eval workshops=coalesce(workshops,\"\") | where (((\"$ec$\"=\"*\") AND evidence_class!=\"TEST_FIXTURE\") OR (\"$ec$\"=\"ALL\") OR evidence_class=\"$ec$\") AND ((\"$ws$\"=\"*\") OR like(workshops,\"%$ws$%\"))\n| where ev=\"agentsec.llm.started\" OR ev=\"agentsec.llm.completed\"\n| eval requested=mvindex(mvdedup('gen_ai.request.model'),0), responded=mvindex(mvdedup('gen_ai.response.model'),0), provider=mvindex(mvdedup('gen_ai.provider.name'),0)\n| fillnull value=\"(not recorded)\" requested responded provider\n| stats dc(run_id) as runs, count as model_events, values(mode) as modes, values(evidence_class) as evidence_classes by provider, requested, responded\n| eval identity_check=case(requested=\"(not recorded)\",\"no requested model recorded (incomplete)\", responded=\"(not recorded)\",\"response model not recorded (cannot confirm)\", requested=responded,\"requested model matches the model that answered\", true(),\"MISMATCH: requested and responding model differ\")\n| table provider requested responded identity_check runs model_events modes evidence_classes",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_c_eval": {
+      "type": "ds.search",
+      "name": "c_eval",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=agentsec:external:evaluation\n| eval model=mvindex(mvdedup('external.subject.id'),0), tool=mvindex(mvdedup('external.tool'),0), tool_version=mvindex(mvdedup('external.tool_version'),0), probe=mvindex(mvdedup('evaluation.probe'),0), detector=mvindex(mvdedup('evaluation.detector'),0), passed=tonumber(mvindex(mvdedup('evaluation.passed'),0)), fails=tonumber(mvindex(mvdedup('evaluation.fails'),0)), total=tonumber(mvindex(mvdedup('evaluation.total_evaluated'),0)), evidence_class=mvindex(mvdedup('external.evidence_class'),0), raw_sha=mvindex(mvdedup('external.raw_evidence_sha256'),0)\n| eval status=\"Finding observed\", note=\"An evaluation result for one model, probe and detector; not a general model-security rating and not control effectiveness.\"\n| table _time status model tool tool_version probe detector passed fails total evidence_class raw_sha note",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_c_nemotron": {
+      "type": "ds.search",
+      "name": "c_nemotron",
+      "options": {
+        "query": "index=agentsec_telemetry sourcetype=agentsec:external:evaluation\n| eval model=mvindex(mvdedup('external.subject.id'),0)\n| stats count as evaluations, dc(model) as models, values(model) as models_seen, count(eval(like(lower(model),\"%nemotron%\"))) as nemotron_evaluations\n| eval status=if(nemotron_evaluations=0,\"Not tested\",\"Finding observed\"), message=if(nemotron_evaluations=0,\"Not tested: the index holds no Nemotron evaluation evidence (models evaluated: \".coalesce(mvjoin(models_seen,\", \"),\"none\").\"). No Nemotron versus baseline comparison is shown, and none is implied.\",\"Nemotron evidence exists: compare it with the baseline model in the evaluation table above, probe by probe. A pass rate on one probe is not a general ranking.\")\n| table status message",
+        "queryParameters": {
+          "earliest": "$tr.earliest$",
+          "latest": "$tr.latest$"
+        }
+      }
+    },
+    "ds_c_frameworks": {
+      "type": "ds.search",
+      "name": "c_frameworks",
+      "options": {
+        "query": "| inputlookup agentsec_framework_items\n| search item_id IN (\"LLM03:2025\",\"ASI04\",\"AML.T0010\",\"AML.T0010.001\",\"AML.M0023\",\"AML.M0035\",\"MAP 4.1\",\"GOVERN 6.1\",\"MG-3.1-002\",\"GV-6.1-007\",\"A.10.3\")\n| eval claim=\"Educational link only; no compliance claim\"\n| table framework item_id item_name verification version_or_date retrieved_on limits claim"
+      }
+    }
+  },
+  "visualizations": {
+    "viz_head": {
+      "type": "splunk.markdown",
+      "options": {
+        "markdown": "# Supply chain and model evidence\n\n**Declared** means read from a file in the repository (`deploy/*.lock.json`); it describes what the installer pins, not what a running host proves. **Observed** means a field in telemetry. The lab produces **no AI BOM document** (for example CycloneDX); the declared inventory below is not one. **Nemotron has not been evaluated** by this lab; no comparison is shown unless matching evidence is in the index. A lab test is evidence of how a control behaved in the tested environment. It is not proof of organization-wide compliance, certification or regulatory conformance.",
+        "fontSize": "default"
+      }
+    },
+    "viz_scan": {
+      "type": "splunk.table",
+      "title": "Agent skill and tool scanner findings (artifact types seen below; if no agent-skill artifact appears, no agent skill was scanned)",
+      "dataSources": {
+        "primary": "ds_c_scan"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_artifacts": {
+      "type": "splunk.table",
+      "title": "Scans performed (what was scanned and how: static, target not executed, no language model)",
+      "dataSources": {
+        "primary": "ds_c_artifacts"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_declared": {
+      "type": "splunk.table",
+      "title": "Declared component inventory: images and models (the nearest the lab has to an AI BOM; it is not one)",
+      "dataSources": {
+        "primary": "ds_c_declared"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_models": {
+      "type": "splunk.table",
+      "title": "Observed model identity in runtime telemetry (version/digest of the installed model is recorded by the Loan Desk run record and by Ollama, not by these events)",
+      "dataSources": {
+        "primary": "ds_c_models"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_eval": {
+      "type": "splunk.table",
+      "title": "Model security evaluation evidence (external adversarial evaluations ingested into this index)",
+      "dataSources": {
+        "primary": "ds_c_eval"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_nemotron": {
+      "type": "splunk.table",
+      "title": "Nemotron versus baseline model security tests",
+      "dataSources": {
+        "primary": "ds_c_nemotron"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    },
+    "viz_frameworks": {
+      "type": "splunk.table",
+      "title": "Relevant supply-chain guidance (identifiers verified on the retrieval date shown)",
+      "dataSources": {
+        "primary": "ds_c_frameworks"
+      },
+      "options": {
+        "count": 12,
+        "wrap": true,
+        "rowNumbers": false,
+        "dataOverlayMode": "none",
+        "tableFormat": {
+          "headerBackgroundColor": "#0B1F33",
+          "headerColor": "#FFFFFF",
+          "rowBackgroundColors": [
+            "#FFFFFF",
+            "#F6F8FB"
+          ]
+        }
+      }
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "globalInputs": [
+      "input_tr",
+      "input_ec",
+      "input_ws"
+    ],
+    "options": {
+      "backgroundColor": "#F6F8FB",
+      "display": "auto-scale",
+      "gutterSize": 8,
+      "width": 1440,
+      "height": 1610
+    },
+    "structure": [
+      {
+        "item": "viz_head",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "w": 1440,
+          "h": 190
+        }
+      },
+      {
+        "item": "viz_scan",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 190,
+          "w": 1440,
+          "h": 340
+        }
+      },
+      {
+        "item": "viz_artifacts",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 530,
+          "w": 720,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_declared",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 530,
+          "w": 720,
+          "h": 300
+        }
+      },
+      {
+        "item": "viz_models",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 830,
+          "w": 720,
+          "h": 260
+        }
+      },
+      {
+        "item": "viz_eval",
+        "type": "block",
+        "position": {
+          "x": 720,
+          "y": 830,
+          "w": 720,
+          "h": 260
+        }
+      },
+      {
+        "item": "viz_nemotron",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1090,
+          "w": 1440,
+          "h": 160
+        }
+      },
+      {
+        "item": "viz_frameworks",
+        "type": "block",
+        "position": {
+          "x": 0,
+          "y": 1250,
+          "w": 1440,
+          "h": 320
+        }
+      }
+    ]
+  },
+  "applicationProperties": {
+    "collapsed": false
+  }
+}
+]]></definition>
+</dashboard>

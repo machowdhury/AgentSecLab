@@ -3,7 +3,7 @@ import { Badge } from "../ui";
 import { Link } from "../router";
 import type { EvidenceClass, Mapping, Observation, Source, Status } from "./types";
 
-const classTone = { LIVE: "live", RECORDED: "replay", SIMULATED: "warning", DOCUMENTED: "muted" } as const;
+const classTone = { LIVE: "live", RECORDED: "replay", SIMULATED: "simulated", DOCUMENTED: "muted" } as const;
 const classMeaning: Record<EvidenceClass, string> = {
   LIVE: "Produced by a run made for this purpose, observed as it happened.",
   RECORDED: "Read from a committed record of an earlier run. Nothing is re-run.",
@@ -12,7 +12,7 @@ const classMeaning: Record<EvidenceClass, string> = {
 };
 export { classMeaning };
 export const EvidenceBadge = ({ cls }: { cls: EvidenceClass }) => <Badge tone={classTone[cls]}>{cls}</Badge>;
-export const VerificationBadge = ({ status }: { status: "NOT_VERIFIED" | "VERIFIED" }) => <Badge tone={status === "VERIFIED" ? "allow" : "warning"}>{status}</Badge>;
+export const VerificationBadge = ({ status }: { status: "NOT_VERIFIED" | "VERIFIED" }) => <Badge tone={status === "VERIFIED" ? "allow" : "unverified"}>{status}</Badge>;
 const statusTone: Record<Status, "allow" | "observed" | "deny" | "muted"> = { SUPPORTED: "allow", PARTLY_SUPPORTED: "observed", NOT_SUPPORTED: "deny", NOT_ASSESSED: "muted" };
 export const StatusBadge = ({ status }: { status: Status }) => <Badge tone={statusTone[status]}>{status.replace("_", " ")}</Badge>;
 

@@ -27,6 +27,8 @@ DOMAIN_NAMES = {"D01": "AI & Agent Foundations", "D02": "Prompt Injection", "D03
                 "D06": "Memory & State", "D07": "Identity & Secrets", "D08": "Data Protection", "D09": "Runtime Governance", "D10": "Agent Observability",
                 "D11": "Detection & Response", "D12": "Risk & Assurance"}
 AVAIL = {"GUIDED MISSION": "guided", "WORKBENCH": "workbench", "REPLAY": "replay", "CONTENT-ONLY": "content_only"}
+# Evidence mode per workshop, from the catalog table (docs/WORKSHOP_CATALOG.md): LIVE, RECORDED or SIMULATED.
+MODE = {m.group(1): m.group(2) for m in re.finditer(r"\(`(LAB-[A-Z0-9-]+)`\) \| L\d+ \| (LIVE|RECORDED|SIMULATED)", (ROOT / "docs" / "WORKSHOP_CATALOG.md").read_text(encoding="utf-8"))}
 NATIVE = {"LAB-LOANDESK-001": "/learn/loan-desk", "LAB-MCP-001": "/learn/mcp"}
 
 
@@ -501,6 +503,9 @@ def view_label(name: str) -> tuple[str | None, str | None]:
     return root.findtext("label"), root.findtext("description")
 
 
+GUIDES = json.loads((LEARN / "academy" / "workshop_guides.json").read_text(encoding="utf-8"))["guides"]
+
+
 def build() -> dict:
     registry = {e["lab_id"]: e for e in json.loads((LEARN / "academy" / "lab_registry_data.json").read_text(encoding="utf-8"))["entries"]}
     tax = {d["id"]: d for d in json.loads((LEARN / "academy" / "taxonomy.json").read_text(encoding="utf-8"))["domains"]}
@@ -549,11 +554,12 @@ def build() -> dict:
         labs.append({
             "id": lab_id, "title": clean(title), "level": level_of.get(lab_id, (None,))[0],
             "primary_domain": e["primary_domain"], "secondary_domain": e.get("secondary_domain"), "domain_confidence": e["domain_confidence"],
-            "tier": e["tier"], "availability": AVAIL[e["tier"]], "launchable": lab_id in launchable, "native": NATIVE.get(lab_id),
+            "tier": e["tier"], "availability": AVAIL[e["tier"]], "mode": MODE[lab_id], "launchable": lab_id in launchable, "native": NATIVE.get(lab_id),
             "registry_quote": quote, "sections": S, "rules": rules,
             "assets": {"specimens": sorted(p.name for p in (d / "specimens").glob("*")) if (d / "specimens").exists() else [], "hunts": sorted(p.name for p in (d / "searches").glob("*")) if (d / "searches").exists() else [],
                        "dashboard": view, "evidence_docs": [rel(p) for p in (ev, dash) if p.exists()]},
             "explainer": explainer_for(lab_id), "integrated": bool((LEARN / "academy" / "explainers" / f"{lab_id}.json").exists() and "workbench" in json.loads((LEARN / "academy" / "explainers" / f"{lab_id}.json").read_text(encoding="utf-8"))),
+            "guide": GUIDES.get(lab_id),
             "limitations": ({"items": [clean(x) for x in manifest["limitations"]], "source": rel(man) + "#limitations"} if manifest.get("limitations") else None),
             "checks": checks_of(d / "knowledge-check.md"), "checks_source": rel(d / "knowledge-check.md") if (d / "knowledge-check.md").exists() else None,
         })
@@ -566,5 +572,10 @@ if __name__ == "__main__":
     out = build()
     dest = ROOT / "academy-ui" / "src" / "content" / "curriculum.json"
     dest.write_text(json.dumps(out, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    # The MAESTRO workbench content: the lab's maestro.json plus the Risk Center's qualitative matrix (reused, not copied by hand).
+    mx = json.loads((LEARN / "level_1" / "LAB-THREAT-MODELING-001" / "maestro.json").read_text(encoding="utf-8"))
+    rm = json.loads((LEARN / "academy" / "risk" / "methodology.json").read_text(encoding="utf-8"))
+    mx["risk"] = {"impact": rm["impact"], "likelihood": rm["likelihood"], "matrix": rm["matrix"]}
+    (ROOT / "academy-ui" / "src" / "content" / "maestro.json").write_text(json.dumps(mx, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     filled = sum(1 for l in out["labs"] for v in l["sections"].values() if v)
     print(f"wrote {dest.relative_to(ROOT)}: {len(out['domains'])} domains, {len(out['labs'])} labs, {filled} sourced sections, {dest.stat().st_size // 1024} KB")

@@ -6,6 +6,7 @@
   <title>AgentSec — {{ capstone_workbench.title }}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='agentsec-workbench.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='attack-console.css') }}">
   {% include "_shell_head.html" %}
 </head>
 <body class="workbench-page capstone-workbench">
@@ -34,10 +35,12 @@
       <a href="#proof">Proof</a>
       <a href="#advanced">Evidence / Advanced</a>
     </nav>
+    {% include "_attack_console.html" %}
 
     <section class="mission" aria-labelledby="security-question">
       <p class="eyebrow">Mission · investigate before concluding</p>
       <h2 id="security-question">{{ capstone_workbench.security_question }}</h2>
+      <details class="disclosure disclosure--inline"><summary>Scenario facts and controls</summary>
       <div class="context-facts">
         <div><span>Incident</span><strong>Lending-policy workflow reached customer-tier access</strong></div>
         <div><span>Attacker influence</span><strong>{{ capstone_workbench.attacker_influence }}</strong></div>
@@ -46,6 +49,7 @@
         <div><span>Boundary 2</span><strong>Recalled influence → authority request</strong></div>
         <div><span>Start here</span><strong>Run ATTACK, copy the primary RECALL run ID, then investigate</strong></div>
       </div>
+            </details>
       <p class="semantic-line">
         <strong>INFLUENCE ≠ AUTHORITY</strong>
         <strong>REQUEST ≠ GRANT</strong>
@@ -147,7 +151,7 @@
       </ol>
     </section>
 
-    <section class="run-results" aria-labelledby="result-heading">
+    <section id="run-results" class="run-results" aria-labelledby="result-heading">
       <div class="section-heading">
         <div><p class="eyebrow">Measured packet</p><h2 id="result-heading">Influence · intent · authority · invocation · completion · outcome</h2></div>
         <p>These are different questions. A generic attack-success label would hide the security model.</p>

@@ -29,19 +29,32 @@ until ollama_api_ready; do
 done
 echo "[ollama_init] Ollama API ready after ${WAITED}s"
 
-if ollama list | grep -q "$MODEL"; then
-    echo "[ollama_init] Model '$MODEL' already present"
-else
-    echo "[ollama_init] Pulling model '$MODEL'..."
-    if ollama pull "$MODEL"; then
-        echo "[ollama_init] Model '$MODEL' pulled."
+# Each configured model is pulled unless Ollama already lists it under exactly that name (`latest` assumed when no tag is given, the same rule as the
+# application): a substring or another tag of the family does not count. OLLAMA_MODEL serves the AcmeBank labs; LOANDESK_MODEL (set by the installer, empty
+# otherwise) serves the Loan Desk, which needs its own model because the 1b one does not finish its loop. A failed pull never stops the others.
+pull_model() {
+    MODEL="$1"
+    case "${MODEL##*/}" in *:*) WANT="$MODEL" ;; *) WANT="$MODEL:latest" ;; esac
+    if ollama list | awk 'NR > 1 { print $1 }' | grep -Fxq -- "$WANT"; then
+        echo "[ollama_init] Model '$MODEL' already present"
     else
-        echo "[ollama_init] WARNING: could not pull '$MODEL'."
-        echo "[ollama_init] The model is required for LIVE generation and is currently absent."
-        echo "[ollama_init] Command: docker exec agentsec_ollama ollama pull $MODEL"
-        echo "[ollama_init] If the error is certificate or TLS verification, fix trust at the host or image trust layer. Do not disable certificate verification."
-        echo "[ollama_init] AcmeBank /health stays degraded until the model is listed. Academy REPLAY does not need the model."
+        echo "[ollama_init] Pulling model '$MODEL'..."
+        if ollama pull "$MODEL"; then
+            echo "[ollama_init] Model '$MODEL' pulled."
+        else
+            echo "[ollama_init] WARNING: could not pull '$MODEL'."
+            echo "[ollama_init] The model is required for LIVE generation and is currently absent."
+            echo "[ollama_init] Command: docker exec agentsec_ollama ollama pull $MODEL"
+            echo "[ollama_init] If the error is certificate or TLS verification, fix trust at the host or image trust layer. Do not disable certificate verification."
+            echo "[ollama_init] AcmeBank /health stays degraded until the model is listed. Academy REPLAY does not need the model."
+        fi
     fi
+}
+
+pull_model "$MODEL"
+LOANDESK="${LOANDESK_MODEL:-}"
+if [ -n "$LOANDESK" ] && [ "$LOANDESK" != "$MODEL" ]; then
+    pull_model "$LOANDESK"
 fi
 
 echo "[ollama_init] Ready."

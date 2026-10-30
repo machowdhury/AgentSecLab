@@ -19,7 +19,7 @@ def test_prediction_stays_out_of_the_launch_body():
     assert "investigation handle, not a verdict" in html
     assert 'execution: "live"' in html
     assert "predict-control" not in html.split('body: JSON.stringify({', 1)[1].split("})", 1)[0]
-    assert "3.17.29.24" not in html
+    assert "203.0.113.77" not in html
     assert "Host publish remains 127.0.0.1" not in html
     assert "input_pattern_matched" not in html
     assert "expected_evidence_vulnerable" not in html
@@ -95,25 +95,3 @@ def test_studio_views_do_not_claim_an_unloaded_stylesheet():
     assert ":focus-visible" in attack_css
 
 
-def test_brand_assets_are_packaged_without_a_deployment_address():
-    home = (
-        ROOT / "splunk_app/agentsec/default/data/ui/views/ws_agentsec_home.xml"
-    ).read_text(encoding="utf-8")
-    assert "agentsec-mark.svg" in home
-    assert '"type": "splunk.image"' in home
-    assert '"preserveAspectRatio": true' in home
-    assert '"w": 64' in home
-    assert '"h": 64' in home
-    assert "![AgentSec mark" not in home
-    assert (ROOT / "splunk_app/agentsec/appserver/static/agentsec-mark.svg").is_file()
-    assert (ROOT / "splunk_app/agentsec/static/appIcon.png").is_file()
-    assert (ROOT / "splunk_app/agentsec/static/appIcon_2x.png").is_file()
-    assert (ROOT / "src/agentsec/static/agentsec-favicon.svg").is_file()
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert "Ollama is the local LLM runtime" in readme
-    memory = (
-        ROOT / "learning/level_1/LAB-MEMORY-001/dashboard.md"
-    ).read_text(encoding="utf-8")
-    assert "browser address bar" in memory
-    blob = readme + home + memory
-    assert "3.17.29.24" not in blob

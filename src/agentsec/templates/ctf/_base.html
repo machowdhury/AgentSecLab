@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}CTF{% endblock %} - AgentSec CTF</title>
+  <link rel="icon" href="{{ url_for('static', filename='agentsec-favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='agentsec.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='attack-console.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='ctf.css') }}">
+  {% include "_shell_head.html" %}
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  {% include "_shell_bar.html" %}
+  <header class="site-header">
+    <div class="site-header-inner">
+      <div class="brand-lockup">
+        <img class="brand-mark" src="{{ url_for('static', filename='agentsec-mark.svg') }}" alt="" width="36" height="36">
+        <div>
+          <p class="brand-kicker">AgentSec lab</p>
+          <h1>Advanced CTF</h1>
+          <p class="brand-sub">Bounded, local-only challenges on the existing lab engines</p>
+        </div>
+      </div>
+      <p class="header-meta">{{ labels.tenancy }} &middot; {{ labels.hosting }} &middot; {{ labels.participants }}</p>
+    </div>
+  </header>
+  <main id="main">
+    <nav class="ctf-nav" aria-label="CTF pages">
+      <a href="/ctf"{% if page == 'list' %} aria-current="page"{% endif %}>Challenges</a>
+      <a href="/ctf/scoreboard"{% if page == 'scoreboard' %} aria-current="page"{% endif %}>Scoreboard</a>
+    </nav>
+    <p class="scope-strip">Local learning lab. {{ labels.tenancy }}, {{ labels.hosting }}, {{ labels.authentication }}. Success is decided by this server from events it recorded itself, never from anything you submit. Nothing here is verified in Splunk.</p>
+    {% block body %}{% endblock %}
+  </main>
+</body>
+</html>

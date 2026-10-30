@@ -9,10 +9,15 @@ import { Foundations } from "./pages/Foundations";
 import { Mastery } from "./pages/Mastery";
 import { Mcp } from "./pages/Mcp";
 import { Curriculum } from "./pages/Curriculum";
+import { Challenges } from "./pages/Challenges";
 import { LabPage } from "./pages/Lab";
 import { labById } from "./curriculum";
 import { Path } from "./pages/Path";
 import { AssuranceHub, AssuranceJourney } from "./pages/Assurance";
+import { AssuranceOverview } from "./assurance/Overview";
+import { AssuranceFinding } from "./assurance/Finding";
+import { AssuranceInvestigate } from "./assurance/Investigate";
+import { AssuranceCompare } from "./assurance/Compare";
 
 // The EVAL Center is its own chunk: opening it is the only thing that downloads its code.
 const EvalCenter = lazy(() => import("./pages/EvalCenter"));
@@ -28,7 +33,7 @@ export default function App() {
   const path = usePath();
   const route = matchRoute(path);
   useEffect(() => { if (route.name === "acmebank") navigate(missionPath("prepare"), { replace: true }); }, [route.name]);  // the standalone AcmeBank page is now the Prepare stage
-  const crumbs = route.name === "governance" ? ["Governance Center"] : route.name === "risk" ? ["Risk Center"] : route.name === "evals" ? ["EVAL Center"] : route.name === "assurance" ? (route.step === "hub" ? ["Security Assurance"] : ["Security Assurance", "Workshop"]) : route.name === "home" ? ["Home"] : route.name === "path" ? ["Your Path"] : route.name === "foundations" ? ["AI & Agent Foundations"] : route.name === "mastery" ? ["Mastery"] : route.name === "mcp" ? ["MCP Tool Authorization"] : route.name === "curriculum" ? ["Curriculum Explorer"] : route.name === "lab" ? ["Curriculum Explorer", labById(route.id)?.title ?? route.id] : route.name === "acmebank" ? ["Loan Desk mission", "Prepare"] : route.name === "mission" ? ["Loan Desk mission", ...(route.stage ? [STAGES.find((s) => s.id === route.stage)!.label] : [])] : ["Not found"];
+  const crumbs = route.name === "governance" ? ["Governance Center"] : route.name === "risk" ? ["Risk Center"] : route.name === "evals" ? ["EVAL Center"] : route.name === "assurance-live" ? ["Security Assurance"] : route.name === "assurance-finding" ? ["Security Assurance", "Finding"] : route.name === "assurance-investigate" ? ["Security Assurance", "Finding", "Investigation notebook"] : route.name === "assurance-compare" ? ["Security Assurance", "Finding", "Retest comparison"] : route.name === "assurance" ? (route.step === "hub" ? ["Security Assurance", "Study journey"] : ["Security Assurance", "Study journey", "Workshop"]) : route.name === "home" ? ["Home"] : route.name === "path" ? ["Your Path"] : route.name === "foundations" ? ["AI & Agent Foundations"] : route.name === "mastery" ? ["Mastery"] : route.name === "mcp" ? ["MCP Tool Authorization"] : route.name === "curriculum" ? ["Curriculum Explorer"] : route.name === "lab" ? ["Curriculum Explorer", labById(route.id)?.title ?? route.id] : route.name === "acmebank" ? ["Loan Desk mission", "Prepare"] : route.name === "mission" ? ["Loan Desk mission", ...(route.stage ? [STAGES.find((s) => s.id === route.stage)!.label] : [])] : ["Not found"];
   return <ConfigProvider><AppShell path={path} crumbs={crumbs}>
     {["governance", "risk", "evals", "mission", "lab", "curriculum"].includes(route.name) && <WorkshopFlow path={path} />}
     {route.name === "home" && <Home />}
@@ -37,11 +42,16 @@ export default function App() {
     {route.name === "mastery" && <Mastery />}
     {route.name === "mcp" && <Mcp />}
     {route.name === "curriculum" && <Curriculum />}
+    {route.name === "challenges" && <Challenges />}
     {route.name === "lab" && <LabPage id={route.id} />}
     {route.name === "mission" && <Mission stage={route.stage} />}
     {route.name === "governance" && <Suspense fallback={<div className="page"><div className="m-sec" role="status"><p className="m-muted">Loading the Governance Center…</p></div></div>}><Governance view={route.view} /></Suspense>}
     {route.name === "risk" && <Suspense fallback={<div className="page"><div className="m-sec" role="status"><p className="m-muted">Loading the Risk Center…</p></div></div>}><RiskCenter route={route} /></Suspense>}
     {route.name === "evals" && <Suspense fallback={<div className="page"><div className="m-sec" role="status"><p className="m-muted">Loading the EVAL Center…</p></div></div>}><EvalCenter view={route.view} id={route.id} /></Suspense>}
+    {route.name === "assurance-live" && <AssuranceOverview tab={route.tab} />}
+    {route.name === "assurance-finding" && <AssuranceFinding tab={route.tab} id={route.id} evidence={route.evidence} />}
+    {route.name === "assurance-investigate" && <AssuranceInvestigate tab={route.tab} id={route.id} />}
+    {route.name === "assurance-compare" && <AssuranceCompare tab={route.tab} id={route.id} />}
     {route.name === "assurance" && (route.step === "hub" ? <AssuranceHub /> : <AssuranceJourney step={route.step} />)}
     {route.name === "missing" && <NotFound />}
   </AppShell></ConfigProvider>;

@@ -1,5 +1,7 @@
 # Local Docker lab vs external Splunk
 
+> **Legacy: not the supported path.** This page describes the earlier multi-port, plain-HTTP flow (`scripts/lab-up.sh`, published as v1.2.0), in which ports 5000, 5001 and 8000 are published. In RC2 (a release candidate, unreleased) those ports are internal. The supported path is the installer and the single HTTPS gateway: install with `./agentsec` ([Installation and deployment](INSTALLATION_AND_DEPLOYMENT.md)) and open `https://localhost/learn`. Learners investigate inside the Academy; Splunk Web is an optional Advanced view. macOS, Windows and this older flow were **not** part of the RC2 acceptance runs. Do not mix the two flows on one machine without reading [Installer](INSTALLER.md) on existing labs.
+
 **Status:** LOCAL path is Docker-managed. EXTERNAL Splunk is operator-managed.  
 **Schema / SPL / lab behavior:** unchanged.
 
@@ -35,11 +37,13 @@ docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local
 ./scripts/lab-ready.sh
 ```
 
+*These are the published v1.2.0 local URLs (legacy multi-port HTTP on loopback; internal in RC2, never opened by learners).* The opt-in HTTPS gateway (unreleased, the RC2 installer default) is described in [Unified HTTPS gateway](GATEWAY.md); Splunk outside this bundled container (external Enterprise or Cloud) is described in [Splunk integration](SPLUNK_INTEGRATION.md) and is mock-tested only.
+
 | URL | Role |
 |-----|------|
 | http://127.0.0.1:5000 | AcmeBank |
-| http://127.0.0.1:5001 | Attack UI |
-| http://127.0.0.1:8000 | Splunk (app **AgentSec**, view `ws_lab_pi_001`) |
+| http://127.0.0.1:5001 | Attack Service (backend; serves the Academy in this legacy flow) |
+| http://127.0.0.1:8000 | Splunk Web (optional Advanced view; app **AgentSec**, view `ws_lab_pi_001`) |
 | http://127.0.0.1:11434 | Host Ollama, if you run one. Docker Ollama is in-mesh only (`http://ollama:11434`). |
 
 If Docker Ollama cannot pull a model (TLS/registry), the API still stays up. Point AcmeBank at host Ollama with `OLLAMA_BASE_URL=http://host.docker.internal:11434` in `.env`.

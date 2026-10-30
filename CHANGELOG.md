@@ -1,5 +1,9 @@
 # Changelog
 
+## RC2 restricted beta (unreleased)
+
+Documentation and publication preparation on top of the RC2 work: HTTPS gateway with authentication, installer (`./agentsec`), CTF through the gateway, MAESTRO workbench, 33 workshops (13 live), evidence-driven AI Security Assurance dashboards, eight Mermaid diagrams, security-tools matrix, third-party notices, `SECURITY.md`, a practitioner learning path. The older multi-port flow is kept in `docs/LEGACY_MULTI_PORT_FLOW.md`. The package metadata still says `1.1.0`. Restricted single-user beta; see the README limitations.
+
 ## v1.1.0
 
 Current educational release. Telemetry schema remains **1.9.0**. ExternalEvidence remains **1.0.0**. Tag `v1.0.0` and tags `v1.0.0-rc1`, `v1.0.0-rc2`, and `v1.0.0-rc3` were not moved.

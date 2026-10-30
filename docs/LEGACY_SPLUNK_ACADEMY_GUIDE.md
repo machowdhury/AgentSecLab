@@ -1,9 +1,9 @@
 # Legacy guide: the Splunk-based Academy Home (L0–L10)
 
-> **Legacy / historical.** This is the original v1.0 and v1.1 reading path, kept for provenance. It describes the Splunk Academy Home at port 8000 and the L0–L10 curriculum, which still work. The current beginner path is [GETTING_STARTED.md](GETTING_STARTED.md), which starts in the React Academy at <http://127.0.0.1:5001/learn>. Statements below about `main` or `v1.1.0` describe those earlier releases, not the current `main` (v1.2.0).
+> **Legacy: not the supported path. Legacy / historical.** This is the original v1.0 and v1.1 reading path, kept for provenance. It describes the Splunk Academy Home at port 8000 and the L0–L10 curriculum, which still work in the old flow. In RC2 learners use only the React Academy at `https://localhost/learn` and never open Splunk Web or the internal ports; start with the [README quick start](../README.md#quick-start-ubuntu-2404-docker) and the [Learner guide](LEARNER_GUIDE.md). Statements below about `main` or `v1.1.0` describe those earlier releases, not the current `main` (v1.2.0).
 
 
-The L0–L10 academy is v1.1.0 on `main` and annotated tag `v1.1.0`. Tag `v1.0.0` is the previous release and was not moved. Tag `v1.0.0-rc1` is the older RC1 baseline and does not contain L6–L10. Tags `v1.0.0-rc2` and `v1.0.0-rc3` were not moved.
+The L0–L10 academy is v1.1.0, annotated tag `v1.1.0`. Tag `v1.0.0` is the previous release and was not moved. Tag `v1.0.0-rc1` is the older RC1 baseline and does not contain L6–L10. Tags `v1.0.0-rc2` and `v1.0.0-rc3` were not moved.
 
 Use these pages in order:
 

@@ -144,7 +144,7 @@ def table(
             ],
             "decisionText": [
                 {"match": "ALLOW", "value": "#3568A8"},
-                {"match": "DENY", "value": "#B7791F"},
+                {"match": "DENY", "value": "#7A4F0B"},
                 {"match": "ERROR", "value": "#C62828"},
                 {"match": "OBSERVE", "value": SECONDARY},
             ],
