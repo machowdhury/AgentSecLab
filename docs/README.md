@@ -2,7 +2,7 @@
 
 | Read this | When |
 |-----------|------|
-| [Installation and deployment](INSTALLATION_AND_DEPLOYMENT.md) | **RC2: start here to install.** Ubuntu and EC2, models, HTTPS gateway, Splunk, configuration, operation, recovery, failures |
+| [Installation and deployment](INSTALLATION_AND_DEPLOYMENT.md) | **RC2: start here to install.** Two paths: on your own Ubuntu computer (LOCAL) or on a remote server or VM reached from your laptop (REMOTE). Reference material is in the installer, gateway, Splunk and troubleshooting pages |
 | [Learner guide](LEARNER_GUIDE.md) | **RC2: using the lab.** Academy, workshops, BASELINE/ATTACK/RETEST, Attack UI, Loan Desk, Splunk, CTF, MAESTRO |
 | [Workshop catalog](WORKSHOP_CATALOG.md) | All 33 workshops: mode, how to start, expected outcomes, evidence, completion, reset |
 | [Benefits, architecture and security](BENEFITS_AND_SECURITY_ARCHITECTURE.md) | Why it matters per role, trust boundaries, LLM versus deterministic decisions, MAESTRO, what is not claimed |

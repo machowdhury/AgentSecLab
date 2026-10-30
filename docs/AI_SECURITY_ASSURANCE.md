@@ -145,7 +145,7 @@ Five Splunk dashboards and one finding page show the same findings inside Splunk
 
 > **Status.** Run on a real Splunk in the 2026-10-29 acceptance (record): all 34 data sources run, the five dashboards and the finding page render, and the SPL equals the Python reference evaluator on 118 findings. **CONDITIONAL**: the dashboards live in Splunk Web, outside the gateway's authorization; the row-click drilldown was not exercised; and a run whose telemetry never reaches Splunk is invisible to them (only the Academy's evidence state shows it).
 
-Open them in Splunk Web under **AI Security Assurance** (`/en-US/app/agentsec/ws_assurance_executive`). Splunk Web is on the lab host's loopback (`127.0.0.1:18000`); see the [installation guide](INSTALLATION_AND_DEPLOYMENT.md#5-https-gateway-certificates-authentication-and-tunnelling). They are not behind the HTTPS gateway and use Splunk's own login.
+Open them in Splunk Web under **AI Security Assurance** (`/en-US/app/agentsec/ws_assurance_executive`). Splunk Web is on the lab host's loopback (`127.0.0.1:18000`); see the [gateway reference](GATEWAY.md#authentication-and-remote-access). They are not behind the HTTPS gateway and use Splunk's own login.
 
 ### The dashboards
 
