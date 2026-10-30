@@ -1,12 +1,12 @@
 # Learner guide
 
-A task-by-task guide to using AgentSecLab RC2 as a learner. It assumes someone has installed the lab ([Installation and deployment](INSTALLATION_AND_DEPLOYMENT.md)) and given you the address and the `learner` and `operator` credentials. Every workshop is listed in the [workshop catalog](WORKSHOP_CATALOG.md); diagrams are in the [Visual guide](VISUAL_GUIDE.md). New to the whole subject? Do [Getting started](GETTING_STARTED.md) first.
+A task-by-task guide to using AgentSecLab RC2 as a learner. It assumes someone has installed the lab ([Installation and deployment](INSTALLATION_AND_DEPLOYMENT.md)) and given you the address and the `learner` and `operator` credentials. Every workshop is listed in the [workshop catalog](WORKSHOP_CATALOG.md); diagrams are in the [Visual guide](VISUAL_GUIDE.md). New to the whole subject? Choose **Start the beginner route** on the Academy home page. Everything a learner does happens in the Academy at one HTTPS address; the Attack Service is only its backend, and Splunk Web is an optional Advanced view.
 
 The screenshots are real captures of the interface; the [Visual guide](VISUAL_GUIDE.md#screenshots) says how they were taken. Most were taken without the HTTPS gateway, so they show a menu item (System Status) that the gateway hides.
 
 ## 1. First login and finding your way around
 
-1. Open the address you were given (if you installed the lab yourself, the passwords are in `.gateway/credentials.txt` on that machine: `cat .gateway/credentials.txt`). For a lab on your own machine through the gateway it is `https://localhost/learn`. Your browser must trust the lab's certificate (the installer wrote it to `.gateway/tls/ca.pem`); do not click through a certificate warning on a shared machine. (The older multi-port flow serves the Academy at `http://127.0.0.1:5001/learn`; this guide uses the gateway addresses.)
+1. Open the address you were given (if you installed the lab yourself, the passwords are in `.gateway/credentials.txt` on that machine: `cat .gateway/credentials.txt`). For a lab on your own machine through the gateway it is `https://localhost/learn`. Your browser must trust the lab's certificate (the installer wrote it to `.gateway/tls/ca.pem`); do not click through a certificate warning on a shared machine. (Legacy only: the older multi-port flow serves the Academy at `http://127.0.0.1:5001/learn`. It is not the supported path; this guide uses the gateway addresses. Ports 5000, 5001 and 8000 are internal and you never need to open them.)
 2. Sign in as **`learner`** to read, predict and investigate. Sign in as **`operator`** when you need to **launch** an attack or a CTF attempt: launches are state-changing and the gateway refuses them for `learner` (HTTP 403).
 3. You land on the Academy home page.
 
@@ -32,7 +32,7 @@ Every page says what its evidence is. Read that label first. A recorded run is o
 |---|---|---|
 | **LIVE**, **RECORDED**, **SIMULATED** | Evidence label (and the catalog's Mode column) | A run on this machine; a run captured earlier and replayed from a committed pack; a labelled simulated packet that enforces nothing |
 | **DOCUMENTED** | Evidence status on threat-model and risk items | A file states it; nothing was run or observed. It is weaker than RECORDED |
-| **WORKBENCH**, **GUIDED MISSION**, **REPLAY**, **CONTENT-ONLY** | Page badge | How the workshop page works (an interactive workbench, the Loan Desk mission, a replay of recorded evidence, or reading and analysis only). The badge says nothing about how real the evidence is; the evidence label does |
+| **LIVE**, **RECORDED**, **SIMULATED** (workshop mode) | Page badge | The same three words name how the workshop page works: 13 of the 32 labs are LIVE, 8 are RECORDED and 11 are SIMULATED (plus the Orientation, 33 workshops). RECORDED and SIMULATED workshops launch nothing |
 
 A good first workshop is **LAB-HITL-APPROVAL**: it is a SIMULATED packet analysis, so nothing is launched and nothing can fail. On the Practice tab choose a prediction, reveal the recorded packet, then read the Prove tab. For a gentler start choose **Start the beginner route** on the home page (Understand, Connect, Recognize, Practice).
 
@@ -48,7 +48,7 @@ Open **Your Path** or **Curriculum Explorer** and choose a workshop. A workshop 
 | **2. Practice** | **Predict first**, then act. For a LIVE workshop this is where the launch card is. For a recorded or simulated one you choose a prediction and reveal the committed evidence |
 | **3. Prove** | The sources, SHA-256 hashes, limitations and the evidence the page rests on |
 
-The six-stage **Workshop path** bar (Learn, Attack, Investigate, EVAL, Risk, Governance) links the journey in order. The badge under a title says what kind of workshop it is (**WORKBENCH**, **GUIDED MISSION**, **REPLAY** or **CONTENT-ONLY**). Only 13 of the 33 workshops run something live.
+A LIVE workshop shows eight stages: **Learn, Predict, Baseline, Attack, Investigate, Defend, Retest, Explain evidence** (the Loan Desk shows its seven mission stages on the same rail; Prepare covers Predict and Baseline). The six-stage **Workshop path** bar (Learn, Attack, Investigate, EVAL, Risk, Governance) links the wider journey. The badge under a title says whether the workshop is **LIVE**, **RECORDED** or **SIMULATED**. Only 13 of the 33 workshops run something live.
 
 **Finishing.** Each workshop page ends with a **Finish** section: *what you should see*, *what the defense teaches*, *you are done when* and *troubleshooting*. The catalog repeats the completion criteria per workshop. Your progress marks live in your browser only: clearing the site data resets them, and nothing is stored on the server.
 
@@ -65,7 +65,7 @@ Every LIVE workshop uses three runs of the **same request**:
 1. **Predict** on the Practice tab before you press anything. Write down what you expect the control to decide.
 2. Press **BASELINE**, then **ATTACK**, then **RETEST** (as `operator`). You end with **three different run ids**.
 3. Compare. The request in ATTACK and RETEST is identical; only the profile changed, and the server changed it. The browser cannot choose the profile, a payload, a tool name or a search.
-4. **Explain** why the outcomes differ before you open Splunk.
+4. **Explain** why the outcomes differ before you open Investigate.
 
 Two warnings from the labs themselves: an **ALLOW is not proof the attack worked** (and not proof that the model approved anything), and a **DENY is not automatically SAFE**.
 
@@ -75,7 +75,7 @@ The **Attack Service** is the launcher behind the Academy's launch cards. You ca
 
 ![The Attack Service](images/attack-service-home.png)
 
-It offers seven live scenarios (Direct Prompt Injection, Tool Authorization, RAG / Retrieved Context, Persistent Memory, Goal / Instruction Integrity, Agent Identity / Delegation, Lending Assistant Investigation) and walks through six steps: **Scenario, Configure, Launch, Progress, Results, Evidence**. The page says it is an untrusted HTTP client: it **does not call Ollama and does not authorize**. It sends a specimen and a mode; authority, profile and ids stay on the server. The other MCP workshops (MCP-003, -004, -005, -006 and Tool Catalog) launch from their own workshop pages. The header links **AcmeBank** and **Splunk Studio** in the screenshot are not routed through the HTTPS gateway: the real AcmeBank has no external address and Splunk Web is reached by an SSH tunnel (section 7).
+It offers seven live scenarios (Direct Prompt Injection, Tool Authorization, RAG / Retrieved Context, Persistent Memory, Goal / Instruction Integrity, Agent Identity / Delegation, Lending Assistant Investigation) and walks through six steps: **Scenario, Configure, Launch, Progress, Results, Evidence**. The page says it is an untrusted HTTP client: it **does not call Ollama and does not authorize**. It sends a specimen and a mode; authority, profile and ids stay on the server. The other MCP workshops (MCP-003, -004, -005, -006 and Tool Catalog) launch from their own workshop pages. You do not need this page to investigate: use the Academy. The header links **AcmeBank** and **Splunk Studio** in the screenshot are not routed through the HTTPS gateway: the real AcmeBank has no external address, and Splunk Web is an optional Advanced view (section 7).
 
 **Reading a result.** Each run reports facts you keep separate:
 
@@ -113,15 +113,18 @@ Open **Loan Desk Mission** (`/learn/loan-desk`). It has seven stages: **Learn, P
 - **Check the model first.** Step 1 shows the model status: requested model, installed or not, digest, parameter size. If it is not installed the page shows the exact `ollama pull llama3.2:latest` command; the lab never downloads models for you.
 - **What a benign run looks like** (measured on the acceptance host, 8 CPUs): about 40 to 50 seconds; the model makes about 6 calls; five tool calls (applicant profile, credit summary, lending policy, payment calculation, submit for underwriter review) are all **ALLOW** and execute; the run ends with a final answer. The run record states that every response came from the requested model and that its digest did not change during the run.
 - **The attack:** in the **baseline** posture an applicant note carrying an instruction can reach the human underwriter's queue, because the tool and applicant are valid and the note's content is not checked. The **hardened** posture restricts the note to fixed reason codes, so free text cannot get through. The lesson: *authorizing a tool is not authorizing its arguments.*
-- The mission's **Verify with Splunk** button depends on a host-side verifier that the installer-based deployment does not start; expect `VERIFIER OFFLINE` there and search Splunk yourself (section 7). Details: [Loan Desk mission](LOAN_DESK_MISSION.md).
+- The **Investigate** stage is a notebook inside the mission (section 7). By default the lab does not claim a Splunk-VERIFIED Loan Desk run: the older host-side verifier is legacy, off by default and ignored behind the gateway. Details: [Loan Desk mission](LOAN_DESK_MISSION.md).
 
 ## 7. Splunk investigations, run ids, evidence and verification
 
-1. **Copy the run id** from the launch card (a UUID). Every event of that run carries it as `agentsec.run.id`.
-2. Open Splunk. In the installer deployment Splunk Web is on the lab host's loopback at port 18000, so from another machine use an SSH tunnel (`ssh -N -L 18000:127.0.0.1:18000 <user>@<host>`, then `http://localhost:18000`); if you installed the lab on the machine you are sitting at, open `http://localhost:18000` directly. User `admin`, password `SPLUNK_PASSWORD` in the host's `.env`.
-3. Search `index=agentsec_telemetry sourcetype=otel:agentic:json "agentsec.run.id"="<run id>"` over a time range that covers the run (for example `earliest=-1h`). The launch card's **starter search** is the same thing. Recorded runs are historical: use **All time** (`earliest=0`).
-4. Read the events in order: run started, control decisions, hops and tool or model events, run completed. Say which events show the **decision**, which show the **execution**, and what the events **cannot** show.
-5. Compare your three run ids.
+You investigate inside the Academy. In a LIVE workshop the **Investigate** stage is a notebook: press **Run** on a cell and the Attack Service runs an approved, fixed-template search against Splunk for your run, then shows the rows, a chart and a plain-language reading of the rows. You never type SPL, and you never open Splunk Web or another port.
+
+1. Finish the launch (Baseline, Attack, Retest as `operator`). The Academy keeps the run id for you; it is a UUID and every event of that run carries it as `agentsec.run.id`.
+2. Open **Investigate**, press **Run** on each cell and read the rows. Telemetry arrives seconds to minutes after a run; an empty result means not indexed yet, not that nothing happened.
+3. Say which rows show the **decision**, which show the **execution**, what the chart adds, and what the rows **cannot** show. Compare your three run ids.
+4. If the notebook says search access is not provisioned, it has failed closed: it does not fall back to anything else. Ask the host owner to run `./agentsec splunk-access` (check with `./agentsec splunk-access --check`).
+
+**Advanced (optional): Splunk Web.** The same events can be searched by hand: `index=agentsec_telemetry sourcetype=otel:agentic:json "agentsec.run.id"="<run id>"`. In the installer deployment Splunk Web is on the lab host's loopback only (reach it with an SSH tunnel when the lab is remote), with its own `admin` login (`SPLUNK_PASSWORD` in the host's `.env`). It is not behind the gateway and no step requires it. Recorded runs are historical: use **All time**.
 
 **Evidence states on a launch card.** After a launch the card shows a lifecycle (REQUESTED, RUNNING, TELEMETRY_SENT, WAITING_FOR_EVIDENCE) and then one of:
 
@@ -131,11 +134,11 @@ Open **Loan Desk Mission** (`/learn/loan-desk`). It has seven stages: **Learn, P
 | **NOT VERIFIED** (`WAITING_FOR_EVIDENCE`) | Splunk answered and found nothing yet, or was not answering. Telemetry arrives seconds to minutes after a run. This is **not** a failed attack and **not** proof of prevention. Check again |
 | **VERIFICATION UNAVAILABLE** | The Attack Service could not run the check at all. It is not zero rows and not verified |
 
-**By default on the bundled Splunk you will see VERIFICATION UNAVAILABLE.** The lab does not configure Splunk REST access for you, and searching Splunk yourself always works. Turning VERIFIED on needs a matching certificate, a trusted CA and a token: see the [installation guide](INSTALLATION_AND_DEPLOYMENT.md#63-turning-on-rest-verification-verified-for-the-bundled-splunk-tested-once-on-a-disposable-host). Dashboards and hunt searches per workshop are listed in the catalog.
+**VERIFIED on a launch card is optional and off by default.** It needs a separate certificate, trusted CA and token: see the [installation guide](INSTALLATION_AND_DEPLOYMENT.md#63-turning-on-rest-verification-verified-for-the-bundled-splunk-tested-once-on-a-disposable-host). The investigation notebook above uses the installer's search-only identity instead and does not depend on it. The notebook and Security Assurance behaviour against a real Splunk host was validated on one real Splunk 10.2.7 host (bundled Splunk, 2026-10-30); it was not validated against an external Splunk, Splunk Cloud or an organization certificate.
 
 ### Reading the assurance dashboards
 
-After a launch, open Splunk Web (`http://127.0.0.1:18000`, user `admin`; through an SSH tunnel on a remote host) and choose **AI Security Assurance**. Telemetry arrives seconds to minutes after a run. Find your finding, read what happened, what it means, the evidence and the control, then run **RETEST** and watch the retest outcome change from NO_RETEST to VALIDATED. A run that never reached Splunk has no finding at all; the Academy's own evidence state is the only place that shows it. Splunk Web uses its own login and is not behind the gateway. Full guide: [AI Security Assurance](AI_SECURITY_ASSURANCE.md).
+After a launch, open **Academy > Security Assurance** (`/learn/assurance`). It shows findings with their raw evidence, an investigation notebook and a retest comparison. Telemetry arrives seconds to minutes after a run. Find your finding, read what happened, what it means, the evidence and the control, then run **RETEST** and watch the retest outcome change from NO_RETEST to VALIDATED. A run that never reached Splunk has no finding at all; the Academy's own evidence state shows it. The five Splunk dashboards are an optional Advanced view in Splunk Web (own login, not behind the gateway). Full guide: [AI Security Assurance](AI_SECURITY_ASSURANCE.md).
 
 ## 8. The three CTF challenges
 
@@ -182,15 +185,15 @@ An optional last section compares your work with CSA's MAESTRO Threat Analyzer. 
 
 ## 10. Completing, troubleshooting and resetting
 
-**You are done with a workshop** when you can do the *you are done when* items on its page (the catalog lists them). In short: you can state your prediction and whether it held, explain why the runs differ, show the evidence in Splunk, and say what the evidence cannot prove.
+**You are done with a workshop** when you can do the *you are done when* items on its page (the catalog lists them). In short: you can state your prediction and whether it held, explain why the runs differ, show the evidence in the Investigate notebook, and say what the evidence cannot prove.
 
 | Problem | What it means and what to do |
 |---|---|
 | The launch card says the runtime is unreachable, or the launch fails | The Attack Service or AcmeBank is not ready. Open `/attack-service/academy/status` (the System Status page; the menu hides it behind the gateway), or ask the host owner to run `./agentsec status`. The first Splunk start takes minutes. Nothing was launched; try again |
 | A launch is refused (403) | You are signed in as `learner`. Sign in as `operator`. After many rapid launches, wait a minute |
 | Evidence says `WAITING_FOR_EVIDENCE` | The honest default; check again later or search Splunk yourself |
-| `VERIFICATION UNAVAILABLE` | The check cannot run here (section 7). It is not zero rows. Search Splunk with the starter search |
-| Splunk shows no events for the run id | Use `index=agentsec_telemetry sourcetype=otel:agentic:json`, a time range that covers the run, and the exact UUID in quotes. Do not search `index=main` |
+| `VERIFICATION UNAVAILABLE`, or the notebook says search access is not provisioned | The check cannot run here (section 7). It is not zero rows. Ask the host owner to run `./agentsec splunk-access --check` |
+| The notebook shows no rows for the run id | Wait a minute and press **Run** again. If you search by hand in Splunk Web (Advanced), use `index=agentsec_telemetry sourcetype=otel:agentic:json`, a time range that covers the run, and the exact UUID in quotes. Do not search `index=main` |
 | RETEST looks the same as ATTACK | Check the profile column: ATTACK is vulnerable, RETEST is defended, set by the server. If both say vulnerable, ask the host owner to restart the Attack Service, then run RETEST again |
 | A recorded workshop shows no Splunk rows | Recorded runs are historical: use **All time**. They are loaded when the lab starts |
 | "Nothing runs when I open the exercise" | By design: recorded and simulated workshops are guided analyses of committed evidence |

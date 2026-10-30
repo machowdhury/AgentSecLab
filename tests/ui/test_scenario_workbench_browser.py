@@ -151,7 +151,7 @@ def test_mobile_layout_has_no_horizontal_scroll_with_runs_on_screen(browser, url
 
 
 @pytest.mark.parametrize("lab", [MEMORY, CAPSTONE])
-def test_one_launch_shows_every_constituent_run_id_and_per_run_splunk_links(page, url, lab):
+def test_one_launch_shows_every_constituent_run_id_and_the_notebook_offers_each_run(page, url, lab):
     n = CASES[lab]["runs"]
     page.goto(url(lab)); tab(page, "Practice"); lock(page, lab)
     page.get_by_role("button", name=re.compile("Launch ATTACK")).click()
@@ -163,9 +163,8 @@ def test_one_launch_shows_every_constituent_run_id_and_per_run_splunk_links(page
     assert page.get_by_text(re.compile("Held: .*source_run_id")).count() >= 1
     page.get_by_role("button", name=re.compile("Run RETEST")).click()
     page.wait_for_selector(f"text={CASES[lab]['retest']}")
-    page.get_by_role("link", name="Open ATTACK and RETEST in Splunk").wait_for()  # the pair hand-off resolves for a multi-run lab
-    links = page.get_by_role("link", name=re.compile(r"Open ATTACK (RETRIEVE |WRITE |RECALL )run in Splunk"))
-    assert links.count() == n and all("agentsec_telemetry" in h and ids_ok(h) for h in links.evaluate_all("els => els.map(e => e.href)"))
+    chips = page.locator('[data-stage="investigate"]').get_by_role("radio", name=re.compile(r"(ATTACK|RETEST) (RETRIEVE |WRITE |RECALL )run"))
+    assert chips.count() == 2 * n, "the notebook offers every constituent run of both launches, inside the Academy"
     tab(page, "Prove")
     row = page.locator("table", has_text="Per live run").locator("tbody tr").first.inner_text()
     assert all(i in row for i in ids), "Prove lists every constituent run id"

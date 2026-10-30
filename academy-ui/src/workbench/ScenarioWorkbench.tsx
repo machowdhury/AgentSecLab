@@ -1,11 +1,12 @@
-import { SplunkLink } from "../config";
 import { useEffect, useRef, useState } from "react";
 import { Badge, Button, Icon } from "../ui";
 import { updateMission, useMission } from "../store";
+import { ExplainEvidence, RunFindingLinks, SplCellNotebook, type NotebookRun } from "../assurance/RunNotebook";
+import { StageSection } from "../UnifiedWorkshop";
 import { StepList } from "../mission/RunProgress";
 import { Callout, CopyButton } from "../mission/parts";
 import type { Lab } from "../curriculum";
-import { compareRuns, launchLab, probeEvidence, type Evidence, type LaunchError } from "./launch";
+import { launchLab, probeEvidence, type Evidence, type LaunchError } from "./launch";
 import { Err, Launch, MODE, Step, useRuns, type Slot } from "./PiWorkbench";
 import { asS, type SRecord, type Scenario } from "./scenarios";
 
@@ -19,11 +20,9 @@ export function ScenarioPractice({ lab, sc }: { lab: Lab; sc: Scenario }) {
   const [secs, setSecs] = useState(0);
   const [err, setErr] = useState<{ slot: Slot; e: LaunchError } | null>(null);
   const [evid, setEvid] = useState<Record<string, Evidence | null>>({});
-  const [cmp, setCmp] = useState<{ search_url: string; starter_spl: string } | null>(null);
   const inflight = useRef(false);
   const setPred = (p: Partial<NonNullable<typeof st.prediction>>) => updateMission((s) => ({ ...s, workbench: { ...s.workbench, [sc.lab]: { ...s.workbench?.[sc.lab], prediction: { ...s.workbench?.[sc.lab]?.prediction, ...p } } } }));
   const a = asS(get("attack")), r = asS(get("retest")), b = asS(get("baseline"));
-  useEffect(() => { setCmp(null); if (a && r) compareRuns(a.run_id, r.run_id).then(setCmp); }, [a?.run_id, r?.run_id]);
   useEffect(() => { if (!busy) return; setSecs(0); const t = window.setInterval(() => setSecs((x) => x + 1), 1000); return () => window.clearInterval(t); }, [busy]);
 
   const run = async (slot: Slot) => {
@@ -42,38 +41,37 @@ export function ScenarioPractice({ lab, sc }: { lab: Lab; sc: Scenario }) {
   return <div className="m-wb" aria-label={sc.aria}>
     <p className="m-muted">Each step below is real: pressing a button asks the existing Attack Service to run the lab's own catalog specimen against AcmeBank. Nothing runs when you open this page, and the same button cannot send two launches at once. The setting (vulnerable or defended) and the request are chosen by the server, never by you. {sc.intro}</p>
 
-    <section className="m-wbstep" aria-labelledby={id(1)}><h3 id={id(1)}><span>1</span> Predict</h3>
+    <StageSection stage="predict" id={id(1)} title="Predict">
       <form className="m-prediction" onSubmit={(e) => { e.preventDefault(); if (ready) setPred({ locked: true }); }}>
         {sc.questions.map((q) => <fieldset key={q.key} disabled={locked}><legend>{q.legend}</legend>
           {q.opts.map(([v, l]) => <label className="m-choice" key={v}><input type="radio" name={`${sc.lab}-${q.key}`} checked={pred[q.key] === v} onChange={() => setPred({ [q.key]: v })} /><span>{l}</span></label>)}</fieldset>)}
         {locked ? <div className="recorded"><Icon name="check" size={18} /><span><strong>Prediction locked</strong>Stored only in this browser. It cannot affect any run.</span></div> : <Button onClick={() => ready && setPred({ locked: true })} disabled={!ready}>Lock prediction</Button>}
-      </form></section>
+      </form></StageSection>
 
-    <Step n={2} title="Baseline (optional)" id={id(2)} text={wb.baseline} extra={sc.baselineHint}>
+    <Step stage="baseline" title="Baseline (optional)" id={id(2)} text={wb.baseline} extra={sc.baselineHint}>
       <Launch label={sc.baselineLabel} disabled={Boolean(busy)} busy={busy === "baseline"} secs={secs} onClick={() => run("baseline")} again={Boolean(b)} />
       {err?.slot === "baseline" && <Err e={err.e} />}{b && <RunCard sc={sc} x={b} ev={evid[b.run_id]} onCheck={() => check(b)} />}</Step>
 
-    <Step n={3} title="Attack" id={id(3)} text={wb.attack} extra={wb.attack_expected.text} src={wb.attack_expected.source}>
+    <Step stage="attack" title="Attack" id={id(3)} text={wb.attack} extra={wb.attack_expected.text} src={wb.attack_expected.source}>
       <Launch label="Launch ATTACK (intentionally vulnerable setting)" disabled={!locked || Boolean(busy)} busy={busy === "attack"} secs={secs} onClick={() => run("attack")} again={Boolean(a)} />
       {gate(locked, "Lock your prediction first.")}
       {err?.slot === "attack" && <Err e={err.e} />}{a && <RunCard sc={sc} x={a} ev={evid[a.run_id]} onCheck={() => check(a)} guess={guess} />}</Step>
 
-    <Step n={4} title="Defend and retest" id={id(4)} text={wb.retest} extra={wb.defense.text} src={wb.defense.source}>
+    <Step stage="investigate" title="Investigate" id={id(5)} text={{ text: "Read what your attack run left behind in Splunk. The Academy runs each approved search for you: you choose the options and press Run, then read the table, the chart and what the rows say.", source: "Academy investigation notebook (fixed server-side templates)" }}>
+      <SplCellNotebook lab={sc.lab} runs={([["baseline", b], ["attack", a], ["retest", r]] as const).flatMap(([slot, x]): NotebookRun[] => !x ? [] : sc.ids ? sc.ids(x).filter(([, v]) => v !== "—").map(([k, v]) => ({ slot: `${slot}-${k}`, id: v, label: `${x.mode} ${k} run` })) : [{ slot, id: x.run_id }])} /></Step>
+
+    <Step stage="defend" title="Defend" id={id(6)} text={wb.defense} extra="The defended setting is applied by the server when you run the RETEST in the next stage. You do not edit code or settings here.">
+      {!a && <span className="m-muted">Run the attack first, so you know what you are defending against.</span>}</Step>
+
+    <Step stage="retest" title="Retest" id={id(7)} text={wb.retest}>
       <Launch label="Run RETEST (defended setting)" disabled={!a || Boolean(busy)} busy={busy === "retest"} secs={secs} onClick={() => run("retest")} again={Boolean(r)} />
       {gate(Boolean(a), "Run the attack first.")}
-      {err?.slot === "retest" && <Err e={err.e} />}{r && <RunCard sc={sc} x={r} ev={evid[r.run_id]} onCheck={() => check(r)} />}</Step>
+      {err?.slot === "retest" && <Err e={err.e} />}{r && <RunCard sc={sc} x={r} ev={evid[r.run_id]} onCheck={() => check(r)} />}      {a && r ? <h4>Compare the two runs</h4> : null}
+      {a && r ? <Compare sc={sc} a={a} r={r} falsify={wb.retest_falsify.text} /> : <p className="m-muted">Appears when you have both an ATTACK run and a RETEST run.</p>}
+      <RunFindingLinks runId={a?.run_id} withCompare={Boolean(r)} /></Step>
 
-    <section className="m-wbstep" aria-labelledby={id(5)}><h3 id={id(5)}><span>5</span> Compare</h3>
-      {a && r ? <Compare sc={sc} a={a} r={r} falsify={wb.retest_falsify.text} /> : <p className="m-muted">Appears when you have both an ATTACK run and a RETEST run.</p>}</section>
-
-    <section className="m-wbstep" aria-labelledby={id(6)}><h3 id={id(6)}><span>6</span> Investigate</h3>
-      {a || r || b ? <>
-        <p>Open the evidence for each live run in Splunk and run the lab's search there. The Academy does not run it for you here. The search is written out under the Prove tab.</p>
-        <div className="m-actions">{cmp && <SplunkLink className="button button--secondary" href={cmp.search_url} target="_blank" rel="noopener">Open ATTACK and RETEST in Splunk <Icon name="arrow" size={15} /></SplunkLink>}
-          {([b, a, r].filter(Boolean) as SRecord[]).flatMap((x) => (sc.links ? sc.links(x).map(([k, url]) => [`${x.mode} ${k} run`, url, `${x.run_id}-${k}`] as const) : [[`${x.mode}`, x.search_handoff.search_url, x.run_id] as const]))
-            .map(([label, url, key]) => <SplunkLink key={key} className="button button--ghost" href={url} target="_blank" rel="noopener">Open {label} in Splunk <Icon name="arrow" size={15} /></SplunkLink>)}</div>
-        {cmp && <details className="m-details"><summary>Starter SPL for both runs</summary><pre>{cmp.starter_spl}</pre><CopyButton text={cmp.starter_spl} label="Copy search" /></details>}</>
-        : <p className="m-muted">Run something first; the evidence links appear here.</p>}</section>
+    <StageSection stage="explain" id={id(8)} title="Explain evidence">
+      <ExplainEvidence lab={sc.lab} runs={[{ slot: "attack", id: a?.run_id ?? "" }, { slot: "retest", id: r?.run_id ?? "" }]} completion={lab.guide?.completion ?? []} /></StageSection>
   </div>;
 }
 

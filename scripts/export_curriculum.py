@@ -27,6 +27,8 @@ DOMAIN_NAMES = {"D01": "AI & Agent Foundations", "D02": "Prompt Injection", "D03
                 "D06": "Memory & State", "D07": "Identity & Secrets", "D08": "Data Protection", "D09": "Runtime Governance", "D10": "Agent Observability",
                 "D11": "Detection & Response", "D12": "Risk & Assurance"}
 AVAIL = {"GUIDED MISSION": "guided", "WORKBENCH": "workbench", "REPLAY": "replay", "CONTENT-ONLY": "content_only"}
+# Evidence mode per workshop, from the catalog table (docs/WORKSHOP_CATALOG.md): LIVE, RECORDED or SIMULATED.
+MODE = {m.group(1): m.group(2) for m in re.finditer(r"\(`(LAB-[A-Z0-9-]+)`\) \| L\d+ \| (LIVE|RECORDED|SIMULATED)", (ROOT / "docs" / "WORKSHOP_CATALOG.md").read_text(encoding="utf-8"))}
 NATIVE = {"LAB-LOANDESK-001": "/learn/loan-desk", "LAB-MCP-001": "/learn/mcp"}
 
 
@@ -552,7 +554,7 @@ def build() -> dict:
         labs.append({
             "id": lab_id, "title": clean(title), "level": level_of.get(lab_id, (None,))[0],
             "primary_domain": e["primary_domain"], "secondary_domain": e.get("secondary_domain"), "domain_confidence": e["domain_confidence"],
-            "tier": e["tier"], "availability": AVAIL[e["tier"]], "launchable": lab_id in launchable, "native": NATIVE.get(lab_id),
+            "tier": e["tier"], "availability": AVAIL[e["tier"]], "mode": MODE[lab_id], "launchable": lab_id in launchable, "native": NATIVE.get(lab_id),
             "registry_quote": quote, "sections": S, "rules": rules,
             "assets": {"specimens": sorted(p.name for p in (d / "specimens").glob("*")) if (d / "specimens").exists() else [], "hunts": sorted(p.name for p in (d / "searches").glob("*")) if (d / "searches").exists() else [],
                        "dashboard": view, "evidence_docs": [rel(p) for p in (ev, dash) if p.exists()]},

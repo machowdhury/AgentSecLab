@@ -277,7 +277,7 @@ def test_no_combination_of_options_ever_plans_a_destructive_command():
         c = C(naming=naming, project="agentseclab" if naming == "legacy" else "agentsec", ollama={"mode": ollama}, splunk={"mode": splunk}, gateway={"enabled": gw})
         for cmd in render.build_plan(c, LOCKS, {}).commands:
             assert not (bad & set(cmd["argv"])), (naming, ollama, splunk, gw, cmd)
-            assert cmd["argv"][0] in ("docker", "sh", "mkdir")
+            assert cmd["argv"][0] in ("docker", "sh", "mkdir", "chmod")
 
 
 def test_the_legacy_adoption_override_really_exists_and_renames_nothing(tmp_path):

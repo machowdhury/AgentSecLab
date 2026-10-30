@@ -22,9 +22,9 @@ LIVE_TROUBLE = [
     {"symptom": "The launch card says the runtime is unreachable, or the launch fails.",
      "fix": "The Attack Service or AcmeBank is not ready. Open System Status (or run ./agentsec status); wait for a first Splunk start, which takes minutes. Nothing was launched, so just try again."},
     {"symptom": "Evidence says WAITING_FOR_EVIDENCE.",
-     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later, or search Splunk yourself with the starter search on the card."},
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."},
     {"symptom": "Verification says VERIFICATION UNAVAILABLE.",
-     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. Search Splunk yourself with the starter search; an operator can configure AGENTSEC_SPLUNK_REST_URL and AGENTSEC_SPLUNK_SEARCH_TOKEN_FILE."},
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."},
     {"symptom": "Splunk shows no events for the run.id.",
      "fix": "Use index=agentsec_telemetry sourcetype=otel:agentic:json, a time range that covers the run (earliest=-1h), and the quoted field agentsec.run.id with the exact UUID from the card. Do not search index=*. HEC or OTLP success is not an indexed event."},
     {"symptom": "RETEST looks the same as ATTACK.",
@@ -33,16 +33,16 @@ LIVE_TROUBLE = [
 REPLAY_TROUBLE = [
     {"symptom": "A search returns no rows for a recorded run.",
      "fix": "The recorded runs are historical: set the time range to All time (earliest=0). They are loaded by the splunk_hec_init job at start; check its log for 'VERIFIED searchable'. If the lab was started without Splunk, the Academy still shows the committed packets."},
-    {"symptom": "A Studio dashboard panel is empty.",
-     "fix": "Studio tokens are not bound to a run you launched. Use the run.id from the recorded table, or copy the search into Splunk Search."},
-    {"symptom": "A count in Splunk differs from the committed pack.",
+    {"symptom": "An optional advanced dashboard panel is empty.",
+     "fix": "The dashboard's tokens are not bound to a run you launched. Use the run.id from the recorded table in this workshop; the evidence view needs no dashboard."},
+    {"symptom": "A count differs from the committed pack.",
      "fix": "The pack is the source of truth. Count physical events with stats dc(_raw), not by run id alone, and remember that an indexed copy can be partial while ingestion is running."},
 ]
 PACKET_TROUBLE = [
     {"symptom": "Nothing runs when I open the exercise.",
      "fix": "By design. This workshop is a guided analysis of a committed, simulated evidence packet. It runs no attack, enforces nothing and sends nothing to Splunk. The packet is labelled SIMULATED / REPLAYED or DOCUMENTED."},
     {"symptom": "I cannot find the Splunk rows the packet describes.",
-     "fix": "Packet content is not in Splunk unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."},
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."},
 ]
 TROUBLE = {"LIVE": LIVE_TROUBLE, "REPLAY": REPLAY_TROUBLE, "PACKET": PACKET_TROUBLE}
 
@@ -222,7 +222,7 @@ def live_guide(lab: str, m: dict) -> dict:
     defensive = [t for t in (g("ATTACK", "defense_should"), g("RETEST", "which_control"), g("RETEST", "security_property")) if t]
     done = ["Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
             LIVE_NOTE_RETEST_SAME,
-            "Find a run in Splunk Search with the starter search on the launch card and say what the events show and what they cannot (Splunk enforced nothing)."]
+            "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing)."]
     n = checks_count(lab)
     if n:
         done.append(f"Answer the {n} knowledge-check questions for this workshop.")

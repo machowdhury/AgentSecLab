@@ -45,7 +45,8 @@ def test_up_validates_then_runs_project_scoped_idempotent_commands(tmp_path):
     rc, out = cli(tmp_path, ["up"], runner=r)
     assert rc == 0, out
     compose = [c for c in r.commands if c[:2] == ["docker", "compose"]]
-    assert compose[0][-2:] == ["config", "-q"] and compose[-1][-len(state_json(tmp_path)["resolved"]["services"]) - 3:][:3] == ["up", "-d", "--no-recreate"]
+    up = next(c for c in compose if "--no-recreate" in c)
+    assert compose[0][-2:] == ["config", "-q"] and up[-len(state_json(tmp_path)["resolved"]["services"]) - 3:][:3] == ["up", "-d", "--no-recreate"]
     assert all(c[2:4] == ["--project-name", "agentsec"] for c in compose)
     assert all({"COMPOSE_PROJECT_NAME", "COMPOSE_FILE", "COMPOSE_PROFILES"} <= set(e) for c, e in zip(r.commands, r.envs) if c[:2] == ["docker", "compose"])
     assert ["sh", "scripts/hec-certs.sh"] in [c[:2] for c in r.commands]
@@ -367,7 +368,8 @@ def test_a_tampered_service_list_never_reaches_the_command_line(tmp_path):
     edit_state(tmp_path, lambda s: s["resolved"].update(services=["-V", "--force-recreate", "acmebank"]))
     r = FakeRunner()
     assert cli(tmp_path, ["up"], runner=r)[0] == 0
-    assert not ({"-V", "--force-recreate"} & verbs(r)) and r.commands[-1][-3:] == ["otel_collector", "attack_service", "acmebank"][-3:] or "acmebank" in r.commands[-1]
+    up = next(c for c in r.commands if "--no-recreate" in c)
+    assert not ({"-V", "--force-recreate"} & verbs(r)) and "acmebank" in up and "-V" not in up[up.index("--no-recreate"):]
 
 
 @pytest.mark.parametrize("project", ["otherlab", "-v", "Bad Name", ""])

@@ -1,13 +1,15 @@
-import { Suspense, lazy, useState, type ReactNode } from "react";
+import { Suspense, lazy, useEffect, useState, type ReactNode } from "react";
 import { Badge, Button, Icon } from "../ui";
 import { StageGuide } from "../StageGuide";
 import { CHALLENGES_PATH, CURRICULUM_PATH, Link } from "../router";
 import { useConfig } from "../config";
-import { AVAIL, REGISTRY_NOTE, domainName, labById, type Entry, type Lab } from "../curriculum";
+import { MODE_INFO, REGISTRY_NOTE, domainName, labById, type Entry, type Lab } from "../curriculum";
 import { AttackPath } from "../AttackPath";
 import { Glossary } from "../mission/parts";
 import { CopyButton } from "../mission/parts";
-import { availTone } from "./Curriculum";
+import { modeTone } from "./Curriculum";
+import { UnifiedRail, goToStage } from "../UnifiedWorkshop";
+import { STAGE_EVENT } from "../WorkshopFlow";
 import { PiLiveEvidence, PiPractice } from "../workbench/PiWorkbench";
 import { RagLiveEvidence, RagPractice } from "../workbench/RagWorkbench";
 import { ScenarioLiveEvidence, ScenarioPractice } from "../workbench/ScenarioWorkbench";
@@ -29,6 +31,7 @@ export function LabPage({ id }: { id: string }) {
   const lab = labById(id);
   const [tab, setTab] = useState<Tab>("learn");
   const { config } = useConfig();
+  useEffect(() => { const h = () => setTab("practice"); window.addEventListener(STAGE_EVENT, h); return () => window.removeEventListener(STAGE_EVENT, h); }, []);   // the flow bar asks for a Practice stage
   if (!lab) return <div className="page"><header className="page-header"><div><div className="eyebrow">Not found</div><h1>No such lab</h1><p><Link to={CURRICULUM_PATH}>Back to the Curriculum Explorer</Link></p></div></header></div>;
   const s = lab.sections, ex = lab.explainer;
   const have = (e: unknown) => Boolean(e);
@@ -46,13 +49,14 @@ export function LabPage({ id }: { id: string }) {
     <header className="page-header"><div>
       <div className="eyebrow">{domainName(lab.primary_domain)}{lab.secondary_domain ? ` · also ${domainName(lab.secondary_domain)}` : ""}</div>
       <h1>{lab.title}</h1>
-      <p><code>{lab.id}</code> · <Badge tone={availTone(lab.availability)}>{AVAIL[lab.availability].label.toUpperCase()}</Badge>{lab.launchable && <> <Badge tone="observed">ON THE ATTACK SERVICE ALLOWLIST</Badge></>}{lab.integrated && <> <Badge tone="info">NATIVE IN THIS ACADEMY</Badge></>}{lab.level && <> <Badge tone="neutral">{lab.level}</Badge></>}</p>
-      <p>{AVAIL[lab.availability].blurb} {REGISTRY_NOTE}</p>
+      <p><code>{lab.id}</code> · <Badge tone={modeTone(lab.mode)}>{lab.mode}</Badge>{lab.launchable && <> <Badge tone="observed">ON THE ATTACK SERVICE ALLOWLIST</Badge></>}{lab.integrated && <> <Badge tone="info">NATIVE IN THIS ACADEMY</Badge></>}{lab.level && <> <Badge tone="neutral">{lab.level}</Badge></>}</p>
+      <p>{MODE_INFO[lab.mode].blurb} {REGISTRY_NOTE}</p>
     </div></header>
     {!full && <div className="m-notice" role="note"><Icon name="book" size={18} /><div><strong>Full guided lesson not yet available</strong><p>Only what this lab's own files support is shown below. Anything they do not document is left out rather than filled in.</p></div></div>}
     <StageGuide learning={summaryText || "See below."} todo={todo}
       happened={full ? "A learner explanation grounded in the lab's files, with every source named." : `${(Object.values(s) as unknown[]).filter(have).length} of 10 sections are documented in the lab's files.`}
       next={lab.native ? "Open the guided exercise." : tabs.length > 2 ? `Move through the tabs: ${tabs.filter((t) => t[0] !== "all").map((t) => t[1]).join(", ")}.` : "Check yourself with the knowledge check, if there is one."} />
+    {lab.mode === "LIVE" && lab.integrated && <UnifiedRail lab={lab.id} onSelect={(st) => { if (st === "learn") setTab("learn"); else { setTab("practice"); goToStage(st); } }} />}
     {tabs.length > 2 && <div role="tablist" aria-label="Lab sections" className="m-steps">
       {tabs.map(([t, label], i) => <button key={t} type="button" role="tab" aria-selected={tab === t} className={`m-steps__tab ${tab === t ? "is-current" : ""}`} onClick={() => setTab(t)}><span>{t === "all" ? "Everything" : `Step ${i + 1}`}</span><strong>{label}</strong></button>)}
     </div>}
@@ -139,13 +143,11 @@ function Exercise({ lab }: { lab: Lab }) {
   const { config } = useConfig();
   const a = lab.assets;
   return <div className="m-sec"><h3>What exercise or evidence is available?</h3>
-    <p><strong>{AVAIL[lab.availability].label}.</strong> {AVAIL[lab.availability].blurb}</p>
+    <p><strong>{MODE_INFO[lab.mode].label}.</strong> {MODE_INFO[lab.mode].blurb}</p>
     {lab.native && <div className="m-actions"><Link className="button button--primary" to={lab.native}>Open the guided exercise <Icon name="arrow" size={15} /></Link></div>}
-    {lab.availability === "workbench" && !lab.integrated && <p className="m-muted">This lab is on the Attack Service allowlist, so a live attack and retest exist there. Nothing runs from this page.{config.gateway ? " The classic lab page is not published through this gateway." : <>{" "}<a href={`/academy/labs/${lab.id}`}>Open the classic lab page (until it is migrated)</a>.</>}</p>}
-    {lab.integrated && <p className="m-muted">This lab is integrated natively: the guided sequence below launches its own catalog specimens through the Attack Service. The registry tier stays {AVAIL[lab.availability].label}.</p>}
-    {lab.availability === "replay" && <p className="m-muted">Recorded evidence only: nothing is launched and no new run is created.</p>}
-    {lab.availability === "content_only" && !lab.explainer?.recorded_ref && <p className="m-muted">There is nothing to launch or replay for this lab.</p>}
-    {lab.availability === "content_only" && lab.explainer?.recorded_ref && <p className="m-muted">There is no run to launch for this lab. The exercise below reads a committed packet that holds the lab's own records, and shows its classification.</p>}
+    {lab.mode === "LIVE" && lab.integrated && <p className="m-muted">The sequence below launches this lab's own catalog specimens through the Attack Service, from this page.</p>}
+    {lab.mode !== "LIVE" && !lab.explainer?.recorded_ref && <p className="m-muted">There is nothing to launch for this lab.</p>}
+    {lab.mode !== "LIVE" && lab.explainer?.recorded_ref && <p className="m-muted">Nothing is launched. The exercise below reads a committed packet that holds the lab's own records, and shows its classification.</p>}
     {a.specimens.length > 0 && <><h4>Recorded specimen files ({a.specimens.length})</h4><ul className="m-rules">{a.specimens.map((x) => <li key={x}><code>{x}</code></li>)}</ul><Src src={`learning/level_1/${lab.id}/specimens/`} /></>}
   </div>;
 }

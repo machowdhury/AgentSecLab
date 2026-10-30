@@ -202,8 +202,8 @@ def test_misconfigured_external_mode_fails_closed_and_never_uses_docker(pki, tmp
 def test_rest_backend_maps_results_and_failures_to_the_fixed_outcome_codes(pki, tmp_path):
     ok = srch.RestBackend(client(pki, tmp_path)).run("search ROWS", max_rows=5)
     assert ok.ok and ok.truncated and len(ok.rows) == 5 and ok.columns == ["a", "b"]
-    assert srch.RestBackend(client(pki, tmp_path, token="bad")).run("search x").error == "search_failed"
-    assert srch.RestBackend(client(pki, tmp_path, token=ms.TOK_NO_SEARCH)).run("search x").error == "search_failed"
+    assert srch.RestBackend(client(pki, tmp_path, token="bad")).run("search x").error == "access_denied"   # a refused identity is named, not folded into a generic failure
+    assert srch.RestBackend(client(pki, tmp_path, token=ms.TOK_NO_SEARCH)).run("search x").error == "access_denied"   # authenticated but not allowed to search: also a refusal
     assert srch.RestBackend(client(pki, tmp_path, ca="other_ca")).run("search x").error == "backend_unavailable"
     assert srch.RestBackend(client(pki, tmp_path, token=ms.TOK_SLOW)).run("search SLOWSEARCH", timeout_s=1).error == "timeout"
     assert srch.RestBackend(client(pki, tmp_path)).run("search x | delete").error == "search_failed"
@@ -230,7 +230,7 @@ def test_bundled_mode_still_uses_the_docker_paths(monkeypatch):
 
 
 def test_no_tls_bypass_anywhere_in_the_client_or_its_backends():
-    for f in ("src/agentsec/splunk_client.py", "src/agentsec/loan_desk/search.py"):
+    for f in ("src/agentsec/splunk_client.py", "src/agentsec/loan_desk/search.py", "src/agentsec/academy_search.py", "src/agentsec/installer/splunk_access.py"):
         t = (ROOT / f).read_text()
         assert not re.search(r"CERT_NONE|verify\s*=\s*False|_create_unverified|check_hostname\s*=\s*False|curl -[a-z]*k |--insecure", t), f
 
@@ -244,3 +244,8 @@ def test_cli_validate_and_check_exit_codes(pki, tmp_path):
     inv = subprocess.run([sys.executable, "-m", "agentsec.splunk_client", "validate"], env={**base, **env(pki, tmp_path, AGENTSEC_SPLUNK_REST_URL="http://x")}, capture_output=True, text=True)
     assert inv.returncode == 1 and "INVALID" in inv.stdout
     assert subprocess.run([sys.executable, "-m", "agentsec.splunk_client", "check"], env={**base, "AGENTSEC_SPLUNK_MODE": "BUNDLED"}, capture_output=True, text=True).returncode == 0
+
+
+def test_the_only_unverified_certificate_fetch_is_the_installers_loopback_read_of_the_certificate_it_then_verifies_against():
+    hits = [str(p.relative_to(ROOT)) for p in (ROOT / "src").rglob("*.py") if "get_server_certificate" in p.read_text(encoding="utf-8")]
+    assert hits == ["src/agentsec/installer/splunk_access.py"]

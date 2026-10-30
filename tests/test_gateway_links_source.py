@@ -19,7 +19,7 @@ def test_no_raw_anchor_to_splunk_web_without_a_gateway_gate():
                 line = text[line_start:text.find("\n", m.start())]
                 if "config.urls.splunk_web" not in line:                       # gated by the null URL the server reports in gateway mode
                     bad.append(f"{f.relative_to(SRC)}: {inner[:60]!r}")
-    assert scanned >= 5, f"the scan found only {scanned} raw Splunk anchors; the pattern no longer matches the source"       # the gated sites in Notebook/Investigate/InvestigationRecord
+    assert scanned >= 4, f"the scan found only {scanned} raw Splunk anchors; the pattern no longer matches the source"       # the gated sites in Notebook/Investigate/InvestigationRecord (one fewer since the Academy runs the searches itself)
     assert not bad, f"anchors that open Splunk Web without a gateway gate (use <SplunkLink> or check config.urls.splunk_web): {bad}"
 
 

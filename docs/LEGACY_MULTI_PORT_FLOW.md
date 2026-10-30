@@ -1,6 +1,8 @@
 # The earlier multi-port flow (published v1.2.0)
 
-Everything above is RC2: the installer, the HTTPS gateway and the guides in `docs/`. The sections below are the **earlier multi-port, plain-HTTP flow** that the published v1.2.0 release used (`scripts/lab-up.sh`, direct ports 5001, 5000 and 8000). They are kept because the older flow still works and other documents refer to it. macOS, Windows and this flow were **not** part of the RC2 acceptance runs. In RC2 the HTTPS gateway of the v1.3.0 development line is included but **unreleased**; [GATEWAY.md](GATEWAY.md#deployment-modes-at-a-glance) has the comparison table. Do not mix the two flows on one machine without reading [Installer](INSTALLER.md) on existing labs.
+> **Legacy: not the supported path.** This page keeps the v1.2.0 multi-port, plain-HTTP flow for reference only. In RC2 the supported path is the installer and the single HTTPS gateway: open `https://localhost/learn`. Ports 5000, 5001 and 8000 named here are internal in RC2 and learners never open them. Other documents link here only as legacy.
+
+The RC2 guides in `docs/` describe the installer and the HTTPS gateway. The sections below are the **earlier multi-port, plain-HTTP flow** that the published v1.2.0 release used (`scripts/lab-up.sh`, direct ports 5001, 5000 and 8000). They are kept because the older flow still works and other documents refer to it. macOS, Windows and this flow were **not** part of the RC2 acceptance runs. In RC2 (a release candidate, unreleased) the HTTPS gateway of the v1.3.0 development line is the installer default; [GATEWAY.md](GATEWAY.md#deployment-modes-at-a-glance) has the comparison table. Do not mix the two flows on one machine without reading [Installer](INSTALLER.md) on existing labs.
 
 ### Release status and versions
 

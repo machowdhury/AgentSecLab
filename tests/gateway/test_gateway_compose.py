@@ -30,11 +30,12 @@ def test_base_compose_is_untouched_by_the_gateway_work():
     if subprocess.run(["git", "rev-parse", "--verify", "-q", "origin/main"], cwd=ROOT, capture_output=True).returncode != 0:
         pytest.skip("origin/main not available")
     out = subprocess.run(["git", "diff", "--stat", "origin/main", "--", "docker-compose.yml", "docker-compose.local.yml"], cwd=ROOT, capture_output=True, text=True).stdout
-    # Since the gateway work RC2 added exactly one additive line to the base compose (LOANDESK_MODEL, so the installer can provision the Loan Desk model);
-    # anything else changing the base files is still a failure. Once this branch is main the diff is empty.
+    # Since the gateway work RC2 added exactly these additive lines to the base compose (LOANDESK_MODEL, so the installer can provision the Loan Desk model, and the
+    # explicit opt-in flag for the legacy host verifier); anything else changing the base files is still a failure. Once this branch is main the diff is empty.
     diff = subprocess.run(["git", "diff", "-U0", "origin/main", "--", "docker-compose.yml", "docker-compose.local.yml"], cwd=ROOT, capture_output=True, text=True).stdout
     changed = [l for l in diff.splitlines() if l[:1] in "+-" and not l.startswith(("+++", "---"))]
-    assert changed in ([], ["+      - LOANDESK_MODEL=${LOANDESK_MODEL:-}"]), changed
+    allowed = ["+      - LOANDESK_MODEL=${LOANDESK_MODEL:-}", "+      - AGENTSEC_LEGACY_HOST_VERIFIER=${AGENTSEC_LEGACY_HOST_VERIFIER:-}      # legacy multi-port flow only (scripts/lab-up.sh sets 1); never behind the gateway"]
+    assert all(c in allowed for c in changed), changed
 
 
 def published(services):

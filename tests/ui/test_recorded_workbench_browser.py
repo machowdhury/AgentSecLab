@@ -69,7 +69,7 @@ def test_learn_explains_the_operation_attacker_boundary_and_rule_and_labels_the_
             assert h in text, (lab, h)
         for n in needles:
             assert n.lower() in text, (lab, n)
-        assert ("replay" in text or "workbench" in text) and "recorded" in text and page.get_by_text("Full guided lesson not yet available").count() == 0   # these labs now also launch live; the recorded specimens stay
+        assert "live" in text and "recorded" in text and page.get_by_text("Full guided lesson not yet available").count() == 0   # these labs now also launch live; the recorded specimens stay
         assert seen == [], "Learn calls no backend"
 
 
@@ -159,7 +159,7 @@ def test_prove_names_the_decisive_event_provenance_spl_and_makes_no_verification
 def test_other_replay_labs_keep_the_generic_lab_page(page, root):
     page.goto(root + "LAB-AGENT-IDENTITY-NHI"); tab(page, "Practice")
     assert page.get_by_test_id("recorded-workbench").count() == 0
-    assert "Recorded evidence only" in page.locator("main, .page").first.inner_text()
+    assert "Nothing is launched" in page.locator("main, .page").first.inner_text()
 
 
 def test_keyboard_only_journey_and_390px_layout(browser, root):

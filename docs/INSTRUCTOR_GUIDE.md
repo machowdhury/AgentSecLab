@@ -1,16 +1,18 @@
 # Instructor guide
 
-Learner onboarding is the single path in [Getting started](GETTING_STARTED.md). Sections below titled for the original Splunk Academy Home describe the legacy L0–L10 path; the React Academy workshop flow is the section titled "Workshop flow with the EVAL, Risk and Governance Centers (v1.2.0)".
+Learners work in one app: the React Academy at `https://localhost/learn` (installer and HTTPS gateway; see the [installation guide](INSTALLATION_AND_DEPLOYMENT.md)). Sections below that mention `lab-up.sh`, direct ports or the Splunk Academy Home describe the legacy flow ([legacy multi-port flow](LEGACY_MULTI_PORT_FLOW.md), [legacy guide](LEGACY_SPLUNK_ACADEMY_GUIDE.md)), which is not the supported path. The React Academy workshop flow is the section titled "Workshop flow with the EVAL, Risk and Governance Centers (v1.2.0)".
 
 This is not a hidden privileged learner mode. Instructors use the same Attack Service and Academy.
 
 ## Before a workshop
 
+Legacy `lab-up.sh` steps (not the supported path; keep for the old flow only; the supported steps are in step 5 and the installation guide):
+
 1. `./scripts/lab-preflight.sh`
 2. `cp .env.example .env` if needed (do not share real secrets; lab defaults are localhost-only)
 3. `./scripts/lab-up.sh` (or `--build` if images may be stale)
 4. `./scripts/lab-ready.sh`
-5. Browser: the React Academy at http://127.0.0.1:5001/learn (start here); the original Splunk Academy Home is the legacy path. Attack Service http://127.0.0.1:5001, Splunk Search
+5. Browser: the React Academy at `https://localhost/learn` (start here; behind the gateway the legacy direct address `http://127.0.0.1:5001/learn` does not answer). Investigation happens inside the Academy (Investigate notebook, Security Assurance); Splunk Web is an optional Advanced view. Run `./agentsec splunk-access --check` first so the notebook can search.
 6. Confirm ATLAS qualifier **REQUIRES REVALIDATION** on Attack Service (proves current UI)
 7. Explain LIVE vs REPLAY ([LIVE_VS_REPLAY.md](LIVE_VS_REPLAY.md))
 8. Recommended first lab: Direct Prompt Injection LIVE ATTACK, copy run.id, Path A
@@ -25,7 +27,7 @@ This is not a hidden privileged learner mode. Instructors use the same Attack Se
 
 ## Teaching points
 
-- Path A is Search; Path B is a review key (Studio may show Path B without a click — known limitation)
+- Path A is the search (the notebook's fixed-template search, or Splunk Search in the legacy flow); Path B is a review key (Studio may show Path B without a click — known limitation)
 - Splunk is not the PDP
 - ATTACK overlay must not be described as RETEST
 - Missing evidence ≠ blocked
@@ -43,7 +45,7 @@ This is not a hidden privileged learner mode. Instructors use the same Attack Se
 ### Suggested flow (about 90 minutes)
 1. 10 min: the AcmeBank scenario and the Learn tab of LAB-MCP-003.
 2. 20 min: learners predict and reveal the recorded packet in LAB-HITL-APPROVAL (Practice tab), then read its Prove tab.
-3. 20 min: Splunk investigation of the same runs.
+3. 20 min: investigation of the same runs in the Academy's Investigate notebook (Splunk Web only as an optional Advanced view).
 4. 20 min: EVAL Center, reading findings and the limitations of a single run.
 5. 20 min: Risk Center, each learner drafts one assessment; compare judgments.
 

@@ -28,6 +28,9 @@ COPY learning/level_1/LAB-MCP-004/lab-manifest.json ./learning/level_1/LAB-MCP-0
 COPY learning/level_1/LAB-MCP-005/lab-manifest.json ./learning/level_1/LAB-MCP-005/lab-manifest.json
 COPY learning/level_1/LAB-MCP-CATALOG/lab-manifest.json ./learning/level_1/LAB-MCP-CATALOG/lab-manifest.json
 COPY learning/level_1/LAB-MCP-006/lab-manifest.json ./learning/level_1/LAB-MCP-006/lab-manifest.json
+# Security Assurance reads its rules and controls and the committed recorded runs at start-up and per request; without these the service exits at once.
+COPY learning/assurance/ ./learning/assurance/
+COPY learning/level_1/ ./learning/level_1/
 
 ENV PYTHONPATH=/app/src
 ENV AGENTSEC_SCHEMA_PATH=/app/schemas/security_event.schema.json

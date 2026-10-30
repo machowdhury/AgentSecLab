@@ -411,13 +411,13 @@ textarea { width: 100%; min-height: 130px; margin-top: 8px; resize: vertical; pa
 .notebook-cell { display: grid; grid-template-columns: 72px 1fr; padding: 30px 0; border-bottom: 1px solid var(--line); }
 .cell-rail { display: flex; flex-direction: column; align-items: center; color: var(--subtle); font-family: "DM Mono"; font-size: 9px; }
 .cell-rail i { width: 1px; height: 100%; min-height: 100px; margin-top: 10px; background: var(--line); }
-.notebook-cell--open .cell-rail span { color: var(--teal); font-weight: 700; }
+.notebook-cell--open .cell-rail span { color: #006067; font-weight: 700; }
 .cell-main { min-width: 0; padding-right: 4px; }
-.cell-question>span { color: var(--teal); font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.cell-question>span { color: #006067; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 .cell-question h2 { margin: 5px 0 15px; font-size: 20px; }
 .query-block { position: relative; padding: 16px; border: 1px solid var(--line); border-left: 3px solid var(--blue); background: white; }
 .query-block>div { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; }
-.query-block>div>span { color: var(--blue); font-size: 8px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.query-block>div>span:not(.badge) { color: #2a5a96; font-size: 8px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .query-block pre { margin: 0 150px 0 0; overflow-x: auto; color: #31485f; font-family: "DM Mono"; font-size: 10px; line-height: 1.65; white-space: pre-wrap; }
 .query-block>.button { position: absolute; right: 16px; bottom: 16px; }
 .cell-output { position: relative; margin-top: 12px; padding-left: 52px; }

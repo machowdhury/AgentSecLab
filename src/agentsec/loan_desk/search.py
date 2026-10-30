@@ -15,7 +15,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Callable, Protocol
 
-UUID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+UUID = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
 BASE = 'index=agentsec_telemetry sourcetype="otel:agentic:json" earliest=-24h "agentsec.run.id"="{run}"'
 BASE2 = 'index=agentsec_telemetry sourcetype="otel:agentic:json" earliest=-24h ("agentsec.run.id"="{run}" OR "agentsec.run.id"="{other}")'
 MAX_ROWS = 50          # rows returned to the browser, whatever the template asks for
@@ -64,10 +64,10 @@ class Template:
     runs: int = 1                  # 2 = a comparison: {run} is the baseline run and {other} the defended (retest) run
 
     def build(self, run_id: str, raw: object, compare_run: object = None) -> tuple[str, dict]:
-        if not isinstance(run_id, str) or not UUID.match(run_id):
+        if not isinstance(run_id, str) or not UUID.fullmatch(run_id):
             raise SearchError("run id must be a lowercase UUID.")
         if self.runs == 2:
-            if not isinstance(compare_run, str) or not UUID.match(compare_run) or compare_run == run_id:
+            if not isinstance(compare_run, str) or not UUID.fullmatch(compare_run) or compare_run == run_id:
                 raise SearchError("A comparison needs two different run ids.")
             scope = BASE2.format(run=run_id, other=compare_run)
         elif compare_run is not None:
@@ -220,7 +220,7 @@ class RestBackend:
             import logging
             logging.getLogger(__name__).info("splunk rest search failed: %s/%s", exc.stage, exc.code)
             ms = int((time.monotonic() - t0) * 1000)
-            error = "timeout" if exc.code == "timeout" else ("backend_unavailable" if exc.stage == "connectivity" else "search_failed")
+            error = "timeout" if exc.code == "timeout" else ("backend_unavailable" if exc.stage == "connectivity" else "access_denied" if exc.stage in ("authentication", "authorization") else "search_failed")
             return Outcome(False, error=error, duration_ms=ms)
         cols, rows, trunc = shape_csv(text, max_rows)
         return Outcome(True, cols, rows, trunc, None, int((time.monotonic() - t0) * 1000))

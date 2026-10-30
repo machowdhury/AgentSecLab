@@ -97,6 +97,7 @@ fi
 
 log() { printf '[lab-up] %s\n' "$*"; }
 STARTED="$(date +%s)"
+export AGENTSEC_LEGACY_HOST_VERIFIER=1     # this legacy flow starts the host verifier below; the gateway deployment never does
 
 if [ "$REMOTE" -eq 1 ]; then
   export AGENTSEC_DEPLOYMENT=remote

@@ -109,6 +109,7 @@ services:
       - ACMEBANK_URL=http://acmebank:5000
       - AGENTSEC_ARTIFACTS_DIR=/app/artifacts
       - AGENTSEC_SPLUNK_WEB_URL=http://127.0.0.1:8000
+      - AGENTSEC_LEGACY_HOST_VERIFIER=${AGENTSEC_LEGACY_HOST_VERIFIER:-}      # legacy multi-port flow only (scripts/lab-up.sh sets 1); never behind the gateway
     depends_on:
       acmebank:
         condition: service_healthy

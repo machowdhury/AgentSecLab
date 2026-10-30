@@ -236,3 +236,4 @@ graphify-out/
 # AgentSec installer: generated state and backups of a foreign .env
 .agentsec/
 .env.pre-agentsec*
+.splunk-access/

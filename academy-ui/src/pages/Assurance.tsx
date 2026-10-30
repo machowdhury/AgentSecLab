@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Badge, Button, Icon, LinkButton } from "../ui";
 import { Callout } from "../mission/parts";
-import { Link, labPath, navigate, ASSURANCE_PATH, JOURNEY_PATH } from "../router";
+import { Link, labPath, navigate, ASSURANCE_PATH, ASSURANCE_STUDY_PATH, JOURNEY_PATH } from "../router";
 import { Question } from "../workbench/StudyWorkbench";
 import type { StudyQuestion } from "../curriculum";
 import { EvidenceBadge, LimitationsList, MappingTable, NotImplemented, ObservationCard, StatusBadge, StepBar, VerificationBadge, classMeaning } from "../assurance/parts";
@@ -42,7 +42,8 @@ export function AssuranceHub() {
   const started = p.seen.length > 0 || Object.keys(p.answers).length > 0 || p.practiceConfirmed;
   return <div className="page wk">
     <header className="page-header"><div><div className="eyebrow">SECURITY ASSURANCE · EVALUATION, RISK AND CONTROLS</div><h1>From a security result to a defensible conclusion</h1>
-      <p>One workshop walks a single recorded scenario from lesson to proof, keeping what was observed, what is judged, what is mapped to frameworks and what is asserted strictly apart.</p></div></header>
+      <p>One workshop walks a single recorded scenario from lesson to proof, keeping what was observed, what is judged, what is mapped to frameworks and what is asserted strictly apart.</p>
+      <p className="m-muted">This is the study journey (recorded evidence only). <Link to={ASSURANCE_PATH}>See what this lab's own runs show: live assurance</Link>.</p></div></header>
 
     <section className="wk-sec" aria-labelledby="wk-journey"><h2 id="wk-journey">The workshop journey</h2>
       <article className="wk-card"><header><h3>{"An agent asks for a tool at a scope it was not granted"}</h3><Badge tone="replay">RECORDED EVIDENCE</Badge></header>
@@ -156,9 +157,9 @@ export function AssuranceJourney({ step }: { step: StepId | null }) {
   const first = data ? (STEP_IDS.find((s) => !complete(s, p, exerciseIds(data)[s])) ?? "prove") : "learn";
   useEffect(() => { if (data && step === null) navigate(`${JOURNEY_PATH}/${first}`, { replace: true }); }, [data, step]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (step) { markSeen(step); setCleared(false); } }, [step]);
-  if (err) return <div className="page wk"><div className="m-sec" role="alert"><h1>The workshop evidence could not be loaded</h1><p>The recorded evidence file did not load. Nothing was changed. A browser keeps a failed file load until the page is reloaded.</p><div className="m-actions"><Button onClick={() => window.location.reload()}>Reload the page</Button><LinkButton href={ASSURANCE_PATH} variant="secondary" internal>Back to the workshop home</LinkButton></div></div></div>;
+  if (err) return <div className="page wk"><div className="m-sec" role="alert"><h1>The workshop evidence could not be loaded</h1><p>The recorded evidence file did not load. Nothing was changed. A browser keeps a failed file load until the page is reloaded.</p><div className="m-actions"><Button onClick={() => window.location.reload()}>Reload the page</Button><LinkButton href={ASSURANCE_STUDY_PATH} variant="secondary" internal>Back to the workshop home</LinkButton></div></div></div>;
   if (!data) return <div className="page wk"><div className="m-sec" role="status"><p className="m-muted">Loading the recorded evidence…</p></div></div>;
-  if (data.observations.length === 0) return <div className="page wk"><div className="m-sec"><h1>No evidence in this journey</h1><p>This journey has no observations, so there is nothing to evaluate.</p><LinkButton href={ASSURANCE_PATH} internal>Back to the workshop home</LinkButton></div></div>;
+  if (data.observations.length === 0) return <div className="page wk"><div className="m-sec"><h1>No evidence in this journey</h1><p>This journey has no observations, so there is nothing to evaluate.</p><LinkButton href={ASSURANCE_STUDY_PATH} internal>Back to the workshop home</LinkButton></div></div>;
   if (step === null) return <div className="page wk"><div className="m-sec" role="status"><p className="m-muted">Opening your current step…</p></div></div>;
   const ids = exerciseIds(data), idx = STEP_IDS.indexOf(step), meta = data.steps[idx];
   const doneCount = STEP_IDS.filter((s) => complete(s, p, ids[s])).length;
@@ -177,7 +178,7 @@ export function AssuranceJourney({ step }: { step: StepId | null }) {
     <section className="wk-instruction" aria-label="What to do here"><h2>What to do here</h2><p>{meta.instruction}</p></section>
     {body}
     {!complete(step, p, ids[step]) && step !== "learn" && step !== "prove" && <p className="m-muted">You can continue now. This step is not marked complete until you finish its exercise.</p>}
-    <footer className="wk-actions">{prev ? <LinkButton href={`${JOURNEY_PATH}/${prev}`} variant="secondary" internal>Back to {STEP_TITLES[prev]}</LinkButton> : <LinkButton href={ASSURANCE_PATH} variant="secondary" internal>Back to the workshop home</LinkButton>}
-      {next ? <LinkButton href={`${JOURNEY_PATH}/${next}`} icon="arrow" internal>{meta.next_action}</LinkButton> : <LinkButton href={ASSURANCE_PATH} icon="arrow" internal>{meta.next_action}</LinkButton>}</footer>
+    <footer className="wk-actions">{prev ? <LinkButton href={`${JOURNEY_PATH}/${prev}`} variant="secondary" internal>Back to {STEP_TITLES[prev]}</LinkButton> : <LinkButton href={ASSURANCE_STUDY_PATH} variant="secondary" internal>Back to the workshop home</LinkButton>}
+      {next ? <LinkButton href={`${JOURNEY_PATH}/${next}`} icon="arrow" internal>{meta.next_action}</LinkButton> : <LinkButton href={ASSURANCE_STUDY_PATH} icon="arrow" internal>{meta.next_action}</LinkButton>}</footer>
   </div>;
 }

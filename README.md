@@ -49,16 +49,17 @@ It does not claim to do anything those tools do, and it is not a substitute for 
 
 ## The journey, and what is operational
 
-**Academy → Workshop → Attack or Defense → Security tool → Splunk investigation → Assurance dashboard → Evidence → Retest.**
+**Academy → Workshop → Attack or Defense → Security tool → Investigate notebook → Security Assurance → Evidence → Retest.** All of it happens in the Academy at one HTTPS address; the Attack Service is only its backend.
 
 | Step | Operational | Needs separate sign-in or setup | Not supported or not tested |
 |---|---|---|---|
 | Academy, workshops, Attack UI | Yes, behind the gateway | `operator` role to launch | |
 | Attack, defend, retest (13 live labs) | Yes | | |
 | Security tools | Cisco MCP Scanner (static, isolated) and a recorded garak result | A scanner run is optional | Nemotron evaluation (none exists) |
-| Splunk investigation | Searches in Splunk Web | Splunk login; Splunk Web is **outside the gateway** | |
-| Assurance dashboards | Five dashboards and a finding page | Splunk login | Row-click drilldown was not exercised |
-| VERIFIED evidence in the Academy | Optional | Splunk REST token and CA | Off by default |
+| Investigation | The Investigate stage is a notebook: you press **Run** and the Attack Service executes an approved, fixed-template search against Splunk, then shows the rows, a chart and a plain-language reading | The installer's search-only Splunk identity (`./agentsec splunk-access`; check with `--check`); if it is missing the notebook says so and fails closed | Validated on one real Splunk 10.2.7 host (bundled Splunk, 2026-10-30) |
+| Security Assurance (Academy > Security Assurance, `/learn/assurance`) | Findings with raw evidence, an investigation notebook and a retest comparison | The same search-only identity | Validated on one real Splunk 10.2.7 host (bundled Splunk, 2026-10-30) |
+| Splunk Web and the five dashboards | Optional **Advanced** views, never a required step | Splunk login; Splunk Web is **outside the gateway** (host loopback) | Row-click drilldown was not exercised |
+| VERIFIED evidence on launch cards, Loan Desk host verifier | Optional and legacy | Splunk REST token and CA; `AGENTSEC_LEGACY_HOST_VERIFIER=1` for the legacy verifier (ignored behind the gateway) | Off by default; no default run is Splunk-VERIFIED |
 
 ## Why agentic AI security is different
 
@@ -92,7 +93,7 @@ More on the value for each role, with the architecture and the limits: [Benefits
 - **Run the same attack three times**, BASELINE, ATTACK (an intentionally vulnerable profile) and RETEST (the defended profile), and see the outcome change because the server changed the profile.
 - **The AcmeBank Loan Desk**: a mission with a real local language model (`llama3.2:latest`) whose every action passes a deterministic policy engine.
 - **Three CTF challenges** (simulated, server-verified, scored once each).
-- **Investigate in Splunk**: every live run emits events under one run id into a Splunk index, with dashboards and hunt searches.
+- **Investigate in the Academy**: every live run emits events under one run id into a Splunk index, and the Investigate notebook runs approved, fixed-template searches on it and shows rows, a chart and a plain-language reading. Dashboards and hunt searches in Splunk Web are an optional Advanced view.
 - **CSA MAESTRO threat modeling**: a seven-layer workbench with cross-layer attack paths, a qualitative risk register, mitigations, a self-check and a downloadable report.
 - **Evaluate, assess risk and map governance** in the EVAL, Risk and Governance centers (recorded evidence and browser-local drafts).
 
@@ -130,7 +131,7 @@ flowchart LR
   end
   subgraph APP["Application network 'agentsec_mesh' (no host ports)"]
     direction TB
-    AS["Attack Service<br/>Academy UI (33 workshops), Attack UI,<br/>launch API and allowlist, CTF engine,<br/>evidence verification"]
+    AS["Attack Service (backend)<br/>serves the Academy UI (33 workshops),<br/>launch API and allowlist, CTF engine,<br/>approved-search notebooks"]
     AB["AcmeBank<br/>agent pipeline, in-process MCP tools,<br/>RAG, memory, Loan Desk,<br/>deterministic controls"]
     OL["Ollama<br/>llama3.2:1b, llama3.2:latest"]
   end
@@ -141,7 +142,7 @@ flowchart LR
   OT["OpenTelemetry collector"]
   subgraph SPL["Splunk Enterprise: separate login, not behind the gateway"]
     HEC["HEC ingestion (TLS)<br/>index agentsec_telemetry"]
-    SW["Splunk Web: investigation searches,<br/>5 AI Security Assurance dashboards<br/>and the finding page"]
+    SW["Splunk Web (optional Advanced view):<br/>5 AI Security Assurance dashboards<br/>and the finding page"]
   end
   MAE["MAESTRO workbench<br/>(runs in the browser)"]
   CTF["CTF challenges<br/>(simulated)"]
@@ -156,15 +157,15 @@ flowchart LR
   MS -.->|"evidence pack ingested by script"| HEC
   GK -.->|"evidence pack ingested by script"| HEC
   HEC --> SW
-  AS -.->|"optional: REST search (token, CA)<br/>for VERIFIED"| HEC
-  B -.->|"http://127.0.0.1:18000<br/>(SSH tunnel when remote)"| SW
+  AS -->|"approved fixed-template searches:<br/>REST, search-only identity, strict TLS"| HEC
+  B -.->|"optional, operator: 127.0.0.1:18000<br/>(SSH tunnel when remote)"| SW
 ```
 
 The language model **proposes**; deterministic code **authorizes and executes**; Splunk **observes** and enforces nothing. The browser cannot send a payload, a tool name, a search or a security profile: the Attack Service chooses them. Only the gateway is meant to be reachable from outside the host. In gateway mode AcmeBank and Ollama publish no host port, and Splunk Web, HEC and the collector bind to loopback only. The [Visual guide](docs/VISUAL_GUIDE.md) adds the data-flow and trust-boundary diagrams and five more (workflow, attack sequence, Splunk investigation, MAESTRO layers, learner journey); each says what is optional.
 
 ## Evidence-driven assurance dashboards
 
-Five Splunk dashboards and a finding page turn what happened in a run into a finding you can read and retest, with one of six statuses: Verified effective, Verified ineffective, Finding observed, Not tested, Insufficient evidence, Verification unavailable. Missing telemetry never reads as a pass, and an intentionally vulnerable profile is labelled *by design*, not as a failed control. On the acceptance host all 34 searches ran and 118 findings matched a Python reference implementation of the same rules (the screenshot below shows a different time range and run count). They make no organizational compliance claim. Guide, with the rules: [AI Security Assurance](docs/AI_SECURITY_ASSURANCE.md).
+The Academy's Security Assurance page (`/learn/assurance`) shows findings with raw evidence, an investigation notebook and a retest comparison; the same five Splunk dashboards and finding page are an optional Advanced view. Together they turn what happened in a run into a finding you can read and retest, with one of six statuses: Verified effective, Verified ineffective, Finding observed, Not tested, Insufficient evidence, Verification unavailable. Missing telemetry never reads as a pass, and an intentionally vulnerable profile is labelled *by design*, not as a failed control. On the acceptance host all 34 searches ran and 118 findings matched a Python reference implementation of the same rules (the screenshot below shows a different time range and run count). They make no organizational compliance claim. Guide, with the rules: [AI Security Assurance](docs/AI_SECURITY_ASSURANCE.md).
 
 ![The executive overview dashboard, captured on the acceptance host](docs/images/assurance-executive.png)
 
@@ -182,7 +183,7 @@ cd AgentSecLab
 ./agentsec status                                       # expect: OK project 'agentsec': all services are up.
 cat .gateway/credentials.txt                            # the learner and operator passwords
 ```
-Then open **`https://localhost/learn`**. Your browser will warn until you trust the lab's own certificate authority, `.gateway/tls/ca.pem` (import steps: [installation guide, 2.7](docs/INSTALLATION_AND_DEPLOYMENT.md#27-open-the-academy-tested-through-an-ssh-tunnel-the-same-requests-run-directly-on-the-host-were-not-run)). Sign in as `learner` (passwords: `cat .gateway/credentials.txt`) and start with **Start the beginner route**. Sign in as `operator` to launch attacks. Splunk Web, for investigations, is at `http://localhost:18000` on the same machine (user `admin`, password `SPLUNK_PASSWORD` in `.env`). Stop with `./agentsec down` (keeps your data) and restart with `./agentsec up`.
+Then open **`https://localhost/learn`**. Your browser will warn until you trust the lab's own certificate authority, `.gateway/tls/ca.pem` (import steps: [installation guide, 2.7](docs/INSTALLATION_AND_DEPLOYMENT.md#27-open-the-academy-tested-through-an-ssh-tunnel-the-same-requests-run-directly-on-the-host-were-not-run)). Sign in as `learner` (passwords: `cat .gateway/credentials.txt`) and start with **Start the beginner route**. Sign in as `operator` to launch attacks. You investigate inside the Academy. Splunk Web is an optional Advanced view at `http://localhost:18000` on the same machine (user `admin`, password `SPLUNK_PASSWORD` in `.env`); no step needs it. Stop with `./agentsec down` (keeps your data) and restart with `./agentsec up`.
 
 The full guide, with expected output, EC2 settings, certificates, SSH tunnelling, Splunk and troubleshooting, is the [Installation and deployment guide](docs/INSTALLATION_AND_DEPLOYMENT.md). **Measured on the tested host, not requirements:** about 25 GiB disk after install, about 6 GiB peak RAM during a Loan Desk run with both models loaded, and about 9 to 10 minutes for a clean install.
 
@@ -214,8 +215,8 @@ The acceptance logs behind this section are not published; what follows is their
 - **Not production software, and not for the public internet.** It contains intentionally vulnerable profiles. Authentication is a stand-in (basic authentication, two roles, no SSO, no login throttling), for one local participant.
 - **Not a measurement of any real model or product.** A recorded run is one run, not a rate. No compliance or certification claim is made.
 - **Not real MCP or A2A transport.** Those are in-process models; the CTF uses a scripted agent.
-- **Splunk REST verification (VERIFIED) is not on by default.** It needs a matching management certificate, a trusted CA and a token; without them the Academy shows VERIFICATION UNAVAILABLE and you search Splunk yourself. The bundled Splunk's KV store (needed for tokens) does not start on a Linux kernel 6.19 or newer, such as the 7.0 kernel in current Ubuntu 24.04 AWS images.
-- **Not everything sits behind one address.** Splunk Web and the real AcmeBank are not routed through the gateway.
+- **Splunk REST verification (VERIFIED) is not on by default.** It needs a matching management certificate, a trusted CA and a token; without them the Academy shows VERIFICATION UNAVAILABLE. The Investigate notebook and Security Assurance use the installer's separate search-only identity instead; where it is not provisioned they say so and fail closed. That path was validated on one real Splunk 10.2.7 host (bundled Splunk, 2026-10-30); it was not validated against an external Splunk, Splunk Cloud or an organization certificate. The bundled Splunk's KV store (needed for tokens) does not start on a Linux kernel 6.19 or newer, such as the 7.0 kernel in current Ubuntu 24.04 AWS images.
+- **Not everything sits behind one address.** Splunk Web (an optional Advanced view) and the real AcmeBank are not routed through the gateway; learners need neither.
 - **Scope of the beta.** Restricted, single-user, tested on one Ubuntu 24.04 host. Windows, macOS and other untested paths are listed above.
 - **Dashboards.** The row-click drilldown was not exercised. A run that never reaches Splunk cannot appear as a finding (the Academy reports VERIFICATION UNAVAILABLE). Time to detection is unavailable. The Loan Desk is not scored. Some scanner and model evidence comes from committed packs, not fresh scans. Nemotron has not been tested.
 - **Operations.** Backup, upgrade, multi-user and incident-response procedures were not tested.

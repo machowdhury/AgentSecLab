@@ -5,6 +5,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
 
 TOK_ADMIN, TOK_SEARCH_ONLY, TOK_NO_SEARCH, TOK_REDIRECT, TOK_SLOW = "t-admin", "t-search-only", "t-no-search", "t-redirect", "t-slow"
+BASIC_PASSWORD = "pw-ok"
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -17,7 +18,12 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body))); self.end_headers(); self.wfile.write(body)
 
     def _tok(self):
-        a = self.headers.get("Authorization", ""); return a[7:] if a.startswith("Bearer ") else None
+        a = self.headers.get("Authorization", "")
+        if a.startswith("Basic "):                      # the installer-managed search-only user (basic mode)
+            import base64
+            try: return TOK_SEARCH_ONLY if base64.b64decode(a[6:]).decode() == "agentsec_search:" + BASIC_PASSWORD else "bad"
+            except Exception: return "bad"
+        return a[7:] if a.startswith("Bearer ") else None
 
     def do_GET(self):
         tok, path = self._tok(), urlsplit(self.path).path

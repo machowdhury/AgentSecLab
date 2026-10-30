@@ -9,10 +9,19 @@ sys.path.insert(0, str(ROOT / "src"))
 NGINX = (ROOT / "gateway/templates/gateway.conf.template").read_text(); ATTACK = (ROOT / "gateway/attack-enabled.conf").read_text()
 READ_RE = re.compile(re.search(r"location ~ (\^/\(learn.*?\$\))\s*\{", NGINX, re.S).group(1))
 ATTACK_RE = re.compile(re.search(r"location ~ (\^/api/.*?)\s*\{", ATTACK).group(1))
-SAMPLE = {"lab_id": "LAB-PI-001", "run_id": "abc123", "search_id": "s1", "rest": "x/y", "filename": "learn/a.js"}
+SAMPLE = {"lab_id": "LAB-PI-001", "run_id": "abc123", "search_id": "0123456789abcdef", "rest": "x/y", "filename": "learn/a.js", "finding_id": "F-0123456789ab"}
+SAMPLE["run_id"] = "11111111-1111-4111-8111-111111111111"
+
+
+FIXTURES_RE = re.compile(re.search(r'location ~ "(\^/api/assurance/fixtures/.*?\$)" \{', ATTACK).group(1))
+ASSURANCE_RE = re.compile(re.search(r'location ~ "(\^/api/assurance/\(overview.*?\$)" \{', NGINX).group(1))
+INVEST_RE = re.compile(re.search(r'location ~ "(\^/api/assurance/findings/F-.*?\$)" \{', ATTACK).group(1))
 
 
 def tier(path, method):
+    if FIXTURES_RE.match(path) and method == "GET": return "operator-read"
+    if INVEST_RE.match(path) and method in ("GET", "POST"): return "attack"
+    if ASSURANCE_RE.match(path) and method == "GET": return "read"
     if ATTACK_RE.match(path) and method in ("GET", "POST"): return "attack"
     if READ_RE.match(path) and method == "GET": return "read"
     return "denied"
@@ -46,7 +55,8 @@ def test_route_table_classification(routes):
     via_attack = sorted(x for x in posts if x in table.get("attack", []))
     denied = sorted(x for x in posts if x not in table.get("attack", []))
     expected = sorted(["POST /api/launch", "POST /api/attacks/ATK-002", "POST /api/missions/loan-desk/runs", "POST /api/missions/loan-desk/runs/<run_id>/search",
-                       "POST /api/missions/loan-desk/runs/<run_id>/search/preview", "POST /api/missions/loan-desk/runs/<run_id>/verify"])
+                       "POST /api/missions/loan-desk/runs/<run_id>/search/preview", "POST /api/missions/loan-desk/runs/<run_id>/verify",
+                       "POST /api/assurance/findings/<finding_id>/cells/<cell_id>"])
     ok = via_attack == expected
     assert ok, (via_attack, expected)
 
@@ -74,3 +84,21 @@ def test_spa_traffic_matches_the_allowlist():
     learner_blocked = [f"{m} {p}" for m, p in api if tier(p, m) != "read"]
     docs_blocked = [f"{m} {p}" for (m, p), t in seen.items() if t == "document" and tier(p, m) != "read" and p != "/"]
     assert not learner_blocked and not docs_blocked, (learner_blocked, docs_blocked)
+
+
+def test_assurance_routes_are_read_only_and_the_fixtures_view_is_operator_only(routes):
+    got = {(m, r): tier(p, m) for p, m, r in routes if "/api/assurance/" in r}
+    F = "/api/assurance/findings/<finding_id>"
+    assert got == {("GET", "/api/assurance/overview"): "read", ("GET", F): "read", ("GET", F + "/investigation"): "read", ("GET", F + "/comparison"): "read",
+                   ("GET", F + "/explore/<cell_id>"): "read", ("GET", "/api/assurance/runs/<run_id>/findings"): "read", ("GET", F + "/searches/<search_id>"): "attack", ("POST", F + "/cells/<cell_id>"): "attack",
+                   ("GET", "/api/assurance/fixtures/overview"): "operator-read", ("GET", "/api/assurance/fixtures/findings/<finding_id>"): "operator-read",
+                   ("GET", "/api/assurance/fixtures/findings/<finding_id>/investigation"): "operator-read", ("GET", "/api/assurance/fixtures/findings/<finding_id>/comparison"): "operator-read",
+                   ("GET", "/api/assurance/fixtures/findings/<finding_id>/explore/<cell_id>"): "operator-read"}
+    for bad in ("/api/assurance/overview/x", "/api/assurance/findings/F-0123", "/api/assurance/findings/../x", "/api/assurance/fixtures/findings/F-0123456789abg",
+                "/api/assurance/findings/F-0123456789ab/investigation/x", "/api/assurance/findings/F-0123456789ab/explore/../x", "/api/assurance/findings/F-0123456789ab/cells/A",
+                "/api/assurance/findings/F-0123456789ab/searches/zz", "/api/assurance/fixtures/findings/F-0123456789ab/cells/run_events"):
+        assert tier(bad, "GET") == "denied", bad
+    for p in ("/api/assurance/overview", "/api/assurance/fixtures/overview"):
+        assert tier(p, "POST") == "denied"
+    block = ATTACK[ATTACK.index('location ~ "^/api/assurance/fixtures'):]
+    assert "auth_request /_authz_operator;" in block.split("\n}")[0] and "limit_except GET { deny all; }" in block.split("\n}")[0]

@@ -1,6 +1,6 @@
 # Local, remote and EC2 access
 
-> **RC2 note.** This page describes the earlier multi-port, plain-HTTP flow (`scripts/lab-up.sh`, published as v1.2.0). The RC2 path (the installer and the HTTPS gateway) is in [Installation and deployment](INSTALLATION_AND_DEPLOYMENT.md). macOS, Windows and this older flow were **not** part of the RC2 acceptance runs. Do not mix the two flows on one machine without reading [Installer](INSTALLER.md) on existing labs.
+> **Legacy: not the supported path.** This page describes the earlier multi-port, plain-HTTP flow (`scripts/lab-up.sh`, published as v1.2.0), in which ports 5000, 5001 and 8000 are published. In RC2 (a release candidate, unreleased) those ports are internal. The supported path is the installer and the single HTTPS gateway: install with `./agentsec` ([Installation and deployment](INSTALLATION_AND_DEPLOYMENT.md)) and open `https://localhost/learn`. Learners investigate inside the Academy; Splunk Web is an optional Advanced view. macOS, Windows and this older flow were **not** part of the RC2 acceptance runs. Do not mix the two flows on one machine without reading [Installer](INSTALLER.md) on existing labs. For a remote RC2 host use the SSH tunnel to the gateway in the installation guide (2.7 and 3), not the ports below.
 
 AgentSec has two deployment modes. **Local** (the default) is reachable only from the machine that runs it. **Remote** is an explicit command that publishes the three learner ports so a browser on another machine can reach them.
 

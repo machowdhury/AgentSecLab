@@ -180,7 +180,7 @@ def test_install_writes_owner_only_files_and_applies_nothing_without_apply(tmp_p
 def test_apply_runs_the_plan_in_order_and_stops_at_the_first_failure(tmp_path):
     ok = FakeRunner()
     rc, _ = cli(tmp_path, ["install", "--non-interactive", "--accept-warnings", "all", "--apply"], runner=ok)
-    assert rc == 0 and ok.commands[0][:4] == ["docker", "compose", "config", "-q"] and ok.commands[-1][:4] == ["docker", "compose", "up", "-d"]
+    assert rc == 0 and ok.commands[0][:4] == ["docker", "compose", "config", "-q"] and [c for c in ok.commands if c[:4] == ["docker", "compose", "up", "-d"]]
     assert ["mkdir", "-p", "artifacts/loan_desk/receipts"] in ok.commands and ["sh", "scripts/hec-certs.sh"] in ok.commands          # prerequisites the base compose file needs
     gw = ok.commands.index(["sh", "scripts/gateway.sh", "init"])
     assert ok.envs[gw] == {"AGENTSEC_PUBLIC_HOST": "localhost", "AGENTSEC_PUBLIC_PORT": "443"}                                    # gateway.sh reads the process environment, not .env
@@ -348,12 +348,14 @@ def test_a_configured_splunk_rest_check_reaches_the_attack_service_container():
 
 
 def test_the_bundled_splunk_gets_the_rest_check_only_when_both_url_and_token_file_are_given():
-    assert "SPLUNK_REST_URL" not in _attack_block(plan_for(InstallConfig()))                                    # the default install is unchanged
+    default = _attack_block(plan_for(InstallConfig()))                                                         # the default install gets the installer-managed access directory, not a token file
+    assert "AGENTSEC_SPLUNK_ACCESS_DIR=/run/secrets/agentsec_splunk_access" in default and "SEARCH_TOKEN_FILE" not in default
+    assert "SPLUNK_REST_URL" not in _attack_block(plan_for(cfgd(splunk={"mode": "bundled", "access": "off"})))      # access off: unchanged from before
     on = plan_for(cfgd(splunk={"mode": "bundled", "rest_url": "https://splunk:8089", "token_file": "/home/u/t"}))
     assert "AGENTSEC_SPLUNK_MODE=BUNDLED" in _attack_block(on) and "AGENTSEC_SPLUNK_CA_BUNDLE_FILE" not in _attack_block(on)    # no CA file: the system store
     assert envmap(on)["AGENTSEC_SPLUNK_REST_URL"] == "https://splunk:8089"
     half = cfgd(splunk={"mode": "bundled", "rest_url": "https://splunk:8089"})
-    assert "SPLUNK_REST_URL" not in _attack_block(plan_for(half))
+    assert "SEARCH_TOKEN_FILE" not in _attack_block(plan_for(half))                                              # a URL alone does not make the manual (token file) check
     from agentsec.installer import config as C
     assert "SPLUNK_REST_INCOMPLETE" in [x.code for x in C.validate(half, LOCKS)]
 

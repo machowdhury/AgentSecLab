@@ -14,7 +14,7 @@ flowchart LR
   end
   subgraph APP["Application network 'agentsec_mesh' (no host ports)"]
     direction TB
-    AS["Attack Service<br/>Academy UI (33 workshops), Attack UI,<br/>launch API and allowlist, CTF engine,<br/>evidence verification"]
+    AS["Attack Service<br/>Academy UI (33 workshops), Attack UI,<br/>launch API and allowlist, CTF engine,<br/>approved-search notebooks (Investigate,<br/>Security Assurance)"]
     AB["AcmeBank<br/>agent pipeline, in-process MCP tools,<br/>RAG, memory, Loan Desk,<br/>deterministic controls"]
     OL["Ollama<br/>llama3.2:1b, llama3.2:latest"]
   end
@@ -25,7 +25,7 @@ flowchart LR
   OT["OpenTelemetry collector"]
   subgraph SPL["Splunk Enterprise (bundled by default; separate login, not behind the gateway)"]
     HEC["HEC ingestion (TLS)<br/>index agentsec_telemetry"]
-    SW["Splunk Web: investigation searches,<br/>5 AI Security Assurance dashboards<br/>and the finding page"]
+    SW["Splunk Web (optional Advanced view):<br/>5 AI Security Assurance dashboards<br/>and the finding page"]
   end
   MAE["MAESTRO workbench<br/>(runs in the browser)"]
   CTF["CTF challenges<br/>(simulated; routed through the gateway<br/>only with the CTF overlay)"]
@@ -40,10 +40,10 @@ flowchart LR
   MS -.->|"evidence pack ingested by script"| HEC
   GK -.->|"evidence pack ingested by script"| HEC
   HEC --> SW
-  AS -.->|"optional: REST search (token, CA)<br/>for VERIFIED"| HEC
-  B -.->|"http://127.0.0.1:18000<br/>(SSH tunnel when remote)"| SW
+  AS -->|"approved fixed-template searches:<br/>REST, search-only identity, strict TLS"| HEC
+  B -.->|"optional, operator: 127.0.0.1:18000<br/>(SSH tunnel when remote)"| SW
 ```
-The language model proposes; deterministic code authorizes and executes; Splunk observes and enforces nothing. Splunk Web is **not** routed through the gateway. The scanner and garak evidence the dashboards show comes from committed packs unless you run the scanner yourself. MAESTRO runs in the browser and the CTF is a scripted simulation.
+The language model proposes; deterministic code authorizes and executes; Splunk observes and enforces nothing. Splunk Web is **not** routed through the gateway and no learner step needs it: learners investigate inside the Academy. The search arrow reflects the RC2 design and was validated on one real Splunk 10.2.7 host (bundled Splunk, 2026-10-30); it was not validated against an external Splunk, Splunk Cloud or an organization certificate. The scanner and garak evidence the dashboards show comes from committed packs unless you run the scanner yourself. MAESTRO runs in the browser and the CTF is a scripted simulation.
 
 ## 2. Security and telemetry data flow
 
@@ -55,7 +55,7 @@ flowchart LR
   O --> C["OTel collector"]
   C -->|"HEC over TLS"| S[("Splunk index<br/>agentsec_telemetry")]
   P["Committed packs<br/>(Cisco scanner, garak, recorded runs)"] -.->|"ingest script"| S
-  S --> I["Investigate<br/>run search, event sequence,<br/>finding page"]
+  S --> I["Investigate (Academy notebook)<br/>approved search, rows, chart,<br/>plain-language reading"]
   S --> D["Assurance dashboards<br/>rules compute status,<br/>evidence class and retest outcome"]
   I --> E["Interpret<br/>what happened, meaning,<br/>why it matters, control, action"]
   D --> E
@@ -84,12 +84,12 @@ flowchart LR
     direction TB
     GW["Gateway, default 127.0.0.1:443 (configurable)<br/>TLS, basic auth (learner, operator)"]
     subgraph NET["Docker network 'agentsec_mesh': not published"]
-      AS["Attack Service :5001"]
-      AB["AcmeBank :5000"]
+      AS["Attack Service :5001 (internal)"]
+      AB["AcmeBank :5000 (internal)"]
       OL["Ollama :11434"]
     end
     OT["OTel collector<br/>on the Docker network; also published to<br/>127.0.0.1:4317, 4318 for the host"]
-    SP["Splunk<br/>HEC 127.0.0.1:8088 (TLS, HEC token)<br/>Web 127.0.0.1:18000 (Splunk login)<br/>REST :8089 (inside Docker only; token + CA, optional)"]
+    SP["Splunk<br/>HEC 127.0.0.1:8088 (TLS, HEC token)<br/>Web 127.0.0.1:18000 (Splunk login, optional Advanced view)<br/>REST :8089 (inside Docker only; search-only identity + CA)"]
   end
   GW -->|"1: authenticated at the gateway"| AS
   AS --> AB
@@ -107,8 +107,8 @@ flowchart LR
 | Attack Service to AcmeBank, AcmeBank to Ollama | None (internal) | Not published on a host port |
 | AcmeBank to collector | None | Docker network; the collector's host ports are loopback only |
 | Collector to Splunk HEC | HEC token over TLS | Loopback only |
-| Attack Service to Splunk REST | Splunk token, trusted CA | Optional, off by default |
-| Browser to Splunk Web | Splunk's own login | Loopback only; **not routed through the gateway** |
+| Attack Service to Splunk REST (`https://splunk:8089`) | Search-only Splunk identity from `./agentsec splunk-access`, strict TLS, read-only mount | Fail-closed if not provisioned; validated on one real Splunk 10.2.7 host (bundled Splunk, 2026-10-30) |
+| Browser to Splunk Web | Splunk's own login | Optional Advanced view; loopback only; **not routed through the gateway** |
 
 **Not exposed:** AcmeBank, Ollama, the collector and HEC. The Docker bridge is not a security boundary against a hostile local user.
 
@@ -233,7 +233,7 @@ flowchart TB
   L5 --> L7["L7 to L10 Architecture, privacy, integrated incident, mastery<br/>(includes CSA MAESTRO threat modeling)"]
   subgraph LIVE["Each LIVE workshop"]
     direction LR
-    P["Predict"] --> B["BASELINE<br/>defended"] --> A["ATTACK<br/>intentionally vulnerable"] --> R["RETEST<br/>defended"] --> I["Investigate in Splunk<br/>three run ids"] --> X["Explain"]
+    P["Predict"] --> B["BASELINE<br/>defended"] --> A["ATTACK<br/>intentionally vulnerable"] --> R["RETEST<br/>defended"] --> I["Investigate in the Academy notebook<br/>three run ids"] --> X["Explain"]
   end
   L1 -.-> LIVE
   L3 -.-> CTF["CTF challenges (simulated):<br/>Note Smuggler, Poisoned Catalog,<br/>Confused Deputy Relay"]

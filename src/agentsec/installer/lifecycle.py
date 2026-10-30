@@ -15,8 +15,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
-from agentsec.installer import preflight as pf, render
-from agentsec.installer.config import ENV_SAFE, PROJECT_RE, ConfigError, Finding, InstallConfig, Locks, ollama_image, splunk_image, validate
+from agentsec.installer import preflight as pf, render, splunk_access
+from agentsec.installer.config import ENV_SAFE, managed_access, PROJECT_RE, ConfigError, Finding, InstallConfig, Locks, ollama_image, splunk_image, validate
 from agentsec.installer.core import _write_private, EXIT_APPLY, EXIT_CHECKS, EXIT_OK, EXIT_USAGE, Runner, read_env
 
 EXIT_NOT_READY = 5
@@ -203,8 +203,24 @@ def up(root: Path, locks: Locks, env: pf.Env, runner: Runner, say: Callable[[str
             return EXIT_APPLY
     if state.images.get("splunk"):
         _write_private(root / render.STATE_DIR / "started.json", json.dumps({"splunk": state.images["splunk"]}) + "\n")
+    provision_access(root, state, runner, say)
     say(f"OK    project {state.project!r} is up ({len(state.services)} services). Check it with `./agentsec status`. Containers that already existed keep their old settings: after changing ports or the bind address run `./agentsec down` then `./agentsec up` (data volumes are kept).")
     return EXIT_OK
+
+
+def provision_access(root: Path, state: State, runner: Runner, say: Callable[[str], None], *, auth: str = "auto", wait_s: int = 600, force: bool = False) -> bool:
+    """Provision least-privilege Splunk search access for the Attack Service (installer-managed, bundled Splunk). Never fatal: when it cannot be done the lab runs and
+    search access reads UNAVAILABLE. Skipped when it is already provisioned (unless forced) or not applicable. Returns True when access is in place."""
+    if not managed_access(state.cfg):
+        say("INFO  Splunk search access is not installer-managed here (splunk.access is off, or REST settings were given by hand).")
+        return False
+    if not force and splunk_access.read_status(root) is not None:
+        say("OK    Splunk search access files are present (`./agentsec splunk-access --check` proves they work; `--force` renews them).")
+        return True
+    def compose(args: list) -> tuple[int, str]:
+        c = safe(_compose(root, state, *args))
+        return runner.run(c["argv"], str(root), c["env"])
+    return splunk_access.provision(root, compose, say, index=state.cfg.splunk.index, auth=auth, wait_s=wait_s)
 
 
 def down(root: Path, env: pf.Env, runner: Runner, say: Callable[[str], None]) -> int:
@@ -271,6 +287,9 @@ def status(root: Path, env: pf.Env, runner: Runner, say: Callable[[str], None]) 
             line = f"{'OK' if good else 'NOT READY':<11} {s}{'/' + h if h else ''}" + (f" (exit {code})" if s == "exited" else "")
         say(f"  {name:<16} {line}")
     say(f"{'OK' if ok else 'FAIL'}    project {state.project!r}: " + ("all services are up." if ok else "not all services are ready (a first Splunk start can take several minutes)."))
+    if managed_access(state.cfg):
+        meta = splunk_access.read_status(root)
+        say("  splunk search access: " + (f"files present ({meta['auth']}); prove it with `./agentsec splunk-access --check`" if meta else "NOT PROVISIONED (notebook and verification say unavailable): run `./agentsec splunk-access`"))
     return EXIT_OK if ok else EXIT_NOT_READY
 
 
@@ -296,3 +315,33 @@ def logs(root: Path, env: pf.Env, runner: Runner, say: Callable[[str], None], *,
     rc, out = runner.run(c["argv"], str(root), c["env"])
     say(_redact(out, state).rstrip("\n"))
     return EXIT_OK if rc == 0 else EXIT_APPLY
+
+
+def check_access(root: Path, state: State, runner: Runner, say: Callable[[str], None]) -> bool:
+    """A live proof from where it matters: the Attack Service's own REST client, with the mounted files, against Splunk (the five stages). Files being present proves nothing:
+    a wiped Splunk volume or an expired token leaves them in place."""
+    c = safe(_compose(root, state, "exec", "-T", "attack_service", "python", "-m", "agentsec.splunk_client", "check"))
+    rc, out = runner.run(c["argv"], str(root), c["env"])
+    lines = [ln.strip() for ln in out.splitlines() if re.match(r"^(CONNECTIVITY|AUTHENTICATION|AUTHORIZATION|SEARCH|TELEMETRY) ", ln.strip())]
+    for ln in lines:
+        say("      " + ln)
+    ok = rc == 0 and any(ln.startswith("SEARCH PASS") for ln in lines)
+    say("OK    Splunk search access works from the Attack Service." if ok else "FAIL  Splunk search access does not work from the Attack Service: run `./agentsec splunk-access --force` (the notebook says 'unavailable' until it does).")
+    return ok
+
+
+def splunk_access_command(root: Path, runner: Runner, say: Callable[[str], None], *, auth: str = "auto", force: bool = False, check: bool = False) -> int:
+    """`agentsec splunk-access`: provision (or renew) the Attack Service's search access, then show its state. Exit 0 when provisioned, 5 when not."""
+    state, bad = load_state(root)
+    if state is None:
+        for b in bad:
+            say(b.line())
+        return EXIT_USAGE
+    if check:
+        return EXIT_OK if check_access(root, state, runner, say) else EXIT_NOT_READY
+    ok = provision_access(root, state, runner, say, auth=auth, force=force)
+    meta = splunk_access.read_status(root)
+    if meta:
+        say(f"      auth {meta['auth']}, user {meta['user']}, provisioned {meta['provisioned_at']}" + (f", token valid {meta['token_expires']}" if meta.get("token_expires") else "")
+            + (f", password because: {meta['fallback']}" if meta.get("fallback") else ""))
+    return EXIT_OK if ok else EXIT_NOT_READY

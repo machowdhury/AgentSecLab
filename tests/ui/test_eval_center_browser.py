@@ -312,7 +312,7 @@ def test_existing_academy_and_assurance_navigation_are_unchanged(page, base):
     nav = page.get_by_role("navigation", name="Primary navigation")
     for name in ("Home", "Your Path", "Curriculum Explorer", "AI & Agent Foundations", "Loan Desk Mission", "MCP Tool Authorization", "Mastery", "Security Assurance", "EVAL Center"):
         assert nav.get_by_role("link", name=name).count() == 1, name
-    page.goto(base.replace("/evals", "/assurance")); page.wait_for_selector("h1")
+    page.goto(base.replace("/evals", "/assurance/study")); page.wait_for_selector("h1")
     assert page.get_by_role("link", name="Start the workshop").count() == 1
     page.goto(base.replace("/evals", "/lab/LAB-MCP-003")); page.wait_for_selector("h1")
     assert page.get_by_role("tab", name=re.compile("Practice")).count() == 1

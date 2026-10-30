@@ -211,7 +211,7 @@ class AcmeBankClient:
             return 503, {"error": f"cannot reach AcmeBank: {exc}"}
 
 
-def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | None = None) -> Flask:
+def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | None = None, assurance_service=None) -> Flask:
     settings = get_settings()
     client = client or AcmeBankClient(settings.acmebank_url)
     app = Flask(
@@ -233,7 +233,14 @@ def create_app(client: AcmeBankClient | None = None, *, launch_kwargs: dict | No
     launcher = LaunchService(client, settings, **(launch_kwargs or {}))
     app.config["AGENTSEC_LAUNCH_SERVICE"] = launcher
     register_academy(app, launcher=launcher, client=client, artifacts_dir=launcher.artifacts_dir, version=settings.version)
-    register_loan_desk_mission(app, acmebank_url=client.base_url, version=settings.version)
+    from agentsec.academy_search import SearchService
+    search = app.config.get("AGENTSEC_SEARCH_SERVICE") or app.config.setdefault("AGENTSEC_SEARCH_SERVICE", SearchService())
+    register_loan_desk_mission(app, acmebank_url=client.base_url, version=settings.version, search=search)
+    from agentsec.academy_assurance import AssuranceService, register_assurance
+    assurance = app.config.setdefault("AGENTSEC_ASSURANCE_SERVICE", assurance_service or AssuranceService())
+    register_assurance(app, assurance)      # a service can be injected (tests); the product always builds its own
+    from agentsec.academy_investigation import InvestigationService, register_investigation
+    register_investigation(app, InvestigationService(assurance, search))
     register_learn(app, version=settings.version)
     register_ctf(app)  # local-only CTF; its state directory is created on first use, not here
 

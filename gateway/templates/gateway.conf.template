@@ -64,6 +64,11 @@ server {
     limit_except GET { deny all; }
     proxy_pass $attack;
   }
+  # Academy-native Security Assurance: read-only GETs for any authenticated user (live and recorded views, the finding's investigation notebook context, its retest comparison and the local recorded cells). Anchored; the finding id is exactly F- plus 12 hex digits.
+  location ~ "^/api/assurance/(overview|findings/F-[0-9a-f]{12}(/(investigation|comparison|explore/[a-z_]{1,40}))?|runs/[0-9a-f-]{36}/findings)$" {      # quoted: nginx would read the {12} as a block
+    limit_except GET { deny all; }
+    proxy_pass $attack;
+  }
   # Classic Attack UI pages, Attack Service only, GET/HEAD only. ANCHORED allowlist: the captured path is rebuilt into the upstream URI, so nothing outside
   # these alternatives (and nothing matching [A-Za-z0-9_-]+ only) can reach a backend. The real AcmeBank app (5000) has no route here: the Attack Service
   # renders its own read-only /acmebank page. No dot, slash, percent or backslash can occur in the captured id.

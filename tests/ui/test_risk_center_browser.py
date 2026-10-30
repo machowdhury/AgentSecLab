@@ -430,7 +430,7 @@ def test_existing_navigation_eval_center_and_assurance_are_unchanged(page, base)
     for name in ("Home", "Your Path", "Curriculum Explorer", "AI & Agent Foundations", "Loan Desk Mission", "MCP Tool Authorization", "Mastery", "Security Assurance", "EVAL Center", "Risk Center"):
         assert nav.get_by_role("link", name=name).count() == 1, name
     page.goto(base.replace("/risk", "/evals")); page.get_by_role("navigation", name="Evaluation Center").wait_for()
-    page.goto(base.replace("/risk", "/assurance")); page.wait_for_selector("h1")
+    page.goto(base.replace("/risk", "/assurance/study")); page.wait_for_selector("h1")
     assert page.get_by_role("link", name="Start the workshop").count() == 1
     go(page, base)
     assert nav.get_by_role("link", name="Risk Center").get_attribute("aria-current") == "page"

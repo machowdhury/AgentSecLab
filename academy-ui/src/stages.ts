@@ -17,3 +17,11 @@ export const STAGE_IDS = STAGES.map((s) => s.id) as StageId[];
 export const stageIndex = (id: StageId) => STAGE_IDS.indexOf(id);
 export const isStage = (v: string): v is StageId => (STAGE_IDS as string[]).includes(v);
 export const stepNumber = (s: StepId) => STEP_ORDER.indexOf(s) + 1;
+
+/** The unified sequence every LIVE workshop shows. Learn is the Learn tab; the rest are the sections of Practice, in this order. */
+export const unifiedStages = [
+  { id: "learn", label: "Learn" }, { id: "predict", label: "Predict" }, { id: "baseline", label: "Baseline" }, { id: "attack", label: "Attack" },
+  { id: "investigate", label: "Investigate" }, { id: "defend", label: "Defend" }, { id: "retest", label: "Retest" }, { id: "explain", label: "Explain evidence" },
+] as const;
+export type UnifiedStageId = (typeof unifiedStages)[number]["id"];
+export const unifiedNumber = (id: UnifiedStageId) => unifiedStages.findIndex((s) => s.id === id) + 1;

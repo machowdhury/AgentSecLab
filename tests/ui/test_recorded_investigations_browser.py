@@ -55,7 +55,7 @@ def test_learn_has_the_scenario_and_objective_loads_no_evidence_and_calls_no_bac
     seen, loaded = watch(page), chunks(page)
     page.goto(root + lab)
     text = page.locator("main, .page").first.inner_text().lower()
-    for h in ("the legitimate operation" if lab in DECISION else "the report" if lab != "LAB-ADVANCED-CAPSTONE-MASTERY-001" and lab != "LAB-SCANNER-RUNTIME-EVIDENCE" else "the scenario", "workbench" if lab in LIVE_TOO else "replay"):
+    for h in ("the legitimate operation" if lab in DECISION else "the report" if lab != "LAB-ADVANCED-CAPSTONE-MASTERY-001" and lab != "LAB-SCANNER-RUNTIME-EVIDENCE" else "the scenario", "live" if lab in LIVE_TOO else "recorded"):   # the catalog mode, in the Academy's LIVE / RECORDED / SIMULATED vocabulary
         assert h in text, (lab, h)
     assert page.get_by_text("Full guided lesson not yet available").count() == 0
     assert loaded == [] and seen == [], "Learn loads no recorded evidence and calls no lab API"

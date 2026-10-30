@@ -16,7 +16,7 @@
    "completion": [
     "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
     "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
-    "Find a run in Splunk Search with the starter search on the launch card and say what the events show and what they cannot (Splunk enforced nothing).",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
     "Answer the 14 knowledge-check questions for this workshop."
    ],
    "troubleshooting": [
@@ -26,11 +26,11 @@
     },
     {
      "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
-     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later, or search Splunk yourself with the starter search on the card."
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
     },
     {
      "symptom": "Verification says VERIFICATION UNAVAILABLE.",
-     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. Search Splunk yourself with the starter search; an operator can configure AGENTSEC_SPLUNK_REST_URL and AGENTSEC_SPLUNK_SEARCH_TOKEN_FILE."
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
     },
     {
      "symptom": "Splunk shows no events for the run.id.",
@@ -57,7 +57,7 @@
    "completion": [
     "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
     "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
-    "Find a run in Splunk Search with the starter search on the launch card and say what the events show and what they cannot (Splunk enforced nothing).",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
     "Answer the 13 knowledge-check questions for this workshop."
    ],
    "troubleshooting": [
@@ -67,11 +67,11 @@
     },
     {
      "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
-     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later, or search Splunk yourself with the starter search on the card."
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
     },
     {
      "symptom": "Verification says VERIFICATION UNAVAILABLE.",
-     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. Search Splunk yourself with the starter search; an operator can configure AGENTSEC_SPLUNK_REST_URL and AGENTSEC_SPLUNK_SEARCH_TOKEN_FILE."
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
     },
     {
      "symptom": "Splunk shows no events for the run.id.",
@@ -98,7 +98,7 @@
    "completion": [
     "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
     "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
-    "Find a run in Splunk Search with the starter search on the launch card and say what the events show and what they cannot (Splunk enforced nothing).",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
     "Answer the 12 knowledge-check questions for this workshop."
    ],
    "troubleshooting": [
@@ -108,11 +108,11 @@
     },
     {
      "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
-     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later, or search Splunk yourself with the starter search on the card."
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
     },
     {
      "symptom": "Verification says VERIFICATION UNAVAILABLE.",
-     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. Search Splunk yourself with the starter search; an operator can configure AGENTSEC_SPLUNK_REST_URL and AGENTSEC_SPLUNK_SEARCH_TOKEN_FILE."
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
     },
     {
      "symptom": "Splunk shows no events for the run.id.",
@@ -139,7 +139,7 @@
    "completion": [
     "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
     "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
-    "Find a run in Splunk Search with the starter search on the launch card and say what the events show and what they cannot (Splunk enforced nothing).",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
     "Answer the 15 knowledge-check questions for this workshop."
    ],
    "troubleshooting": [
@@ -149,11 +149,11 @@
     },
     {
      "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
-     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later, or search Splunk yourself with the starter search on the card."
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
     },
     {
      "symptom": "Verification says VERIFICATION UNAVAILABLE.",
-     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. Search Splunk yourself with the starter search; an operator can configure AGENTSEC_SPLUNK_REST_URL and AGENTSEC_SPLUNK_SEARCH_TOKEN_FILE."
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
     },
     {
      "symptom": "Splunk shows no events for the run.id.",
@@ -187,11 +187,11 @@
     },
     {
      "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
-     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later, or search Splunk yourself with the starter search on the card."
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
     },
     {
      "symptom": "Verification says VERIFICATION UNAVAILABLE.",
-     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. Search Splunk yourself with the starter search; an operator can configure AGENTSEC_SPLUNK_REST_URL and AGENTSEC_SPLUNK_SEARCH_TOKEN_FILE."
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
     },
     {
      "symptom": "Splunk shows no events for the run.id.",
@@ -218,7 +218,7 @@
    "completion": [
     "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
     "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
-    "Find a run in Splunk Search with the starter search on the launch card and say what the events show and what they cannot (Splunk enforced nothing).",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
     "Answer the 20 knowledge-check questions for this workshop."
    ],
    "troubleshooting": [
@@ -228,11 +228,11 @@
     },
     {
      "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
-     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later, or search Splunk yourself with the starter search on the card."
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
     },
     {
      "symptom": "Verification says VERIFICATION UNAVAILABLE.",
-     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. Search Splunk yourself with the starter search; an operator can configure AGENTSEC_SPLUNK_REST_URL and AGENTSEC_SPLUNK_SEARCH_TOKEN_FILE."
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
     },
     {
      "symptom": "Splunk shows no events for the run.id.",
@@ -259,7 +259,7 @@
    "completion": [
     "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
     "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
-    "Find a run in Splunk Search with the starter search on the launch card and say what the events show and what they cannot (Splunk enforced nothing).",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
     "Answer the 30 knowledge-check questions for this workshop."
    ],
    "troubleshooting": [
@@ -269,11 +269,11 @@
     },
     {
      "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
-     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later, or search Splunk yourself with the starter search on the card."
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
     },
     {
      "symptom": "Verification says VERIFICATION UNAVAILABLE.",
-     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. Search Splunk yourself with the starter search; an operator can configure AGENTSEC_SPLUNK_REST_URL and AGENTSEC_SPLUNK_SEARCH_TOKEN_FILE."
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
     },
     {
      "symptom": "Splunk shows no events for the run.id.",
@@ -300,7 +300,7 @@
    "completion": [
     "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
     "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
-    "Find a run in Splunk Search with the starter search on the launch card and say what the events show and what they cannot (Splunk enforced nothing).",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
     "Answer the 10 knowledge-check questions for this workshop."
    ],
    "troubleshooting": [
@@ -310,11 +310,11 @@
     },
     {
      "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
-     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later, or search Splunk yourself with the starter search on the card."
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
     },
     {
      "symptom": "Verification says VERIFICATION UNAVAILABLE.",
-     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. Search Splunk yourself with the starter search; an operator can configure AGENTSEC_SPLUNK_REST_URL and AGENTSEC_SPLUNK_SEARCH_TOKEN_FILE."
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
     },
     {
      "symptom": "Splunk shows no events for the run.id.",
@@ -341,7 +341,7 @@
    "completion": [
     "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
     "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
-    "Find a run in Splunk Search with the starter search on the launch card and say what the events show and what they cannot (Splunk enforced nothing).",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
     "Answer the 13 knowledge-check questions for this workshop."
    ],
    "troubleshooting": [
@@ -351,11 +351,11 @@
     },
     {
      "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
-     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later, or search Splunk yourself with the starter search on the card."
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
     },
     {
      "symptom": "Verification says VERIFICATION UNAVAILABLE.",
-     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. Search Splunk yourself with the starter search; an operator can configure AGENTSEC_SPLUNK_REST_URL and AGENTSEC_SPLUNK_SEARCH_TOKEN_FILE."
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
     },
     {
      "symptom": "Splunk shows no events for the run.id.",
@@ -388,11 +388,11 @@
      "fix": "The recorded runs are historical: set the time range to All time (earliest=0). They are loaded by the splunk_hec_init job at start; check its log for 'VERIFIED searchable'. If the lab was started without Splunk, the Academy still shows the committed packets."
     },
     {
-     "symptom": "A Studio dashboard panel is empty.",
-     "fix": "Studio tokens are not bound to a run you launched. Use the run.id from the recorded table, or copy the search into Splunk Search."
+     "symptom": "An optional advanced dashboard panel is empty.",
+     "fix": "The dashboard's tokens are not bound to a run you launched. Use the run.id from the recorded table in this workshop; the evidence view needs no dashboard."
     },
     {
-     "symptom": "A count in Splunk differs from the committed pack.",
+     "symptom": "A count differs from the committed pack.",
      "fix": "The pack is the source of truth. Count physical events with stats dc(_raw), not by run id alone, and remember that an indexed copy can be partial while ingestion is running."
     }
    ],
@@ -418,11 +418,11 @@
      "fix": "The recorded runs are historical: set the time range to All time (earliest=0). They are loaded by the splunk_hec_init job at start; check its log for 'VERIFIED searchable'. If the lab was started without Splunk, the Academy still shows the committed packets."
     },
     {
-     "symptom": "A Studio dashboard panel is empty.",
-     "fix": "Studio tokens are not bound to a run you launched. Use the run.id from the recorded table, or copy the search into Splunk Search."
+     "symptom": "An optional advanced dashboard panel is empty.",
+     "fix": "The dashboard's tokens are not bound to a run you launched. Use the run.id from the recorded table in this workshop; the evidence view needs no dashboard."
     },
     {
-     "symptom": "A count in Splunk differs from the committed pack.",
+     "symptom": "A count differs from the committed pack.",
      "fix": "The pack is the source of truth. Count physical events with stats dc(_raw), not by run id alone, and remember that an indexed copy can be partial while ingestion is running."
     }
    ],
@@ -442,7 +442,7 @@
    "completion": [
     "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
     "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
-    "Find a run in Splunk Search with the starter search on the launch card and say what the events show and what they cannot (Splunk enforced nothing).",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
     "Answer the 20 knowledge-check questions for this workshop."
    ],
    "troubleshooting": [
@@ -452,11 +452,11 @@
     },
     {
      "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
-     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later, or search Splunk yourself with the starter search on the card."
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
     },
     {
      "symptom": "Verification says VERIFICATION UNAVAILABLE.",
-     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. Search Splunk yourself with the starter search; an operator can configure AGENTSEC_SPLUNK_REST_URL and AGENTSEC_SPLUNK_SEARCH_TOKEN_FILE."
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
     },
     {
      "symptom": "Splunk shows no events for the run.id.",
@@ -483,7 +483,7 @@
    "completion": [
     "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
     "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
-    "Find a run in Splunk Search with the starter search on the launch card and say what the events show and what they cannot (Splunk enforced nothing).",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
     "Answer the 10 knowledge-check questions for this workshop."
    ],
    "troubleshooting": [
@@ -493,11 +493,11 @@
     },
     {
      "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
-     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later, or search Splunk yourself with the starter search on the card."
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
     },
     {
      "symptom": "Verification says VERIFICATION UNAVAILABLE.",
-     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. Search Splunk yourself with the starter search; an operator can configure AGENTSEC_SPLUNK_REST_URL and AGENTSEC_SPLUNK_SEARCH_TOKEN_FILE."
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
     },
     {
      "symptom": "Splunk shows no events for the run.id.",
@@ -524,7 +524,7 @@
    "completion": [
     "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
     "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
-    "Find a run in Splunk Search with the starter search on the launch card and say what the events show and what they cannot (Splunk enforced nothing).",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
     "Answer the 12 knowledge-check questions for this workshop."
    ],
    "troubleshooting": [
@@ -534,11 +534,11 @@
     },
     {
      "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
-     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later, or search Splunk yourself with the starter search on the card."
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
     },
     {
      "symptom": "Verification says VERIFICATION UNAVAILABLE.",
-     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. Search Splunk yourself with the starter search; an operator can configure AGENTSEC_SPLUNK_REST_URL and AGENTSEC_SPLUNK_SEARCH_TOKEN_FILE."
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
     },
     {
      "symptom": "Splunk shows no events for the run.id.",
@@ -565,7 +565,7 @@
    "completion": [
     "Write your prediction before you press ATTACK, then run BASELINE, ATTACK and RETEST from the lab page: you should hold three different run ids.",
     "Explain why RETEST differs from ATTACK: the request is the same; only the server-owned profile changed.",
-    "Find a run in Splunk Search with the starter search on the launch card and say what the events show and what they cannot (Splunk enforced nothing).",
+    "In the Investigate stage, press Run on each notebook cell for your attack run, then say what the rows show and what they cannot (Splunk enforced nothing).",
     "Answer the 10 knowledge-check questions for this workshop."
    ],
    "troubleshooting": [
@@ -575,11 +575,11 @@
     },
     {
      "symptom": "Evidence says WAITING_FOR_EVIDENCE.",
-     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later, or search Splunk yourself with the starter search on the card."
+     "fix": "That is the honest default. Telemetry reaches Splunk seconds to minutes after the run. It is not a failed attack and not proof of prevention. Re-check later with Check again in the Investigate stage."
     },
     {
      "symptom": "Verification says VERIFICATION UNAVAILABLE.",
-     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. Search Splunk yourself with the starter search; an operator can configure AGENTSEC_SPLUNK_REST_URL and AGENTSEC_SPLUNK_SEARCH_TOKEN_FILE."
+     "fix": "The Attack Service could not run the check (no Docker inside its container and no Splunk REST URL and token file configured). It is not zero rows and not verified. The Investigate stage says the same and shows no rows rather than guess; an operator can set up search access with ./agentsec splunk-access."
     },
     {
      "symptom": "Splunk shows no events for the run.id.",
@@ -612,11 +612,11 @@
      "fix": "The recorded runs are historical: set the time range to All time (earliest=0). They are loaded by the splunk_hec_init job at start; check its log for 'VERIFIED searchable'. If the lab was started without Splunk, the Academy still shows the committed packets."
     },
     {
-     "symptom": "A Studio dashboard panel is empty.",
-     "fix": "Studio tokens are not bound to a run you launched. Use the run.id from the recorded table, or copy the search into Splunk Search."
+     "symptom": "An optional advanced dashboard panel is empty.",
+     "fix": "The dashboard's tokens are not bound to a run you launched. Use the run.id from the recorded table in this workshop; the evidence view needs no dashboard."
     },
     {
-     "symptom": "A count in Splunk differs from the committed pack.",
+     "symptom": "A count differs from the committed pack.",
      "fix": "The pack is the source of truth. Count physical events with stats dc(_raw), not by run id alone, and remember that an indexed copy can be partial while ingestion is running."
     }
    ],
@@ -645,7 +645,7 @@
     },
     {
      "symptom": "I cannot find the Splunk rows the packet describes.",
-     "fix": "Packet content is not in Splunk unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
     }
    ],
    "kind": "simulated packet"
@@ -671,7 +671,7 @@
     },
     {
      "symptom": "I cannot find the Splunk rows the packet describes.",
-     "fix": "Packet content is not in Splunk unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
     }
    ],
    "kind": "simulated packet"
@@ -696,11 +696,11 @@
      "fix": "The recorded runs are historical: set the time range to All time (earliest=0). They are loaded by the splunk_hec_init job at start; check its log for 'VERIFIED searchable'. If the lab was started without Splunk, the Academy still shows the committed packets."
     },
     {
-     "symptom": "A Studio dashboard panel is empty.",
-     "fix": "Studio tokens are not bound to a run you launched. Use the run.id from the recorded table, or copy the search into Splunk Search."
+     "symptom": "An optional advanced dashboard panel is empty.",
+     "fix": "The dashboard's tokens are not bound to a run you launched. Use the run.id from the recorded table in this workshop; the evidence view needs no dashboard."
     },
     {
-     "symptom": "A count in Splunk differs from the committed pack.",
+     "symptom": "A count differs from the committed pack.",
      "fix": "The pack is the source of truth. Count physical events with stats dc(_raw), not by run id alone, and remember that an indexed copy can be partial while ingestion is running."
     }
    ],
@@ -726,11 +726,11 @@
      "fix": "The recorded runs are historical: set the time range to All time (earliest=0). They are loaded by the splunk_hec_init job at start; check its log for 'VERIFIED searchable'. If the lab was started without Splunk, the Academy still shows the committed packets."
     },
     {
-     "symptom": "A Studio dashboard panel is empty.",
-     "fix": "Studio tokens are not bound to a run you launched. Use the run.id from the recorded table, or copy the search into Splunk Search."
+     "symptom": "An optional advanced dashboard panel is empty.",
+     "fix": "The dashboard's tokens are not bound to a run you launched. Use the run.id from the recorded table in this workshop; the evidence view needs no dashboard."
     },
     {
-     "symptom": "A count in Splunk differs from the committed pack.",
+     "symptom": "A count differs from the committed pack.",
      "fix": "The pack is the source of truth. Count physical events with stats dc(_raw), not by run id alone, and remember that an indexed copy can be partial while ingestion is running."
     }
    ],
@@ -755,11 +755,11 @@
      "fix": "The recorded runs are historical: set the time range to All time (earliest=0). They are loaded by the splunk_hec_init job at start; check its log for 'VERIFIED searchable'. If the lab was started without Splunk, the Academy still shows the committed packets."
     },
     {
-     "symptom": "A Studio dashboard panel is empty.",
-     "fix": "Studio tokens are not bound to a run you launched. Use the run.id from the recorded table, or copy the search into Splunk Search."
+     "symptom": "An optional advanced dashboard panel is empty.",
+     "fix": "The dashboard's tokens are not bound to a run you launched. Use the run.id from the recorded table in this workshop; the evidence view needs no dashboard."
     },
     {
-     "symptom": "A count in Splunk differs from the committed pack.",
+     "symptom": "A count differs from the committed pack.",
      "fix": "The pack is the source of truth. Count physical events with stats dc(_raw), not by run id alone, and remember that an indexed copy can be partial while ingestion is running."
     }
    ],
@@ -784,11 +784,11 @@
      "fix": "The recorded runs are historical: set the time range to All time (earliest=0). They are loaded by the splunk_hec_init job at start; check its log for 'VERIFIED searchable'. If the lab was started without Splunk, the Academy still shows the committed packets."
     },
     {
-     "symptom": "A Studio dashboard panel is empty.",
-     "fix": "Studio tokens are not bound to a run you launched. Use the run.id from the recorded table, or copy the search into Splunk Search."
+     "symptom": "An optional advanced dashboard panel is empty.",
+     "fix": "The dashboard's tokens are not bound to a run you launched. Use the run.id from the recorded table in this workshop; the evidence view needs no dashboard."
     },
     {
-     "symptom": "A count in Splunk differs from the committed pack.",
+     "symptom": "A count differs from the committed pack.",
      "fix": "The pack is the source of truth. Count physical events with stats dc(_raw), not by run id alone, and remember that an indexed copy can be partial while ingestion is running."
     }
    ],
@@ -813,11 +813,11 @@
      "fix": "The recorded runs are historical: set the time range to All time (earliest=0). They are loaded by the splunk_hec_init job at start; check its log for 'VERIFIED searchable'. If the lab was started without Splunk, the Academy still shows the committed packets."
     },
     {
-     "symptom": "A Studio dashboard panel is empty.",
-     "fix": "Studio tokens are not bound to a run you launched. Use the run.id from the recorded table, or copy the search into Splunk Search."
+     "symptom": "An optional advanced dashboard panel is empty.",
+     "fix": "The dashboard's tokens are not bound to a run you launched. Use the run.id from the recorded table in this workshop; the evidence view needs no dashboard."
     },
     {
-     "symptom": "A count in Splunk differs from the committed pack.",
+     "symptom": "A count differs from the committed pack.",
      "fix": "The pack is the source of truth. Count physical events with stats dc(_raw), not by run id alone, and remember that an indexed copy can be partial while ingestion is running."
     }
    ],
@@ -844,7 +844,7 @@
     },
     {
      "symptom": "I cannot find the Splunk rows the packet describes.",
-     "fix": "Packet content is not in Splunk unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
     }
    ],
    "kind": "simulated packet"
@@ -871,7 +871,7 @@
     },
     {
      "symptom": "I cannot find the Splunk rows the packet describes.",
-     "fix": "Packet content is not in Splunk unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
     }
    ],
    "kind": "simulated packet"
@@ -898,7 +898,7 @@
     },
     {
      "symptom": "I cannot find the Splunk rows the packet describes.",
-     "fix": "Packet content is not in Splunk unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
     }
    ],
    "kind": "simulated packet"
@@ -925,7 +925,7 @@
     },
     {
      "symptom": "I cannot find the Splunk rows the packet describes.",
-     "fix": "Packet content is not in Splunk unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
     }
    ],
    "kind": "simulated packet"
@@ -952,7 +952,7 @@
     },
     {
      "symptom": "I cannot find the Splunk rows the packet describes.",
-     "fix": "Packet content is not in Splunk unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
     }
    ],
    "kind": "simulated packet"
@@ -977,7 +977,7 @@
     },
     {
      "symptom": "I cannot find the Splunk rows the packet describes.",
-     "fix": "Packet content is not in Splunk unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
     }
    ],
    "kind": "simulated packet"
@@ -1003,7 +1003,7 @@
     },
     {
      "symptom": "I cannot find the Splunk rows the packet describes.",
-     "fix": "Packet content is not in Splunk unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
     }
    ],
    "kind": "simulated packet"
@@ -1030,7 +1030,7 @@
     },
     {
      "symptom": "I cannot find the Splunk rows the packet describes.",
-     "fix": "Packet content is not in Splunk unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
     }
    ],
    "kind": "simulated packet"
@@ -1057,7 +1057,7 @@
     },
     {
      "symptom": "I cannot find the Splunk rows the packet describes.",
-     "fix": "Packet content is not in Splunk unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
+     "fix": "Packet content is not in the telemetry index unless the page says a recorded search is bound. Follow the recorded searches shown on the page; do not look for packet identifiers in the index."
     }
    ],
    "kind": "simulated packet"

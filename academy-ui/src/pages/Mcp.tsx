@@ -1,4 +1,7 @@
 import { SplunkLink } from "../config";
+import { ExplainEvidence, RunFindingLinks, SplCellNotebook } from "../assurance/RunNotebook";
+import { UnifiedRail, goToStage } from "../UnifiedWorkshop";
+import { unifiedNumber } from "../stages";
 import { useEffect, useState } from "react";
 import { Badge, Button, Icon } from "../ui";
 import { StageGuide } from "../StageGuide";
@@ -8,7 +11,8 @@ import { Callout, CopyButton } from "../mission/parts";
 import { StepList } from "../mission/RunProgress";
 import { KIND, checkEvidence, compareHandoff, hopOf, launchMcp, loadManifest, loadRecord, mcpSteps, outcomeOf, type McpEvidence, type McpManifest, type McpRecord } from "../mcp/mcp";
 
-type Mode = "attack" | "retest";
+type Mode = "baseline" | "attack" | "retest";
+const STAGE_LABEL = (n: Parameters<typeof unifiedNumber>[0]) => `Stage ${unifiedNumber(n)} of 8`;
 
 /** MCP Tool Authorization as one guided exercise, from the existing launch and evidence endpoints. */
 export function Mcp() {
@@ -24,15 +28,16 @@ export function Mcp() {
 
   useEffect(() => { loadManifest().then(setMan); }, []);
   useEffect(() => { // records live in the Attack Service's memory: re-read them, never trust a stored copy
-    (["attack", "retest"] as Mode[]).forEach((k) => { const id = st[k]; if (id && recs[k] === undefined) loadRecord(id).then((r) => setRecs((x) => ({ ...x, [k]: r }))); });
+    (["baseline", "attack", "retest"] as Mode[]).forEach((k) => { const id = st[k]; if (id && recs[k] === undefined) loadRecord(id).then((r) => setRecs((x) => ({ ...x, [k]: r }))); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [st.attack, st.retest]);
+  }, [st.baseline, st.attack, st.retest]);
+  const b = recs.baseline ?? null;
   const a = recs.attack ?? null, r = recs.retest ?? null;
   useEffect(() => { setCmp(null); if (a && r) compareHandoff(a.run_id, r.run_id).then(setCmp); }, [a?.run_id, r?.run_id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const launch = async (mode: Mode) => {
     setBusy(mode); setErr("");
-    const res = await launchMcp(mode === "attack" ? "ATTACK" : "RETEST");
+    const res = await launchMcp(mode === "baseline" ? "BASELINE" : mode === "attack" ? "ATTACK" : "RETEST");
     setBusy("");
     if (res.error || !res.record) { setErr(res.error ?? "The launch failed."); return; }
     setRecs((x) => ({ ...x, [mode]: res.record })); save({ [mode]: res.record.run_id });
@@ -52,8 +57,9 @@ export function Mcp() {
       happened={`${done} of 3 steps done${a ? ` · attack: ${KIND[outcomeOf(a).kind].label.toLowerCase()}` : ""}${r ? ` · retest: ${KIND[outcomeOf(r).kind].label.toLowerCase()}` : ""}.`}
       next={r ? "Check the evidence, then test yourself in Mastery." : "Work through the steps below in order."} />
 
+    <UnifiedRail lab="LAB-MCP-001" onSelect={(id) => (id === "learn" ? document.getElementById("h-mcp-scn")?.scrollIntoView() : goToStage(id))} />
     {man === null && <Callout kind="warn" role="alert">The lab description could not be loaded from the Attack Service. The exercise below still uses the live launch API.</Callout>}
-    <section className="m-card" aria-labelledby="h-mcp-scn">
+    <section className="m-card" data-stage="learn" aria-labelledby="h-mcp-scn">
       <div className="panel-label">Scenario</div><h2 id="h-mcp-scn">What the attacker wants, and where the boundary is</h2>
       <div className="m-twocol">
         <div><h3>Attacker objective</h3><p>{ap?.attack_objective ?? "Send a tool request the agent was never granted and see whether it runs."}</p>{ap?.attacker_influence && <p className="m-muted">{ap.attacker_influence}</p>}</div>
@@ -62,8 +68,8 @@ export function Mcp() {
       <ol className="m-flow" aria-label="Request flow">{["Agent request", "tools/call", "CTRL-MCP-001 decides", "Tool handler (only if allowed)", "Telemetry", "Splunk (observes)"].map((x) => <li key={x}>{x}</li>)}</ol>
     </section>
 
-    <section className="m-card" aria-labelledby="h-mcp-pred">
-      <div className="panel-label">Step 1 · Predict</div><h2 id="h-mcp-pred">What will CTRL-MCP-001 decide?</h2>
+    <section className="m-card" data-stage="predict" aria-labelledby="h-mcp-pred">
+      <div className="panel-label">{STAGE_LABEL("predict")} · Predict</div><h2 id="h-mcp-pred">What will CTRL-MCP-001 decide?</h2>
       <p>{ap?.predict_before_launch ?? "Before you launch, write down: will the control ALLOW or DENY the ungranted request?"}</p>
       <form className="m-prediction" onSubmit={(e) => { e.preventDefault(); if (st.prediction) save({ locked: true }); }}>
         <fieldset disabled={Boolean(st.locked)}><legend>The ungranted lookup_customer_tier request on the intentionally vulnerable ATTACK experiment will be…</legend>
@@ -73,20 +79,40 @@ export function Mcp() {
       </form>
     </section>
 
-    <section className="m-card" aria-labelledby="h-mcp-att">
-      <div className="panel-label">Step 2 · Attack</div><h2 id="h-mcp-att">Launch the ungranted request</h2>
+    <section className="m-card" data-stage="baseline" aria-labelledby="h-mcp-base">
+      <div className="panel-label">{STAGE_LABEL("baseline")} · Baseline (optional)</div><h2 id="h-mcp-base">See a normal, granted request first</h2>
+      <p>A baseline run makes the same kind of request with a tool the agent was granted, so you can compare the attack with ordinary behavior. It changes nothing else.</p>
+      <div className="m-actions"><Button onClick={() => launch("baseline")} disabled={busy !== ""}>{busy === "baseline" ? "Launching…" : b ? "Launch BASELINE again" : "Launch BASELINE (granted request)"} <Icon name="play" size={15} /></Button></div>
+      {b && <Run rec={b} ev={evid[b.run_id]} onCheck={() => check(b)} />}
+    </section>
+
+    <section className="m-card" data-stage="attack" aria-labelledby="h-mcp-att">
+      <div className="panel-label">{STAGE_LABEL("attack")} · Attack</div><h2 id="h-mcp-att">Launch the ungranted request</h2>
       <p>{ap?.what_will_change ?? "A new run is created and the control records its decision."} {ap?.what_will_not_change}</p>
       <div className="m-actions"><Button onClick={() => launch("attack")} disabled={!st.locked || busy !== ""}>{busy === "attack" ? "Launching…" : a ? "Launch ATTACK again" : "Launch ATTACK (vulnerable profile)"} <Icon name="play" size={15} /></Button>
         {!st.locked && <span className="m-muted">Lock your prediction first.</span>}</div>
       {a && <Run rec={a} ev={evid[a.run_id]} onCheck={() => check(a)} prediction={st.prediction} />}
     </section>
 
-    <section className="m-card" aria-labelledby="h-mcp-ret">
-      <div className="panel-label">Step 3 · Defend and retest</div><h2 id="h-mcp-ret">Replay the same request on the defended profile</h2>
+    <section className="m-card" data-stage="investigate" aria-labelledby="h-mcp-inv">
+      <div className="panel-label">{STAGE_LABEL("investigate")} · Investigate</div><h2 id="h-mcp-inv">Read what your attack run left behind</h2>
+      <p>The Academy runs each approved search against Splunk for your own run. You choose the options and press Run, then read the table, the chart and what the rows say.</p>
+      <SplCellNotebook lab="LAB-MCP-001" runs={[{ slot: "baseline", id: b?.run_id ?? "" }, { slot: "attack", id: a?.run_id ?? "" }, { slot: "retest", id: r?.run_id ?? "" }]} />
+    </section>
+
+    <section className="m-card" data-stage="defend" aria-labelledby="h-mcp-def">
+      <div className="panel-label">{STAGE_LABEL("defend")} · Defend</div><h2 id="h-mcp-def">The control that decides before the handler</h2>
+      <p>{ap?.which_control ?? rp?.which_control ?? "CTRL-MCP-001 decides before the tool handler."} The defended profile is applied by the server when you run the retest below; you do not edit code or settings here.</p>
+      {!a && <span className="m-muted">Run the attack first, so you know what you are defending against.</span>}
+    </section>
+
+    <section className="m-card" data-stage="retest" aria-labelledby="h-mcp-ret">
+      <div className="panel-label">{STAGE_LABEL("retest")} · Retest</div><h2 id="h-mcp-ret">Replay the same request on the defended profile</h2>
       <p>{rp?.attack_objective ?? "The tool, scope and arguments stay identical; only the server-owned profile changes."} {rp?.what_will_not_change}</p>
       <div className="m-actions"><Button onClick={() => launch("retest")} disabled={!a || busy !== ""}>{busy === "retest" ? "Launching…" : r ? "Launch RETEST again" : "Launch RETEST (defended profile)"} <Icon name="play" size={15} /></Button>
         {!a && <span className="m-muted">Run the attack first.</span>}</div>
       {r && <Run rec={r} ev={evid[r.run_id]} onCheck={() => check(r)} />}
+      <RunFindingLinks runId={a?.run_id} withCompare={Boolean(r)} />
     </section>
     {err && <Callout kind="warn" role="alert">{err}</Callout>}
 
@@ -105,6 +131,10 @@ export function Mcp() {
         <Link className="button button--ghost" to={FOUNDATIONS_PATH}>Review “Tools and MCP”</Link></div>
       {cmp && <details className="m-details"><summary>Starter SPL for both runs</summary><pre>{cmp.starter_spl}</pre><CopyButton text={cmp.starter_spl} label="Copy search" /></details>}
     </section>}
+    <section className="m-card" data-stage="explain" aria-labelledby="h-mcp-exp">
+      <div className="panel-label">{STAGE_LABEL("explain")} · Explain evidence</div><h2 id="h-mcp-exp">Say what the evidence shows, and what it does not</h2>
+      <ExplainEvidence lab="LAB-MCP-001" runs={[{ slot: "attack", id: a?.run_id ?? "" }, { slot: "retest", id: r?.run_id ?? "" }]} completion={[]} />
+    </section>
   </div>;
 }
 

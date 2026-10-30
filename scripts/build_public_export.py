@@ -86,7 +86,9 @@ def select(files: list[str], cfg: dict, read) -> tuple[list[str], list[tuple[str
     keep, drop = [], []
     allowed = set(cfg.get("allowed_top_level", []))
     for f in files:
-        if allowed and f.split("/", 1)[0] not in allowed:
+        if f.rsplit("/", 1)[-1] in (".DS_Store", "Thumbs.db"):
+            drop.append((f, "operating-system metadata file"))
+        elif allowed and f.split("/", 1)[0] not in allowed:
             drop.append((f, "not on the export allowlist"))
         elif f in cfg.get("included_files", []):
             keep.append(f)

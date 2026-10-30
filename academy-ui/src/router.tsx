@@ -37,7 +37,7 @@ export type RiskView = { view: "overview" } | { view: "register"; filter: string
 export const RISK_FILTERS = ["all", "unassessed", "with-findings", "gaps", "treatment", "awaiting-review"];
 export type GovView = "overview" | "frameworks" | "threats" | "export";
 export const GOV_VIEWS: GovView[] = ["overview", "frameworks", "threats", "export"];
-export type Route = { name: "challenges" } | { name: "governance"; view: GovView } | { name: "risk" } & RiskView | { name: "evals"; view: EvalView; id: string | null } | { name: "assurance"; step: StepId | null | "hub" } | { name: "home" } | { name: "acmebank" } | { name: "path" } | { name: "foundations" } | { name: "mastery" } | { name: "mcp" } | { name: "curriculum" } | { name: "lab"; id: string } | { name: "mission"; stage: StageId | null } | { name: "missing" };
+export type Route = { name: "challenges" } | { name: "governance"; view: GovView } | { name: "risk" } & RiskView | { name: "evals"; view: EvalView; id: string | null } | { name: "assurance"; step: StepId | null | "hub" } | { name: "assurance-live"; tab: AssuranceTab } | { name: "assurance-finding"; tab: AssuranceTab; id: string; evidence: boolean } | { name: "assurance-investigate"; tab: AssuranceTab; id: string } | { name: "assurance-compare"; tab: AssuranceTab; id: string } | { name: "home" } | { name: "acmebank" } | { name: "path" } | { name: "foundations" } | { name: "mastery" } | { name: "mcp" } | { name: "curriculum" } | { name: "lab"; id: string } | { name: "mission"; stage: StageId | null } | { name: "missing" };
 
 export function matchRoute(path: string): Route {
   const parts = path.replace(/\/+$/, "").split("/").filter(Boolean); // ["learn", ...]
@@ -62,7 +62,13 @@ export function matchRoute(path: string): Route {
     }
   }
   if (parts[1] === "assurance") {
-    if (parts.length === 2) return { name: "assurance", step: "hub" };
+    if (parts.length === 2) return { name: "assurance-live", tab: "live" };
+    if (parts.length === 3 && (parts[2] === "recorded" || parts[2] === "fixtures")) return { name: "assurance-live", tab: parts[2] };
+    if (parts.length === 3 && parts[2] === "study") return { name: "assurance", step: "hub" };
+    if ((parts.length === 5 || (parts.length === 6 && parts[5] === "evidence")) && parts[2] === "finding" && ["live", "recorded", "fixtures"].includes(parts[3]) && /^F-[0-9a-f]{12}$/.test(parts[4]))
+      return { name: "assurance-finding", tab: parts[3] as AssuranceTab, id: parts[4], evidence: parts.length === 6 };
+    if (parts.length === 6 && parts[2] === "finding" && ["live", "recorded", "fixtures"].includes(parts[3]) && /^F-[0-9a-f]{12}$/.test(parts[4]) && (parts[5] === "investigate" || parts[5] === "compare"))
+      return { name: parts[5] === "investigate" ? "assurance-investigate" : "assurance-compare", tab: parts[3] as AssuranceTab, id: parts[4] };
     if (parts[2] === "mcp-unauthorized-scope" && parts.length === 3) return { name: "assurance", step: null };
     if (parts[2] === "mcp-unauthorized-scope" && parts.length === 4 && (STEP_IDS as string[]).includes(parts[3])) return { name: "assurance", step: parts[3] as StepId };
   }
@@ -78,7 +84,12 @@ export function matchRoute(path: string): Route {
 export const GOV_PATH = `${BASE}/governance`;
 export const RISK_PATH = `${BASE}/risk`;
 export const EVALS_PATH = `${BASE}/evals`;
-export const ASSURANCE_PATH = `${BASE}/assurance`, JOURNEY_PATH = `${BASE}/assurance/mcp-unauthorized-scope`;
+export type AssuranceTab = "live" | "recorded" | "fixtures";
+export const ASSURANCE_PATH = `${BASE}/assurance`, ASSURANCE_STUDY_PATH = `${BASE}/assurance/study`, JOURNEY_PATH = `${BASE}/assurance/mcp-unauthorized-scope`;
+export const assuranceTabPath = (tab: AssuranceTab) => (tab === "live" ? ASSURANCE_PATH : `${ASSURANCE_PATH}/${tab}`);
+export const findingPath = (tab: AssuranceTab, id: string, evidence = false) => `${ASSURANCE_PATH}/finding/${tab}/${id}${evidence ? "/evidence" : ""}`;
+export const investigatePath = (tab: AssuranceTab, id: string) => `${ASSURANCE_PATH}/finding/${tab}/${id}/investigate`;
+export const comparePath = (tab: AssuranceTab, id: string) => `${ASSURANCE_PATH}/finding/${tab}/${id}/compare`;
 export const PATH_PATH = `${BASE}/path`, FOUNDATIONS_PATH = `${BASE}/foundations`, MASTERY_PATH = `${BASE}/mastery`, MCP_PATH = `${BASE}/mcp`, CURRICULUM_PATH = `${BASE}/curriculum`;
 export const labPath = (id: string) => `${BASE}/lab/${id}`;
 export const missionPath = (stage?: StageId) => `${BASE}/loan-desk${stage ? `/${stage}` : ""}`;

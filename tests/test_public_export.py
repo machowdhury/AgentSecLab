@@ -44,3 +44,8 @@ def test_allowlist_keeps_private_top_level_paths_out():
 def test_unpublished_path_mentions_become_plain_text():
     out = bpe.rewrite("docs/A.md", "see `docs/reviews/x.md` and `tools-dir/rules/a.mdc` and docs/B.md", {"docs/B.md"}, "")
     assert "docs/reviews" not in out and "tools-dir" in out and "docs/B.md" in out
+
+
+def test_operating_system_metadata_files_are_never_exported():
+    keep, drop = bpe.select(["README.md", "docs/.DS_Store", ".DS_Store", "docs/images/Thumbs.db"], dict(CFG, included_dirs=["docs/images"], allowed_top_level=[".DS_Store", "README.md", "docs"]), lambda p: "")
+    assert keep == ["README.md"] and len(drop) == 3

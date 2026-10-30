@@ -80,6 +80,12 @@ class SplunkCfg:
     ca_file: str = ""
     token_file: str = ""
     index: str = "agentsec_telemetry"
+    access: str = "auto"           # bundled Splunk: auto = the installer provisions a search-only identity for the Attack Service; off = no search access (notebook and verification say unavailable)
+
+
+def managed_access(cfg: "InstallConfig") -> bool:
+    """The installer provisions and mounts least-privilege search access: bundled Splunk, access=auto, and no hand-configured REST settings (those take precedence)."""
+    return cfg.splunk.mode == "bundled" and cfg.splunk.access == "auto" and not rest_enabled(cfg.splunk)
 
 
 def rest_enabled(s: "SplunkCfg") -> bool:
@@ -327,6 +333,8 @@ def validate(cfg: InstallConfig, locks: Locks) -> list[Finding]:
     elif s.mode in ("external_enterprise", "cloud"):
         f.extend(_splunk_rest_findings(s))
     elif s.mode == "bundled":
+        if s.access not in ("auto", "off"):
+            err("SPLUNK_ACCESS_INVALID", "splunk.access must be 'auto' (the installer provisions a search-only identity) or 'off'")
         img, _, fs = splunk_image(cfg, locks)
         f += fs
         if rest_enabled(s):
