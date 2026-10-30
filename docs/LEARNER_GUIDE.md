@@ -134,7 +134,7 @@ You investigate inside the Academy. In a LIVE workshop the **Investigate** stage
 | **NOT VERIFIED** (`WAITING_FOR_EVIDENCE`) | Splunk answered and found nothing yet, or was not answering. Telemetry arrives seconds to minutes after a run. This is **not** a failed attack and **not** proof of prevention. Check again |
 | **VERIFICATION UNAVAILABLE** | The Attack Service could not run the check at all. It is not zero rows and not verified |
 
-**VERIFIED on a launch card is optional and off by default.** It needs a separate certificate, trusted CA and token: see the [installation guide](INSTALLATION_AND_DEPLOYMENT.md#63-turning-on-rest-verification-verified-for-the-bundled-splunk-tested-once-on-a-disposable-host). The investigation notebook above uses the installer's search-only identity instead and does not depend on it. The notebook and Security Assurance behaviour against a real Splunk host was validated on one real Splunk 10.2.7 host (bundled Splunk, 2026-10-30); it was not validated against an external Splunk, Splunk Cloud or an organization certificate.
+**VERIFIED on a launch card is optional and off by default.** It needs a separate certificate, trusted CA and token: see the [Splunk integration reference](SPLUNK_INTEGRATION.md#turning-on-rest-verification-verified-for-the-bundled-splunk-tested-once-on-a-disposable-host). The investigation notebook above uses the installer's search-only identity instead and does not depend on it. The notebook and Security Assurance behaviour against a real Splunk host was validated on one real Splunk 10.2.7 host (bundled Splunk, 2026-10-30); it was not validated against an external Splunk, Splunk Cloud or an organization certificate.
 
 ### Reading Security Assurance in the Academy
 
@@ -198,7 +198,7 @@ An optional last section compares your work with CSA's MAESTRO Threat Analyzer. 
 | A recorded workshop shows no Splunk rows | Recorded runs are historical: use **All time**. They are loaded when the lab starts |
 | "Nothing runs when I open the exercise" | By design: recorded and simulated workshops are guided analyses of committed evidence |
 | The Loan Desk says the model is not installed | Ask the host owner to run `ollama pull llama3.2:latest` in the Ollama container (section 6) |
-| Certificate warning, or `421 Misdirected Request` | See the [installation guide](INSTALLATION_AND_DEPLOYMENT.md#11-common-failures-and-exact-recovery) |
+| Certificate warning, or `421 Misdirected Request` | See the [installation guide](INSTALLATION_AND_DEPLOYMENT.md#if-something-goes-wrong) |
 
 **Resetting.** Nothing on the server needs resetting for a workshop: each launch creates a new run id and earlier runs stay in Splunk. To start your own progress over, clear the Academy's site data in your browser (this also removes your MAESTRO and Risk drafts). A CTF attempt is reset by starting it again. The host owner restores the whole lab with `./agentsec down` then `./agentsec up`, which keeps data; deleting data is a separate, deliberate step in the installation guide.
 

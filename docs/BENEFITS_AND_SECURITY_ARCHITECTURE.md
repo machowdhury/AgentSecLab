@@ -131,7 +131,7 @@ What it is **not**: it does **not** run or embed CSA's MAESTRO Threat Analyzer (
 - **Not a measure of any real model's or system's security.** "Same input, different configuration, different outcome" is shown for one request; it is not a rate and not universal resistance.
 - **Not every workshop runs an agent.** 13 of the 33 workshops are live; 19 are recorded or simulated analyses; one is reading. The three CTF challenges use a scripted agent, not a language model, not MCP and not A2A.
 - **Not real MCP or A2A transports.** In-process models only.
-- **Splunk REST verification (VERIFIED) is not on by default.** It needs a matching management certificate, a trusted CA and a token (see the [installation guide](INSTALLATION_AND_DEPLOYMENT.md#63-turning-on-rest-verification-verified-for-the-bundled-splunk-tested-once-on-a-disposable-host)).
+- **Splunk REST verification (VERIFIED) is not on by default.** It needs a matching management certificate, a trusted CA and a token (see the [Splunk integration reference](SPLUNK_INTEGRATION.md#turning-on-rest-verification-verified-for-the-bundled-splunk-tested-once-on-a-disposable-host)).
 - **Not everything is behind one address.** Splunk Web and the real AcmeBank are not routed through the gateway.
 - **Authentication is a stand-in.** Basic authentication with two roles, no SSO, no login throttling.
 - **Untested:** Windows and macOS deployment for RC2, organization-managed certificates, non-loopback deployment, an external Splunk Enterprise or Splunk Cloud against a real service.

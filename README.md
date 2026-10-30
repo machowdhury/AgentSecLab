@@ -171,23 +171,30 @@ The Academy's Security Assurance page (`/learn/assurance`) is the supported way 
 
 Open a finding for the seven answers and the event timeline, then **Investigate in the notebook** (press Run on an approved search and read the rows, a chart and a plain-language reading) or **Compare with the retest**. More screenshots and the optional Splunk dashboards are in the [AI Security Assurance guide](docs/AI_SECURITY_ASSURANCE.md).
 
-## Quick start (Ubuntu 24.04, Docker)
+## Quick start
 
-`git clone` follows the default branch, `main`, which is RC2. This is the path the acceptance runs tested. You need Docker Engine with Compose v2 (your user in the `docker` group), `git`, `python3`, `openssl` and `curl`. **Do not use `sudo` for the lab commands.**
+Choose one. The [installation guide](docs/INSTALLATION_AND_DEPLOYMENT.md) has the full steps, the certificate-trust instructions and troubleshooting.
 
+**Verified platform: Ubuntu 24.04 x86-64 with Docker Engine.** macOS, Windows and other systems, and a remote install on port 8000, have not been validated. Run the lab commands as your normal user (in the `docker` group), **never with `sudo`**. You need `git`, `python3`, `openssl`, `curl`, Docker with Compose v2, about 25 GiB of free disk, and ports 443, 8088, 4317 and 4318 free. `git clone` follows `main`, which is RC2.
+
+**LOCAL: on your own Ubuntu computer**
 ```bash
-git clone https://github.com/machowdhury/AgentSecLab.git
-cd AgentSecLab
-
-./agentsec preflight                                    # read-only checks of this machine
-./agentsec --non-interactive --set gateway.ctf=true --accept-warnings all --dry-run plan   # show what will happen; starts nothing
-./agentsec --non-interactive --set gateway.ctf=true --accept-warnings all --apply install  # about 9 to 10 minutes on the tested host
+git clone https://github.com/machowdhury/AgentSecLab.git && cd AgentSecLab
+./agentsec preflight
+./agentsec --non-interactive --set gateway.ctf=true --accept-warnings all --apply install   # about 10 minutes
 ./agentsec status                                       # expect: OK project 'agentsec': all services are up.
 cat .gateway/credentials.txt                            # the learner and operator passwords
 ```
-Then open **`https://localhost/learn`**. Your browser will warn until you trust the lab's own certificate authority, `.gateway/tls/ca.pem` (import steps: [installation guide, 2.7](docs/INSTALLATION_AND_DEPLOYMENT.md#27-open-the-academy-tested-through-an-ssh-tunnel-the-same-requests-run-directly-on-the-host-were-not-run)). Sign in as `learner` (passwords: `cat .gateway/credentials.txt`) and start with **Start the beginner route**. Sign in as `operator` to launch attacks. You investigate inside the Academy. Splunk Web is an optional Advanced view at `http://localhost:18000` on the same machine (user `admin`, password `SPLUNK_PASSWORD` in `.env`); no step needs it. Stop with `./agentsec down` (keeps your data) and restart with `./agentsec up`.
+Trust `.gateway/tls/ca.pem` in your browser ([how](docs/INSTALLATION_AND_DEPLOYMENT.md#local-install-on-your-own-ubuntu-computer), step 4), then open **https://localhost/learn**.
 
-The full guide, with expected output, EC2 settings, certificates, SSH tunnelling, Splunk and troubleshooting, is the [Installation and deployment guide](docs/INSTALLATION_AND_DEPLOYMENT.md). **Measured on the tested host, not requirements:** about 25 GiB disk after install, about 6 GiB peak RAM during a Loan Desk run with both models loaded, and about 9 to 10 minutes for a clean install.
+**REMOTE: on an Ubuntu server or cloud VM, opened directly from your laptop (no SSH tunnel).** You need a DNS name for the server and a firewall or cloud security group that allows HTTPS **only from your own IP** (never `0.0.0.0/0`). On the server, run the same commands with this install line:
+```bash
+./agentsec --non-interactive --ack-external-controls --accept-warnings all --set deployment=organization \
+  --set gateway.bind=0.0.0.0 --set gateway.host=lab.example.com --set gateway.ctf=true --apply install
+```
+Copy `.gateway/tls/ca.pem` to your laptop, trust it, and open **https://lab.example.com/learn**. Only the gateway's HTTPS port is published; Splunk, HEC and Ollama stay internal. Details, and why the acknowledgement is required: [the guide](docs/INSTALLATION_AND_DEPLOYMENT.md#remote-ubuntu-server-or-cloud-vm-open-it-directly-from-your-laptop).
+
+Sign in as `operator` to launch attacks, `learner` to read. You investigate inside the Academy; Splunk Web is an optional Advanced view on the server's loopback and no step needs it. **Stop** with `./agentsec down` (keeps your data) and **restart** with `./agentsec up`.
 
 ## Workshop catalog at a glance
 

@@ -2,7 +2,7 @@
 
 > **Legacy: not the supported path.** This page describes the earlier multi-port, plain-HTTP flow (`scripts/lab-up.sh`, published as v1.2.0), in which ports 5000, 5001 and 8000 are published. In RC2 (a release candidate, unreleased) those ports are internal. The supported path is the installer and the single HTTPS gateway: install with `./agentsec` ([Installation and deployment](INSTALLATION_AND_DEPLOYMENT.md)) and open `https://localhost/learn`. Learners investigate inside the Academy; Splunk Web is an optional Advanced view. macOS, Windows and this older flow were **not** part of the RC2 acceptance runs. Do not mix the two flows on one machine without reading [Installer](INSTALLER.md) on existing labs.
 
-The legacy beginner path for release v1.2.0 (for RC2, follow the [README quick start](../README.md#quick-start-ubuntu-2404-docker) and open `https://localhost/learn`). You do not need to understand Docker networking or Splunk first. Run every command from the repository root.
+The legacy beginner path for release v1.2.0 (for RC2, follow the [README quick start](../README.md#quick-start) and open `https://localhost/learn`). You do not need to understand Docker networking or Splunk first. Run every command from the repository root.
 
 **Clone → Prerequisites → Configure → Preflight → Start → Verify readiness → Open the Academy → First recorded lab → Investigate → Continue.**
 

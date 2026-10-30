@@ -2,7 +2,7 @@
 
 Learner-oriented symptoms also live in [AGENTSEC_TROUBLESHOOTING_FOR_LEARNERS.md](AGENTSEC_TROUBLESHOOTING_FOR_LEARNERS.md). This runbook is the operator + learner canonical list for v1.0.
 
-> **Which flow this page covers.** The supported path is the installer and the single HTTPS gateway (`https://localhost/learn`); for it start with `./agentsec status` and the [installation guide](INSTALLATION_AND_DEPLOYMENT.md#11-common-failures-and-exact-recovery). Most sections below were written for the legacy `lab-up.sh` flow ([legacy multi-port flow](LEGACY_MULTI_PORT_FLOW.md)), where ports 5000, 5001 and 8000 are published. In the supported flow those ports are internal: learners do not open them, and the port numbers here are operator diagnostics only.
+> **Which flow this page covers.** The supported path is the installer and the single HTTPS gateway (`https://localhost/learn`); for it start with `./agentsec status` and the [installation guide](INSTALLATION_AND_DEPLOYMENT.md#if-something-goes-wrong) and [installer failures](#installer-common-failures-and-exact-recovery). Most sections below were written for the legacy `lab-up.sh` flow ([legacy multi-port flow](LEGACY_MULTI_PORT_FLOW.md)), where ports 5000, 5001 and 8000 are published. In the supported flow those ports are internal: learners do not open them, and the port numbers here are operator diagnostics only.
 
 Rule: an infrastructure failure is not a security conclusion. A Docker or host error is not evidence that an AgentSec control allowed or denied an action.
 
@@ -344,3 +344,25 @@ Authority-like keys are rejected as **ERROR**, not DENY.
 **Symptom:** Studio view fails to parse.  
 **Cause:** bad XML restage.  
 **Remediation:** `--refresh-app`; do not hand-edit volume files.
+
+## Installer: common failures and exact recovery
+
+| Symptom | Cause and recovery |
+|---|---|
+| `permission denied` talking to the Docker daemon | You are not in the `docker` group: `sudo usermod -aG docker "$USER"`, log out and in, retry. Do not use `sudo ./agentsec` |
+| `ERROR PORT_IN_USE: ... port 443 ... already in use` | Another process holds the port: stop it, or install with `--set gateway.port=8000` (**NOT TESTED**). Ports 4317, 4318 and 8088 are also checked |
+| `ERROR GENERATED_FILE_MODIFIED: .env changed since it was generated` | You edited `.env`. Put the change in `agentsec.install.json` (or `--set`) and re-run `install --apply`. If you must replace a foreign `.env`: `--force-env` keeps a backup |
+| `./agentsec status` says `NOT READY` for Splunk or `attack_service` | The first Splunk start loads data for several minutes. Wait, then re-run `status`. If it stays unhealthy: `./agentsec logs splunk --tail 200` |
+| Browser or curl: `421 Misdirected Request` | The `Host` header names a different port than the one installed. Use the host name and port the lab was installed with: `https://localhost/learn` (443), or `https://<gateway.host>[:8000]/learn` ([remote path](INSTALLATION_AND_DEPLOYMENT.md#remote-ubuntu-server-or-cloud-vm-open-it-directly-from-your-laptop)) |
+| Browser warns about the certificate | Trust `.gateway/tls/ca.pem` for this host name. Do not click through a warning on a shared machine |
+| `401 Unauthorized` | Wrong credentials: read `.gateway/credentials.txt` |
+| `403` on a launch or a CTF start | You are signed in as `learner`: sign in as `operator`. A `403` or `429` after many rapid calls is the 6 per minute limit: wait a minute |
+| Launch card: runtime unreachable | AcmeBank or the Attack Service is not ready: `./agentsec status`. Nothing was launched; try again |
+| Academy: Loan Desk model not installed | `docker exec agentsec-ollama ollama pull llama3.2:latest` (bundled Ollama). The status page then shows the model and its digest |
+| `WAITING_FOR_EVIDENCE` | The honest default: telemetry arrives seconds to minutes later. It is not a failed attack and not proof of prevention. Check again, or search Splunk with the starter search |
+| `VERIFICATION UNAVAILABLE` | The REST check is not configured or cannot run ([Splunk integration reference](SPLUNK_INTEGRATION.md#reference-the-installers-bundled-splunk-search-access-kernel-and-known-issues)). Search Splunk yourself |
+| `Hostname mismatch, certificate is not valid for 'splunk'` | Splunk's default management certificate has no host name ([Splunk integration reference](SPLUNK_INTEGRATION.md#reference-the-installers-bundled-splunk-search-access-kernel-and-known-issues)) |
+| `KVStore is not ready. Token auth system will not work.` | Splunk's KV store did not start: diagnose with [the KV store note](SPLUNK_INTEGRATION.md#splunk-kv-store-fails-on-linux-619-or-newer-confirmed-on-the-test-host) |
+| `Pulling` a model fails with `x509` | A TLS inspection proxy: fix certificate trust on the host ([Installer reference](INSTALLER.md#docker-compose-and-the-two-models)); never disable verification |
+| CTF returns `ledger_integrity_failed` or a zero scoreboard | The CTF state in `.gateway/ctf-state` was damaged or rolled back; see [CTF](CTF.md) for repair or reset |
+| Out of disk | Images 16 GB and volumes 6 GB after the install; check `docker system df`. Do not `prune` blindly |

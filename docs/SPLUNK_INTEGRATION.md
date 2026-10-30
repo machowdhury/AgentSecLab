@@ -89,3 +89,75 @@ Nothing is moved or rewritten: the bundled volumes stay as they are, new evidenc
 
 ## Not in this milestone
 Real-Splunk external tests; HEC through the collector to an external endpoint; Splunk Web proxying; automatic app installation; SSO.
+
+---
+
+## Reference: the installer's bundled Splunk, search access, kernel and known issues
+
+Moved from the installation guide.
+
+### Kernel 6.19 or newer and the bundled Splunk
+
+**Kernel warning for the bundled Splunk (important).** The current Ubuntu 24.04 AWS image ships Linux kernel 7.0. Splunk's bundled MongoDB refuses to start on Linux kernels **6.19 and newer**, which disables Splunk's KV store and with it Splunk authentication tokens (section 7.4). The lab itself still runs. If you need tokens, boot Ubuntu's own 6.8 kernel (TESTED on the acceptance host):
+```bash
+sudo apt-get install -y linux-image-6.8.0-1050-aws linux-modules-6.8.0-1050-aws
+echo 'GRUB_DEFAULT="gnulinux-advanced-'"$(findmnt -no UUID /)"'>gnulinux-6.8.0-1050-aws-advanced-'"$(findmnt -no UUID /)"'"' | sudo tee /etc/default/grub.d/99-kernel-pin.cfg
+sudo update-grub && sudo reboot
+uname -r       # 6.8.0-1050-aws; the stack restarts by itself (restart: unless-stopped)
+```
+The commands are those used on the acceptance host (acceptance logs, not published). A reboot cancels any scheduled `shutdown`; schedule it again. Package versions change: check `apt-cache search '^linux-image-6.8.0-.*-aws$'` for the current 6.8 build.
+
+#### Bundled Splunk and HEC (TESTED)
+The bundled Splunk Enterprise (10.2.7 in the acceptance run; the installer checks the image digest recorded in `deploy/images.lock.json`, while a bare `docker compose up` uses the `splunk/splunk:10.2` tag) runs in the `local` Compose profile. Telemetry flows from AcmeBank to the OpenTelemetry collector, which sends it to Splunk's HTTP Event Collector over TLS inside the Docker network (`https://agentsec_splunk:8088/...`, a generated token `SPLUNK_HEC_TOKEN`, index `agentsec_telemetry`, sourcetype `otel:agentic:json`). `scripts/hec-certs.sh` creates the HEC certificate on first install (`AGENTSEC_HEC_TLS_MODE=LOCAL_SELF_SIGNED`). The two init jobs create the index, the HEC input and the Splunk app and load the recorded sample runs.
+
+Check that a live run arrived (TESTED, from the repository's acceptance record): launch a run in the Academy, copy its run id, and, as the operator, in Splunk Search (an optional Advanced view; learners use the Academy's Investigate notebook instead) run `index=agentsec_telemetry "agentsec.run.id"="<run id>" | stats count`. The count equals the run's local event count. Telemetry can take seconds to minutes to appear.
+
+#### Evidence verification states
+The Academy labels each live run with one of three words: **VERIFIED** (Splunk returned the run's events), **NOT VERIFIED** (Splunk answered and found nothing yet, or was not answering) and **VERIFICATION UNAVAILABLE** (the check could not run: no Splunk REST settings, a certificate that does not match, a refused token). **VERIFIED is optional and off by default**; without the settings in 6.3 a launch card reads VERIFICATION UNAVAILABLE, because the Attack Service has no Docker access.
+
+**Search access for the Academy notebook (RC2).** The Investigate notebook and Security Assurance do not depend on VERIFIED. The installer provisions a least-privilege, search-only Splunk identity for them: run `./agentsec splunk-access` (check it with `./agentsec splunk-access --check`). The Attack Service then reaches Splunk's management API (`https://splunk:8089`) with strict TLS, reading the credential and CA from a read-only mount (`.splunk-access/`). Where it is not provisioned the notebook says so and fails closed; there is no silent fallback. The older host-side verifier that reads Docker is legacy, off by default (`AGENTSEC_LEGACY_HOST_VERIFIER=1` enables it) and ignored behind the gateway, so no installer deployment reports a Splunk-VERIFIED Loan Desk run by default. **Validated (RC2 acceptance run, 2026-10-30) on one real Splunk Enterprise 10.2.7 host with the bundled Splunk, the Ubuntu 24.04 and kernel 6.8 setup above; not validated against an external Splunk, Splunk Cloud or an organization-issued certificate.** Rotating the credential with `--force` does not revoke the previous token: see [Troubleshooting](TROUBLESHOOTING.md#rotating-the-search-credential-and-the-old-token).
+
+#### Turning on REST verification (VERIFIED) for the bundled Splunk (TESTED once, on a disposable host)
+VERIFIED needs all of the following, none of which the lab creates for you. The complete evidence is in [Splunk integration](SPLUNK_INTEGRATION.md).
+1. A Splunk **management certificate** whose names include the host name the client uses (`splunk` and `agentsec_splunk` inside the Docker network), signed by a CA you give to the client. Splunk's default certificate has **no** subject alternative name, so strict verification fails with `Hostname mismatch, certificate is not valid for 'splunk'`. The certificate must allow **both server and client authentication** (the KV store uses it for mutual TLS) and Splunk must trust the CA (`[sslConfig] serverCert` and `sslRootCAPath` in `server.conf`). Do not trust Splunk's default `SplunkCommonCA`.
+2. A **working KV store** (see "Splunk KV store fails on Linux 6.19 or newer" below), because Splunk keeps authentication tokens there.
+3. A **search-only role** on `agentsec_telemetry`, a user with it, and an **authentication token** for that user, stored in a one-line file with mode 0600 that the container's user can read.
+4. The installer settings that carry the above into the Attack Service container (TESTED):
+```bash
+./agentsec --non-interactive --set gateway.ctf=true \
+  --set splunk.rest_url=https://splunk:8089 \
+  --set splunk.ca_file=/home/ubuntu/splunk-pki/ca.pem \
+  --set splunk.token_file=/home/ubuntu/splunk-rest/token \
+  --accept-warnings all --apply install
+docker exec -i agentsec-attack-service python - <<'PY'
+import os
+from agentsec import splunk_client as sc
+for stage, state, detail in sc.client_for_mode(dict(os.environ)).diagnose(None): print(stage, state, detail)
+PY
+```
+Expected: `connectivity PASS`, `authentication PASS`, `authorization PASS`, `search PASS`, then `telemetry NOT VERIFIED` until you pass a run id. A live run then reads **VERIFIED** (22 of 22 events in the tested run). Any other outcome is one of the three states above, never a silent success.
+
+An organization's own Splunk Enterprise or Splunk Cloud uses the same client with `splunk.mode` set to `external_enterprise` or `cloud`; that is **NOT TESTED** against a real service.
+
+#### Optional Splunk dashboards for AI Security Assurance (TESTED on a disposable host)
+
+Security Assurance in the Academy (`/learn/assurance`: findings, raw evidence, an investigation notebook and a retest comparison) needs nothing from this section. The installer also deploys the `agentsec` Splunk app, which holds five dashboards and a finding page ([guide](AI_SECURITY_ASSURANCE.md)): an **optional advanced view** of the same findings, never a required step. In Splunk Web they are at `http://127.0.0.1:18000/en-US/app/agentsec/ws_assurance_executive` on the host, use Splunk's own login, and are **not routed through the gateway**: on a remote host reach them through an SSH tunnel (`ssh -L 18000:127.0.0.1:18000 <host>`). They need the same Linux kernel older than 6.19 as Splunk's database (section 7.1). Scanner and garak panels stay empty until their evidence packs are ingested.
+
+### Known issues, with the evidence to check
+
+#### Splunk KV store fails on Linux 6.19 or newer (CONFIRMED on the test host)
+Symptoms: Splunk is healthy and searches work, but `POST /services/authorization/tokens` answers `KVStore is not ready. Token auth system will not work.`
+
+Diagnose (TESTED):
+```bash
+docker exec agentsec-splunk sh -c 'curl -sk -u "admin:$SPLUNK_PASSWORD" "https://localhost:8089/services/kvstore/status?output_mode=json"' | python3 -c 'import sys,json;print(json.load(sys.stdin)["entry"][0]["content"]["current"]["status"])'
+docker exec -u root agentsec-splunk sh -c "grep -a 12257600 /opt/splunk/var/log/splunk/mongod.log | tail -1"
+uname -r
+```
+Evidence from the tested host: status `failed`; `MongoDB cannot start: Linux kernel versions 6.19 and newer has a known incompatibility with this version of MongoDB (SERVER-121912)`; kernel `7.0.0-1014-aws`; the CPU had AVX, so it was not a CPU cause. Booting a 6.8 kernel (see "Kernel 6.19 or newer and the bundled Splunk" above) made the status `ready` with no Splunk change. Other causes show different log lines: read `mongod.log` and `splunkd.log` before changing anything.
+
+#### After replacing the management certificate, the KV store fails again
+Two causes were seen, both in the logs: Splunk did not trust the new CA (set `sslRootCAPath`), and `SSL peer certificate validation failed: unsuitable certificate purpose` (the certificate lacked the `clientAuth` extended key usage).
+
+#### Other limits to expect
+Splunk's REST VERIFIED path is not on by default (see "Turning on REST verification" above). The host-side Loan Desk verifier is legacy: only the older `scripts/lab-up.sh` starts it, and it is ignored behind the gateway, so an installer deployment never shows a Splunk-VERIFIED Loan Desk run by default; the Investigate notebook (see "Evidence verification states" above) is the in-Academy way to read the run's rows. The CTF challenges are simulated. There is no login throttling.

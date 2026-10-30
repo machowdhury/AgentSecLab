@@ -100,7 +100,7 @@ def test_documented_commands_exist_and_the_example_configuration_parses():
     for doc in NEW:
         used |= set(re.findall(r"\./agentsec\b[^\n]*?\b(install|preflight|plan|status|up|down|logs|rollback|print-config|validate)\b", doc.read_text(encoding="utf-8")))
     assert used and used <= allowed, used - allowed
-    block = re.search(r"Example file \(TESTED with `print-config`\):\n```json\n(.*?)```", (ROOT / "docs/INSTALLATION_AND_DEPLOYMENT.md").read_text(encoding="utf-8"), re.S).group(1)
+    block = re.search(r"Example file \(TESTED with `print-config`\):\n```json\n(.*?)```", (ROOT / "docs/INSTALLER.md").read_text(encoding="utf-8"), re.S).group(1)
     assert InstallConfig.from_dict(json.loads(block)).gateway.ctf is True
 
 
@@ -113,13 +113,13 @@ def test_the_documented_environment_variables_are_the_ones_the_installer_writes(
     for d in ({"gateway": {"ctf": True}, "splunk": {"mode": "bundled", "rest_url": "https://splunk:8089", "token_file": "/x/t", "ca_file": "/x/c"}}, {"ollama": {"mode": "host"}}):
         cfg = InstallConfig.from_dict(d)
         written |= set(render.parse_env(render.build_plan(cfg, Locks.load(), {"platform": "Linux/x86_64", "volume_prefixes": []}, None).files[".env"]))
-    section = re.search(r"### 9\.2 Generated environment variables.*?\n(.*?)\n## 10\.", (ROOT / "docs/INSTALLATION_AND_DEPLOYMENT.md").read_text(encoding="utf-8"), re.S).group(1)
+    section = re.search(r"### Generated environment variables.*?\n(.*?)\n## Upgrade, backup", (ROOT / "docs/INSTALLER.md").read_text(encoding="utf-8"), re.S).group(1)
     documented = set(re.findall(r"`([A-Z][A-Z0-9_]{3,})`", section))
     assert documented and documented <= written, documented - written
 
 
 def test_the_measured_figures_are_stated_as_measurements_not_requirements():
-    t = (ROOT / "docs/INSTALLATION_AND_DEPLOYMENT.md").read_text(encoding="utf-8")
+    t = (ROOT / "docs/INSTALLER.md").read_text(encoding="utf-8")
     for fig in ("about 25 GiB", "about 6 GiB", "9 to 10 minutes"):
         assert fig in t
     assert "**No minimum is claimed.**" in t and "They are **not** minimum requirements" in t
@@ -134,3 +134,24 @@ def test_no_new_guide_overclaims_what_was_not_tested():
     for bad in ("MAESTRO v2 is implemented", "all 33 workshops are live", "VERIFIED by default"):
         assert bad.lower() not in corpus.lower(), bad
     assert not re.search(r"(?<!not )everything is behind one", corpus, re.I)
+
+
+def test_the_install_commands_in_the_guide_and_readme_use_real_settings_and_both_paths_are_present():
+    from agentsec.installer.config import Locks, validate
+    guide = (ROOT / "docs/INSTALLATION_AND_DEPLOYMENT.md").read_text(encoding="utf-8")
+    for heading in ("## LOCAL: install on your own Ubuntu computer", "## REMOTE: Ubuntu server or cloud VM, open it directly from your laptop"):
+        assert heading in guide
+    assert "ssh -N -L" not in guide                                       # no tunnel is needed for normal browser access
+    modes = set()
+    for doc in (ROOT / "README.md", ROOT / "docs/INSTALLATION_AND_DEPLOYMENT.md"):
+        text = re.sub(r"\\\n\s*", " ", doc.read_text(encoding="utf-8"))   # join shell line continuations
+        for line in re.findall(r"^\./agentsec --non-interactive.*--apply install", text, re.M):
+            cfg = InstallConfig.from_dict({})
+            for k, v in re.findall(r"--set (\S+)=(\S+)", line):
+                section, _, key = k.partition(".")
+                target = cfg if not key else getattr(cfg, section)
+                setattr(target, key or section, {"true": True}.get(v, int(v) if v.isdigit() else v))
+            cfg.ack_external_controls = "--ack-external-controls" in line
+            assert not [f for f in validate(cfg, Locks.load()) if f.level == "ERROR"], line
+            modes.add((cfg.deployment, cfg.gateway.bind))
+    assert modes == {("localhost", "127.0.0.1"), ("organization", "0.0.0.0")}      # LOCAL stays loopback-only; REMOTE publishes only the gateway
