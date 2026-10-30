@@ -139,16 +139,19 @@ def test_no_new_guide_overclaims_what_was_not_tested():
 def test_the_install_commands_in_the_guide_and_readme_use_real_settings_and_both_paths_are_present():
     from agentsec.installer.config import Locks, validate
     guide = (ROOT / "docs/INSTALLATION_AND_DEPLOYMENT.md").read_text(encoding="utf-8")
-    for heading in ("## LOCAL: install on your own Ubuntu computer", "## REMOTE: Ubuntu server or cloud VM, open it from your laptop"):
+    for heading in ("## LOCAL: install on your own Ubuntu computer", "## REMOTE: Ubuntu server or cloud VM, open it directly from your laptop"):
         assert heading in guide
-    ports = set()
+    assert "ssh -N -L" not in guide                                       # no tunnel is needed for normal browser access
+    modes = set()
     for doc in (ROOT / "README.md", ROOT / "docs/INSTALLATION_AND_DEPLOYMENT.md"):
-        for line in re.findall(r"^\./agentsec --non-interactive.*--apply install", doc.read_text(encoding="utf-8"), re.M):
-            sets = dict(s.split("=", 1) for s in re.findall(r"--set (\S+)", line))
+        text = re.sub(r"\\\n\s*", " ", doc.read_text(encoding="utf-8"))   # join shell line continuations
+        for line in re.findall(r"^\./agentsec --non-interactive.*--apply install", text, re.M):
             cfg = InstallConfig.from_dict({})
-            for k, v in sets.items():
+            for k, v in re.findall(r"--set (\S+)=(\S+)", line):
                 section, _, key = k.partition(".")
-                setattr(getattr(cfg, section), key, {"true": True}.get(v, int(v) if v.isdigit() else v))
+                target = cfg if not key else getattr(cfg, section)
+                setattr(target, key or section, {"true": True}.get(v, int(v) if v.isdigit() else v))
+            cfg.ack_external_controls = "--ack-external-controls" in line
             assert not [f for f in validate(cfg, Locks.load()) if f.level == "ERROR"], line
-            ports.add(cfg.gateway.port)
-    assert ports == {443, 8000}                                         # LOCAL on 443, REMOTE on 8000 (the port an unprivileged SSH tunnel can match)
+            modes.add((cfg.deployment, cfg.gateway.bind))
+    assert modes == {("localhost", "127.0.0.1"), ("organization", "0.0.0.0")}      # LOCAL stays loopback-only; REMOTE publishes only the gateway

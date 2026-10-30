@@ -100,7 +100,7 @@ The test hosts used these settings (TESTED). They are what worked, not a sizing 
 | Safety | A scheduled `shutdown -h` as an independent expiry, and `--instance-initiated-shutdown-behavior terminate` |
 | Cost seen | about $0.43 per hour for the instance (AWS list price in `ca-central-1`, checked on the day), so a 36-minute run cost about $0.27 |
 
-After the instance is up, follow the [remote path](INSTALLATION_AND_DEPLOYMENT.md#remote-ubuntu-server-or-cloud-vm-open-it-from-your-laptop) over SSH.
+After the instance is up, follow the [remote path](INSTALLATION_AND_DEPLOYMENT.md#remote-ubuntu-server-or-cloud-vm-open-it-directly-from-your-laptop) over SSH.
 
 ## Docker Compose and the two models
 
@@ -195,3 +195,18 @@ docker image ls | grep -E 'splunk/splunk|ollama/ollama|otel/opentelemetry|nginx'
 cd .. && rm -rf AgentSecLab                      # removes .env, .gateway (credentials, CA, CTF state) and artifacts
 ```
 Check the names with `docker volume ls` first; this removes your Splunk data and models.
+
+## Remote HTTPS validation record (one disposable Ubuntu 24.04 cloud VM, 2026-10-30)
+Install: `deployment=organization`, `gateway.bind=0.0.0.0`, a DNS name for the host, port 443, kernel 6.8; the installer finished with exit 0 and Splunk search access provisioned. Inbound rules allowed SSH and HTTPS only from the tester's single IP address. Sanitized results (no credentials, addresses or identifiers recorded):
+| Check | Result |
+|---|---|
+| TLS verified against the generated CA, with the host name | OK (`Verify return code: 0`); a wrong host name fails (`hostname mismatch`); no CA fails |
+| No credentials / wrong password / `learner` / `learner` launch POST | 401 / 401 / 200 / 403 |
+| Host header with a different port / an unknown name / a bare IP (no SNI) | 421 / 404 / TLS handshake refused |
+| Source IP not in the security group | connection times out |
+| Listening sockets on the server | only SSH and the gateway port on all interfaces; Splunk Web (18000), HEC (8088) and OTel (4317, 4318) on 127.0.0.1 |
+| Scan from the allowed IP with the internal ports temporarily opened in the security group (to test host binding, not the security group) | 5000, 5001, 8000, 8088, 8089, 18000, 4317, 4318, 11434 and 9997 all closed |
+| Browser journey, no tunnel (Goal Integrity): predict, baseline, attack, notebook, retest, explain | passed; three notebook cells returned real Splunk rows; all eight stages done |
+| Security Assurance: overview, finding, comparison, notebook cell | passed on the learner's own run (comparison: retest validated) |
+The test browser accepted only the server's public key (a pin; verification stayed on) instead of using the operating system's certificate store. The comparison page needed a few seconds for Splunk to index the retest.
+

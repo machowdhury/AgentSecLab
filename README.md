@@ -175,7 +175,7 @@ Open a finding for the seven answers and the event timeline, then **Investigate 
 
 Choose one. The [installation guide](docs/INSTALLATION_AND_DEPLOYMENT.md) has the full steps, the certificate-trust instructions and troubleshooting.
 
-**Verified platform: Ubuntu 24.04 x86-64 with Docker Engine.** macOS, Windows and other systems have not been verified. Run the lab commands as your normal user (in the `docker` group), **never with `sudo`**. You need `git`, `python3`, `openssl`, `curl`, Docker with Compose v2, about 25 GiB of free disk, and ports 443, 8088, 4317 and 4318 free. `git clone` follows `main`, which is RC2.
+**Verified platform: Ubuntu 24.04 x86-64 with Docker Engine.** macOS, Windows and other systems, and a remote install on port 8000, have not been validated. Run the lab commands as your normal user (in the `docker` group), **never with `sudo`**. You need `git`, `python3`, `openssl`, `curl`, Docker with Compose v2, about 25 GiB of free disk, and ports 443, 8088, 4317 and 4318 free. `git clone` follows `main`, which is RC2.
 
 **LOCAL: on your own Ubuntu computer**
 ```bash
@@ -187,7 +187,12 @@ cat .gateway/credentials.txt                            # the learner and operat
 ```
 Trust `.gateway/tls/ca.pem` in your browser ([how](docs/INSTALLATION_AND_DEPLOYMENT.md#local-install-on-your-own-ubuntu-computer), step 4), then open **https://localhost/learn**.
 
-**REMOTE: on an Ubuntu server or cloud VM, opened from your laptop.** On the server run the same commands with `--set gateway.port=8000` added to the install line. On your laptop copy `.gateway/tls/ca.pem` from the server, trust it, run `ssh -N -L 8000:127.0.0.1:8000 <user>@<server>`, and open **https://localhost:8000/learn**. Nothing is opened to the network. This remote route has not yet been run on a real remote host; see [the guide](docs/INSTALLATION_AND_DEPLOYMENT.md#remote-ubuntu-server-or-cloud-vm-open-it-from-your-laptop).
+**REMOTE: on an Ubuntu server or cloud VM, opened directly from your laptop (no SSH tunnel).** You need a DNS name for the server and a firewall or cloud security group that allows HTTPS **only from your own IP** (never `0.0.0.0/0`). On the server, run the same commands with this install line:
+```bash
+./agentsec --non-interactive --ack-external-controls --accept-warnings all --set deployment=organization \
+  --set gateway.bind=0.0.0.0 --set gateway.host=lab.example.com --set gateway.ctf=true --apply install
+```
+Copy `.gateway/tls/ca.pem` to your laptop, trust it, and open **https://lab.example.com/learn**. Only the gateway's HTTPS port is published; Splunk, HEC and Ollama stay internal. Details, and why the acknowledgement is required: [the guide](docs/INSTALLATION_AND_DEPLOYMENT.md#remote-ubuntu-server-or-cloud-vm-open-it-directly-from-your-laptop).
 
 Sign in as `operator` to launch attacks, `learner` to read. You investigate inside the Academy; Splunk Web is an optional Advanced view on the server's loopback and no step needs it. **Stop** with `./agentsec down` (keeps your data) and **restart** with `./agentsec up`.
 
