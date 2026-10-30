@@ -7,7 +7,7 @@
 | [Workshop catalog](WORKSHOP_CATALOG.md) | All 33 workshops: mode, how to start, expected outcomes, evidence, completion, reset |
 | [Benefits, architecture and security](BENEFITS_AND_SECURITY_ARCHITECTURE.md) | Why it matters per role, trust boundaries, LLM versus deterministic decisions, MAESTRO, what is not claimed |
 | [Visual guide](VISUAL_GUIDE.md) | Eight diagrams (architecture, data flow, trust boundaries and more) and the product screenshots |
-| [AI Security Assurance dashboards](AI_SECURITY_ASSURANCE.md) | Evidence-driven Splunk dashboards: findings, statuses, rules, metrics, framework mapping, limits |
+| [AI Security Assurance](AI_SECURITY_ASSURANCE.md) | The Academy's Security Assurance workflow (overview, finding, notebook, retest comparison), statuses, rules, metrics, framework mapping, limits; the optional Splunk dashboards |
 | [Security tools](SECURITY_TOOLS.md) | Integrated tools: version, licence, install method, use, status and limits (licences: [third-party notices](../THIRD_PARTY_NOTICES.md)) |
 | Acceptance records (not published; summarized in the README) | What was tested on a real host: clean host, final run and final two checks |
 | [Getting started](GETTING_STARTED.md) | The older multi-port beginner path (clone to first lab); see its RC2 note |
