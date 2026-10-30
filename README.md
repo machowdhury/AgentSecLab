@@ -171,7 +171,7 @@ The Academy's Security Assurance page (`/learn/assurance`) shows findings with r
 
 ## Quick start (Ubuntu 24.04, Docker)
 
-This is the path the acceptance runs tested. You need Docker Engine with Compose v2 (your user in the `docker` group), `git`, `python3`, `openssl` and `curl`. **Do not use `sudo` for the lab commands.**
+`git clone` follows the default branch, `main`, which is RC2. This is the path the acceptance runs tested. You need Docker Engine with Compose v2 (your user in the `docker` group), `git`, `python3`, `openssl` and `curl`. **Do not use `sudo` for the lab commands.**
 
 ```bash
 git clone https://github.com/machowdhury/AgentSecLab.git

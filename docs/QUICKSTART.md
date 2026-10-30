@@ -4,7 +4,7 @@
 
 A technically capable person should be able to follow this linearly. Run every command from the **repository root**.
 
-Use `main` (release **v1.2.0**) for this legacy flow; RC2 is installed with `./agentsec`. Earlier tags (`v1.1.0`, `v1.0.0`, and the release candidates) are older releases without the React Academy; they are described in the [legacy guide](LEGACY_SPLUNK_ACADEMY_GUIDE.md).
+Use the tag `v1.2.0` (`git checkout v1.2.0`) for this legacy flow; `main` is RC2, which is installed with `./agentsec`. Earlier tags (`v1.1.0`, `v1.0.0`, and the release candidates) are older releases without the React Academy; they are described in the [legacy guide](LEGACY_SPLUNK_ACADEMY_GUIDE.md).
 
 After the first lab, continue with the [Learner guide](LEARNER_GUIDE.md) and [AGENTSEC_RELEASE_LAB_MATRIX.md](AGENTSEC_RELEASE_LAB_MATRIX.md).
 

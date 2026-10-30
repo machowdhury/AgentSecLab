@@ -11,7 +11,7 @@ The legacy beginner path for release v1.2.0 (for RC2, follow the [README quick s
 git clone https://github.com/machowdhury/AgentSecLab.git
 cd AgentSecLab
 ```
-`main` is release v1.2.0.
+The legacy flow below is release v1.2.0: use the tag (`git checkout v1.2.0`). `main` is RC2.
 
 ## 2. Prerequisites
 Git, Docker Engine with Compose v2, `python3`, `curl`, and a browser. Plan for about 8 GB of free disk. The first start can take 10–20 minutes because Splunk initialises. Podman and Windows are not validated. Details: [Prerequisites](AGENTSEC_PREREQUISITES.md).

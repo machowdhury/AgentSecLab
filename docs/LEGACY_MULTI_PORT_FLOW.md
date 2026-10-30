@@ -7,7 +7,7 @@ The RC2 guides in `docs/` describe the installer and the HTTPS gateway. The sect
 ### Release status and versions
 
 - **Published: v1.2.0**, a multi-port plain-HTTP deployment (this README's quick start and tables). **In development, not released: v1.3.0**, which adds an opt-in HTTPS gateway so a hosted deployment exposes exactly one external port (443 or 8000) and a Splunk integration layer. See [Deployment modes at a glance](GATEWAY.md#deployment-modes-at-a-glance).
-- `main` is release **v1.2.0**. It includes the React Academy shell, the Security Assurance workshop, the EVAL Center, the Risk Center, the Governance Center and the Workshop path bar. The previous release, `v1.1.0`, served the original Splunk-based pages, which still work.
+- The tag `v1.2.0` is release **v1.2.0** (it was `main` before the RC2 merge; check it out for this flow). It includes the React Academy shell, the Security Assurance workshop, the EVAL Center, the Risk Center, the Governance Center and the Workshop path bar. The previous release, `v1.1.0`, served the original Splunk-based pages, which still work.
 - **Recorded versus live.** Everything in the EVAL, Risk and Governance Centers and almost every lab is recorded, replayed or simulated evidence, and says so on the page. Only the Loan Desk mission's Attack stage runs a live agent, and it needs the local model (Ollama).
 - **What was tested on this branch's deployed build:** automated headless-Chromium checks (navigation, lazy-loaded pages, exports, recorded workbenches, console errors) through a private tunnel. The live Attack stage was **not** run or verified, and no human or screen-reader pass has been done.
 
