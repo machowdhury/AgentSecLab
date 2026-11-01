@@ -1,183 +1,40 @@
 # AgentSecLab
 
-**AgentSecLab: Learn to attack, defend and investigate AI agents—with evidence.**
+**A hands-on learning environment for understanding, attacking, investigating and defending agentic AI systems.**
 
-The workflow every workshop follows: **Attack → Observe → Investigate → Defend → Retest → Explain the Evidence.**
+You run a small, deliberately simple bank assistant (**AcmeBank**) on your own machine, attack it in controlled experiments, and then investigate what actually happened using real telemetry. A browser-based **Academy** guides you through **33 workshops**. Thirteen of them run live; the rest are guided analyses of recorded or simulated evidence, and every page says which. Nothing here is a production system, and all data is synthetic.
 
-AgentSecLab runs a small, deliberately simple bank assistant, **AcmeBank**, that you attack in controlled experiments and then investigate with real telemetry in Splunk. A browser-based **Academy** guides you through 33 workshops. Thirteen of them run live on your machine; the rest are guided analyses of recorded or simulated evidence, and every page says which. Nothing here is a production system, and all data is synthetic.
+<p align="center">
+  <img src="docs/images/academy-home.png" alt="The AgentSec Academy home page: learn to investigate how AI agents actually behave" width="900">
+</p>
 
-![The AgentSec Academy home page](docs/images/academy-home.png)
+> **Status: RC2 (release candidate 2), a restricted single-user beta.** Verified on one platform: Ubuntu 24.04 x86-64 with Docker Engine. See [Compatibility and limits](#compatibility-and-limits) before you rely on it.
 
-> **Status: RC2 (release candidate 2), restricted single-user beta.** Tested on one disposable Ubuntu 24.04 host (details in [Tested and untested](#tested-and-untested)). Read the [limitations](#what-agentseclab-is-not) before you rely on it.
+**Jump to:** [Install: LOCAL or REMOTE](#quick-start) · [The learning journey](#the-learning-journey) · [What actually runs](#what-actually-runs) · [Documentation](#documentation) · [Limits](#compatibility-and-limits)
 
-## How it fits with other tools
+## Why use it
 
-AgentSecLab is a learning environment. It is meant to sit beside the tools you already use, not replace them:
+An agent is an application with a component that *decides what to do next from text*. So untrusted text can steer behaviour, "allowed" must be decided by something other than the model, and what happened can only be reconstructed from evidence. AgentSecLab turns those problems into experiments you can run, observe and explain. Its organising idea, shown on the home page:
 
-| Tool family | What it does well | What AgentSecLab adds |
-|---|---|---|
-| **Scanners** (for example Cisco MCP Scanner) | Find issues in an artifact | A place to see the issue in a running agent and in Splunk; the scanner is integrated, see [Security tools](docs/SECURITY_TOOLS.md) |
-| **Red-team frameworks** (for example garak) | Probe a model at scale | A recorded garak result you can read next to the telemetry of the same kind of attack |
-| **CTFs** | Practise exploitation | Three simulated challenges, plus the defender's side: what the evidence shows |
-| **Governance tools** | Track risk and controls | Evidence that a control did or did not act, and what that does not prove |
-| **Commercial platforms** | Monitor and protect production | A safe, local place to practise the investigation steps those platforms support; it does not measure or compare them |
+> **A control decision is not an execution, and an execution is not observed evidence.**
 
-It does not claim to do anything those tools do, and it is not a substitute for them.
-
-## Outcomes by role
-
-| Role | After the workshops you can |
-|---|---|
-| **SOC analyst, detection engineer** | Rebuild an agent run from Splunk events by `agentsec.run.id`; separate a control decision from an execution; write a search that would have caught an attack; read what an alert's silence means |
-| **AI application security engineer** | Show why authorization belongs in deterministic code outside the model; compare tool, scope, resource and argument checks; run the same attack against the vulnerable and the defended profile |
-| **Security architect** | Apply CSA MAESTRO's seven layers to one system; find trust boundaries and cross-layer attack paths; produce a risk register with mitigations |
-| **GRC practitioner** | See which controls have evidence (verified effective, verified ineffective, finding observed, not tested, insufficient evidence); map findings to guidance without making a compliance claim |
-| **Instructor, consultant, solutions engineer** | Run a local, repeatable class or demo with honest labels for live, recorded and simulated evidence |
-
-## Where things are
-
-| Path | What it holds |
-|---|---|
-| `agentsec`, `scripts/` | The installer command and its helpers |
-| `src/agentsec/` | The application: AcmeBank, controls, Attack Service, assurance rules |
-| `academy-ui/`, `learning/` | The Academy front end and the 33 workshops' content and specimens |
-| `gateway/`, `docker/`, `docker-compose*.yml`, `config/` | The HTTPS gateway, container builds and service configuration |
-| `splunk_app/`, `telemetry/` | The Splunk app (searches, dashboards) and the telemetry contract |
-| `tools/` | Pinned integrations: Cisco MCP Scanner, garak |
-| `tests/` | The test suite |
-| `docs/` | Guides, in the table below; `docs/README.md` is the full index |
-
-## The journey, and what is operational
-
-**Academy → Workshop → Attack or Defense → Security tool → Investigate notebook → Security Assurance → Evidence → Retest.** All of it happens in the Academy at one HTTPS address; the Attack Service is only its backend.
-
-| Step | Operational | Needs separate sign-in or setup | Not supported or not tested |
-|---|---|---|---|
-| Academy, workshops, Attack UI | Yes, behind the gateway | `operator` role to launch | |
-| Attack, defend, retest (13 live labs) | Yes | | |
-| Security tools | Cisco MCP Scanner (static, isolated) and a recorded garak result | A scanner run is optional | Nemotron evaluation (none exists) |
-| Investigation | The Investigate stage is a notebook: you press **Run** and the Attack Service executes an approved, fixed-template search against Splunk, then shows the rows, a chart and a plain-language reading | The installer's search-only Splunk identity (`./agentsec splunk-access`; check with `--check`); if it is missing the notebook says so and fails closed | Validated on one real Splunk 10.2.7 host (bundled Splunk, 2026-10-30) |
-| Security Assurance (Academy > Security Assurance, `/learn/assurance`) | Findings with raw evidence, an investigation notebook and a retest comparison | The same search-only identity | Validated on one real Splunk 10.2.7 host (bundled Splunk, 2026-10-30) |
-| Splunk Web and the five dashboards | Optional **Advanced** views, never a required step | Splunk login; Splunk Web is **outside the gateway** (host loopback) | Row-click drilldown was not exercised |
-| VERIFIED evidence on launch cards, Loan Desk host verifier | Optional and legacy | Splunk REST token and CA; `AGENTSEC_LEGACY_HOST_VERIFIER=1` for the legacy verifier (ignored behind the gateway) | Off by default; no default run is Splunk-VERIFIED |
-
-## Why agentic AI security is different
-
-An agent is an application with a component that *decides what to do next from text*. A language model reads a request, a retrieved document, a memory or a tool result and proposes an action. So untrusted text can steer behaviour, "allowed" has to be decided by something other than the model, authority is delegated and claimed rather than fixed in code, and what happened can only be reconstructed from evidence. A web-application scanner does not model any of that.
-
-AgentSecLab turns those problems into experiments you can run, observe and explain:
-
-- **Prompt injection, goal hijacking, poisoned retrieval and memory**: untrusted text that acts like an instruction.
-- **Tool authorization (MCP-style)**: a tool request is not a grant; scope, resources, arguments, tool results and tool catalogs are all attack surface.
-- **Identity and delegation**: a claimed authority versus a granted one; the confused deputy.
-- **Investigation**: rebuilding a run from Splunk events and saying what the evidence can and cannot prove.
-- **Threat modeling**: applying the Cloud Security Alliance's **MAESTRO** seven-layer framework to the same system.
-
-The organising idea, shown on the home page: **a control decision is not an execution, and an execution is not observed evidence.**
-
-## Who it is for and what you learn
+You will practise: prompt injection and goal hijacking, poisoned retrieval and memory, MCP-style tool authorization, identity and delegation (the confused deputy), investigating a run from Splunk events, and threat modeling with the Cloud Security Alliance's MAESTRO seven-layer framework.
 
 | You are | You will learn to |
 |---|---|
-| **A newcomer** (basic security knowledge, no AI needed) | Recognise how agents fail and read a security decision correctly |
-| **A security practitioner or architect** | Decompose an agentic system across seven layers, find trust boundaries and write a risk register with mitigations (CSA MAESTRO) |
-| **A SOC analyst or detection engineer** | Reconstruct a run by its `agentsec.run.id`, separate decision from execution from evidence, and judge what an alert's silence means |
-| **An AI developer or agent builder** | See why authorization belongs in deterministic code outside the model, and how tool, scope, resource and argument checks differ |
-| **A solutions engineer or instructor** | Run a local, repeatable demo or class with honest labels for live versus recorded evidence |
-
-More on the value for each role, with the architecture and the limits: [Benefits, architecture and security guide](docs/BENEFITS_AND_SECURITY_ARCHITECTURE.md).
-
-## What you can do
-
-- **33 workshops** in a guided curriculum (L0 to L10): [workshop catalog](docs/WORKSHOP_CATALOG.md).
-- **Run the same attack three times**, BASELINE, ATTACK (an intentionally vulnerable profile) and RETEST (the defended profile), and see the outcome change because the server changed the profile.
-- **The AcmeBank Loan Desk**: a mission with a real local language model (`llama3.2:latest`) whose every action passes a deterministic policy engine.
-- **Three CTF challenges** (simulated, server-verified, scored once each).
-- **Investigate in the Academy**: every live run emits events under one run id into a Splunk index, and the Investigate notebook runs approved, fixed-template searches on it and shows rows, a chart and a plain-language reading. Dashboards and hunt searches in Splunk Web are an optional Advanced view.
-- **CSA MAESTRO threat modeling**: a seven-layer workbench with cross-layer attack paths, a qualitative risk register, mitigations, a self-check and a downloadable report.
-- **Evaluate, assess risk and map governance** in the EVAL, Risk and Governance centers (recorded evidence and browser-local drafts).
-
-![A workshop page](docs/images/workshop-page-mcp-003.png)
-
-## Live, recorded and simulated: what actually runs
-
-| Kind | Count | What runs | Example |
-|---|---|---|---|
-| **LIVE** | 13 | You launch BASELINE, ATTACK and RETEST. Events land in Splunk. Some launches call the local Ollama model; the MCP launches use an in-process MCP model and no language model; the Loan Desk uses a real model | LAB-PI-001, the MCP workshops, RAG, memory, goal integrity, delegation, Loan Desk |
-| **RECORDED** | 8 | Nothing runs. You analyse evidence the lab captured earlier and committed | LAB-SCANNER-RUNTIME-EVIDENCE, LAB-BLUE-TEAM-INCIDENT-001 |
-| **SIMULATED packet** | 11 | Nothing runs. You analyse a committed, labelled simulated packet; it enforces nothing | LAB-HITL-APPROVAL, LAB-THREAT-MODELING-001 (with its browser-only workbench) |
-| **Orientation** | 1 | A reading page | L0 |
-
-The three CTF challenges are separate from the 33 and are **simulated** with a scripted agent. **Not every workshop is a live LLM exercise; 20 of 33 run no agent at all.**
-
-## Terms used below
-
-| Term | Meaning |
-|---|---|
-| **Run id** | The UUID of one run; every event of that run carries it as `agentsec.run.id` |
-| **MCP** | Model Context Protocol: how an agent calls tools. Here it is an in-process model of its semantics |
-| **RAG** | Retrieval-augmented generation: the agent pulls documents into its prompt |
-| **ALLOW / DENY / OBSERVE** | A control permitted the action, refused it, or only recorded and classified it |
-| **OpenTelemetry (OTel), HEC** | How events leave AcmeBank and enter Splunk: the OTel collector sends them to Splunk's HTTP Event Collector |
-| **BASELINE / ATTACK / RETEST** | The same request run with the defended profile, the intentionally vulnerable profile, and the defended profile again |
-
-## Architecture
-
-```mermaid
-flowchart LR
-  B["Learner's browser"]
-  subgraph GWB["Gateway: the authentication boundary"]
-    GW["HTTPS gateway (nginx)<br/>TLS, basic auth, learner and operator roles,<br/>attack quota, route allowlist"]
-  end
-  subgraph APP["Application network 'agentsec_mesh' (no host ports)"]
-    direction TB
-    AS["Attack Service (backend)<br/>serves the Academy UI (33 workshops),<br/>launch API and allowlist, CTF engine,<br/>approved-search notebooks"]
-    AB["AcmeBank<br/>agent pipeline, in-process MCP tools,<br/>RAG, memory, Loan Desk,<br/>deterministic controls"]
-    OL["Ollama<br/>llama3.2:1b, llama3.2:latest"]
-  end
-  subgraph TOOLS["Security tool integrations (separate, pinned)"]
-    MS["Cisco MCP Scanner<br/>static scan, isolated environment"]
-    GK["garak<br/>recorded evaluation pack"]
-  end
-  OT["OpenTelemetry collector"]
-  subgraph SPL["Splunk Enterprise: separate login, not behind the gateway"]
-    HEC["HEC ingestion (TLS)<br/>index agentsec_telemetry"]
-    SW["Splunk Web (optional Advanced view):<br/>5 AI Security Assurance dashboards<br/>and the finding page"]
-  end
-  MAE["MAESTRO workbench<br/>(runs in the browser)"]
-  CTF["CTF challenges<br/>(simulated)"]
-  B -->|"HTTPS"| GW
-  GW -->|"allowlisted routes"| AS
-  AS --- MAE
-  AS --- CTF
-  AS -->|"launches"| AB
-  AB -->|"model calls"| OL
-  AB -->|"events (OTLP)"| OT
-  OT -->|"HEC, token"| HEC
-  MS -.->|"evidence pack ingested by script"| HEC
-  GK -.->|"evidence pack ingested by script"| HEC
-  HEC --> SW
-  AS -->|"approved fixed-template searches:<br/>REST, search-only identity, strict TLS"| HEC
-  B -.->|"optional, operator: 127.0.0.1:18000<br/>(SSH tunnel when remote)"| SW
-```
-
-The language model **proposes**; deterministic code **authorizes and executes**; Splunk **observes** and enforces nothing. The browser cannot send a payload, a tool name, a search or a security profile: the Attack Service chooses them. Only the gateway is meant to be reachable from outside the host. In gateway mode AcmeBank and Ollama publish no host port, and Splunk Web, HEC and the collector bind to loopback only. The [Visual guide](docs/VISUAL_GUIDE.md) adds the data-flow and trust-boundary diagrams and five more (workflow, attack sequence, Splunk investigation, MAESTRO layers, learner journey); each says what is optional.
-
-## Security Assurance (in the Academy)
-
-The Academy's Security Assurance page (`/learn/assurance`) is the supported way to read the evidence: findings with raw evidence, an investigation notebook and a retest comparison. The same findings are also available as five Splunk dashboards and a finding page, which are an optional advanced view (Splunk Web, its own login, outside the gateway) and are never a required step. Security Assurance turns what happened in a run into a finding you can read and retest, with one of six statuses: Verified effective, Verified ineffective, Finding observed, Not tested, Insufficient evidence, Verification unavailable. Missing telemetry never reads as a pass, and an intentionally vulnerable profile is labelled *by design*, not as a failed control. On the acceptance host all 34 searches ran and 118 findings matched a Python reference implementation of the same rules (the screenshot below shows a different time range and run count). They make no organizational compliance claim. Guide, with the rules: [AI Security Assurance](docs/AI_SECURITY_ASSURANCE.md).
-
-![Academy > Security Assurance, Live tab, captured from the running Academy on a real host: findings that need attention, Held, Did not hold and Retests validated as n of N, with the evidence class and source stated](docs/images/academy-assurance-overview.png)
-
-Open a finding for the seven answers and the event timeline, then **Investigate in the notebook** (press Run on an approved search and read the rows, a chart and a plain-language reading) or **Compare with the retest**. More screenshots and the optional Splunk dashboards are in the [AI Security Assurance guide](docs/AI_SECURITY_ASSURANCE.md).
+| **A beginner** (basic security knowledge, no AI needed) | Recognise how agents fail and read a security decision correctly |
+| **A security practitioner or architect** | Find trust boundaries, decompose a system across seven layers and write a risk register |
+| **A SOC analyst or detection engineer** | Rebuild a run by its `agentsec.run.id`, separate decision from execution from evidence, and judge what an alert's silence means |
+| **An AI developer or agent builder** | See why authorization belongs in deterministic code outside the model |
+| **A solutions engineer or instructor** | Run a repeatable local class or demo with honest labels for live, recorded and simulated evidence |
 
 ## Quick start
 
-Choose one. The [installation guide](docs/INSTALLATION_AND_DEPLOYMENT.md) has the full steps, the certificate-trust instructions and troubleshooting.
+Two paths. Both use the same installer, `./agentsec`. The full steps, certificate trust and troubleshooting are in the **[installation guide](docs/INSTALLATION_AND_DEPLOYMENT.md)**.
 
-**Verified platform: Ubuntu 24.04 x86-64 with Docker Engine.** macOS, Windows and other systems, and a remote install on port 8000, have not been validated. Run the lab commands as your normal user (in the `docker` group), **never with `sudo`**. You need `git`, `python3`, `openssl`, `curl`, Docker with Compose v2, about 25 GiB of free disk, and ports 443, 8088, 4317 and 4318 free. `git clone` follows `main`, which is RC2.
+**Verified platform: Ubuntu 24.04 x86-64 with Docker Engine.** macOS, Windows and other systems have **not** been validated, so no support is claimed for them. Run the commands as your normal user (in the `docker` group), **never with `sudo`**. You need `git`, `python3`, `openssl`, `curl`, Docker with Compose v2, about 25 GiB of free disk, and ports 443, 8088, 4317 and 4318 free. `git clone` follows `main`, which is RC2.
 
-**LOCAL: on your own Ubuntu computer**
+**LOCAL: on your own Ubuntu computer** (loopback only)
 ```bash
 git clone https://github.com/machowdhury/AgentSecLab.git && cd AgentSecLab
 ./agentsec preflight
@@ -194,64 +51,114 @@ Trust `.gateway/tls/ca.pem` in your browser ([how](docs/INSTALLATION_AND_DEPLOYM
 ```
 Copy `.gateway/tls/ca.pem` to your laptop, trust it, and open **https://lab.example.com/learn**. Only the gateway's HTTPS port is published; Splunk, HEC and Ollama stay internal. Details, and why the acknowledgement is required: [the guide](docs/INSTALLATION_AND_DEPLOYMENT.md#remote-ubuntu-server-or-cloud-vm-open-it-directly-from-your-laptop).
 
-Sign in as `operator` to launch attacks, `learner` to read. You investigate inside the Academy; Splunk Web is an optional Advanced view on the server's loopback and no step needs it. **Stop** with `./agentsec down` (keeps your data) and **restart** with `./agentsec up`.
+Sign in as `operator` to launch attacks, `learner` to read. Stop with `./agentsec down` (keeps your data); restart with `./agentsec up`.
 
-## Workshop catalog at a glance
+## The learning journey
 
-The full catalog (33 entries with objectives, mode, how to start, expected outcomes, Splunk evidence, completion and reset) is [docs/WORKSHOP_CATALOG.md](docs/WORKSHOP_CATALOG.md).
+Every live workshop follows the same eight stages, shown as a rail on the workshop page:
 
-| Level | Theme | Workshops | LIVE / recorded / simulated |
-|---|---|---|---|
-| L0 | Orientation | 1 | reading |
-| L1 | Input and tool authority | 5: Direct Prompt Injection, Tool Authorization, Scope Escalation, Parameter / Resource Authorization, Loan Desk | 5 / 0 / 0 |
-| L2 | Context and evidence are data | 6: RAG, Persistent Memory, Tool Result Trust, Tool Catalog, Scanner + Runtime Evidence, External Security Toolbox | 4 / 2 / 0 |
-| L3 | Intent and identity | 3: Goal / Instruction Integrity, Agent Identity / Delegation, Confused Deputy | 3 / 0 / 0 |
-| L5 | Integrated purple team | 2: Lending Assistant Investigation, Splunk Defender Bridge | 1 / 1 / 0 |
-| L6 | Blue-team investigation | 2: Blue-Team Incident, Detection Engineering | 0 / 2 / 0 |
-| L7 | Threat modeling and architecture | 5: CSA MAESTRO Threat Modeling, Agent Identity and NHI, A2A Authentication, Human Approval, Credential Lifetime | 0 / 1 / 4 |
-| L8 | Privacy and data governance | 7: Privacy Incident, RAG Purpose, Memory Isolation, Asset Inventory, Component Provenance, Code Agent Bounds, Change Bounds | 0 / 0 / 7 |
-| L9 | Multi-stage incident | 1 | 0 / 1 / 0 |
-| L10 | Advanced capstone and mastery | 1 | 0 / 1 / 0 |
+| Stage | What you do, and why |
+|---|---|
+| **1. Learn** | Read the concept in plain language, so the experiment has a question |
+| **2. Predict** | Lock in what you expect the control to do *before* anything runs |
+| **3. Baseline** | Run the normal request against the defended profile, to see what "normal" looks like |
+| **4. Attack** | Run the same request against an intentionally vulnerable profile |
+| **5. Investigate** | Press **Run** in a notebook: the Attack Service runs an approved, fixed-template search against Splunk and shows the rows, a chart and a plain-language reading |
+| **6. Defend** | See what the defended profile changes |
+| **7. Retest** | Run the defended profile again and compare it with the attack |
+| **8. Explain evidence** | Write down what the evidence shows and, as important, what it does not prove |
 
-## Tested and untested
+You are reading the lab's actual security decisions, executions and events, not a description of them. The Loan Desk mission shows seven mission stages on the same rail. Recorded and simulated workshops launch nothing and have no rail: you analyse committed evidence, and the page says so.
 
-The acceptance logs behind this section are not published; what follows is their summary. Tested on one disposable AWS host (`m6i.2xlarge`, Ubuntu 24.04 x86-64 with the 6.8 kernel pinned, Docker Engine, gateway on port 443, generated test certificate), in three acceptance runs: clean host, final, final two checks. They cover the installer, HTTPS verification, authentication roles, all 36 allowlisted live launches (12 labs, each BASELINE, ATTACK and RETEST; the Loan Desk is a separate mission), real events in Splunk, three CTF challenges with scoring and reset, persistence across restart, a real Loan Desk transaction, the MAESTRO workflow and clean teardown.
+## See it
 
-**Not tested:** macOS and Windows for RC2, other Linux distributions and ARM, rootless Docker and Podman, an organization-managed certificate, a non-loopback deployment, the gateway on port 8000, and an external Splunk Enterprise or Splunk Cloud against a real service.
+<table>
+  <tr>
+    <td width="50%"><a href="docs/images/academy-assurance-overview.png"><img src="docs/images/academy-assurance-overview.png" alt="Security Assurance overview in the Academy: findings that need attention, with held and did-not-hold counts and the evidence class"></a><br><sub><b>Security Assurance overview.</b> Findings, counts as <i>n of N</i>, and the evidence class and source stated on every view.</sub></td>
+    <td width="50%"><a href="docs/images/academy-assurance-compare.png"><img src="docs/images/academy-assurance-compare.png" alt="Retest comparison: the attack run and the defended retest side by side, per hop"></a><br><sub><b>Retest comparison.</b> The attack and the defended retest side by side, per hop: OBSERVE became DENY.</sub></td>
+  </tr>
+</table>
 
-## What AgentSecLab is not
+More: the Investigate notebook ([`docs/images/academy-assurance-notebook.png`](docs/images/academy-assurance-notebook.png)), a finding ([`academy-assurance-finding.png`](docs/images/academy-assurance-finding.png)), the Loan Desk, CTF and MAESTRO workbench are all in the [Visual guide](docs/VISUAL_GUIDE.md). The notebook screenshot shows a run's SPL exactly as the Academy builds it; learners cannot edit it. *The Visual guide's older workshop-page screenshot predates the eight-stage rail and is not used here.*
 
-- **Not production software, and not for the public internet.** It contains intentionally vulnerable profiles. Authentication is a stand-in (basic authentication, two roles, no SSO, no login throttling), for one local participant.
-- **Not a measurement of any real model or product.** A recorded run is one run, not a rate. No compliance or certification claim is made.
-- **Not real MCP or A2A transport.** Those are in-process models; the CTF uses a scripted agent.
-- **Splunk REST verification (VERIFIED) is not on by default.** It needs a matching management certificate, a trusted CA and a token; without them the Academy shows VERIFICATION UNAVAILABLE. The Investigate notebook and Security Assurance use the installer's separate search-only identity instead; where it is not provisioned they say so and fail closed. That path was validated on one real Splunk 10.2.7 host (bundled Splunk, 2026-10-30); it was not validated against an external Splunk, Splunk Cloud or an organization certificate. The bundled Splunk's KV store (needed for tokens) does not start on a Linux kernel 6.19 or newer, such as the 7.0 kernel in current Ubuntu 24.04 AWS images.
-- **Not everything sits behind one address.** Splunk Web (an optional Advanced view) and the real AcmeBank are not routed through the gateway; learners need neither.
-- **Scope of the beta.** Restricted, single-user, tested on one Ubuntu 24.04 host. Windows, macOS and other untested paths are listed above.
-- **Dashboards.** The row-click drilldown was not exercised. A run that never reaches Splunk cannot appear as a finding (the Academy reports VERIFICATION UNAVAILABLE). Time to detection is unavailable. The Loan Desk is not scored. Some scanner and model evidence comes from committed packs, not fresh scans. Nemotron has not been tested.
-- **Operations.** Backup, upgrade, multi-user and incident-response procedures were not tested.
-- **MAESTRO:** the lab implements the CSA MAESTRO v1 framework as a workbench. It does **not** run CSA's MAESTRO Threat Analyzer and does not implement MAESTRO v2.
-- **Models:** two small local Llama models; results vary with the model, the Ollama version and sampling.
+## What actually runs
 
-## Older material
+| Kind | Count | What runs |
+|---|---|---|
+| **LIVE** | 13 | You launch BASELINE, ATTACK and RETEST. Events land in Splunk, one set per run id. Some launches call a local Ollama model; the MCP launches use an in-process MCP model and no language model; the Loan Desk uses a real model (`llama3.2:latest`) behind a deterministic policy engine |
+| **RECORDED** | 8 | Nothing runs. You analyse evidence the lab captured earlier and committed |
+| **SIMULATED** | 11 | Nothing runs. You analyse a committed, labelled simulated packet; it enforces nothing (for example `LAB-HITL-APPROVAL`) |
+| **Orientation** | 1 | A reading page |
 
-The earlier multi-port, plain-HTTP flow that release v1.2.0 used is kept for reference in [docs/LEGACY_MULTI_PORT_FLOW.md](docs/LEGACY_MULTI_PORT_FLOW.md). Everything on this page describes RC2. Do not mix the two flows on one machine.
+**Not every workshop is a live LLM exercise; 20 of 33 run no agent at all.** Some exercises use real local models (two small Llama models, so results vary with the model and sampling); others model agent and tool behaviour deterministically. The three CTF challenges are separate from the 33 and use a scripted agent. Recounted from the catalog and registry: 33 = 13 + 8 + 11 + 1. Full list with objectives and how to start each: [workshop catalog](docs/WORKSHOP_CATALOG.md).
 
-For preflight and startup details see [docs/QUICKSTART.md](docs/QUICKSTART.md); for failures see [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
+| Level | Theme | LIVE / recorded / simulated |
+|---|---|---|
+| L0 | Orientation | reading |
+| L1 | Input and tool authority (prompt injection, tool authorization, scope escalation, parameter authorization, Loan Desk) | 5 / 0 / 0 |
+| L2 | Context and evidence are data (RAG, memory, tool results, tool catalog, scanner and external tools) | 4 / 2 / 0 |
+| L3 | Intent and identity (goal integrity, delegation, confused deputy) | 3 / 0 / 0 |
+| L5 | Integrated purple team | 1 / 1 / 0 |
+| L6 | Blue-team investigation | 0 / 2 / 0 |
+| L7 | Threat modeling and architecture (MAESTRO, identity, A2A, human approval, credentials) | 0 / 1 / 4 |
+| L8 | Privacy and data governance | 0 / 0 / 7 |
+| L9, L10 | Multi-stage incident; advanced capstone | 0 / 2 / 0 |
+
+## How to investigate the results
+
+You investigate **inside the Academy**. Open a workshop's Investigate stage, or **Security Assurance** (`/learn/assurance`), which turns a run into a finding with raw evidence, an investigation notebook and a retest comparison. A finding has one of six statuses: Verified effective, Verified ineffective, Finding observed, Not tested, Insufficient evidence, Verification unavailable. Missing telemetry never reads as a pass, and an intentionally vulnerable profile is labelled *by design*. No compliance claim is made. Rules and semantics: [AI Security Assurance](docs/AI_SECURITY_ASSURANCE.md).
+
+Splunk Web and its dashboards are an **optional advanced view** on the server's loopback, behind their own login; no step needs them.
+
+## Technology and architecture
+
+React Academy, a Python Attack Service (the backend), AcmeBank (the agent under test), Ollama for local models, OpenTelemetry into Splunk Enterprise, and an nginx HTTPS gateway as the only entry point. The model **proposes**; deterministic code **authorizes and executes**; Splunk **observes** and enforces nothing. The browser cannot send a payload, a tool name, a search or a security profile: the Attack Service chooses them.
+
+<details>
+<summary>Architecture diagram</summary>
+
+```mermaid
+flowchart LR
+  B["Learner's browser"]
+  GW["HTTPS gateway (nginx)<br/>TLS, basic auth, learner and operator roles,<br/>attack quota, route allowlist"]
+  subgraph APP["Application network (no host ports)"]
+    AS["Attack Service (backend)<br/>serves the Academy, launch API,<br/>approved-search notebooks"]
+    AB["AcmeBank<br/>agent pipeline, controls"]
+    OL["Ollama (local models)"]
+  end
+  OT["OpenTelemetry collector"]
+  SPL["Splunk Enterprise<br/>index agentsec_telemetry<br/>(Splunk Web optional, own login)"]
+  B -->|"HTTPS"| GW -->|"allowlisted routes"| AS
+  AS -->|"launches"| AB -->|"model calls"| OL
+  AB -->|"events"| OT -->|"HEC"| SPL
+  AS -->|"fixed-template searches, search-only identity, strict TLS"| SPL
+```
+</details>
+
+Only the gateway is meant to be reachable from outside the host. The [Visual guide](docs/VISUAL_GUIDE.md) has the data-flow and trust-boundary diagrams.
 
 ## Documentation
 
-| Read this | When |
+Organised by what you need to do.
+
+| | Guides |
 |---|---|
-| [Installation and deployment](docs/INSTALLATION_AND_DEPLOYMENT.md) | Installing, configuring, operating and recovering the lab |
-| [Learner guide](docs/LEARNER_GUIDE.md) | Using the Academy, workshops, Attack UI, Splunk, CTF and MAESTRO, plus a ten-stage practitioner learning path and an evidence template |
-| [Workshop catalog](docs/WORKSHOP_CATALOG.md) | All 33 workshops |
-| [Benefits, architecture and security](docs/BENEFITS_AND_SECURITY_ARCHITECTURE.md) | Why it matters, trust boundaries, what is and is not claimed |
-| [Visual guide](docs/VISUAL_GUIDE.md) | Diagrams and screenshots |
-| [AI Security Assurance](docs/AI_SECURITY_ASSURANCE.md) | The Academy's Security Assurance workflow, statuses, rules and how to read a finding; the optional Splunk dashboards |
-| [Security tools](docs/SECURITY_TOOLS.md) | Integrated tools: version, licence, install method, use, status, limits |
-| [Third-party notices](THIRD_PARTY_NOTICES.md) | Licences of what this project uses |
-| [Documentation index](docs/README.md) | Everything else: instructor guide, Splunk integration, gateway, CTF, installer reference |
+| **Tutorials** (learn by doing) | [Learner guide](docs/LEARNER_GUIDE.md): first login, first workshop, a ten-stage practitioner path · [AI Security Assurance](docs/AI_SECURITY_ASSURANCE.md): your first finding |
+| **How-to guides** | [Install LOCAL or REMOTE](docs/INSTALLATION_AND_DEPLOYMENT.md) · [Launch an attack, read a decision, investigate a run, compare baseline and retest](docs/LEARNER_GUIDE.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) · [Instructor guide](docs/INSTRUCTOR_GUIDE.md) |
+| **Reference** | [Workshop catalog](docs/WORKSHOP_CATALOG.md) · [Installer configuration](docs/INSTALLER.md) · [Gateway, TLS and authentication](docs/GATEWAY.md) · [Splunk integration](docs/SPLUNK_INTEGRATION.md) · [Security tools](docs/SECURITY_TOOLS.md) · [Assurance statuses and rules](docs/AI_SECURITY_ASSURANCE.md) |
+| **Explanation** | [Benefits, trust boundaries and architecture](docs/BENEFITS_AND_SECURITY_ARCHITECTURE.md) · [Visual guide](docs/VISUAL_GUIDE.md) · [Live, recorded and simulated evidence](docs/LIVE_VS_REPLAY.md) · [Known limitations](docs/KNOWN_LIMITATIONS.md) |
+
+Everything else: [documentation index](docs/README.md). Licences of what this project uses: [third-party notices](THIRD_PARTY_NOTICES.md).
+
+## Compatibility and limits
+
+- **Tested on one platform:** one disposable Ubuntu 24.04 x86-64 cloud host with Docker Engine, over several acceptance runs (installer, HTTPS verification, roles, all 36 allowlisted live launches, real Splunk events, the notebook and Security Assurance, CTF scoring, restart persistence), plus a direct-HTTPS REMOTE install on one more such host. **Not tested:** macOS and Windows, other Linux distributions, ARM, rootless Docker, Podman, an organization-managed certificate, REMOTE on port 8000, and an external Splunk Enterprise or Splunk Cloud. macOS qualification has not been done.
+- **Splunk:** the bundled Splunk Enterprise was validated at 10.2.7. Its KV store does not start on a Linux kernel 6.19 or newer (the current Ubuntu AWS images ship 7.0): see the [kernel note](docs/SPLUNK_INTEGRATION.md#kernel-619-or-newer-and-the-bundled-splunk).
+- **Not production software, and never for the open internet.** It contains intentionally vulnerable profiles. Authentication is a stand-in (basic auth, two roles, no SSO, no login throttling) for one participant. REMOTE requires that you restrict network access.
+- **No measurement or certification.** A recorded run is one run, not a rate. No compliance, certification or production-readiness claim is made.
+- **Models are small and local.** Results vary with the model, Ollama version and sampling. MCP and A2A are in-process models, not real transport. The MAESTRO workbench implements CSA MAESTRO v1; it does **not** run CSA's MAESTRO Threat Analyzer and does not implement MAESTRO v2.
+- **Not everything is behind one address.** Splunk Web is outside the gateway. Backup, upgrade, multi-user and incident-response procedures were not tested.
 
 ## Contributing and license
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Licensed under the Apache License 2.0; see [LICENSE](LICENSE).
+See [CONTRIBUTING.md](CONTRIBUTING.md). Licensed under the Apache License 2.0; see [LICENSE](LICENSE). The earlier multi-port flow of release v1.2.0 is kept for reference in [docs/LEGACY_MULTI_PORT_FLOW.md](docs/LEGACY_MULTI_PORT_FLOW.md); do not mix the two on one machine.
