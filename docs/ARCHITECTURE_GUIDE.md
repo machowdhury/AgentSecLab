@@ -1,5 +1,7 @@
 # Architecture
 
+> **Reference for the lab's internals (an older, short page).** The ports below are container-internal. In the installer's gateway deployment none of them is published to learners: the only address is the HTTPS gateway (`https://localhost/learn`). For the current picture read [Benefits, architecture and security](BENEFITS_AND_SECURITY_ARCHITECTURE.md) and the [Visual guide](VISUAL_GUIDE.md).
+
 - **AcmeBank** (port 5000): the target application with deliberately vulnerable profiles.
 - **Attack Service** (port 5001): a closed launcher for educational attacks; also serves the Academy at `/learn`. A catch-all `/learn/<path>` route serves the React shell, so new client routes need no backend change.
 - **Splunk** (port 8000): receives telemetry through an OpenTelemetry collector and HEC, which stay private to the compose network.

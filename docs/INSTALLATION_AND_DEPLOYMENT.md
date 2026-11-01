@@ -4,7 +4,7 @@ Pick the one that matches you. Each path is a single sequence; you do not need t
 
 | I want to run the lab… | Go to |
 |---|---|
-| **on this computer** and open it in this computer's browser | [LOCAL](#local-install-on-your-own-ubuntu-computer) |
+| **on this computer** and open it in this computer's browser | [LOCAL](#local-install-on-your-own-computer) |
 | **on a remote Ubuntu server or cloud VM** and open it directly from my laptop | [REMOTE](#remote-ubuntu-server-or-cloud-vm-open-it-directly-from-your-laptop) |
 
 **Where this has been verified.** Ubuntu 24.04 LTS on x86-64 with Docker Engine, on a cloud VM (8 vCPU, 32 GiB RAM, 120 GiB disk). That is the only platform the install has been run on, end to end.
@@ -20,7 +20,9 @@ The lab is for one learner on one machine and contains intentionally vulnerable 
 
 ---
 
-## LOCAL: install on your own Ubuntu computer
+## LOCAL: Install on your own computer
+
+**Verified: Ubuntu 24.04 LTS on x86-64 with Docker Engine, and nothing else.** macOS, Windows, other Linux distributions and ARM have not passed an end-to-end install, so they are not supported here (see the platform table above). The steps below are written for Ubuntu 24.04.
 
 **You need:** Ubuntu 24.04 (x86-64), about 25 GiB of free disk and a good internet connection (about 16 GB of images and 3.3 GB of models are downloaded), `sudo` rights to install Docker, and these ports free on the machine: 443, 8088, 4317, 4318.
 
@@ -58,6 +60,8 @@ Browser menus change between versions and these steps have not been run in every
 curl --cacert .gateway/tls/ca.pem -s -o /dev/null -w '%{http_code}\n' https://localhost/learn/      # 401 = secure and asking for a password
 ```
 Do not click through a certificate warning on a shared machine.
+
+**The generated certificate is valid for 90 days.** After that browsers refuse it. Renewal is moving `.gateway` aside and installing again, which issues a new certificate authority to trust, new passwords and a new CTF ledger. This renewal has not been tested.
 
 Then open **https://localhost/learn** and sign in. The passwords are in `.gateway/credentials.txt`: use `operator` (it can launch attacks) for the workshops, `learner` for read-only.
 
@@ -123,7 +127,7 @@ curl --cacert agentseclab-ca.pem -s -o /dev/null -w '%{http_code}\n' https://lab
 | Stop the lab | `./agentsec down` (data is kept; a few minutes) |
 | Start the lab | `./agentsec up`, then `./agentsec status` |
 
-After a server reboot the lab restarts by itself. If the server's name changes, the certificate no longer matches; move `.gateway` aside and install again with the new name (not tested). A cloud VM that is stopped but not deleted still costs for its disk: delete it when you are done.
+After a server reboot the lab restarts by itself. The generated certificate expires after 90 days (see LOCAL step 4 for what renewal involves). If the server's name changes, the certificate no longer matches; move `.gateway` aside and install again with the new name (not tested). A cloud VM that is stopped but not deleted still costs for its disk: delete it when you are done.
 
 ---
 

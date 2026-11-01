@@ -1,5 +1,7 @@
 # HTTPS ingress: proposal and local proof of concept
 
+> **Historical: superseded by the implemented [HTTPS gateway](GATEWAY.md).** Kept for the design reasoning only; do not follow it to install anything.
+
 **Status: PROPOSAL. Nothing in this document is deployed.** It changes no AWS security group, DNS record, certificate or port. Approval gates are listed at the end.
 
 ## Current topology
