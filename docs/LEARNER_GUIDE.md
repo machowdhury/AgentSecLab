@@ -1,14 +1,24 @@
 # Learner guide
 
-A task-by-task guide to using AgentSecLab RC2 as a learner. It assumes someone has installed the lab ([Installation and deployment](INSTALLATION_AND_DEPLOYMENT.md)) and given you the address and the `learner` and `operator` credentials. Every workshop is listed in the [workshop catalog](WORKSHOP_CATALOG.md); diagrams are in the [Visual guide](VISUAL_GUIDE.md). New to the whole subject? Choose **Start the beginner route** on the Academy home page. Everything a learner does happens in the Academy at one HTTPS address; the Attack Service is only its backend, and Splunk Web is an optional Advanced view.
+Everything you do happens in the Academy, in your browser, at one HTTPS address. This guide assumes the lab is already installed ([Install LOCAL or REMOTE](INSTALLATION_AND_DEPLOYMENT.md)) and that you have its address and passwords. Every workshop is in the [workshop catalog](WORKSHOP_CATALOG.md); diagrams are in the [Visual guide](VISUAL_GUIDE.md).
 
-The screenshots are real captures of the interface; the [Visual guide](VISUAL_GUIDE.md#screenshots) says how they were taken. Most were taken without the HTTPS gateway, so they show a menu item (System Status) that the gateway hides.
+## Your first hour
 
-## 1. First login and finding your way around
+1. **Open the Academy.** On the computer that runs the lab it is **https://localhost/learn**. For a remote lab it is `https://<your lab's DNS name>/learn`. If the browser warns about the certificate, import the lab's certificate authority first ([how](INSTALLATION_AND_DEPLOYMENT.md#local-install-on-your-own-computer), step 4); do not click through the warning.
+2. **Sign in.** The passwords are in `.gateway/credentials.txt` on the lab computer. Use **`learner`** for everything in steps 3 to 5.
+3. **Choose the beginner path.** On the home page choose **Start the beginner route** (Understand, Connect, Recognize, Practice). No AI or security background is needed.
+4. **Do the first guided workshop.** **LAB-HITL-APPROVAL** is a SIMULATED packet analysis: nothing is launched and nothing can fail. On the Practice tab choose a prediction, reveal the recorded packet, then read the Prove tab. **Predict first, then look.**
+5. **Know what kind of evidence you are looking at.** Every page carries one of three labels: **LIVE** (a run on this machine, new each time), **RECORDED** (a run captured earlier and replayed) and **SIMULATED** (a labelled packet that enforces nothing). 13 of the 33 workshops are LIVE; 20 run no agent at all. A recorded run is one run, not a rate.
+6. **Run a live experiment.** Open a LIVE workshop such as LAB-PI-001 ([section 3](#3-the-baseline-attack-retest-workflow)). Launching changes state, so sign in as **`operator`** now: the gateway refuses launches from `learner` (HTTP 403). Predict, then press **BASELINE**, **ATTACK** and **RETEST**.
+7. **Investigate.** In the **Investigate** stage press **Run** on each notebook cell and read the rows, chart and reading ([section 7](#7-splunk-investigations-run-ids-evidence-and-verification)). You never type SPL and never need Splunk Web.
+8. **Review Security Assurance.** Open **Academy > Security Assurance** to see your run as a finding, with raw evidence and a retest comparison ([guide](AI_SECURITY_ASSURANCE.md)).
+9. **Continue.** Follow [a practitioner learning path](#12-a-practitioner-learning-path) through the advanced workshops, the Loan Desk, the CTF challenges and MAESTRO threat modeling.
 
-1. Open the address you were given (if you installed the lab yourself, the passwords are in `.gateway/credentials.txt` on that machine: `cat .gateway/credentials.txt`). For a lab on your own machine through the gateway it is `https://localhost/learn`. Your browser must trust the lab's certificate (the installer wrote it to `.gateway/tls/ca.pem`); do not click through a certificate warning on a shared machine. (Legacy only: the older multi-port flow serves the Academy at `http://127.0.0.1:5001/learn`. It is not the supported path; this guide uses the gateway addresses. Ports 5000, 5001 and 8000 are internal and you never need to open them.)
-2. Sign in as **`learner`** to read, predict and investigate. Sign in as **`operator`** when you need to **launch** an attack or a CTF attempt: launches are state-changing and the gateway refuses them for `learner` (HTTP 403).
-3. You land on the Academy home page.
+The sections below are the detail for each step.
+
+## 1. Finding your way around
+
+The screenshots in this guide are real captures of the interface. The [Visual guide](VISUAL_GUIDE.md#screenshots) says how they were taken; most were taken without the HTTPS gateway, so they show a menu item (System Status) that the gateway hides. The workshop-page screenshot in section 2 predates the eight-stage rail and is flagged there.
 
 ![Academy home](images/academy-home.png)
 
@@ -24,23 +34,22 @@ The left menu is the map:
 | **CTF Challenges** | Three scored, simulated challenges (section 8) |
 | **Mastery** | The advanced capstone and mastery material |
 | **EVAL Center**, **Risk Center**, **Governance Center**, **Security Assurance** | Read recorded evaluations, assess a risk yourself, see framework relationships and controls |
-| **System Status** (bottom of the menu **when the lab is not behind the gateway**) | What is running: Attack Service, AcmeBank, the model, replay packs, Splunk reachability. Behind the HTTPS gateway the menu does not show it: open `/attack-service/academy/status` instead, or ask the host owner for `./agentsec status` |
+| **System Status** (bottom of the menu **when the lab is not behind the gateway**) | What is running. Behind the HTTPS gateway the menu does not show it: open `/attack-service/academy/status` instead, or ask the host owner for `./agentsec status` |
 
-Every page says what its evidence is. Read that label first. A recorded run is one run, not a rate.
+Every page says what its evidence is. Read that label first.
 
 | Word | Kind | Meaning |
 |---|---|---|
-| **LIVE**, **RECORDED**, **SIMULATED** | Evidence label (and the catalog's Mode column) | A run on this machine; a run captured earlier and replayed from a committed pack; a labelled simulated packet that enforces nothing |
+| **LIVE**, **RECORDED**, **SIMULATED** | Evidence label and workshop mode | A run on this machine; a run captured earlier and replayed from a committed pack; a labelled simulated packet that enforces nothing. 13 of the 32 labs are LIVE, 8 RECORDED and 11 SIMULATED (plus the Orientation: 33 workshops). RECORDED and SIMULATED workshops launch nothing |
 | **DOCUMENTED** | Evidence status on threat-model and risk items | A file states it; nothing was run or observed. It is weaker than RECORDED |
-| **LIVE**, **RECORDED**, **SIMULATED** (workshop mode) | Page badge | The same three words name how the workshop page works: 13 of the 32 labs are LIVE, 8 are RECORDED and 11 are SIMULATED (plus the Orientation, 33 workshops). RECORDED and SIMULATED workshops launch nothing |
-
-A good first workshop is **LAB-HITL-APPROVAL**: it is a SIMULATED packet analysis, so nothing is launched and nothing can fail. On the Practice tab choose a prediction, reveal the recorded packet, then read the Prove tab. For a gentler start choose **Start the beginner route** on the home page (Understand, Connect, Recognize, Practice).
 
 ## 2. Launching and completing a workshop
 
 Open **Your Path** or **Curriculum Explorer** and choose a workshop. A workshop page has a **Workshop path** bar at the top and three working tabs.
 
-![A workshop page](images/workshop-page-mcp-003.png)
+![A workshop page (older capture, see the note below)](images/workshop-page-mcp-003.png)
+
+*Outdated screenshot: it was captured before the eight-stage rail and shows the older layout. The tabs and steps in the table are still right; the stage rail described below is not shown.*
 
 | Step | What to do |
 |---|---|

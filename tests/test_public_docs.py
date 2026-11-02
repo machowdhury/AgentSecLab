@@ -73,7 +73,8 @@ def test_learner_entry_point_is_the_react_academy_not_the_legacy_splunk_dashboar
     assert quick.index("5001/learn") < quick.index(legacy)
     assert "React Academy" in (ROOT / "docs/GETTING_STARTED.md").read_text(encoding="utf-8")
     for guide in ("docs/LEARNER_GUIDE.md", "docs/INSTRUCTOR_GUIDE.md"):
-        assert "5001/learn" in (ROOT / guide).read_text(encoding="utf-8"), guide
+        text = (ROOT / guide).read_text(encoding="utf-8")
+        assert "https://localhost/learn" in text and "5001/learn" not in text, guide   # the current guides start at the HTTPS address; the legacy URL lives in the legacy pages
 
 
 def test_documented_ports_and_routes_match_the_code():

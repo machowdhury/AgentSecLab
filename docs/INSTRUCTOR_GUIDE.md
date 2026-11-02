@@ -12,7 +12,7 @@ Legacy `lab-up.sh` steps (not the supported path; keep for the old flow only; th
 2. `cp .env.example .env` if needed (do not share real secrets; lab defaults are localhost-only)
 3. `./scripts/lab-up.sh` (or `--build` if images may be stale)
 4. `./scripts/lab-ready.sh`
-5. Browser: the React Academy at `https://localhost/learn` (start here; behind the gateway the legacy direct address `http://127.0.0.1:5001/learn` does not answer). Investigation happens inside the Academy (Investigate notebook, Security Assurance); Splunk Web is an optional Advanced view. Run `./agentsec splunk-access --check` first so the notebook can search.
+5. Browser: the React Academy at `https://localhost/learn` (start here). Investigation happens inside the Academy (Investigate notebook, Security Assurance); Splunk Web is an optional Advanced view. Run `./agentsec splunk-access --check` first so the notebook can search.
 6. Confirm ATLAS qualifier **REQUIRES REVALIDATION** on Attack Service (proves current UI)
 7. Explain LIVE vs REPLAY ([LIVE_VS_REPLAY.md](LIVE_VS_REPLAY.md))
 8. Recommended first lab: Direct Prompt Injection LIVE ATTACK, copy run.id, Path A

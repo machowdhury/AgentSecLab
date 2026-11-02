@@ -42,7 +42,7 @@ git clone https://github.com/machowdhury/AgentSecLab.git && cd AgentSecLab
 ./agentsec status                                       # expect: OK project 'agentsec': all services are up.
 cat .gateway/credentials.txt                            # the learner and operator passwords
 ```
-Trust `.gateway/tls/ca.pem` in your browser ([how](docs/INSTALLATION_AND_DEPLOYMENT.md#local-install-on-your-own-ubuntu-computer), step 4), then open **https://localhost/learn**.
+Trust `.gateway/tls/ca.pem` in your browser ([how](docs/INSTALLATION_AND_DEPLOYMENT.md#local-install-on-your-own-computer), step 4), then open **https://localhost/learn**.
 
 **REMOTE: on an Ubuntu server or cloud VM, opened directly from your laptop (no SSH tunnel).** You need a DNS name for the server and a firewall or cloud security group that allows HTTPS **only from your own IP** (never `0.0.0.0/0`). On the server, run the same commands with this install line:
 ```bash
@@ -146,7 +146,7 @@ Organised by what you need to do.
 | **Tutorials** (learn by doing) | [Learner guide](docs/LEARNER_GUIDE.md): first login, first workshop, a ten-stage practitioner path · [AI Security Assurance](docs/AI_SECURITY_ASSURANCE.md): your first finding |
 | **How-to guides** | [Install LOCAL or REMOTE](docs/INSTALLATION_AND_DEPLOYMENT.md) · [Launch an attack, read a decision, investigate a run, compare baseline and retest](docs/LEARNER_GUIDE.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) · [Instructor guide](docs/INSTRUCTOR_GUIDE.md) |
 | **Reference** | [Workshop catalog](docs/WORKSHOP_CATALOG.md) · [Installer configuration](docs/INSTALLER.md) · [Gateway, TLS and authentication](docs/GATEWAY.md) · [Splunk integration](docs/SPLUNK_INTEGRATION.md) · [Security tools](docs/SECURITY_TOOLS.md) · [Assurance statuses and rules](docs/AI_SECURITY_ASSURANCE.md) |
-| **Explanation** | [Benefits, trust boundaries and architecture](docs/BENEFITS_AND_SECURITY_ARCHITECTURE.md) · [Visual guide](docs/VISUAL_GUIDE.md) · [Live, recorded and simulated evidence](docs/LIVE_VS_REPLAY.md) · [Known limitations](docs/KNOWN_LIMITATIONS.md) |
+| **Explanation** | [Benefits, trust boundaries and architecture](docs/BENEFITS_AND_SECURITY_ARCHITECTURE.md) · [Visual guide](docs/VISUAL_GUIDE.md) · [Live, recorded and simulated evidence](docs/LIVE_VS_REPLAY.md) |
 
 Everything else: [documentation index](docs/README.md). Licences of what this project uses: [third-party notices](THIRD_PARTY_NOTICES.md).
 

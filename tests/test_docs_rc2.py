@@ -139,7 +139,7 @@ def test_no_new_guide_overclaims_what_was_not_tested():
 def test_the_install_commands_in_the_guide_and_readme_use_real_settings_and_both_paths_are_present():
     from agentsec.installer.config import Locks, validate
     guide = (ROOT / "docs/INSTALLATION_AND_DEPLOYMENT.md").read_text(encoding="utf-8")
-    for heading in ("## LOCAL: install on your own Ubuntu computer", "## REMOTE: Ubuntu server or cloud VM, open it directly from your laptop"):
+    for heading in ("## LOCAL: Install on your own computer", "## REMOTE: Ubuntu server or cloud VM, open it directly from your laptop"):
         assert heading in guide
     assert "ssh -N -L" not in guide                                       # no tunnel is needed for normal browser access
     modes = set()
@@ -155,3 +155,16 @@ def test_the_install_commands_in_the_guide_and_readme_use_real_settings_and_both
             assert not [f for f in validate(cfg, Locks.load()) if f.level == "ERROR"], line
             modes.add((cfg.deployment, cfg.gateway.bind))
     assert modes == {("localhost", "127.0.0.1"), ("organization", "0.0.0.0")}      # LOCAL stays loopback-only; REMOTE publishes only the gateway
+
+
+def test_the_learner_guide_leads_with_the_academy_and_never_mentions_the_old_multi_port_flow():
+    guide = (ROOT / "docs/LEARNER_GUIDE.md").read_text(encoding="utf-8")
+    assert guide.index("## Your first hour") < guide.index("## 1. Finding your way around")
+    assert "https://localhost/learn" in guide.split("## 1.")[0]
+    assert not re.search(r"\b(5000|5001|8000)\b|http://127|multi-port", guide), "legacy ports and URLs belong in the legacy pages only"
+
+
+def test_the_documentation_index_has_the_four_diataxis_sections_and_a_legacy_section():
+    index = (ROOT / "docs/README.md").read_text(encoding="utf-8")
+    heads = re.findall(r"^## (.*)$", index, re.M)
+    assert [h.split(":")[0] for h in heads[:4]] == ["Tutorials", "How-to guides", "Reference", "Explanation"] and heads[4].startswith("Historical")

@@ -1,5 +1,7 @@
 # Prerequisites and installation
 
+> **Legacy: not the supported path.** This page is the host setup for the earlier multi-port flow (`scripts/lab-up.sh`, v1.2.0). For RC2 follow [Installation and deployment](INSTALLATION_AND_DEPLOYMENT.md); its verified platform is Ubuntu 24.04 x86-64 with Docker Engine, and macOS and Windows are not validated.
+
 This is the host setup for a new learner. The linear start after the host is ready is [QUICKSTART.md](QUICKSTART.md).
 
 Measured hardware floors are **NOT BENCHMARKED**. Where a number is absent, the requirement is **UNKNOWN**. A recommendation below is a planning label, not a measured minimum.
