@@ -46,3 +46,14 @@ def test_ctf_link_only_where_the_ctf_can_answer(monkeypatch):
     monkeypatch.setenv("AGENTSEC_CTF_ALLOW_GATEWAY", "1")
     assert ctf_url("agentsec.test", True) == "/attack-service/ctf"
     assert build_config("localhost:5001", "http", "v", gateway=False)["urls"]["ctf"] == "/ctf"
+
+
+def test_the_config_reports_the_gateway_role_and_only_in_gateway_mode(app, monkeypatch):
+    # the UI uses this to disable operator-only controls; the gateway still enforces the role (403) whatever the UI does
+    monkeypatch.setenv("AGENTSEC_GATEWAY_MODE", "1")
+    c = app.test_client()
+    role = lambda h: c.get("/api/learn/config", headers=h, base_url="https://lab.example").get_json()["role"]
+    assert role({"X-Auth-Role": "learner"}) == "learner" and role({"X-Auth-Role": "operator"}) == "operator"
+    assert role({"X-Auth-Role": "root"}) is None and role({}) is None
+    monkeypatch.delenv("AGENTSEC_GATEWAY_MODE", raising=False)
+    assert c.get("/api/learn/config", headers={"X-Auth-Role": "learner"}).get_json()["role"] is None   # no gateway: the header is not trusted

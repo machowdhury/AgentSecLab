@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Badge, Icon, type IconName } from "./ui";
 import { Link, missionPath, BASE, CHALLENGES_PATH, PATH_PATH, FOUNDATIONS_PATH, MASTERY_PATH, MCP_PATH, CURRICULUM_PATH, ASSURANCE_PATH, EVALS_PATH, RISK_PATH, GOV_PATH } from "./router";
-import { useConfig, useEnvironment } from "./config";
+import { useConfig, useEnvironment, useRole } from "./config";
 
 type Item = { label: string; icon: IconName; to?: string; href?: string; tag?: string };
 type Group = { label: string; items: Item[] };
@@ -51,6 +51,7 @@ export function Sidebar({ path, collapsed, setCollapsed, open }: { path: string;
 
 export function Topbar({ crumbs, menuOpen, toggleMenu }: { crumbs: ReactNode[]; menuOpen: boolean; toggleMenu: () => void }) {
   const env = useEnvironment();
+  const { role } = useRole();
   const { config } = useConfig();
   return <header className="topbar">
     <button type="button" className="icon-button menu-toggle" aria-label="Open navigation menu" aria-expanded={menuOpen} aria-controls="primary-nav" onClick={toggleMenu}><Icon name="menu" /></button>
@@ -61,6 +62,7 @@ export function Topbar({ crumbs, menuOpen, toggleMenu }: { crumbs: ReactNode[]; 
     <div className="topbar__actions">
       {env.level === "ready" && <Badge tone="live"><span className="pulse" /> LIVE ENVIRONMENT</Badge>}
       {env.level === "attention" && <Badge tone="warning">CHECK ENVIRONMENT</Badge>}
+      {role && <span title={role === "learner" ? "Read-only. Running labs and live searches needs the operator role." : "Can run labs and live searches."}><Badge tone={role === "learner" ? "muted" : "info"}>{role === "learner" ? "LEARNER · READ-ONLY" : "OPERATOR"}</Badge></span>}
       {env.level === "checking" && <Badge tone="muted">CHECKING…</Badge>}
       <span className="visually-hidden" role="status">{env.detail}</span>
       {!config.gateway && <a className="icon-button" href="/academy/status" aria-label="Environment status and help" title={env.detail}><Icon name="help" /></a>}

@@ -103,8 +103,8 @@ def test_a_cross_site_page_cannot_launch_even_when_the_operator_is_signed_in(sta
                              f.appendChild(i); document.body.appendChild(f); f.submit(); }""", f"{_origin(PORT)}/api/launch")
         r = info.value
         assert r.request.headers.get("origin") == "https://evil.test"
-        # refused by the gateway itself (nginx page, rewrite phase, before authorization and before the attack quota), not by the backend's JSON guard
-        assert r.status == 403 and "nginx" in r.text() and "cross_origin_rejected" not in r.text(), (r.status, r.text()[:150])
+        # refused by the gateway itself (its structured JSON 403, rewrite phase, before authorization and before the attack quota), not by the backend's JSON guard
+        assert r.status == 403 and '"error":"forbidden"' in r.text() and "cross_origin_rejected" not in r.text(), (r.status, r.text()[:150])
         b.close()
 
 
@@ -122,8 +122,8 @@ def test_mismatched_origins_and_hosts_are_refused(stack):
     for label, (hdr, want_status, want_err) in cases.items():
         time.sleep(12)
         r = stack.curl("/api/launch", user="operator", method="POST", data=body, headers=j + hdr)
-        # the gateway refuses these itself (nginx page, before authorization and the quota); the backend guard behind it is covered by tests/test_launch_guard.py
-        assert r.status == want_status and "nginx" in r.body and want_err not in r.body, (label, r.status, r.body[:120])
+        # the gateway refuses these itself (the gateway's JSON 403, before authorization and the quota); the backend guard behind it is covered by tests/test_launch_guard.py
+        assert r.status == want_status and '"error":"forbidden"' in r.body and want_err not in r.body, (label, r.status, r.body[:120])
     time.sleep(12)
     ok = stack.curl("/api/launch", user="operator", method="POST", data=body, headers=j + [f"Origin: {_origin(PORT)}"])
     assert ok.status == 200 and "cross_origin_rejected" not in ok.body, (ok.status, ok.body[:120])
@@ -196,3 +196,17 @@ def test_browser_attack_launch_works_in_the_8000_deployment_with_its_real_origin
         _browser_attack(stack, 8000, via=alt)
     finally:
         stack.up_gateway(AGENTSEC_PUBLIC_PORT=str(PORT))
+
+
+def test_learner_sees_the_operator_requirement_and_sends_no_launch(stack):
+    """Role-aware UI: the read-only learner role gets a disabled control with the reason, never a launch that the gateway would refuse."""
+    with sync_api.sync_playwright() as p:
+        b = _browser(p, PORT)
+        page = b.new_context(http_credentials={"username": "learner", "password": "l-pass"}).new_page()
+        posts = []
+        page.on("request", lambda r: posts.append(r.url) if r.method == "POST" else None)
+        page.goto(f"{_origin(PORT)}/learn/loan-desk/prepare", wait_until="networkidle")
+        assert page.get_by_role("button", name="Run normal application").is_disabled()
+        assert page.get_by_text("Operator role needed").first.is_visible()
+        assert posts == [] and page.get_by_text("not JSON").count() == 0
+        b.close()

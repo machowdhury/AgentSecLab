@@ -1,3 +1,4 @@
+import { httpProblem } from "../api";
 // Typed client for the Attack Service's existing live-lab contract: POST /api/launch, GET /api/launches/<id>, GET /api/launches/<id>/evidence and
 // POST /api/compare-handoff. The classic lab pages call exactly these. The server owns the allowlist, the profile and every control decision; this
 // client only names a lab, a catalog specimen and a mode, and reports what comes back. It never launches on its own and never retries.
@@ -15,7 +16,7 @@ export interface LaunchRecord {
   search_handoff: { search_url: string; starter_spl: string }; note?: string;
 }
 export interface Evidence { evidence_state: string; splunk_attempted?: boolean; splunk_ok?: boolean; splunk_count?: number | null; probe_error?: string | null; retrieve_evidence_state?: string; write_evidence_state?: string; recall_evidence_state?: string }
-export type LaunchError = { kind: "unreachable" | "timeout" | "rejected" | "not_json" | "http" | "failed"; message: string; status: number };
+export type LaunchError = { kind: "unreachable" | "timeout" | "denied" | "rejected" | "not_json" | "http" | "failed"; message: string; status: number };
 export type LaunchResult = { record: LaunchRecord } | { error: LaunchError };
 
 const json = async (r: Response) => r.json().catch(() => null);
@@ -26,7 +27,7 @@ export async function launchLab(labId: string, specimenId: string, mode: string)
   try {
     const r = await window.fetch("/api/launch", { method: "POST", headers: { "Content-Type": "application/json" }, signal: ctl.signal, body: JSON.stringify({ lab_id: labId, specimen_id: specimenId, mode, execution: "live" }) });
     const data = await json(r);
-    if (!data) return { error: { kind: "not_json", status: r.status, message: "The Attack Service answered with something that is not JSON. No run id was received." } };
+    if (!data) return { error: { kind: r.status === 401 || r.status === 403 ? "denied" : "not_json", status: r.status, message: `${httpProblem(r.status).detail} No run id was received.` } };
     if (data.run_id && r.ok && data.error_class !== "ERROR") {
       if (data.runtime_status !== "COMPLETED") return { error: { kind: "failed", status: r.status, message: `The launch was accepted (run ${data.run_id}) but the runtime reported ${data.runtime_status}. Nothing was concluded from it.` } };
       return { record: data as LaunchRecord };

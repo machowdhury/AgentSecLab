@@ -6,6 +6,7 @@ import { ExplainEvidence, RunFindingLinks, SplCellNotebook } from "../assurance/
 import { StageSection } from "../UnifiedWorkshop";
 import { StepList } from "../mission/RunProgress";
 import { Callout, CopyButton } from "../mission/parts";
+import { OperatorNote, useRole } from "../config";
 import type { Lab } from "../curriculum";
 import { launchLab, loadLaunch, probeEvidence, type Evidence, type LaunchError, type LaunchRecord } from "./launch";
 import { PI_KIND, hop0, interpret, modelStarted, piSteps } from "./pi";
@@ -99,10 +100,12 @@ export function Step({ stage, title, id, text, extra, src, children }: { stage: 
   return <StageSection stage={stage} id={id} title={title}><p>{text.text}<small className="m-src">Source: <code>{text.source}</code></small></p>{extra && <p className="m-muted">{extra}{src ? <small className="m-src">Source: <code>{src}</code></small> : null}</p>}{children}</StageSection>;
 }
 export function Launch({ label, disabled, busy, secs, onClick, again }: { label: string; disabled: boolean; busy: boolean; secs: number; onClick: () => void; again: boolean }) {
-  return <div className="m-actions"><Button onClick={onClick} disabled={disabled}>{busy ? "Waiting for the Attack Service…" : again ? label.replace(/^(Run|Launch)/, "$1 again:").replace(": ", " ") : label} <Icon name="play" size={15} /></Button>
+  const { blocked } = useRole();
+  return <div className="m-actions"><Button onClick={onClick} disabled={disabled || blocked}>{busy ? "Waiting for the Attack Service…" : again ? label.replace(/^(Run|Launch)/, "$1 again:").replace(": ", " ") : label} <Icon name="play" size={15} /></Button>
+    {blocked && <OperatorNote />}
     {busy && <span className="m-muted" role="status">{secs} s elapsed. The target calls a local model, which can take a while. Nothing is retried.</span>}</div>;
 }
-export function Err({ e }: { e: LaunchError }) { return <Callout kind="warn" role="alert"><strong>{e.kind === "timeout" ? "No answer in time." : e.kind === "unreachable" ? "Target unavailable." : "The launch did not produce a run."}</strong> {e.message}</Callout>; }
+export function Err({ e }: { e: LaunchError }) { return <Callout kind="warn" role="alert"><strong>{e.kind === "denied" ? "Permission needed." : e.kind === "timeout" ? "No answer in time." : e.kind === "unreachable" ? "Target unavailable." : "The launch did not produce a run."}</strong> {e.message}</Callout>; }
 
 function RunCard({ rec, ev, onCheck, guess }: { rec: LaunchRecord; ev: Evidence | null | undefined; onCheck: () => void; guess?: string }) {
   const o = interpret(rec), k = PI_KIND[o.kind];

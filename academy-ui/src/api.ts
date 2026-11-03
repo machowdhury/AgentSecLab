@@ -7,7 +7,7 @@ export async function api<T = any>(path: string, options: RequestInit = {}): Pro
   const timer = window.setTimeout(() => ctl.abort(), FETCH_MS);
   try {
     const r = await window.fetch(path, { ...options, signal: ctl.signal });
-    const data = await r.json().catch(() => ({ error: "non_json", detail: "The response was not JSON." }));
+    const data = await r.json().catch(() => httpProblem(r.status));
     return { status: r.status, ok: r.ok, data };
   } catch (err) {
     const aborted = err instanceof DOMException && err.name === "AbortError";
@@ -15,6 +15,16 @@ export async function api<T = any>(path: string, options: RequestInit = {}): Pro
   } finally {
     window.clearTimeout(timer);
   }
+}
+
+/** A body that is not JSON comes from the gateway or a proxy, not from the lab's own API. Name what the status means instead of blaming the format. */
+export function httpProblem(status: number): { error: string; detail: string } {
+  if (status === 401) return { error: "unauthorized", detail: "You are not signed in, or your sign-in expired. Reload the page and sign in again. Nothing ran." };
+  if (status === 403) return { error: "forbidden", detail: "The gateway refused this action. Starting runs and live searches needs the operator role; reading, recorded evidence and results do not. Sign in as the operator to run it. Nothing ran." };
+  if (status === 429) return { error: "rate_limited", detail: "Too many launches or searches in a short time. Wait a few seconds and try again. Nothing ran." };
+  if (status === 421) return { error: "wrong_host", detail: "The address in the browser is not the lab's configured host name and port. Open the Academy at the address the installer printed." };
+  if (status >= 500) return { error: "gateway_error", detail: `The gateway or a service behind it failed (HTTP ${status}) and sent no details.` };
+  return { error: "non_json", detail: `The server sent a reply that is not JSON (HTTP ${status}).` };
 }
 
 export const post = <T = any>(path: string, body: unknown) =>

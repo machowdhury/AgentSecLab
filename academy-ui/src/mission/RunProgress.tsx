@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Badge, Button, Icon, type IconName } from "../ui";
+import { NEEDS_OPERATOR, useRole } from "../config";
 import { Link, missionPath } from "../router";
 import type { RunView, Slot } from "../types";
 import type { StageId } from "../stages";
@@ -118,6 +119,7 @@ export function RunPanel({ slot, idle, next, extra }: { slot: Slot; idle?: strin
   const v = s.view;
   const submitting = s.phase === "submitting";
   const ver = useVerify(slot);
+  const { blocked } = useRole();
   return <div className="m-run" aria-live="polite" aria-busy={submitting || s.phase === "running"}>
     {!v && s.phase === "idle" && <p className="m-muted">{s.message ?? idle ?? "No run yet."}</p>}
     {(v || submitting) && <>
@@ -128,8 +130,8 @@ export function RunPanel({ slot, idle, next, extra }: { slot: Slot; idle?: strin
       {s.message && s.phase !== "stopped" && s.phase !== "error" && <p className="m-muted" role="status">{s.message}</p>}
       {v && <OutcomeBanner view={v} slot={slot} next={next} />}
       {v && v.status !== "RUNNING" && v.evidence.indexed_status !== "SPLUNK_VERIFIED" && <div className="m-verify">
-        <Button variant="secondary" disabled={ver.busy} onClick={() => verifyRun(slot)}>{ver.busy ? "Verifying…" : "Verify with Splunk"} <Icon name="search" size={15} /></Button>
-        <span className="m-muted">{ver.text || "Asks the host verifier to compare this run's local events with what Splunk indexed. Only its signed receipt makes a run SPLUNK-VERIFIED."}</span></div>}
+        <Button variant="secondary" disabled={ver.busy || blocked} onClick={() => verifyRun(slot)}>{ver.busy ? "Verifying…" : "Verify with Splunk"} <Icon name="search" size={15} /></Button>
+        <span className="m-muted">{blocked ? NEEDS_OPERATOR : ver.text || "Asks the host verifier to compare this run's local events with what Splunk indexed. Only its signed receipt makes a run SPLUNK-VERIFIED."}</span></div>}
       {v && v.status !== "RUNNING" && <details className="m-details"><summary>Technical details: calls, timeline, queue, evidence</summary>
         <RunResult view={v} story={false} /><EvidenceCard view={v} /><RunDetails view={v} /></details>}
       {extra}

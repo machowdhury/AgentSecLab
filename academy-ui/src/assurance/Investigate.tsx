@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Badge, Button, Icon, LinkButton } from "../ui";
+import { OperatorNote, useRole } from "../config";
 import { api, post } from "../api";
 import { Link, MCP_PATH, comparePath, findingPath, labPath, missionPath, navigate, assuranceTabPath, type AssuranceTab } from "../router";
 import { adoptRunForWorkshop, updateInvestigationCell, useMission } from "../store";
@@ -41,6 +42,8 @@ function AssuranceSplCell({ ctx, cell, index, tab, win, onRan }: { ctx: Investig
   const [spl, setSpl] = useState(cell.spl ?? "");
   const live = useRef(0);
   const local = ctx.mode === "local";
+  const { blocked } = useRole();
+  const gated = blocked && !local;   // a live search needs the operator role; the local recorded/fixture tables need none
   const ready = local || ctx.search_ready;
   useEffect(() => () => { live.current++; }, []);
   useEffect(() => { setSpl(cell.spl ?? ""); }, [cell.spl]);
@@ -113,11 +116,12 @@ function AssuranceSplCell({ ctx, cell, index, tab, win, onRan }: { ctx: Investig
           <pre tabIndex={0} aria-label="Search that will run (read only)">{shownSpl || "Building the search…"}</pre></div>}
       <p className="m-muted">{local ? "Parameter changes apply when you press the button." : "The text above is for the default choices. After you run, it shows the exact search that was sent, with your choices."}</p>
       <div className="m-actions">
-        <Button onClick={run} disabled={!ready || busy}>{busy ? "Running…" : local ? "Show the table" : "Run search"} <Icon name="play" size={15} /></Button>
+        <Button onClick={run} disabled={!ready || busy || gated}>{busy ? "Running…" : local ? "Show the table" : "Run search"} <Icon name="play" size={15} /></Button>
         <Button variant="ghost" onClick={reset} disabled={busy}>Reset cell</Button>
         {!local && shownSpl && <CopyButton text={shownSpl} label="Copy the SPL" />}
         <span className={`m-nb-state m-nb-state--${state.replace(" ", "-")}`} role="status" aria-label={`Cell state: ${state}`}><Badge tone={state === "completed" ? "live" : state === "failed" || state === "unavailable" ? "deny" : "observed"}>{state.toUpperCase()}</Badge></span>
       </div>
+      {gated && <OperatorNote />}
       {!ready && <p className="m-error-text" role="status">{ctx.reasonNotReady ?? "Search access to Splunk is not set up on this lab, so nothing can be searched. Ask the lab owner to run ./agentsec splunk-access."}</p>}
       <div role="status" aria-live="polite" className="m-nb-status">
         {phase === "submitting" && (local ? "Reading the events…" : "Sending the search to the Attack Service…")}

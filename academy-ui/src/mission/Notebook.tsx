@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Badge, Button, Icon } from "../ui";
 import { api, post } from "../api";
-import { useConfig } from "../config";
+import { OperatorNote, useConfig, useRole } from "../config";
 import { updateMission, useMission, type NotebookRan } from "../store";
 import { splunkSearchUrl } from "./content";
 import { CopyButton, QueueBlock } from "./parts";
@@ -64,6 +64,7 @@ export function SplCell({ cell, index }: { cell: CellConfig; index: number }) {
   const retestView = useSlot("retest").view;
   const runId = view?.run_id ?? m.runs.attack;
   const compareRun = cell.compare ? (retestView?.run_id ?? m.runs.retest) : undefined;
+  const { blocked } = useRole();
   const ready = Boolean(runId && (!cell.compare || compareRun));
   const body = (extra: object = {}) => ({ template: cell.template, params, ...(compareRun ? { compare_run: compareRun } : {}), ...extra });
   const [spec, setSpec] = useState<TemplateSpec | null>(null);
@@ -167,12 +168,13 @@ export function SplCell({ cell, index }: { cell: CellConfig; index: number }) {
       </div>
       <div className="query-block"><div><span>SPL that will run (built on the server from a fixed template; you cannot edit it)</span><Badge tone="observed">EXECUTES</Badge></div><pre>{spl || (ready ? "Building the search…" : cell.compare ? "Finish the Attack and the Retest first. This search compares your two real runs." : "Launch the attack first. The search is bound to your real run id.")}</pre></div>
       <div className="m-actions">
-        <Button onClick={run} disabled={!ready || !spl || busy}>{busy ? "Running…" : "Run search"} <Icon name="play" size={15} /></Button>
+        <Button onClick={run} disabled={!ready || !spl || busy || blocked}>{busy ? "Running…" : "Run search"} <Icon name="play" size={15} /></Button>
         <Button variant="ghost" onClick={reset} disabled={busy}>Reset cell</Button>
         {shownSpl && <CopyButton text={shownSpl} label="Copy the SPL" />}
         <span className={`m-nb-state m-nb-state--${state.replace(" ", "-")}`} role="status" aria-label={`Cell state: ${state}`}><Badge tone={state === "completed" ? "live" : state === "failed" || state === "unavailable" ? "deny" : "observed"}>{state.toUpperCase()}</Badge></span>
         {spl && config.urls.splunk_web && <a className="button button--secondary" href={splunkSearchUrl(config.urls.splunk_web, spl)} target="_blank" rel="noopener">Open in Splunk <Icon name="arrow" size={15} /></a>}
       </div>
+      <OperatorNote />
       <p className="m-muted m-nb-runs">{cell.compare ? <>Baseline run <code>{runId ?? "—"}</code> · Defended run <code>{compareRun ?? "—"}</code></> : <>Run <code>{runId ?? "—"}</code></>} · {status}</p>
       <div role="status" aria-live="polite" className="m-nb-status">
         {phase === "submitting" && "Sending the search to the Attack Service…"}

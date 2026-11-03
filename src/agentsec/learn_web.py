@@ -50,11 +50,12 @@ def ctf_url(host_header: str, gateway: bool) -> str | None:
     return "/ctf" if name in {"localhost", "127.0.0.1", "::1"} else None
 
 
-def build_config(host_header: str, scheme: str, version: str, *, gateway: bool = False) -> dict:
+def build_config(host_header: str, scheme: str, version: str, *, gateway: bool = False, role: str | None = None) -> dict:
     """Behind the gateway, Splunk Web is not published (null: the UI links to nothing); the classic pages are reached under /attack-service/."""
     return {
         "version": version,
         "gateway": gateway,
+        "role": role,        # gateway mode only: "operator" or "learner" as the gateway authenticated it; null = unknown (the UI then gates nothing)
         "urls": {
             "splunk_web": None if gateway else _browser_origin(host_header, scheme, SPLUNK_WEB_PORT),
             # Gateway: same-origin paths of the approved classic-UI prefix (gateway_prefix.PREFIX). acmebank is the READ-ONLY view the Attack
@@ -89,4 +90,6 @@ def register_learn(app: Flask, *, version: str) -> None:
 
     @app.get("/api/learn/config")
     def learn_config():
-        return _no_store(jsonify(build_config(request.host, request.scheme, version, gateway=gateway_mode())))
+        gw = gateway_mode()
+        role = request.headers.get("X-Auth-Role") if gw else None   # the gateway overwrites this header on every proxied request (identity-headers.conf)
+        return _no_store(jsonify(build_config(request.host, request.scheme, version, gateway=gw, role=role if role in ("operator", "learner") else None)))
